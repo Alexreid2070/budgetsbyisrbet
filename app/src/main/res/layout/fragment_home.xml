@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeFragment"
+    android:paddingTop="?android:attr/actionBarSize">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/pastel_orange"
+            android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/pastel_orange"
+                    android:gravity="center_vertical"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="30dp"
+                    android:text="@string/home_page_welcome"
+                    android:textAlignment="center"
+                    android:textSize="34sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/quote_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="600dp"
+                    android:layout_gravity="center"
+                    android:background="@color/pastel_orange"
+                    android:paddingStart="5dp"
+                    android:paddingTop="35dp"
+                    android:paddingEnd="5dp"
+                    android:text="TextView"
+                    android:textSize="24dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/expenditure_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:text="Add Transaction"
+            android:textSize="8sp" />
+
+        <Button
+            android:id="@+id/view_all_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:text="View all transactions"
+            android:textSize="8sp" />
+
+        <Button
+            android:id="@+id/dashboard_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:text="Dashboard"
+            android:textSize="10sp" />
+
+</FrameLayout>

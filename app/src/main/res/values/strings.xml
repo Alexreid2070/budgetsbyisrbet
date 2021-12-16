@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">BudgetsByISRBET</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="settings_fragment_label">Settings</string>
+    <string name="transaction_fragment_label">Expenditures</string>
+    <string name="recurring_transaction_fragment_label">Recurring Transactions</string>
+    <string name="previous">Previous</string>
+
+    <string name="inputDateLabel">Date:</string>
+    <string name="inputAmountLabel">Amount:</string>
+    <string name="inputCategoryLabel">Category:</string>
+    <string name="inputSubcategoryLabel">Sub-category:</string>
+    <string name="inputNoteLabel">Note:</string>
+    <string name="inputWhoLabel">Who:</string>
+    <string name="person1">Alex</string>
+    <string name="person2">Brent</string>
+    <string name="person3">Joint</string>
+    <string name="category1">Life</string>
+    <string name="category2">Transportation</string>
+    <string name="category3">Housing</string>
+    <string name="category4">Travel</string>
+    <string name="ok">OK</string>
+    <string name="missingAmountError">Amount is missing.  Transaction not added.</string>
+    <string name="missingNoteError">The note is missing.  Transaction not added.</string>
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nav_header_title">Main Menu</string>
+    <string name="home_page_welcome">Welcome to Budgets by ISRBET!</string>
+    <string name="main_label">Main</string>
+    <string name="budget_fragment_label">Budget</string>
+    <string name="dashboard_fragment_label">Dashboards</string>
+    <string name="admin_fragment_label">Admin</string>
+    <string name="missingFirstUserName">User name is missing</string>
+    <string name="missingFirstUserPercentage">User % is missing</string>
+    <string name="missingSecondUserInformation">Second user information missing</string>
+    <string name="percentagesDontAddTo100">Percentages must add to 100</string>
+    <string name="userMustBeSetAsDefault">User must be set as default</string>
+    <string name="oneUserMustBeDefault">One user must be set to default</string>
+    <string name="onlyOneUserMustBeDefault">Only one user must be set as default</string>
+    <string name="transaction_view_all_fragment_label">View All Transactions</string>
+    <string name="settings_edit_category_label">Categories</string>
+    <string name="fieldMustBeYesOrNo">Field must be Yes or No</string>
+</resources>

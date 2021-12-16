@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "54206436786",
+    "firebase_url": "https://budgetsbyisrbet-default-rtdb.firebaseio.com",
+    "project_id": "budgetsbyisrbet",
+    "storage_bucket": "budgetsbyisrbet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:54206436786:android:c1ba2910b1a044d68e40ab",
+        "android_client_info": {
+          "package_name": "com.isrbet.budgetsbyisrbet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "54206436786-sneam4tvqusr4r0jq51oqd9i2uh0pckk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.isrbet.budgetsbyisrbet",
+            "certificate_hash": "d05ae7148355459b8b1d5db3e31e66d821617dfa"
+          }
+        },
+        {
+          "client_id": "54206436786-je2jnbiia10vvkphsjn5fdha42po5ia6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQfTuFzIC6DtLzfyfPfh36ZVHt30Xb-PQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "54206436786-6qt44ld0r605vlgkcsfu507hjusomcmf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

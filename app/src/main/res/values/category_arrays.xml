@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="category_array">
+        <item>Life</item>
+        <item>Transportation</item>
+        <item>Housing</item>
+        <item>Travel</item>
+    </string-array>
+
+    <string-array name="life_subcategory_array">
+        <item>life1</item>
+        <item>life2</item>
+        <item>life3</item>
+        <item>life4</item>
+    </string-array>
+
+    <string-array name="transportation_subcategory_array">
+        <item>transportation1</item>
+        <item>transportation2</item>
+        <item>transportation3</item>
+        <item>transportation4</item>
+    </string-array>
+
+    <string-array name="housing_subcategory_array">
+        <item>housing1</item>
+        <item>housing2</item>
+        <item>housing3</item>
+        <item>housing4</item>
+    </string-array>
+
+    <string-array name="travel_subcategory_array">
+        <item>travel1</item>
+        <item>travel2</item>
+        <item>travel3</item>
+        <item>travel4</item>
+    </string-array>
+</resources>
