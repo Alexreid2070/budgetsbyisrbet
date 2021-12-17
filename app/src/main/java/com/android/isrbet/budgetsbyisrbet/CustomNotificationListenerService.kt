@@ -30,14 +30,12 @@ class CustomNotificationListenerService : NotificationListenerService() {
             } else {
                 return 0
             }
-
-            Log.d("Alex", "===== Notification List END====")
         }
 
         fun getTransactionFromNotificationAndDeleteIt() : TransactionDataFromTD {
-            var tCategory: String = ""
-            var tAmount: Double = 0.0
-            var tNote: String = ""
+            var tCategory: String
+            var tAmount: Double
+            var tNote: String
 
             for (count in 0..singleInstance.activeNotifications.size-1) {
                 val sbn = singleInstance.activeNotifications[count]
@@ -105,10 +103,11 @@ class CustomNotificationListenerService : NotificationListenerService() {
         Log.d("Alex", "fetchCurrentNotifications: activeNotnCount is " + activeNotnCount)
 
         if (activeNotnCount > 0) {
+            /*
             for (count in 0..activeNotnCount-1) {
                 val sbn = this@CustomNotificationListenerService.activeNotifications[count]
                 val notification = sbn.notification
-            }
+            } */
         } else {
             Log.d("Alex", "No active Notn found")
         }

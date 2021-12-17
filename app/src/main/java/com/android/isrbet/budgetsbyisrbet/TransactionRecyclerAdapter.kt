@@ -97,7 +97,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         holder.vtf_amount.text = dec.format(formattedAmount)
         holder.vtf_category.text = data.category
         holder.vtf_subcategory.text = data.subcategory
-        holder.vtf_who.text = data.who
+        holder.vtf_who.text = data.paidby.subSequence(0,2).toString() + ":" + data.boughtfor.subSequence(0,2).toString()
         holder.vtf_note.text = data.note
         holder.vtf_type.text = data.type
         holder.itemView.setOnClickListener {listener(data)}

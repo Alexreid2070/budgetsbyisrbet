@@ -172,9 +172,9 @@ class BudgetFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.Refresh)
+            if (menu.getItem(i).getItemId() == R.id.Refresh)
                 menu.getItem(i).setVisible(true)
-            else if (menu.getItem(i).getItemId() === R.id.ShowMe)
+            else if (menu.getItem(i).getItemId() == R.id.ShowMe)
                 menu.getItem(i).setVisible(true)
             else
                 menu.getItem(i).setVisible(false)
@@ -182,10 +182,10 @@ class BudgetFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.Refresh) {
+        if (item.itemId == R.id.Refresh) {
             refreshData()
             return true
-        } else if (item.itemId === R.id.ShowMe) {
+        } else if (item.itemId == R.id.ShowMe) {
                 BudgetViewModel.showMe()
                 return true
         } else {

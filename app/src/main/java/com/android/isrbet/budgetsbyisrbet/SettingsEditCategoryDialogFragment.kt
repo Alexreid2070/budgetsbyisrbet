@@ -8,13 +8,15 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.DialogFragment
 import com.isrbet.budgetsbyisrbet.*
-import kotlinx.android.synthetic.main.fragment_category_edit_dialog.view.*
+import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 
 class SettingsEditCategoryDialogFragment() : DialogFragment() {
     interface SettingsEditCategoryDialogFragmentListener {
         fun onNewDataSaved()
     }
     private var listener: SettingsEditCategoryDialogFragmentListener? = null
+    private var _binding: FragmentCategoryEditDialogBinding? = null
+    private val binding get() = _binding!!
 
     companion object {
         private const val KEY_CATEGORY = "KEY_CATEGORY"
@@ -46,20 +48,22 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        _binding = FragmentCategoryEditDialogBinding.inflate(inflater, container, false)
         return inflater.inflate(R.layout.fragment_category_edit_dialog, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.edit_category_old_name.text = oldCategory
-        view.edit_category_new_name.setText(oldCategory)
-        view.edit_subcategory_old_name.text = oldSubcategory
-        view.edit_subcategory_new_name.setText(oldSubcategory)
-        view.edit_category_old_disctype.text = oldDisctype
-        setupClickListeners(view)
-        view.edit_category_new_name.requestFocus()
 
-        val dtSpinner:Spinner = view.edit_category_new_disctype_spinner
+        binding.editCategoryOldName.text = oldCategory
+        binding.editCategoryNewName.setText(oldCategory)
+        binding.editSubcategoryOldName.text = oldSubcategory
+        binding.editSubcategoryNewName.setText(oldSubcategory)
+        binding.editCategoryOldDisctype.text = oldDisctype
+        setupClickListeners(view)
+        binding.editCategoryNewName.requestFocus()
+
+        val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
         val arrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -69,11 +73,11 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
         dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
 
         if (oldCategory == "") { // ie this is an add, not an edit
-            view.edit_category_old_name_header.visibility = View.GONE
-            view.edit_category_old_name.visibility = View.GONE
-            view.edit_subcategory_old_name.visibility = View.GONE
-            view.edit_category_old_disctype.visibility = View.GONE
-            view.category_dialog_button_delete.visibility = View.GONE
+            binding.editCategoryOldNameHeader.visibility = View.GONE
+            binding.editCategoryOldName.visibility = View.GONE
+            binding.editSubcategoryOldName.visibility = View.GONE
+            binding.editCategoryOldDisctype.visibility = View.GONE
+            binding.categoryDialogButtonDelete.visibility = View.GONE
         }
     }
 
@@ -87,10 +91,10 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
 
     private fun setupClickListeners(view: View) {
         // val dtSpinner = requireActivity().findViewById(R.id.category_dialog_disctype_spinner) as Spinner
-        val dtSpinner:Spinner = view.edit_category_new_disctype_spinner
-        view.category_dialog_button_save.setOnClickListener {
-            if (oldCategory == view.edit_category_new_name.text.toString() &&
-                    oldSubcategory == view.edit_subcategory_new_name.text.toString() &&
+        val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
+        binding.categoryDialogButtonSave.setOnClickListener {
+            if (oldCategory == binding.editCategoryNewName.text.toString() &&
+                    oldSubcategory == binding.editSubcategoryNewName.text.toString() &&
                     oldDisctype != dtSpinner.selectedItem.toString()) {
                 // disc type changed so update it
                 CategoryViewModel.updateCategory(oldCategory, oldSubcategory, dtSpinner.selectedItem.toString())
@@ -99,24 +103,24 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                     listener?.onNewDataSaved()
                 dismiss()
             } else if (oldCategory == "") { // ie this is an add
-                CategoryViewModel.addCategoryAndSubcategory(view.edit_category_new_name.text.toString().trim(), view.edit_subcategory_new_name.text.toString().trim(), view.edit_category_new_disctype_spinner.selectedItem.toString())
+                CategoryViewModel.addCategoryAndSubcategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
                 dismiss()
-            } else if (oldCategory != view.edit_category_new_name.text.toString() ||
-                    oldSubcategory != view.edit_subcategory_new_name.text.toString()) {
+            } else if (oldCategory != binding.editCategoryNewName.text.toString() ||
+                    oldSubcategory != binding.editSubcategoryNewName.text.toString()) {
                 CategoryViewModel.deleteCategory(oldCategory, oldSubcategory)
-                CategoryViewModel.updateCategory(view.edit_category_new_name.text.toString().trim(), view.edit_subcategory_new_name.text.toString().trim(), dtSpinner.selectedItem.toString())
+                CategoryViewModel.updateCategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), dtSpinner.selectedItem.toString())
                 if (listener != null)
                     listener?.onNewDataSaved()
                 dismiss()
             }
         }
 
-        view.category_dialog_button_delete.setOnClickListener {
+        binding.categoryDialogButtonDelete.setOnClickListener {
             fun yesClicked() {
-                CategoryViewModel.deleteCategoryAndSubcategory(view.edit_category_old_name.text.toString(), view.edit_subcategory_old_name.text.toString())
+                CategoryViewModel.deleteCategoryAndSubcategory(binding.editCategoryOldName.text.toString(), binding.editSubcategoryOldName.text.toString())
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
@@ -127,18 +131,23 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Are you sure?")
-                .setMessage("Are you sure that you want to delete this Cat/Subcat (" + view.edit_category_old_name.text.toString() + "-" + view.edit_subcategory_old_name.text.toString() + ")?")
+                .setMessage("Are you sure that you want to delete this Cat/Subcat (" + binding.editCategoryOldName.text.toString() + "-" + binding.editSubcategoryOldName.text.toString() + ")?")
                 .setPositiveButton(android.R.string.yes) { _, _ -> yesClicked() }
                 .setNegativeButton(android.R.string.no) { _, _ -> noClicked() }
                 .show()
         }
 
-        view.category_dialog_button_cancel.setOnClickListener() {
+        binding.categoryDialogButtonCancel.setOnClickListener() {
             dismiss()
         }
     }
 
     fun setSettingsEditCategoryDialogFragmentListener(listener: SettingsEditCategoryDialogFragmentListener) {
         this.listener = listener
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

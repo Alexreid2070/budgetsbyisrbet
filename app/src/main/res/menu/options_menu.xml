@@ -42,10 +42,24 @@
             android:id="@+id/FilterNonDiscretionary"
             android:title=" Non-Discretionary" />
         <item
-            android:id="@+id/FilterAlex"
+            android:id="@+id/FilterPaidByTitle"
+            android:checkable="false"
+            android:title="Paid By"/>
+        <item
+            android:id="@+id/FilterPaidByName1"
             android:title=" Alex" />
         <item
-            android:id="@+id/FilterBrent"
+            android:id="@+id/FilterPaidByName2"
+            android:title=" Brent" />
+        <item
+            android:id="@+id/FilterBoughtForTitle"
+            android:checkable="false"
+            android:title="Bought For"/>
+        <item
+            android:id="@+id/FilterBoughtForName1"
+            android:title=" Alex" />
+        <item
+            android:id="@+id/FilterBoughtForName2"
             android:title=" Brent" />
     </group>
     <group

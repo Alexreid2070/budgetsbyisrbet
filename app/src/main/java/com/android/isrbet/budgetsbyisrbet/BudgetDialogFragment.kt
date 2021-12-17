@@ -11,7 +11,8 @@ import androidx.lifecycle.ViewModel
 import com.isrbet.budgetsbyisrbet.BudgetMonth
 import com.isrbet.budgetsbyisrbet.BudgetViewModel
 import com.isrbet.budgetsbyisrbet.R
-import kotlinx.android.synthetic.main.fragment_budget_edit_dialog.view.*
+import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
+import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import kotlin.math.round
 
 class BudgetDialogViewModel : ViewModel() {
@@ -31,6 +32,8 @@ class BudgetDialogViewModel : ViewModel() {
 
 class BudgetDialogFragment : DialogFragment() {
     private val budgetDialogViewModel: BudgetDialogViewModel by activityViewModels()
+    private var _binding: FragmentBudgetEditDialogBinding? = null
+    private val binding get() = _binding!!
 
     companion object {
         private const val KEY_CATEGORY = "KEY_CATEGORY"
@@ -79,6 +82,7 @@ class BudgetDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        _binding = FragmentBudgetEditDialogBinding.inflate(inflater, container, false)
         return inflater.inflate(R.layout.fragment_budget_edit_dialog, container, false)
     }
 
@@ -86,7 +90,7 @@ class BudgetDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         setupView(view)
         setupClickListeners(view)
-        view.budget_dialog_m1_value.requestFocus()
+        binding.budgetDialogM1Value.requestFocus()
     }
 
     override fun onStart() {
@@ -98,106 +102,111 @@ class BudgetDialogFragment : DialogFragment() {
     }
 
     private fun setupView(view: View) {
-        view.budget_dialog_category.text = arguments?.getString(KEY_CATEGORY)
-        view.budget_dialog_m1_heading.text = arguments?.getString(KEY_M1_HEADING)
-        view.budget_dialog_m2_heading.text = arguments?.getString(KEY_M2_HEADING)
-        view.budget_dialog_m3_heading.text = arguments?.getString(KEY_M3_HEADING)
-        view.budget_dialog_m4_heading.text = arguments?.getString(KEY_M4_HEADING)
-        view.budget_dialog_m1_value.setText(arguments?.getString(KEY_M1_VALUE))
-        view.budget_dialog_m2_value.setText(arguments?.getString(KEY_M2_VALUE))
-        view.budget_dialog_m3_value.setText(arguments?.getString(KEY_M3_VALUE))
-        view.budget_dialog_m4_value.setText(arguments?.getString(KEY_M4_VALUE))
+        binding.budgetDialogCategory.setText(arguments?.getString(KEY_CATEGORY))
+        binding.budgetDialogM1Heading.setText(arguments?.getString(KEY_M1_HEADING))
+        binding.budgetDialogM2Heading.setText(arguments?.getString(KEY_M2_HEADING))
+        binding.budgetDialogM3Heading.setText(arguments?.getString(KEY_M3_HEADING))
+        binding.budgetDialogM4Heading.setText(arguments?.getString(KEY_M4_HEADING))
+        binding.budgetDialogM1Value.setText(arguments?.getString(KEY_M1_VALUE))
+        binding.budgetDialogM2Value.setText(arguments?.getString(KEY_M2_VALUE))
+        binding.budgetDialogM3Value.setText(arguments?.getString(KEY_M3_VALUE))
+        binding.budgetDialogM4Value.setText(arguments?.getString(KEY_M4_VALUE))
     }
 
     private fun setupClickListeners(view: View) {
-        view.budget_dialog_button_save.setOnClickListener {
+        binding.budgetDialogButtonSave.setOnClickListener {
             Log.d("Alex", "need to save new values")
             var tmpDouble1: Double = 0.0
-            if (view.budget_dialog_m1_value.text.toString() != "")
-                tmpDouble1 = view.budget_dialog_m1_value.text.toString().toDouble()
+            if (binding.budgetDialogM1Value.text.toString() != "")
+                tmpDouble1 = binding.budgetDialogM1Value.text.toString().toDouble()
             tmpDouble1 = round(tmpDouble1 * 100) / 100
 
             if (oldM1 != tmpDouble1) {
-                var prevMonth = BudgetMonth(view.budget_dialog_m1_heading.text.toString())
+                var prevMonth = BudgetMonth(binding.budgetDialogM1Heading.text.toString())
                 prevMonth.decrementMonth()
                 var tmpPrevAmt = BudgetViewModel.getBudgetAmount(
-                    view.budget_dialog_category.text.toString(),prevMonth)
+                    binding.budgetDialogCategory.text.toString(),prevMonth)
                 Log.d("Alex", "tmpPrevAmt '" + tmpPrevAmt.amount.toString() + "' tmpDouble1 '" + tmpDouble1.toString() + "'")
                 if (tmpDouble1 == tmpPrevAmt.amount) {
                     // ie new amount is same as previous month, so we can just delete this month's change
-                    BudgetViewModel.deleteBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m1_heading.text.toString())
+                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM1Heading.text.toString())
                     Log.d("Alex", "tmpDouble1 is same as previous month so just deleted the entry '" + tmpDouble1 + "'")
                     budgetDialogViewModel.mym1.value = tmpPrevAmt.amount
                 } else { // new amount is different from previous month, so need to record it
-                    BudgetViewModel.updateBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m1_heading.text.toString(), tmpDouble1*100)
+                    BudgetViewModel.updateBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM1Heading.text.toString(), tmpDouble1*100)
                     Log.d("Alex", "tmpDouble1 is '" + tmpDouble1 + "'")
                     budgetDialogViewModel.mym1.value = tmpDouble1*100
                 }
             }
             var tmpDouble2: Double = 0.0
-            if (view.budget_dialog_m2_value.text.toString() != "")
-                tmpDouble2 = view.budget_dialog_m2_value.text.toString().toDouble()
+            if (binding.budgetDialogM2Value.text.toString() != "")
+                tmpDouble2 = binding.budgetDialogM2Value.text.toString().toDouble()
             tmpDouble2 = round(tmpDouble2 * 100) / 100
             if (oldM2 != tmpDouble2) {
-                var prevMonth = BudgetMonth(view.budget_dialog_m2_heading.text.toString())
+                var prevMonth = BudgetMonth(binding.budgetDialogM2Heading.text.toString())
                 prevMonth.decrementMonth()
                 var tmpPrevAmt = BudgetViewModel.getBudgetAmount(
-                    view.budget_dialog_category.text.toString(),prevMonth)
+                    binding.budgetDialogCategory.text.toString(),prevMonth)
                 Log.d("Alex", "tmpPrevAmt '" + tmpPrevAmt.amount.toString() + "' tmpDouble2 '" + tmpDouble2.toString() + "'")
                 if (tmpDouble2 == tmpPrevAmt.amount) {
                     // ie new amount is same as previous month, so we can just delete this month's change
-                    BudgetViewModel.deleteBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m2_heading.text.toString())
+                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM2Heading.text.toString())
                     Log.d("Alex", "tmpDouble2 is same as previous month so just deleted the entry '" + tmpDouble2 + "'")
                     budgetDialogViewModel.mym2.value = tmpPrevAmt.amount
                 } else { // new amount is different from previous month, so need to record it
-                    BudgetViewModel.updateBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m2_heading.text.toString(), tmpDouble2*100)
+                    BudgetViewModel.updateBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM2Heading.text.toString(), tmpDouble2*100)
                     budgetDialogViewModel.mym2.value = tmpDouble2*100
                 }
             }
             var tmpDouble3: Double = 0.0
-            if (view.budget_dialog_m3_value.text.toString() != "")
-                tmpDouble3 = view.budget_dialog_m3_value.text.toString().toDouble()
+            if (binding.budgetDialogM3Value.text.toString() != "")
+                tmpDouble3 = binding.budgetDialogM3Value.text.toString().toDouble()
             tmpDouble3 = round(tmpDouble3 * 100) / 100
             if (oldM3 != tmpDouble3) {
-                var prevMonth = BudgetMonth(view.budget_dialog_m3_heading.text.toString())
+                var prevMonth = BudgetMonth(binding.budgetDialogM3Heading.text.toString())
                 prevMonth.decrementMonth()
                 var tmpPrevAmt = BudgetViewModel.getBudgetAmount(
-                    view.budget_dialog_category.text.toString(),prevMonth)
+                    binding.budgetDialogCategory.text.toString(),prevMonth)
                 Log.d("Alex", "tmpPrevAmt '" + tmpPrevAmt.amount.toString() + "' tmpDouble3 '" + tmpDouble3.toString() + "'")
                 if (tmpDouble3 == tmpPrevAmt.amount) {
                     // ie new amount is same as previous month, so we can just delete this month's change
-                    BudgetViewModel.deleteBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m3_heading.text.toString())
+                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM3Heading.text.toString())
                     Log.d("Alex", "tmpDouble3 is same as previous month so just deleted the entry '" + tmpDouble3 + "'")
                     budgetDialogViewModel.mym3.value = tmpPrevAmt.amount
                 } else { // new amount is different from previous month, so need to record it
-                    BudgetViewModel.updateBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m3_heading.text.toString(), tmpDouble3*100)
+                    BudgetViewModel.updateBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM3Heading.text.toString(), tmpDouble3*100)
                     budgetDialogViewModel.mym3.value = tmpDouble3*100
                 }
             }
             var tmpDouble4: Double = 0.0
-            if (view.budget_dialog_m4_value.text.toString() != "")
-                tmpDouble4 = view.budget_dialog_m4_value.text.toString().toDouble()
+            if (binding.budgetDialogM4Value.text.toString() != "")
+                tmpDouble4 = binding.budgetDialogM4Value.text.toString().toDouble()
             tmpDouble4 = round(tmpDouble4 * 100) / 100
             if (oldM4 != tmpDouble4) {
-                var prevMonth = BudgetMonth(view.budget_dialog_m4_heading.text.toString())
+                var prevMonth = BudgetMonth(binding.budgetDialogM4Heading.text.toString())
                 prevMonth.decrementMonth()
                 var tmpPrevAmt = BudgetViewModel.getBudgetAmount(
-                    view.budget_dialog_category.text.toString(),prevMonth)
+                    binding.budgetDialogCategory.text.toString(),prevMonth)
                 Log.d("Alex", "tmpPrevAmt '" + tmpPrevAmt.amount.toString() + "' tmpDouble4 '" + tmpDouble4.toString() + "'")
                 if (tmpDouble4 == tmpPrevAmt.amount) {
                     // ie new amount is same as previous month, so we can just delete this month's change
-                    BudgetViewModel.deleteBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m4_heading.text.toString())
+                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM4Heading.text.toString())
                     Log.d("Alex", "tmpDouble4 is same as previous month so just deleted the entry '" + tmpDouble4 + "'")
                     budgetDialogViewModel.mym4.value = tmpPrevAmt.amount
                 } else { // new amount is different from previous month, so need to record it
-                    BudgetViewModel.updateBudget(view.budget_dialog_category.text.toString(), view.budget_dialog_m4_heading.text.toString(), tmpDouble4*100)
+                    BudgetViewModel.updateBudget(binding.budgetDialogCategory.text.toString(), binding.budgetDialogM4Heading.text.toString(), tmpDouble4*100)
                     budgetDialogViewModel.mym4.value = tmpDouble4*100
                 }
             }
             dismiss()
         }
-        view.budget_dialog_button_cancel.setOnClickListener() {
+        binding.budgetDialogButtonCancel.setOnClickListener() {
             dismiss()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

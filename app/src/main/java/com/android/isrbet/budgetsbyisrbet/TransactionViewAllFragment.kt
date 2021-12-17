@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
-import kotlinx.android.synthetic.main.fragment_transaction_view_all.*
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 
 class TransactionViewAllFragment : Fragment() {
@@ -37,7 +36,7 @@ class TransactionViewAllFragment : Fragment() {
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        transaction_search.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+        binding.transactionSearch.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }

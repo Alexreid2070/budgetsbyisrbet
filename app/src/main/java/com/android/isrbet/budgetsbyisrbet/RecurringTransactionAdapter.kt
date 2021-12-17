@@ -40,7 +40,8 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         val tvRegularity = rowView.findViewById(R.id.rt_row_regularity) as TextView
         val tvCategory = rowView.findViewById(R.id.rt_row_category) as TextView
         val tvSubcategory = rowView.findViewById(R.id.rt_row_subcategory) as TextView
-        val tvWho = rowView.findViewById(R.id.rt_row_who) as TextView
+        val tvPaidby = rowView.findViewById(R.id.rt_row_paidby) as TextView
+        val tvBoughtfor = rowView.findViewById(R.id.rt_row_boughtfor) as TextView
 
         val rtData = getItem(pos) as RecurringTransaction
         tvName.text = rtData.name
@@ -52,7 +53,8 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         tvRegularity.text = rtData.regularity.toString()
         tvCategory.text = rtData.category.toString()
         tvSubcategory.text = rtData.subcategory.toString()
-        tvWho.text = rtData.who.toString()
+        tvPaidby.text = rtData.paidby.toString()
+        tvBoughtfor.text = rtData.boughtfor.toString()
         return rowView
     }
 }

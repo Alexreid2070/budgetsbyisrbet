@@ -24,8 +24,14 @@ class AdminFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         getView()?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener {view: View ->
-//            addCategories()
+            processButton()
         }
+    }
+
+    fun processButton() {
+        ExpenditureViewModel.getExpenditures().forEach {
+        }
+
     }
 
     override fun onDestroyView() {

@@ -13,7 +13,8 @@ data class Expenditure(
     var category: String = "",
     var subcategory: String = "",
     var note: String = "",
-    var who: String = "",
+    var paidby: String = "",
+    var boughtfor: String = "",
     var type: String = "",
     var mykey: String = ""
 ) {
@@ -25,9 +26,11 @@ data class Expenditure(
             "amount" -> amount = value.toInt()
             "category" -> category = value.trim()
             "subcategory" -> subcategory = value.trim()
-            "who" -> who = value.trim()
+            "paidby" -> paidby = value.trim()
+            "boughtfor" -> boughtfor = value.trim()
             "note" -> note = value.trim()
             "type" -> type = value.trim()
+            "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
         }
     }
 
@@ -36,7 +39,8 @@ data class Expenditure(
         if (amount.toString().lowercase().contains(lc) ||
             category.lowercase().contains(lc) ||
             subcategory.lowercase().contains(lc) ||
-            who.lowercase().contains(lc) ||
+            paidby.lowercase().contains(lc) ||
+            boughtfor.lowercase().contains(lc) ||
             note.lowercase().contains(lc) ||
             date.contains(lc)
         )
@@ -48,7 +52,7 @@ data class Expenditure(
 
 data class ExpenditureOut(
     var date: String = "", var amount: Int = 0, var category: String = "",
-    var subcategory: String = "", var note: String = "", var who: String = "", var type: String = ""
+    var subcategory: String = "", var note: String = "", var paidby: String = "", var boughtfor: String = "", var type: String = ""
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -58,7 +62,8 @@ data class ExpenditureOut(
             "amount" -> amount = value.toInt()
             "category" -> category = value
             "subcategory" -> subcategory = value
-            "who" -> who = value
+            "paidby" -> paidby = value
+            "boughtfor" -> boughtfor = value
             "note" -> note = value
             "type" -> type = value
         }
@@ -271,7 +276,8 @@ class ExpenditureViewModel : ViewModel() {
             expe.subcategory = iExpenditure.subcategory
             expe.category = iExpenditure.category
             expe.amount = iExpenditure.amount
-            expe.who = iExpenditure.who
+            expe.paidby = iExpenditure.paidby
+            expe.boughtfor = iExpenditure.boughtfor
         }
     }
 

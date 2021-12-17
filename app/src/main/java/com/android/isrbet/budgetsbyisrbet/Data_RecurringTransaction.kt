@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import kotlinx.android.synthetic.main.fragment_recurring_transaction_edit_dialog.view.*
 import java.util.ArrayList
 
 data class RecurringTransaction(
@@ -19,7 +18,8 @@ data class RecurringTransaction(
     var nextdate: String = "",
     var category: String = "",
     var subcategory: String = "",
-    var who: String = ""
+    var paidby: String = "",
+    var boughtfor: String = ""
 ) {
     fun setValue(key: String, value: String) {
         when (key) {
@@ -30,7 +30,8 @@ data class RecurringTransaction(
             "regularity" -> regularity = value.toInt()
             "category" -> category = value.trim()
             "subcategory" -> subcategory = value.trim()
-            "who" -> who = value.trim()
+            "paidby" -> paidby = value.trim()
+            "boughtfor" -> boughtfor = value.trim()
         }
     }
 }
@@ -67,7 +68,7 @@ class RecurringTransactionViewModel : ViewModel() {
             RecurringTransactionViewModel.singleInstance.recurringTransactions.sortWith(compareBy({it.name}))
             MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
-        fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int, iCategory: String, iSubcategory: String, iWho: String) {
+        fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int, iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String) {
             var myRT = RecurringTransactionViewModel.singleInstance.recurringTransactions.find{ it.name == iName }
             if (myRT != null) {
                 myRT.amount = iAmount
@@ -76,7 +77,8 @@ class RecurringTransactionViewModel : ViewModel() {
                 myRT.nextdate = iNextDate
                 myRT.category = iCategory
                 myRT.subcategory = iSubcategory
-                myRT.who = iWho
+                myRT.paidby = iPaidBy
+                myRT.boughtfor = iBoughtFor
             }
         }
         fun updateRecurringTransactionStringField(iName: String, iField: String, iValue: String) {
@@ -136,7 +138,7 @@ class RecurringTransactionViewModel : ViewModel() {
                         MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                         // add transaction
                         Log.d("Alex", "Adding a transaction")
-                        ExpenditureViewModel.addTransaction(ExpenditureOut(it.nextdate, it.amount, it.category, it.subcategory, it.name, it.who, "R"))
+                        ExpenditureViewModel.addTransaction(ExpenditureOut(it.nextdate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor, "R"))
                         Toast.makeText(mainActivity, "Recurring transaction was added: " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
                     }
                 }

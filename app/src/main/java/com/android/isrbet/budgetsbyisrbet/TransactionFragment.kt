@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.*
-import kotlinx.android.synthetic.main.fragment_transaction.*
 import java.util.*
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -127,7 +126,8 @@ class TransactionFragment : Fragment() {
             binding.editTextNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.categoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.whoRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+            binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+            binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
         else {
@@ -139,13 +139,23 @@ class TransactionFragment : Fragment() {
             binding.editTextNote.isEnabled = false
             binding.recurringTransactionIndicator.isEnabled = false
             binding.inputSubcategorySpinner.isEnabled = false
+            for (i in 0 until binding.categoryRadioGroup.getChildCount()) {
+                (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+            }
+            for (i in 0 until binding.paidByRadioGroup.getChildCount()) {
+                (binding.paidByRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+            }
+            for (i in 0 until binding.boughtForRadioGroup.getChildCount()) {
+                (binding.boughtForRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+            }
             viewTransaction(args.transactionID)
             binding.editTextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.editTextAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.editTextNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.categoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.whoRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+            binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+            binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
 
@@ -276,6 +286,15 @@ class TransactionFragment : Fragment() {
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
         binding.inputSubcategorySpinner.isEnabled = true
+        for (i in 0 until binding.categoryRadioGroup.getChildCount()) {
+            (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+        }
+        for (i in 0 until binding.paidByRadioGroup.getChildCount()) {
+            (binding.paidByRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+        }
+        for (i in 0 until binding.boughtForRadioGroup.getChildCount()) {
+            (binding.boughtForRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+        }
     }
 
     private fun deleteTransaction(iTransactionID: String) {
@@ -331,13 +350,25 @@ class TransactionFragment : Fragment() {
             binding.editTextNote.setText(thisTransaction.note)
             binding.recurringTransactionIndicator.setText(thisTransaction.type)
 
-            val radioGroup = requireActivity().findViewById<RadioGroup>(R.id.whoRadioGroup)
-            Log.d("Alex", "now in view who")
-            for (i in 0 until radioGroup.childCount) {
-                val o = radioGroup.getChildAt(i)
+            val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
+            Log.d("Alex", "now in view paidby")
+            for (i in 0 until pbRadioGroup.childCount) {
+                val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     Log.d("Alex", "o.text is " + o.text)
-                    if (o.text == thisTransaction.who) {
+                    if (o.text == thisTransaction.paidby) {
+                        Log.d("Alex", "match")
+                        o.isChecked = true
+                    }
+                }
+            }
+            val bfRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.boughtForRadioGroup)
+            Log.d("Alex", "now in view boughtfor")
+            for (i in 0 until bfRadioGroup.childCount) {
+                val o = bfRadioGroup.getChildAt(i)
+                if (o is RadioButton) {
+                    Log.d("Alex", "o.text is " + o.text)
+                    if (o.text == thisTransaction.boughtfor) {
                         Log.d("Alex", "match")
                         o.isChecked = true
                     }
@@ -406,9 +437,13 @@ class TransactionFragment : Fragment() {
         Log.d("Alex", "Sub-category is " + subcategorySpinner.selectedItem.toString())
         Log.d("Alex", "Note is " + binding.editTextNote.text)
 
-        val radioGroup2 = requireActivity().findViewById(R.id.whoRadioGroup) as RadioGroup
-        val radioButtonID2 = radioGroup2.checkedRadioButtonId
-        val radioButton2 = requireActivity().findViewById(radioButtonID2) as RadioButton
+        val radioGroupPaidBy = requireActivity().findViewById(R.id.paidByRadioGroup) as RadioGroup
+        val radioButtonPaidByChecked = radioGroupPaidBy.checkedRadioButtonId
+        val radioButtonPaidBy = requireActivity().findViewById(radioButtonPaidByChecked) as RadioButton
+
+        val radioGroupBoughtFor = requireActivity().findViewById(R.id.boughtForRadioGroup) as RadioGroup
+        val radioButtonBoughtForChecked = radioGroupBoughtFor.checkedRadioButtonId
+        val radioButtonBoughtFor = requireActivity().findViewById(radioButtonBoughtForChecked) as RadioButton
 
         var amountDouble : Double
         var amountInt: Int
@@ -418,9 +453,10 @@ class TransactionFragment : Fragment() {
 
         if (newTransactionMode) {
             val expenditure = ExpenditureOut(
-                editTextDate.text.toString(),
+                binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
-                binding.editTextNote.text.toString(), radioButton2.text.toString()
+                binding.editTextNote.text.toString(), radioButtonPaidBy.text.toString(),
+                radioButtonBoughtFor.text.toString()
             )
             ExpenditureViewModel.addTransaction(expenditure)
             binding.editTextAmount.setText("")
@@ -435,9 +471,10 @@ class TransactionFragment : Fragment() {
             }
         } else {
             val expenditure = ExpenditureOut(
-                editTextDate.text.toString(),
+                binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
-                binding.editTextNote.text.toString(), radioButton2.text.toString()
+                binding.editTextNote.text.toString(), radioButtonPaidBy.text.toString(),
+                radioButtonBoughtFor.text.toString()
             )
 
             (activity as MainActivity).getMyExpenditureModel().updateTransaction(editingKey, expenditure)
@@ -488,9 +525,9 @@ class TransactionFragment : Fragment() {
     fun loadSpenderRadioButtons() {
         var ctr: Int
         ctr = 200
-        val radioGroup = requireActivity().findViewById<RadioGroup>(R.id.whoRadioGroup)
-        if (radioGroup == null) Log.d("Alex", " rg 'who' is null")
-        else radioGroup.removeAllViews()
+        val paidByRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
+        if (paidByRadioGroup == null) Log.d("Alex", " rg 'paidby' is null")
+        else paidByRadioGroup.removeAllViews()
 
         for (i in 0..SpenderViewModel.getCount()-1) {
             var spender = SpenderViewModel.getSpender(i)
@@ -501,11 +538,32 @@ class TransactionFragment : Fragment() {
             )
             newRadioButton.setText(spender?.name)
             newRadioButton.id = ctr++
-            radioGroup.addView(newRadioButton)
-            Log.d("Alex", "Added new 'who' radio button " + newRadioButton.text.toString() + " with id " + newRadioButton.id)
+            paidByRadioGroup.addView(newRadioButton)
+            Log.d("Alex", "Added new 'paidby' radio button " + newRadioButton.text.toString() + " with id " + newRadioButton.id)
             if (newTransactionMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default spender " + spender)
-                radioGroup.check(newRadioButton.id)
+                Log.d("Alex", "found default paidby " + spender)
+                paidByRadioGroup.check(newRadioButton.id)
+            }
+        }
+        ctr = 200
+        val boughtForRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.boughtForRadioGroup)
+        if (boughtForRadioGroup == null) Log.d("Alex", " rg 'boughtfor' is null")
+        else boughtForRadioGroup.removeAllViews()
+
+        for (i in 0..SpenderViewModel.getCount()-1) {
+            var spender = SpenderViewModel.getSpender(i)
+            val newRadioButton = RadioButton(requireContext())
+            newRadioButton.layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            newRadioButton.setText(spender?.name)
+            newRadioButton.id = ctr++
+            boughtForRadioGroup.addView(newRadioButton)
+            Log.d("Alex", "Added new 'boughtfor' radio button " + newRadioButton.text.toString() + " with id " + newRadioButton.id)
+            if (newTransactionMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+                Log.d("Alex", "found default boughtfor " + spender)
+                boughtForRadioGroup.check(newRadioButton.id)
             }
         }
     }
