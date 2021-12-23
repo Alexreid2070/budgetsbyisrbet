@@ -596,44 +596,47 @@ class DashboardRows {
                     expenditure.category,
                     expenditure.subcategory
                 )
-                if (iRecFlag == "" || (iRecFlag == "Recurring" && expenditure.type == "R")) {
-                    if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
-                        if (iPaidByFlag == "" || expenditure.paidby == iPaidByFlag || expenditure.paidby == "Joint") {
-                            if (iBoughtForFlag == "" || expenditure.boughtfor == iBoughtForFlag || expenditure.boughtfor == "Joint") {
-                                // this is a transaction to add to our subtotal
-                                var multiplier = 1.0
-                                if (iPaidByFlag != "") {
-                                    if (expenditure.paidby == "Joint") {
-                                        val spender = SpenderViewModel.getSpender(iPaidByFlag)
-                                        if (spender != null)
-                                            multiplier = spender.split.toDouble() / 100
-                                    } else if (iPaidByFlag != expenditure.paidby) {
-                                        multiplier = 0.0
+                if (expenditure.type != "T") {
+                    if (iRecFlag == "" || (iRecFlag == "Recurring" && expenditure.type == "R")) {
+                        if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
+                            if (iPaidByFlag == "" || expenditure.paidby == iPaidByFlag || expenditure.paidby == "Joint") {
+                                if (iBoughtForFlag == "" || expenditure.boughtfor == iBoughtForFlag || expenditure.boughtfor == "Joint") {
+                                    // this is a transaction to add to our subtotal
+                                    var multiplier = 1.0
+                                    if (iPaidByFlag != "") {
+                                        if (expenditure.paidby == "Joint") {
+                                            val spender = SpenderViewModel.getSpender(iPaidByFlag)
+                                            if (spender != null)
+                                                multiplier = spender.split.toDouble() / 100
+                                        } else if (iPaidByFlag != expenditure.paidby) {
+                                            multiplier = 0.0
+                                        }
+                                    } else if (iBoughtForFlag != "") {
+                                        if (expenditure.boughtfor == "Joint") {
+                                            val spender =
+                                                SpenderViewModel.getSpender(iBoughtForFlag)
+                                            if (spender != null)
+                                                multiplier = spender.split.toDouble() / 100
+                                        } else if (iBoughtForFlag != expenditure.boughtfor) {
+                                            multiplier = 0.0
+                                        }
                                     }
-                                } else if (iBoughtForFlag != "") {
-                                    if (expenditure.boughtfor == "Joint") {
-                                        val spender = SpenderViewModel.getSpender(iBoughtForFlag)
-                                        if (spender != null)
-                                            multiplier = spender.split.toDouble() / 100
-                                    } else if (iBoughtForFlag != expenditure.boughtfor) {
-                                        multiplier = 0.0
+                                    val bdRow: DashboardData? =
+                                        data.find { it.category == expenditure.category && it.subcategory == expenditure.subcategory }
+                                    if (bdRow == null) {
+                                        val row = DashboardData()
+                                        row.category = expenditure.category
+                                        row.subcategory = expenditure.subcategory
+                                        if (expDiscIndicator == "Discretionary")
+                                            row.discIndicator = "D"
+                                        else
+                                            row.discIndicator = "ND"
+                                        row.actualAmount =
+                                            expenditure.amount.toDouble() / 100 * multiplier
+                                        data.add(row)
+                                    } else {
+                                        bdRow.actualAmount += (expenditure.amount.toDouble() / 100 * multiplier)
                                     }
-                                }
-                                val bdRow: DashboardData? =
-                                    data.find { it.category == expenditure.category && it.subcategory == expenditure.subcategory }
-                                if (bdRow == null) {
-                                    val row = DashboardData()
-                                    row.category = expenditure.category
-                                    row.subcategory = expenditure.subcategory
-                                    if (expDiscIndicator == "Discretionary")
-                                        row.discIndicator = "D"
-                                    else
-                                        row.discIndicator = "ND"
-                                    row.actualAmount =
-                                        expenditure.amount.toDouble() / 100 * multiplier
-                                    data.add(row)
-                                } else {
-                                    bdRow.actualAmount += (expenditure.amount.toDouble() / 100 * multiplier)
                                 }
                             }
                         }

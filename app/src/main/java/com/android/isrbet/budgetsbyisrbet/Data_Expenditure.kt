@@ -66,6 +66,7 @@ data class ExpenditureOut(
             "boughtfor" -> boughtfor = value
             "note" -> note = value
             "type" -> type = value
+            "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
         }
     }
 }
@@ -115,8 +116,8 @@ class ExpenditureViewModel : ViewModel() {
             if (iExpenditure.type == "R")
                 key = iExpenditure.note + iExpenditure.date
             else
-                key = MyApplication.database.getReference("Users/"+MyApplication.userName+"/Expenditures").push().key.toString()
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Expenditures").child(key)
+                key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").push().key.toString()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(key)
                 .setValue(iExpenditure)
         }
     }
@@ -127,7 +128,7 @@ class ExpenditureViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userName+"/Expenditures").orderByChild("date")
+        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
             .removeEventListener(expListener)
     }
 
@@ -144,7 +145,7 @@ class ExpenditureViewModel : ViewModel() {
     fun loadExpenditures() {
         // Do an asynchronous operation to fetch expenditures
         Log.d("Alex", "in loadExpenditures for expenditures")
-        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userName+"/Expenditures").orderByChild("date")
+        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
         expListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 expenditures.clear()
@@ -266,7 +267,7 @@ class ExpenditureViewModel : ViewModel() {
     }
 
     fun updateTransaction(iTransactionID: String, iExpenditure: ExpenditureOut) {
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Expenditures").child(iTransactionID)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID)
             .setValue(iExpenditure)
         val expe =
             getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
@@ -282,7 +283,7 @@ class ExpenditureViewModel : ViewModel() {
     }
 
     fun deleteTransaction(iTransactionID: String) {
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Expenditures").child(iTransactionID).removeValue()
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID).removeValue()
         val expe =
             getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
         val ind = expenditures.indexOf(expe)

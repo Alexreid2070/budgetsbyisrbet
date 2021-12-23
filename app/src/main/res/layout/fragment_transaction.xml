@@ -228,25 +228,14 @@
             android:paddingTop="10dp">
 
             <TextView
-                android:id="@+id/recurring_transaction_view_label"
+                android:id="@+id/recurring_transaction_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
-                android:text="Recurring Transaction? (R=Yes): "
                 android:textSize="16sp"
                 android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/recurring_transaction_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:padding="5dp"
-                android:paddingTop="10dp" />
         </LinearLayout>
 
         <LinearLayout

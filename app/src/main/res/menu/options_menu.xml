@@ -12,6 +12,9 @@
         <item
             android:id="@+id/ViewTransactionsFragment"
             android:title="View transactions" />
+        <item
+            android:id="@+id/ViewTransfersFragment"
+            android:title="View transfers" />
     </group>
     <group
         android:id="@+id/transaction_options_group">

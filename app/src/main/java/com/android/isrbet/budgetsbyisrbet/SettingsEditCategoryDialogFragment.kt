@@ -1,5 +1,7 @@
 import android.app.AlertDialog
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,20 +51,16 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentCategoryEditDialogBinding.inflate(inflater, container, false)
-        return inflater.inflate(R.layout.fragment_category_edit_dialog, container, false)
+        return binding.root
+//        return inflater.inflate(R.layout.fragment_category_edit_dialog, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.editCategoryOldName.text = oldCategory
-        binding.editCategoryNewName.setText(oldCategory)
-        binding.editSubcategoryOldName.text = oldSubcategory
-        binding.editSubcategoryNewName.setText(oldSubcategory)
-        binding.editCategoryOldDisctype.text = oldDisctype
+        Log.d("Alex", "OnViewCreated oldCategory is '" + oldCategory + "'")
         setupClickListeners(view)
         binding.editCategoryNewName.requestFocus()
-
         val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -70,14 +68,20 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
             DiscTypeValues
         )
         dtSpinner.adapter = arrayAdapter
-        dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
-
         if (oldCategory == "") { // ie this is an add, not an edit
+            Log.d("Alex", "in blank")
             binding.editCategoryOldNameHeader.visibility = View.GONE
             binding.editCategoryOldName.visibility = View.GONE
             binding.editSubcategoryOldName.visibility = View.GONE
             binding.editCategoryOldDisctype.visibility = View.GONE
             binding.categoryDialogButtonDelete.visibility = View.GONE
+        } else {
+            binding.editCategoryOldName.text = oldCategory
+            binding.editSubcategoryOldName.text = oldSubcategory
+            binding.editCategoryOldDisctype.text = oldDisctype
+            binding.editCategoryNewName.setText(oldCategory)
+            binding.editSubcategoryNewName.setText(oldSubcategory)
+            dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
         }
     }
 
@@ -90,9 +94,9 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
     }
 
     private fun setupClickListeners(view: View) {
-        // val dtSpinner = requireActivity().findViewById(R.id.category_dialog_disctype_spinner) as Spinner
-        val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
         binding.categoryDialogButtonSave.setOnClickListener {
+            Log.d("Alex", "on save " + oldCategory + " " + binding.editCategoryNewName.text.toString())
+            val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
             if (oldCategory == binding.editCategoryNewName.text.toString() &&
                     oldSubcategory == binding.editSubcategoryNewName.text.toString() &&
                     oldDisctype != dtSpinner.selectedItem.toString()) {
@@ -101,12 +105,16 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                 CategoryViewModel.setDiscType(oldCategory, oldSubcategory, dtSpinner.selectedItem.toString())
                 if (listener != null)
                     listener?.onNewDataSaved()
+                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
+                mp.start()
                 dismiss()
             } else if (oldCategory == "") { // ie this is an add
                 CategoryViewModel.addCategoryAndSubcategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
+                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
+                mp.start()
                 dismiss()
             } else if (oldCategory != binding.editCategoryNewName.text.toString() ||
                     oldSubcategory != binding.editSubcategoryNewName.text.toString()) {
@@ -114,6 +122,8 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                 CategoryViewModel.updateCategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), dtSpinner.selectedItem.toString())
                 if (listener != null)
                     listener?.onNewDataSaved()
+                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
+                mp.start()
                 dismiss()
             }
         }
@@ -124,6 +134,8 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
+                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
+                mp.start()
                 dismiss()
             }
             fun noClicked() {

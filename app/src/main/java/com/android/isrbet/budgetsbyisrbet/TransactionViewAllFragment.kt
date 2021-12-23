@@ -45,14 +45,15 @@ class TransactionViewAllFragment : Fragment() {
                 val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
                 val adapter:TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                 adapter.getFilter().filter(newText)
-                if (newText != null) {
-                    transactionSearchText = newText
+                if (newText != "") {
+                    transactionSearchText = newText.toString()
+                    binding.transactionSearch.visibility = View.VISIBLE
                 }
                 return false
             }
         })
 
-        val eModel = (activity as MainActivity).getMyExpenditureModel()
+//        val eModel = (activity as MainActivity).getMyExpenditureModel()
         super.onViewCreated(itemView, savedInstanceState)
         //binding.recycler_view.apply {
         val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
@@ -65,20 +66,32 @@ class TransactionViewAllFragment : Fragment() {
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
             recyclerView.adapter = TransactionRecyclerAdapter(requireContext(), expList) { item ->
                 Log.d("Alex", "I clicked item " + item.mykey)
-                val action = TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransactionFragment().setTransactionID(item.mykey)
-                this@TransactionViewAllFragment.findNavController().navigate(action)
+                MyApplication.transactionFirstInList = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+                if (item.type == "T") {
+                    val action =
+                        TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransferFragment()
+                            .setTransactionID(item.mykey)
+                    this@TransactionViewAllFragment.findNavController().navigate(action)
+                }    else {
+                    val action =
+                        TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransactionFragment()
+                            .setTransactionID(item.mykey)
+                    this@TransactionViewAllFragment.findNavController().navigate(action)
+                }
             };
         }
+        val adapter:TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         // for some reason "binding.buttonToday.setOnClickListener doesn't work, but the following does
         getView()?.findViewById<Button>(R.id.button_year_forward)?.setOnClickListener { view: View ->
-            var getNewPosition = eModel.getPositionOf(
+            var getNewPosition = adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                 "+year")
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(getNewPosition, 0)
         }
 
         getView()?.findViewById<Button>(R.id.button_month_forward)?.setOnClickListener { view: View ->
-            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getPositionOf(
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                 "+month"), 0)
         }
@@ -90,7 +103,7 @@ class TransactionViewAllFragment : Fragment() {
         }
 
         getView()?.findViewById<Button>(R.id.button_today)?.setOnClickListener { view: View ->
-            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getPositionOf(
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                 "today"), 0)
         }
@@ -105,13 +118,13 @@ class TransactionViewAllFragment : Fragment() {
         }
 
         getView()?.findViewById<Button>(R.id.button_month_backward)?.setOnClickListener { view: View ->
-            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getPositionOf(
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                 "-month"), 0)
         }
 
         getView()?.findViewById<Button>(R.id.button_year_backward)?.setOnClickListener { view: View ->
-                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getPositionOf(
+                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                 "-year"), 0)
         }
@@ -121,7 +134,7 @@ class TransactionViewAllFragment : Fragment() {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
                 Log.d("Alex", "swiped left")
-                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getPositionOf(
+                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                     "+month"), 0)
             }
@@ -129,19 +142,24 @@ class TransactionViewAllFragment : Fragment() {
             override fun onSwipeRight() {
                 super.onSwipeRight()
                 Log.d("Alex", "swiped right")
-                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getPositionOf(
+                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                     "-month"), 0)
             }
         })
 
+        Log.d("Alex", "transactionSearchText is " + transactionSearchText)
         if (transactionSearchText == "")
             binding.transactionSearch.visibility = View.GONE
         else {
             binding.transactionSearch.visibility = View.VISIBLE
             binding.transactionSearch.setQuery(transactionSearchText, true)
         }
-        (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(eModel.getCount() - 1, 0)
+        Log.d("Alex", "transactionFirstInList is " + MyApplication.transactionFirstInList.toString())
+        if (MyApplication.transactionFirstInList == 0)
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getCount() - 1, 0)
+        else
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(MyApplication.transactionFirstInList, 0)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

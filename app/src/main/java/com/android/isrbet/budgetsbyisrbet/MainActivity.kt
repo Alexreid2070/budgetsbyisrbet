@@ -52,20 +52,12 @@ class MainActivity : AppCompatActivity() {
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
 
-        // MyActivity.kt
-        val exists: Boolean = supportFragmentManager
-            .fragments
-            .filterIsInstance<HomeFragment>()
-            .isNotEmpty()
-        Log.d("Alex", "exists is " + exists.toString())
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        Log.d("Alex", "exists2 is " + exists.toString())
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         val navController = navHostFragment.navController
@@ -146,18 +138,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("Alex", "signinintent is " + signInIntent.toString())
         mainActivityResultLauncher.launch(signInIntent)
     }
-/*
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            var task = GoogleSignIn.getSignedInAccountFromIntent (data)
-            handleSignInResult(task);
-        }
-    }
-*/
+
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         Log.d("Alex", "handleSignInResult")
         try {
@@ -190,6 +171,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             signInButton.visibility = View.GONE
         }
+        if (account?.email != "alexreid2070@gmail.com") {
+            val navigationView: NavigationView = findViewById(R.id.nav_view) as NavigationView
+            val nav_Menu: Menu = navigationView.getMenu()
+            nav_Menu.findItem(R.id.AdminFragment).setVisible(false)
+        }
         // Check if user is signed in (non-null) and update UI accordingly.
         var currentUser = auth.getCurrentUser()
         signIn(currentUser)
@@ -214,8 +200,9 @@ class MainActivity : AppCompatActivity() {
 
     fun signIn(account: FirebaseUser?) {
         Log.d("Alex", "in signIn, account is " + account?.email)
-        MyApplication.userName = account?.email.toString().filter { it.isLetterOrDigit() }
-        Log.d("Alex", "my userName is " + MyApplication.userName)
+        MyApplication.userEmail = account?.email.toString()
+        MyApplication.userUID = account?.uid.toString()
+        Log.d("Alex", "my uid is " + MyApplication.userUID)
         Log.d("Alex", "in signIn, uid is " + account?.uid)
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         if (account == null) {
@@ -224,7 +211,7 @@ class MainActivity : AppCompatActivity() {
             signInButton.setSize(SignInButton.SIZE_WIDE)
         }
         else {
-            Log.d("Alex", "in signIn, account is not null")
+            Log.d("Alex", "in signIn, account is " + account.email)
 
             signInButton.visibility = View.GONE
             defaultsModel.loadDefaults()
@@ -246,9 +233,10 @@ class MainActivity : AppCompatActivity() {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.options_menu, menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.SignOut)
+            if (menu.getItem(i).getItemId() === R.id.SignOut) {
                 menu.getItem(i).setVisible(true)
-            else
+                menu.getItem(i).setTitle("Sign Out (" + MyApplication.userEmail + ")")
+            } else
                 menu.getItem(i).setVisible(false)
         }
 
@@ -260,6 +248,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("Alex", "sign out attempted")
             Firebase.auth.signOut()
             mGoogleSignInClient.signOut()
+            MyApplication.userUID = ""
             return true
         } else {
             val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -268,6 +257,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun notifyHomeFragmentThatDataIsReady() {
+        supportFragmentManager.fragments.forEach() {
+            Log.d("Alex", "fragment is " + it.toString())
+        }
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         var frag = getSupportFragmentManager().findFragmentById(R.id.homeFragment) as HomeFragment
         frag.ivebeentold();
     }

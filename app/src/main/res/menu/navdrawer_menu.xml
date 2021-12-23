@@ -26,6 +26,16 @@
         android:id="@+id/nav_drawer_group2"
         android:checkableBehavior="single">
         <item
+            android:id="@+id/TransferFragment"
+            android:title="Add Funds Transfer" />
+        <item
+            android:id="@+id/AccountingFragment"
+            android:title="@string/accounting_fragment_label" />
+    </group>
+    <group
+        android:id="@+id/nav_drawer_group3"
+        android:checkableBehavior="single">
+        <item
             android:id="@+id/RecurringTransactionFragment"
             android:title="@string/recurring_transaction_fragment_label" />
         <item
@@ -37,6 +47,13 @@
     </group>
     <group
         android:id="@+id/nav_drawer_group4"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/HelpFragment"
+            android:title="@string/help_fragment_label" />
+    </group>
+    <group
+        android:id="@+id/nav_drawer_group5"
         android:checkableBehavior="single">
         <item
             android:id="@+id/AdminFragment"

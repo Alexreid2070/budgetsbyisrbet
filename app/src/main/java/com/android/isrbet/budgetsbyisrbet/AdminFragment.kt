@@ -6,12 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAdminBinding
 import java.util.*
 
 class AdminFragment : Fragment() {
     private var _binding: FragmentAdminBinding? = null
     private val binding get() = _binding!!
+    lateinit var expListener: ValueEventListener
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -29,13 +33,33 @@ class AdminFragment : Fragment() {
     }
 
     fun processButton() {
-        ExpenditureViewModel.getExpenditures().forEach {
-        }
+        MyApplication.databaseref.child("Users").child("alexreidandbrentjohnstongmailcom").setValue(1)
+    }
 
+    fun copyData() {
+//        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
+        val expDBRef = MyApplication.databaseref.child("Users/alexreidandbrentjohnstongmailcom/RecurringTransactions")
+        var key: String = ""
+        expListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (element in dataSnapshot.children.toMutableList()) {
+                    key = element.key.toString()
+                    for (child in element.children) {
+                        MyApplication.databaseref.child("Users/AgcnEPqB4zbDJUHME3Z29gejcyu1/RecurringTransactions/"+key).child(child.key.toString()).setValue(child.value)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        }
+        expDBRef.addValueEventListener(expListener)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+//        MyApplication.databaseref.child("Users/alexreidandbrentjohnstongmailcom/Spender").removeEventListener(expListener)
         _binding = null
     }
 

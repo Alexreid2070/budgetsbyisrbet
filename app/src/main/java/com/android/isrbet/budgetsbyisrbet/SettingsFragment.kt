@@ -200,15 +200,17 @@ class SettingsFragment : Fragment() {
         // check category default
         val defaultCategorySpinner = requireActivity().findViewById(R.id.settings_default_category) as Spinner
 
-        Log.d("Alex", "Sub-category is " + defaultCategorySpinner.selectedItem.toString())
-        val dash = defaultCategorySpinner.selectedItem.toString().indexOf("-")
-        val defCat = defaultCategorySpinner.selectedItem.toString().substring(0, dash)
-        val defSubCat = defaultCategorySpinner.selectedItem.toString().substring(dash + 1,defaultCategorySpinner.selectedItem.toString().length)
-        if (defCat != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
-            DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defCat)
-        if (defSubCat != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
-            DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defSubCat)
-
+        if (defaultCategorySpinner.selectedItem != null) {
+            Log.d("Alex", "Sub-category is " + defaultCategorySpinner.selectedItem.toString())
+            val dash = defaultCategorySpinner.selectedItem.toString().indexOf("-")
+            val defCat = defaultCategorySpinner.selectedItem.toString().substring(0, dash)
+            val defSubCat = defaultCategorySpinner.selectedItem.toString()
+                .substring(dash + 1, defaultCategorySpinner.selectedItem.toString().length)
+            if (defCat != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
+                DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defCat)
+            if (defSubCat != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
+                DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defSubCat)
+        }
         // check default Integrate with TD Spend
         val integrateField = requireActivity().findViewById(R.id.settings_integrate_with_TD_Spend) as EditText
         if (integrateField.text.toString() != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))

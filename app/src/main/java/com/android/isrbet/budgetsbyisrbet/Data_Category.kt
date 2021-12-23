@@ -43,14 +43,14 @@ class CategoryViewModel : ViewModel() {
             val cat: Category? = CategoryViewModel.singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
             val ind = CategoryViewModel.singleInstance.categories.indexOf(cat)
             CategoryViewModel.singleInstance.categories.removeAt(ind)
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Category").child(iCategory).child(iSubcategory).removeValue()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
         }
 
         fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String) {
             // I need to add the new cat to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             val cat = Category(iCategory, iSubcategory, iDisctype)
             CategoryViewModel.singleInstance.categories.add(cat)
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
 
         fun getCategories(): MutableList<Category> { // returns only "on" categories
@@ -104,11 +104,11 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun deleteCategory(iCategory: String, iSubcategory: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Category").child(iCategory).child(iSubcategory).removeValue()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
         }
 
         fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
     }
     init {
@@ -118,7 +118,7 @@ class CategoryViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userName+"/Category")
+        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Category")
             .removeEventListener(catListener)
     }
 
@@ -136,15 +136,19 @@ class CategoryViewModel : ViewModel() {
         Log.d("Alex", "in loadCategories for categories")
         catListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                categories.clear()
-                dataSnapshot.children.forEach()
-                {
-                    val myC: String = it.key.toString()
-                    it.children.forEach {
-                        categories.add(Category(myC, it.key.toString(), it.value.toString()))
+                if (dataSnapshot.exists()) {
+                    categories.clear()
+                    dataSnapshot.children.forEach()
+                    {
+                        val myC: String = it.key.toString()
+                        it.children.forEach {
+                            categories.add(Category(myC, it.key.toString(), it.value.toString()))
+                        }
                     }
+                    dataUpdatedCallback?.onDataUpdate()
+                } else { // first time user
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID).child("Email").setValue(MyApplication.userEmail)
                 }
-                dataUpdatedCallback?.onDataUpdate()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -152,7 +156,7 @@ class CategoryViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Category").addValueEventListener(catListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").addValueEventListener(catListener)
     }
 }
 

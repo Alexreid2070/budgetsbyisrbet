@@ -97,7 +97,10 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         holder.vtf_amount.text = dec.format(formattedAmount)
         holder.vtf_category.text = data.category
         holder.vtf_subcategory.text = data.subcategory
-        holder.vtf_who.text = data.paidby.subSequence(0,2).toString() + ":" + data.boughtfor.subSequence(0,2).toString()
+        if (data.paidby == data.boughtfor)
+            holder.vtf_who.text = data.paidby
+        else
+            holder.vtf_who.text = data.paidby.subSequence(0,2).toString() + ":" + data.boughtfor.subSequence(0,2).toString()
         holder.vtf_note.text = data.note
         holder.vtf_type.text = data.type
         holder.itemView.setOnClickListener {listener(data)}
@@ -126,5 +129,105 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 }
             }
         }
+    }
+
+    fun getCount(): Int {
+        return filteredList.size
+    }
+
+    fun getPositionOf(currentTopPosition: Int, jump: String): Int {
+        var newPosition: Int
+        when (jump) {
+            "-year" -> {
+                if (currentTopPosition == 0) return 0;
+                newPosition = currentTopPosition - 1
+                var targetYear: String
+                if (filteredList[currentTopPosition].date.substring(
+                        0,
+                        4
+                    ) == filteredList[currentTopPosition - 1].date.substring(0, 4)
+                )
+                // we're not at beginning of current year, so aim for that
+                    targetYear = filteredList[currentTopPosition].date.substring(0, 4)
+                else
+                //we're already at beginning of current year, so aim for previous year
+                    targetYear = filteredList[currentTopPosition - 1].date.substring(0, 4)
+                while (newPosition >= 0 && filteredList[newPosition].date.substring(
+                        0,
+                        4
+                    ) >= targetYear
+                ) {
+                    newPosition--
+                }
+                newPosition++
+                return newPosition
+            }
+            "-month" -> {
+                if (currentTopPosition == 0) return 0;
+                newPosition = currentTopPosition - 1
+                var targetYearMonth: String
+                if (filteredList[currentTopPosition].date.substring(
+                        0,
+                        7
+                    ) == filteredList[currentTopPosition - 1].date.substring(0, 7)
+                )
+                // we're not at beginning of current month, so aim for that
+                    targetYearMonth =
+                        filteredList[currentTopPosition].date.substring(0, 7).toString()
+                else
+                //we're already at beginning of current month, so aim for previous month
+                    targetYearMonth =
+                        filteredList[currentTopPosition - 1].date.substring(0, 7).toString()
+                while (newPosition >= 0 && filteredList[newPosition].date.substring(0, 7)
+                        .toString() >= targetYearMonth
+                ) {
+                    newPosition--
+                }
+                newPosition++
+                return newPosition
+            }
+            "today" -> {
+                var currentDate: String
+                var cal = android.icu.util.Calendar.getInstance()
+                currentDate = giveMeMyDateFormat(cal)
+                newPosition = 0
+                while (newPosition < filteredList.size && filteredList[newPosition].date < currentDate) {
+                    newPosition++
+                }
+                return (newPosition -1)
+            }
+            "+month" -> {
+                Log.d("Alex", "currentTopPosition = " + currentTopPosition.toString())
+                var currentYearMonth: String
+                newPosition = currentTopPosition + 1
+                currentYearMonth = filteredList[currentTopPosition].date.substring(0, 7)
+                while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
+                        0,
+                        7
+                    ) == currentYearMonth
+                ) {
+                    newPosition++
+                }
+                Log.d("Alex", "newPosition is " + newPosition.toString())
+                return newPosition
+            }
+            "+year" -> {
+                var currentYear: String
+                newPosition = currentTopPosition + 1
+                currentYear = filteredList[currentTopPosition].date.substring(0, 4).toString()
+                while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
+                        0,
+                        4
+                    ) == currentYear
+                ) {
+                    newPosition++
+                }
+                Log.d("Alex", "+year newPosition is " + newPosition)
+                if (newPosition >= filteredList.size)
+                    newPosition = filteredList.size - 1
+                return newPosition
+            }
+        }
+        return 0
     }
 }

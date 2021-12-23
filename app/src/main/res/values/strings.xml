@@ -5,7 +5,6 @@
     <string name="transaction_fragment_label">Expenditures</string>
     <string name="recurring_transaction_fragment_label">Recurring Transactions</string>
     <string name="previous">Previous</string>
-
     <string name="inputDateLabel">Date:</string>
     <string name="inputAmountLabel">Amount:</string>
     <string name="inputCategoryLabel">Category:</string>
@@ -47,6 +46,7 @@
     <string name="budget_fragment_label">Budget</string>
     <string name="dashboard_fragment_label">Dashboards</string>
     <string name="admin_fragment_label">Admin</string>
+    <string name="transfer_fragment_label">Transfer</string>
     <string name="missingFirstUserName">User name is missing</string>
     <string name="missingFirstUserPercentage">User % is missing</string>
     <string name="missingSecondUserInformation">Second user information missing</string>
@@ -57,4 +57,6 @@
     <string name="transaction_view_all_fragment_label">View All Transactions</string>
     <string name="settings_edit_category_label">Categories</string>
     <string name="fieldMustBeYesOrNo">Field must be Yes or No</string>
+    <string name="accounting_fragment_label">Accounting</string>
+    <string name="help_fragment_label">Help</string>
 </resources>

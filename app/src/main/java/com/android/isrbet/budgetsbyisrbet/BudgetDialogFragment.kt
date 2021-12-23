@@ -1,3 +1,4 @@
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -83,7 +84,8 @@ class BudgetDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentBudgetEditDialogBinding.inflate(inflater, container, false)
-        return inflater.inflate(R.layout.fragment_budget_edit_dialog, container, false)
+        return binding.root
+//        return inflater.inflate(R.layout.fragment_budget_edit_dialog, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -199,6 +201,8 @@ class BudgetDialogFragment : DialogFragment() {
                 }
             }
             dismiss()
+            val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
+            mp.start()
         }
         binding.budgetDialogButtonCancel.setOnClickListener() {
             dismiss()

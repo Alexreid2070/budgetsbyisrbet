@@ -30,9 +30,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val quote = requireActivity().findViewById(R.id.quote_field) as TextView
 
-        val randomIndex = Random.nextInt(inspirationalQuotes.size);
-        val randomElement = inspirationalQuotes[randomIndex]
-        quote.setText(randomElement)
+        quote.setText(MyApplication.getQuote())
 
         val account = GoogleSignIn.getLastSignedInAccount(requireActivity())
         if (account?.email == null) {
@@ -71,23 +69,21 @@ class HomeFragment : Fragment() {
     }
 
     fun alignExpenditureMenuWithDataState() {
+        val navigationView = requireActivity().findViewById<NavigationView>(R.id.nav_view)
+        val menuNav = navigationView.getMenu()
+        val expMenu = menuNav.findItem(R.id.TransactionFragment);
+
         if (CategoryViewModel.getCount() > 0 && SpenderViewModel.getCount() > 0) {
             requireActivity().findViewById<Button>(R.id.expenditure_button).visibility = View.VISIBLE
             requireActivity().findViewById<Button>(R.id.view_all_button).visibility = View.VISIBLE
             requireActivity().findViewById<Button>(R.id.dashboard_button).visibility = View.VISIBLE
+            expMenu.setEnabled(true)
         } else {
             requireActivity().findViewById<Button>(R.id.expenditure_button).visibility = View.GONE
             requireActivity().findViewById<Button>(R.id.view_all_button).visibility = View.GONE
             requireActivity().findViewById<Button>(R.id.dashboard_button).visibility = View.GONE
-        }
-
-        val navigationView = requireActivity().findViewById<NavigationView>(R.id.nav_view)
-        val menuNav = navigationView.getMenu()
-        val expMenu = menuNav.findItem(R.id.TransactionFragment);
-        if (CategoryViewModel.getCount() > 0 && SpenderViewModel.getCount() > 0)
-            expMenu.setEnabled(true)
-        else
             expMenu.setEnabled(false)
+        }
     }
 
     fun ivebeentold() {

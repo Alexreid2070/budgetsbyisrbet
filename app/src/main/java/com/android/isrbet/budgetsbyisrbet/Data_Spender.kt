@@ -28,6 +28,12 @@ class SpenderViewModel : ViewModel() {
             else
                 return null
         }
+        fun getSpenderSplit(pos:Int): Int {
+            if (pos  < singleInstance.spenders.size)
+                return singleInstance.spenders[pos].split
+            else
+                return 0
+        }
         fun getSpender(iName:String): Spender? {
             singleInstance.spenders.forEach {
                 if (it.name == iName)
@@ -53,14 +59,14 @@ class SpenderViewModel : ViewModel() {
         }
 
         fun deleteSpender(iSpender: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Spender").child(iSpender).removeValue()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(iSpender).removeValue()
 /*            val expe =
                 getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
             val ind = expenditures.indexOf(expe)
             expenditures.removeAt(ind)
   */      }
         fun addSpender(spender: Spender) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Spender").child(spender.name).setValue(spender.split)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).setValue(spender.split)
         }
     }
 
@@ -70,7 +76,7 @@ class SpenderViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userName+"/Spender")
+        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Spender")
             .removeEventListener(spenderListener)
     }
 
@@ -103,7 +109,7 @@ class SpenderViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Spender").addValueEventListener(spenderListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").addValueEventListener(spenderListener)
     }
 }
 

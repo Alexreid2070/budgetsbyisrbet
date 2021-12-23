@@ -45,7 +45,7 @@ class DefaultsViewModel : ViewModel() {
         }
 
         fun updateDefault(whichOne: String, iValue: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Defaults").child(whichOne).setValue(iValue)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").child(whichOne).setValue(iValue)
         }
     }
 
@@ -55,7 +55,7 @@ class DefaultsViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Defaults").removeEventListener(defaultsListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").removeEventListener(defaultsListener)
     }
 
     fun setCallback(iCallback: DefaultsDataUpdatedCallback?) {
@@ -66,7 +66,7 @@ class DefaultsViewModel : ViewModel() {
         singleInstance.defaultsListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // Get Post object and use the values to update the UI
-                Log.d("Alex", "onDataChange " + dataSnapshot.toString() + " username " + MyApplication.userName)
+                Log.d("Alex", "onDataChange " + dataSnapshot.toString() + " username " + MyApplication.userUID)
                 dataSnapshot.children.forEach()
                 {
                     Log.d("Alex", "processing " + it.key.toString() + " " + it.value.toString())
@@ -95,9 +95,9 @@ class DefaultsViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-//        MyApplication.database.getReference("Users").child(MyApplication.userName)
+//        MyApplication.database.getReference("Users").child(MyApplication.useruid)
 //            .child("Defaults").addValueEventListener(singleInstance.defaultsListener)
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Defaults").addValueEventListener(singleInstance.defaultsListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").addValueEventListener(singleInstance.defaultsListener)
         showMe()
     }
 }

@@ -217,6 +217,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
+                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
+                mp.start()
                 dismiss()
             }
             fun noClicked() {

@@ -149,13 +149,13 @@ class BudgetViewModel : ViewModel() {
         }
 
         fun deleteBudget(iCategory: String, iMonth: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Budget")
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget")
                 .child(iCategory)
                 .child(iMonth)
                 .removeValue()
         }
         fun updateBudget(iCategory: String, iMonth: String, iAmount: Double) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/Budget")
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget")
                 .child(iCategory)
                 .child(iMonth)
                 .setValue(iAmount)
@@ -168,7 +168,7 @@ class BudgetViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userName+"/Budget")
+        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Budget")
             .removeEventListener(budgetListener)
     }
 
@@ -225,7 +225,7 @@ class BudgetViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/Budget").addValueEventListener(budgetListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget").addValueEventListener(budgetListener)
     }
 }
 

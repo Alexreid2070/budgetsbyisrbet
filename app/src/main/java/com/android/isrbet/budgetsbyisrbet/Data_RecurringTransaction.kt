@@ -58,7 +58,7 @@ class RecurringTransactionViewModel : ViewModel() {
             val rt: RecurringTransaction? = singleInstance.recurringTransactions.find { it.name == iTransactionID }
             val ind = singleInstance.recurringTransactions.indexOf(rt)
             singleInstance.recurringTransactions.removeAt(ind)
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions").child(iTransactionID).removeValue()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iTransactionID).removeValue()
         }
 
         fun addRecurringTransaction(iRecurringTransaction: RecurringTransaction) {
@@ -66,7 +66,7 @@ class RecurringTransactionViewModel : ViewModel() {
             // also, if I don't add locally right away, the app crashes because of a sync issue
             singleInstance.recurringTransactions.add(iRecurringTransaction)
             RecurringTransactionViewModel.singleInstance.recurringTransactions.sortWith(compareBy({it.name}))
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
         fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int, iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String) {
             var myRT = RecurringTransactionViewModel.singleInstance.recurringTransactions.find{ it.name == iName }
@@ -82,13 +82,13 @@ class RecurringTransactionViewModel : ViewModel() {
             }
         }
         fun updateRecurringTransactionStringField(iName: String, iField: String, iValue: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions")
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
                 .child(iName)
                 .child(iField)
                 .setValue(iValue)
         }
         fun updateRecurringTransactionIntField(iName: String, iField: String, iValue: Int) {
-            MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions")
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
                 .child(iName)
                 .child(iField)
                 .setValue(iValue)
@@ -101,7 +101,7 @@ class RecurringTransactionViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userName+"/RecurringTransactions")
+        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/RecurringTransactions")
             .removeEventListener(recurringTransactionListener)
     }
 
@@ -135,7 +135,7 @@ class RecurringTransactionViewModel : ViewModel() {
                         } else if (it.period == cPeriodYear) {
                             newNextDate.add(Calendar.YEAR, it.regularity)
                         }
-                        MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
+                        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                         // add transaction
                         Log.d("Alex", "Adding a transaction")
                         ExpenditureViewModel.addTransaction(ExpenditureOut(it.nextdate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor, "R"))
@@ -150,7 +150,7 @@ class RecurringTransactionViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userName+"/RecurringTransactions").addValueEventListener(recurringTransactionListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").addValueEventListener(recurringTransactionListener)
     }
 
     fun sortYourself() {

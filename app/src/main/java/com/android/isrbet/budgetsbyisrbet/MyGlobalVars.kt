@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentManager
 import android.net.ConnectivityManager
 import android.view.GestureDetector
 import android.view.MotionEvent
+import kotlin.random.Random
 
 const val RC_SIGN_IN = 7
 const val cDiscTypeDiscretionary = "Discretionary"
@@ -46,7 +47,19 @@ class MyApplication : Application() {
         lateinit var database: FirebaseDatabase
         lateinit var databaseref: DatabaseReference
         var transactionSearchText: String = ""
-        var userName: String = ""
+        var transactionFirstInList: Int = 0
+        var userUID: String = ""
+        var userEmail: String = ""
+        var quoteForThisSession: String = ""
+
+        fun getQuote(): String {
+            if (quoteForThisSession == "") {
+                val randomIndex = Random.nextInt(inspirationalQuotes.size);
+                val randomElement = inspirationalQuotes[randomIndex]
+                quoteForThisSession = randomElement
+            }
+            return quoteForThisSession
+        }
 }
 
     override fun onCreate() {

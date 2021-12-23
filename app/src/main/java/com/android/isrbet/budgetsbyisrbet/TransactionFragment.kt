@@ -33,7 +33,7 @@ class TransactionFragment : Fragment() {
     private var _binding: FragmentTransactionBinding? = null
     private val binding get() = _binding!!
 
-    private val args: TransactionFragmentArgs by navArgs<TransactionFragmentArgs>()
+    private val args: TransactionFragmentArgs by navArgs()
     private var newTransactionMode: Boolean = true
     private var editingKey: String = ""
     var cal = android.icu.util.Calendar.getInstance()
@@ -112,10 +112,7 @@ class TransactionFragment : Fragment() {
 
         if (newTransactionMode) {
             (activity as AppCompatActivity).supportActionBar?.title = "Add Transaction"
-            binding.recurringTransactionIndicator.visibility = View.GONE
-            binding.recurringTransactionViewLabel.visibility = View.GONE
-//            binding.recurringTransactionIndicator.setText("No")
-//            binding.recurringTransactionIndicator.isEnabled = false
+            binding.recurringTransactionLabel.visibility = View.GONE
             if (CustomNotificationListenerService.getExpenseNotificationCount() > 0) {
                 binding.buttonLoadTransactionFromTdmyspend.visibility = View.VISIBLE
             } else {
@@ -137,7 +134,7 @@ class TransactionFragment : Fragment() {
             binding.editTextDate.isEnabled = false
             binding.editTextAmount.isEnabled = false
             binding.editTextNote.isEnabled = false
-            binding.recurringTransactionIndicator.isEnabled = false
+            binding.recurringTransactionLabel.isEnabled = false
             binding.inputSubcategorySpinner.isEnabled = false
             for (i in 0 until binding.categoryRadioGroup.getChildCount()) {
                 (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
@@ -302,6 +299,8 @@ class TransactionFragment : Fragment() {
             (activity as MainActivity).getMyExpenditureModel().deleteTransaction(iTransactionID)
             Toast.makeText(activity, "Transaction deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
+            val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
+            mp.start()
         }
         fun noClicked() {
         }
@@ -348,7 +347,13 @@ class TransactionFragment : Fragment() {
 
             binding.editTextDate.setText(thisTransaction.date)
             binding.editTextNote.setText(thisTransaction.note)
-            binding.recurringTransactionIndicator.setText(thisTransaction.type)
+            binding.recurringTransactionLabel.visibility = View.VISIBLE
+            if (thisTransaction.type == "R") {
+                binding.recurringTransactionLabel.setText("This recurring transaction was automatically generated.")
+                binding.recurringTransactionLabel.visibility = View.VISIBLE
+            } else {
+                binding.recurringTransactionLabel.visibility = View.GONE
+            }
 
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
             Log.d("Alex", "now in view paidby")
@@ -400,8 +405,12 @@ class TransactionFragment : Fragment() {
         val notification = CustomNotificationListenerService.getTransactionFromNotificationAndDeleteIt()
         binding.editTextAmount.setText(notification.amount.toString())
         var iNote = notification.note.lowercase()
-        iNote.replaceFirstChar { it.uppercase() }
-        binding.editTextNote.setText(iNote)
+        val words = iNote.split(" ")
+        var newStr = ""
+        words.forEach {
+            newStr += it.replaceFirstChar { it.uppercase() } + " "
+        }
+        binding.editTextNote.setText(newStr)
 
         if (CustomNotificationListenerService.getExpenseNotificationCount() == 0) {
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
