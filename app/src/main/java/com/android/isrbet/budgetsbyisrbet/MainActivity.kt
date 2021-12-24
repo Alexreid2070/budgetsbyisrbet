@@ -202,6 +202,8 @@ class MainActivity : AppCompatActivity() {
         Log.d("Alex", "in signIn, account is " + account?.email)
         MyApplication.userEmail = account?.email.toString()
         MyApplication.userUID = account?.uid.toString()
+        MyApplication.userUID="3yvcaxXaASQLQu9pc6EQWp6h57q2"
+
         Log.d("Alex", "my uid is " + MyApplication.userUID)
         Log.d("Alex", "in signIn, uid is " + account?.uid)
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
