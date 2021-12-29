@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.Fragment
 import com.google.firebase.database.DataSnapshot
@@ -31,41 +32,58 @@ class AdminFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+        binding.adminCurrentUser.text = MyApplication.currentUserEmail
         getView()?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener {view: View ->
-            processButton()
+//            processButton()
+            tempProcessButton()
         }
-    }
-
-    fun processButton() {
-        MyApplication.userUID="3yvcaxXaASQLQu9pc6EQWp6h57q2"
-        ExpenditureViewModel.getExpenditures().forEach() {
-            if (it.category == "Transfer") {
-                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, "T")
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
-                    .setValue(eOut)
-            }
-        }
-    }
-
-    fun copyData() {
-//        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
-        val expDBRef = MyApplication.databaseref.child("Users/alexreidandbrentjohnstongmailcom/RecurringTransactions")
-        var key: String = ""
-        expListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (element in dataSnapshot.children.toMutableList()) {
-                    key = element.key.toString()
-                    for (child in element.children) {
-                        MyApplication.databaseref.child("Users/AgcnEPqB4zbDJUHME3Z29gejcyu1/RecurringTransactions/"+key).child(child.key.toString()).setValue(child.value)
-                    }
+        getView()?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener {view: View ->
+            UserViewModel.loadUsers()
+            UserViewModel.setCallback(object: UserDataUpdatedCallback {
+                override fun onDataUpdate() {
+                    Log.d("Alex", "got a callback that user data was updated")
+                    refreshData()
                 }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+            })
         }
-        expDBRef.addValueEventListener(expListener)
+        binding.adminUser1Uid.setOnClickListener {
+            uidClicked(binding.adminUser1Uid.text.toString(), binding.adminUser1Email.text.toString())
+        }
+        binding.adminUser2Uid.setOnClickListener {
+            uidClicked(binding.adminUser2Uid.text.toString(), binding.adminUser2Email.text.toString())
+        }
+        binding.adminUser3Uid.setOnClickListener {
+            uidClicked(binding.adminUser3Uid.text.toString(), binding.adminUser3Email.text.toString())
+        }
+        binding.adminUser4Uid.setOnClickListener {
+            uidClicked(binding.adminUser4Uid.text.toString(), binding.adminUser4Email.text.toString())
+        }
+    }
+
+    fun uidClicked(uid: String, email: String) {
+        Toast.makeText(activity, "Switching to user " + email, Toast.LENGTH_SHORT).show()
+        binding.adminCurrentUser.text = email
+        MyApplication.currentUserEmail = email
+        UserViewModel.clearCallback()
+        Log.d("Alex", "I clicked uid " + uid)
+        MyApplication.userUID=uid
+        DefaultsViewModel.refresh()
+        ExpenditureViewModel.refresh()
+        CategoryViewModel.refresh()
+        SpenderViewModel.refresh()
+        BudgetViewModel.refresh()
+        RecurringTransactionViewModel.refresh()
+    }
+
+    fun refreshData() {
+        binding.adminUser1Email.text = UserViewModel.getUserEmail(0)
+        binding.adminUser1Uid.text = UserViewModel.getUserUID(0)
+        binding.adminUser2Email.text = UserViewModel.getUserEmail(1)
+        binding.adminUser2Uid.text = UserViewModel.getUserUID(1)
+        binding.adminUser3Email.text = UserViewModel.getUserEmail(2)
+        binding.adminUser3Uid.text = UserViewModel.getUserUID(2)
+        binding.adminUser4Email.text = UserViewModel.getUserEmail(3)
+        binding.adminUser4Uid.text = UserViewModel.getUserUID(3)
     }
 
     override fun onDestroyView() {
@@ -74,13 +92,41 @@ class AdminFragment : Fragment() {
         _binding = null
     }
 
+    fun tempProcessButton() {
+        var tt: Double = 0.0
+        ExpenditureViewModel.getExpenditures().forEach() {
+            if (it.bfname1split + it.bfname2split != 10000) {
+                Log.d("Alex", it.date + " " + it.note)
+            }
+        }
+    }
+    fun processButton() {
+        var i: Int = 1
+        ExpenditureViewModel.getExpenditures().forEach() {
+            if (it.boughtfor == "Alex" || it.boughtfor == "Matt") {
+                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, 10000, 0, it.type)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
+                    .setValue(eOut)
+            } else if (it.boughtfor == "Brent" || it.boughtfor == "Rheannon") {
+                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, 0, 10000, it.type)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
+                    .setValue(eOut)
+            } else {
+                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, 5000, 5000, it.type)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
+                    .setValue(eOut)
+            }
+            Log.d("Alex", "did " + i.toString())
+            i = i++
+        }
+    }
+
     fun addCategories() {
 //        CategoryViewModel.addCategoryAndSubcategory("Housing", "Gas", "Non-Discretionary")
     }
     fun addTransactions() {
-//        ExpenditureViewModel.addTransaction(ExpenditureOut("07-Jan-2022", 8392, "Housing", "Gas", "enbridge", "Rheannon", "Rheannon", "") )
-
-    }
+//        ExpenditureViewModel.addTransaction(ExpenditureOut("06-Mar-2020", 6889, "Life", "Travel", "Travel - souvenirs (cusuco)", "Rheannon", "Joint", 16, 84, ""))
+         }
     fun addRecurringTransactions() {
 //        RecurringTransactionViewModel.addRecurringTransaction(RecurringTransaction("Teksavy", 5983, "Monthly", 1, "20-Jan-2022", "Life", "Internet", "Rheannon", "Rheannon"))
     }

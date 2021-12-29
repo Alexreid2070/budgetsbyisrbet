@@ -119,6 +119,9 @@ class DashboardFragment : Fragment() {
                 tv1.setText(iCategory.substring(dash+1,iCategory.length))
             else
                 tv1.setText(iCategory)
+            if (tv1.text.length > 15) {
+                tv1.text = tv1.text.substring(0,15) + "..."
+            }
         }
         val tv2 = TextView(requireContext())
         tv2.layoutParams = TableRow.LayoutParams(
@@ -282,8 +285,12 @@ class DashboardFragment : Fragment() {
                 val tableRow = it as TableRow
                 val textView = tableRow.getChildAt(0) as TextView
                 MyApplication.transactionSearchText = textView.text.toString() + " " + currentBudgetMonth.year.toString()
-                if (currentBudgetMonth.month != 0)
-                    MyApplication.transactionSearchText += "-" + currentBudgetMonth.month.toString()
+                if (currentBudgetMonth.month != 0) {
+                    if (currentBudgetMonth.month < 10)
+                        MyApplication.transactionSearchText += "-0" + currentBudgetMonth.month.toString()
+                    else
+                        MyApplication.transactionSearchText += "-" + currentBudgetMonth.month.toString()
+                }
                 view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
             }
         }
@@ -343,10 +350,14 @@ class DashboardFragment : Fragment() {
         mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
         mTableLayout!!.setStretchAllColumns(true);
 
-        val dateNow = Calendar.getInstance()
-        currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+        if (currentBudgetMonth.year == 0) {
+            val dateNow = Calendar.getInstance()
+            currentBudgetMonth =
+                BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+        }
         setActionBarTitle()
-        startLoadData(currentBudgetMonth)
+//        startLoadData(currentBudgetMonth)
+        startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
 
         val vButtonLinearLayout =         getView()?.findViewById<LinearLayout>(R.id.button_linear_layout2)
         vButtonLinearLayout?.setOnTouchListener(object : OnSwipeTouchListener(requireContext()) {
@@ -604,22 +615,38 @@ class DashboardRows {
                                     // this is a transaction to add to our subtotal
                                     var multiplier = 1.0
                                     if (iPaidByFlag != "") {
-                                        if (expenditure.paidby == "Joint") {
+                                        if (expenditure.paidby == "Joint" || expenditure.paidby == iPaidByFlag) {
+                                            if (SpenderViewModel.getSpenderName(0) == iPaidByFlag)
+                                                multiplier = expenditure.bfname1split.toDouble()/100/100
+                                            else
+                                                multiplier = expenditure.bfname2split.toDouble()/100/100
+                                        } else
+                                            multiplier = 0.0
+
+/*                                        if (expenditure.paidby == "Joint") {
                                             val spender = SpenderViewModel.getSpender(iPaidByFlag)
                                             if (spender != null)
                                                 multiplier = spender.split.toDouble() / 100
                                         } else if (iPaidByFlag != expenditure.paidby) {
                                             multiplier = 0.0
-                                        }
+                                        }*/
                                     } else if (iBoughtForFlag != "") {
-                                        if (expenditure.boughtfor == "Joint") {
+                                        if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
+                                            if (SpenderViewModel.getSpenderName(0) == iBoughtForFlag)
+                                                multiplier = expenditure.bfname1split.toDouble()/100/100
+                                            else
+                                                multiplier = expenditure.bfname2split.toDouble()/100/100
+                                        } else
+                                            multiplier = 0.0
+
+/*                                        if (expenditure.boughtfor == "Joint") {
                                             val spender =
                                                 SpenderViewModel.getSpender(iBoughtForFlag)
                                             if (spender != null)
                                                 multiplier = spender.split.toDouble() / 100
                                         } else if (iBoughtForFlag != expenditure.boughtfor) {
                                             multiplier = 0.0
-                                        }
+                                        }*/
                                     }
                                     val bdRow: DashboardData? =
                                         data.find { it.category == expenditure.category && it.subcategory == expenditure.subcategory }

@@ -110,6 +110,9 @@ class CategoryViewModel : ViewModel() {
         fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
+        fun refresh() {
+            singleInstance.loadCategories()
+        }
     }
     init {
         singleInstance = this

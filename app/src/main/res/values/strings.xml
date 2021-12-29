@@ -59,4 +59,5 @@
     <string name="fieldMustBeYesOrNo">Field must be Yes or No</string>
     <string name="accounting_fragment_label">Accounting</string>
     <string name="help_fragment_label">Help</string>
+    <string name="splitMustEqual100">Total split must equal 100%</string>
 </resources>

@@ -326,7 +326,7 @@ class TransferFragment : Fragment() {
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
                 binding.editTextNote.text.toString(), radioButtonPaidBy.text.toString(),
-                radioButtonBoughtFor.text.toString(), "T"
+                radioButtonBoughtFor.text.toString(), 0, 0, "T"
             )
             ExpenditureViewModel.addTransaction(expenditure)
             binding.editTextAmount.setText("")
@@ -340,7 +340,7 @@ class TransferFragment : Fragment() {
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
                 binding.editTextNote.text.toString(), radioButtonPaidBy.text.toString(),
-                radioButtonBoughtFor.text.toString(), "T"
+                radioButtonBoughtFor.text.toString(), 0, 0,"T"
             )
 
             (activity as MainActivity).getMyExpenditureModel().updateTransaction(editingKey, expenditure)

@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.icu.util.Calendar
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -93,6 +92,9 @@ class RecurringTransactionViewModel : ViewModel() {
                 .child(iField)
                 .setValue(iValue)
         }
+        fun refresh() {
+            singleInstance.loadRecurringTransactions()
+        }
     }
 
     init {
@@ -105,7 +107,7 @@ class RecurringTransactionViewModel : ViewModel() {
             .removeEventListener(recurringTransactionListener)
     }
 
-    fun loadRecurringTransactions(mainActivity: MainActivity) {
+    fun loadRecurringTransactions(mainActivity: MainActivity? = null) {
         // Do an asynchronous operation to fetch recurring transactions
         recurringTransactionListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -138,8 +140,10 @@ class RecurringTransactionViewModel : ViewModel() {
                         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                         // add transaction
                         Log.d("Alex", "Adding a transaction")
-                        ExpenditureViewModel.addTransaction(ExpenditureOut(it.nextdate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor, "R"))
-                        Toast.makeText(mainActivity, "Recurring transaction was added: " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
+                        ExpenditureViewModel.addTransaction(ExpenditureOut(it.nextdate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
+                            SpenderViewModel.getSpenderSplit(0), SpenderViewModel.getSpenderSplit(1), "R"))
+                        if (mainActivity != null)
+                            Toast.makeText(mainActivity, "Recurring transaction was added: " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
                     }
                 }
                 sortYourself()

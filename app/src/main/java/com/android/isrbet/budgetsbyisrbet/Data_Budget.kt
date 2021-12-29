@@ -160,6 +160,9 @@ class BudgetViewModel : ViewModel() {
                 .child(iMonth)
                 .setValue(iAmount)
         }
+        fun refresh() {
+            singleInstance.loadBudgets()
+        }
     }
 
     init {

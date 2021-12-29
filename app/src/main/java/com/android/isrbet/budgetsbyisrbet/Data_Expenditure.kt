@@ -16,6 +16,8 @@ data class Expenditure(
     var paidby: String = "",
     var boughtfor: String = "",
     var type: String = "",
+    var bfname1split: Int = 0,
+    var bfname2split: Int = 0,
     var mykey: String = ""
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
@@ -28,6 +30,8 @@ data class Expenditure(
             "subcategory" -> subcategory = value.trim()
             "paidby" -> paidby = value.trim()
             "boughtfor" -> boughtfor = value.trim()
+            "bfname1split" -> bfname1split = value.toInt()
+            "bfname2split" -> bfname2split = value.toInt()
             "note" -> note = value.trim()
             "type" -> type = value.trim()
             "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
@@ -52,7 +56,8 @@ data class Expenditure(
 
 data class ExpenditureOut(
     var date: String = "", var amount: Int = 0, var category: String = "",
-    var subcategory: String = "", var note: String = "", var paidby: String = "", var boughtfor: String = "", var type: String = ""
+    var subcategory: String = "", var note: String = "", var paidby: String = "", var boughtfor: String = "",
+    var bfname1split: Int = 0, var bfname2split: Int = 0, var type: String = ""
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -64,6 +69,8 @@ data class ExpenditureOut(
             "subcategory" -> subcategory = value
             "paidby" -> paidby = value
             "boughtfor" -> boughtfor = value
+            "bfname1split" -> bfname1split = value.toInt()
+            "bfname2split" -> bfname2split = value.toInt()
             "note" -> note = value
             "type" -> type = value
             "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
@@ -119,6 +126,10 @@ class ExpenditureViewModel : ViewModel() {
                 key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").push().key.toString()
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(key)
                 .setValue(iExpenditure)
+        }
+
+        fun refresh() {
+            singleInstance.loadExpenditures()
         }
     }
 
@@ -279,6 +290,8 @@ class ExpenditureViewModel : ViewModel() {
             expe.amount = iExpenditure.amount
             expe.paidby = iExpenditure.paidby
             expe.boughtfor = iExpenditure.boughtfor
+            expe.bfname1split = iExpenditure.bfname1split
+            expe.bfname2split = iExpenditure.bfname2split
         }
     }
 

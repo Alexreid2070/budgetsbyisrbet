@@ -51,6 +51,7 @@ class MyApplication : Application() {
         var userUID: String = ""
         var userEmail: String = ""
         var quoteForThisSession: String = ""
+        var currentUserEmail: String = ""
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {

@@ -47,6 +47,10 @@ class DefaultsViewModel : ViewModel() {
         fun updateDefault(whichOne: String, iValue: String) {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").child(whichOne).setValue(iValue)
         }
+
+        fun refresh() {
+            singleInstance.loadDefaults()
+        }
     }
 
     init {

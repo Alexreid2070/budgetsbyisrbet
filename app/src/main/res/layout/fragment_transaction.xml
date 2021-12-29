@@ -140,55 +140,11 @@
             android:spinnerMode="dropdown"
             android:visibility="visible" />
 
-        <TextView
-            android:id="@+id/inputPaidByLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/inputSubcategoryLabel"
-            android:layout_gravity="start"
-            android:paddingTop="10dp"
-            android:text="Paid by:"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/paidByRadioGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/inputPaidByLabel"
-            android:background="@drawable/myborder"
-            android:checkedButton="@+id/radio_person3"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="1dp"></RadioGroup>
-
-        <TextView
-            android:id="@+id/inputBoughtForLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/paidByRadioGroup"
-            android:layout_gravity="start"
-            android:paddingTop="10dp"
-            android:text="Bought for:"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/boughtForRadioGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/inputBoughtForLabel"
-            android:background="@drawable/myborder"
-            android:checkedButton="@+id/radio_person3"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="1dp"></RadioGroup>
-
         <LinearLayout
             android:id="@+id/transaction_note_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/boughtForRadioGroup"
+            android:layout_below="@id/inputSubcategorySpinner"
             android:orientation="horizontal"
             android:paddingTop="10dp">
 
@@ -219,11 +175,150 @@
                 android:paddingTop="10dp" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/inputPaidByLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/transaction_note_layout"
+            android:layout_gravity="start"
+            android:paddingTop="10dp"
+            android:text="Paid by:"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/paidByRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/inputPaidByLabel"
+            android:background="@drawable/myborder"
+            android:checkedButton="@+id/radio_person3"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="1dp"></RadioGroup>
+
+        <ImageView
+            android:id="@+id/transaction_expand_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/paidByRadioGroup"
+            android:src="@drawable/ic_baseline_expand_more_24"></ImageView>
+
+        <TextView
+            android:id="@+id/inputBoughtForLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/transaction_expand_button"
+            android:layout_gravity="start"
+            android:paddingTop="10dp"
+            android:text="Bought for:"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/boughtForRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/inputBoughtForLabel"
+            android:background="@drawable/myborder"
+            android:checkedButton="@+id/radio_person3"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="1dp"></RadioGroup>
+
+        <LinearLayout
+            android:id="@+id/transaction_bought_for_name1_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/boughtForRadioGroup"
+            android:orientation="horizontal"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/transaction_bought_for_name1_preamble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:text="Purchase is "
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <EditText
+                android:id="@+id/transaction_bought_for_name1_split"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:inputType="numberDecimal"/>
+            <TextView
+                android:id="@+id/transaction_bought_for_name1_suffix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:text=" % for  "
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/transaction_bought_for_name1_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:text="Name1"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/transaction_bought_for_name2_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/transaction_bought_for_name1_layout"
+            android:orientation="horizontal"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/transaction_bought_for_name2_preamble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:text="Purchase is "
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <EditText
+                android:id="@+id/transaction_bought_for_name2_split"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:inputType="numberDecimal"/>
+            <TextView
+                android:id="@+id/transaction_bought_for_name2_suffix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:text=" % for  "
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/transaction_bought_for_name2_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingTop="10dp"
+                android:text="Name2"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/transaction_type_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/transaction_note_layout"
+            android:layout_below="@id/transaction_bought_for_name2_layout"
             android:orientation="horizontal"
             android:paddingTop="10dp">
 

@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private val spenderModel: SpenderViewModel by viewModels()
     private val budgetModel: BudgetViewModel by viewModels()
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
+    private val userModel: UserViewModel by viewModels()
     private lateinit var mGoogleSignInClient:GoogleSignInClient
     private lateinit var auth: FirebaseAuth
 
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
+        userModel.clearCallback() // ditto, see above
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -171,6 +173,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             signInButton.visibility = View.GONE
         }
+        Log.d("Alex", "account.email is " + account?.email)
         if (account?.email != "alexreid2070@gmail.com") {
             val navigationView: NavigationView = findViewById(R.id.nav_view) as NavigationView
             val nav_Menu: Menu = navigationView.getMenu()
@@ -202,7 +205,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("Alex", "in signIn, account is " + account?.email)
         MyApplication.userEmail = account?.email.toString()
         MyApplication.userUID = account?.uid.toString()
-        MyApplication.userUID="3yvcaxXaASQLQu9pc6EQWp6h57q2"
+        MyApplication.currentUserEmail = account?.email.toString()
 
         Log.d("Alex", "my uid is " + MyApplication.userUID)
         Log.d("Alex", "in signIn, uid is " + account?.uid)

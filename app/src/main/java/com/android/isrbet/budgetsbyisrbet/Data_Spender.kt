@@ -28,6 +28,12 @@ class SpenderViewModel : ViewModel() {
             else
                 return null
         }
+        fun getSpenderName(pos:Int): String {
+            if (pos  < singleInstance.spenders.size)
+                return singleInstance.spenders[pos].name
+            else
+                return ""
+        }
         fun getSpenderSplit(pos:Int): Int {
             if (pos  < singleInstance.spenders.size)
                 return singleInstance.spenders[pos].split
@@ -67,6 +73,9 @@ class SpenderViewModel : ViewModel() {
   */      }
         fun addSpender(spender: Spender) {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).setValue(spender.split)
+        }
+        fun refresh() {
+            singleInstance.loadSpenders()
         }
     }
 
