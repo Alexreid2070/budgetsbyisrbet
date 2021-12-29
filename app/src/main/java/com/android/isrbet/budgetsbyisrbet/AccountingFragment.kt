@@ -96,7 +96,6 @@ class AccountingFragment : Fragment() {
                                     totals[cFIRSTNAME][cJOINTNAME] + ((it.amount/100.0) * (it.bfname1split / 10000.0))
                                 totals[cFIRSTNAME][cJOINTNAME+1] =
                                     totals[cFIRSTNAME][cJOINTNAME+1] + ((it.amount/100.0) * (it.bfname2split / 10000.0))
-                                Log.d("Alex", it.date.toString() + " " + it.note + " " + ((it.amount/100.0) * (it.bfname1split / 10000.0)).toString() + " " + ((it.amount/100.0) * (it.bfname2split / 10000.0)).toString())
                             }
                         }
                     }
@@ -143,7 +142,7 @@ class AccountingFragment : Fragment() {
         binding.accountingFj.text = "$ " + dec.format(totals[cJOINTNAME][cFIRSTNAME])
         binding.accountingSj.text = "$ " + dec.format(totals[cJOINTNAME][cSECONDNAME])
         binding.accountingJfj.text = "$ " + dec.format(totals[cJOINTNAME][cJOINTNAME])
-        binding.accountingJsj.text = "$ " + dec.format(totals[cJOINTNAME][cFIRSTNAME])
+        binding.accountingJsj.text = "$ " + dec.format(totals[cJOINTNAME][cJOINTNAME+1])
 
         binding.accountingTFf.text = "$ " + dec.format(transfer_totals[cFIRSTNAME][cFIRSTNAME])
         binding.accountingTFs.text = "$ " + dec.format(transfer_totals[cFIRSTNAME][cSECONDNAME])

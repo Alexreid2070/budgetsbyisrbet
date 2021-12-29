@@ -130,14 +130,14 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <Spinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/inputSubcategorySpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/inputSubcategoryLabel"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/myborder"
             android:spinnerMode="dropdown"
+            android:theme="@style/ThemeOverlay.AppCompat.Light"
             android:visibility="visible" />
 
         <LinearLayout

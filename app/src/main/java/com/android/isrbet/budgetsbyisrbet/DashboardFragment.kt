@@ -399,10 +399,15 @@ class DashboardFragment : Fragment() {
                 }
             } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1 ||
                 menu.getItem(i).getItemId() == R.id.FilterPaidByName2 ||
+                menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
+                menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle ||
                 menu.getItem(i).getItemId() == R.id.FilterBoughtForName1 ||
                 menu.getItem(i).getItemId() == R.id.FilterBoughtForName2) {
                 if (SpenderViewModel.getCount() > 1) {
-                    if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1) {
+                    if (menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
+                        menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle) {
+                        menu.getItem(i).setVisible(true)
+                    } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1) {
                         menu.getItem(i).setVisible(true)
                         menu.getItem(i).setTitle(SpenderViewModel.getSpender(0)?.name)
                         if (currentPaidByFilter == SpenderViewModel.getSpender(0)?.name)
@@ -434,9 +439,7 @@ class DashboardFragment : Fragment() {
                         }
                     }
                 }
-            } else if (menu.getItem(i).getItemId() == R.id.FilterTitle ||
-                    menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
-                    menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle) {
+            } else if (menu.getItem(i).getItemId() == R.id.FilterTitle) {
                 menu.getItem(i).setVisible(true)
             } else
                 menu.getItem(i).setVisible(false)

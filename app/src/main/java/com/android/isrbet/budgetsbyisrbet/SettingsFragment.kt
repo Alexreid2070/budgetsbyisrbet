@@ -2,6 +2,8 @@ package com.isrbet.budgetsbyisrbet
 
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
@@ -101,6 +103,32 @@ class SettingsFragment : Fragment() {
         integrateField.setText(DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
         val showRedField = requireActivity().findViewById(R.id.settings_red_percentage) as EditText
         showRedField.setText(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED))
+
+        if (binding.settingsSecondUserName.text.toString() == "") {
+            binding.settingsSecondPercentage.isEnabled = false
+            binding.settingsSecondUserCheckbox.isEnabled = false
+            binding.settingsJointUserCheckbox.isEnabled = false
+        }
+        var mySecondName = requireActivity().findViewById(R.id.settings_second_user_name) as EditText
+        mySecondName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun afterTextChanged(p0: Editable?) {
+                if (p0.toString() == "") {
+                    binding.settingsSecondPercentage.isEnabled = false
+                    binding.settingsSecondUserCheckbox.isEnabled = false
+                    binding.settingsJointUserCheckbox.isEnabled = false
+                } else {
+                    binding.settingsSecondPercentage.isEnabled = true
+                    binding.settingsSecondUserCheckbox.isEnabled = true
+                    binding.settingsJointUserCheckbox.isEnabled = true
+                }
+            }
+        })
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

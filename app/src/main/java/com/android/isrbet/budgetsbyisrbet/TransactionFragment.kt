@@ -99,9 +99,19 @@ class TransactionFragment : Fragment() {
         })
 
         binding.boughtForRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
-            val selectedId = binding.boughtForRadioGroup.getCheckedRadioButtonId()
-            val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-            if (newTransactionMode && radioButton.text == "Joint") {
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            Log.d("Alex", "clicked on radio group" + radioButton.getText().toString())
+            if (radioButton.getText().toString() == "Joint") {
+                binding.transactionBoughtForName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
+                binding.transactionBoughtForName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
+            } else if (radioButton.getText().toString() == SpenderViewModel.getSpenderName(0)) {
+                binding.transactionBoughtForName1Split.setText("100")
+                binding.transactionBoughtForName2Split.setText("0")
+            } else {
+                binding.transactionBoughtForName1Split.setText("0")
+                binding.transactionBoughtForName2Split.setText("100")
+            }
+            if (radioButton.text == "Joint") {
                 binding.transactionBoughtForName1Split.isEnabled = true
                 binding.transactionBoughtForName2Split.isEnabled = true
             } else {
@@ -178,6 +188,7 @@ class TransactionFragment : Fragment() {
             if (SpenderViewModel.getCount() > 1) {
                 val selectedId = binding.boughtForRadioGroup.getCheckedRadioButtonId()
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+                Log.d("Alex", "radio.button.text is '" + radioButton.text + "'")
                 if (radioButton.text == "Joint") {
                     binding.transactionBoughtForName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
                     binding.transactionBoughtForName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())

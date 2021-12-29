@@ -93,17 +93,22 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             holder.vtf_date.isVisible = false
         }
         val dec = DecimalFormat("#.00")
-        val formattedAmount = (data.amount/100).toDouble() + (data.amount % 100).toDouble()/100
+        val formattedAmount = (data.amount / 100).toDouble() + (data.amount % 100).toDouble() / 100
         holder.vtf_amount.text = dec.format(formattedAmount)
         holder.vtf_category.text = data.category
         holder.vtf_subcategory.text = data.subcategory
         if (data.paidby == data.boughtfor)
             holder.vtf_who.text = data.paidby
         else
-            holder.vtf_who.text = data.paidby.subSequence(0,2).toString() + ":" + data.boughtfor.subSequence(0,2).toString()
+            holder.vtf_who.text =
+                data.paidby.subSequence(0, 2).toString() + ":" + data.boughtfor.subSequence(0, 2)
+                    .toString()
         holder.vtf_note.text = data.note
         holder.vtf_type.text = data.type
-        holder.itemView.setOnClickListener {listener(data)}
+        holder.itemView.setOnClickListener { listener(data) }
+        if (SpenderViewModel.getCount() == 1) {
+            holder.vtf_who.visibility = View.GONE
+        }
     }
 
     fun setGroupList() {

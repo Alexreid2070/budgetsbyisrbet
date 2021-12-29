@@ -160,6 +160,10 @@ class TransactionViewAllFragment : Fragment() {
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(adapter.getCount() - 1, 0)
         else
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(MyApplication.transactionFirstInList, 0)
+
+     if (SpenderViewModel.getCount() == 1) {
+        binding.whoHeading.visibility = View.GONE
+     }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

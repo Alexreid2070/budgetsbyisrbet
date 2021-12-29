@@ -20,7 +20,6 @@ import java.util.*
 class AdminFragment : Fragment() {
     private var _binding: FragmentAdminBinding? = null
     private val binding get() = _binding!!
-    lateinit var expListener: ValueEventListener
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -35,7 +34,7 @@ class AdminFragment : Fragment() {
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
         getView()?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener {view: View ->
 //            processButton()
-            tempProcessButton()
+//            tempProcessButton()
         }
         getView()?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener {view: View ->
             UserViewModel.loadUsers()
@@ -88,7 +87,6 @@ class AdminFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-//        MyApplication.databaseref.child("Users/alexreidandbrentjohnstongmailcom/Spender").removeEventListener(expListener)
         _binding = null
     }
 
