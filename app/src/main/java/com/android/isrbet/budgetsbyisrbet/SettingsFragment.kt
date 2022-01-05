@@ -87,7 +87,7 @@ class SettingsFragment : Fragment() {
         })
 
         var defaultCategorySpinner =
-            requireActivity().findViewById<Spinner>(R.id.settings_default_category)
+            requireActivity().findViewById<Spinner>(R.id.settingsCategorySpinner)
         val arrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -226,7 +226,7 @@ class SettingsFragment : Fragment() {
             DefaultsViewModel.updateDefault(cDEFAULT_SPENDER, "Joint")
 
         // check category default
-        val defaultCategorySpinner = requireActivity().findViewById(R.id.settings_default_category) as Spinner
+        val defaultCategorySpinner = requireActivity().findViewById(R.id.settingsCategorySpinner) as Spinner
 
         if (defaultCategorySpinner.selectedItem != null) {
             Log.d("Alex", "Sub-category is " + defaultCategorySpinner.selectedItem.toString())

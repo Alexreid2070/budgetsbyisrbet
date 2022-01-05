@@ -90,33 +90,27 @@ class AdminFragment : Fragment() {
         _binding = null
     }
 
-    fun tempProcessButton() {
-        var tt: Double = 0.0
-        ExpenditureViewModel.getExpenditures().forEach() {
-            if (it.bfname1split + it.bfname2split != 10000) {
-                Log.d("Alex", it.date + " " + it.note)
-            }
-        }
-    }
     fun processButton() {
-        var i: Int = 1
-        ExpenditureViewModel.getExpenditures().forEach() {
-            if (it.boughtfor == "Alex" || it.boughtfor == "Matt") {
-                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, 10000, 0, it.type)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
-                    .setValue(eOut)
-            } else if (it.boughtfor == "Brent" || it.boughtfor == "Rheannon") {
-                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, 0, 10000, it.type)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
-                    .setValue(eOut)
-            } else {
-                var eOut = ExpenditureOut(it.date, it.amount, it.category, it.subcategory, it.note, it.paidby, it.boughtfor, 5000, 5000, it.type)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(it.mykey)
-                    .setValue(eOut)
+        var budgetListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                dataSnapshot.children.forEach() {
+                    var categoryName = it.key.toString()
+                    it.children.forEach() {
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
+                            .child(categoryName)
+                            .child(it.key.toString())
+                            .child("Rheannon")
+                            .setValue(it.value)
+                    }
+                }
             }
-            Log.d("Alex", "did " + i.toString())
-            i = i++
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+            }
         }
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget").addValueEventListener(budgetListener)
     }
 
     fun addCategories() {

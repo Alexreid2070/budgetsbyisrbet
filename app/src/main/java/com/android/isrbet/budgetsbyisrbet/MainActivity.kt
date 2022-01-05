@@ -223,7 +223,8 @@ class MainActivity : AppCompatActivity() {
             expenditureModel.loadExpenditures()
             categoryModel.loadCategories()
             spenderModel.loadSpenders()
-            budgetModel.loadBudgets()
+            if (BuildConfig.VERSION_CODE >= 9)
+                budgetModel.loadBudgets()
             recurringTransactionModel.loadRecurringTransactions(this)
         }
     }

@@ -60,4 +60,8 @@
     <string name="accounting_fragment_label">Accounting</string>
     <string name="help_fragment_label">Help</string>
     <string name="splitMustEqual100">Total split must equal 100%</string>
+    <string name="invalidYear">Invalid year</string>
+    <string name="budgetOverlap">Can\'t add, as it overlaps with an existing budget entry.</string>
+    <string name="invalidMonth">Invalid month (valid values are 1 to 12)</string>
+    <string name="budgetExistsAtThatNode">Budget already exists for that name, can\'t add.</string>
 </resources>

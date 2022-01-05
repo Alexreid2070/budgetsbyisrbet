@@ -150,7 +150,7 @@ class TransactionFragment : Fragment() {
             Log.d("Alex", "clicked on radio group" + checkedId.toString())
             val selectedId = binding.categoryRadioGroup.getCheckedRadioButtonId()
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-            addSubCategories(radioButton.getText().toString())
+            addSubCategories(radioButton.getText().toString(), "")
         })
 
         if (SpenderViewModel.getCount() == 1) {
@@ -180,6 +180,7 @@ class TransactionFragment : Fragment() {
             binding.editTextNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.categoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+            binding.inputSpinnerRelativeLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.transactionBoughtForName1Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
@@ -342,7 +343,7 @@ class TransactionFragment : Fragment() {
         }
         else { // in view mode
             for (i in 0 until menu.size()) {
-                if (menu.getItem(i).getItemId() === R.id.EditTransaction || menu.getItem(i).getItemId() == R.id.DeleteTransaction)
+                if (menu.getItem(i).getItemId() === R.id.Edit || menu.getItem(i).getItemId() == R.id.Delete)
                     menu.getItem(i).setVisible(true)
                 else
                     menu.getItem(i).setVisible(false)
@@ -351,10 +352,10 @@ class TransactionFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.EditTransaction) {
+        if (item.itemId === R.id.Edit) {
             editTransaction(args.transactionID.toString())
             return true
-        } else if (item.itemId === R.id.DeleteTransaction) {
+        } else if (item.itemId === R.id.Delete) {
             deleteTransaction(args.transactionID.toString())
             return true
         } else {
@@ -364,6 +365,8 @@ class TransactionFragment : Fragment() {
     }
 
     private fun editTransaction(iTransactionID: String) {
+        var currentCategory: String = ""
+        var currentSubCategory: String = ""
         Log.d("Alex", "clicked edit")
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Transaction"
         binding.buttonSaveTransaction.visibility = View.VISIBLE
@@ -373,7 +376,10 @@ class TransactionFragment : Fragment() {
         binding.editTextNote.isEnabled = true
         binding.inputSubcategorySpinner.isEnabled = true
         for (i in 0 until binding.categoryRadioGroup.getChildCount()) {
-            (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+            var button = binding.categoryRadioGroup.getChildAt(i) as RadioButton
+            button.isEnabled = true
+            if (button.isChecked)
+                currentCategory = button.text.toString()
         }
         for (i in 0 until binding.paidByRadioGroup.getChildCount()) {
             (binding.paidByRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
@@ -387,6 +393,9 @@ class TransactionFragment : Fragment() {
             binding.transactionBoughtForName1Split.isEnabled = true
             binding.transactionBoughtForName2Split.isEnabled = true
         }
+
+        currentSubCategory = binding.inputSubcategorySpinner.selectedItem.toString()
+        addSubCategories(currentCategory, currentSubCategory)
     }
 
     private fun deleteTransaction(iTransactionID: String) {
@@ -515,18 +524,22 @@ class TransactionFragment : Fragment() {
         binding.transactionBoughtForName2Suffix.visibility = iView
     }
 
-    private fun addSubCategories(iCategory: String) {
+    private fun addSubCategories(iCategory: String, iSubCategory: String) {
         var subCategorySpinner =
             requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
         subCategorySpinner.adapter = arrayAdapter
         Log.d("Alex", "There are " + subCategorySpinner.adapter.count.toString())
-        if (newTransactionMode)
+/*        if (newTransactionMode) {
             if (arrayAdapter != null) {
-                subCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefault(
-                    cDEFAULT_SUBCATEGORY)))
+                subCategorySpinner.setSelection(
+                    arrayAdapter.getPosition(
+                        DefaultsViewModel.getDefault(
+                            cDEFAULT_SUBCATEGORY)))
             }
+        } */
         if (arrayAdapter != null) {
+            subCategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
             arrayAdapter.notifyDataSetChanged()
         }
     }
@@ -665,7 +678,7 @@ class TransactionFragment : Fragment() {
                 radioGroup.check(newRadioButton.id)
             }
         }
-        addSubCategories(DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
+        addSubCategories(DefaultsViewModel.getDefault(cDEFAULT_CATEGORY), DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
     }
 
     override fun onDestroyView() {

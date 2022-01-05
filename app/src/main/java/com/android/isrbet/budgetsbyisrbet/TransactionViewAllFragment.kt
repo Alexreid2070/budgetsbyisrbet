@@ -169,7 +169,7 @@ class TransactionViewAllFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.SearchTransaction)
+            if (menu.getItem(i).getItemId() === R.id.Search)
                 menu.getItem(i).setVisible(true)
             else
                 menu.getItem(i).setVisible(false)
@@ -181,11 +181,18 @@ class TransactionViewAllFragment : Fragment() {
             return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
 
   */
-        if (item.itemId == R.id.SearchTransaction) {
+        if (item.itemId == R.id.Search) {
             if (binding.transactionSearch.visibility == View.GONE) {
                 binding.transactionSearch.visibility = View.VISIBLE
                 val searchView = binding.transactionSearch as SearchView
                 searchView.requestFocus()
+/*                var id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null)
+               var e = searchView.findViewById(id);
+                try {
+                    Field mCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+                    mCursorDrawableRes.setAccessible(true);
+                    mCursorDrawableRes.set(e, 0); //This sets the cursor resource ID to 0 or @null which will make it visible on white background
+                } catch (Exception ex) {} */
             } else {
                 binding.transactionSearch.visibility = View.GONE
                 val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
@@ -21,6 +22,7 @@ class AccountingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentAccountingBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_accounting, container, false)
         return binding.root
@@ -31,6 +33,12 @@ class AccountingFragment : Fragment() {
         fillInContent()
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        for (i in 0 until menu.size()) {
+            menu.getItem(i).setVisible(false)
+        }
+    }
     fun fillInContent() {
         var totals = Array(3) {DoubleArray(4) {0.0} }
         var transfer_totals = Array(3) {DoubleArray(3) {0.0} }
@@ -57,7 +65,7 @@ class AccountingFragment : Fragment() {
                             firstName -> transfer_totals[cFIRSTNAME][cFIRSTNAME] =
                                 transfer_totals[cFIRSTNAME][cFIRSTNAME] + (it.amount/100.0)
                             secondName -> transfer_totals[cFIRSTNAME][cSECONDNAME] =
-                                transfer_totals[cFIRSTNAME][cSECONDNAME] + ((it.amount/100.0)*(it.bfname2split/10000.0))
+                                transfer_totals[cFIRSTNAME][cSECONDNAME] + (it.amount/100.0)
                             "Joint" -> transfer_totals[cFIRSTNAME][cJOINTNAME] =
                                 transfer_totals[cFIRSTNAME][cJOINTNAME] + ((it.amount/100.0)*(it.bfname2split/10000.0))
                         }
@@ -65,7 +73,7 @@ class AccountingFragment : Fragment() {
                     secondName -> {
                         when (it.boughtfor) {
                             firstName -> transfer_totals[cSECONDNAME][cFIRSTNAME] =
-                                transfer_totals[cSECONDNAME][cFIRSTNAME] + ((it.amount/100.0)*(it.bfname1split/10000.0))
+                                transfer_totals[cSECONDNAME][cFIRSTNAME] + (it.amount/100.0)
                             secondName -> transfer_totals[cSECONDNAME][cSECONDNAME] =
                                 transfer_totals[cSECONDNAME][cSECONDNAME] + (it.amount/100.0)
                             "Joint" -> transfer_totals[cSECONDNAME][cJOINTNAME] =

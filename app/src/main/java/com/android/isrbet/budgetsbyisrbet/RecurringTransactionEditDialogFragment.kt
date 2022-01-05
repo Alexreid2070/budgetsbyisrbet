@@ -163,6 +163,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             binding.editRtOldRegularity.visibility = View.GONE
             binding.editRtOldNextDate.visibility = View.GONE
             binding.rtCurrentValueHeader.visibility = View.GONE
+            binding.editRtOldPaidby.visibility = View.GONE
+            binding.editRtOldBoughtfor.visibility = View.GONE
         }
         binding.editRtNewName.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))

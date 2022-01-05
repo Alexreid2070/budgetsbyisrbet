@@ -58,11 +58,6 @@
         android:label="@string/admin_fragment_label"
         tools:layout="@layout/fragment_admin" />
     <fragment
-        android:id="@+id/BudgetFragment"
-        android:name="com.isrbet.budgetsbyisrbet.BudgetFragment"
-        android:label="@string/budget_fragment_label"
-        tools:layout="@layout/fragment_budget" />
-    <fragment
         android:id="@+id/SettingsEditCategoryFragment"
         android:name="com.isrbet.budgetsbyisrbet.SettingsCategoryFragment"
         android:label="@string/settings_edit_category_label"
@@ -85,4 +80,36 @@
         android:name="com.android.isrbet.budgetsbyisrbet.HelpFragment"
         android:label="@string/help_fragment_label"
         tools:layout="@layout/fragment_help" />
+    <fragment
+        android:id="@+id/BudgetFragment"
+        android:name="com.isrbet.budgetsbyisrbet.BudgetFragment"
+        android:label="fragment_budget"
+        tools:layout="@layout/fragment_budget" >
+        <argument
+            android:name="category"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="subcategory"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+    <fragment
+        android:id="@+id/BudgetViewAllFragment"
+        android:name="com.isrbet.budgetsbyisrbet.BudgetViewAllFragment"
+        android:label="fragment_budget_view_all"
+        tools:layout="@layout/fragment_budget_view_all" >
+        <action
+            android:id="@+id/action_BudgetViewAllFragment_to_BudgetFragment"
+            app:destination="@id/BudgetFragment" >
+            <argument
+                android:name="category"
+                app:argType="string"
+                android:defaultValue="" />
+            <argument
+                android:name="subcategory"
+                app:argType="string"
+                android:defaultValue="" />
+        </action>
+    </fragment>
 </navigation>

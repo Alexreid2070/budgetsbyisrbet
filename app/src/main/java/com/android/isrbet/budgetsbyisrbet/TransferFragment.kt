@@ -195,7 +195,7 @@ class TransferFragment : Fragment() {
         }
         else { // in view mode
             for (i in 0 until menu.size()) {
-                if (menu.getItem(i).getItemId() === R.id.EditTransaction || menu.getItem(i).getItemId() == R.id.DeleteTransaction)
+                if (menu.getItem(i).getItemId() === R.id.Edit || menu.getItem(i).getItemId() == R.id.Delete)
                     menu.getItem(i).setVisible(true)
                 else
                     menu.getItem(i).setVisible(false)
@@ -204,10 +204,10 @@ class TransferFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.EditTransaction) {
+        if (item.itemId === R.id.Edit) {
             editTransfer(args.transactionID.toString())
             return true
-        } else if (item.itemId === R.id.DeleteTransaction) {
+        } else if (item.itemId === R.id.Delete) {
             deleteTransfer(args.transactionID.toString())
             return true
         } else {

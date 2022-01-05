@@ -119,32 +119,55 @@
             android:gravity="center"
             android:orientation="horizontal"></RadioGroup>
 
-        <TextView
-            android:id="@+id/inputSubcategoryLabel"
+        <LinearLayout
+            android:id="@+id/input_spinner_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/categoryRadioGroup"
-            android:layout_gravity="start"
             android:paddingTop="10dp"
-            android:text="@string/inputSubcategoryLabel"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_below="@id/categoryRadioGroup">
+            <TextView
+                android:id="@+id/inputSubcategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/inputSubcategoryLabel"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <RelativeLayout
+                android:id="@+id/inputSpinnerRelativeLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:background="@drawable/spinner_background"
+                android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/inputSubcategorySpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/inputSubcategoryLabel"
-            android:layout_alignParentEnd="true"
-            android:spinnerMode="dropdown"
-            android:theme="@style/ThemeOverlay.AppCompat.Light"
-            android:visibility="visible" />
+                <Spinner
+                    android:id="@+id/inputSubcategorySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="end"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/inputImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+            </RelativeLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/transaction_note_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/inputSubcategorySpinner"
+            android:layout_below="@id/input_spinner_layout"
             android:orientation="horizontal"
             android:paddingTop="10dp">
 
@@ -560,7 +583,6 @@
                     android:layout_gravity="right"
                     android:layout_weight="1"
                     android:text="Oct 22 - 31"
-                    android:textAlignment="center"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -570,7 +592,6 @@
                     android:layout_gravity="right"
                     android:layout_weight="1"
                     android:text="Budget"
-                    android:textAlignment="textEnd"
                     android:textStyle="bold" />
 
                 <TextView
@@ -579,8 +600,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="1"
-                    android:text="rem"
-                    android:textAlignment="textEnd" />
+                    android:text="rem" />
 
                 <TextView
                     android:id="@+id/dashboard_summary_daily_budget_rem"
@@ -588,8 +608,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
                     android:layout_weight="1"
-                    android:text="rem"
-                    android:textAlignment="textEnd" />
+                    android:text="rem" />
             </LinearLayout>
 
         </LinearLayout>

@@ -704,9 +704,16 @@ class DashboardRows {
             }
         }
         // add budget amounts
+        var whoToLookup = iBoughtForFlag
+        if (whoToLookup == "") {
+            if (SpenderViewModel.getCount() == 1)
+                whoToLookup = SpenderViewModel.getSpenderName(0)
+            else
+                whoToLookup = "Joint"
+        }
         data.forEach {
             it.budgetAmount =
-                BudgetViewModel.getBudgetAmount(it.category + "-" + it.subcategory, iBudgetMonth).amount
+                BudgetViewModel.getBudgetAmount(it.category + "-" + it.subcategory, iBudgetMonth, whoToLookup, false).amount
         }
 
         data.sortWith(compareBy({ it.category }, { it.subcategory }))

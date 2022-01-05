@@ -27,6 +27,8 @@ const val cPeriodMonth = "Month"
 const val cPeriodQuarter = "Quarter"
 const val cPeriodYear = "Year"
 val PeriodValues = listOf(cPeriodWeek, cPeriodMonth, cPeriodQuarter, cPeriodYear)
+const val cEXPANDED = "Expanded"
+const val cCONDENSED = "Condensed"
 
 const val january = "Jan"
 const val february = "Feb"
@@ -73,8 +75,33 @@ class MyApplication : Application() {
 }
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
-    constructor(period: String) : this(period.substring(0,4).toInt(), period.substring(5,7).toInt())
+    constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
+        if (period.length == 7)
+            month = period.substring(5,7).toInt()
+        else
+            month = 0
+    }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
+
+    fun setValue(iBM:BudgetMonth) {
+        year = iBM.year
+        month = iBM.month
+    }
+
+    operator fun compareTo(iBM: BudgetMonth): Int {
+        var cal1 = android.icu.util.Calendar.getInstance()
+        cal1.set(Calendar.YEAR, year)
+        cal1.set(Calendar.MONTH, month)
+        var cal2 = android.icu.util.Calendar.getInstance()
+        cal2.set(Calendar.YEAR, iBM.year)
+        cal2.set(Calendar.MONTH, iBM.month)
+        if (cal1 == cal2)
+            return 0
+        else if (cal1 < cal2)
+            return -1
+        else
+            return 1
+    }
 
     fun addMonth(inc: Int = 1) { // only works up to increases of 12
         month += inc
@@ -93,9 +120,10 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
     }
 
     override fun toString(): String {
-        if (month == 0) {
-            return year.toString()
-        } else if (month < 10) {
+//        if (month == 0) {
+//            return year.toString()
+//        } else
+        if (month < 10) {
             return year.toString() + "-0" + month.toString()
         } else {
             return year.toString() + "-" + month.toString()

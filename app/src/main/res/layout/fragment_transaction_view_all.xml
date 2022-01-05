@@ -14,8 +14,10 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         android:textCursorDrawable="@null"
+        android:theme="@style/WhiteCursorSearchView"
         app:iconifiedByDefault="false"
-        app:queryBackground="@null" />
+        app:queryBackground="@null"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/RecyclerLinearLayout"

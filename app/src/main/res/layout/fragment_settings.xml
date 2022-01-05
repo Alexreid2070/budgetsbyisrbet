@@ -184,6 +184,9 @@
             </LinearLayout>
 
         </LinearLayout>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp"></Space>
 
         <View
             android:layout_width="match_parent"
@@ -192,34 +195,61 @@
             android:paddingBottom="10dp"/>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/settings_category_spinner_layout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp">
+            android:paddingTop="10dp"
+            android:orientation="vertical">
             <TextView
+                android:id="@+id/settingsCategoryLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Default category for new expenditures:  "
+                android:layout_gravity="start"
+                android:text="Default category for new expenditures: "
                 android:textSize="16sp"
-                android:textStyle="bold">
-
-            </TextView>
-
-            <Spinner
-                android:id="@+id/settings_default_category"
+                android:textStyle="bold" />
+            <RelativeLayout
+                android:id="@+id/settingsCategorySpinnerRelativeLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@color/robin_egg_blue" />
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:background="@color/robin_egg_blue"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/settingsCategorySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="end"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/inputImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+            </RelativeLayout>
         </LinearLayout>
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp"></Space>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             android:paddingBottom="10dp"/>
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp"></Space>
         <LinearLayout
             android:layout_width="match_parent"
             android:paddingTop="5dp"
@@ -241,6 +271,9 @@
                 android:inputType="text"></EditText>
         </LinearLayout>
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp"></Space>
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -289,6 +322,9 @@
                     android:inputType="number"></EditText>
             </LinearLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="5dp"></Space>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

@@ -78,7 +78,8 @@ class RecurringTransactionFragment : Fragment() {
     }
 
     fun addRecurringTransaction() {
-        var rtdf = RecurringTransactionEditDialogFragment.newInstance("", 100,"Month", "2022-01-01", 1, "", "", "", "")
+        var rtdf = RecurringTransactionEditDialogFragment.newInstance("", 0,"Month", "2022-01-01", 1, "", "", DefaultsViewModel.getDefault(
+            cDEFAULT_SPENDER), DefaultsViewModel.getDefault(cDEFAULT_SPENDER))
         rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())

@@ -70,7 +70,7 @@ class CategoryViewModel : ViewModel() {
             val tmpList: MutableList<String> = ArrayList()
             var prevName: String = ""
             singleInstance.categories.forEach {
-                if (it.categoryName != prevName) {
+                if (it.categoryName != prevName && it.discType != cDiscTypeOff) {
                     tmpList.add(it.categoryName)
                     prevName = it.categoryName
                 }
@@ -87,6 +87,14 @@ class CategoryViewModel : ViewModel() {
             return tmpList
         }
 
+        fun getCombinedCategoriesForSpinner() : MutableList<String> {
+            var list : MutableList<String> = ArrayList()
+            singleInstance.categories.forEach {
+                if (it.discType != "Off")
+                    list.add(it.categoryName + "-" + it.subcategoryName)
+            }
+            return list
+        }
         fun getSubcategoriesForSpinner(iCategory: String) : MutableList<String> {
             var list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
