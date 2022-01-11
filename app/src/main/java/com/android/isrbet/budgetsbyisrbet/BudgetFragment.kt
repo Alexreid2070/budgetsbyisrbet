@@ -1,7 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.app.AlertDialog
-import android.media.MediaPlayer
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,11 +11,9 @@ import android.view.View.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.onNavDestinationSelected
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
 import java.text.DecimalFormat
 import java.util.*
@@ -37,6 +35,8 @@ class BudgetFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
+        BudgetViewModel.showMe()
+
         inflater.inflate(R.layout.fragment_budget, container, false)
         return binding.root
     }
@@ -46,6 +46,7 @@ class BudgetFragment : Fragment() {
 
         loadCategoryRadioButtons()
         loadSpenderRadioButtons()
+        loadOccurenceRadioButtons()
 
         setupForEdit()
         var cal = android.icu.util.Calendar.getInstance()
@@ -62,18 +63,73 @@ class BudgetFragment : Fragment() {
             binding.budgetAddWhoLabel.visibility = GONE
             binding.budgetAddWhoRadioGroup.visibility = GONE
         }
+
+        binding.budgetAddSubCategorySpinner.onItemSelectedListener = object:
+            AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateInformationFields()
+            }
+        }
+
+        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
+            if (binding.budgetAddYear.text.toString() != "")
+                updateInformationFields()
+        })
+
+        binding.budgetAddYear.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {
+                if (binding.budgetAddYear.text.toString() != "")
+                    updateInformationFields()
+            }
+        })
+
+        binding.budgetAddMonth.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {
+                if (binding.budgetAddYear.text.toString() != "")
+                    updateInformationFields()
+            }
+        })
+
+        binding.budgetAddPercentage.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                setAmountBasedOnPercentage()
+            }
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {}
+        })
+        //        updateInformationFields()
+    }
+
+    fun setAmountBasedOnPercentage() {
+        var tempDouble: Double = 0.0
+        if (binding.budgetAddPreviousAmount.text.toString() != "")
+            tempDouble = binding.budgetAddPreviousAmount.text.toString().toDouble()
+        if (binding.budgetAddPercentage.text.toString() != "")
+            tempDouble = tempDouble * (1 + binding.budgetAddPercentage.text.toString().toDouble()/100)
+        val dec = DecimalFormat("#.00")
+        binding.budgetAddAmount.setText(dec.format(tempDouble))
     }
 
     fun setupForEdit() {
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Budget"
-        binding.budgetAddCategoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+        binding.budgetAddSubCategorySpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.budgetAddSubCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
+/*        binding.budgetAddCategoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddSubCategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddYear.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddMonth.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddWhoRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+        binding.budgetAddOccurenceRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddPercentage.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-
+*/
         binding.budgetAddButtonSave.visibility = VISIBLE
         binding.budgetAddButtonSave.setOnClickListener {
             onSaveButtonClicked()
@@ -86,6 +142,9 @@ class BudgetFragment : Fragment() {
         for (i in 0 until binding.budgetAddWhoRadioGroup.getChildCount()) {
             (binding.budgetAddWhoRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
         }
+        for (i in 0 until binding.budgetAddOccurenceRadioGroup.getChildCount()) {
+            (binding.budgetAddOccurenceRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+        }
         binding.budgetAddAmount.isEnabled = true
         binding.budgetAddOrLabel.visibility = VISIBLE
         binding.budgetAddPercentageLayout.visibility = VISIBLE
@@ -93,16 +152,62 @@ class BudgetFragment : Fragment() {
         binding.budgetAddActualAmountLayout.visibility = VISIBLE
         binding.budgetAddAverageAmountLayout.visibility = VISIBLE
         binding.budgetAddAmountLabel.text = "Enter new budget amount: "
+    }
 
-        binding.budgetAddPercentage.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
-                var tempDouble = binding.budgetAddPreviousAmount.text.toString().toDouble()
-                tempDouble = tempDouble * (1 + binding.budgetAddPercentage.toString().toDouble()/100)
-                binding.budgetAddAmount.setText(tempDouble.toString())
-            }
-            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun afterTextChanged(arg0: Editable) {}
-        })
+    fun updateInformationFields() {
+        Log.d("Alex", "In updateInformationFields")
+        var prevMonth = BudgetMonth(
+            binding.budgetAddYear.text.toString().toInt(),
+            if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+        )
+        prevMonth.decrementMonth()
+        val whoSelectedId = binding.budgetAddWhoRadioGroup.getCheckedRadioButtonId()
+        var whoText: String = ""
+        val whoRadioButton = requireActivity().findViewById(whoSelectedId) as RadioButton
+        whoText = whoRadioButton.text.toString()
+        val catSelectedId = binding.budgetAddCategoryRadioGroup.getCheckedRadioButtonId()
+        var catText: String = ""
+        val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
+        catText = catRadioButton.text.toString()
+        val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
+
+        var tmpPrevAmt = BudgetViewModel.getBudgetAmount(catText + "-" + subCatText, prevMonth, whoText, true)
+
+        val dec = DecimalFormat("#.00")
+        binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
+        if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
+            binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
+            binding.budgetAddPreviousAmountDate.text = ""
+        } else {
+            binding.budgetAddPreviousAmountLabel2.text = " which is set for "
+            if (tmpPrevAmt.dateStarted.month == 0) // is an annual amount
+                binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.year.toString() + " (A)"
+            else
+                binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.toString()
+        }
+        binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
+            BudgetMonth(
+                binding.budgetAddYear.text.toString().toInt(),
+                if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+            ),
+            BudgetMonth(
+                binding.budgetAddYear.text.toString().toInt(),
+                if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+            ),
+        whoText))
+
+        val annualActuals = ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
+            BudgetMonth(
+                binding.budgetAddYear.text.toString().toInt()-1,
+                if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+            ),
+            prevMonth,
+            whoText)
+        binding.budgetAddTotalAmount.text = dec.format(annualActuals)
+        binding.budgetAddAverageAmount.text = dec.format(annualActuals/12)
+
+        if (binding.budgetAddPercentage.text.toString() != "")
+            setAmountBasedOnPercentage()
     }
 
     fun loadCategoryRadioButtons() {
@@ -119,6 +224,8 @@ class BudgetFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(it.toString())
             newRadioButton.id = ctr++
             radioGroup.addView(newRadioButton)
@@ -172,9 +279,42 @@ class BudgetFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(spender?.name)
             newRadioButton.id = ctr++
             whoRadioGroup.addView(newRadioButton)
+            if (i == SpenderViewModel.getCount()-1)  // ie check the last one
+                newRadioButton.isChecked = true
+        }
+    }
+
+    fun loadOccurenceRadioButtons() {
+        var ctr: Int
+        ctr = 300
+        val occurenceRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.budgetAdd_occurenceRadioGroup)
+        if (occurenceRadioGroup == null) Log.d("Alex", " rg 'occurence' is null")
+        else occurenceRadioGroup.removeAllViews()
+
+        var newRadioButton = RadioButton(requireContext())
+        newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        newRadioButton.setText(cBUDGET_JUST_THIS_MONTH)
+        newRadioButton.id = ctr++
+        newRadioButton.buttonTintList=
+            ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        occurenceRadioGroup.addView(newRadioButton)
+
+        newRadioButton = RadioButton(requireContext())
+        newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        newRadioButton.setText(cBUDGET_RECURRING)
+        newRadioButton.id = ctr++
+        newRadioButton.buttonTintList=
+            ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        occurenceRadioGroup.addView(newRadioButton)
+
+        val o = occurenceRadioGroup.getChildAt(1) // ie check Recurring
+        if (o is RadioButton) {
+            o.isChecked = true
         }
     }
 
@@ -182,52 +322,6 @@ class BudgetFragment : Fragment() {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
             menu.getItem(i).setVisible(false)
-        }
-    }
-
-    private fun viewBudget(iCategory: String, iSubcategory: String, iPeriod: String, iWho: String) {
-        val thisBudget = BudgetViewModel.getBudget(iCategory + "-" + iSubcategory)
-        val thisBudgetPeriod = thisBudget?.getPeriod(iPeriod, iWho)
-        if (thisBudgetPeriod == null) {
-            Toast.makeText(activity, "Attempt to view failed, budget not found", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val iAmount = thisBudgetPeriod.amount
-        val dec = DecimalFormat("#.00")
-        val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-        binding.budgetAddAmount.setText(dec.format(formattedAmount))
-
-        val categoryGroup = binding.budgetAddCategoryRadioGroup
-        for (i in 0 until categoryGroup.childCount) {
-            val o = categoryGroup.getChildAt(i)
-            if (o is RadioButton && o.text == iCategory) {
-                o.isChecked = true
-            }
-        }
-
-        var subCategorySpinner = binding.budgetAddSubCategorySpinner
-        val subCategoryList: MutableList<String> = ArrayList()
-        subCategoryList.add(iSubcategory)
-        val arrayAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            subCategoryList
-        )
-
-        subCategorySpinner.adapter = arrayAdapter
-        subCategorySpinner.setSelection(arrayAdapter.getPosition(iSubcategory))
-
-        binding.budgetAddYear.setText(thisBudgetPeriod.getYear())
-        binding.budgetAddMonth.setText(thisBudgetPeriod.getMonth())
-
-        val whoRadioGroup = binding.budgetAddWhoRadioGroup
-        for (i in 0 until whoRadioGroup.childCount) {
-            val o = whoRadioGroup.getChildAt(i)
-            if (o is RadioButton) {
-                if (o.text == iWho) {
-                    o.isChecked = true
-                }
-            }
         }
     }
 
@@ -247,6 +341,16 @@ class BudgetFragment : Fragment() {
                 return
             }
         }
+        if (binding.budgetAddAmount.text.toString() == "") {
+            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+            focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddAmount)
+            return
+        }
+        if (binding.budgetAddAmount.text.toString().toDouble() == 0.0) {
+            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+            focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddAmount)
+            return
+        }
         val selectedId = binding.budgetAddWhoRadioGroup.getCheckedRadioButtonId()
         var whoText: String = ""
         if (SpenderViewModel.getCount() == 1)
@@ -255,12 +359,16 @@ class BudgetFragment : Fragment() {
             val whoRadioButton = requireActivity().findViewById(selectedId) as RadioButton
             whoText = whoRadioButton.text.toString()
         }
+
+        val occSelectedId = binding.budgetAddOccurenceRadioGroup.getCheckedRadioButtonId()
+        val occRadioButton = requireActivity().findViewById(occSelectedId) as RadioButton
+        val occurenceText = occRadioButton.text.toString()
+
         val catSelectedId = binding.budgetAddCategoryRadioGroup.getCheckedRadioButtonId()
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
-        var tempCategory: String = catRadioButton.getText().toString() + "-" + binding.budgetAddSubCategorySpinner.selectedItem.toString()
-        var tempBudget = BudgetViewModel.getBudget(tempCategory)
+        val tempCategory: String = catRadioButton.getText().toString() + "-" + binding.budgetAddSubCategorySpinner.selectedItem.toString()
+        val tempBudget = BudgetViewModel.getBudget(tempCategory)
         if (tempBudget != null) {
-            val selectedId = binding.budgetAddWhoRadioGroup.getCheckedRadioButtonId()
             var chosenMonth: Int = 0
             if (binding.budgetAddMonth.text.toString() != "")
                 chosenMonth = binding.budgetAddMonth.text.toString().toInt()
@@ -302,16 +410,15 @@ class BudgetFragment : Fragment() {
             period = period + "-00"
         }
 
-        BudgetViewModel.updateBudget(tempCategory, period, whoText, amountInt)
+        BudgetViewModel.updateBudget(tempCategory, period, whoText, amountInt, occurenceText)
         binding.budgetAddAmount.setText("")
         binding.budgetAddAmount.requestFocus()
         binding.budgetAddYear.setText("")
         binding.budgetAddMonth.setText("")
+        binding.budgetAddPercentage.setText("")
         hideKeyboard(requireContext(), requireView())
         Toast.makeText(activity, "Budget item added", Toast.LENGTH_SHORT).show()
-
-        val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-        mp.start()
+        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 
     override fun onDestroyView() {

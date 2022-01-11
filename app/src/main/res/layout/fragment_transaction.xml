@@ -33,21 +33,27 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/editTextDate"
-                android:layout_width="20dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/dateLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/myborder"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:gravity="center"
-                android:hint="Enter date"
-                android:inputType="date"
-                android:longClickable="false"
-                android:textAlignment="center" />
+                android:minWidth="@dimen/custom_min_width"
+                android:hint="Date:"
+                app:endIconMode="clear_text"
+                android:alpha="1">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:gravity="left"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:longClickable="false"
+                    android:inputType="date" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -72,7 +78,6 @@
                 android:id="@+id/entire_input_amount_area"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/myborder"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp">
 
@@ -82,18 +87,23 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="$  "
-                    android:textColor="@color/black"
                     android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/editTextAmount"
-                    android:layout_width="0dp"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/amountLayout"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="left"
-                    android:hint="Enter amount"
-                    android:inputType="numberDecimal" />
+                    android:minWidth="@dimen/custom_min_width"
+                    app:endIconMode="clear_text"
+                    android:alpha="1">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="left"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
         </LinearLayout>
@@ -114,7 +124,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/inputCategoryLabel"
-            android:background="@drawable/myborder"
             android:checkedButton="@+id/radio_category1"
             android:gravity="center"
             android:orientation="horizontal"></RadioGroup>
@@ -182,78 +191,88 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/editTextNote"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/noteLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:background="@drawable/myborder"
-                android:ems="10"
-                android:gravity="left"
-                android:hint="Enter note"
-                app:endIconMode="clear_text"
-                android:inputType="text"
-                android:padding="5dp"
-                android:paddingTop="10dp" />
+                android:minWidth="@dimen/custom_min_width"
+                app:endIconMode="clear_text">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextNote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:gravity="left"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/inputPaidByLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/transaction_note_layout"
-            android:layout_gravity="start"
-            android:paddingTop="10dp"
-            android:text="Paid by:"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/paidByRadioGroup"
+        <LinearLayout
+            android:id="@+id/transaction_paid_by_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/inputPaidByLabel"
-            android:background="@drawable/myborder"
-            android:checkedButton="@+id/radio_person3"
-            android:gravity="center"
+            android:layout_below="@id/transaction_note_layout"
             android:orientation="horizontal"
-            android:padding="1dp"></RadioGroup>
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/inputPaidByLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Paid by:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/paidByRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/radio_person3"
+                android:gravity="center"
+                android:orientation="horizontal"></RadioGroup>
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/transaction_expand_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/paidByRadioGroup"
+            android:layout_below="@id/transaction_paid_by_layout"
             android:src="@drawable/ic_baseline_expand_more_24"></ImageView>
 
-        <TextView
-            android:id="@+id/inputBoughtForLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/transaction_expand_button"
-            android:layout_gravity="start"
-            android:paddingTop="10dp"
-            android:text="Bought for:"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/boughtForRadioGroup"
+        <LinearLayout
+            android:id="@+id/transaction_bought_for_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/inputBoughtForLabel"
-            android:background="@drawable/myborder"
-            android:checkedButton="@+id/radio_person3"
-            android:gravity="center"
+            android:layout_below="@id/transaction_expand_button"
             android:orientation="horizontal"
-            android:padding="1dp"></RadioGroup>
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/inputBoughtForLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/transaction_expand_button"
+                android:layout_gravity="start"
+                android:text="Bought for:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/boughtForRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/radio_person3"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="1dp"></RadioGroup>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/transaction_bought_for_name1_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/boughtForRadioGroup"
+            android:layout_below="@id/transaction_bought_for_layout"
             android:orientation="horizontal"
             android:paddingTop="10dp">
 
@@ -266,13 +285,20 @@
                 android:text="Purchase is "
                 android:textSize="16sp"
                 android:textStyle="bold" />
-            <EditText
-                android:id="@+id/transaction_bought_for_name1_split"
-                android:layout_width="50dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/name1_split_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:paddingTop="10dp"
-                android:inputType="numberDecimal"/>
+                android:minWidth="@dimen/custom_min_width"
+                app:endIconMode="clear_text">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/transaction_bought_for_name1_split"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:gravity="left"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
             <TextView
                 android:id="@+id/transaction_bought_for_name1_suffix"
                 android:layout_width="wrap_content"
@@ -310,13 +336,20 @@
                 android:text="Purchase is "
                 android:textSize="16sp"
                 android:textStyle="bold" />
-            <EditText
-                android:id="@+id/transaction_bought_for_name2_split"
-                android:layout_width="50dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/name2_split_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:paddingTop="10dp"
-                android:inputType="numberDecimal"/>
+                android:minWidth="@dimen/custom_min_width"
+                app:endIconMode="clear_text">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/transaction_bought_for_name2_split"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:gravity="left"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
             <TextView
                 android:id="@+id/transaction_bought_for_name2_suffix"
                 android:layout_width="wrap_content"
@@ -357,10 +390,25 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/transaction_id_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/transaction_type_layout"
+            android:visibility="gone"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/transaction_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+        <LinearLayout
             android:id="@+id/button_linear_layout_transaction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/transaction_type_layout"
+            android:layout_below="@id/transaction_id_layout"
             android:gravity="center"
             android:orientation="vertical">
 

@@ -65,6 +65,7 @@
             android:layout_weight="1"
             android:paddingLeft="5dp"
             android:text="Date"
+            android:tooltipText="This is the month that the budget amount applies to."
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -83,6 +84,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Who"
+            android:tooltipText="Who is this budget for?"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/row_budget_IsSingleHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Once?"
+            android:tooltipText="Is this a single-month budget? (1 means it is single-month, blank means it is recurring)"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -92,6 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Annual?"
+            android:tooltipText="Is this an annual budget (ie the budget amount is the total for the year and can be used anytime during the year)?  (Blank means no it's not.)"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -101,6 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Date Started"
+            android:tooltipText="This is the date for which the budget amount was first set."
             android:textSize="16sp"
             android:textStyle="bold" />
     </LinearLayout>

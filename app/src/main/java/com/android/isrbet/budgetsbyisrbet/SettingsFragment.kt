@@ -1,5 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.Editable
@@ -14,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
 import android.widget.CheckBox
 import androidx.navigation.findNavController
+import com.google.android.material.color.MaterialColors
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
@@ -71,6 +74,7 @@ class SettingsFragment : Fragment() {
                 binding.settingsJointUserCheckbox.setChecked(false)
             }
         })
+        myFirstCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
         var mySecondCheckBox = requireActivity().findViewById(R.id.settings_second_user_checkbox) as CheckBox
         mySecondCheckBox.setOnClickListener(View.OnClickListener {
             if (mySecondCheckBox.isChecked) {
@@ -78,6 +82,7 @@ class SettingsFragment : Fragment() {
                 binding.settingsJointUserCheckbox.setChecked(false)
             }
         })
+        mySecondCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
         var myJointCheckBox = requireActivity().findViewById(R.id.settings_joint_user_checkbox) as CheckBox
         myJointCheckBox.setOnClickListener(View.OnClickListener {
             if (myJointCheckBox.isChecked) {
@@ -85,6 +90,7 @@ class SettingsFragment : Fragment() {
                 binding.settingsSecondUserCheckbox.setChecked(false)
             }
         })
+        myJointCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
 
         var defaultCategorySpinner =
             requireActivity().findViewById<Spinner>(R.id.settingsCategorySpinner)
@@ -99,6 +105,8 @@ class SettingsFragment : Fragment() {
         if (arrayAdapter != null) {
             arrayAdapter.notifyDataSetChanged()
         }
+        binding.settingsCategorySpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
         val integrateField = requireActivity().findViewById(R.id.settings_integrate_with_TD_Spend) as EditText
         integrateField.setText(DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
         val showRedField = requireActivity().findViewById(R.id.settings_red_percentage) as EditText
@@ -251,7 +259,6 @@ class SettingsFragment : Fragment() {
             defShowRed = showRedField.text.toString().toInt()
         if (defShowRed != DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt())
             DefaultsViewModel.updateDefault(cDEFAULT_SHOWRED, defShowRed.toString())
-        val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-        mp.start()
+        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 }

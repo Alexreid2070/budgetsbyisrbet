@@ -32,6 +32,20 @@
             app:showAsAction="ifRoom" />
     </group>
     <group
+        android:id="@+id/directional_group">
+        <item
+            android:id="@+id/Previous"
+            android:title="Previous"
+            android:icon="@drawable/ic_fas_chevron_left"
+            app:showAsAction="ifRoom"/>
+
+        <item
+            android:id="@+id/Next"
+            android:title="Next"
+            android:icon="@drawable/ic_fas_chevron_right"
+            app:showAsAction="ifRoom"/>
+    </group>
+    <group
         android:id="@+id/filter_options_group"
         android:checkableBehavior="all">
         <item
@@ -68,11 +82,15 @@
             android:id="@+id/FilterBoughtForName2"
             android:title=" Brent" />
         <item
-            android:id="@+id/FilterExpanded"
-            android:title=" Expanded View" />
-        <item
             android:id="@+id/FilterCondensed"
-            android:title=" Condensed View" />
+            android:title=" Condensed View"
+            android:icon="@drawable/ic_fas_square"
+            app:showAsAction="ifRoom"/>
+        <item
+            android:id="@+id/FilterExpanded"
+            android:title=" Expanded View"
+            android:icon="@drawable/ic_fas_expand"
+            app:showAsAction="ifRoom"/>
     </group>
     <group
         android:id="@+id/other_options_group">

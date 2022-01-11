@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +29,7 @@ import kotlin.math.round
 import android.widget.ArrayAdapter
 import android.media.MediaPlayer
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 
 class TransactionFragment : Fragment() {
     private var _binding: FragmentTransactionBinding? = null
@@ -175,17 +177,14 @@ class TransactionFragment : Fragment() {
             } else {
                 binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
             }
-            binding.editTextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.editTextAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.editTextNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.categoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.inputSpinnerRelativeLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+//            binding.editTextDate.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+            val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+            binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+            binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
+/*            binding.inputSpinnerRelativeLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.transactionBoughtForName1Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.transactionBoughtForName2Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+            */
             if (SpenderViewModel.getCount() > 1) {
                 val selectedId = binding.boughtForRadioGroup.getCheckedRadioButtonId()
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -322,10 +321,7 @@ class TransactionFragment : Fragment() {
             tvDailyBudgetRem.setTextColor(Color.RED);
         }
 
-        val color = getBudgetColour(totalDiscActualsToDate, totalDiscBudgetToDate)
-/*        tvTotalDeltaToDate.setTextColor(color)
-        tvDailyDeltaToDate.setTextColor(color)
-        tvTotalBudgetRem.setTextColor(color) */
+        val color = getBudgetColour(requireContext(), totalDiscActualsToDate, totalDiscBudgetToDate)
         tvTotalDeltaToDate.setBackgroundColor(color)
         tvDailyDeltaToDate.setBackgroundColor(color)
         tvTotalBudgetRem.setBackgroundColor(color)
@@ -403,8 +399,7 @@ class TransactionFragment : Fragment() {
             (activity as MainActivity).getMyExpenditureModel().deleteTransaction(iTransactionID)
             Toast.makeText(activity, "Transaction deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
-            val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
-            mp.start()
+            MyApplication.playSound(context, R.raw.short_springy_gun)
         }
         fun noClicked() {
         }
@@ -426,6 +421,11 @@ class TransactionFragment : Fragment() {
             val dec = DecimalFormat("#.00")
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
             binding.editTextAmount.setText(dec.format(formattedAmount))
+            if (MyApplication.adminMode) {
+                binding.transactionIdLayout.visibility = View.VISIBLE
+                binding.transactionId.visibility = View.VISIBLE
+                binding.transactionId.text = iTransactionID
+            }
 
             val categoryGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
             for (i in 0 until categoryGroup.childCount) {
@@ -647,8 +647,7 @@ class TransactionFragment : Fragment() {
             Toast.makeText(activity, "Transaction updated", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
         }
-        val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-        mp.start()
+        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 
     fun loadCategoryRadioButtons() {
@@ -665,6 +664,8 @@ class TransactionFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(it.toString())
             newRadioButton.id = ctr++
             radioGroup.addView(newRadioButton)
@@ -701,6 +702,8 @@ class TransactionFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(spender?.name)
             newRadioButton.id = ctr++
             paidByRadioGroup.addView(newRadioButton)
@@ -722,6 +725,8 @@ class TransactionFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(spender?.name)
             newRadioButton.id = ctr++
             boughtForRadioGroup.addView(newRadioButton)

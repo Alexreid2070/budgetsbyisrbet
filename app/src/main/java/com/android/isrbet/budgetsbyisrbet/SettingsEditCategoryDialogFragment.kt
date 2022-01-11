@@ -1,4 +1,5 @@
 import android.app.AlertDialog
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 
@@ -71,8 +73,10 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
         if (oldCategory == "") { // ie this is an add, not an edit
             Log.d("Alex", "in blank")
             binding.editCategoryOldNameHeader.visibility = View.GONE
-            binding.editCategoryOldName.visibility = View.GONE
-            binding.editSubcategoryOldName.visibility = View.GONE
+//            binding.editCategoryOldName.visibility = View.GONE
+            binding.editCategoryOldName.setText("Category:")
+            binding.editSubcategoryOldName.setText("Sub Category: ")
+//            binding.editSubcategoryOldName.visibility = View.GONE
             binding.editCategoryOldDisctype.visibility = View.GONE
             binding.categoryDialogButtonDelete.visibility = View.GONE
         } else {
@@ -83,6 +87,9 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
             binding.editSubcategoryNewName.setText(oldSubcategory)
             dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
         }
+        dtSpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        dtSpinner.setPopupBackgroundResource(R.drawable.spinner)
+
     }
 
     override fun onStart() {
@@ -105,16 +112,14 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                 CategoryViewModel.setDiscType(oldCategory, oldSubcategory, dtSpinner.selectedItem.toString())
                 if (listener != null)
                     listener?.onNewDataSaved()
-                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-                mp.start()
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
             } else if (oldCategory == "") { // ie this is an add
                 CategoryViewModel.addCategoryAndSubcategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
-                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-                mp.start()
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
             } else if (oldCategory != binding.editCategoryNewName.text.toString() ||
                     oldSubcategory != binding.editSubcategoryNewName.text.toString()) {
@@ -122,8 +127,7 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                 CategoryViewModel.updateCategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), dtSpinner.selectedItem.toString())
                 if (listener != null)
                     listener?.onNewDataSaved()
-                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-                mp.start()
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
             }
         }
@@ -134,8 +138,7 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
-                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
-                mp.start()
+                MyApplication.playSound(context, R.raw.short_springy_gun)
                 dismiss()
             }
             fun noClicked() {

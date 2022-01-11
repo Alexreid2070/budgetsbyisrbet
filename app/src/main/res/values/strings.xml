@@ -19,7 +19,7 @@
     <string name="category3">Housing</string>
     <string name="category4">Travel</string>
     <string name="ok">OK</string>
-    <string name="missingAmountError">Amount is missing.  Transaction not added.</string>
+    <string name="missingAmountError">Amount is missing.</string>
     <string name="missingNoteError">The note is missing.  Transaction not added.</string>
     <string name="state_on">On</string>
     <string name="state_off">Off</string>

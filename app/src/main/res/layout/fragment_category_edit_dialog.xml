@@ -49,7 +49,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:textSize="14dp" />
     </LinearLayout>
 
@@ -73,7 +72,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:textSize="14dp" />
     </LinearLayout>
 
@@ -92,13 +90,33 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <Spinner
-            android:id="@+id/edit_category_new_disctype_spinner"
+        <RelativeLayout
+            android:id="@+id/editCategorySpinnerLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
-            android:visibility="visible" />
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/edit_category_new_disctype_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
+                android:gravity="end"
+                android:spinnerMode="dropdown" />
+
+            <ImageView
+                android:id="@+id/inputImageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout

@@ -1,4 +1,6 @@
 import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,9 +10,13 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRecurringTransactionEditDialogBinding
 import java.text.DecimalFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.math.round
 
 class RecurringTransactionEditDialogFragment() : DialogFragment() {
@@ -19,6 +25,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         fun onNewDataSaved()
     }
     private var listener: RecurringTransactionEditDialogFragmentListener? = null
+    var cal = android.icu.util.Calendar.getInstance()
 
     companion object {
         private const val KEY_NAME = "KEY_NAME"
@@ -101,7 +108,6 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         binding.editRtOldRegularity.text = oldRegularity.toString()
         binding.editRtNewRegularity.setText(oldRegularity.toString())
         binding.editRtOldNextDate.text = oldDate
-        binding.editRtNewNextDate.setText(oldDate)
         binding.editRtOldCategory.text = oldCategory
         binding.editRtOldSubcategory.text = oldSubcatgory
         binding.editRtOldPaidby.text = oldPaidBy
@@ -165,8 +171,43 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             binding.rtCurrentValueHeader.visibility = View.GONE
             binding.editRtOldPaidby.visibility = View.GONE
             binding.editRtOldBoughtfor.visibility = View.GONE
+        } else {
+            val tOldDate = LocalDate.parse(oldDate, DateTimeFormatter.ISO_DATE)
+            cal.set(Calendar.YEAR, tOldDate.year)
+            cal.set(Calendar.MONTH, tOldDate.monthValue-1)
+            cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
         }
-        binding.editRtNewName.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
+        binding.editRtNewNextDate.setText(giveMeMyDateFormat(cal))
+
+        val dateSetListener =
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                cal.set(Calendar.YEAR, year)
+                cal.set(Calendar.MONTH, monthOfYear)
+                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                binding.editRtNewNextDate.setText(giveMeMyDateFormat(cal))
+            }
+
+        binding.editRtNewNextDate.setOnClickListener {
+            DatePickerDialog(
+                requireContext(), dateSetListener,
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        binding.editRtNewPeriodSpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewPeriodSpinner.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editRtNewCategory.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewCategory.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editRtNewSubcategory.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewSubcategory.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editRtNewPaidby.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewPaidby.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editRtNewBoughtfor.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewBoughtfor.setPopupBackgroundResource(R.drawable.spinner)
+
+/*        binding.editRtNewName.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewRegularity.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewNextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
@@ -175,7 +216,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         binding.editRtNewSubcategory.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewPaidby.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewBoughtfor.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-
+*/
         binding.editRtNewCategory.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 addSubCategories(binding.editRtNewCategory.selectedItem.toString())
@@ -219,8 +260,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
-                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
-                mp.start()
+                MyApplication.playSound(context, R.raw.short_springy_gun)
                 dismiss()
             }
             fun noClicked() {
@@ -260,7 +300,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "period", rtSpinner.selectedItem.toString())
                 somethingChanged = true
             }
-            if (oldDate != binding.editRtNewNextDate.toString()) {
+            if (oldDate != binding.editRtNewNextDate.text.toString()) {
                 RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "nextdate", binding.editRtNewNextDate.text.toString())
                 somethingChanged = true
             }
@@ -299,8 +339,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 if (listener != null)
                     listener?.onNewDataSaved()
                 dismiss()
-                val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-                mp.start()
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             }
         } else if (oldName == "") { // ie this is an add
             val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(), binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(), binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidby.selectedItem.toString(), binding.editRtNewBoughtfor.selectedItem.toString())
@@ -308,8 +347,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             if (listener != null) {
                 listener?.onNewDataSaved()
             }
-            val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-            mp.start()
+            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         } else if (oldName != binding.editRtNewName.text.toString()) {
             val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(), binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(), binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidby.selectedItem.toString(), binding.editRtNewBoughtfor.selectedItem.toString())
@@ -318,8 +356,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             if (listener != null) {
                 listener?.onNewDataSaved()
             }
-            val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-            mp.start()
+            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         }
     }

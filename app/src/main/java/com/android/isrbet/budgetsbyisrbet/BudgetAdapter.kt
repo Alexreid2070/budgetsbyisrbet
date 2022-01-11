@@ -10,7 +10,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import java.text.DecimalFormat
 
-data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: String, var isAnnual: String, var dateStarted: String) {
+data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: String, var occurence: String, var isAnnual: String, var dateStarted: String) {
 
 }
 
@@ -42,6 +42,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         val dateApplicableView = rowView.findViewById(R.id.row_budget_month_applicable) as TextView
         val amountView = rowView.findViewById(R.id.row_budget_amount) as TextView
         val whoView = rowView.findViewById(R.id.row_budget_who) as TextView
+        val occurenceView = rowView.findViewById(R.id.row_budget_occurence) as TextView
         val annualView = rowView.findViewById(R.id.row_budget_annual) as TextView
         val dateStartedView = rowView.findViewById(R.id.row_budget_month_started) as TextView
 
@@ -51,6 +52,9 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         dateApplicableView.text = bData.dateApplicable
         amountView.text = dec.format(bData.amount.toDouble())
         whoView.text = bData.who
+        occurenceView.text = bData.occurence
+        if (bData.occurence != "1")
+            occurenceView.visibility = View.INVISIBLE
         annualView.text = bData.isAnnual
         var bmDateStarted = BudgetMonth(bData.dateStarted)
         var bmDateApplicable = BudgetMonth(bData.dateApplicable)
@@ -67,6 +71,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
             dateApplicableView.setTypeface(dateApplicableView.typeface, Typeface.BOLD)
             amountView.setTypeface(amountView.typeface, Typeface.BOLD)
             whoView.setTypeface(whoView.typeface, Typeface.BOLD)
+            occurenceView.setTypeface(occurenceView.typeface, Typeface.BOLD)
             annualView.setTypeface(annualView.typeface, Typeface.BOLD)
             dateStartedView.setTypeface(dateStartedView.typeface, Typeface.BOLD)
         }

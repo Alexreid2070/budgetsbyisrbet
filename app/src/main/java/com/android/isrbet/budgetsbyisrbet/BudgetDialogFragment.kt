@@ -40,14 +40,16 @@ class BudgetDialogFragment : DialogFragment() {
         private const val KEY_MONTH_VALUE = "KEY_MONTH_VALUE"
         private const val KEY_WHO_VALUE = "KEY_WHO_VALUE"
         private const val KEY_AMOUNT_VALUE = "KEY_AMOUNT_VALUE"
+        private const val KEY_OCCURENCE_VALUE = "KEY_OCCURENCE_VALUE"
         private var oldYear: Int = 0
         private var oldMonth: Int = 0
         private var oldWho: String = ""
         private var oldAmount: Double = 0.0
+        private var oldOccurence: Int = -1
 
         fun newInstance(
             category: String,
-            year: Int, month: Int, who: String, amount: Double
+            year: Int, month: Int, who: String, amount: Double, occurence: Int
         ): BudgetDialogFragment {
             val args = Bundle()
             args.putString(KEY_CATEGORY, category)
@@ -55,12 +57,15 @@ class BudgetDialogFragment : DialogFragment() {
             args.putString(KEY_MONTH_VALUE, month.toString())
             args.putString(KEY_WHO_VALUE, who)
             args.putString(KEY_AMOUNT_VALUE, amount.toString())
+            args.putString(KEY_OCCURENCE_VALUE, occurence.toString())
             val fragment = BudgetDialogFragment()
             fragment.arguments = args
+
             oldAmount = amount
             oldYear = year
             oldMonth = month
             oldWho = who
+            oldOccurence = occurence
             return fragment
         }
     }
@@ -95,9 +100,28 @@ class BudgetDialogFragment : DialogFragment() {
                 binding.budgetDialogNewWhoRadioGroup.check(newRadioButton.id)
             }
         }
+        ctr = 300
+        var newRadioButton = RadioButton(requireContext())
+        newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        newRadioButton.setText(cBUDGET_JUST_THIS_MONTH)
+        newRadioButton.id = ctr++
+        binding.budgetDialogOccurenceRadioGroup.addView(newRadioButton)
+        if (oldOccurence == 1)
+            binding.budgetDialogOccurenceRadioGroup.check(newRadioButton.id)
+
+        newRadioButton = RadioButton(requireContext())
+        newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        newRadioButton.setText(cBUDGET_RECURRING)
+        newRadioButton.id = ctr++
+        binding.budgetDialogOccurenceRadioGroup.addView(newRadioButton)
+        if (oldOccurence == 0)
+            binding.budgetDialogOccurenceRadioGroup.check(newRadioButton.id)
 
         for (i in 0 until binding.budgetDialogNewWhoRadioGroup.getChildCount()) {
             (binding.budgetDialogNewWhoRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+        }
+        for (i in 0 until binding.budgetDialogOccurenceRadioGroup.getChildCount()) {
+            (binding.budgetDialogOccurenceRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
         }
     }
 
@@ -127,12 +151,14 @@ class BudgetDialogFragment : DialogFragment() {
         binding.budgetDialogNewAmount.setText(dec.format(amtDouble))
         val who = arguments?.getString(KEY_WHO_VALUE)
         Log.d("Alex", "who is " + who)
+        val occurence = arguments?.getString(KEY_OCCURENCE_VALUE)
+        Log.d("Alex", "occurence is " + occurence)
 
         val whoRadioGroup = binding.budgetDialogNewWhoRadioGroup
         for (i in 0 until whoRadioGroup.childCount) {
             val o = whoRadioGroup.getChildAt(i)
             if (o is RadioButton) {
-                Log.d("Alex", "o.text is " + o.text)
+                Log.d("Alex", "who.text is " + o.text)
                 if (o.text == who) {
                     o.isChecked = true
                 }
@@ -148,9 +174,23 @@ class BudgetDialogFragment : DialogFragment() {
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.getChildCount()) {
                     (binding.budgetDialogNewWhoRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
                 }
+                for (i in 0 until binding.budgetDialogOccurenceRadioGroup.getChildCount()) {
+                    (binding.budgetDialogOccurenceRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+                }
                 binding.budgetDialogNewAmount.isEnabled = true
                 currentMode = "Edit"
             } else { // it's edit
+                // Make sure there are values set for all fields
+                if (binding.budgetDialogNewAmount.text.toString() == "") {
+                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+                    focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
+                    return@setOnClickListener
+                }
+                if (binding.budgetDialogNewAmount.text.toString().toDouble() == 0.0) {
+                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+                    focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
+                    return@setOnClickListener
+                }
 
                 Log.d("Alex", "need to save new values")
                 var tmpDouble1: Double = 0.0
@@ -158,7 +198,6 @@ class BudgetDialogFragment : DialogFragment() {
                 tmpDouble1 = round(tmpDouble1 * 100) / 100
                 var amountInt: Int = (tmpDouble1 * 100.0).toInt()
 
-                val selectedId = binding.budgetDialogNewWhoRadioGroup.checkedRadioButtonId
                 var newWho: String = ""
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
                     val o = binding.budgetDialogNewWhoRadioGroup.getChildAt(i)
@@ -167,6 +206,14 @@ class BudgetDialogFragment : DialogFragment() {
                             newWho = o.text.toString()
                 }
                 Log.d("Alex", "oldwho is " + oldWho + " and newwho is " + newWho)
+                var newOccurence: String = ""
+                for (i in 0 until binding.budgetDialogOccurenceRadioGroup.childCount) {
+                    val o = binding.budgetDialogOccurenceRadioGroup.getChildAt(i)
+                    if (o is RadioButton)
+                        if (o.isChecked)
+                            newOccurence = o.text.toString()
+                }
+                Log.d("Alex", "oldOccurence is " + oldOccurence + " and new is " + newOccurence)
                 if (oldWho == newWho) {
                     BudgetViewModel.updateBudget(
                         binding.budgetDialogCategory.text.toString(),
@@ -174,29 +221,34 @@ class BudgetDialogFragment : DialogFragment() {
                             oldYear, oldMonth
                         ).toString(),
                         newWho,
-                        amountInt)
+                        amountInt,
+                        newOccurence)
                     if (listener != null)
                         listener?.onNewDataSaved()
-                    val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-                    mp.start()
+                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                     dismiss()
                 } else {
                     // check to see if there is already an entry for the new who.
                     var budgetListener = object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             if (dataSnapshot.getValue() == null) { // nothing exists at this node so we can add it
-                                Log.d("Alex", "NOthing exists at this node so we can add it ")
-                                var prevMonth = BudgetMonth(
-                                    binding.budgetDialogYear.text.toString().toInt(),
-                                    binding.budgetDialogMonth.text.toString().toInt()
-                                )
-                                prevMonth.decrementMonth()
-                                var tmpPrevAmt = BudgetViewModel.getBudgetAmount(
-                                    binding.budgetDialogCategory.text.toString(),
-                                    prevMonth,
-                                    newWho,
-                                    true
-                                )
+                                Log.d("Alex", "Nothing exists at this node so we can add it ")
+                                var monthToUse:Int = 0
+                                if (binding.budgetDialogMonth.text.toString() == "")
+                                    monthToUse = 0
+                                else
+                                    monthToUse = binding.budgetDialogMonth.text.toString().toInt()
+                                    var prevMonth = BudgetMonth(
+                                        binding.budgetDialogYear.text.toString().toInt(),
+                                        monthToUse
+                                    )
+                                    prevMonth.decrementMonth()
+                                    var tmpPrevAmt = BudgetViewModel.getBudgetAmount(
+                                        binding.budgetDialogCategory.text.toString(),
+                                        prevMonth,
+                                        newWho,
+                                        true
+                                    )
                                 Log.d("Alex", "tmpDouble1 is " + tmpDouble1.toString() + " and tmpPrev is " + tmpPrevAmt.amount.toString())
                                 if (tmpDouble1 == tmpPrevAmt.amount) {
                                     // ie new amount is same as previous month, so we can just delete this month's change
@@ -207,33 +259,55 @@ class BudgetDialogFragment : DialogFragment() {
                                         ).toString(),
                                         newWho
                                     )
+                                    // delete oldWho
+                                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), BudgetMonth(
+                                        oldYear, oldMonth).toString(), oldWho)
                                     if (listener != null)
                                         listener?.onNewDataSaved()
+                                    dismiss()
+                                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                                     Log.d("Alex",
                                         "tmpDouble1 is same as previous month so just deleted the entry '" + tmpDouble1 + "'"
                                     )
                                 } else { // new amount is different from previous month, so need to record it
-                                    BudgetViewModel.updateBudget(
-                                        binding.budgetDialogCategory.text.toString(),
-                                        BudgetMonth(
-                                            oldYear, oldMonth
-                                        ).toString(),
-                                        newWho,
-                                        amountInt
-                                    )
-                                    if (listener != null)
-                                        listener?.onNewDataSaved()
-                                    Log.d("Alex", "tmpDouble1 is '" + tmpDouble1 + "'")
+                                    var tempBudget = BudgetViewModel.getBudget(binding.budgetDialogCategory.text.toString())
+                                    if (tempBudget != null) {
+                                        var monthToUse:Int = 0
+                                        if (binding.budgetDialogMonth.text.toString() == "")
+                                            monthToUse = 0
+                                        else
+                                            monthToUse = binding.budgetDialogMonth.text.toString().toInt()
+                                        if (!tempBudget.overlapsWithExistingBudget(
+                                                BudgetMonth(binding.budgetDialogYear.text.toString().toInt(), monthToUse).toString(),
+                                                newWho)) {
+                                            BudgetViewModel.updateBudget(
+                                                binding.budgetDialogCategory.text.toString(),
+                                                BudgetMonth(
+                                                    oldYear, oldMonth
+                                                ).toString(),
+                                                newWho,
+                                                amountInt,
+                                                newOccurence
+                                            )
+                                            // delete oldWho
+                                            BudgetViewModel.deleteBudget(
+                                                binding.budgetDialogCategory.text.toString(),
+                                                BudgetMonth(
+                                                    oldYear, oldMonth
+                                                ).toString(),
+                                                oldWho
+                                            )
+                                            if (listener != null)
+                                                listener?.onNewDataSaved()
+                                            dismiss()
+                                            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                                        } else {
+                                            showErrorMessage(getParentFragmentManager(), getString(R.string.budgetOverlap))
+                                            focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
+                                            return
+                                        }
+                                    }
                                 }
-                                // delete oldWho
-                                BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), BudgetMonth(
-                                    oldYear, oldMonth).toString(), oldWho)
-                                if (listener != null)
-                                    listener?.onNewDataSaved()
-                                dismiss()
-                                val mp: MediaPlayer =
-                                    MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-                                mp.start()
                             } else { // something exists so error
                                 showErrorMessage(
                                     getParentFragmentManager(),
@@ -250,13 +324,18 @@ class BudgetDialogFragment : DialogFragment() {
                         override fun onCancelled(dataSnapshot: DatabaseError) {
                         }
                     }
+                    var monthToUse:Int = 0
+                    if (binding.budgetDialogMonth.text.toString() == "")
+                        monthToUse = 0
+                    else
+                        monthToUse = binding.budgetDialogMonth.text.toString().toInt()
                     val dbRef =
                         MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
                             .child(binding.budgetDialogCategory.text.toString())
                             .child(
                                 BudgetMonth(
                                     binding.budgetDialogYear.text.toString().toInt(),
-                                    binding.budgetDialogMonth.text.toString().toInt()
+                                    monthToUse
                                 ).toString()
                             )
                             .child(newWho)
@@ -267,16 +346,20 @@ class BudgetDialogFragment : DialogFragment() {
         binding.budgetDialogButton2.setOnClickListener() {
             if (currentMode == "View") { // ie user chose Delete
                 fun yesClicked() {
+                    var monthToUse:Int = 0
+                    if (binding.budgetDialogMonth.text.toString() == "")
+                        monthToUse = 0
+                    else
+                        monthToUse = binding.budgetDialogMonth.text.toString().toInt()
                     BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), BudgetMonth(
                         binding.budgetDialogYear.text.toString().toInt(),
-                        binding.budgetDialogMonth.text.toString().toInt()
+                        monthToUse
                     ).toString(), oldWho)
                     if (listener != null)
                         listener?.onNewDataSaved()
                     Toast.makeText(activity, "Budget deleted", Toast.LENGTH_SHORT).show()
                     dismiss()
-                    val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
-                    mp.start()
+                    MyApplication.playSound(context, R.raw.short_springy_gun)
                 }
                 fun noClicked() {
                 }

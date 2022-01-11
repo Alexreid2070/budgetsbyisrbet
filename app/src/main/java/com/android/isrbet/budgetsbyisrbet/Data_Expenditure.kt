@@ -118,6 +118,26 @@ class ExpenditureViewModel : ViewModel() {
             return tmpTotal
         }
 
+        fun getActualsForPeriod(iCategory: String, iSubCategory: String, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
+            Log.d("Alex", "getting actuals for " + iCategory+"-"+iSubCategory + " for " + iWho + " from " + iStartPeriod.toString() + " to " + iEndPeriod.toString())
+            var tTotal: Double = 0.0
+            var firstDay = iStartPeriod.toString()+"-01"
+            var lastDay = iEndPeriod.toString()+"-31"
+            loop@ for (expenditure in singleInstance.expenditures) {
+                if (expenditure.type != "T" &&
+                        expenditure.date >= firstDay &&
+                        expenditure.date <= lastDay &&
+                        expenditure.category == iCategory &&
+                        expenditure.subcategory == iSubCategory &&
+                        expenditure.boughtfor == iWho) {
+                    // this is a transaction to add to our subtotal
+                        tTotal += (expenditure.amount.toDouble() / 100)
+                }
+            }
+
+            return tTotal
+        }
+
         fun addTransaction(iExpenditure: ExpenditureOut) {
             val key: String
             if (iExpenditure.type == "R")

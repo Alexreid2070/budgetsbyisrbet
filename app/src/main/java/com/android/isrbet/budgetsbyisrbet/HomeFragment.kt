@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +52,27 @@ class HomeFragment : Fragment() {
                 ?.setOnClickListener { view: View ->
                     view?.findNavController()?.navigate(R.id.DashboardFragment)
                 }
+            getView()?.findViewById<TextView>(R.id.quote_field)?.setOnTouchListener(object : OnSwipeTouchListener(requireContext()) {
+                override fun onSwipeLeft() {
+                    super.onSwipeLeft()
+                    Log.d("Alex", "swiped left")
+                }
+                override fun onSwipeRight() {
+                    super.onSwipeRight()
+                    Log.d("Alex", "swiped right")
+                }
+                override fun onSwipeBottom() {
+                    super.onSwipeBottom()
+                    Log.d("Alex", "swiped bottom, want to show menu")
+                    (activity as MainActivity?)?.openDrawer()
+                }
+
+                override fun onSwipeTop() {
+                    super.onSwipeTop()
+                    Log.d("Alex", "swiped top, want to go to Add Transaction")
+                    view?.findNavController()?.navigate(R.id.TransactionFragment)
+                }
+            })
         }
 
         alignExpenditureMenuWithDataState() // ie turn off Expenditure menu item until data has arrived

@@ -14,9 +14,11 @@ import android.view.*
 import android.widget.TextView
 import android.widget.TableLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import com.google.android.material.color.MaterialColors
 import java.util.*
 
 class DashboardFragment : Fragment() {
@@ -61,7 +63,7 @@ class DashboardFragment : Fragment() {
 
             if (row != null && lastCategory != "" && row.category != lastCategory) {
                 // sub-total row
-                createViewRow("Sub-total", i, lastCategory + " Total", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
+                createViewRow("Sub-total", i, lastCategory + " Total", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
                 grandBudgetTotal += lastCategoryBudgetTotal
                 grandActualTotal += lastCategoryActualTotal
                 lastCategoryBudgetTotal = 0.0
@@ -70,6 +72,7 @@ class DashboardFragment : Fragment() {
 
             if (row != null) {
                 lastCategory = row.category
+               // zzz
                 createViewRow("Detail", i, row.category + "-" + row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
                 lastCategoryBudgetTotal += row.budgetAmount
                 lastCategoryActualTotal += row.actualAmount
@@ -77,7 +80,7 @@ class DashboardFragment : Fragment() {
             i++
         }
 
-        createViewRow("Sub-total", i++, lastCategory + " Total", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
+        createViewRow("Sub-total", i++, lastCategory + " Total", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
         grandBudgetTotal += lastCategoryBudgetTotal
         grandActualTotal += lastCategoryActualTotal
         createViewRow("Grand total", i++, "Grand Total", "", grandBudgetTotal, grandActualTotal)
@@ -104,16 +107,13 @@ class DashboardFragment : Fragment() {
             TableRow.LayoutParams.WRAP_CONTENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        if (iRowType == "Detail")
-            tv1.gravity = Gravity.LEFT
-        else
-            tv1.gravity = Gravity.RIGHT
+        tv1.gravity = if (iRowType == "Detail") Gravity.LEFT else Gravity.RIGHT
         tv1.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv1.text = ""
-            tv1.setBackgroundColor(Color.parseColor("#f7f7f7"))
+            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv1.setBackgroundColor(Color.parseColor("#ffffff"))
+            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             val dash = iCategory.indexOf("-")
             if (dash > -1)
                 tv1.setText(iCategory.substring(dash+1,iCategory.length))
@@ -128,13 +128,18 @@ class DashboardFragment : Fragment() {
             TableRow.LayoutParams.WRAP_CONTENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        tv2.gravity = Gravity.LEFT
-        tv2.setPadding(5, 15, 0, 15)
+        if (iRowType == "Sub-total") {
+            tv2.gravity = Gravity.CENTER
+            tv2.setPadding(0, 0, 0, 0)
+        } else {
+            tv2.gravity = Gravity.LEFT
+            tv2.setPadding(5, 15, 0, 15)
+        }
         if (iRowType == "Header") {
             tv2.text = "Disc?"
-            tv2.setBackgroundColor(Color.parseColor("#f7f7f7"))
+            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv2.setBackgroundColor(Color.parseColor("#ffffff"))
+            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             tv2.setText(iDiscFlag)
         }
         val tv3 = TextView(requireContext())
@@ -153,10 +158,9 @@ class DashboardFragment : Fragment() {
         tv3.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv3.text = "Budget"
-            tv3.setBackgroundColor(Color.parseColor("#f7f7f7"))
+            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv3.setBackgroundColor(Color.parseColor("#ffffff"))
-            tv3.setTextColor(Color.parseColor("#000000"))
+            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType == "Delta" && iBudgetAmount == 0.0)
                 tv3.setText("")
             else
@@ -178,10 +182,9 @@ class DashboardFragment : Fragment() {
         tv4.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv4.text = "Actual"
-            tv4.setBackgroundColor(Color.parseColor("#f7f7f7"))
+            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv4.setBackgroundColor(Color.parseColor("#ffffff"))
-            tv4.setTextColor(Color.parseColor("#000000"))
+            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType == "Delta" && iActualAmount == 0.0)
                 tv4.setText("")
             else
@@ -203,10 +206,9 @@ class DashboardFragment : Fragment() {
         tv5.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv5.text = "%"
-            tv5.setBackgroundColor(Color.parseColor("#f7f7f7"))
+            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv5.setBackgroundColor(Color.parseColor("#ffffff"))
-            tv5.setTextColor(Color.parseColor("#000000"))
+            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             pct =
                 if (iActualAmount == 0.0 || iBudgetAmount == 0.0) 0.0
                 else iActualAmount / iBudgetAmount
@@ -216,6 +218,7 @@ class DashboardFragment : Fragment() {
         // add table row
         val tr = TableRow(requireContext())
         tr.id = iRowNo + 1
+        tr.tag = iRowType
         val trParams = TableLayout.LayoutParams(
             TableLayout.LayoutParams.MATCH_PARENT,
             TableLayout.LayoutParams.WRAP_CONTENT
@@ -224,7 +227,7 @@ class DashboardFragment : Fragment() {
         tr.setPadding(0, 0, 0, 0)
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
-            val color = getBudgetColour(iActualAmount, iBudgetAmount)
+            val color = getBudgetColour(requireContext(), iActualAmount, iBudgetAmount)
             tv5.setBackgroundColor(color)
         }
         else if (iRowType == "Header") {
@@ -233,24 +236,24 @@ class DashboardFragment : Fragment() {
             tv3.setTypeface(null, Typeface.BOLD)
             tv4.setTypeface(null, Typeface.BOLD)
             tv5.setTypeface(null, Typeface.BOLD)
-            tv1.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv2.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv3.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv4.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv5.setBackgroundColor(Color.parseColor("#f8f8f8"))
+            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
         }
         else if (iRowType == "Sub-total") {
             tv1.setTypeface(null, Typeface.BOLD)
             tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
+            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F); // 14F is default
             tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv1.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv2.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv3.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv4.setBackgroundColor(Color.parseColor("#f8f8f8"))
-            tv5.setBackgroundColor(Color.parseColor("#f8f8f8"))
+            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
         }
         else if (iRowType == "Grand total") {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -259,11 +262,11 @@ class DashboardFragment : Fragment() {
             tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv1.setBackgroundColor(Color.parseColor("#C0C0C0"))
-            tv2.setBackgroundColor(Color.parseColor("#C0C0C0"))
-            tv3.setBackgroundColor(Color.parseColor("#C0C0C0"))
-            tv4.setBackgroundColor(Color.parseColor("#C0C0C0"))
-            tv5.setBackgroundColor(Color.parseColor("#C0C0C0"))
+            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
+            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
+            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
+            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
+            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
         } else if (iRowType == "Delta") {
             if (tv3.text != "") {
                 tv1.text = "Under Budget"
@@ -278,13 +281,14 @@ class DashboardFragment : Fragment() {
         tr.addView(tv3)
         tr.addView(tv4)
         tr.addView(tv5)
-        if (iRowType != "Header") {
+        if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total" && iRowType != "Delta") {
             tr.setOnClickListener {
                 Log.d("Alex", "row " + it.id + " was clicked")
                 // go to ViewAll with the SubCategory as the search term
                 val tableRow = it as TableRow
                 val textView = tableRow.getChildAt(0) as TextView
                 MyApplication.transactionSearchText = textView.text.toString() + " " + currentBudgetMonth.year.toString()
+                MyApplication.transactionSearchText = MyApplication.transactionSearchText.replace("...","")
                 if (currentBudgetMonth.month != 0) {
                     if (currentBudgetMonth.month < 10)
                         MyApplication.transactionSearchText += "-0" + currentBudgetMonth.month.toString()
@@ -292,6 +296,23 @@ class DashboardFragment : Fragment() {
                         MyApplication.transactionSearchText += "-" + currentBudgetMonth.month.toString()
                 }
                 view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
+            }
+        } else if (iRowType == "Sub-total") {
+            tr.setOnClickListener {
+                Log.d("Alex", "header was clicked")
+                val tableRow = it as TableRow
+                val tv1 = tableRow.getChildAt(0) as TextView
+                val tv2 = tableRow.getChildAt(1) as TextView
+                Log.d("Alex", "header was clicked " + tv2.text.toString())
+                if (tv2.text.toString() == "+") {
+                    Log.d("Alex", "Expand")
+                    tv2.text = "-"
+                    refreshRows(tv1.text.toString().replace(" Total",""), View.VISIBLE)
+                } else {
+                        Log.d("Alex", "Collapse")
+                    tv2.text = "+"
+                    refreshRows(tv1.text.toString().replace(" Total",""), View.GONE)
+                }
             }
         }
         mTableLayout!!.addView(tr, trParams)
@@ -309,11 +330,37 @@ class DashboardFragment : Fragment() {
                 bottomRowMargin
             )
             trSep.layoutParams = trParamsSep
-/*            val tvSep = TextView(requireContext())
-            val tvSepLay: TableRow.LayoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                TableRow.LayoutParams.WRAP_CONTENT
-            ) */
+        }
+    }
+
+    fun refreshRows(iCategory: String, iVisibility: Int) {
+        var firstDetailLine: Int = 0
+        var lastDetailLine: Int = 0
+        mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
+        var tableRow: TableRow?
+        do {
+            lastDetailLine += 1
+            tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
+            val cat = tableRow?.getChildAt(0) as TextView
+            Log.d("Alex", "tag is " + tableRow?.tag + " cat is " + cat.text.toString() + " iCategory is " + iCategory)
+        } while (tableRow != null && !(tableRow?.tag == "Sub-total" && cat.text.toString().substring(0,iCategory.length) == iCategory))
+        if (tableRow == null) // no detail rows found
+            return
+        // found sub-total row, now work backwards
+        lastDetailLine -= 1
+        tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
+        if (tableRow?.tag != "Detail")  // ie no details for this category
+            return
+        firstDetailLine = lastDetailLine
+        do {
+            firstDetailLine -= 1
+            tableRow = mTableLayout!!.getChildAt(firstDetailLine) as TableRow
+        } while (tableRow != null && tableRow?.tag == "Detail")
+        firstDetailLine += 1
+        // now check if section should be expanded or collapsed
+        for (i in firstDetailLine..lastDetailLine) {
+            tableRow = mTableLayout!!.getChildAt(i) as TableRow
+            tableRow.visibility = iVisibility
         }
     }
 
@@ -380,23 +427,13 @@ class DashboardFragment : Fragment() {
         for (i in 0 until menu.size()) {
             if (menu.getItem(i).getItemId() == R.id.FilterRecurring) {
                 menu.getItem(i).setVisible(true)
-                if (currentRecFilter == "Recurring")
-                    menu.getItem(i).setChecked(true)
-                else
-                    menu.getItem(i).setChecked(false)
+                menu.getItem(i).setChecked(currentRecFilter == "Recurring")
             } else if (menu.getItem(i).getItemId() == R.id.FilterDiscretionary) {
                 menu.getItem(i).setVisible(true)
-                if (currentDiscFilter == "Discretionary")
-                    menu.getItem(i).setChecked(true)
-                else
-                    menu.getItem(i).setChecked(false)
+                menu.getItem(i).setChecked(currentDiscFilter == "Discretionary")
             } else if (menu.getItem(i).getItemId() == R.id.FilterNonDiscretionary) {
                 menu.getItem(i).setVisible(true)
-                if (currentDiscFilter == "Non-Discretionary") {
-                    menu.getItem(i).setChecked(true)
-                } else {
-                    menu.getItem(i).setChecked(false)
-                }
+                menu.getItem(i).setChecked(currentDiscFilter == "Non-Discretionary")
             } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1 ||
                 menu.getItem(i).getItemId() == R.id.FilterPaidByName2 ||
                 menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
@@ -410,33 +447,19 @@ class DashboardFragment : Fragment() {
                     } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1) {
                         menu.getItem(i).setVisible(true)
                         menu.getItem(i).setTitle(SpenderViewModel.getSpender(0)?.name)
-                        if (currentPaidByFilter == SpenderViewModel.getSpender(0)?.name)
-                            menu.getItem(i).setChecked(true)
-                        else
-                            menu.getItem(i).setChecked(false)
+                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(0)?.name)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName2) {
                         menu.getItem(i).setVisible(true)
                         menu.getItem(i).setTitle(SpenderViewModel.getSpender(1)?.name)
-                        if (currentPaidByFilter == SpenderViewModel.getSpender(1)?.name) {
-                            menu.getItem(i).setChecked(true)
-                        } else {
-                            menu.getItem(i).setChecked(false)
-                        }
+                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(1)?.name)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterBoughtForName1) {
                         menu.getItem(i).setVisible(true)
                         menu.getItem(i).setTitle(SpenderViewModel.getSpender(0)?.name)
-                        if (currentBoughtForFilter == SpenderViewModel.getSpender(0)?.name)
-                            menu.getItem(i).setChecked(true)
-                        else
-                            menu.getItem(i).setChecked(false)
+                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(0)?.name)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterBoughtForName2) {
                         menu.getItem(i).setVisible(true)
                         menu.getItem(i).setTitle(SpenderViewModel.getSpender(1)?.name)
-                        if (currentBoughtForFilter == SpenderViewModel.getSpender(1)?.name) {
-                            menu.getItem(i).setChecked(true)
-                        } else {
-                            menu.getItem(i).setChecked(false)
-                        }
+                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(1)?.name)
                     }
                 }
             } else if (menu.getItem(i).getItemId() == R.id.FilterTitle) {
@@ -625,14 +648,6 @@ class DashboardRows {
                                                 multiplier = expenditure.bfname2split.toDouble()/100/100
                                         } else
                                             multiplier = 0.0
-
-/*                                        if (expenditure.paidby == "Joint") {
-                                            val spender = SpenderViewModel.getSpender(iPaidByFlag)
-                                            if (spender != null)
-                                                multiplier = spender.split.toDouble() / 100
-                                        } else if (iPaidByFlag != expenditure.paidby) {
-                                            multiplier = 0.0
-                                        }*/
                                     } else if (iBoughtForFlag != "") {
                                         if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
                                             if (SpenderViewModel.getSpenderName(0) == iBoughtForFlag)
@@ -641,15 +656,6 @@ class DashboardRows {
                                                 multiplier = expenditure.bfname2split.toDouble()/100/100
                                         } else
                                             multiplier = 0.0
-
-/*                                        if (expenditure.boughtfor == "Joint") {
-                                            val spender =
-                                                SpenderViewModel.getSpender(iBoughtForFlag)
-                                            if (spender != null)
-                                                multiplier = spender.split.toDouble() / 100
-                                        } else if (iBoughtForFlag != expenditure.boughtfor) {
-                                            multiplier = 0.0
-                                        }*/
                                     }
                                     val bdRow: DashboardData? =
                                         data.find { it.category == expenditure.category && it.subcategory == expenditure.subcategory }
@@ -657,10 +663,7 @@ class DashboardRows {
                                         val row = DashboardData()
                                         row.category = expenditure.category
                                         row.subcategory = expenditure.subcategory
-                                        if (expDiscIndicator == "Discretionary")
-                                            row.discIndicator = "D"
-                                        else
-                                            row.discIndicator = "ND"
+                                        row.discIndicator = if (expDiscIndicator == "Discretionary") "D" else "ND"
                                         row.actualAmount =
                                             expenditure.amount.toDouble() / 100 * multiplier
                                         data.add(row)
@@ -691,14 +694,8 @@ class DashboardRows {
                 row.category = tBudgetCategories[i].substring(0, dash)
                 row.subcategory =
                     tBudgetCategories[i].substring(dash + 1, tBudgetCategories[i].length)
-                if (CategoryViewModel.getDiscretionaryIndicator(
-                        row.category,
-                        row.subcategory
-                    ) == "Discretionary"
-                )
-                    row.discIndicator = "D"
-                else
-                    row.discIndicator = "ND"
+                row.discIndicator = if (CategoryViewModel.getDiscretionaryIndicator(row.category, row.subcategory)
+                    == "Discretionary") "D" else "ND"
                 row.actualAmount = 0.0
                 data.add(row)
             }
@@ -712,8 +709,42 @@ class DashboardRows {
                 whoToLookup = "Joint"
         }
         data.forEach {
-            it.budgetAmount =
-                BudgetViewModel.getBudgetAmount(it.category + "-" + it.subcategory, iBudgetMonth, whoToLookup, false).amount
+            val budgetForPeriod = BudgetViewModel.getBudgetAmount(
+                it.category + "-" + it.subcategory,
+                iBudgetMonth,
+                whoToLookup,
+                false
+            )
+
+            if (iBudgetMonth.month == 0 || budgetForPeriod.dateStarted.month != 0) { // ie an annual view, or not an annual budget
+                it.budgetAmount = budgetForPeriod.amount
+            } else {
+                val totalAnnualBudget = BudgetViewModel.getBudgetAmount(it.category + "-" + it.subcategory, iBudgetMonth, whoToLookup, false).amount // get total annual budget
+                var totalAnnualActualsForEarlierMonths = 0.0
+                if (iBudgetMonth.month != 1) {
+                    if (whoToLookup == "Joint") {
+                        for (i in 0..2) {
+                            totalAnnualActualsForEarlierMonths +=
+                                ExpenditureViewModel.getActualsForPeriod(
+                                    it.category, it.subcategory,
+                                    BudgetMonth(iBudgetMonth.year, 1),
+                                    BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                                    SpenderViewModel.getSpenderName(i)
+                                )
+                        }
+                    } else {
+                        totalAnnualActualsForEarlierMonths =
+                            ExpenditureViewModel.getActualsForPeriod(
+                                it.category, it.subcategory,
+                                BudgetMonth(iBudgetMonth.year, 1),
+                                BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                                whoToLookup
+                            )
+                    }
+                }
+                val budgetRemaining = if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0) totalAnnualBudget - totalAnnualActualsForEarlierMonths else 0.0
+                it.budgetAmount = if (it.actualAmount < budgetRemaining) it.actualAmount else budgetRemaining
+            }
         }
 
         data.sortWith(compareBy({ it.category }, { it.subcategory }))

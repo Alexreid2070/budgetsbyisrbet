@@ -2,6 +2,8 @@ package com.android.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.Editable
@@ -15,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.onNavDestinationSelected
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
 import java.text.DecimalFormat
@@ -90,7 +93,7 @@ class TransferFragment : Fragment() {
 
         if (newTransferMode) {
             (activity as AppCompatActivity).supportActionBar?.title = "Add Transfer"
-            binding.editTextDate.setBackgroundColor(
+/*            binding.editTextDate.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.robin_egg_blue
@@ -126,7 +129,7 @@ class TransferFragment : Fragment() {
                     R.color.white
                 )
             )
-        } else {
+*/        } else {
             (activity as AppCompatActivity).supportActionBar?.title = "View Transfer"
             binding.buttonSaveTransfer.visibility = View.GONE
             binding.editTextDate.isEnabled = false
@@ -234,8 +237,7 @@ class TransferFragment : Fragment() {
             (activity as MainActivity).getMyExpenditureModel().deleteTransaction(iTransactionID)
             Toast.makeText(activity, "Transfer deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
-            val mp: MediaPlayer = MediaPlayer.create(context, R.raw.short_springy_gun)
-            mp.start()
+            MyApplication.playSound(context, R.raw.short_springy_gun)
         }
         fun noClicked() {
         }
@@ -348,8 +350,7 @@ class TransferFragment : Fragment() {
             Toast.makeText(activity, "Transfer updated", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
         }
-        val mp: MediaPlayer = MediaPlayer.create(context, R.raw.impact_jaw_breaker)
-        mp.start()
+        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 
     fun loadSpenderRadioButtons() {
@@ -366,6 +367,8 @@ class TransferFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(spender?.name)
             newRadioButton.id = ctr++
             paidByRadioGroup.addView(newRadioButton)
@@ -387,6 +390,8 @@ class TransferFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.setText(spender?.name)
             newRadioButton.id = ctr++
             boughtForRadioGroup.addView(newRadioButton)

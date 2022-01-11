@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#CC6600</color>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#93FFE8</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="light_gray">#EEEEEEEE</color>
-    <color name="orange_salmon">#C47451</color>
     <color name="sedona">#CC6600</color>
+    <color name="orange_salmon">#C47451</color>
     <color name="pastel_orange">#F8B88B</color>
-    <color name="robin_egg_blue">#BDEDFF</color>
+    <color name="orange">#FFA500</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="lightestgray">#f8f8f8</color>
+    <color name="lighter_gray">#f7f7f7</color>
+    <color name="light_gray">#EEEEEEEE</color>
+    <color name="medium_gray">#C0C0C0</color>
+    <color name="dark_gray">#808080</color>
+    <color name="darker_gray">#3A3B3C</color>
+    <color name="darkest_gray">#3D3C3A</color>
+    <color name="black">#FF000000</color>
+    <color name="light_blue">#EDDA74</color>
+    <color name="blue">#0000FF</color>
 </resources>

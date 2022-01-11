@@ -33,7 +33,11 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.provider.Settings
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import java.io.PrintWriter
+import java.io.StringWriter
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -50,6 +54,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        var myExceptionHandler: MyExceptionHandler
+
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
         userModel.clearCallback() // ditto, see above
@@ -120,6 +126,10 @@ class MainActivity : AppCompatActivity() {
         else {
             var intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
             startActivity(intent);
+            if (Settings.Secure.getString(this.getContentResolver(),"enabled_notification_listeners").contains(getApplicationContext().getPackageName())) {
+                Log.d("Alex", "After asking, it's true")
+            } else
+                Log.d("Alex", "After asking, it's false")
         }
     }
 
@@ -128,9 +138,6 @@ class MainActivity : AppCompatActivity() {
         if (intCon.checkConnection(this)) { // we're on wifi..  But do we need this check?
             // do something??
         }
-/*        val intent = Intent("GET_ACTIVE_NOTIFICATIONS")
-        sendBroadcast(intent)
-*/
         return super.onCreateView(name, context, attrs)
     }
 
@@ -178,6 +185,8 @@ class MainActivity : AppCompatActivity() {
             val navigationView: NavigationView = findViewById(R.id.nav_view) as NavigationView
             val nav_Menu: Menu = navigationView.getMenu()
             nav_Menu.findItem(R.id.AdminFragment).setVisible(false)
+        } else {
+            MyApplication.adminMode = true
         }
         // Check if user is signed in (non-null) and update UI accordingly.
         var currentUser = auth.getCurrentUser()
@@ -276,9 +285,41 @@ class MainActivity : AppCompatActivity() {
         return expenditureModel
     }
 
+    fun openDrawer() {
+        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            drawer.openDrawer(GravityCompat.START);
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 /*        Firebase.auth.signOut()
         mGoogleSignInClient.signOut() */
+    }
+}
+
+// this doesn't work yet
+class MyExceptionHandler : Thread.UncaughtExceptionHandler {
+    override fun uncaughtException(thread: Thread, exception: Throwable) {
+        Log.d("Alex", "In exception handler")
+        val stackTrace = StringWriter()
+        exception.printStackTrace(PrintWriter(stackTrace))
+        System.err.println(stackTrace) // You can use LogCat too
+
+/*        val intent = Intent(context, MainActivity)
+        val s: String = stackTrace.toString()
+        intent.putExtra(
+            "uncaughtException",
+            "Exception is: " + stackTrace.toString()
+        )
+        intent.putExtra("stacktrace", s)
+        myContext.startActivity(intent)
+        //for restarting the Activity
+        Process.killProcess(Process.myPid())
+        System.exit(0)    }
+*/
     }
 }

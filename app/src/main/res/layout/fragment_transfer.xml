@@ -37,7 +37,6 @@
                 android:layout_width="20dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/myborder"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
@@ -71,7 +70,6 @@
                 android:id="@+id/entire_input_amount_area"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/myborder"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp">
 
@@ -97,55 +95,61 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/inputPaidByLabel"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/transfer_paidby_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/linearlayoutAmount"
-            android:layout_gravity="start"
-            android:paddingTop="10dp"
-            android:text="Paid by:"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:paddingTop="10dp">
+            <TextView
+                android:id="@+id/inputPaidByLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Paid by:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-        <RadioGroup
-            android:id="@+id/paidByRadioGroup"
+            <RadioGroup
+                android:id="@+id/paidByRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/radio_person3"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="1dp"></RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/transfer_boughtfor_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/inputPaidByLabel"
-            android:background="@drawable/myborder"
-            android:checkedButton="@+id/radio_person3"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="1dp"></RadioGroup>
+            android:layout_below="@id/transfer_paidby_layout"
+            android:paddingTop="10dp">
+            <TextView
+                android:id="@+id/inputBoughtForLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Bought for:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/inputBoughtForLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/paidByRadioGroup"
-            android:layout_gravity="start"
-            android:paddingTop="10dp"
-            android:text="Bought for:"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/boughtForRadioGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/inputBoughtForLabel"
-            android:background="@drawable/myborder"
-            android:checkedButton="@+id/radio_person3"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="1dp"></RadioGroup>
+            <RadioGroup
+                android:id="@+id/boughtForRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/radio_person3"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="1dp"></RadioGroup>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/transfer_note_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/boughtForRadioGroup"
+            android:layout_below="@id/transfer_boughtfor_layout"
             android:orientation="horizontal"
             android:paddingTop="10dp">
 
@@ -166,7 +170,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_weight="1"
-                android:background="@drawable/myborder"
                 android:ems="10"
                 android:gravity="left"
                 android:hint="Enter note"
@@ -176,21 +179,25 @@
                 android:paddingTop="10dp" />
         </LinearLayout>
 
+        <Space
+            android:id="@+id/transfer_space1"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_below="@id/transfer_note_layout"
+            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/transfer_note_layout"
+            android:layout_below="@id/transfer_space1"
             android:gravity="center">
 
             <Button
                 android:id="@+id/button_save_transfer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
-                android:text="Save"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:text="Save" />
         </LinearLayout>
 
     </RelativeLayout>

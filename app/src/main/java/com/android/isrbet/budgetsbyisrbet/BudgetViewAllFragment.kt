@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
@@ -13,12 +14,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
 
 class BudgetViewAllFragment : Fragment() {
     private var _binding: FragmentBudgetViewAllBinding? = null
     private val binding get() = _binding!!
-    private var currentFilter: String = cEXPANDED
+    private var currentFilter: String = cCONDENSED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +55,10 @@ class BudgetViewAllFragment : Fragment() {
                 else
                     menu.getItem(i).setChecked(false)
             } else if (menu.getItem(i).getItemId() == R.id.FilterTitle) {
+                menu.getItem(i).setVisible(true)
+            } else if (menu.getItem(i).getItemId() == R.id.Previous) {
+                menu.getItem(i).setVisible(true)
+            } else if (menu.getItem(i).getItemId() == R.id.Next) {
                 menu.getItem(i).setVisible(true)
             } else
                 menu.getItem(i).setVisible(false)
@@ -96,6 +102,12 @@ class BudgetViewAllFragment : Fragment() {
             activity?.invalidateOptionsMenu()
             loadRows(binding.budgetCategorySpinner.selectedItem.toString())
             return true
+        } else if (item.itemId === R.id.Previous) {
+            moveCategories(-1)
+            return true
+        } else if (item.itemId === R.id.Next) {
+            moveCategories(1)
+            return true
         } else {
             val navController = findNavController()
             return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
@@ -112,6 +124,7 @@ class BudgetViewAllFragment : Fragment() {
         if (arrayAdapter != null) {
             arrayAdapter.notifyDataSetChanged()
         }
+        binding.budgetCategorySpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
 
         categorySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -155,12 +168,18 @@ class BudgetViewAllFragment : Fragment() {
                     var monthToSend: Int = bmDateApplicable.month
                     if (bmDateStarted.month == 0)
                         monthToSend = 0
+                    var amountToSend: Double = 0.0
+                    if (monthToSend == 0)
+                        amountToSend = itemValue.amount.toDouble() * 12
+                    else
+                        amountToSend = itemValue.amount.toDouble()
                     var rtdf = BudgetDialogFragment.newInstance(
                         binding.budgetCategorySpinner.selectedItem.toString(),
                         bmDateApplicable.year,
                         monthToSend,
                         itemValue.who,
-                        itemValue.amount.toDouble()
+                        amountToSend,
+                        itemValue.occurence.toInt()
                     )
                     rtdf.setDialogFragmentListener(object :
                         BudgetDialogFragment.BudgetEditDialogFragmentListener {
@@ -180,6 +199,27 @@ class BudgetViewAllFragment : Fragment() {
                 }
             }
         }
+    }
+
+    fun moveCategories(iDirection: Int) {
+        val currentCategoryPosition = binding.budgetCategorySpinner.selectedItemPosition
+        var newCategoryPosition: Int = currentCategoryPosition
+        if (iDirection == -1) {
+            if (currentCategoryPosition > 0) {
+                newCategoryPosition = currentCategoryPosition - 1
+            } else {
+                newCategoryPosition = 0
+            }
+        } else { // has to be +1
+            if (currentCategoryPosition < binding.budgetCategorySpinner.adapter.count-1) {
+                newCategoryPosition = currentCategoryPosition + 1
+            } else {
+                newCategoryPosition = binding.budgetCategorySpinner.adapter.count-1
+            }
+        }
+        val newCategory = binding.budgetCategorySpinner.getItemAtPosition(newCategoryPosition)
+        binding.budgetCategorySpinner.setSelection(newCategoryPosition)
+        loadRows(newCategory.toString())
     }
 
     override fun onDestroyView() {

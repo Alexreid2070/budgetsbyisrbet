@@ -16,8 +16,6 @@ import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 class TransactionViewAllFragment : Fragment() {
     private var _binding: FragmentTransactionViewAllBinding? = null
     private val binding get() = _binding!!
-//    private val layoutManager: RecyclerView.LayoutManager? = null
-//    private val adapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,14 +183,8 @@ class TransactionViewAllFragment : Fragment() {
             if (binding.transactionSearch.visibility == View.GONE) {
                 binding.transactionSearch.visibility = View.VISIBLE
                 val searchView = binding.transactionSearch as SearchView
-                searchView.requestFocus()
-/*                var id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null)
-               var e = searchView.findViewById(id);
-                try {
-                    Field mCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
-                    mCursorDrawableRes.setAccessible(true);
-                    mCursorDrawableRes.set(e, 0); //This sets the cursor resource ID to 0 or @null which will make it visible on white background
-                } catch (Exception ex) {} */
+//                searchView.requestFocus()
+                focusAndOpenSoftKeyboard(requireContext(), searchView)
             } else {
                 binding.transactionSearch.visibility = View.GONE
                 val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)

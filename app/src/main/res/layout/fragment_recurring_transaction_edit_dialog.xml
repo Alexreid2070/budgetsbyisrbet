@@ -123,7 +123,6 @@
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:orientation="horizontal">
 
             <Spinner
@@ -205,7 +204,13 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp"/>
+            android:textSize="14dp"
+            android:clickable="false"
+            android:cursorVisible="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:inputType="date"
+            android:longClickable="false"/>
     </LinearLayout>
 
     <LinearLayout
@@ -237,7 +242,6 @@
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:orientation="horizontal">
 
             <Spinner
@@ -290,7 +294,6 @@
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:orientation="horizontal">
 
             <Spinner
@@ -343,7 +346,6 @@
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:orientation="horizontal">
 
             <Spinner
@@ -396,7 +398,6 @@
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             android:layout_weight="1"
-            android:background="@color/robin_egg_blue"
             android:orientation="horizontal">
 
             <Spinner

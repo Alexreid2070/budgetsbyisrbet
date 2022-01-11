@@ -23,7 +23,6 @@
         android:id="@+id/RecyclerLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/light_gray"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         app:layout_constraintTop_toBottomOf="@+id/transaction_search">
@@ -45,6 +44,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:text="Cat"
+            android:tooltipText="Category"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -55,6 +55,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:text="SubCat"
+            android:tooltipText="Sub-Category"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -65,6 +66,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:text="By:For"
+            android:tooltipText="Who paid for the expense, and who was it bought for.  If the name is the same for both, only one name is shown.  If the name is different, it is shown as Fir:Sec, ie abbreviated First and Second names."
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -85,6 +87,7 @@
             android:layout_weight=".5"
             android:layout_gravity="right"
             android:text="Rec"
+            android:tooltipText="If this is an automatically generated Recurring transaction then an R is shown.  Otherwise it's blank, which means it was manually entered by the user."
             android:textSize="16sp"
             android:textStyle="bold" />
     </LinearLayout>

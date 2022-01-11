@@ -11,10 +11,14 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import android.app.Activity
 import android.graphics.Color
+import android.media.MediaPlayer
 import androidx.fragment.app.FragmentManager
 import android.net.ConnectivityManager
 import android.view.GestureDetector
 import android.view.MotionEvent
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import kotlin.random.Random
 
 const val RC_SIGN_IN = 7
@@ -29,6 +33,8 @@ const val cPeriodYear = "Year"
 val PeriodValues = listOf(cPeriodWeek, cPeriodMonth, cPeriodQuarter, cPeriodYear)
 const val cEXPANDED = "Expanded"
 const val cCONDENSED = "Condensed"
+const val cBUDGET_RECURRING = "Recurring"
+const val cBUDGET_JUST_THIS_MONTH = "Just this month"
 
 const val january = "Jan"
 const val february = "Feb"
@@ -54,6 +60,8 @@ class MyApplication : Application() {
         var userEmail: String = ""
         var quoteForThisSession: String = ""
         var currentUserEmail: String = ""
+        var mediaPlayer: MediaPlayer? = null
+        var adminMode: Boolean = false
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
@@ -63,7 +71,13 @@ class MyApplication : Application() {
             }
             return quoteForThisSession
         }
-}
+
+        fun playSound(context: Context?, iSound: Int ) {
+            if (mediaPlayer == null)
+                mediaPlayer = MediaPlayer.create(context, iSound)
+            mediaPlayer?.start()
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -72,14 +86,16 @@ class MyApplication : Application() {
         database = FirebaseDatabase.getInstance()
         databaseref = database.getReference()
     }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        mediaPlayer?.release()
+    }
 }
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
-        if (period.length == 7)
-            month = period.substring(5,7).toInt()
-        else
-            month = 0
+        month = period.substring(5,7).toInt()
     }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
 
@@ -104,18 +120,26 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
     }
 
     fun addMonth(inc: Int = 1) { // only works up to increases of 12
-        month += inc
-        if (month > 12) {
-            year++
-            month -= 12
+        if (month == 0) { // isannual
+            year += inc
+        } else {
+            month += inc
+            if (month > 12) {
+                year++
+                month -= 12
+            }
         }
     }
 
     fun decrementMonth(inc: Int = 1) { // only works up to decreases of 12
-        month -= inc
-        if (month <= 0) {
-            year--
-            month += 12
+        if (month == 0) { // isannual
+            year -= inc
+        } else {
+            month -= inc
+            if (month <= 0) {
+                year--
+                month += 12
+            }
         }
     }
 
@@ -288,7 +312,7 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
     open fun onSwipeBottom() {}
 }
 
-fun getBudgetColour(iActual: Double, iBudget: Double): Int {
+fun getBudgetColour(context: Context, iActual: Double, iBudget: Double): Int {
     if (iActual <= iBudget) {
         return Color.GREEN
     } else if ((iActual > iBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
@@ -297,7 +321,7 @@ fun getBudgetColour(iActual: Double, iBudget: Double): Int {
         return Color.RED
     } else {
         Log.d("Alex", "found orange")
-        return Color.parseColor("#FFA500")  // orange
+        return ContextCompat.getColor(context, R.color.orange)  // orange
     }
 }
 
@@ -330,7 +354,12 @@ fun textIsSafe(iText: String) : Boolean {
         return true
 }
 
-val inspirationalQuotes = listOf(
+fun getColorInHex(iColor: Int, iOpacity: String): String {
+    val hexColor = java.lang.String.format("#%s%06X", iOpacity, 0xFFFFFF and iColor)
+    return hexColor
+}
+
+    val inspirationalQuotes = listOf(
     "Life is about making an impact, not making an income. -Kevin Kruse",
     "Whatever the mind of man can conceive and believe, it can achieve. -Napoleon Hill",
     "Strive not to be a success, but rather to be of value. -Albert Einstein",

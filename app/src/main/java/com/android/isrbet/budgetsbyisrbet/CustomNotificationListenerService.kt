@@ -15,6 +15,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
         fun getExpenseNotificationCount(): Int {
             Log.d("Alex", "getting expense count")
+            if (!::singleInstance.isInitialized)
+                return 0
             val activeNotnCount = singleInstance.activeNotifications.size
             Log.d("Alex", "activeNotnCount is " + activeNotnCount)
             var tCount:Int = 0
