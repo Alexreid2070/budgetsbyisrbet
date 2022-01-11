@@ -304,14 +304,17 @@ class DashboardFragment : Fragment() {
                 val tv1 = tableRow.getChildAt(0) as TextView
                 val tv2 = tableRow.getChildAt(1) as TextView
                 Log.d("Alex", "header was clicked " + tv2.text.toString())
+                var tmpCat = tv1.text.toString().replace(" Total","")
+                tmpCat = tmpCat.replace("...","")
+                tmpCat = tmpCat.trim()
                 if (tv2.text.toString() == "+") {
                     Log.d("Alex", "Expand")
                     tv2.text = "-"
-                    refreshRows(tv1.text.toString().replace(" Total",""), View.VISIBLE)
+                    refreshRows(tmpCat, View.VISIBLE)
                 } else {
                         Log.d("Alex", "Collapse")
                     tv2.text = "+"
-                    refreshRows(tv1.text.toString().replace(" Total",""), View.GONE)
+                    refreshRows(tmpCat, View.GONE)
                 }
             }
         }
@@ -342,8 +345,9 @@ class DashboardFragment : Fragment() {
             lastDetailLine += 1
             tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
             val cat = tableRow?.getChildAt(0) as TextView
-            Log.d("Alex", "tag is " + tableRow?.tag + " cat is " + cat.text.toString() + " iCategory is " + iCategory)
-        } while (tableRow != null && !(tableRow?.tag == "Sub-total" && cat.text.toString().substring(0,iCategory.length) == iCategory))
+            Log.d("Alex", "tag is " + tableRow?.tag + " cat is '" + cat.text.toString() + "' iCategory is " + iCategory + " len " + iCategory.length)
+            val lenToCompare = if (cat.text.toString().length < iCategory.length) cat.text.toString().length else iCategory.length
+        } while (tableRow != null && !(tableRow?.tag == "Sub-total" && cat.text.toString().substring(0,lenToCompare) == iCategory))
         if (tableRow == null) // no detail rows found
             return
         // found sub-total row, now work backwards

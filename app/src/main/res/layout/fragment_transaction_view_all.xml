@@ -12,7 +12,7 @@
         android:id="@+id/transaction_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="?attr/colorPrimary"
         android:textCursorDrawable="@null"
         android:theme="@style/WhiteCursorSearchView"
         app:iconifiedByDefault="false"

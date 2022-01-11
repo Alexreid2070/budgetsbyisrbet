@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#CC6600</color>
     <color name="sedona">#CC6600</color>
     <color name="orange_salmon">#C47451</color>
     <color name="pastel_orange">#F8B88B</color>

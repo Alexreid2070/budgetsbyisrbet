@@ -95,13 +95,25 @@ class AdminFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach() {
                     var categoryName = it.key.toString()
-                    it.children.forEach() {
-                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
-                            .child(categoryName)
-                            .child(it.key.toString())
-                            .child("Rheannon")
-                            .setValue(it.value)
-                    }
+                        it.children.forEach() {
+                            var period = it.key.toString()
+                                it.children.forEach() {
+                                    var who = it.key.toString()
+                                    var amount = it.value.toString().toInt()
+                                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
+                                        .child(categoryName)
+                                        .child(period)
+                                        .child(who)
+                                        .child("amount")
+                                        .setValue(amount)
+                                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
+                                        .child(categoryName)
+                                        .child(period)
+                                        .child(who)
+                                        .child("occurence")
+                                        .setValue(0)
+                                }
+                            }
                 }
             }
 
@@ -110,7 +122,7 @@ class AdminFragment : Fragment() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget").addValueEventListener(budgetListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget").addValueEventListener(budgetListener)
     }
 
     fun addCategories() {
