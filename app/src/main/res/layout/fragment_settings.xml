@@ -3,377 +3,471 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".SettingsFragment"
     android:paddingTop="?android:attr/actionBarSize">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp">
-
-        <LinearLayout
+        android:orientation="vertical">
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
+            android:layout_height="wrap_content">
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"></TextView>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:hint="Name"
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:hint="% for Joint"
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:hint="Default"
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="User:"
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/settings_first_user_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Name"></EditText>
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-                <EditText
-                    android:id="@+id/settings_first_percentage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="%"
-                    android:inputType="numberDecimal"></EditText>
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-                <CheckBox
-                    android:id="@+id/settings_first_user_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onUserDefaultCheckboxClicked">
-                </CheckBox>
-            </LinearLayout>
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="5dp">
-            </Space>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Second User:"
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-                <EditText
-                    android:id="@+id/settings_second_user_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Name  "
-                    android:inputType="textCapWords"
-                    tools:ignore="HardcodedText" />
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-                <EditText
-                    android:id="@+id/settings_second_percentage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="%"
-                    android:inputType="numberDecimal"></EditText>
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-                <CheckBox
-                    android:id="@+id/settings_second_user_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onUserDefaultCheckboxClicked">
-                </CheckBox>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_joint_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp">
-
-                <TextView
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Joint User:  "
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-                <TextView
-                    android:id="@+id/settings_joint_user_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Joint"
-                    android:textSize="16sp"
-                    android:enabled="false"></TextView>
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:id="@+id/settings_joint_percentage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:inputType="numberDecimal"
-                    android:text="100"
-                    android:textSize="16sp"
-                    android:enabled="false"></TextView>
-                <Space
-                    android:layout_width="5dp"
-                    android:layout_height="wrap_content"/>
-                <CheckBox
-                    android:id="@+id/settings_joint_user_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onUserDefaultCheckboxClicked">
-                </CheckBox>
-            </LinearLayout>
-
-        </LinearLayout>
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="5dp"></Space>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:paddingBottom="10dp"/>
-
-        <LinearLayout
-            android:id="@+id/settings_category_spinner_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/settingsCategoryLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:text="Default category for new expenditures: "
-                android:textSize="16sp"
-                android:textStyle="bold" />
-            <RelativeLayout
-                android:id="@+id/settingsCategorySpinnerRelativeLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/settingsCategorySpinner"
+                android:orientation="vertical">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginStart="5dp"
-                    android:background="@android:color/transparent"
-                    android:gravity="end"
-                    android:spinnerMode="dropdown" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Defaults"
+                        android:gravity="center"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
-                <ImageView
-                    android:id="@+id/inputImageView"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="5dp">
+
+                        <TextView
+                            android:layout_width="10dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:layout_width="@dimen/custom_med_width"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Name"
+                            android:gravity="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText">
+                        </TextView>
+
+                        <Space
+                            android:layout_width="5dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:layout_width="@dimen/custom_min_width"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:hint="Split %"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText">
+                        </TextView>
+
+                        <Space
+                            android:layout_width="5dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:hint="Spender"
+                            android:layout_gravity="start"
+                            android:gravity="start"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText">
+                        </TextView>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="10dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/firstNameLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="@dimen/custom_med_width"
+                            android:hint="User name"
+                            app:endIconMode="clear_text"
+                            tools:ignore="HardcodedText">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/settings_first_user_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="textCapWords" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <Space
+                            android:layout_width="5dp"
+                            android:layout_height="wrap_content"/>
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/firstPercentageLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="@dimen/custom_min_width"
+                            android:hint="%"
+                            app:endIconMode="clear_text"
+                            tools:ignore="HardcodedText">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/settings_first_percentage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <Space
+                            android:layout_width="35dp"
+                            android:layout_height="wrap_content"/>
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/settings_first_user_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_gravity="center">
+                        </com.google.android.material.checkbox.MaterialCheckBox>
+                    </LinearLayout>
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp">
+                    </Space>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="10dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText">
+                        </TextView>
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/secondNameLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="@dimen/custom_med_width"
+                            android:hint="2nd name if applicable"
+                            app:endIconMode="clear_text"
+                            tools:ignore="HardcodedText">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/settings_second_user_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="textCapWords" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <Space
+                            android:layout_width="5dp"
+                            android:layout_height="wrap_content"/>
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/secondPercentageLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="@dimen/custom_min_width"
+                            android:hint="%"
+                            app:endIconMode="clear_text"
+                            tools:ignore="HardcodedText">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/settings_second_percentage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <Space
+                            android:layout_width="35dp"
+                            android:layout_height="wrap_content"/>
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/settings_second_user_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_gravity="center">
+                        </com.google.android.material.checkbox.MaterialCheckBox>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/settings_joint_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10dp">
+
+                        <TextView
+                            android:layout_width="10dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=""
+                            android:layout_gravity="center"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText">
+                        </TextView>
+                        <TextView
+                            android:id="@+id/settings_joint_user_name"
+                            android:layout_width="@dimen/custom_med_width"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:text="Joint"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+                        <Space
+                            android:layout_width="5dp"
+                            android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/settings_joint_percentage"
+                            android:layout_width="@dimen/custom_min_width"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textSize="16sp"
+                            android:enabled="false"/>
+                        <Space
+                            android:layout_width="35dp"
+                            android:layout_height="wrap_content"/>
+                        <CheckBox
+                            android:id="@+id/settings_joint_user_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+                        </CheckBox>
+                    </LinearLayout>
+
+                </LinearLayout>
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:paddingBottom="10dp"/>
+
+                <LinearLayout
+                    android:id="@+id/settings_category_spinner_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_baseline_arrow_drop_down_24" />
-            </RelativeLayout>
-        </LinearLayout>
+                    android:paddingTop="10dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/settingsCategoryLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:text="Default category for new expenditures: "
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
+                    <RelativeLayout
+                        android:id="@+id/settingsCategorySpinnerRelativeLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginRight="3dp"
+                        android:orientation="horizontal">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="5dp"></Space>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:paddingBottom="10dp"/>
+                        <Spinner
+                            android:id="@+id/settingsCategorySpinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginStart="5dp"
+                            android:background="@android:color/transparent"
+                            android:gravity="end"
+                            android:spinnerMode="dropdown" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="5dp"></Space>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:paddingTop="5dp"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Integrate with TD Spend?  "
-                android:textSize="16sp"
-                android:textStyle="bold">
-            </TextView>
+                        <ImageView
+                            android:id="@+id/inputImageView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:layout_gravity="center"
+                            android:contentDescription="Click to select"
+                            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                            tools:ignore="HardcodedText" />
+                    </RelativeLayout>
+                </LinearLayout>
 
-            <EditText
-                android:id="@+id/settings_integrate_with_TD_Spend"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Yes / No"
-                android:inputType="text"></EditText>
-        </LinearLayout>
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:paddingBottom="10dp"/>
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="5dp"></Space>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:paddingBottom="10dp"/>
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:paddingTop="5dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Integration with TD Spend?  "
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText">
+                    </TextView>
+                    <Switch
+                        android:id="@+id/switch_integrate_with_TD"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textOn="On"
+                        android:textOff="Off"/>
+                </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="If your expenses are less than budget available to date, you are green.  ">
-            </TextView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="If your expenses are over budget available to date but are within the below percentage, you are yellow.  ">
-            </TextView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="If your expenses are more than the percentage below over the budget available to date, you are red.  ">
-            </TextView>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:paddingBottom="10dp"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:paddingTop="5dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fabulous sound effects:  "
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText">
+                    </TextView>
+                    <Switch
+                        android:id="@+id/switch_sound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textOn="On"
+                        android:textOff="Off"/>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:paddingBottom="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="If your expenses are less than budget available to date, you are green.  "
+                        tools:ignore="HardcodedText">
+                    </TextView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="If your expenses are over budget available to date but are within the below percentage, you are yellow.  "
+                        tools:ignore="HardcodedText">
+                    </TextView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="If your expenses are more than the percentage below over the budget available to date, you are red.  "
+                        tools:ignore="HardcodedText">
+                    </TextView>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Enter the % that makes you red:  "
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_gravity="center"
+                            tools:ignore="HardcodedText">
+                        </TextView>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/redPercentageLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="@dimen/custom_min_width"
+                            android:hint="Enter red %"
+                            app:endIconMode="clear_text"
+                            tools:ignore="HardcodedText">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/settings_red_percentage"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@android:color/darker_gray"
+                        android:paddingBottom="10dp"/>
+                </LinearLayout>
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Enter the % that makes you red:  "
-                    android:textSize="16sp"
-                    android:textStyle="bold">
-                </TextView>
-
-                <EditText
-                    android:id="@+id/settings_red_percentage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="Enter red %"
-                    android:inputType="number"></EditText>
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:layout_gravity="center">
+                    <Button
+                        android:id="@+id/settings_save_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Save"
+                        tools:ignore="HardcodedText">
+                    </Button>
+                </LinearLayout>
             </LinearLayout>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="5dp"></Space>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:paddingBottom="10dp"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:layout_gravity="center">
-                <Button
-                    android:id="@+id/settings_save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Save">
-                </Button>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:paddingBottom="10dp"/>
-
-            </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:layout_gravity="center">
-            <Button
-                android:id="@+id/settings_edit_categories_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit Category List">
-            </Button>
-
-        </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

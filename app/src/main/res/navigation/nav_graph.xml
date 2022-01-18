@@ -68,7 +68,7 @@
         android:label="@string/accounting_fragment_label" />
     <fragment
         android:id="@+id/TransferFragment"
-        android:name="com.android.isrbet.budgetsbyisrbet.TransferFragment"
+        android:name="com.isrbet.budgetsbyisrbet.TransferFragment"
         android:label="@string/transfer_fragment_label">
         <argument
             android:name="transactionID"
@@ -77,7 +77,7 @@
     </fragment>
     <fragment
         android:id="@+id/HelpFragment"
-        android:name="com.android.isrbet.budgetsbyisrbet.HelpFragment"
+        android:name="com.isrbet.budgetsbyisrbet.HelpFragment"
         android:label="@string/help_fragment_label"
         tools:layout="@layout/fragment_help" />
     <fragment

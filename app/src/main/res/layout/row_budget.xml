@@ -6,40 +6,41 @@
     android:layout_weight="1"
     android:orientation="horizontal">
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/row_budget_month_applicable"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingLeft="5dp"></TextView>
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"/>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/row_budget_amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></TextView>
+        android:layout_weight="1"/>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/row_budget_who"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></TextView>
+        android:layout_weight="1"/>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/row_budget_occurence"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></TextView>
+        android:layout_weight="1"/>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/row_budget_annual"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></TextView>
+        android:layout_weight="1"/>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
         android:id="@+id/row_budget_month_started"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></TextView>
+        android:layout_weight="1"/>
 </LinearLayout>

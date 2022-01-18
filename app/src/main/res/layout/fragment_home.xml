@@ -16,11 +16,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?attr/colorSecondary"
-                    android:gravity="center_vertical"
+                    android:textAlignment="center"
                     android:paddingTop="30dp"
                     android:paddingBottom="30dp"
                     android:text="@string/home_page_welcome"
-                    android:textAlignment="center"
                     android:textSize="34sp"
                     android:textStyle="bold" />
 
@@ -37,28 +36,38 @@
                     android:textSize="24dp" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
         <Button
             android:id="@+id/expenditure_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:text="Add Transaction"
-            android:textSize="8sp" />
-
+            android:layout_weight="1"
+            android:text="Add\nTransaction"
+            android:textSize="10sp" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
         <Button
             android:id="@+id/view_all_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:text="View all transactions"
-            android:textSize="8sp" />
-
+            android:layout_weight="1"
+            android:text="View all\ntransactions"
+            android:textSize="10sp" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
         <Button
             android:id="@+id/dashboard_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:text="Dashboard"
+            android:layout_weight="1"
+            android:text="Dashboard\n"
             android:textSize="10sp" />
-
+        </LinearLayout>
 </FrameLayout>

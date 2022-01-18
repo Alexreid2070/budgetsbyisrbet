@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -56,17 +57,18 @@ class HomeFragment : Fragment() {
                 override fun onSwipeLeft() {
                     super.onSwipeLeft()
                     Log.d("Alex", "swiped left")
+                    view?.findNavController()?.navigate(R.id.DashboardFragment)
                 }
                 override fun onSwipeRight() {
                     super.onSwipeRight()
                     Log.d("Alex", "swiped right")
+                    view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
                 }
                 override fun onSwipeBottom() {
                     super.onSwipeBottom()
                     Log.d("Alex", "swiped bottom, want to show menu")
                     (activity as MainActivity?)?.openDrawer()
                 }
-
                 override fun onSwipeTop() {
                     super.onSwipeTop()
                     Log.d("Alex", "swiped top, want to go to Add Transaction")

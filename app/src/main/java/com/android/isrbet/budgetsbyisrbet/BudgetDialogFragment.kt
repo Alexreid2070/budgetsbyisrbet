@@ -1,5 +1,4 @@
 import android.app.AlertDialog
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,18 +7,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
-import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.text.DecimalFormat
 import kotlin.math.round
 
@@ -81,8 +75,8 @@ class BudgetDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupView(view)
-        setupClickListeners(view)
+        setupView()
+        setupClickListeners()
 
         var ctr: Int
         ctr = 200
@@ -112,7 +106,7 @@ class BudgetDialogFragment : DialogFragment() {
         newRadioButton = RadioButton(requireContext())
         newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         newRadioButton.setText(cBUDGET_RECURRING)
-        newRadioButton.id = ctr++
+        newRadioButton.id = ctr
         binding.budgetDialogOccurenceRadioGroup.addView(newRadioButton)
         if (oldOccurence == 0)
             binding.budgetDialogOccurenceRadioGroup.check(newRadioButton.id)
@@ -133,7 +127,7 @@ class BudgetDialogFragment : DialogFragment() {
         )
     }
 
-    private fun setupView(view: View) {
+    private fun setupView() {
         binding.budgetDialogCategory.setText(arguments?.getString(KEY_CATEGORY))
         binding.budgetDialogYear.setText(arguments?.getString(KEY_YEAR_VALUE))
         val month = arguments?.getString(KEY_MONTH_VALUE)
@@ -142,7 +136,7 @@ class BudgetDialogFragment : DialogFragment() {
         else
             binding.budgetDialogMonth.setText(month)
         val dec = DecimalFormat("#.00")
-        var amtDouble: Double = 0.0
+        var amtDouble: Double
         val amt = arguments?.getString(KEY_AMOUNT_VALUE)
         if (amt != null)
             amtDouble = amt.toDouble()
@@ -166,7 +160,7 @@ class BudgetDialogFragment : DialogFragment() {
         }
     }
 
-    private fun setupClickListeners(view: View) {
+    private fun setupClickListeners() {
         binding.budgetDialogButton1.setOnClickListener {
             if (currentMode == "View") {
                 binding.budgetDialogButton1.text = "Save"
@@ -182,18 +176,20 @@ class BudgetDialogFragment : DialogFragment() {
             } else { // it's edit
                 // Make sure there are values set for all fields
                 if (binding.budgetDialogNewAmount.text.toString() == "") {
-                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+//                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+                    binding.budgetDialogNewAmount.error=getString(R.string.missingAmountError)
                     focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
                     return@setOnClickListener
                 }
                 if (binding.budgetDialogNewAmount.text.toString().toDouble() == 0.0) {
-                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+//                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+                    binding.budgetDialogNewAmount.error=getString(R.string.missingAmountError)
                     focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
                     return@setOnClickListener
                 }
 
                 Log.d("Alex", "need to save new values")
-                var tmpDouble1: Double = 0.0
+                var tmpDouble1: Double
                 tmpDouble1 = binding.budgetDialogNewAmount.text.toString().toDouble()
                 tmpDouble1 = round(tmpDouble1 * 100) / 100
                 var amountInt: Int = (tmpDouble1 * 100.0).toInt()
@@ -233,7 +229,7 @@ class BudgetDialogFragment : DialogFragment() {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             if (dataSnapshot.getValue() == null) { // nothing exists at this node so we can add it
                                 Log.d("Alex", "Nothing exists at this node so we can add it ")
-                                var monthToUse:Int = 0
+                                var monthToUse: Int
                                 if (binding.budgetDialogMonth.text.toString() == "")
                                     monthToUse = 0
                                 else
@@ -272,11 +268,6 @@ class BudgetDialogFragment : DialogFragment() {
                                 } else { // new amount is different from previous month, so need to record it
                                     var tempBudget = BudgetViewModel.getBudget(binding.budgetDialogCategory.text.toString())
                                     if (tempBudget != null) {
-                                        var monthToUse:Int = 0
-                                        if (binding.budgetDialogMonth.text.toString() == "")
-                                            monthToUse = 0
-                                        else
-                                            monthToUse = binding.budgetDialogMonth.text.toString().toInt()
                                         if (!tempBudget.overlapsWithExistingBudget(
                                                 BudgetMonth(binding.budgetDialogYear.text.toString().toInt(), monthToUse).toString(),
                                                 newWho)) {
@@ -324,7 +315,7 @@ class BudgetDialogFragment : DialogFragment() {
                         override fun onCancelled(dataSnapshot: DatabaseError) {
                         }
                     }
-                    var monthToUse:Int = 0
+                    var monthToUse: Int
                     if (binding.budgetDialogMonth.text.toString() == "")
                         monthToUse = 0
                     else
@@ -346,7 +337,7 @@ class BudgetDialogFragment : DialogFragment() {
         binding.budgetDialogButton2.setOnClickListener() {
             if (currentMode == "View") { // ie user chose Delete
                 fun yesClicked() {
-                    var monthToUse:Int = 0
+                    var monthToUse: Int
                     if (binding.budgetDialogMonth.text.toString() == "")
                         monthToUse = 0
                     else
@@ -367,8 +358,8 @@ class BudgetDialogFragment : DialogFragment() {
                 AlertDialog.Builder(requireContext())
                     .setTitle("Are you sure?")
                     .setMessage("Are you sure that you want to delete this budget item?")
-                    .setPositiveButton(android.R.string.yes) { _, _ -> yesClicked() }
-                    .setNegativeButton(android.R.string.no) { _, _ -> noClicked() }
+                    .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                     .show()
 
             } else { // ie user chose Cancel

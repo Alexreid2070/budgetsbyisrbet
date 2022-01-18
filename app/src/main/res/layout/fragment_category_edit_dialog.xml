@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="12dp">
@@ -9,7 +10,9 @@
         android:id="@+id/category_dialog_linear_layout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp">
+        android:paddingBottom="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/edit_category_old_name_header"
@@ -17,16 +20,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Old Name"
-            android:textSize="16dp"
-            android:textStyle="bold" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="New Name"
-            android:textSize="16dp"
-            android:textStyle="bold" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <LinearLayout
@@ -49,7 +54,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="14dp" />
+            android:textSize="14sp"
+            tools:ignore="Autofill,LabelFor,TextFields" />
     </LinearLayout>
 
     <LinearLayout
@@ -72,7 +78,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="14dp" />
+            android:textSize="14sp"
+            tools:ignore="Autofill,LabelFor,TextFields" />
     </LinearLayout>
 
     <LinearLayout
@@ -115,7 +122,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -126,15 +135,6 @@
         app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout4"
         android:paddingBottom="10dp">
 
-    <Button
-            android:id="@+id/category_dialog_button_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:text="Save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <Button
             android:id="@+id/category_dialog_button_cancel"
             android:layout_width="wrap_content"
@@ -142,7 +142,20 @@
             android:layout_margin="5dp"
             android:text="Cancel"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            style="?android:attr/buttonBarButtonStyle"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/category_dialog_button_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+        style="?android:attr/buttonBarButtonStyle"
+        tools:ignore="HardcodedText" />
 
         <Button
             android:id="@+id/category_dialog_button_delete"
@@ -151,7 +164,9 @@
             android:layout_margin="5dp"
             android:text="Delete"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            style="?android:attr/buttonBarButtonStyle"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/sedona</item>
         <item name="colorSecondary">@color/pastel_orange</item>
-        <item name="colorPrimaryVariant">@color/orange_salmon</item>
+        <item name="colorPrimaryVariant">@color/sedona_opac</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
@@ -15,8 +15,8 @@
         <item name="colorOnPrimary">@color/lightestgray</item>
         <item name="colorOnSecondary">@color/lighter_gray</item>
         <item name="colorSecondaryVariant">@color/light_gray</item>
-        <item name="android:editTextBackground">@color/light_blue</item>
-        <item name="colorOnSurface">@color/light_blue</item>
+        <item name="android:editTextBackground">@color/sedona</item>
+        <item name="colorOnSurface">@color/sedona</item>
     </style>
 
     <style name="Theme.BudgetsByISRBET.NoActionBar">

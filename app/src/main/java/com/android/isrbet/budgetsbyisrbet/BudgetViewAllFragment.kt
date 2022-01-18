@@ -124,7 +124,8 @@ class BudgetViewAllFragment : Fragment() {
         if (arrayAdapter != null) {
             arrayAdapter.notifyDataSetChanged()
         }
-        binding.budgetCategorySpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
 
         categorySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {

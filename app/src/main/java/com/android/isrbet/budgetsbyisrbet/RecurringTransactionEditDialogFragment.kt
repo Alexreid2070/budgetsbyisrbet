@@ -110,8 +110,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         binding.editRtOldNextDate.text = oldDate
         binding.editRtOldCategory.text = oldCategory
         binding.editRtOldSubcategory.text = oldSubcatgory
-        binding.editRtOldPaidby.text = oldPaidBy
-        binding.editRtOldBoughtfor.text = oldBoughtFor
+        binding.editRtOldPaidBy.text = oldPaidBy
+        binding.editRtOldBoughtFor.text = oldBoughtFor
         setupClickListeners(view)
         binding.editRtNewName.requestFocus()
 
@@ -145,7 +145,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         subCategorySpinner.adapter = subCatArrayAdapter
         subCategorySpinner.setSelection(subCatArrayAdapter.getPosition(oldSubcatgory)) */
 
-        var paidBySpinner:Spinner = binding.editRtNewPaidby
+        var paidBySpinner:Spinner = binding.editRtNewPaidBy
         val paidByArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
@@ -154,7 +154,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         paidBySpinner.adapter = paidByArrayAdapter
         paidBySpinner.setSelection(paidByArrayAdapter.getPosition(oldPaidBy))
 
-        var boughtForSpinner:Spinner = binding.editRtNewBoughtfor
+        var boughtForSpinner:Spinner = binding.editRtNewBoughtFor
         val boughtForArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
@@ -169,8 +169,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             binding.editRtOldRegularity.visibility = View.GONE
             binding.editRtOldNextDate.visibility = View.GONE
             binding.rtCurrentValueHeader.visibility = View.GONE
-            binding.editRtOldPaidby.visibility = View.GONE
-            binding.editRtOldBoughtfor.visibility = View.GONE
+            binding.editRtOldPaidBy.visibility = View.GONE
+            binding.editRtOldBoughtFor.visibility = View.GONE
         } else {
             val tOldDate = LocalDate.parse(oldDate, DateTimeFormatter.ISO_DATE)
             cal.set(Calendar.YEAR, tOldDate.year)
@@ -202,10 +202,10 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         binding.editRtNewCategory.setPopupBackgroundResource(R.drawable.spinner)
         binding.editRtNewSubcategory.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
         binding.editRtNewSubcategory.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editRtNewPaidby.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        binding.editRtNewPaidby.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editRtNewBoughtfor.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        binding.editRtNewBoughtfor.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editRtNewPaidBy.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewPaidBy.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editRtNewBoughtFor.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewBoughtFor.setPopupBackgroundResource(R.drawable.spinner)
 
 /*        binding.editRtNewName.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.editRtNewAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
@@ -312,12 +312,12 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "subcategory", binding.editRtNewSubcategory.selectedItem.toString())
                 somethingChanged = true
             }
-            if (oldPaidBy != binding.editRtNewPaidby.toString()) {
-                RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "paidby", binding.editRtNewPaidby.selectedItem.toString())
+            if (oldPaidBy != binding.editRtNewPaidBy.toString()) {
+                RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "paidby", binding.editRtNewPaidBy.selectedItem.toString())
                 somethingChanged = true
             }
-            if (oldBoughtFor != binding.editRtNewBoughtfor.toString()) {
-                RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "boughtfor", binding.editRtNewBoughtfor.selectedItem.toString())
+            if (oldBoughtFor != binding.editRtNewBoughtFor.toString()) {
+                RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "boughtfor", binding.editRtNewBoughtFor.selectedItem.toString())
                 somethingChanged = true
             }
             if (oldRegularity != binding.editRtNewRegularity.text.toString().toInt()) {
@@ -333,8 +333,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                     binding.editRtNewRegularity.text.toString().toInt(),
                     binding.editRtNewCategory.selectedItem.toString(),
                     binding.editRtNewSubcategory.selectedItem.toString(),
-                    binding.editRtNewPaidby.selectedItem.toString(),
-                    binding.editRtNewBoughtfor.selectedItem.toString()
+                    binding.editRtNewPaidBy.selectedItem.toString(),
+                    binding.editRtNewBoughtFor.selectedItem.toString()
                 )
                 if (listener != null)
                     listener?.onNewDataSaved()
@@ -342,7 +342,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             }
         } else if (oldName == "") { // ie this is an add
-            val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(), binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(), binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidby.selectedItem.toString(), binding.editRtNewBoughtfor.selectedItem.toString())
+            val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(), binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(), binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidBy.selectedItem.toString(), binding.editRtNewBoughtFor.selectedItem.toString())
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             if (listener != null) {
                 listener?.onNewDataSaved()
@@ -350,7 +350,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         } else if (oldName != binding.editRtNewName.text.toString()) {
-            val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(), binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(), binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidby.selectedItem.toString(), binding.editRtNewBoughtfor.selectedItem.toString())
+            val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(), binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(), binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidBy.selectedItem.toString(), binding.editRtNewBoughtFor.selectedItem.toString())
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             RecurringTransactionViewModel.deleteRecurringTransactionFromFirebase(oldName)
             if (listener != null) {

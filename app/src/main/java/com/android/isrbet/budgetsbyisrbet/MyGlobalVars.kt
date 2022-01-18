@@ -19,6 +19,7 @@ import android.view.MotionEvent
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import com.google.android.material.color.MaterialColors
+import kotlin.math.round
 import kotlin.random.Random
 
 const val RC_SIGN_IN = 7
@@ -34,7 +35,7 @@ val PeriodValues = listOf(cPeriodWeek, cPeriodMonth, cPeriodQuarter, cPeriodYear
 const val cEXPANDED = "Expanded"
 const val cCONDENSED = "Condensed"
 const val cBUDGET_RECURRING = "Recurring"
-const val cBUDGET_JUST_THIS_MONTH = "Just this month"
+const val cBUDGET_JUST_THIS_MONTH = "Just once"
 
 const val january = "Jan"
 const val february = "Feb"
@@ -73,9 +74,17 @@ class MyApplication : Application() {
         }
 
         fun playSound(context: Context?, iSound: Int ) {
+            if (DefaultsViewModel.getDefault(cDEFAULT_SOUND) == "Off")
+                return
+
             if (mediaPlayer == null)
                 mediaPlayer = MediaPlayer.create(context, iSound)
             mediaPlayer?.start()
+        }
+
+        fun releaseResources() {
+            mediaPlayer?.release()
+//            CustomNotificationListenerService.releaseResources()
         }
     }
 
@@ -95,8 +104,9 @@ class MyApplication : Application() {
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
-        month = period.substring(5,7).toInt()
-    }
+        val dash = period.indexOf("-")
+        month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
+        }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
 
     fun setValue(iBM:BudgetMonth) {
@@ -105,7 +115,7 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
     }
 
     operator fun compareTo(iBM: BudgetMonth): Int {
-        var cal1 = android.icu.util.Calendar.getInstance()
+/*        var cal1 = android.icu.util.Calendar.getInstance()
         cal1.set(Calendar.YEAR, year)
         cal1.set(Calendar.MONTH, month)
         var cal2 = android.icu.util.Calendar.getInstance()
@@ -114,6 +124,12 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         if (cal1 == cal2)
             return 0
         else if (cal1 < cal2)
+            return -1
+        else
+            return 1 */
+        if (year == iBM.year && month == iBM.month)
+            return 0
+        else if (year < iBM.year || (year == iBM.year && month < iBM.month))
             return -1
         else
             return 1
@@ -171,7 +187,7 @@ fun hideKeyboard(context: Context, view: View) {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
 }
-
+/*
 fun hideKeyboard(activity: Activity) {
     val imm = activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     //Find the currently focused view, so we can grab the correct window token from it.
@@ -182,9 +198,9 @@ fun hideKeyboard(activity: Activity) {
     }
     imm.hideSoftInputFromWindow(view.windowToken, 0)
 }
-
-fun PerfectDecimal(str: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): String {
-    var str = str
+*/
+fun PerfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): String {
+    var str = iStr
     if (str[0] == '.') str = "0$str"
     val max = str.length
     var rFinal = ""
@@ -228,15 +244,13 @@ object InternetConnection {
      */
     fun checkConnection(context: Context): Boolean {
         val connMgr = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (connMgr != null) {
-            val activeNetworkInfo = connMgr.activeNetworkInfo
-            if (activeNetworkInfo != null) { // connected to the internet
-                // connected to the mobile provider's data plan
-                return if (activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI) {
-                    // connected to wifi
-                    true
-                } else activeNetworkInfo.type == ConnectivityManager.TYPE_MOBILE
-            }
+        val activeNetworkInfo = connMgr.activeNetworkInfo
+        if (activeNetworkInfo != null) { // connected to the internet
+            // connected to the mobile provider's data plan
+            return if (activeNetworkInfo.type == ConnectivityManager.TYPE_WIFI) {
+                // connected to wifi
+                true
+            } else activeNetworkInfo.type == ConnectivityManager.TYPE_MOBILE
         }
         return false
     }
@@ -269,6 +283,7 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
     }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
+        v.performClick()
         return gestureDetector.onTouchEvent(event)
     }
 
@@ -313,14 +328,16 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
 }
 
 fun getBudgetColour(context: Context, iActual: Double, iBudget: Double): Int {
-    if (iActual <= iBudget) {
+    val rActual = round(iActual*100)
+    val rBudget = round(iBudget*100)
+    if (rActual <= rBudget) {
         return Color.GREEN
-    } else if ((iActual > iBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
-        (iBudget == 0.0 && iActual > 0.0)) {
+    } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
+        (rBudget == 0.0 && rActual > 0.0)) {
             Log.d("Alex", "iActual " + iActual.toString() + " iBudget " + iBudget.toString() + " dsRed " + DefaultsViewModel.getDefault(cDEFAULT_SHOWRED) + " c1 " + (1.0 +(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0)).toString())
         return Color.RED
     } else {
-        Log.d("Alex", "found orange")
+        Log.d("Alex", "found orange " + rActual + " " + rBudget)
         return ContextCompat.getColor(context, R.color.orange)  // orange
     }
 }

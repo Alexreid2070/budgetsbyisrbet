@@ -1,4 +1,4 @@
-package com.android.isrbet.budgetsbyisrbet
+package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
@@ -179,6 +179,7 @@ class TransferFragment : Fragment() {
                 )
             )
         }
+        binding.editTextAmount.requestFocus()
     }
 
     override fun onPause() {
@@ -294,18 +295,21 @@ class TransferFragment : Fragment() {
 
     fun onSaveButtonClicked () {
         if (!textIsSafe(binding.editTextNote.text.toString())) {
-            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+            binding.editTextNote.error = "The text contains unsafe characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
         // need to reject if all the fields aren't entered
         if (binding.editTextAmount.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+            binding.editTextAmount.error = "getString(R.string.missingAmountError)"
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextAmount)
             return
         }
         if (binding.editTextNote.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
+            binding.editTextNote.error = "getString(R.string.missingNoteError)"
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }

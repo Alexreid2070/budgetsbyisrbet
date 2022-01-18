@@ -32,11 +32,11 @@ class AdminFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
-        getView()?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener {view: View ->
+        getView()?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener {_: View ->
 //            processButton()
 //            tempProcessButton()
         }
-        getView()?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener {view: View ->
+        getView()?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener {_: View ->
             UserViewModel.loadUsers()
             UserViewModel.setCallback(object: UserDataUpdatedCallback {
                 override fun onDataUpdate() {
@@ -70,7 +70,7 @@ class AdminFragment : Fragment() {
         ExpenditureViewModel.refresh()
         CategoryViewModel.refresh()
         SpenderViewModel.refresh()
-        BudgetViewModel.refresh()
+        BudgetViewModel.refresh(requireActivity())
         RecurringTransactionViewModel.refresh()
     }
 
@@ -95,25 +95,28 @@ class AdminFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach() {
                     var categoryName = it.key.toString()
+                    if (categoryName != "Debt-Line of Credit" && categoryName != "Housing-Gas") {
                         it.children.forEach() {
                             var period = it.key.toString()
-                                it.children.forEach() {
-                                    var who = it.key.toString()
-                                    var amount = it.value.toString().toInt()
-                                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
-                                        .child(categoryName)
-                                        .child(period)
-                                        .child(who)
-                                        .child("amount")
-                                        .setValue(amount)
-                                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
-                                        .child(categoryName)
-                                        .child(period)
-                                        .child(who)
-                                        .child("occurence")
-                                        .setValue(0)
-                                }
+                            Log.d("Alex", categoryName + " " + period)
+                            it.children.forEach() {
+                                var who = it.key.toString()
+                                var amount = it.value.toString().toInt()
+                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
+                                    .child(categoryName)
+                                    .child(period)
+                                    .child(who)
+                                    .child("amount")
+                                    .setValue(amount)
+                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
+                                    .child(categoryName)
+                                    .child(period)
+                                    .child(who)
+                                    .child("occurence")
+                                    .setValue(0)
                             }
+                        }
+                    }
                 }
             }
 

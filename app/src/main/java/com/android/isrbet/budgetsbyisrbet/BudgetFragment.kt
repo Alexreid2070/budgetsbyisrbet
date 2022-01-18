@@ -50,7 +50,18 @@ class BudgetFragment : Fragment() {
 
         setupForEdit()
         var cal = android.icu.util.Calendar.getInstance()
-        binding.budgetAddYear.setText(cal.get(Calendar.YEAR).toString())
+        binding.budgetAddYear.setMinValue(2018)
+        binding.budgetAddYear.setMaxValue(2040)
+        binding.budgetAddYear.wrapSelectorWheel = true
+//        binding.budgetAddYear.setTextColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.budgetAddYear.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS)
+        binding.budgetAddYear.value = cal.get(Calendar.YEAR)
+        binding.budgetAddMonth.setMinValue(0)
+        binding.budgetAddMonth.setMaxValue(12)
+        binding.budgetAddMonth.wrapSelectorWheel = true
+        binding.budgetAddMonth.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS)
+//        binding.budgetAddMonth.setTextColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
             val radio: RadioButton = requireActivity().findViewById(checkedId)
@@ -75,25 +86,18 @@ class BudgetFragment : Fragment() {
         }
 
         binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
-            if (binding.budgetAddYear.text.toString() != "")
-                updateInformationFields()
+            updateInformationFields()
         })
 
-        binding.budgetAddYear.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun afterTextChanged(arg0: Editable) {
-                if (binding.budgetAddYear.text.toString() != "")
-                    updateInformationFields()
+        binding.budgetAddYear.setOnValueChangedListener(object : NumberPicker.OnValueChangeListener {
+            override fun onValueChange(p0: NumberPicker?, p1: Int, p2: Int) {
+                updateInformationFields()
             }
         })
 
-        binding.budgetAddMonth.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun afterTextChanged(arg0: Editable) {
-                if (binding.budgetAddYear.text.toString() != "")
-                    updateInformationFields()
+        binding.budgetAddMonth.setOnValueChangedListener(object : NumberPicker.OnValueChangeListener {
+            override fun onValueChange(p0: NumberPicker?, p1: Int, p2: Int) {
+                updateInformationFields()
             }
         })
 
@@ -119,8 +123,10 @@ class BudgetFragment : Fragment() {
 
     fun setupForEdit() {
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Budget"
-        binding.budgetAddSubCategorySpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        binding.budgetAddSubCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.budgetAddSubCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
+
 /*        binding.budgetAddCategoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddSubCategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
         binding.budgetAddYear.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
@@ -157,8 +163,8 @@ class BudgetFragment : Fragment() {
     fun updateInformationFields() {
         Log.d("Alex", "In updateInformationFields")
         var prevMonth = BudgetMonth(
-            binding.budgetAddYear.text.toString().toInt(),
-            if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+            binding.budgetAddYear.value,
+            if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
         )
         prevMonth.decrementMonth()
         val whoSelectedId = binding.budgetAddWhoRadioGroup.getCheckedRadioButtonId()
@@ -187,19 +193,19 @@ class BudgetFragment : Fragment() {
         }
         binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
             BudgetMonth(
-                binding.budgetAddYear.text.toString().toInt(),
-                if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+                binding.budgetAddYear.value,
+                if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
             ),
             BudgetMonth(
-                binding.budgetAddYear.text.toString().toInt(),
-                if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+                binding.budgetAddYear.value,
+                if (binding.budgetAddMonth.value == 0) 12 else binding.budgetAddMonth.value
             ),
         whoText))
 
         val annualActuals = ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
             BudgetMonth(
-                binding.budgetAddYear.text.toString().toInt()-1,
-                if (binding.budgetAddMonth.text.toString() == "") 1 else binding.budgetAddMonth.text.toString().toInt()
+                binding.budgetAddYear.value - 1,
+                if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
             ),
             prevMonth,
             whoText)
@@ -327,27 +333,15 @@ class BudgetFragment : Fragment() {
 
     private fun onSaveButtonClicked () {
         // need to reject if all the fields aren't entered correctly
-        if (binding.budgetAddYear.text.toString().toInt() < 2000 || binding.budgetAddYear.text.toString().toInt() > 2100 ) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.invalidYear))
-            focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddYear)
-            return
-        }
-        if (binding.budgetAddMonth.text.toString() != "") {
-            if (binding.budgetAddMonth.text.toString()
-                    .toInt() < 1 || binding.budgetAddMonth.text.toString().toInt() > 12
-            ) {
-                showErrorMessage(getParentFragmentManager(), getString(R.string.invalidMonth))
-                focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddMonth)
-                return
-            }
-        }
         if (binding.budgetAddAmount.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+            binding.budgetAddAmount.error = getString(R.string.missingAmountError)
             focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddAmount)
             return
         }
         if (binding.budgetAddAmount.text.toString().toDouble() == 0.0) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+            binding.budgetAddAmount.error = getString(R.string.missingAmountError)
             focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddAmount)
             return
         }
@@ -370,13 +364,13 @@ class BudgetFragment : Fragment() {
         val tempBudget = BudgetViewModel.getBudget(tempCategory)
         if (tempBudget != null) {
             var chosenMonth: Int = 0
-            if (binding.budgetAddMonth.text.toString() != "")
-                chosenMonth = binding.budgetAddMonth.text.toString().toInt()
+            if (binding.budgetAddMonth.value != 0)
+                chosenMonth = binding.budgetAddMonth.value
 
-            Log.d("Alex", "year is '" + binding.budgetAddYear.text.toString() + "'")
+            Log.d("Alex", "year is '" + binding.budgetAddYear.value + "'")
             if (tempBudget.overlapsWithExistingBudget(
                     BudgetMonth(
-                        binding.budgetAddYear.text.toString().toInt(),
+                        binding.budgetAddYear.value,
                         chosenMonth
                     ).toString(),
                     whoText
@@ -400,12 +394,12 @@ class BudgetFragment : Fragment() {
         tempDouble = round(binding.budgetAddAmount.text.toString().toDouble()*100)
         amountInt = tempDouble.toInt()
 
-        var period = binding.budgetAddYear.text.toString()
-        if (binding.budgetAddMonth.text.toString() != "") {
-            if (binding.budgetAddMonth.text.toString().toInt() < 10)
-                period = period + "-0" + binding.budgetAddMonth.text.toString()
+        var period = binding.budgetAddYear.value.toString()
+        if (binding.budgetAddMonth.value != 0) {
+            if (binding.budgetAddMonth.value < 10)
+                period = period + "-0" + binding.budgetAddMonth.value
             else
-                period = period + "-" + binding.budgetAddMonth.text.toString()
+                period = period + "-" + binding.budgetAddMonth.value
         } else {
             period = period + "-00"
         }
@@ -413,8 +407,7 @@ class BudgetFragment : Fragment() {
         BudgetViewModel.updateBudget(tempCategory, period, whoText, amountInt, occurenceText)
         binding.budgetAddAmount.setText("")
         binding.budgetAddAmount.requestFocus()
-        binding.budgetAddYear.setText("")
-        binding.budgetAddMonth.setText("")
+        binding.budgetAddMonth.value = 0
         binding.budgetAddPercentage.setText("")
         hideKeyboard(requireContext(), requireView())
         Toast.makeText(activity, "Budget item added", Toast.LENGTH_SHORT).show()

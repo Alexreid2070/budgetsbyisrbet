@@ -63,7 +63,7 @@ class TransactionFragment : Fragment() {
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
 
         val dateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -83,7 +83,7 @@ class TransactionFragment : Fragment() {
             onExpandClicked()
         }
 
-        binding.paidByRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
+        binding.paidByRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, _ ->
             if (binding.inputBoughtForLabel.visibility == View.GONE) { // need to keep both values in sync
                 val selectedId = binding.paidByRadioGroup.getCheckedRadioButtonId()
                 val pbRadioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -100,7 +100,7 @@ class TransactionFragment : Fragment() {
             }
         })
 
-        binding.boughtForRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
+        binding.boughtForRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
             Log.d("Alex", "clicked on radio group" + radioButton.getText().toString())
             if (radioButton.getText().toString() == "Joint") {
@@ -147,8 +147,7 @@ class TransactionFragment : Fragment() {
             }
         })
 
-        binding.categoryRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
-            val radio: RadioButton = requireActivity().findViewById(checkedId)
+        binding.categoryRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
             Log.d("Alex", "clicked on radio group" + checkedId.toString())
             val selectedId = binding.categoryRadioGroup.getCheckedRadioButtonId()
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -244,6 +243,7 @@ class TransactionFragment : Fragment() {
                 updateDashboardSummary()
             }
         })
+        binding.editTextAmount.requestFocus()
     }
 
     override fun onPause() {
@@ -333,7 +333,7 @@ class TransactionFragment : Fragment() {
         super.onPrepareOptionsMenu(menu)
         if (newTransactionMode) {
             for (i in 0 until menu.size()) {
-                if (menu.getItem(i).getItemId() === R.id.ViewTransactionsFragment)
+                if (menu.getItem(i).getItemId() == R.id.ViewTransactionsFragment)
                     menu.getItem(i).setVisible(true)
                 else
                     menu.getItem(i).setVisible(false)
@@ -341,7 +341,7 @@ class TransactionFragment : Fragment() {
         }
         else { // in view mode
             for (i in 0 until menu.size()) {
-                if (menu.getItem(i).getItemId() === R.id.Edit || menu.getItem(i).getItemId() == R.id.Delete)
+                if (menu.getItem(i).getItemId() == R.id.Edit || menu.getItem(i).getItemId() == R.id.Delete)
                     menu.getItem(i).setVisible(true)
                 else
                     menu.getItem(i).setVisible(false)
@@ -350,10 +350,10 @@ class TransactionFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.Edit) {
+        if (item.itemId == R.id.Edit) {
             editTransaction(args.transactionID.toString())
             return true
-        } else if (item.itemId === R.id.Delete) {
+        } else if (item.itemId == R.id.Delete) {
             deleteTransaction(args.transactionID.toString())
             return true
         } else {
@@ -363,8 +363,9 @@ class TransactionFragment : Fragment() {
     }
 
     private fun editTransaction(iTransactionID: String) {
-        var currentCategory: String = ""
-        var currentSubCategory: String = ""
+        Log.d("Alex", "editing " + iTransactionID)
+        var currentCategory = ""
+        var currentSubCategory = ""
         Log.d("Alex", "clicked edit")
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Transaction"
         binding.buttonSaveTransaction.visibility = View.VISIBLE
@@ -409,8 +410,8 @@ class TransactionFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Are you sure?")
             .setMessage("Are you sure that you want to delete this transaction?")
-            .setPositiveButton(android.R.string.yes) { _, _ -> yesClicked() }
-            .setNegativeButton(android.R.string.no) { _, _ -> noClicked() }
+            .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
             .show()
     }
 
@@ -540,14 +541,18 @@ class TransactionFragment : Fragment() {
                             cDEFAULT_SUBCATEGORY)))
             }
         } */
-        if (arrayAdapter != null) {
-            subCategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
-            arrayAdapter.notifyDataSetChanged()
-        }
+        subCategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
+        arrayAdapter.notifyDataSetChanged()
     }
 
     private fun onLoadTransactionButtonClicked() {
         val notification = CustomNotificationListenerService.getTransactionFromNotificationAndDeleteIt()
+        if (notification == null) {
+            Toast.makeText(activity,
+                "Having issue with this TD notification.  Logged in DB.  Please inform Alex.  You'll have to handle this TD notification manually.",
+                Toast.LENGTH_SHORT).show()
+            return
+        }
         binding.editTextAmount.setText(notification.amount.toString())
         var iNote = notification.note.lowercase()
         val words = iNote.split(" ")
@@ -567,25 +572,29 @@ class TransactionFragment : Fragment() {
 
     private fun onSaveTransactionButtonClicked () {
         if (!textIsSafe(binding.editTextNote.text.toString())) {
-            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+            binding.editTextNote.error="The text contains unsafe characters!"
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
         // need to reject if all the fields aren't entered
         if (binding.editTextAmount.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+            binding.editTextAmount.error=getString(R.string.missingAmountError)
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextAmount)
             return
         }
         if (binding.editTextNote.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
+            binding.editTextNote.error="The note is missing."
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
         var totalSplit = binding.transactionBoughtForName1Split.text.toString().toDouble() +
                 binding.transactionBoughtForName2Split.text.toString().toDouble()
         if (totalSplit != 100.0) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.splitMustEqual100))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.splitMustEqual100))
+            binding.transactionBoughtForName1Split.error=getString(R.string.splitMustEqual100)
             focusAndOpenSoftKeyboard(requireContext(), binding.transactionBoughtForName1Split)
             return
         }
@@ -748,7 +757,7 @@ class TransactionDialogFragment(var iMessage: String) : DialogFragment() {
             val builder = AlertDialog.Builder(it)
             builder.setMessage(iMessage)
                 .setPositiveButton(getString(R.string.ok),
-                    DialogInterface.OnClickListener { dialog, id ->
+                    DialogInterface.OnClickListener { _, _ ->
                     })
             // Create the AlertDialog object and return it
             builder.create()

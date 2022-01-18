@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
         <TextView
             android:id="@+id/budget_category_spinner_label"
@@ -20,7 +21,8 @@
             android:layout_gravity="start"
             android:text="Category: "
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
         <RelativeLayout
             android:id="@+id/budget_category_spinner_relative_layout"
             android:layout_width="wrap_content"
@@ -47,7 +49,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -63,11 +67,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:text="Date"
             android:tooltipText="This is the month that the budget amount applies to."
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/row_budget_AmountHeading"
@@ -76,7 +82,8 @@
             android:layout_weight="1"
             android:text="Amount"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/row_budget_WhoHeading"
@@ -86,7 +93,8 @@
             android:text="Who"
             android:tooltipText="Who is this budget for?"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/row_budget_IsSingleHeading"
@@ -96,7 +104,8 @@
             android:text="Once?"
             android:tooltipText="Is this a single-month budget? (1 means it is single-month, blank means it is recurring)"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/row_budget_IsAnnualHeading"
@@ -106,7 +115,8 @@
             android:text="Annual?"
             android:tooltipText="Is this an annual budget (ie the budget amount is the total for the year and can be used anytime during the year)?  (Blank means no it's not.)"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/row_budget_DateStartedHeading"
@@ -116,7 +126,8 @@
             android:text="Date Started"
             android:tooltipText="This is the date for which the budget amount was first set."
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <ListView

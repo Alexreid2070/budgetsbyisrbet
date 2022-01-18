@@ -15,7 +15,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="16dp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/rt_current_value_header"
@@ -23,14 +23,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Current Value"
-            android:textSize="16dp" />
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="New Value"
-            android:textSize="16dp"/>
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <LinearLayout
@@ -46,21 +48,23 @@
             android:layout_height="wrap_content"
             android:text="Name:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_name"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/edit_rt_new_name"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp"
+            tools:ignore="Autofill,LabelFor,TextFields" />
     </LinearLayout>
 
     <LinearLayout
@@ -76,22 +80,24 @@
             android:layout_height="wrap_content"
             android:text="Amount:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_amount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/edit_rt_new_amount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp"
-            android:inputType="numberDecimal"/>
+            android:textSize="14sp"
+            android:inputType="numberDecimal"
+            tools:ignore="Autofill,LabelFor" />
     </LinearLayout>
 
     <LinearLayout
@@ -107,14 +113,15 @@
             android:layout_height="wrap_content"
             android:text="Period:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_period"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <RelativeLayout
             android:id="@+id/rtPeriodSpinnerRelativeLayout"
@@ -142,7 +149,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -159,22 +168,24 @@
             android:layout_height="wrap_content"
             android:text="Regularity:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_regularity"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/edit_rt_new_regularity"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp"
-            android:inputType="number"/>
+            android:textSize="14sp"
+            android:inputType="number"
+            tools:ignore="Autofill,LabelFor" />
     </LinearLayout>
 
     <LinearLayout
@@ -190,27 +201,29 @@
             android:layout_height="wrap_content"
             android:text="Next Date:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_next_date"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/edit_rt_new_next_date"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp"
+            android:textSize="14sp"
             android:clickable="false"
             android:cursorVisible="false"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:inputType="date"
-            android:longClickable="false"/>
+            android:longClickable="false"
+            tools:ignore="Autofill,LabelFor" />
     </LinearLayout>
 
     <LinearLayout
@@ -226,14 +239,15 @@
             android:layout_height="wrap_content"
             android:text="Category:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_category"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <RelativeLayout
             android:id="@+id/rtCategorySpinnerRelativeLayout"
@@ -261,7 +275,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -278,14 +294,15 @@
             android:layout_height="wrap_content"
             android:text="Subcategory:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/edit_rt_old_subcategory"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <RelativeLayout
             android:id="@+id/rtSubCategorySpinnerRelativeLayout"
@@ -313,7 +330,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -330,14 +349,15 @@
             android:layout_height="wrap_content"
             android:text="Paid by:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/edit_rt_old_paidby"
+            android:id="@+id/edit_rt_old_paid_by"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <RelativeLayout
             android:id="@+id/rtPaidBySpinnerRelativeLayout"
@@ -349,7 +369,7 @@
             android:orientation="horizontal">
 
             <Spinner
-                android:id="@+id/edit_rt_new_paidby"
+                android:id="@+id/edit_rt_new_paid_by"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -365,7 +385,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -382,14 +404,15 @@
             android:layout_height="wrap_content"
             android:text="Paid by:"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/edit_rt_old_boughtfor"
+            android:id="@+id/edit_rt_old_bought_for"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="14dp" />
+            android:textSize="14sp" />
 
         <RelativeLayout
             android:id="@+id/rtBoughtForSpinnerRelativeLayout"
@@ -401,7 +424,7 @@
             android:orientation="horizontal">
 
             <Spinner
-                android:id="@+id/edit_rt_new_boughtfor"
+                android:id="@+id/edit_rt_new_bought_for"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -417,7 +440,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -429,20 +454,24 @@
         app:layout_constraintTop_toBottomOf="@+id/rt_dialog_linear_layout10">
 
         <Button
-            android:id="@+id/rt_dialog_button_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:text="Save"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
             android:id="@+id/rt_dialog_button_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:text="Cancel"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText"
+            style="?android:attr/buttonBarButtonStyle" />
+
+        <Button
+            android:id="@+id/rt_dialog_button_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Save"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="HardcodedText"
+            style="?android:attr/buttonBarButtonStyle" />
 
         <Button
             android:id="@+id/rt_dialog_button_delete"
@@ -450,12 +479,14 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:text="Delete"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="HardcodedText"
+            style="?android:attr/buttonBarButtonStyle" />
 
     </LinearLayout>
     <Space
         app:layout_constraintTop_toBottomOf="@+id/rt_dialog_linear_layout11"
         android:layout_width="match_parent"
-        android:layout_height="5dp"></Space>
+        android:layout_height="5dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener { view: View ->
+        findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener { _: View ->
             onSignIn(mainActivityResultLauncher)
         }
         auth = Firebase.auth
@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         Log.d("Alex", "handleSignInResult")
         try {
-            val account = completedTask.getResult(ApiException::class.java)
+//            val account = completedTask.getResult(ApiException::class.java)
 
             // Signed in successfully, show authenticated UI.
 //            signIn(account)
@@ -232,8 +232,7 @@ class MainActivity : AppCompatActivity() {
             expenditureModel.loadExpenditures()
             categoryModel.loadCategories()
             spenderModel.loadSpenders()
-            if (BuildConfig.VERSION_CODE >= 11)
-                budgetModel.loadBudgets()
+            budgetModel.loadBudgets(this)
             recurringTransactionModel.loadRecurringTransactions(this)
         }
     }
@@ -248,7 +247,7 @@ class MainActivity : AppCompatActivity() {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.options_menu, menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.SignOut) {
+            if (menu.getItem(i).getItemId() == R.id.SignOut) {
                 menu.getItem(i).setVisible(true)
                 menu.getItem(i).setTitle("Sign Out (" + MyApplication.userEmail + ")")
             } else
@@ -275,8 +274,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.fragments.forEach() {
             Log.d("Alex", "fragment is " + it.toString())
         }
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         var frag = getSupportFragmentManager().findFragmentById(R.id.homeFragment) as HomeFragment
         frag.ivebeentold();
     }
@@ -296,8 +294,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-/*        Firebase.auth.signOut()
-        mGoogleSignInClient.signOut() */
+        MyApplication.releaseResources()
     }
 }
 

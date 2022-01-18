@@ -35,7 +35,8 @@
             android:layout_gravity="center"
             android:text="Amt"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/categoryHeading"
@@ -46,7 +47,8 @@
             android:text="Cat"
             android:tooltipText="Category"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/subCategoryHeading"
@@ -57,7 +59,8 @@
             android:text="SubCat"
             android:tooltipText="Sub-Category"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/whoHeading"
@@ -68,7 +71,8 @@
             android:text="By:For"
             android:tooltipText="Who paid for the expense, and who was it bought for.  If the name is the same for both, only one name is shown.  If the name is different, it is shown as Fir:Sec, ie abbreviated First and Second names."
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/noteHeading"
@@ -78,18 +82,20 @@
             android:layout_gravity="center"
             android:text="Note"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/typeHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:text="Rec"
             android:tooltipText="If this is an automatically generated Recurring transaction then an R is shown.  Otherwise it's blank, which means it was manually entered by the user."
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -127,7 +133,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Yr"
-            android:textSize="10sp">
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
         </Button>
 
         <Space
@@ -143,7 +150,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Mo"
-            android:textSize="10sp">
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
         </Button>
 
         <Space
@@ -159,7 +167,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Pg"
-            android:textSize="10sp">
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
         </Button>
 
         <Space
@@ -175,7 +184,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Today"
-            android:textSize="10sp">
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
         </Button>
 
         <Space
@@ -191,7 +201,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Pg+"
-            android:textSize="10sp"></Button>
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
@@ -206,7 +217,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Mo+"
-            android:textSize="10sp"></Button>
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
@@ -221,7 +233,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Yr+"
-            android:textSize="10sp">
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
         </Button>
 
         <Space

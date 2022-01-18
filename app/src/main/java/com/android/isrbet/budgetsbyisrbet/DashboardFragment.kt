@@ -14,7 +14,6 @@ import android.view.*
 import android.widget.TextView
 import android.widget.TableLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -30,7 +29,7 @@ class DashboardFragment : Fragment() {
     private var currentDiscFilter: String = ""
     private var currentPaidByFilter: String = ""
     private var currentBoughtForFilter: String = ""
-    private var currentPeriodView: String = "Month"
+    private var collapsedCategories: MutableList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,16 +42,16 @@ class DashboardFragment : Fragment() {
         val rows = data.size
         var textSpacer: TextView?
         mTableLayout!!.removeAllViews()
-        var lastCategory: String = ""
-        var lastCategoryBudgetTotal: Double = 0.0
-        var lastCategoryActualTotal: Double = 0.0
-        var grandBudgetTotal: Double = 0.0
-        var grandActualTotal: Double = 0.0
+        var lastCategory = ""
+        var lastCategoryBudgetTotal = 0.0
+        var lastCategoryActualTotal = 0.0
+        var grandBudgetTotal = 0.0
+        var grandActualTotal = 0.0
 
         // -1 means heading row
         var i = -1
         // do header row
-        createViewRow("Header", i++, "", "", 0.0, 0.0)
+        createViewRow("Header", i++, "", "", "", 0.0, 0.0)
 
         while (i < rows) {
             var row: DashboardData? = null
@@ -63,7 +62,7 @@ class DashboardFragment : Fragment() {
 
             if (row != null && lastCategory != "" && row.category != lastCategory) {
                 // sub-total row
-                createViewRow("Sub-total", i, lastCategory + " Total", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
+                createViewRow("Sub-total", i, lastCategory, "", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
                 grandBudgetTotal += lastCategoryBudgetTotal
                 grandActualTotal += lastCategoryActualTotal
                 lastCategoryBudgetTotal = 0.0
@@ -72,28 +71,27 @@ class DashboardFragment : Fragment() {
 
             if (row != null) {
                 lastCategory = row.category
-               // zzz
-                createViewRow("Detail", i, row.category + "-" + row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
+                createViewRow("Detail", i, row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
                 lastCategoryBudgetTotal += row.budgetAmount
                 lastCategoryActualTotal += row.actualAmount
             }
             i++
         }
 
-        createViewRow("Sub-total", i++, lastCategory + " Total", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
+        createViewRow("Sub-total", i++, lastCategory, "", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
         grandBudgetTotal += lastCategoryBudgetTotal
         grandActualTotal += lastCategoryActualTotal
-        createViewRow("Grand total", i++, "Grand Total", "", grandBudgetTotal, grandActualTotal)
+        createViewRow("Grand total", i++, "Grand Total", "", "", grandBudgetTotal, grandActualTotal)
         // delta row
         if (grandActualTotal > grandBudgetTotal) {
-            createViewRow("Delta", i++, "Delta", "", 0.0, grandActualTotal-grandBudgetTotal)
+            createViewRow("Delta", i++, "Delta", "", "", 0.0, grandActualTotal-grandBudgetTotal)
         }
         else {
-            createViewRow("Delta", i++, "Delta", "", grandBudgetTotal-grandActualTotal,0.0)
+            createViewRow("Delta", i++, "Delta", "", "", grandBudgetTotal-grandActualTotal,0.0)
         }
     }
 
-    private fun createViewRow(iRowType: String, iRowNo: Int, iCategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
+    private fun createViewRow(iRowType: String, iRowNo: Int, iCategory: String, iSubcategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
         val leftRowMargin = 0
         val topRowMargin = 0
         val rightRowMargin = 0
@@ -107,16 +105,17 @@ class DashboardFragment : Fragment() {
             TableRow.LayoutParams.WRAP_CONTENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        tv1.gravity = if (iRowType == "Detail") Gravity.LEFT else Gravity.RIGHT
+        tv1.gravity = if (iRowType == "Detail") Gravity.START else Gravity.END
         tv1.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv1.text = ""
             tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
             tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
-            val dash = iCategory.indexOf("-")
-            if (dash > -1)
-                tv1.setText(iCategory.substring(dash+1,iCategory.length))
+            if (iRowType == "Detail")
+                tv1.setText(iSubcategory)
+            else if (iRowType == "Sub-total")
+                tv1.setText(iCategory + " Total")
             else
                 tv1.setText(iCategory)
             if (tv1.text.length > 15) {
@@ -132,12 +131,13 @@ class DashboardFragment : Fragment() {
             tv2.gravity = Gravity.CENTER
             tv2.setPadding(0, 0, 0, 0)
         } else {
-            tv2.gravity = Gravity.LEFT
+            tv2.gravity = Gravity.START
             tv2.setPadding(5, 15, 0, 15)
         }
         if (iRowType == "Header") {
-            tv2.text = "Disc?"
+            tv2.text = "Disc"
             tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
+            tv2.tooltipText = "Indicates whether this budget item is Discretionary (D), or not (ND)."
         } else {
             tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             tv2.setText(iDiscFlag)
@@ -154,7 +154,7 @@ class DashboardFragment : Fragment() {
                 TableRow.LayoutParams.MATCH_PARENT
             )
         }
-        tv3.gravity = Gravity.RIGHT
+        tv3.gravity = Gravity.END
         tv3.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv3.text = "Budget"
@@ -178,7 +178,7 @@ class DashboardFragment : Fragment() {
                 TableRow.LayoutParams.MATCH_PARENT
             )
         }
-        tv4.gravity = Gravity.RIGHT
+        tv4.gravity = Gravity.END
         tv4.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv4.text = "Actual"
@@ -202,7 +202,7 @@ class DashboardFragment : Fragment() {
                 TableRow.LayoutParams.MATCH_PARENT
             )
         }
-        tv5.gravity = Gravity.RIGHT
+        tv5.gravity = Gravity.END
         tv5.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv5.text = "%"
@@ -244,24 +244,25 @@ class DashboardFragment : Fragment() {
         }
         else if (iRowType == "Sub-total") {
             tv1.setTypeface(null, Typeface.BOLD)
-            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F); // 14F is default
-            tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
+            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // 14F is default
+            tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+            val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK), "1F")
+            tv2.setBackgroundColor(Color.parseColor(hexColor))
             tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
             tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
             tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
         }
         else if (iRowType == "Grand total") {
             tv1.setTypeface(null, Typeface.BOLD)
-            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F); // 14F is default
-            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F); // 14F is default
-            tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
-            tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F); // 14F is default
+            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F) // 14F is default
+            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F) // 14F is default
+            tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
             tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
             tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
@@ -281,6 +282,15 @@ class DashboardFragment : Fragment() {
         tr.addView(tv3)
         tr.addView(tv4)
         tr.addView(tv5)
+        if (isInvisible(iCategory)) {
+            if (iRowType == "Detail") {
+                tr.visibility = View.GONE
+            }  else if (iRowType == "Sub-total") {
+                tv2.text = "+"
+            }
+        } else
+            tr.visibility = View.VISIBLE
+
         if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total" && iRowType != "Delta") {
             tr.setOnClickListener {
                 Log.d("Alex", "row " + it.id + " was clicked")
@@ -366,6 +376,10 @@ class DashboardFragment : Fragment() {
             tableRow = mTableLayout!!.getChildAt(i) as TableRow
             tableRow.visibility = iVisibility
         }
+        if (iVisibility == View.VISIBLE)
+            collapsedCategories.remove(iCategory)
+        else
+            collapsedCategories.add(iCategory)
     }
 
     override fun onCreateView(
@@ -399,7 +413,7 @@ class DashboardFragment : Fragment() {
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
         mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
-        mTableLayout!!.setStretchAllColumns(true);
+        binding.tableDashboardRows.setStretchAllColumns(true);
 
         if (currentBudgetMonth.year == 0) {
             val dateNow = Calendar.getInstance()
@@ -410,20 +424,6 @@ class DashboardFragment : Fragment() {
 //        startLoadData(currentBudgetMonth)
         startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
 
-        val vButtonLinearLayout =         getView()?.findViewById<LinearLayout>(R.id.button_linear_layout2)
-        vButtonLinearLayout?.setOnTouchListener(object : OnSwipeTouchListener(requireContext()) {
-            override fun onSwipeLeft() {
-                super.onSwipeLeft()
-                moveOneMonthForward()
-                Log.d("Alex", "swiped left")
-            }
-
-            override fun onSwipeRight() {
-                super.onSwipeRight()
-                moveOneMonthBackward()
-                Log.d("Alex", "swiped right")
-            }
-        })
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -600,6 +600,15 @@ class DashboardFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    fun isInvisible(iCat: String): Boolean {
+        collapsedCategories.forEach {
+            val len = if (it.length > iCat.length) iCat.length else it.length
+            if (it.substring(0, len) == iCat.substring(0, len))
+                return true
+        }
+        return false
+    }
 }
 
 
@@ -755,3 +764,4 @@ class DashboardRows {
         return data
     }
 }
+

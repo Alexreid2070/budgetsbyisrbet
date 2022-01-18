@@ -8,25 +8,27 @@
     tools:context=".AccountingFragment">
 
     <TextView
-        android:id="@+id/accounting_headingone"
+        android:id="@+id/accounting_heading_one"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Expenses"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center" />
+        android:gravity="center"
+        tools:ignore="HardcodedText" />
 
     <LinearLayout
-        android:id="@+id/accounting_firstsection"
+        android:id="@+id/accounting_first_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/accounting_headingone"
+        app:layout_constraintTop_toBottomOf="@+id/accounting_heading_one"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -35,7 +37,8 @@
                 android:rotation="270"
                 android:text="Bought For"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -55,18 +58,20 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="left"
+                        android:gravity="start"
                         android:layout_weight="1"
                         android:text="Paid By"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    tools:ignore="NestedWeights">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -76,29 +81,32 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/accounting_header_fheadername"
+                        android:id="@+id/accounting_header_first_header_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="fname"
+                        android:text="name1"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
                     <TextView
-                        android:id="@+id/accounting_header_sheadername"
+                        android:id="@+id/accounting_header_second_header_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sname"
+                        android:text="name2"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
                     <TextView
-                        android:id="@+id/accounting_header_jheadername"
+                        android:id="@+id/accounting_header_joint_header_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Joint"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
 
@@ -109,31 +117,35 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/accounting_frow_name"
+                        android:id="@+id/accounting_first_row_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="fname" />
+                        android:text="name1"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_ff"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="ff" />
+                        android:text="ff"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_fs"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sf" />
+                        android:text="sf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_fj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jf" />
+                        android:text="jf"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -142,31 +154,35 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/accounting_srow_name"
+                        android:id="@+id/accounting_second_row_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="sfname" />
+                        android:text="sfname"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_sf"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sf" />
+                        android:text="sf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_ss"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="ss" />
+                        android:text="ss"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_sj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sj" />
+                        android:text="sj"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -180,26 +196,30 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="Joint-First" />
+                        android:text="Joint-First"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_jff"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jf" />
+                        android:text="jf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_jfs"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="js" />
+                        android:text="js"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_jfj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jj" />
+                        android:text="jj"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -213,26 +233,30 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="Joint-Second" />
+                        android:text="Joint-Second"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_jsf"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jf" />
+                        android:text="jf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_jss"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="js" />
+                        android:text="js"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_jsj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jj" />
+                        android:text="jj"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -241,24 +265,25 @@
     <Space
         android:id="@+id/accounting_space"
         android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@+id/accounting_firstsection"
+        app:layout_constraintTop_toBottomOf="@+id/accounting_first_section"
         android:layout_height="40dp"/>
 
     <TextView
-        android:id="@+id/accounting_headingtwo"
+        android:id="@+id/accounting_heading_two"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/accounting_space"
         android:text="Transfers"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:gravity="center"></TextView>
+        android:gravity="center"
+        tools:ignore="HardcodedText" />
 
     <LinearLayout
-        android:id="@+id/accounting_secondsection"
+        android:id="@+id/accounting_second_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/accounting_headingtwo"
+        app:layout_constraintTop_toBottomOf="@+id/accounting_heading_two"
         android:orientation="vertical">
 
         <LinearLayout
@@ -272,10 +297,11 @@
                 android:rotation="270"
                 android:text="From"
                 android:textSize="16sp"
-                android:textStyle="bold"></TextView>
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:orientation="vertical">
@@ -292,18 +318,20 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="left"
+                        android:gravity="start"
                         android:layout_weight="1"
                         android:text="To"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    tools:ignore="NestedWeights">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -317,17 +345,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="fname"
+                        android:text="name1"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_header_t_sheadername"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sname"
+                        android:text="name2"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_header_t_jheadername"
                         android:layout_width="match_parent"
@@ -335,7 +365,8 @@
                         android:layout_weight="1"
                         android:text="Joint"
                         android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
 
@@ -346,31 +377,35 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/accounting_t_frow_name"
+                        android:id="@+id/accounting_t_first_row_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="fname" />
+                        android:text="fname"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_t_ff"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="ff" />
+                        android:text="ff"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_t_fs"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sf" />
+                        android:text="sf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_t_fj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jf" />
+                        android:text="jf"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -379,31 +414,35 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/accounting_t_srow_name"
+                        android:id="@+id/accounting_t_second_row_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="sfname" />
+                        android:text="sfname"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_t_sf"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sf" />
+                        android:text="sf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_t_ss"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="ss" />
+                        android:text="ss"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_t_sj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="sj" />
+                        android:text="sj"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -412,31 +451,35 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/accounting_t_jrow_name"
+                        android:id="@+id/accounting_t_joint_row_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textStyle="bold"
-                        android:text="Joint" />
+                        android:text="Joint"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/accounting_t_jf"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jf" />
+                        android:text="jf"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_t_js"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="js" />
+                        android:text="js"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_t_jj"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="jj" />
+                        android:text="jj"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -454,7 +497,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:text="Summary:  " />
+                android:text="Summary:  "
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/accounting_summary"
@@ -462,7 +506,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:text="text" />
+                android:text="text"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

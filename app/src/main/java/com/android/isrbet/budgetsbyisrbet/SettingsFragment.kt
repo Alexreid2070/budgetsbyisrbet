@@ -7,15 +7,14 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
 import android.widget.CheckBox
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
 
 class SettingsFragment : Fragment() {
@@ -61,9 +60,6 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        binding.settingsEditCategoriesButton.setOnClickListener { view ->
-            view.findNavController().navigate(R.id.SettingsEditCategoryFragment)
-        }
         binding.settingsSaveButton.setOnClickListener {
             onSaveButtonClicked()
         }
@@ -105,10 +101,17 @@ class SettingsFragment : Fragment() {
         if (arrayAdapter != null) {
             arrayAdapter.notifyDataSetChanged()
         }
-        binding.settingsCategorySpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        binding.settingsCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
-        val integrateField = requireActivity().findViewById(R.id.settings_integrate_with_TD_Spend) as EditText
-        integrateField.setText(DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
+        if (DefaultsViewModel.getDefault(cDEFAULT_SOUND) == "Off")
+            binding.switchSound.isChecked = false
+        else
+            binding.switchSound.isChecked = true
+        if (DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "Off")
+            binding.switchIntegrateWithTD.isChecked = false
+        else
+            binding.switchIntegrateWithTD.isChecked = true
         val showRedField = requireActivity().findViewById(R.id.settings_red_percentage) as EditText
         showRedField.setText(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED))
 
@@ -137,12 +140,26 @@ class SettingsFragment : Fragment() {
                 }
             }
         })
+        binding.settingsFirstUserName.requestFocus()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).setVisible(false)
+            if (menu.getItem(i).getItemId() === R.id.EditCategory)
+                menu.getItem(i).setVisible(true)
+            else
+                menu.getItem(i).setVisible(false)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId === R.id.EditCategory) {
+            view?.findNavController()?.navigate(R.id.SettingsEditCategoryFragment)
+            return true
+        } else {
+            val navController = findNavController()
+            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
     }
 
@@ -153,24 +170,28 @@ class SettingsFragment : Fragment() {
 
     private fun onSaveButtonClicked () {
         if (!textIsSafe(binding.settingsFirstUserName.text.toString())) {
-            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+            binding.settingsFirstUserName.error = "The text contains unsafe characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
             return
         }
         if (!textIsSafe(binding.settingsSecondUserName.text.toString())) {
-            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+            binding.settingsSecondUserName.error = "The text contains unsafe characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
             return
         }
         // need to reject if all the fields aren't entered correctly
         // first user cannot be blank
         if (binding.settingsFirstUserName.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingFirstUserName))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingFirstUserName))
+            binding.settingsFirstUserName.error = getString(R.string.missingFirstUserName)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
             return
         }
         if (binding.settingsFirstPercentage.text.toString() == "") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingFirstUserPercentage))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingFirstUserPercentage))
+            binding.settingsFirstPercentage.error = getString(R.string.missingFirstUserPercentage)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstPercentage)
             return
         }
@@ -180,7 +201,8 @@ class SettingsFragment : Fragment() {
                     binding.settingsSecondUserCheckbox.isChecked) &&
             (binding.settingsSecondUserName.text.toString() == "" ||
                     binding.settingsSecondPercentage.text.toString() == "")) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.missingSecondUserInformation))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingSecondUserInformation))
+            binding.settingsSecondUserName.error = getString(R.string.missingSecondUserInformation)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
             return
         }
@@ -188,13 +210,15 @@ class SettingsFragment : Fragment() {
         if ((binding.settingsSecondPercentage.text.toString() == "" && binding.settingsFirstPercentage.text.toString().toInt() != 100) ||
             (binding.settingsSecondPercentage.text.toString() != "" && binding.settingsFirstPercentage.text.toString().toInt() +
             binding.settingsSecondPercentage.text.toString().toInt() != 100)) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.percentagesDontAddTo100))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.percentagesDontAddTo100))
+            binding.settingsFirstPercentage.error = getString(R.string.percentagesDontAddTo100)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstPercentage)
             return
         }
         // at least one user must have its default checked
         if (!binding.settingsFirstUserCheckbox.isChecked && !binding.settingsSecondUserCheckbox.isChecked && !binding.settingsJointUserCheckbox.isChecked) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.oneUserMustBeDefault))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.oneUserMustBeDefault))
+            binding.settingsFirstUserCheckbox.error = getString(R.string.oneUserMustBeDefault)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserCheckbox)
             return
         }
@@ -207,14 +231,9 @@ class SettingsFragment : Fragment() {
         if (binding.settingsJointUserCheckbox.isChecked)
             cChecked++
         if (cChecked > 1) {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.onlyOneUserMustBeDefault))
+//            showErrorMessage(getParentFragmentManager(), getString(R.string.onlyOneUserMustBeDefault))
+            binding.settingsFirstUserCheckbox.error = getString(R.string.onlyOneUserMustBeDefault)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserCheckbox)
-            return
-        }
-        // Integrate must be Yes or No
-        if (binding.settingsIntegrateWithTDSpend.text.toString() != "Yes" && binding.settingsIntegrateWithTDSpend.text.toString() != "No") {
-            showErrorMessage(getParentFragmentManager(), getString(R.string.fieldMustBeYesOrNo))
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsIntegrateWithTDSpend)
             return
         }
 
@@ -248,9 +267,14 @@ class SettingsFragment : Fragment() {
                 DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defSubCat)
         }
         // check default Integrate with TD Spend
-        val integrateField = requireActivity().findViewById(R.id.settings_integrate_with_TD_Spend) as EditText
-        if (integrateField.text.toString() != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
-            DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, integrateField.text.toString())
+        Log.d("Alex", "td switch is " + binding.switchIntegrateWithTD.showText)
+        val integrateField = if (binding.switchIntegrateWithTD.isChecked) "On" else "Off"
+        if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
+            DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, integrateField)
+        // check default Sound
+        val soundField = if (binding.switchSound.isChecked) "On" else "Off"
+        if (soundField != DefaultsViewModel.getDefault(cDEFAULT_SOUND))
+            DefaultsViewModel.updateDefault(cDEFAULT_SOUND, soundField)
 
         // check default showRed
         val showRedField = requireActivity().findViewById(R.id.settings_red_percentage) as EditText

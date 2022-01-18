@@ -81,8 +81,9 @@ class UserViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users")
-            .removeEventListener(userListener)
+        if (::userListener.isInitialized)
+            MyApplication.databaseref.child("Users")
+                .removeEventListener(userListener)
     }
     fun clearCallback() {
         dataUpdatedCallback = null
