@@ -402,7 +402,37 @@
                     android:layout_below="@id/transaction_id_layout"
                     android:gravity="center"
                     android:orientation="vertical">
-
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <Button
+                            android:id="@+id/button_prev_transaction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:text="Prev"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            tools:ignore="HardcodedText" />
+                        <Space
+                            android:layout_width="20dp"
+                            android:layout_height="wrap_content"/>
+                        <Button
+                            android:id="@+id/button_next_transaction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:text="Next"
+                            app:layout_constraintStart_toEndOf="@id/button_prev_transaction"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
                     <Button
                         android:id="@+id/button_save_transaction"
                         android:layout_width="wrap_content"
@@ -410,7 +440,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="Save"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" android:layout_gravity=""
                         app:layout_constraintStart_toStartOf="parent"
                         tools:ignore="HardcodedText" />
 
@@ -430,6 +460,7 @@
             </RelativeLayout>
 
             <LinearLayout
+                android:id="@+id/dashboard_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="bottom"

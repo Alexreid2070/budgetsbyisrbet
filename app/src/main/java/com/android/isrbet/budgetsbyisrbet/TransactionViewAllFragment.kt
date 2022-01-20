@@ -6,6 +6,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Button
 import android.widget.LinearLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,12 +20,18 @@ class TransactionViewAllFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    }
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                transactionSearchText = ""
+                isEnabled = false  // without this line there will be a recursive call to OnBackPressed
+                activity?.onBackPressed()
+            }
+        })    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentTransactionViewAllBinding.inflate(inflater, container, false)
 
         setHasOptionsMenu(true)
@@ -58,7 +65,7 @@ class TransactionViewAllFragment : Fragment() {
         recyclerView.apply {
             // set a LinearLayoutManager to handle Android RecyclerView behavior
             recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-            var expList = ExpenditureViewModel.getCopyOfExpenditures()
+            val expList = ExpenditureViewModel.getCopyOfExpenditures()
             expList.sortBy { it.date }
 
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
@@ -77,12 +84,12 @@ class TransactionViewAllFragment : Fragment() {
                             .setTransactionID(item.mykey)
                     this@TransactionViewAllFragment.findNavController().navigate(action)
                 }
-            };
+            }
         }
         val adapter:TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         // for some reason "binding.buttonToday.setOnClickListener doesn't work, but the following does
         getView()?.findViewById<Button>(R.id.button_year_forward)?.setOnClickListener { view: View ->
-            var getNewPosition = adapter.getPositionOf(
+            val getNewPosition = adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                 "+year")
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(getNewPosition, 0)
@@ -167,7 +174,7 @@ class TransactionViewAllFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.Search)
+            if (menu.getItem(i).getItemId() == R.id.Search)
                 menu.getItem(i).setVisible(true)
             else
                 menu.getItem(i).setVisible(false)
@@ -182,7 +189,7 @@ class TransactionViewAllFragment : Fragment() {
         if (item.itemId == R.id.Search) {
             if (binding.transactionSearch.visibility == View.GONE) {
                 binding.transactionSearch.visibility = View.VISIBLE
-                val searchView = binding.transactionSearch as SearchView
+                val searchView = binding.transactionSearch
 //                searchView.requestFocus()
                 focusAndOpenSoftKeyboard(requireContext(), searchView)
             } else {
@@ -191,7 +198,7 @@ class TransactionViewAllFragment : Fragment() {
                 val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                 adapter.getFilter().filter("")
                 // clear filter
-                val searchView = binding.transactionSearch as SearchView
+                val searchView = binding.transactionSearch
                 searchView.setQuery("", false)
                 searchView.clearFocus()
             }
@@ -215,7 +222,7 @@ class TransactionViewAllFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         hideKeyboard(requireContext(), requireView())
-        transactionSearchText = ""
+//        transactionSearchText = ""
     }
     override fun onDestroyView() {
         super.onDestroyView()

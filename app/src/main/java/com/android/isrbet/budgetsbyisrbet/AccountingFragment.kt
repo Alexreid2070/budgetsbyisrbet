@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,9 +11,9 @@ import android.view.ViewGroup
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
 import java.text.DecimalFormat
 
-const val cFIRSTNAME = 0
-const val cSECONDNAME = 1
-const val cJOINTNAME = 2
+const val cFIRST_NAME = 0
+const val cSECOND_NAME = 1
+const val cJOINT_NAME = 2
 
 class AccountingFragment : Fragment() {
     private var _binding: FragmentAccountingBinding? = null
@@ -20,7 +21,7 @@ class AccountingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAccountingBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         // Inflate the layout for this fragment
@@ -36,49 +37,58 @@ class AccountingFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).setVisible(false)
+            menu.getItem(i).isVisible = false
         }
     }
+    @SuppressLint("SetTextI18n")
     fun fillInContent() {
-        var totals = Array(3) {DoubleArray(4) {0.0} }
-        var transfer_totals = Array(3) {DoubleArray(3) {0.0} }
+        val totals = Array(3) {DoubleArray(4) {0.0} }
+        val transferTotals = Array(3) {DoubleArray(4) {0.0} }
         val firstName = SpenderViewModel.getSpender(0)?.name.toString()
         val secondName = SpenderViewModel.getSpender(1)?.name.toString()
-        Log.d("Alex", "first name is " + firstName)
-        Log.d("Alex", "second name is " + secondName)
-        binding.accountingHeaderFirstHeaderName.setText(firstName)
-        binding.accountingHeaderTFheadername.setText(firstName)
-        binding.accountingFirstRowName.setText(firstName)
-        binding.accountingTFirstRowName.setText(firstName)
-        binding.accountingHeaderSecondHeaderName.setText(secondName)
-        binding.accountingHeaderTSheadername.setText(secondName)
-        binding.accountingSecondRowName.setText(secondName)
-        binding.accountingTSecondRowName.setText(secondName)
-        binding.accountingJfrowName.setText("Jt-"+firstName)
-        binding.accountingJsrowName.setText("Jt-"+secondName)
+        Log.d("Alex", "first name is $firstName")
+        Log.d("Alex", "second name is $secondName")
+        binding.accountingHeaderFirstHeaderName.text = firstName
+        binding.accountingHeaderTFheadername.text = secondName
+        binding.accountingHeaderTSheadername.text = secondName
+        binding.accountingSecondRowName.text = secondName
+        binding.accountingTTosRowName.text = secondName
+        binding.accountingJfrowName.text = "Jt-$firstName"
+        binding.accountingJsrowName.text = "Jt-$secondName"
+        binding.accountingTToj1RowName.text = "Jt-$firstName"
+        binding.accountingTToj2RowName.text = "Jt-$secondName"
 
         ExpenditureViewModel.getExpenditures().forEach {
             if (it.type == "T") {
                 when (it.paidby) {
                     firstName -> {
                         when (it.boughtfor) {
-                            firstName -> transfer_totals[cFIRSTNAME][cFIRSTNAME] += (it.amount/100.0)
-                            secondName -> transfer_totals[cFIRSTNAME][cSECONDNAME] += (it.amount/100.0)
-                            "Joint" -> transfer_totals[cFIRSTNAME][cJOINTNAME] += ((it.amount/100.0)*(it.bfname2split/10000.0))
+                            firstName -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (it.amount/100.0)
+                            secondName -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (it.amount/100.0)
+                            "Joint" -> {
+                                transferTotals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                            }
                         }
                     }
                     secondName -> {
                         when (it.boughtfor) {
-                            firstName -> transfer_totals[cSECONDNAME][cFIRSTNAME] += (it.amount/100.0)
-                            secondName -> transfer_totals[cSECONDNAME][cSECONDNAME] += (it.amount/100.0)
-                            "Joint" -> transfer_totals[cSECONDNAME][cJOINTNAME] += ((it.amount/100.0)*(it.bfname1split/10000.0))
+                            firstName -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (it.amount/100.0)
+                            secondName -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (it.amount/100.0)
+                            "Joint" -> {
+                                transferTotals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                            }
                         }
                     }
                     "Joint" -> {
                         when (it.boughtfor) {
-                            firstName -> transfer_totals[cJOINTNAME][cFIRSTNAME] += ((it.amount/100.0)*(it.bfname2split/10000.0))
-                            secondName -> transfer_totals[cJOINTNAME][cSECONDNAME] += ((it.amount/100.0)*(it.bfname1split/10000.0))
-                            "Joint" -> transfer_totals[cJOINTNAME][cJOINTNAME] += (it.amount/100.0)
+                            firstName -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (it.amount/100.0)
+                            secondName -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (it.amount/100.0)
+                            "Joint" -> {
+                                transferTotals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/10000.0))
+                            }
                         }
                     }
                 }
@@ -86,33 +96,33 @@ class AccountingFragment : Fragment() {
                 when (it.paidby) {
                     firstName -> {
                         when (it.boughtfor) {
-                            firstName -> totals[cFIRSTNAME][cFIRSTNAME] += (it.amount/100.0)
-                            secondName -> totals[cFIRSTNAME][cSECONDNAME] += ((it.amount/100.0)*(it.bfname2split/10000.0))
+                            firstName -> totals[cFIRST_NAME][cFIRST_NAME] += (it.amount/100.0)
+                            secondName -> totals[cFIRST_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                totals[cFIRSTNAME][cJOINTNAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                totals[cFIRSTNAME][cJOINTNAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                                totals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
+                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
                             }
                         }
                     }
                     secondName -> {
                         when (it.boughtfor) {
-                            firstName -> totals[cSECONDNAME][cFIRSTNAME] += ((it.amount/100.0) * (it.bfname1split/10000.0))
-                            secondName -> totals[cSECONDNAME][cSECONDNAME] += (it.amount/100.0)
+                            firstName -> totals[cSECOND_NAME][cFIRST_NAME] += (it.amount/100.0)
+                            secondName -> totals[cSECOND_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                totals[cSECONDNAME][cJOINTNAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                totals[cSECONDNAME][cJOINTNAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                                totals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
+                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
                             }
                         }
                     }
                     "Joint" -> {
                         when (it.boughtfor) {
                             firstName -> {
-                                totals[cJOINTNAME][cFIRSTNAME] += ((it.amount / 100.0) * (it.bfname1split / 10000.0))
+                                totals[cJOINT_NAME][cFIRST_NAME] += ((it.amount / 100.0) * (it.bfname1split / 10000.0))
                             }
-                            secondName -> totals[cJOINTNAME][cSECONDNAME] += ((it.amount/100.0) * (it.bfname2split/10000.0))
+                            secondName -> totals[cJOINT_NAME][cSECOND_NAME] += ((it.amount/100.0) * (it.bfname2split/10000.0))
                             "Joint" -> {
-                                totals[cJOINTNAME][cJOINTNAME] += ((it.amount/100.0) * SpenderViewModel.getSpenderSplit(0) / 100.0)
-                                totals[cJOINTNAME][cJOINTNAME+1] += ((it.amount/100.0) * SpenderViewModel.getSpenderSplit(1) / 100.0)
+                                totals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
+                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/10000.0))
                             }
                         }
                     }
@@ -120,56 +130,59 @@ class AccountingFragment : Fragment() {
             }
         }
         val dec = DecimalFormat("#.00")
-        binding.accountingFf.text = "$ " + dec.format(totals[cFIRSTNAME][cFIRSTNAME])
-        binding.accountingSf.text = "$ " + dec.format(totals[cFIRSTNAME][cSECONDNAME])
-        binding.accountingJff.text = "$ " + dec.format(totals[cFIRSTNAME][cJOINTNAME])
-        binding.accountingJsf.text = "$ " + dec.format(totals[cFIRSTNAME][cJOINTNAME+1])
-        binding.accountingFs.text = "$ " + dec.format(totals[cSECONDNAME][cFIRSTNAME])
-        binding.accountingSs.text = "$ " + dec.format(totals[cSECONDNAME][cSECONDNAME])
-        binding.accountingJfs.text = "$ " + dec.format(totals[cSECONDNAME][cJOINTNAME])
-        binding.accountingJss.text = "$ " + dec.format(totals[cSECONDNAME][cJOINTNAME+1])
-        binding.accountingFj.text = "$ " + dec.format(totals[cJOINTNAME][cFIRSTNAME])
-        binding.accountingSj.text = "$ " + dec.format(totals[cJOINTNAME][cSECONDNAME])
-        binding.accountingJfj.text = "$ " + dec.format(totals[cJOINTNAME][cJOINTNAME])
-        binding.accountingJsj.text = "$ " + dec.format(totals[cJOINTNAME][cJOINTNAME+1])
+        binding.accountingFf.text = "$ " + dec.format(totals[cFIRST_NAME][cFIRST_NAME])
+        binding.accountingSf.text = "$ " + dec.format(totals[cFIRST_NAME][cSECOND_NAME])
+        binding.accountingJff.text = "$ " + dec.format(totals[cFIRST_NAME][cJOINT_NAME])
+        binding.accountingJsf.text = "$ " + dec.format(totals[cFIRST_NAME][cJOINT_NAME+1])
+        binding.accountingFs.text = "$ " + dec.format(totals[cSECOND_NAME][cFIRST_NAME])
+        binding.accountingSs.text = "$ " + dec.format(totals[cSECOND_NAME][cSECOND_NAME])
+        binding.accountingJfs.text = "$ " + dec.format(totals[cSECOND_NAME][cJOINT_NAME])
+        binding.accountingJss.text = "$ " + dec.format(totals[cSECOND_NAME][cJOINT_NAME+1])
+        binding.accountingFj.text = "$ " + dec.format(totals[cJOINT_NAME][cFIRST_NAME])
+        binding.accountingSj.text = "$ " + dec.format(totals[cJOINT_NAME][cSECOND_NAME])
+        binding.accountingJfj.text = "$ " + dec.format(totals[cJOINT_NAME][cJOINT_NAME])
+        binding.accountingJsj.text = "$ " + dec.format(totals[cJOINT_NAME][cJOINT_NAME+1])
 
-        binding.accountingTFf.text = "$ " + dec.format(transfer_totals[cFIRSTNAME][cFIRSTNAME])
-        binding.accountingTFs.text = "$ " + dec.format(transfer_totals[cFIRSTNAME][cSECONDNAME])
-        binding.accountingTFj.text = "$ " + dec.format(transfer_totals[cFIRSTNAME][cJOINTNAME])
-        binding.accountingTSf.text = "$ " + dec.format(transfer_totals[cSECONDNAME][cFIRSTNAME])
-        binding.accountingTSs.text = "$ " + dec.format(transfer_totals[cSECONDNAME][cSECONDNAME])
-        binding.accountingTSj.text = "$ " + dec.format(transfer_totals[cSECONDNAME][cJOINTNAME])
-        binding.accountingTJf.text = "$ " + dec.format(transfer_totals[cJOINTNAME][cFIRSTNAME])
-        binding.accountingTJs.text = "$ " + dec.format(transfer_totals[cJOINTNAME][cSECONDNAME])
-        binding.accountingTJj.text = "$ " + dec.format(transfer_totals[cJOINTNAME][cJOINTNAME])
+        binding.accountingTFf.text = "$ " + dec.format(transferTotals[cFIRST_NAME][cFIRST_NAME])
+        binding.accountingTFs.text = "$ " + dec.format(transferTotals[cFIRST_NAME][cSECOND_NAME])
+        binding.accountingTFj1.text = "$ " + dec.format(transferTotals[cFIRST_NAME][cJOINT_NAME])
+        binding.accountingTFj2.text = "$ " + dec.format(transferTotals[cFIRST_NAME][cJOINT_NAME+1])
+        binding.accountingTSf.text = "$ " + dec.format(transferTotals[cSECOND_NAME][cFIRST_NAME])
+        binding.accountingTSs.text = "$ " + dec.format(transferTotals[cSECOND_NAME][cSECOND_NAME])
+        binding.accountingTSj1.text = "$ " + dec.format(transferTotals[cSECOND_NAME][cJOINT_NAME])
+        binding.accountingTSj2.text = "$ " + dec.format(transferTotals[cSECOND_NAME][cJOINT_NAME+1])
+        binding.accountingTJf.text = "$ " + dec.format(transferTotals[cJOINT_NAME][cFIRST_NAME])
+        binding.accountingTJs.text = "$ " + dec.format(transferTotals[cJOINT_NAME][cSECOND_NAME])
+        binding.accountingTJj1.text = "$ " + dec.format(transferTotals[cJOINT_NAME][cJOINT_NAME])
+        binding.accountingTJj2.text = "$ " + dec.format(transferTotals[cJOINT_NAME][cJOINT_NAME+1])
 
-        val oneOwesTwo = ((-totals[cFIRSTNAME][cSECONDNAME])
-                + (totals[cSECONDNAME][cFIRSTNAME])
-                - (totals[cFIRSTNAME][cJOINTNAME+1])
-                + (totals[cSECONDNAME][cJOINTNAME])
-                + ((totals[cJOINTNAME][cFIRSTNAME]) * SpenderViewModel.getSpenderSplit(0)/100)
-                - ((totals[cJOINTNAME][cSECONDNAME]) * SpenderViewModel.getSpenderSplit(1)/100)
-                - (transfer_totals[cFIRSTNAME][cSECONDNAME])
-                + (transfer_totals[cSECONDNAME][cFIRSTNAME])
-                - (transfer_totals[cFIRSTNAME][cJOINTNAME])
-                + (transfer_totals[cSECONDNAME][cJOINTNAME])
-                + (transfer_totals[cJOINTNAME][cFIRSTNAME])
-                - (transfer_totals[cJOINTNAME][cSECONDNAME]))
+        val oneOwesTwo = ((-totals[cFIRST_NAME][cSECOND_NAME])
+                + (totals[cSECOND_NAME][cFIRST_NAME])
+                - (totals[cFIRST_NAME][cJOINT_NAME+1])
+                + (totals[cSECOND_NAME][cJOINT_NAME])
+                + ((totals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
+                - ((totals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100)
+                - (transferTotals[cFIRST_NAME][cSECOND_NAME])
+                + (transferTotals[cSECOND_NAME][cFIRST_NAME])
+                - (transferTotals[cFIRST_NAME][cJOINT_NAME+1])
+                + (transferTotals[cSECOND_NAME][cJOINT_NAME])
+                + ((transferTotals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
+                - ((transferTotals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100))
 
-/*        oneOwesTwo = ((-totals[cFIRSTNAME][cSECONDNAME]/100.0)
-                + (totals[cSECONDNAME][cFIRSTNAME]/100.0)
-                - (totals[cFIRSTNAME][cJOINTNAME]/100 * SpenderViewModel.getSpenderSplit(1) /100)
-                + (totals[cSECONDNAME][cJOINTNAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
-                + (totals[cJOINTNAME][cFIRSTNAME]/100 * SpenderViewModel.getSpenderSplit(1) / 100)
-                - (totals[cJOINTNAME][cSECONDNAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
-                - (transfer_totals[cFIRSTNAME][cSECONDNAME]/100.0)
-                + (transfer_totals[cSECONDNAME][cFIRSTNAME]/100.0)
-                - (transfer_totals[cFIRSTNAME][cJOINTNAME]/100 * SpenderViewModel.getSpenderSplit(1) /100)
-                + (transfer_totals[cSECONDNAME][cJOINTNAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
-                + (transfer_totals[cJOINTNAME][cFIRSTNAME]/100 * SpenderViewModel.getSpenderSplit(1) / 100)
-                - (transfer_totals[cJOINTNAME][cSECONDNAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100))
+/*        oneOwesTwo = ((-totals[cFIRST_NAME][cSECOND_NAME]/100.0)
+                + (totals[cSECOND_NAME][cFIRST_NAME]/100.0)
+                - (totals[cFIRST_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(1) /100)
+                + (totals[cSECOND_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
+                + (totals[cJOINT_NAME][cFIRST_NAME]/100 * SpenderViewModel.getSpenderSplit(1) / 100)
+                - (totals[cJOINT_NAME][cSECOND_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
+                - (transfer_totals[cFIRST_NAME][cSECOND_NAME]/100.0)
+                + (transfer_totals[cSECOND_NAME][cFIRST_NAME]/100.0)
+                - (transfer_totals[cFIRST_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(1) /100)
+                + (transfer_totals[cSECOND_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
+                + (transfer_totals[cJOINT_NAME][cFIRST_NAME]/100 * SpenderViewModel.getSpenderSplit(1) / 100)
+                - (transfer_totals[cJOINT_NAME][cSECOND_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100))
 */
-        Log.d("Alex", "oneowestwo is " + oneOwesTwo.toString())
+        Log.d("Alex", "one owes two is $oneOwesTwo")
         if (oneOwesTwo == 0.0)
             binding.accountingSummary.text = "Nobody owes anyone!"
         else if (oneOwesTwo > 0)

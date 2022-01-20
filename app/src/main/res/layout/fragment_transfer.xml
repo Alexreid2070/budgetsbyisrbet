@@ -114,23 +114,23 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/transfer_paid_by_layout"
+            android:id="@+id/transfer_from_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/linearlayoutAmount"
             android:paddingTop="10dp">
             <TextView
-                android:id="@+id/inputPaidByLabel"
+                android:id="@+id/inputFromLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Paid by:"
+                android:text="From:"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
             <RadioGroup
-                android:id="@+id/paidByRadioGroup"
+                android:id="@+id/fromRadioGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checkedButton="@+id/radio_person3"
@@ -140,36 +140,112 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/transfer_bought_for_layout"
+            android:id="@+id/transfer_to_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/transfer_paid_by_layout"
+            android:layout_below="@id/transfer_from_layout"
             android:paddingTop="10dp">
             <TextView
-                android:id="@+id/inputBoughtForLabel"
+                android:id="@+id/inputToLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Bought for:"
+                android:text="To:"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
 
             <RadioGroup
-                android:id="@+id/boughtForRadioGroup"
+                android:id="@+id/toRadioGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checkedButton="@+id/radio_person3"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:padding="1dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/split_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/transfer_to_layout"
+            android:orientation="horizontal"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/split_name1_preamble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Split is "
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/split_name1_split"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/custom_min_width"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:inputType="numberDecimal"
+                tools:ignore="Autofill,LabelFor" />
+            <TextView
+                android:id="@+id/split_name1_suffix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text=" % for  "
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/split_name1_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Name1"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/split_name2_preamble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text=" and "
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/split_name2_split"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/custom_min_width"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:inputType="numberDecimal"
+                tools:ignore="Autofill,LabelFor" />
+            <TextView
+                android:id="@+id/split_name2_suffix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text=" % for  "
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/split_name2_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Name2"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/transfer_note_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/transfer_bought_for_layout"
+            android:layout_below="@id/split_layout"
             android:orientation="horizontal"
             android:paddingTop="10dp">
 

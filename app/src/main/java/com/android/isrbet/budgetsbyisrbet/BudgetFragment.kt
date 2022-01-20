@@ -31,7 +31,7 @@ class BudgetFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
@@ -49,7 +49,7 @@ class BudgetFragment : Fragment() {
         loadOccurenceRadioButtons()
 
         setupForEdit()
-        var cal = android.icu.util.Calendar.getInstance()
+        val cal = android.icu.util.Calendar.getInstance()
         binding.budgetAddYear.setMinValue(2018)
         binding.budgetAddYear.setMaxValue(2040)
         binding.budgetAddYear.wrapSelectorWheel = true
@@ -64,7 +64,6 @@ class BudgetFragment : Fragment() {
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
-            val radio: RadioButton = requireActivity().findViewById(checkedId)
             Log.d("Alex", "clicked on radio group" + checkedId.toString())
             val selectedId = binding.budgetAddCategoryRadioGroup.getCheckedRadioButtonId()
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -112,7 +111,7 @@ class BudgetFragment : Fragment() {
     }
 
     fun setAmountBasedOnPercentage() {
-        var tempDouble: Double = 0.0
+        var tempDouble = 0.0
         if (binding.budgetAddPreviousAmount.text.toString() != "")
             tempDouble = binding.budgetAddPreviousAmount.text.toString().toDouble()
         if (binding.budgetAddPercentage.text.toString() != "")
@@ -162,22 +161,22 @@ class BudgetFragment : Fragment() {
 
     fun updateInformationFields() {
         Log.d("Alex", "In updateInformationFields")
-        var prevMonth = BudgetMonth(
+        val prevMonth = BudgetMonth(
             binding.budgetAddYear.value,
             if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
         )
         prevMonth.decrementMonth()
         val whoSelectedId = binding.budgetAddWhoRadioGroup.getCheckedRadioButtonId()
-        var whoText: String = ""
+        var whoText = ""
         val whoRadioButton = requireActivity().findViewById(whoSelectedId) as RadioButton
         whoText = whoRadioButton.text.toString()
         val catSelectedId = binding.budgetAddCategoryRadioGroup.getCheckedRadioButtonId()
-        var catText: String = ""
+        var catText = ""
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
         catText = catRadioButton.text.toString()
         val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
 
-        var tmpPrevAmt = BudgetViewModel.getBudgetAmount(catText + "-" + subCatText, prevMonth, whoText, true)
+        val tmpPrevAmt = BudgetViewModel.getBudgetAmount(catText + "-" + subCatText, prevMonth, whoText, true)
 
         val dec = DecimalFormat("#.00")
         binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
@@ -217,7 +216,7 @@ class BudgetFragment : Fragment() {
     }
 
     fun loadCategoryRadioButtons() {
-        var ctr: Int = 100
+        var ctr = 100
         val radioGroup = requireActivity().findViewById<RadioGroup>(R.id.budgetAddCategoryRadioGroup)
         if (radioGroup == null) Log.d("Alex", " rg is null")
         else radioGroup.removeAllViews()
@@ -235,10 +234,6 @@ class BudgetFragment : Fragment() {
             newRadioButton.setText(it.toString())
             newRadioButton.id = ctr++
             radioGroup.addView(newRadioButton)
-            Log.d(
-                "Alex",
-                "Added new category radio button " + newRadioButton.text.toString() + " with id " + newRadioButton.id
-            )
         }
         var somethingChecked: Boolean = false
         for (i in 0 until radioGroup.childCount) {
@@ -346,7 +341,7 @@ class BudgetFragment : Fragment() {
             return
         }
         val selectedId = binding.budgetAddWhoRadioGroup.getCheckedRadioButtonId()
-        var whoText: String = ""
+        var whoText = ""
         if (SpenderViewModel.getCount() == 1)
             whoText = SpenderViewModel.getSpenderName(0)
         else {
@@ -363,7 +358,7 @@ class BudgetFragment : Fragment() {
         val tempCategory: String = catRadioButton.getText().toString() + "-" + binding.budgetAddSubCategorySpinner.selectedItem.toString()
         val tempBudget = BudgetViewModel.getBudget(tempCategory)
         if (tempBudget != null) {
-            var chosenMonth: Int = 0
+            var chosenMonth = 0
             if (binding.budgetAddMonth.value != 0)
                 chosenMonth = binding.budgetAddMonth.value
 
@@ -389,8 +384,8 @@ class BudgetFragment : Fragment() {
         val subcategorySpinner = binding.budgetAddSubCategorySpinner
         Log.d("Alex", "Sub-category is " + subcategorySpinner.selectedItem.toString())
 
-        var tempDouble : Double
-        var amountInt: Int
+        val tempDouble : Double
+        val amountInt: Int
         tempDouble = round(binding.budgetAddAmount.text.toString().toDouble()*100)
         amountInt = tempDouble.toInt()
 

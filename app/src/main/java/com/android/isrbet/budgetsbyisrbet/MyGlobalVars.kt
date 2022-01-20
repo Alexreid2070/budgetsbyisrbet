@@ -337,7 +337,6 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double): Int {
             Log.d("Alex", "iActual " + iActual.toString() + " iBudget " + iBudget.toString() + " dsRed " + DefaultsViewModel.getDefault(cDEFAULT_SHOWRED) + " c1 " + (1.0 +(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0)).toString())
         return Color.RED
     } else {
-        Log.d("Alex", "found orange " + rActual + " " + rBudget)
         return ContextCompat.getColor(context, R.color.orange)  // orange
     }
 }

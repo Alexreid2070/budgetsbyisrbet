@@ -474,7 +474,6 @@ class BudgetViewModel : ViewModel() {
                     lateinit var myB: Budget
                     var found: Boolean = false
                     var i: Int = 0
-                    Log.d("Alex", "it.key.tostring is '" + it.key.toString() + "'")
                     while (!found && i < budgets.size) {
                         if (it.key.toString() == budgets[i].categoryName) {
                             myB = budgets[i]

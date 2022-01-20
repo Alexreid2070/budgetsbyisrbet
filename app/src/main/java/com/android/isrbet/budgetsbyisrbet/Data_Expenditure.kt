@@ -151,6 +151,25 @@ class ExpenditureViewModel : ViewModel() {
         fun refresh() {
             singleInstance.loadExpenditures()
         }
+
+        fun getPreviousKey(iKey: String): String {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            var ind = singleInstance.expenditures.indexOf(exp)
+            Log.d("Alex", "iKey is " + iKey + " and ind is " + ind + " and exp is " + exp.toString())
+            if (ind == 0)
+                ind = singleInstance.expenditures.size
+            Log.d("Alex", "ind is " + ind + " and prev is " + (ind-1))
+            return singleInstance.expenditures[ind-1].mykey
+        }
+        fun getNextKey(iKey: String): String {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            var ind = singleInstance.expenditures.indexOf(exp)
+            Log.d("Alex", "iKey is " + iKey + " and ind is " + ind + " and exp is " + exp.toString())
+            if (ind == singleInstance.expenditures.size-1)
+                ind = -1
+            Log.d("Alex", "ind is " + ind + " and next is " + (ind+1))
+            return singleInstance.expenditures[ind+1].mykey
+        }
     }
 
     init {

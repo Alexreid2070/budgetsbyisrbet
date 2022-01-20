@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,27 +18,34 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                         Filterable {
 
     var filteredList: MutableList<Expenditure> = mutableListOf<Expenditure>()
-    var groupList: MutableList<Int> = mutableListOf<Int>()
+    private var groupList: MutableList<Int> = mutableListOf<Int>()
 
     init {
+        Log.d("Alex", "transactionSearchTExt init is " + MyApplication.transactionSearchText)
+        Log.d("Alex", "calling filterTheList from init")
         filterTheList(MyApplication.transactionSearchText)
     }
     override fun getItemCount(): Int {
+        Log.d("Alex", "getItemCount " + filteredList.size)
         return filteredList.size
     }
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
+                Log.d("Alex", "calling filterTheList from performFiltering")
                 filterTheList(charSearch)
                 val filterResults = FilterResults()
                 filterResults.values = filteredList
+                Log.d("Alex", "performFiltering '" + constraint + "' size is " + filteredList.size)
                 return filterResults
             }
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 filteredList = results?.values as MutableList<Expenditure>
+                Log.d("Alex", "filteredList changed 1, new size " + filteredList.size)
+                Log.d("Alex", "transactionSearchTExt1 is " + MyApplication.transactionSearchText)
                 setGroupList()
                 notifyDataSetChanged()
             }
@@ -47,12 +55,13 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     fun filterTheList(iConstraint: String) {
         if (iConstraint.isEmpty()) {
             filteredList = list
+            Log.d("Alex", "filteredList changed 2, new size " + filteredList.size)
+            Log.d("Alex", "transactionSearchTExt2 is " + MyApplication.transactionSearchText)
         } else {
             val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
-            var i: Int = 0
             for (row in list) {
-                var found: Boolean = true
+                var found = true
                 for (r in splitSearchTerms) {
                     if (! row.contains(r))
                         found = false
@@ -63,6 +72,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 }
             }
             filteredList = resultList
+            Log.d("Alex", "filteredList changed 3, new size " + filteredList.size)
+            Log.d("Alex", "transactionSearchTExt3 is " + MyApplication.transactionSearchText)
         }
         setGroupList()
     }
@@ -82,11 +93,13 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         return ViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Log.d("Alex", "list has " + filteredList.size + " rows and position requested is " + position)
         val data = filteredList[position]
 
         holder.vtf_date.text = data.date
-        if (groupList.get(position) == 0) { // ie first transaction on this date
+        if (groupList[position] == 0) { // ie first transaction on this date
             holder.vtf_date.isVisible = true
             holder.vtf_date.paint.isUnderlineText = true
         } else {
@@ -113,8 +126,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
 
     fun setGroupList() {
         groupList.clear()
-        var c: Int = 0 // row counter
-        var j: Int = 0 // number of transaction within specific date
+        var c = 0 // row counter
+        var j = 0 // number of transaction within specific date
 
         for (i in 0..filteredList.size-1) {
             if (groupList.size == 0) {
@@ -144,19 +157,19 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         var newPosition: Int
         when (jump) {
             "-year" -> {
-                if (currentTopPosition == 0) return 0;
+                if (currentTopPosition == 0) return 0
                 newPosition = currentTopPosition - 1
-                var targetYear: String
-                if (filteredList[currentTopPosition].date.substring(
+                val targetYear: String
+                targetYear = if (filteredList[currentTopPosition].date.substring(
                         0,
                         4
                     ) == filteredList[currentTopPosition - 1].date.substring(0, 4)
                 )
                 // we're not at beginning of current year, so aim for that
-                    targetYear = filteredList[currentTopPosition].date.substring(0, 4)
+                    filteredList[currentTopPosition].date.substring(0, 4)
                 else
                 //we're already at beginning of current year, so aim for previous year
-                    targetYear = filteredList[currentTopPosition - 1].date.substring(0, 4)
+                    filteredList[currentTopPosition - 1].date.substring(0, 4)
                 while (newPosition >= 0 && filteredList[newPosition].date.substring(
                         0,
                         4
@@ -168,23 +181,21 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 return newPosition
             }
             "-month" -> {
-                if (currentTopPosition == 0) return 0;
+                if (currentTopPosition == 0) return 0
                 newPosition = currentTopPosition - 1
-                var targetYearMonth: String
-                if (filteredList[currentTopPosition].date.substring(
+                val targetYearMonth: String
+                targetYearMonth = if (filteredList[currentTopPosition].date.substring(
                         0,
                         7
                     ) == filteredList[currentTopPosition - 1].date.substring(0, 7)
                 )
                 // we're not at beginning of current month, so aim for that
-                    targetYearMonth =
-                        filteredList[currentTopPosition].date.substring(0, 7).toString()
+                    filteredList[currentTopPosition].date.substring(0, 7)
                 else
                 //we're already at beginning of current month, so aim for previous month
-                    targetYearMonth =
-                        filteredList[currentTopPosition - 1].date.substring(0, 7).toString()
+                    filteredList[currentTopPosition - 1].date.substring(0, 7)
                 while (newPosition >= 0 && filteredList[newPosition].date.substring(0, 7)
-                        .toString() >= targetYearMonth
+                         >= targetYearMonth
                 ) {
                     newPosition--
                 }
@@ -192,8 +203,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 return newPosition
             }
             "today" -> {
-                var currentDate: String
-                var cal = android.icu.util.Calendar.getInstance()
+                val currentDate: String
+                val cal = android.icu.util.Calendar.getInstance()
                 currentDate = giveMeMyDateFormat(cal)
                 newPosition = 0
                 while (newPosition < filteredList.size && filteredList[newPosition].date < currentDate) {
@@ -202,8 +213,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 return (newPosition -1)
             }
             "+month" -> {
-                Log.d("Alex", "currentTopPosition = " + currentTopPosition.toString())
-                var currentYearMonth: String
+                Log.d("Alex", "currentTopPosition = $currentTopPosition")
+                val currentYearMonth: String
                 newPosition = currentTopPosition + 1
                 currentYearMonth = filteredList[currentTopPosition].date.substring(0, 7)
                 while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
@@ -213,13 +224,13 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 ) {
                     newPosition++
                 }
-                Log.d("Alex", "newPosition is " + newPosition.toString())
+                Log.d("Alex", "newPosition is $newPosition")
                 return newPosition
             }
             "+year" -> {
-                var currentYear: String
+                val currentYear: String
                 newPosition = currentTopPosition + 1
-                currentYear = filteredList[currentTopPosition].date.substring(0, 4).toString()
+                currentYear = filteredList[currentTopPosition].date.substring(0, 4)
                 while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
                         0,
                         4
@@ -227,7 +238,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 ) {
                     newPosition++
                 }
-                Log.d("Alex", "+year newPosition is " + newPosition)
+                Log.d("Alex", "+year newPosition is $newPosition")
                 if (newPosition >= filteredList.size)
                     newPosition = filteredList.size - 1
                 return newPosition
