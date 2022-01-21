@@ -66,8 +66,8 @@ class AccountingFragment : Fragment() {
                             firstName -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (it.amount/100.0)
                             secondName -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                transferTotals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
                             }
                         }
                     }
@@ -76,8 +76,8 @@ class AccountingFragment : Fragment() {
                             firstName -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (it.amount/100.0)
                             secondName -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                transferTotals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
                             }
                         }
                     }
@@ -86,8 +86,8 @@ class AccountingFragment : Fragment() {
                             firstName -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (it.amount/100.0)
                             secondName -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                transferTotals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/10000.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/100.0))
                             }
                         }
                     }
@@ -99,8 +99,8 @@ class AccountingFragment : Fragment() {
                             firstName -> totals[cFIRST_NAME][cFIRST_NAME] += (it.amount/100.0)
                             secondName -> totals[cFIRST_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                totals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                                totals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
+                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
                             }
                         }
                     }
@@ -109,20 +109,20 @@ class AccountingFragment : Fragment() {
                             firstName -> totals[cSECOND_NAME][cFIRST_NAME] += (it.amount/100.0)
                             secondName -> totals[cSECOND_NAME][cSECOND_NAME] += (it.amount/100.0)
                             "Joint" -> {
-                                totals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 10000.0))
+                                totals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
+                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
                             }
                         }
                     }
                     "Joint" -> {
                         when (it.boughtfor) {
                             firstName -> {
-                                totals[cJOINT_NAME][cFIRST_NAME] += ((it.amount / 100.0) * (it.bfname1split / 10000.0))
+                                totals[cJOINT_NAME][cFIRST_NAME] += ((it.amount / 100.0) * (it.bfname1split / 100.0))
                             }
-                            secondName -> totals[cJOINT_NAME][cSECOND_NAME] += ((it.amount/100.0) * (it.bfname2split/10000.0))
+                            secondName -> totals[cJOINT_NAME][cSECOND_NAME] += ((it.amount/100.0) * (it.bfname2split/100.0))
                             "Joint" -> {
-                                totals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 10000.0))
-                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/10000.0))
+                                totals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
+                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/100.0))
                             }
                         }
                     }
@@ -183,12 +183,11 @@ class AccountingFragment : Fragment() {
                 - (transfer_totals[cJOINT_NAME][cSECOND_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100))
 */
         Log.d("Alex", "one owes two is $oneOwesTwo")
-        if (oneOwesTwo == 0.0)
-            binding.accountingSummary.text = "Nobody owes anyone!"
-        else if (oneOwesTwo > 0)
-            binding.accountingSummary.text = firstName + " owes " + secondName + " $ " + dec.format(oneOwesTwo)
-        else
-            binding.accountingSummary.text = secondName + " owes " + firstName + " $ " + dec.format(oneOwesTwo*-1)
+        when {
+            oneOwesTwo == 0.0 -> binding.accountingSummary.text = "Nobody owes anyone!"
+            oneOwesTwo > 0 -> binding.accountingSummary.text = firstName + " owes " + secondName + " $ " + dec.format(oneOwesTwo)
+            else -> binding.accountingSummary.text = secondName + " owes " + firstName + " $ " + dec.format(oneOwesTwo*-1)
+        }
     }
 
     override fun onDestroyView() {

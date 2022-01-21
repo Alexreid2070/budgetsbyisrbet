@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
 import android.graphics.Typeface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +9,11 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import java.text.DecimalFormat
 
-data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: String, var occurence: String, var isAnnual: String, var dateStarted: String) {
-
-}
+data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: String, var occurence: String, var isAnnual: String, var dateStarted: String)
 
 class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseAdapter() {
 
-    private var myData: MutableList<BudgetInputRow> = mutableListOf<BudgetInputRow>()
+    private var myData: MutableList<BudgetInputRow> = mutableListOf()
     init {
         myData = data
     }
@@ -56,15 +53,14 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         if (bData.occurence != "1")
             occurenceView.visibility = View.INVISIBLE
         annualView.text = bData.isAnnual
-        var bmDateStarted = BudgetMonth(bData.dateStarted)
-        var bmDateApplicable = BudgetMonth(bData.dateApplicable)
+        val bmDateStarted = BudgetMonth(bData.dateStarted)
+        val bmDateApplicable = BudgetMonth(bData.dateApplicable)
 
-        if (bData.dateStarted == "9999-12")
-            dateStartedView.text = ""
-        else if (bmDateStarted.month == 0)
-            dateStartedView.text = bmDateStarted.year.toString()
-        else
-            dateStartedView.text = bData.dateStarted
+        when {
+            bData.dateStarted == "9999-12" -> dateStartedView.text = ""
+            bmDateStarted.month == 0 -> dateStartedView.text = bmDateStarted.year.toString()
+            else -> dateStartedView.text = bData.dateStarted
+        }
 
         if (bData.dateApplicable == bData.dateStarted ||
             (bmDateApplicable.month == 1 && bmDateStarted.month == 0)) {

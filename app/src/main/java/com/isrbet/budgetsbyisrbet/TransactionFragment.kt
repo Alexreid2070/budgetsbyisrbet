@@ -29,6 +29,7 @@ import kotlin.math.round
 import android.widget.ArrayAdapter
 import android.media.MediaPlayer
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.google.android.material.color.MaterialColors
 
 class TransactionFragment : Fragment() {
@@ -38,6 +39,7 @@ class TransactionFragment : Fragment() {
     private val args: TransactionFragmentArgs by navArgs()
     private var newTransactionMode: Boolean = true
     private var editingKey: String = ""
+    private var inExpandMode = false
     var cal = android.icu.util.Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,9 +111,12 @@ class TransactionFragment : Fragment() {
         binding.buttonSaveTransaction.setOnClickListener {
             onSaveTransactionButtonClicked()
         }
-
         binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
             onLoadTransactionButtonClicked()
+        }
+        binding.slider.addOnChangeListener { slider, value, fromUser ->
+            binding.transactionBoughtForName1Split.setText(binding.slider.value.toInt().toString())
+            binding.transactionBoughtForName2Split.setText((100-binding.slider.value.toInt()).toString())
         }
         loadCategoryRadioButtons()
         loadSpenderRadioButtons()
@@ -166,8 +171,8 @@ class TransactionFragment : Fragment() {
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
             binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
-            binding.transactionBoughtForName1Split.setBackgroundColor(Color.parseColor(hexColor))
-            binding.transactionBoughtForName2Split.setBackgroundColor(Color.parseColor(hexColor))
+//            binding.transactionBoughtForName1Split.setBackgroundColor(Color.parseColor(hexColor))
+//            binding.transactionBoughtForName2Split.setBackgroundColor(Color.parseColor(hexColor))
 /*            binding.inputSpinnerRelativeLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
@@ -179,12 +184,15 @@ class TransactionFragment : Fragment() {
                 if (radioButton.text == "Joint") {
                     binding.transactionBoughtForName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
                     binding.transactionBoughtForName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
+                    binding.slider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
                 } else if (radioButton.text == SpenderViewModel.getSpenderName(0)) {
                     binding.transactionBoughtForName1Split.setText("100")
                     binding.transactionBoughtForName2Split.setText("0")
+                    binding.slider.value = 100.0F
                 } else {
                     binding.transactionBoughtForName1Split.setText("0")
                     binding.transactionBoughtForName2Split.setText("100")
+                    binding.slider.value = 0.0F
                 }
             }
         }
@@ -207,8 +215,9 @@ class TransactionFragment : Fragment() {
             for (i in 0 until binding.boughtForRadioGroup.getChildCount()) {
                 (binding.boughtForRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
-            binding.transactionBoughtForName1Split.isEnabled = false
-            binding.transactionBoughtForName2Split.isEnabled = false
+//            binding.transactionBoughtForName1Split.isEnabled = false
+//            binding.transactionBoughtForName2Split.isEnabled = false
+            binding.slider.isEnabled = false
             viewTransaction(args.transactionID)
             binding.editTextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.editTextAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
@@ -217,8 +226,9 @@ class TransactionFragment : Fragment() {
             binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.transactionBoughtForName1Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.transactionBoughtForName2Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+//            binding.transactionBoughtForName1Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+//            binding.transactionBoughtForName2Split.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+            binding.slider.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
 
@@ -239,34 +249,41 @@ class TransactionFragment : Fragment() {
     }
 
     fun onExpandClicked() {
+
         if (binding.inputBoughtForLabel.visibility == View.GONE) { // ie expand the section
+            inExpandMode = true
             setExpansionFields(View.VISIBLE)
-            binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
             binding.boughtForRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
                 val radioButton = requireActivity().findViewById(checkedId) as RadioButton
                 Log.d("Alex", "clicked on radio group" + radioButton.getText().toString())
                 if (radioButton.getText().toString() == "Joint") {
                     binding.transactionBoughtForName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
                     binding.transactionBoughtForName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
+                    binding.slider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
+                    binding.slider.isEnabled = true
                 } else if (radioButton.getText().toString() == SpenderViewModel.getSpenderName(0)) {
                     binding.transactionBoughtForName1Split.setText("100")
                     binding.transactionBoughtForName2Split.setText("0")
+                    binding.slider.value = 100.0F
                 } else {
                     binding.transactionBoughtForName1Split.setText("0")
                     binding.transactionBoughtForName2Split.setText("100")
+                    binding.slider.value = 0.0F
                 }
                 if (radioButton.text == "Joint") {
-                    binding.transactionBoughtForName1Split.isEnabled = true
-                    binding.transactionBoughtForName2Split.isEnabled = true
+//                    binding.transactionBoughtForName1Split.isEnabled = true
+//                    binding.transactionBoughtForName2Split.isEnabled = true
+                    binding.slider.isEnabled = true
                 } else {
-                    binding.transactionBoughtForName1Split.isEnabled = false
-                    binding.transactionBoughtForName2Split.isEnabled = false
+ //                   binding.transactionBoughtForName1Split.isEnabled = false
+//                    binding.transactionBoughtForName2Split.isEnabled = false
+                    binding.slider.isEnabled = false
                 }
             })
 
         } else { // ie retract the section
+            inExpandMode = false
             setExpansionFields(View.GONE)
-            binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
         }
     }
 
@@ -379,6 +396,8 @@ class TransactionFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Transaction"
         binding.buttonSaveTransaction.visibility = View.VISIBLE
         binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
+        binding.buttonPrevTransaction.visibility = View.GONE
+        binding.buttonNextTransaction.visibility = View.GONE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
@@ -398,8 +417,9 @@ class TransactionFragment : Fragment() {
         val selectedId = binding.boughtForRadioGroup.getCheckedRadioButtonId()
         val radioButton = requireActivity().findViewById(selectedId) as RadioButton
         if (radioButton.text == "Joint") {
-            binding.transactionBoughtForName1Split.isEnabled = true
-            binding.transactionBoughtForName2Split.isEnabled = true
+//            binding.transactionBoughtForName1Split.isEnabled = true
+//            binding.transactionBoughtForName2Split.isEnabled = true
+            binding.slider.isEnabled = true
         }
 
         currentSubCategory = binding.inputSubcategorySpinner.selectedItem.toString()
@@ -491,35 +511,41 @@ class TransactionFragment : Fragment() {
                     }
                 }
             }
-            var tSplit = thisTransaction.bfname1split
-            Log.d("Alex", "found split 1 " + tSplit)
-            var dec2 = DecimalFormat("#.##")
-            var formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
-            binding.transactionBoughtForName1Split.setText(dec2.format(formattedAmount2))
+//            var tSplit = thisTransaction.bfname1split
+//            Log.d("Alex", "found split 1 " + tSplit)
+//            var dec2 = DecimalFormat("#.##")
+//            var formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
+            binding.transactionBoughtForName1Split.setText(thisTransaction.bfname1split.toString())
+            binding.slider.value = thisTransaction.bfname1split.toFloat()
 
-            tSplit = thisTransaction.bfname2split
-            Log.d("Alex", "found split 2 " + tSplit)
-            formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
-            binding.transactionBoughtForName2Split.setText(dec2.format(formattedAmount2))
+//            tSplit = thisTransaction.bfname2split
+//            Log.d("Alex", "found split 2 " + tSplit)
+//            formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
+            binding.transactionBoughtForName2Split.setText(thisTransaction.bfname2split.toString())
 
             if (thisTransaction.paidby == thisTransaction.boughtfor) {
                 setExpansionFields(View.GONE)
-                binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
             } else {
                 setExpansionFields(View.VISIBLE)
-                binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
             }
         }
         else { // this doesn't make sense...
             Log.d("Alex", "iTransactionID "+ iTransactionID + " was passed for edit but can't find the data")
         }
+        if (inExpandMode)
+            setExpansionFields(View.VISIBLE)
+        else
+            setExpansionFields(View.GONE)
     }
 
     private fun setExpansionFields(iView: Int) {
-        if (iView == View.GONE)
+        if (iView == View.GONE) {
+            binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
             binding.inputPaidByLabel.text = "Who:"
-        else
+        } else {
+            binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
             binding.inputPaidByLabel.text = "Paid by:"
+        }
         binding.inputBoughtForLabel.visibility = iView
         binding.boughtForRadioGroup.visibility = iView
         binding.transactionBoughtForName1Preamble.visibility = iView
@@ -530,6 +556,7 @@ class TransactionFragment : Fragment() {
         binding.transactionBoughtForName2Label.visibility = iView
         binding.transactionBoughtForName2Split.visibility = iView
         binding.transactionBoughtForName2Suffix.visibility = iView
+        binding.sliderLayout.visibility = iView
     }
 
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
@@ -594,14 +621,6 @@ class TransactionFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
-        var totalSplit = binding.transactionBoughtForName1Split.text.toString().toDouble() +
-                binding.transactionBoughtForName2Split.text.toString().toDouble()
-        if (totalSplit != 100.0) {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.splitMustEqual100))
-            binding.transactionBoughtForName1Split.error=getString(R.string.splitMustEqual100)
-            focusAndOpenSoftKeyboard(requireContext(), binding.transactionBoughtForName1Split)
-            return
-        }
         val radioGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
         val radioButtonID = radioGroup.checkedRadioButtonId
         val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
@@ -623,12 +642,8 @@ class TransactionFragment : Fragment() {
         var amountInt: Int
         tempDouble = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = tempDouble.toInt()
-        var bfName1Split: Int
-        tempDouble = round(binding.transactionBoughtForName1Split.text.toString().toDouble()*100)
-        bfName1Split = tempDouble.toInt()
-        var bfName2Split: Int
-        tempDouble = round(binding.transactionBoughtForName2Split.text.toString().toDouble()*100)
-        bfName2Split = tempDouble.toInt()
+        val bfName1Split = binding.transactionBoughtForName1Split.text.toString().toInt()
+        val bfName2Split = binding.transactionBoughtForName2Split.text.toString().toInt()
 
         if (newTransactionMode) {
             val expenditure = ExpenditureOut(

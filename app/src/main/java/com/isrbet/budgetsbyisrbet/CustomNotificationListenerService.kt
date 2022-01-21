@@ -1,12 +1,9 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.content.Intent
 import android.icu.util.Calendar
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import android.widget.Toast
-import java.sql.Time
 
 data class TransactionDataFromTD(var amount: Double, var note: String, var category: String) {
 }

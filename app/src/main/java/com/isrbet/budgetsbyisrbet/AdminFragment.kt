@@ -7,22 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.Fragment
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAdminBinding
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.*
+import kotlin.math.exp
 
 class AdminFragment : Fragment() {
     private var _binding: FragmentAdminBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentAdminBinding.inflate(inflater, container, false)
 
         inflater.inflate(R.layout.fragment_settings, container, false)
@@ -32,11 +29,10 @@ class AdminFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
-        getView()?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener {_: View ->
-//            processButton()
-//            tempProcessButton()
+        view?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener { _: View ->
+            processButton()
         }
-        getView()?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener {_: View ->
+        view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
             UserViewModel.loadUsers()
             UserViewModel.setCallback(object: UserDataUpdatedCallback {
                 override fun onDataUpdate() {
@@ -59,12 +55,12 @@ class AdminFragment : Fragment() {
         }
     }
 
-    fun uidClicked(uid: String, email: String) {
-        Toast.makeText(activity, "Switching to user " + email, Toast.LENGTH_SHORT).show()
+    private fun uidClicked(uid: String, email: String) {
+        Toast.makeText(activity, "Switching to user $email", Toast.LENGTH_SHORT).show()
         binding.adminCurrentUser.text = email
         MyApplication.currentUserEmail = email
         UserViewModel.clearCallback()
-        Log.d("Alex", "I clicked uid " + uid)
+        Log.d("Alex", "I clicked uid $uid")
         MyApplication.userUID=uid
         DefaultsViewModel.refresh()
         ExpenditureViewModel.refresh()
@@ -90,30 +86,18 @@ class AdminFragment : Fragment() {
         _binding = null
     }
 
-    fun processButton() {
-        var budgetListener = object : ValueEventListener {
+        fun processButton() {
+        val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                dataSnapshot.children.forEach() {
-                    var categoryName = it.key.toString()
-                    if (categoryName != "Debt-Line of Credit" && categoryName != "Housing-Gas") {
-                        it.children.forEach() {
-                            var period = it.key.toString()
-                            Log.d("Alex", categoryName + " " + period)
-                            it.children.forEach() {
-                                var who = it.key.toString()
-                                var amount = it.value.toString().toInt()
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
-                                    .child(categoryName)
-                                    .child(period)
-                                    .child(who)
-                                    .child("amount")
-                                    .setValue(amount)
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
-                                    .child(categoryName)
-                                    .child(period)
-                                    .child(who)
-                                    .child("occurence")
-                                    .setValue(0)
+                dataSnapshot.children.forEach {
+                    val expKey = it.key.toString()
+                    it.children.forEach {
+                        if (it.key.toString() == "bfname1split" || it.key.toString() == "bfname2split") {
+                            if (it.value.toString().toInt() > 100) {
+                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                                    .child(expKey)
+                                    .child(it.key.toString())
+                                    .setValue(it.value.toString().toInt()/100)
                             }
                         }
                     }
@@ -125,19 +109,6 @@ class AdminFragment : Fragment() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget").addValueEventListener(budgetListener)
-    }
-
-    fun addCategories() {
-//        CategoryViewModel.addCategoryAndSubcategory("Housing", "Gas", "Non-Discretionary")
-    }
-    fun addTransactions() {
-//        ExpenditureViewModel.addTransaction(ExpenditureOut("06-Mar-2020", 6889, "Life", "Travel", "Travel - souvenirs (cusuco)", "Rheannon", "Joint", 16, 84, ""))
-         }
-    fun addRecurringTransactions() {
-//        RecurringTransactionViewModel.addRecurringTransaction(RecurringTransaction("Teksavy", 5983, "Monthly", 1, "20-Jan-2022", "Life", "Internet", "Rheannon", "Rheannon"))
-    }
-    fun addBudget() {
-//        BudgetViewModel.updateBudget("Transportation-Insurance", "2018-11", 9984.0)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").addValueEventListener(listener)
     }
 }

@@ -30,18 +30,17 @@ class TransferFragment : Fragment() {
     private var newTransferMode: Boolean = true
     private var editingKey: String = ""
 
-    var cal = android.icu.util.Calendar.getInstance()
+    private var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (args.transactionID == "") newTransferMode = true
-        else newTransferMode = false
+        newTransferMode = args.transactionID == ""
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentTransferBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         // Inflate the layout for this fragment
@@ -54,7 +53,7 @@ class TransferFragment : Fragment() {
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
 
         val dateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -70,7 +69,7 @@ class TransferFragment : Fragment() {
             ).show()
         }
 
-        binding.buttonSaveTransfer.setOnClickListener() {
+        binding.buttonSaveTransfer.setOnClickListener {
             onSaveButtonClicked()
         }
 
@@ -103,21 +102,25 @@ class TransferFragment : Fragment() {
                 button.isChecked = true
             }
             if (SpenderViewModel.getCount() > 1) {
-                val selectedId = binding.toRadioGroup.getCheckedRadioButtonId()
+                val selectedId = binding.toRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-                if (radioButton.getText().toString() == "Joint") {
-                    binding.splitName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
-                    binding.splitName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
-                } else if (radioButton.getText().toString() == SpenderViewModel.getSpenderName(0)) {
-                    binding.splitName1Split.setText("100")
-                    binding.splitName2Split.setText("0")
-                    binding.splitName1Split.isEnabled = false
-                    binding.splitName2Split.isEnabled = false
-                } else {
-                    binding.splitName1Split.setText("0")
-                    binding.splitName2Split.setText("100")
-                    binding.splitName1Split.isEnabled = false
-                    binding.splitName2Split.isEnabled = false
+                when {
+                    radioButton.text.toString() == "Joint" -> {
+                        binding.splitName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
+                        binding.splitName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
+                    }
+                    radioButton.text.toString() == SpenderViewModel.getSpenderName(0) -> {
+                        binding.splitName1Split.setText("100")
+                        binding.splitName2Split.setText("0")
+                        binding.splitName1Split.isEnabled = false
+                        binding.splitName2Split.isEnabled = false
+                    }
+                    else -> {
+                        binding.splitName1Split.setText("0")
+                        binding.splitName2Split.setText("100")
+                        binding.splitName1Split.isEnabled = false
+                        binding.splitName2Split.isEnabled = false
+                    }
                 }
             }
         } else {
@@ -128,10 +131,10 @@ class TransferFragment : Fragment() {
             binding.editTextNote.isEnabled = false
             binding.splitName1Split.isEnabled = false
             binding.splitName2Split.isEnabled = false
-            for (i in 0 until binding.fromRadioGroup.getChildCount()) {
+            for (i in 0 until binding.fromRadioGroup.childCount) {
                 (binding.fromRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
-            for (i in 0 until binding.toRadioGroup.getChildCount()) {
+            for (i in 0 until binding.toRadioGroup.childCount) {
                 (binding.toRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
             viewTransfer(args.transactionID)
@@ -179,18 +182,22 @@ class TransferFragment : Fragment() {
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.splitName1Split.setBackgroundColor(Color.parseColor(hexColor))
         binding.splitName2Split.setBackgroundColor(Color.parseColor(hexColor))
-        binding.toRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
+        binding.toRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            Log.d("Alex", "clicked on radio group" + radioButton.getText().toString())
-            if (radioButton.getText().toString() == "Joint") {
-                binding.splitName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
-                binding.splitName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
-            } else if (radioButton.getText().toString() == SpenderViewModel.getSpenderName(0)) {
-                binding.splitName1Split.setText("100")
-                binding.splitName2Split.setText("0")
-            } else {
-                binding.splitName1Split.setText("0")
-                binding.splitName2Split.setText("100")
+            Log.d("Alex", "clicked on radio group" + radioButton.text.toString())
+            when {
+                radioButton.text.toString() == "Joint" -> {
+                    binding.splitName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
+                    binding.splitName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
+                }
+                radioButton.text.toString() == SpenderViewModel.getSpenderName(0) -> {
+                    binding.splitName1Split.setText("100")
+                    binding.splitName2Split.setText("0")
+                }
+                else -> {
+                    binding.splitName1Split.setText("0")
+                    binding.splitName2Split.setText("100")
+                }
             }
             if (radioButton.text == "Joint") {
                 binding.splitName1Split.isEnabled = true
@@ -199,7 +206,7 @@ class TransferFragment : Fragment() {
                 binding.splitName1Split.isEnabled = false
                 binding.splitName2Split.isEnabled = false
             }
-        })
+        }
     }
 
     override fun onPause() {
@@ -211,51 +218,51 @@ class TransferFragment : Fragment() {
         super.onPrepareOptionsMenu(menu)
         if (newTransferMode) {
             for (i in 0 until menu.size()) {
-                if (menu.getItem(i).getItemId() === R.id.ViewTransfersFragment)
-                    menu.getItem(i).setVisible(true)
-                else
-                    menu.getItem(i).setVisible(false)
+                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.ViewTransfersFragment
             }
         }
         else { // in view mode
             for (i in 0 until menu.size()) {
-                if (menu.getItem(i).getItemId() === R.id.Edit || menu.getItem(i).getItemId() == R.id.Delete)
-                    menu.getItem(i).setVisible(true)
-                else
-                    menu.getItem(i).setVisible(false)
+                menu.getItem(i).isVisible =
+                    menu.getItem(i).itemId == R.id.Edit || menu.getItem(i).itemId == R.id.Delete
             }
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.Edit) {
-            editTransfer(args.transactionID.toString())
-            return true
-        } else if (item.itemId === R.id.Delete) {
-            deleteTransfer(args.transactionID.toString())
-            return true
-        } else if (item.itemId === R.id.ViewTransfersFragment) {
-            MyApplication.transactionSearchText = "Transfer"
-            view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
-            return true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.Edit -> {
+                editTransfer(args.transactionID)
+                true
+            }
+            R.id.Delete -> {
+                deleteTransfer(args.transactionID)
+                true
+            }
+            R.id.ViewTransfersFragment -> {
+                MyApplication.transactionSearchText = "Transfer"
+                view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
+                true
+            }
+            else -> {
+                val navController = findNavController()
+                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            }
         }
     }
     private fun editTransfer(iTransactionID: String) {
-        Log.d("Alex", "clicked edit")
+        Log.d("Alex", "clicked on $iTransactionID")
         binding.buttonSaveTransfer.visibility = View.VISIBLE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
-        for (i in 0 until binding.fromRadioGroup.getChildCount()) {
+        for (i in 0 until binding.fromRadioGroup.childCount) {
             (binding.fromRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
         }
-        for (i in 0 until binding.toRadioGroup.getChildCount()) {
+        for (i in 0 until binding.toRadioGroup.childCount) {
             (binding.toRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
         }
-        val selectedId = binding.toRadioGroup.getCheckedRadioButtonId()
+        val selectedId = binding.toRadioGroup.checkedRadioButtonId
         val radioButton = requireActivity().findViewById(selectedId) as RadioButton
         if (radioButton.text == "Joint") {
             binding.splitName1Split.isEnabled = true
@@ -276,8 +283,8 @@ class TransferFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Are you sure?")
             .setMessage("Are you sure that you want to delete this transfer?")
-            .setPositiveButton(android.R.string.yes) { _, _ -> yesClicked() }
-            .setNegativeButton(android.R.string.no) { _, _ -> noClicked() }
+            .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
             .show()
     }
 
@@ -293,13 +300,13 @@ class TransferFragment : Fragment() {
             binding.editTextDate.setText(thisTransaction.date)
             binding.editTextNote.setText(thisTransaction.note)
             var tSplit = thisTransaction.bfname1split
-            Log.d("Alex", "found split 1 " + tSplit)
-            var dec2 = DecimalFormat("#.##")
+            Log.d("Alex", "found split 1 $tSplit")
+            val dec2 = DecimalFormat("#.##")
             var formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
             binding.splitName1Split.setText(dec2.format(formattedAmount2))
 
             tSplit = thisTransaction.bfname2split
-            Log.d("Alex", "found split 2 " + tSplit)
+            Log.d("Alex", "found split 2 $tSplit")
             formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
             binding.splitName2Split.setText(dec2.format(formattedAmount2))
 
@@ -329,11 +336,13 @@ class TransferFragment : Fragment() {
             }
         }
         else { // this doesn't make sense...
-            Log.d("Alex", "iTransactionID "+ iTransactionID + " was passed for edit but can't find the data")
+            Log.d("Alex",
+                "iTransactionID $iTransactionID was passed for edit but can't find the data"
+            )
         }
     }
 
-    fun onSaveButtonClicked () {
+    private fun onSaveButtonClicked () {
         if (!textIsSafe(binding.editTextNote.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.editTextNote.error = "The text contains unsafe characters."
@@ -353,7 +362,7 @@ class TransferFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
-        var totalSplit = binding.splitName1Split.text.toString().toDouble() +
+        val totalSplit = binding.splitName1Split.text.toString().toDouble() +
                 binding.splitName2Split.text.toString().toDouble()
         if (totalSplit != 100.0) {
             binding.splitName1Split.error=getString(R.string.splitMustEqual100)
@@ -373,18 +382,15 @@ class TransferFragment : Fragment() {
             return
         }
 
-        var amountDouble : Double
-        var amountInt: Int
-        amountDouble = round(binding.editTextAmount.text.toString().toDouble()*100)
+        val amountInt: Int
+        var amountDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = amountDouble.toInt()
         Log.d("Alex", "text is " + binding.editTextAmount.text + " and double is " + amountDouble.toString() + " and int is " + amountInt.toString())
 
-        var bfName1Split: Int
         amountDouble = round(binding.splitName1Split.text.toString().toDouble()*100)
-        bfName1Split = amountDouble.toInt()
-        var bfName2Split: Int
+        val bfName1Split: Int = amountDouble.toInt()
         amountDouble = round(binding.splitName2Split.text.toString().toDouble()*100)
-        bfName2Split = amountDouble.toInt()
+        val bfName2Split: Int = amountDouble.toInt()
 
         if (newTransferMode) {
             val expenditure = ExpenditureOut(
@@ -416,15 +422,14 @@ class TransferFragment : Fragment() {
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 
-    fun loadSpenderRadioButtons() {
-        var ctr: Int
-        ctr = 200
+    private fun loadSpenderRadioButtons() {
+        var ctr = 200
         val fromRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
         if (fromRadioGroup == null) Log.d("Alex", " rg 'from' is null")
         else fromRadioGroup.removeAllViews()
 
-        for (i in 0..SpenderViewModel.getCount()-1) {
-            var spender = SpenderViewModel.getSpender(i)
+        for (i in 0 until SpenderViewModel.getCount()) {
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -432,11 +437,11 @@ class TransferFragment : Fragment() {
             )
             newRadioButton.buttonTintList=
                 ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-            newRadioButton.setText(spender?.name)
+            newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             fromRadioGroup.addView(newRadioButton)
             if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default from " + spender)
+                Log.d("Alex", "found default from $spender")
                 fromRadioGroup.check(newRadioButton.id)
             }
         }
@@ -445,8 +450,8 @@ class TransferFragment : Fragment() {
         if (toRadioGroup == null) Log.d("Alex", " rg 'to' is null")
         else toRadioGroup.removeAllViews()
 
-        for (i in 0..SpenderViewModel.getCount()-1) {
-            var spender = SpenderViewModel.getSpender(i)
+        for (i in 0 until SpenderViewModel.getCount()) {
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -454,11 +459,11 @@ class TransferFragment : Fragment() {
             )
             newRadioButton.buttonTintList=
                 ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-            newRadioButton.setText(spender?.name)
+            newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             toRadioGroup.addView(newRadioButton)
             if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default to " + spender)
+                Log.d("Alex", "found default to $spender")
                 toRadioGroup.check(newRadioButton.id)
             }
         }

@@ -656,17 +656,17 @@ class DashboardRows {
                                     if (iPaidByFlag != "") {
                                         if (expenditure.paidby == "Joint" || expenditure.paidby == iPaidByFlag) {
                                             if (SpenderViewModel.getSpenderName(0) == iPaidByFlag)
-                                                multiplier = expenditure.bfname1split.toDouble()/100/100
+                                                multiplier = expenditure.bfname1split.toDouble()/100
                                             else
-                                                multiplier = expenditure.bfname2split.toDouble()/100/100
+                                                multiplier = expenditure.bfname2split.toDouble()/100
                                         } else
                                             multiplier = 0.0
                                     } else if (iBoughtForFlag != "") {
                                         if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
                                             if (SpenderViewModel.getSpenderName(0) == iBoughtForFlag)
-                                                multiplier = expenditure.bfname1split.toDouble()/100/100
+                                                multiplier = expenditure.bfname1split.toDouble()/100
                                             else
-                                                multiplier = expenditure.bfname2split.toDouble()/100/100
+                                                multiplier = expenditure.bfname2split.toDouble()/100
                                         } else
                                             multiplier = 0.0
                                     }

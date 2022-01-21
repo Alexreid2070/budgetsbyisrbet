@@ -33,7 +33,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.provider.Settings
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import java.io.PrintWriter
@@ -73,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         findViewById<NavigationView>(R.id.nav_view).setupWithNavController(navController)
 
-        var mainActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+        val mainActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
             Log.d("Alex", "in registerforactivityresult result is " + result.resultCode + " but should be " + Activity.RESULT_OK)
             if (result.data == null)
                 Log.d("Alex", "result.data == null")
@@ -106,8 +105,8 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener { _: View ->
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+        findViewById<SignInButton>(R.id.sign_in_button).setOnClickListener {
             onSignIn(mainActivityResultLauncher)
         }
         auth = Firebase.auth
@@ -119,14 +118,18 @@ class MainActivity : AppCompatActivity() {
    //     MyApplication.myCustomNotificationListenerService = CustomNotificationListenerService()
 
         // This next line checks if the app has permission to look at notifications
-        if (Settings.Secure.getString(this.getContentResolver(),"enabled_notification_listeners").contains(getApplicationContext().getPackageName())) {
+        if (Settings.Secure.getString(this.contentResolver,"enabled_notification_listeners").contains(
+                applicationContext.packageName
+            )) {
             // yes, it has permission
 //            Toast.makeText(this, "App has permission to look at notifications", Toast.LENGTH_SHORT).show()
         }
         else {
-            var intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-            startActivity(intent);
-            if (Settings.Secure.getString(this.getContentResolver(),"enabled_notification_listeners").contains(getApplicationContext().getPackageName())) {
+            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            startActivity(intent)
+            if (Settings.Secure.getString(this.contentResolver,"enabled_notification_listeners").contains(
+                    applicationContext.packageName
+                )) {
                 Log.d("Alex", "After asking, it's true")
             } else
                 Log.d("Alex", "After asking, it's false")
@@ -134,17 +137,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-        val intCon: InternetConnection = InternetConnection
+        val intCon = InternetConnection
         if (intCon.checkConnection(this)) { // we're on wifi..  But do we need this check?
             // do something??
         }
         return super.onCreateView(name, context, attrs)
     }
 
-    fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
+    private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
         Log.d("Alex", "onSignIn")
-        val signInIntent: Intent = mGoogleSignInClient.getSignInIntent()
-        Log.d("Alex", "signinintent is " + signInIntent.toString())
+        val signInIntent: Intent = mGoogleSignInClient.signInIntent
+        Log.d("Alex", "signinintent is $signInIntent")
         mainActivityResultLauncher.launch(signInIntent)
     }
 
@@ -173,8 +176,8 @@ class MainActivity : AppCompatActivity() {
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         if (account?.email == null) {
             // turn off all menu/buttons
-            val mDrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout);
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            val mDrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             signInButton.visibility = View.VISIBLE
             signInButton.setSize(SignInButton.SIZE_WIDE)
         } else {
@@ -182,14 +185,14 @@ class MainActivity : AppCompatActivity() {
         }
         Log.d("Alex", "account.email is " + account?.email)
         if (account?.email != "alexreid2070@gmail.com") {
-            val navigationView: NavigationView = findViewById(R.id.nav_view) as NavigationView
-            val nav_Menu: Menu = navigationView.getMenu()
-            nav_Menu.findItem(R.id.AdminFragment).setVisible(false)
+            val navigationView: NavigationView = findViewById(R.id.nav_view)
+            val navMenu: Menu = navigationView.menu
+            navMenu.findItem(R.id.AdminFragment).isVisible = false
         } else {
             MyApplication.adminMode = true
         }
         // Check if user is signed in (non-null) and update UI accordingly.
-        var currentUser = auth.getCurrentUser()
+        val currentUser = auth.currentUser
         signIn(currentUser)
     }
 
@@ -210,7 +213,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    fun signIn(account: FirebaseUser?) {
+    private fun signIn(account: FirebaseUser?) {
         Log.d("Alex", "in signIn, account is " + account?.email)
         MyApplication.userEmail = account?.email.toString()
         MyApplication.userUID = account?.uid.toString()
@@ -247,11 +250,11 @@ class MainActivity : AppCompatActivity() {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.options_menu, menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() == R.id.SignOut) {
-                menu.getItem(i).setVisible(true)
-                menu.getItem(i).setTitle("Sign Out (" + MyApplication.userEmail + ")")
+            if (menu.getItem(i).itemId == R.id.SignOut) {
+                menu.getItem(i).isVisible = true
+                menu.getItem(i).title = "Sign Out (" + MyApplication.userEmail + ")"
             } else
-                menu.getItem(i).setVisible(false)
+                menu.getItem(i).isVisible = false
         }
 
         return true
@@ -271,12 +274,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun notifyHomeFragmentThatDataIsReady() {
-        supportFragmentManager.fragments.forEach() {
-            Log.d("Alex", "fragment is " + it.toString())
+        supportFragmentManager.fragments.forEach {
+            Log.d("Alex", "fragment is $it")
         }
 //        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        var frag = getSupportFragmentManager().findFragmentById(R.id.homeFragment) as HomeFragment
-        frag.ivebeentold();
+        val frag = supportFragmentManager.findFragmentById(R.id.homeFragment) as HomeFragment
+        frag.ivebeentold()
     }
 
     fun getMyExpenditureModel(): ExpenditureViewModel {
@@ -284,11 +287,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openDrawer() {
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout);
+        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+            drawer.closeDrawer(GravityCompat.START)
         } else {
-            drawer.openDrawer(GravityCompat.START);
+            drawer.openDrawer(GravityCompat.START)
         }
     }
 

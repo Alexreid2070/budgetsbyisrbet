@@ -1,19 +1,14 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
 
@@ -22,14 +17,10 @@ class BudgetViewAllFragment : Fragment() {
     private val binding get() = _binding!!
     private var currentFilter: String = cCONDENSED
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetViewAllBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
@@ -40,42 +31,43 @@ class BudgetViewAllFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.AddBudget) {
-                menu.getItem(i).setVisible(true)
-            } else if (menu.getItem(i).getItemId() === R.id.FilterExpanded) {
-                menu.getItem(i).setVisible(true)
-                if (currentFilter == cEXPANDED)
-                    menu.getItem(i).setChecked(true)
-                else
-                    menu.getItem(i).setChecked(false)
-            } else if (menu.getItem(i).getItemId() === R.id.FilterCondensed) {
-                menu.getItem(i).setVisible(true)
-                if (currentFilter == cCONDENSED)
-                    menu.getItem(i).setChecked(true)
-                else
-                    menu.getItem(i).setChecked(false)
-            } else if (menu.getItem(i).getItemId() == R.id.FilterTitle) {
-                menu.getItem(i).setVisible(true)
-            } else if (menu.getItem(i).getItemId() == R.id.Previous) {
-                menu.getItem(i).setVisible(true)
-            } else if (menu.getItem(i).getItemId() == R.id.Next) {
-                menu.getItem(i).setVisible(true)
-            } else
-                menu.getItem(i).setVisible(false)
+            when (menu.getItem(i).itemId) {
+                R.id.AddBudget -> {
+                    menu.getItem(i).isVisible = true
+                }
+                R.id.FilterExpanded -> {
+                    menu.getItem(i).isVisible = true
+                    menu.getItem(i).isChecked = currentFilter == cEXPANDED
+                }
+                R.id.FilterCondensed -> {
+                    menu.getItem(i).isVisible = true
+                    menu.getItem(i).isChecked = currentFilter == cCONDENSED
+                }
+                R.id.FilterTitle -> {
+                    menu.getItem(i).isVisible = true
+                }
+                R.id.Previous -> {
+                    menu.getItem(i).isVisible = true
+                }
+                R.id.Next -> {
+                    menu.getItem(i).isVisible = true
+                }
+                else -> menu.getItem(i).isVisible = false
+            }
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.AddBudget) {
+        if (item.itemId == R.id.AddBudget) {
             val currentCategory = binding.budgetCategorySpinner.selectedItem.toString()
-            var cat: String = ""
-            var subcat: String = ""
+            var cat = ""
+            var subcat = ""
             val dash = currentCategory.indexOf("-")
             if (dash > -1) {
                 cat = currentCategory.substring(0,dash)
                 subcat = currentCategory.substring(dash + 1, currentCategory.length)
-                Log.d("Alex", "cat is '" + cat + "'")
-                Log.d("Alex", "subcat is '" + subcat + "'")
+                Log.d("Alex", "cat is '$cat'")
+                Log.d("Alex", "subcat is '$subcat'")
             }
             val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
             action.category = cat
@@ -84,28 +76,26 @@ class BudgetViewAllFragment : Fragment() {
 
 //            findNavController().navigate(R.id.action_BudgetViewAllFragment_to_BudgetFragment)
             return true
-        } else if (item.itemId === R.id.FilterExpanded) {
-            if (currentFilter == cEXPANDED) {
-            } else {
-                item.setChecked(true)
+        } else if (item.itemId == R.id.FilterExpanded) {
+            if (currentFilter != cEXPANDED) {
+                item.isChecked = true
                 currentFilter = cEXPANDED
             }
             activity?.invalidateOptionsMenu()
             loadRows(binding.budgetCategorySpinner.selectedItem.toString())
             return true
-        } else if (item.itemId === R.id.FilterCondensed) {
-            if (currentFilter == cCONDENSED) {
-            } else {
-                item.setChecked(true)
+        } else if (item.itemId == R.id.FilterCondensed) {
+            if (currentFilter != cCONDENSED) {
+                item.isChecked = true
                 currentFilter = cCONDENSED
             }
             activity?.invalidateOptionsMenu()
             loadRows(binding.budgetCategorySpinner.selectedItem.toString())
             return true
-        } else if (item.itemId === R.id.Previous) {
+        } else if (item.itemId == R.id.Previous) {
             moveCategories(-1)
             return true
-        } else if (item.itemId === R.id.Next) {
+        } else if (item.itemId == R.id.Next) {
             moveCategories(1)
             return true
         } else {
@@ -118,12 +108,10 @@ class BudgetViewAllFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title = "View Budgets"
 
-        var categorySpinner = binding.budgetCategorySpinner
+        val categorySpinner = binding.budgetCategorySpinner
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getCombinedCategoriesForSpinner())
         categorySpinner.adapter = arrayAdapter
-        if (arrayAdapter != null) {
-            arrayAdapter.notifyDataSetChanged()
-        }
+        arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
 
@@ -150,31 +138,29 @@ class BudgetViewAllFragment : Fragment() {
     }
 
     fun loadRows(iCategory: String) {
-        Log.d("Alex", "in load rows, iCategory is '" + iCategory + "'")
+        Log.d("Alex", "in load rows, iCategory is '$iCategory'")
         val adapter = BudgetAdapter(requireContext(), BudgetViewModel.getBudgetInputRows(iCategory, currentFilter))
         val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
-        listView.setAdapter(adapter)
+        listView.adapter = adapter
 
         listView.onItemClickListener = object : AdapterView.OnItemClickListener {
 
             override fun onItemClick(parent: AdapterView<*>, view: View,
                                      position: Int, id: Long) {
-                var itemValue = listView.getItemAtPosition(position) as BudgetInputRow
-                var bmDateApplicable = BudgetMonth(itemValue.dateApplicable)
-                var bmDateStart = BudgetMonth(itemValue.dateStarted)
+                val itemValue = listView.getItemAtPosition(position) as BudgetInputRow
+                val bmDateApplicable = BudgetMonth(itemValue.dateApplicable)
+                val bmDateStart = BudgetMonth(itemValue.dateStarted)
                 if (itemValue.dateApplicable == itemValue.dateStarted ||
                         (bmDateApplicable.month == 1 && bmDateStart.month == 0)) {// ie only allow edits on "real" entries
-                    var bmDateApplicable = BudgetMonth(itemValue.dateApplicable)
-                    var bmDateStarted = BudgetMonth(itemValue.dateStarted)
+                    val bmDateStarted = BudgetMonth(itemValue.dateStarted)
                     var monthToSend: Int = bmDateApplicable.month
                     if (bmDateStarted.month == 0)
                         monthToSend = 0
-                    var amountToSend: Double = 0.0
-                    if (monthToSend == 0)
-                        amountToSend = itemValue.amount.toDouble() * 12
+                    val amountToSend = if (monthToSend == 0)
+                        itemValue.amount.toDouble() * 12
                     else
-                        amountToSend = itemValue.amount.toDouble()
-                    var rtdf = BudgetDialogFragment.newInstance(
+                        itemValue.amount.toDouble()
+                    val rtdf = BudgetDialogFragment.newInstance(
                         binding.budgetCategorySpinner.selectedItem.toString(),
                         bmDateApplicable.year,
                         monthToSend,
@@ -186,15 +172,15 @@ class BudgetViewAllFragment : Fragment() {
                         BudgetDialogFragment.BudgetEditDialogFragmentListener {
                         override fun onNewDataSaved() {
                             Log.d("Alex", "in onNewDataSaved")
-                            val adapter = BudgetAdapter(
+                            val tadapter = BudgetAdapter(
                                 requireContext(),
                                 BudgetViewModel.getBudgetInputRows(iCategory, currentFilter)
                             )
-                            listView.setAdapter(adapter)
-                            adapter.notifyDataSetChanged()
+                            listView.adapter = tadapter
+                            tadapter.notifyDataSetChanged()
                         }
                     })
-                    rtdf.show(getParentFragmentManager(), "Edit Budget")
+                    rtdf.show(parentFragmentManager, "Edit Budget")
                 } else {
                     Toast.makeText(requireActivity(), "Only actual budget entries (in bold) are clickable.", Toast.LENGTH_SHORT).show()
                 }
@@ -202,20 +188,19 @@ class BudgetViewAllFragment : Fragment() {
         }
     }
 
-    fun moveCategories(iDirection: Int) {
+    private fun moveCategories(iDirection: Int) {
         val currentCategoryPosition = binding.budgetCategorySpinner.selectedItemPosition
-        var newCategoryPosition: Int = currentCategoryPosition
-        if (iDirection == -1) {
+        val newCategoryPosition = if (iDirection == -1) {
             if (currentCategoryPosition > 0) {
-                newCategoryPosition = currentCategoryPosition - 1
+                currentCategoryPosition - 1
             } else {
-                newCategoryPosition = 0
+                0
             }
         } else { // has to be +1
             if (currentCategoryPosition < binding.budgetCategorySpinner.adapter.count-1) {
-                newCategoryPosition = currentCategoryPosition + 1
+                currentCategoryPosition + 1
             } else {
-                newCategoryPosition = binding.budgetCategorySpinner.adapter.count-1
+                binding.budgetCategorySpinner.adapter.count-1
             }
         }
         val newCategory = binding.budgetCategorySpinner.getItemAtPosition(newCategoryPosition)

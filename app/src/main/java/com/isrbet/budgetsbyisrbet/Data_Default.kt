@@ -14,8 +14,8 @@ const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
 
 class DefaultsViewModel : ViewModel() {
-    lateinit var defaultsListener: ValueEventListener
-    var dataUpdatedCallback: DefaultsDataUpdatedCallback? = null
+    private lateinit var defaultsListener: ValueEventListener
+    private var dataUpdatedCallback: DefaultsDataUpdatedCallback? = null
     var defaultCategory: String = ""
     var defaultSubCategory: String = ""
     var defaultSpender: String = ""
@@ -33,20 +33,15 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default sound is " + singleInstance.defaultSound)
         }
         fun getDefault(whichOne:String): String {
-            if (whichOne == cDEFAULT_CATEGORY)
-                return singleInstance.defaultCategory
-            else if (whichOne == cDEFAULT_SUBCATEGORY)
-                return singleInstance.defaultSubCategory
-            else if (whichOne == cDEFAULT_SPENDER)
-                return singleInstance.defaultSpender
-            else if (whichOne == cDEFAULT_SHOWRED)
-                return singleInstance.defaultShowRed
-            else if (whichOne == cDEFAULT_INTEGRATEWITHTDSPEND)
-                return singleInstance.defaultIntegrateWithTDSpend
-            else if (whichOne == cDEFAULT_SOUND)
-                return singleInstance.defaultSound
-            else
-                return ""
+            when (whichOne) {
+                cDEFAULT_CATEGORY -> return singleInstance.defaultCategory
+                cDEFAULT_SUBCATEGORY -> return singleInstance.defaultSubCategory
+                cDEFAULT_SPENDER -> return singleInstance.defaultSpender
+                cDEFAULT_SHOWRED -> return singleInstance.defaultShowRed
+                cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
+                cDEFAULT_SOUND -> return singleInstance.defaultSound
+                else -> return ""
+            }
         }
 
         fun updateDefault(whichOne: String, iValue: String) {
@@ -60,7 +55,7 @@ class DefaultsViewModel : ViewModel() {
     }
 
     init {
-        DefaultsViewModel.singleInstance = this
+        singleInstance = this
     }
 
     override fun onCleared() {
@@ -119,6 +114,6 @@ class DefaultsViewModel : ViewModel() {
     }
 }
 
-public interface DefaultsDataUpdatedCallback  {
+interface DefaultsDataUpdatedCallback  {
     fun onDataUpdate()
 }

@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -20,15 +19,15 @@ import com.google.android.material.color.MaterialColors
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
-    var oldFirstUser: String = ""
-    var oldSecondUser: String = ""
+    private var oldFirstUser: String = ""
+    private var oldSecondUser: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
-        var spenderOne = SpenderViewModel.getSpender(0)
-        var spenderTwo = SpenderViewModel.getSpender(1)
+        val spenderOne = SpenderViewModel.getSpender(0)
+        val spenderTwo = SpenderViewModel.getSpender(1)
         binding.settingsFirstUserName.setText(spenderOne?.name.toString())
         binding.settingsFirstPercentage.setText(spenderOne?.split.toString())
         if (spenderTwo != null) {
@@ -42,12 +41,14 @@ class SettingsFragment : Fragment() {
             binding.settingsJointRow.visibility = View.GONE
         else
             binding.settingsJointRow.visibility = View.VISIBLE
-        if (spenderOne?.name.toString() == DefaultsViewModel.getDefault(cDEFAULT_SPENDER))
-            binding.settingsFirstUserCheckbox.setChecked(true)
-        else if (spenderTwo?.name.toString() == DefaultsViewModel.getDefault(cDEFAULT_SPENDER))
-            binding.settingsSecondUserCheckbox.setChecked(true)
-        else if (DefaultsViewModel.getDefault(cDEFAULT_SPENDER) == "Joint")
-            binding.settingsJointUserCheckbox.setChecked(true)
+        when {
+            spenderOne?.name.toString() == DefaultsViewModel.getDefault(cDEFAULT_SPENDER) -> binding.settingsFirstUserCheckbox.isChecked =
+                true
+            spenderTwo?.name.toString() == DefaultsViewModel.getDefault(cDEFAULT_SPENDER) -> binding.settingsSecondUserCheckbox.isChecked =
+                true
+            DefaultsViewModel.getDefault(cDEFAULT_SPENDER) == "Joint" -> binding.settingsJointUserCheckbox.isChecked =
+                true
+        }
 
         oldFirstUser = spenderOne?.name.toString()
         oldSecondUser = spenderTwo?.name.toString()
@@ -63,32 +64,32 @@ class SettingsFragment : Fragment() {
         binding.settingsSaveButton.setOnClickListener {
             onSaveButtonClicked()
         }
-        var myFirstCheckBox = requireActivity().findViewById(R.id.settings_first_user_checkbox) as CheckBox
-        myFirstCheckBox.setOnClickListener(View.OnClickListener {
+        val myFirstCheckBox = requireActivity().findViewById(R.id.settings_first_user_checkbox) as CheckBox
+        myFirstCheckBox.setOnClickListener({
             if (myFirstCheckBox.isChecked) {
-                binding.settingsSecondUserCheckbox.setChecked(false)
-                binding.settingsJointUserCheckbox.setChecked(false)
+                binding.settingsSecondUserCheckbox.isChecked = false
+                binding.settingsJointUserCheckbox.isChecked = false
             }
         })
         myFirstCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        var mySecondCheckBox = requireActivity().findViewById(R.id.settings_second_user_checkbox) as CheckBox
-        mySecondCheckBox.setOnClickListener(View.OnClickListener {
+        val mySecondCheckBox = requireActivity().findViewById(R.id.settings_second_user_checkbox) as CheckBox
+        mySecondCheckBox.setOnClickListener({
             if (mySecondCheckBox.isChecked) {
-                binding.settingsFirstUserCheckbox.setChecked(false)
-                binding.settingsJointUserCheckbox.setChecked(false)
+                binding.settingsFirstUserCheckbox.isChecked = false
+                binding.settingsJointUserCheckbox.isChecked = false
             }
         })
         mySecondCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        var myJointCheckBox = requireActivity().findViewById(R.id.settings_joint_user_checkbox) as CheckBox
-        myJointCheckBox.setOnClickListener(View.OnClickListener {
+        val myJointCheckBox = requireActivity().findViewById(R.id.settings_joint_user_checkbox) as CheckBox
+        myJointCheckBox.setOnClickListener({
             if (myJointCheckBox.isChecked) {
-                binding.settingsFirstUserCheckbox.setChecked(false)
-                binding.settingsSecondUserCheckbox.setChecked(false)
+                binding.settingsFirstUserCheckbox.isChecked = false
+                binding.settingsSecondUserCheckbox.isChecked = false
             }
         })
         myJointCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
 
-        var defaultCategorySpinner =
+        val defaultCategorySpinner =
             requireActivity().findViewById<Spinner>(R.id.settingsCategorySpinner)
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -98,29 +99,22 @@ class SettingsFragment : Fragment() {
         defaultCategorySpinner.adapter = arrayAdapter
         defaultCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefault(
             cDEFAULT_CATEGORY) + "-" + DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY)))
-        if (arrayAdapter != null) {
-            arrayAdapter.notifyDataSetChanged()
-        }
+        arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.settingsCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
-        if (DefaultsViewModel.getDefault(cDEFAULT_SOUND) == "Off")
-            binding.switchSound.isChecked = false
-        else
-            binding.switchSound.isChecked = true
-        if (DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "Off")
-            binding.switchIntegrateWithTD.isChecked = false
-        else
-            binding.switchIntegrateWithTD.isChecked = true
-        val showRedField = requireActivity().findViewById(R.id.settings_red_percentage) as EditText
-        showRedField.setText(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED))
+        binding.switchSound.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SOUND) != "Off"
+        binding.switchIntegrateWithTD.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) != "Off"
+        binding.redPercentageSlider.value = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
+        binding.redPercentage.text = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt().toString()
 
         if (binding.settingsSecondUserName.text.toString() == "") {
             binding.settingsSecondPercentage.isEnabled = false
             binding.settingsSecondUserCheckbox.isEnabled = false
             binding.settingsJointUserCheckbox.isEnabled = false
         }
-        var mySecondName = requireActivity().findViewById(R.id.settings_second_user_name) as EditText
+        val mySecondName = requireActivity().findViewById(R.id.settings_second_user_name) as EditText
         mySecondName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
@@ -140,21 +134,21 @@ class SettingsFragment : Fragment() {
                 }
             }
         })
+        binding.redPercentageSlider.addOnChangeListener { _, _, _ ->
+            binding.redPercentage.text = binding.redPercentageSlider.value.toInt().toString()
+        }
         binding.settingsFirstUserName.requestFocus()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.EditCategory)
-                menu.getItem(i).setVisible(true)
-            else
-                menu.getItem(i).setVisible(false)
+            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.EditCategory
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.EditCategory) {
+        if (item.itemId == R.id.EditCategory) {
             view?.findNavController()?.navigate(R.id.SettingsEditCategoryFragment)
             return true
         } else {
@@ -223,7 +217,7 @@ class SettingsFragment : Fragment() {
             return
         }
         // only one user must have its default checked
-        var cChecked: Int = 0
+        var cChecked = 0
         if (binding.settingsFirstUserCheckbox.isChecked)
             cChecked++
         if (binding.settingsSecondUserCheckbox.isChecked)
@@ -277,12 +271,8 @@ class SettingsFragment : Fragment() {
             DefaultsViewModel.updateDefault(cDEFAULT_SOUND, soundField)
 
         // check default showRed
-        val showRedField = requireActivity().findViewById(R.id.settings_red_percentage) as EditText
-        var defShowRed: Int = 0
-        if (showRedField.text.toString() != "")
-            defShowRed = showRedField.text.toString().toInt()
-        if (defShowRed != DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt())
-            DefaultsViewModel.updateDefault(cDEFAULT_SHOWRED, defShowRed.toString())
+        if (binding.redPercentageSlider.value.toInt() != DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt())
+            DefaultsViewModel.updateDefault(cDEFAULT_SHOWRED, binding.redPercentageSlider.value.toInt().toString())
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 }
