@@ -33,10 +33,10 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.provider.Settings
+import android.widget.Button
+import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import java.io.PrintWriter
-import java.io.StringWriter
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        var myExceptionHandler: MyExceptionHandler
 
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
@@ -73,13 +72,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<NavigationView>(R.id.nav_view).setupWithNavController(navController)
 
         val mainActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-            Log.d("Alex", "in registerforactivityresult result is " + result.resultCode + " but should be " + Activity.RESULT_OK)
-            if (result.data == null)
-                Log.d("Alex", "result.data == null")
-            else {
-                Log.d("Alex", "result.data != null")
-                Log.d("Alex", "result.data " + result.data.toString() + " " + result.data!!.getStringExtra("Error"))
-            }
             if(result.resultCode == Activity.RESULT_OK){
                 val data = result.data
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -87,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                     // Google Sign In was successful, authenticate with Firebase
                     val account = task.getResult(ApiException::class.java)!!
                     Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
+                    MyApplication.userGivenName = account.givenName.toString()
                     firebaseAuthWithGoogle(account.idToken!!)
                 } catch (e: ApiException) {
                     // Google Sign In failed, update UI appropriately
@@ -100,7 +93,6 @@ class MainActivity : AppCompatActivity() {
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
-//            .requestIdToken("54206436786-je2jnbiia10vvkphsjn5fdha42po5ia6.apps.googleusercontent.com")
             .requestEmail()
             .build()
 
@@ -147,17 +139,12 @@ class MainActivity : AppCompatActivity() {
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
         Log.d("Alex", "onSignIn")
         val signInIntent: Intent = mGoogleSignInClient.signInIntent
-        Log.d("Alex", "signinintent is $signInIntent")
         mainActivityResultLauncher.launch(signInIntent)
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         Log.d("Alex", "handleSignInResult")
         try {
-//            val account = completedTask.getResult(ApiException::class.java)
-
-            // Signed in successfully, show authenticated UI.
-//            signIn(account)
             Log.d("Alex2", "handleSignInResult works")
             signIn(null)
         } catch (e: ApiException) {
@@ -172,7 +159,6 @@ class MainActivity : AppCompatActivity() {
     // Check for existing Google Sign In account, if the user is already signed in
     // the GoogleSignInAccount will be non-null.
         val account = GoogleSignIn.getLastSignedInAccount(this)
-        Log.d("Alex", "email is " + account?.email)
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         if (account?.email == null) {
             // turn off all menu/buttons
@@ -183,7 +169,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             signInButton.visibility = View.GONE
         }
-        Log.d("Alex", "account.email is " + account?.email)
+        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         if (account?.email != "alexreid2070@gmail.com") {
             val navigationView: NavigationView = findViewById(R.id.nav_view)
             val navMenu: Menu = navigationView.menu
@@ -218,19 +204,23 @@ class MainActivity : AppCompatActivity() {
         MyApplication.userEmail = account?.email.toString()
         MyApplication.userUID = account?.uid.toString()
         MyApplication.currentUserEmail = account?.email.toString()
-
-        Log.d("Alex", "my uid is " + MyApplication.userUID)
-        Log.d("Alex", "in signIn, uid is " + account?.uid)
         val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
         if (account == null) {
-            Log.d("Alex", "in signIn, account is null")
             signInButton.visibility = View.VISIBLE
             signInButton.setSize(SignInButton.SIZE_WIDE)
+            findViewById<Button>(R.id.expenditure_button).visibility = View.GONE
+            findViewById<Button>(R.id.view_all_button).visibility = View.GONE
+            findViewById<Button>(R.id.dashboard_button).visibility = View.GONE
+            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
         }
         else {
-            Log.d("Alex", "in signIn, account is " + account.email)
-
             signInButton.visibility = View.GONE
+            findViewById<Button>(R.id.expenditure_button).visibility = View.VISIBLE
+            findViewById<Button>(R.id.view_all_button).visibility = View.VISIBLE
+            findViewById<Button>(R.id.dashboard_button).visibility = View.VISIBLE
+            findViewById<TextView>(R.id.quote_field).visibility = View.VISIBLE
+            if (account?.email == "alexreid2070@gmail.com")
+                MyApplication.adminMode = true
             defaultsModel.loadDefaults()
             expenditureModel.loadExpenditures()
             categoryModel.loadCategories()
@@ -263,6 +253,12 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.SignOut) {
             Log.d("Alex", "sign out attempted")
+            BudgetViewModel.clear()
+            CategoryViewModel.clear()
+            DefaultsViewModel.clear()
+            ExpenditureViewModel.clear()
+            RecurringTransactionViewModel.clear()
+            SpenderViewModel.clear()
             Firebase.auth.signOut()
             mGoogleSignInClient.signOut()
             MyApplication.userUID = ""
@@ -271,15 +267,6 @@ class MainActivity : AppCompatActivity() {
             val navController = findNavController(R.id.nav_host_fragment_content_main)
             return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
-    }
-
-    fun notifyHomeFragmentThatDataIsReady() {
-        supportFragmentManager.fragments.forEach {
-            Log.d("Alex", "fragment is $it")
-        }
-//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        val frag = supportFragmentManager.findFragmentById(R.id.homeFragment) as HomeFragment
-        frag.ivebeentold()
     }
 
     fun getMyExpenditureModel(): ExpenditureViewModel {
@@ -297,29 +284,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        CategoryViewModel.singleInstance.clearCallback()
+        SpenderViewModel.singleInstance.clearCallback()
         MyApplication.releaseResources()
-    }
-}
-
-// this doesn't work yet
-class MyExceptionHandler : Thread.UncaughtExceptionHandler {
-    override fun uncaughtException(thread: Thread, exception: Throwable) {
-        Log.d("Alex", "In exception handler")
-        val stackTrace = StringWriter()
-        exception.printStackTrace(PrintWriter(stackTrace))
-        System.err.println(stackTrace) // You can use LogCat too
-
-/*        val intent = Intent(context, MainActivity)
-        val s: String = stackTrace.toString()
-        intent.putExtra(
-            "uncaughtException",
-            "Exception is: " + stackTrace.toString()
-        )
-        intent.putExtra("stacktrace", s)
-        myContext.startActivity(intent)
-        //for restarting the Activity
-        Process.killProcess(Process.myPid())
-        System.exit(0)    }
-*/
     }
 }

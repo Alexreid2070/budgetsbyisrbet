@@ -119,12 +119,14 @@
             android:id="@+id/admin_user4_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="beatricejohnston5@gmail.com"
             android:layout_gravity="center"
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/admin_user4_uid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="ZIroFxXfzdapAjorwmEVHykTAwm1"
             android:layout_gravity="center"
             android:layout_weight="1"
             android:textSize="16sp"/>

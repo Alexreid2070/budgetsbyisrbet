@@ -11,7 +11,7 @@ data class Spender(var name: String, var split: Int) {
 }
 
 class SpenderViewModel : ViewModel() {
-    lateinit var spenderListener: ValueEventListener
+    private var spenderListener: ValueEventListener? = null
     private val spenders: MutableList<Spender> = ArrayList()
     var dataUpdatedCallback: SpenderDataUpdatedCallback? = null
 
@@ -49,8 +49,8 @@ class SpenderViewModel : ViewModel() {
         }
 
         fun getSpenders() : MutableList<String> {
-            var list : MutableList<String> = ArrayList()
-            SpenderViewModel.singleInstance.spenders.forEach {
+            val list : MutableList<String> = ArrayList()
+            singleInstance.spenders.forEach {
                 list.add(it.name)
             }
             return list
@@ -77,18 +77,29 @@ class SpenderViewModel : ViewModel() {
         fun refresh() {
             singleInstance.loadSpenders()
         }
+        fun clear() {
+            if (singleInstance.spenderListener != null) {
+                MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Spender")
+                    .removeEventListener(singleInstance.spenderListener!!)
+                singleInstance.spenderListener = null
+            }
+            singleInstance.dataUpdatedCallback = null
+            singleInstance.spenders.clear()
+        }
     }
 
     init {
-        SpenderViewModel.singleInstance = this
+        singleInstance = this
     }
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Spender")
-            .removeEventListener(spenderListener)
+        if (spenderListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Spender")
+                .removeEventListener(spenderListener!!)
+            spenderListener = null
+        }
     }
-
 
     fun setCallback(iCallback: SpenderDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
@@ -118,10 +129,12 @@ class SpenderViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").addValueEventListener(spenderListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").addValueEventListener(
+            spenderListener as ValueEventListener
+        )
     }
 }
 
-public interface SpenderDataUpdatedCallback  {
+interface SpenderDataUpdatedCallback  {
     fun onDataUpdate()
 }

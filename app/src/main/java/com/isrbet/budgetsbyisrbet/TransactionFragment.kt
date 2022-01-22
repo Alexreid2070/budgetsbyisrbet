@@ -194,6 +194,10 @@ class TransactionFragment : Fragment() {
                     binding.transactionBoughtForName2Split.setText("100")
                     binding.slider.value = 0.0F
                 }
+            } else {
+                binding.transactionBoughtForName1Split.setText("100")
+                binding.transactionBoughtForName2Split.setText("0")
+                binding.slider.value = 100.0F
             }
         }
         else {
@@ -488,7 +492,7 @@ class TransactionFragment : Fragment() {
                 binding.recurringTransactionLabel.setText("This recurring transaction was automatically generated.")
                 binding.recurringTransactionLabel.visibility = View.VISIBLE
             } else {
-                binding.recurringTransactionLabel.visibility = View.GONE
+                binding.recurringTransactionLabel.visibility = View.INVISIBLE
             }
 
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
@@ -548,7 +552,7 @@ class TransactionFragment : Fragment() {
         }
         binding.inputBoughtForLabel.visibility = iView
         binding.boughtForRadioGroup.visibility = iView
-        binding.transactionBoughtForName1Preamble.visibility = iView
+/*        binding.transactionBoughtForName1Preamble.visibility = iView
         binding.transactionBoughtForName1Label.visibility = iView
         binding.transactionBoughtForName1Split.visibility = iView
         binding.transactionBoughtForName1Suffix.visibility = iView
@@ -556,7 +560,7 @@ class TransactionFragment : Fragment() {
         binding.transactionBoughtForName2Label.visibility = iView
         binding.transactionBoughtForName2Split.visibility = iView
         binding.transactionBoughtForName2Suffix.visibility = iView
-        binding.sliderLayout.visibility = iView
+        binding.sliderLayout.visibility = iView */
     }
 
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
@@ -642,6 +646,8 @@ class TransactionFragment : Fragment() {
         var amountInt: Int
         tempDouble = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = tempDouble.toInt()
+        SpenderViewModel.showMe()
+        Log.d("Alex", "Splits are ${binding.transactionBoughtForName1Split.text} and ${binding.transactionBoughtForName2Split.text}")
         val bfName1Split = binding.transactionBoughtForName1Split.text.toString().toInt()
         val bfName2Split = binding.transactionBoughtForName2Split.text.toString().toInt()
 

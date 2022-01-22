@@ -37,7 +37,7 @@ data class RecurringTransaction(
 
 
 class RecurringTransactionViewModel : ViewModel() {
-    lateinit var recurringTransactionListener: ValueEventListener
+    private var recurringTransactionListener: ValueEventListener? = null
     private val recurringTransactions: MutableList<RecurringTransaction> = ArrayList()
 
     companion object {
@@ -95,6 +95,14 @@ class RecurringTransactionViewModel : ViewModel() {
         fun refresh() {
             singleInstance.loadRecurringTransactions()
         }
+        fun clear() {
+            if (singleInstance.recurringTransactionListener != null) {
+                MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/RecurringTransactions")
+                    .removeEventListener(singleInstance.recurringTransactionListener!!)
+                singleInstance.recurringTransactionListener = null
+            }
+            singleInstance.recurringTransactions.clear()
+        }
     }
 
     init {
@@ -103,8 +111,11 @@ class RecurringTransactionViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/RecurringTransactions")
-            .removeEventListener(recurringTransactionListener)
+        if (recurringTransactionListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/RecurringTransactions")
+                .removeEventListener(recurringTransactionListener!!)
+            recurringTransactionListener = null
+        }
     }
 
     fun loadRecurringTransactions(mainActivity: MainActivity? = null) {
@@ -154,7 +165,9 @@ class RecurringTransactionViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").addValueEventListener(recurringTransactionListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").addValueEventListener(
+            recurringTransactionListener as ValueEventListener
+        )
     }
 
     fun sortYourself() {

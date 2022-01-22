@@ -26,7 +26,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         filterTheList(MyApplication.transactionSearchText)
     }
     override fun getItemCount(): Int {
-        Log.d("Alex", "getItemCount " + filteredList.size)
         return filteredList.size
     }
     override fun getFilter(): Filter {
@@ -95,7 +94,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Log.d("Alex", "list has " + filteredList.size + " rows and position requested is " + position)
         val data = filteredList[position]
 
         holder.vtf_date.text = data.date

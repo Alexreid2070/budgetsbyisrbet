@@ -79,7 +79,7 @@ data class ExpenditureOut(
 }
 
 class ExpenditureViewModel : ViewModel() {
-    lateinit var expListener: ValueEventListener
+    private var expListener: ValueEventListener? = null
     private val expenditures: MutableList<Expenditure> = mutableListOf<Expenditure>()
     var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
 
@@ -92,11 +92,11 @@ class ExpenditureViewModel : ViewModel() {
 
         fun getCopyOfExpenditures(): MutableList<Expenditure> {
             val copy = mutableListOf<Expenditure>()
-            copy.addAll(ExpenditureViewModel.getExpenditures())
+            copy.addAll(getExpenditures())
             return copy
         }
         fun getTotalDiscretionaryActualsToDate(iCal: Calendar) : Double {
-            var tmpTotal: Double = 0.0
+            var tmpTotal = 0.0
             var startDate: String
             var endDate: String
             val month = iCal.get(Calendar.MONTH)+1
@@ -151,6 +151,15 @@ class ExpenditureViewModel : ViewModel() {
         fun refresh() {
             singleInstance.loadExpenditures()
         }
+        fun clear() {
+            if (singleInstance.expListener != null) {
+                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
+                    .removeEventListener(singleInstance.expListener!!)
+                singleInstance.expListener = null
+            }
+            singleInstance.dataUpdatedCallback = null
+            singleInstance.expenditures.clear()
+        }
 
         fun getPreviousKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
@@ -178,8 +187,12 @@ class ExpenditureViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
-            .removeEventListener(expListener)
+        if (expListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Expenditures")
+                .orderByChild("date")
+                .removeEventListener(expListener!!)
+            expListener = null
+        }
     }
 
     fun getExpenditure(iTransactionID: String): Expenditure? {
@@ -213,7 +226,7 @@ class ExpenditureViewModel : ViewModel() {
             override fun onCancelled(dataSnapshot: DatabaseError) {
             }
         }
-        expDBRef.addValueEventListener(expListener)
+        expDBRef.addValueEventListener(expListener as ValueEventListener)
     }
 
     fun getCount(): Int {

@@ -22,12 +22,6 @@ data class BudgetPeriod(var period: BudgetMonth, var who: String, var amount: Do
     fun getYear(): Int {
         return period.year
     }
-    fun getMonth(): Int {
-        return period.month
-    }
-    fun incrementMonth() {
-        period.addMonth(1)
-    }
 }
 
 data class BudgetOut(var amount: Double, var occurence: Int) {
@@ -57,10 +51,6 @@ data class Budget(var categoryName: String) {
         // budgets need to be added in chronological order in order for app to work
         budgetPeriodList.add(BudgetPeriod(BudgetMonth(period), who, amount, occurence))
         budgetPeriodList.sortWith(compareBy({ it.period.year }, { it.period.month }))
-    }
-
-    fun getBudgetPeriods(): MutableList<BudgetPeriod> {
-        return budgetPeriodList
     }
 
     fun getPeriod(iPeriod: String, iWho: String): BudgetPeriod? {
@@ -108,7 +98,7 @@ data class Budget(var categoryName: String) {
 }
 
 class BudgetViewModel : ViewModel() {
-    lateinit var budgetListener: ValueEventListener
+    private var budgetListener: ValueEventListener? = null
     private val budgets: MutableList<Budget> = ArrayList()
     var dataUpdatedCallback: NewBudgetDataUpdatedCallback? = null
 
@@ -440,8 +430,14 @@ class BudgetViewModel : ViewModel() {
             singleInstance.loadBudgets(iActivity)
         }
 
-        fun getBudgets(): MutableList<Budget> {
-            return singleInstance.budgets
+        fun clear() {
+            if (singleInstance.budgetListener != null) {
+                MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
+                    .removeEventListener(singleInstance.budgetListener!!)
+                singleInstance.budgetListener = null
+            }
+            singleInstance.dataUpdatedCallback = null
+            singleInstance.budgets.clear()
         }
     }
 
@@ -451,8 +447,11 @@ class BudgetViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/NewBudget")
-            .removeEventListener(budgetListener)
+        if (budgetListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
+                .removeEventListener(budgetListener!!)
+            budgetListener = null
+        }
     }
 
     fun getBudgetcount(): Int {
@@ -526,7 +525,9 @@ class BudgetViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget").addValueEventListener(budgetListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget").addValueEventListener(
+            budgetListener as ValueEventListener
+        )
     }
 }
 

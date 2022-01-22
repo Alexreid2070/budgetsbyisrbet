@@ -68,9 +68,11 @@ class AdminFragment : Fragment() {
         SpenderViewModel.refresh()
         BudgetViewModel.refresh(requireActivity())
         RecurringTransactionViewModel.refresh()
+        activity?.onBackPressed()
     }
 
     fun refreshData() {
+        Log.d("Alex", "in user refresh data count is ${UserViewModel.getCount()}")
         binding.adminUser1Email.text = UserViewModel.getUserEmail(0)
         binding.adminUser1Uid.text = UserViewModel.getUserUID(0)
         binding.adminUser2Email.text = UserViewModel.getUserEmail(1)
