@@ -49,9 +49,12 @@ class AccountingFragment : Fragment() {
         Log.d("Alex", "first name is $firstName")
         Log.d("Alex", "second name is $secondName")
         binding.accountingHeaderFirstHeaderName.text = firstName
-        binding.accountingHeaderTFheadername.text = secondName
+        binding.accountingHeaderSecondHeaderName.text = secondName
+        binding.accountingHeaderTFheadername.text = firstName
         binding.accountingHeaderTSheadername.text = secondName
+        binding.accountingFirstRowName.text = firstName
         binding.accountingSecondRowName.text = secondName
+        binding.accountingTTofRowName.text = firstName
         binding.accountingTTosRowName.text = secondName
         binding.accountingJfrowName.text = "Jt-$firstName"
         binding.accountingJsrowName.text = "Jt-$secondName"

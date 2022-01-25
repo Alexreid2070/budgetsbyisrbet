@@ -14,4 +14,9 @@
     <color name="darker_gray">#3A3B3C</color>
     <color name="darkest_gray">#3D3C3A</color>
     <color name="black">#FF000000</color>
+    <color name="triadRed">#7E0C33</color>
+    <color name="triadBlue">#024571</color>
+    <color name="triadAqua">#5DC1BE</color>
+    <color name="triadOrange">#F6CF22</color>
+    <color name="triadYellow">#EDDB7C</color>
 </resources>
