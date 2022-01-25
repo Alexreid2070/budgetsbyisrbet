@@ -166,7 +166,7 @@ class TransactionViewAllFragment : Fragment() {
         else
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(MyApplication.transactionFirstInList, 0)
 
-     if (SpenderViewModel.getCount() == 1) {
+     if (SpenderViewModel.singleUser()) {
         binding.whoHeading.visibility = View.GONE
      }
     }

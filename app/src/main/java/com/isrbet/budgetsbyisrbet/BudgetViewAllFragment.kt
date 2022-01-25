@@ -132,7 +132,7 @@ class BudgetViewAllFragment : Fragment() {
             }
         }
 
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             binding.rowBudgetWhoHeading.visibility = View.GONE
         }
     }

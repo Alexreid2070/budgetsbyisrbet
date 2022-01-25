@@ -85,6 +85,33 @@ class TransactionFragment : Fragment() {
             onExpandClicked()
         }
 
+        binding.boughtForRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            Log.d("Alex", "clicked on radio group" + radioButton.getText().toString())
+            if (radioButton.getText().toString() == "Joint") {
+                binding.transactionBoughtForName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
+                binding.transactionBoughtForName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
+                binding.slider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
+                binding.slider.isEnabled = true
+            } else if (radioButton.getText().toString() == SpenderViewModel.getSpenderName(0)) {
+                binding.transactionBoughtForName1Split.setText("100")
+                binding.transactionBoughtForName2Split.setText("0")
+                binding.slider.value = 100.0F
+            } else {
+                binding.transactionBoughtForName1Split.setText("0")
+                binding.transactionBoughtForName2Split.setText("100")
+                binding.slider.value = 0.0F
+            }
+            if (radioButton.text == "Joint") {
+//                    binding.transactionBoughtForName1Split.isEnabled = true
+//                    binding.transactionBoughtForName2Split.isEnabled = true
+                binding.slider.isEnabled = true
+            } else {
+                //                   binding.transactionBoughtForName1Split.isEnabled = false
+//                    binding.transactionBoughtForName2Split.isEnabled = false
+                binding.slider.isEnabled = false
+            }
+        })
         binding.paidByRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, _ ->
             if (binding.inputBoughtForLabel.visibility == View.GONE) { // need to keep both values in sync
                 val selectedId = binding.paidByRadioGroup.getCheckedRadioButtonId()
@@ -143,15 +170,16 @@ class TransactionFragment : Fragment() {
             addSubCategories(radioButton.getText().toString(), "")
         })
 
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             binding.inputPaidByLabel.visibility = View.GONE
             binding.paidByRadioGroup.visibility = View.GONE
+            binding.boughtForRadioGroup.visibility = View.GONE
             binding.transactionExpandButton.visibility = View.GONE
         }
-        if (SpenderViewModel.getCount() == 1 || newTransactionMode) {
+        if (SpenderViewModel.singleUser() || newTransactionMode) {
             setExpansionFields(View.GONE)
         }
-        if (SpenderViewModel.getCount() > 1) {
+        if (!SpenderViewModel.singleUser()) {
             binding.transactionBoughtForName1Label.text = SpenderViewModel.getSpenderName(0)
             binding.transactionBoughtForName2Label.text = SpenderViewModel.getSpenderName(1)
         }
@@ -177,7 +205,7 @@ class TransactionFragment : Fragment() {
             binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
             */
-            if (SpenderViewModel.getCount() > 1) {
+            if (!SpenderViewModel.singleUser()) {
                 val selectedId = binding.boughtForRadioGroup.getCheckedRadioButtonId()
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 Log.d("Alex", "radio.button.text is '" + radioButton.text + "'")
@@ -257,33 +285,6 @@ class TransactionFragment : Fragment() {
         if (binding.inputBoughtForLabel.visibility == View.GONE) { // ie expand the section
             inExpandMode = true
             setExpansionFields(View.VISIBLE)
-            binding.boughtForRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
-                val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-                Log.d("Alex", "clicked on radio group" + radioButton.getText().toString())
-                if (radioButton.getText().toString() == "Joint") {
-                    binding.transactionBoughtForName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
-                    binding.transactionBoughtForName2Split.setText(SpenderViewModel.getSpenderSplit(1).toString())
-                    binding.slider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
-                    binding.slider.isEnabled = true
-                } else if (radioButton.getText().toString() == SpenderViewModel.getSpenderName(0)) {
-                    binding.transactionBoughtForName1Split.setText("100")
-                    binding.transactionBoughtForName2Split.setText("0")
-                    binding.slider.value = 100.0F
-                } else {
-                    binding.transactionBoughtForName1Split.setText("0")
-                    binding.transactionBoughtForName2Split.setText("100")
-                    binding.slider.value = 0.0F
-                }
-                if (radioButton.text == "Joint") {
-//                    binding.transactionBoughtForName1Split.isEnabled = true
-//                    binding.transactionBoughtForName2Split.isEnabled = true
-                    binding.slider.isEnabled = true
-                } else {
- //                   binding.transactionBoughtForName1Split.isEnabled = false
-//                    binding.transactionBoughtForName2Split.isEnabled = false
-                    binding.slider.isEnabled = false
-                }
-            })
 
         } else { // ie retract the section
             inExpandMode = false
@@ -552,7 +553,9 @@ class TransactionFragment : Fragment() {
         }
         binding.inputBoughtForLabel.visibility = iView
         binding.boughtForRadioGroup.visibility = iView
-/*        binding.transactionBoughtForName1Preamble.visibility = iView
+        binding.sliderLayout.visibility = iView
+        binding.transactionBoughtForNameLayout.visibility = iView
+    /*        binding.transactionBoughtForName1Preamble.visibility = iView
         binding.transactionBoughtForName1Label.visibility = iView
         binding.transactionBoughtForName1Split.visibility = iView
         binding.transactionBoughtForName1Suffix.visibility = iView
@@ -560,7 +563,7 @@ class TransactionFragment : Fragment() {
         binding.transactionBoughtForName2Label.visibility = iView
         binding.transactionBoughtForName2Split.visibility = iView
         binding.transactionBoughtForName2Suffix.visibility = iView
-        binding.sliderLayout.visibility = iView */
+*/
     }
 
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
@@ -726,8 +729,8 @@ class TransactionFragment : Fragment() {
         if (paidByRadioGroup == null) Log.d("Alex", " rg 'paidby' is null")
         else paidByRadioGroup.removeAllViews()
 
-        for (i in 0..SpenderViewModel.getCount()-1) {
-            var spender = SpenderViewModel.getSpender(i)
+        for (i in 0..SpenderViewModel.getActiveCount()-1) {
+            var spender = SpenderViewModel.getSpender(i, true)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -748,8 +751,8 @@ class TransactionFragment : Fragment() {
         if (boughtForRadioGroup == null) Log.d("Alex", " rg 'boughtfor' is null")
         else boughtForRadioGroup.removeAllViews()
 
-        for (i in 0..SpenderViewModel.getCount()-1) {
-            var spender = SpenderViewModel.getSpender(i)
+        for (i in 0..SpenderViewModel.getActiveCount()-1) {
+            var spender = SpenderViewModel.getSpender(i, true)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,

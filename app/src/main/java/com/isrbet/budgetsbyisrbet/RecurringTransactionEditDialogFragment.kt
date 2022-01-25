@@ -225,6 +225,10 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
         }
+        if (SpenderViewModel.singleUser()) {
+            binding.rtDialogLinearLayoutPaidby.visibility = View.INVISIBLE
+            binding.rtDialogLinearLayoutBoughtfor.visibility = View.INVISIBLE
+        }
     }
 
     override fun onStart() {

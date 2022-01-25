@@ -51,10 +51,12 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         tvNextDate.text = rtData.nextdate
         tvPeriod.text = rtData.period
         tvRegularity.text = rtData.regularity.toString()
-        tvCategory.text = rtData.category.toString()
-        tvSubcategory.text = rtData.subcategory.toString()
-        tvPaidby.text = rtData.paidby.toString()
-        tvBoughtfor.text = rtData.boughtfor.toString()
+        tvCategory.text = rtData.category
+        tvSubcategory.text = rtData.subcategory
+        if (!SpenderViewModel.singleUser()) {
+            tvPaidby.text = rtData.paidby
+            tvBoughtfor.text = rtData.boughtfor
+        }
         return rowView
     }
 }

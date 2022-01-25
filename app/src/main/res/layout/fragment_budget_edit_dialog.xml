@@ -92,7 +92,7 @@
         android:layout_gravity="start"
         app:layout_constraintStart_toStartOf="parent"
         android:paddingTop="10dp"
-        android:text="Applies to: "
+        android:text="Frequency: "
         android:textSize="16sp"
         tools:ignore="HardcodedText" />
 

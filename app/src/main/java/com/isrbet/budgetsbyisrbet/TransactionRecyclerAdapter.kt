@@ -117,7 +117,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         holder.vtf_note.text = data.note
         holder.vtf_type.text = data.type
         holder.itemView.setOnClickListener { listener(data) }
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             holder.vtf_who.visibility = View.GONE
         }
     }

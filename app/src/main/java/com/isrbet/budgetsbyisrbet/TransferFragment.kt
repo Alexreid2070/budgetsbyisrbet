@@ -89,19 +89,19 @@ class TransferFragment : Fragment() {
             }
         })
 
-        if (SpenderViewModel.getCount() > 1) {
+        if (!SpenderViewModel.singleUser()) {
             binding.splitName1Label.text = SpenderViewModel.getSpenderName(0)
             binding.splitName2Label.text = SpenderViewModel.getSpenderName(1)
         }
         if (newTransferMode) {
             (activity as AppCompatActivity).supportActionBar?.title = "Add Transfer"
-            if (SpenderViewModel.getCount() > 1) {
+            if (!SpenderViewModel.singleUser()) {
                 var button = binding.fromRadioGroup.getChildAt(0) as RadioButton
                 button.isChecked = true
                 button = binding.toRadioGroup.getChildAt(1) as RadioButton
                 button.isChecked = true
             }
-            if (SpenderViewModel.getCount() > 1) {
+            if (!SpenderViewModel.singleUser()) {
                 val selectedId = binding.toRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 when {
@@ -428,8 +428,8 @@ class TransferFragment : Fragment() {
         if (fromRadioGroup == null) Log.d("Alex", " rg 'from' is null")
         else fromRadioGroup.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getCount()) {
-            val spender = SpenderViewModel.getSpender(i)
+        for (i in 0 until SpenderViewModel.getActiveCount()) {
+            val spender = SpenderViewModel.getSpender(i, true)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -450,8 +450,8 @@ class TransferFragment : Fragment() {
         if (toRadioGroup == null) Log.d("Alex", " rg 'to' is null")
         else toRadioGroup.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getCount()) {
-            val spender = SpenderViewModel.getSpender(i)
+        for (i in 0 until SpenderViewModel.getActiveCount()) {
+            val spender = SpenderViewModel.getSpender(i, true)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,

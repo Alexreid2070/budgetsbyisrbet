@@ -49,7 +49,7 @@
     <string name="transfer_fragment_label">Transfer</string>
     <string name="missingFirstUserName">User name is missing</string>
     <string name="missingFirstUserPercentage">User % is missing</string>
-    <string name="missingSecondUserInformation">Second user information missing</string>
+    <string name="missingSecondUserName">Second user name missing</string>
     <string name="percentagesDontAddTo100">Percentages must add to 100</string>
     <string name="userMustBeSetAsDefault">User must be set as default</string>
     <string name="oneUserMustBeDefault">One user must be set to default</string>

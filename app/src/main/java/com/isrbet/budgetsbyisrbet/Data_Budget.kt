@@ -260,6 +260,7 @@ class BudgetViewModel : ViewModel() {
             return tmpTotal
         }
 
+        // goal of getBudgetCategories is to return list of categories that have budgets for the period indicated; does not include Annuals
         fun getBudgetCategories(iBudgetMonth: BudgetMonth, iDiscFlag: String): MutableList<String> {
             val myList: MutableList<String> = ArrayList()
             var tBudgetAmount: Double
@@ -267,7 +268,8 @@ class BudgetViewModel : ViewModel() {
                 tBudgetAmount = 0.0
                 val tCategory = it.categoryName
                 it.budgetPeriodList.forEach {
-                    if ((iBudgetMonth.month != 0 && it.period.toString() <= iBudgetMonth.toString()) ||
+                    if (it.period.month != 0 &&
+                        (iBudgetMonth.month != 0 && it.period.toString() <= iBudgetMonth.toString()) ||
                         (iBudgetMonth.month == 0 && it.period.year <= iBudgetMonth.year)
                     ) {
                         val dash = tCategory.indexOf("-")
@@ -305,7 +307,7 @@ class BudgetViewModel : ViewModel() {
                                 lastMonth.period.month = 1
                             var monthIterator = firstMonth.period.toString()
                             while (monthIterator <= lastMonth.period.toString()) {
-                                for (i in 1..SpenderViewModel.getCount()) {
+                                for (i in 1..SpenderViewModel.getActiveCount()) {
                                     var spenderName = SpenderViewModel.getSpenderName(i - 1)
                                     var bAmount = getBudgetAmount(
                                         fullCategoryName,

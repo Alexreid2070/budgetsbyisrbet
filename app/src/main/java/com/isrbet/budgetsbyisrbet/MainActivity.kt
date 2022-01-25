@@ -299,6 +299,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun singleUserMode() {
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val navMenu: Menu = navigationView.menu
+        navMenu.findItem(R.id.TransferFragment).isVisible = false
+        navMenu.findItem(R.id.AccountingFragment).isVisible = false
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         CategoryViewModel.singleInstance.clearCallback()

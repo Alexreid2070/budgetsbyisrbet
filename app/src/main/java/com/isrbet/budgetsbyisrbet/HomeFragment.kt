@@ -1,15 +1,18 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
+import com.google.android.material.navigation.NavigationView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
 
@@ -84,6 +87,9 @@ class HomeFragment : Fragment() {
         SpenderViewModel.singleInstance.setCallback(object: SpenderDataUpdatedCallback {
             override fun onDataUpdate() {
                 alignExpenditureMenuWithDataState()
+                if (SpenderViewModel.singleUser()) {
+                    (activity as MainActivity).singleUserMode()
+                }
             }
         })
     }
@@ -92,7 +98,7 @@ class HomeFragment : Fragment() {
         if (MyApplication.userUID != "")
             binding.homeScreenMessage.text = ""
 
-        if (MyApplication.userUID != "" && CategoryViewModel.getCount() > 0 && SpenderViewModel.getCount() > 0) {
+        if (MyApplication.userUID != "" && CategoryViewModel.getCount() > 0 && SpenderViewModel.getActiveCount() > 0) {
             Log.d("Alex", "true")
             binding.expenditureButton.visibility = View.VISIBLE
             binding.viewAllButton.visibility = View.VISIBLE

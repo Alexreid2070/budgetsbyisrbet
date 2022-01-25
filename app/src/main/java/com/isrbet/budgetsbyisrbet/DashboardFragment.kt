@@ -444,26 +444,26 @@ class DashboardFragment : Fragment() {
                 menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle ||
                 menu.getItem(i).getItemId() == R.id.FilterBoughtForName1 ||
                 menu.getItem(i).getItemId() == R.id.FilterBoughtForName2) {
-                if (SpenderViewModel.getCount() > 1) {
+                if (!SpenderViewModel.singleUser()) {
                     if (menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
                         menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle) {
                         menu.getItem(i).setVisible(true)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1) {
                         menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(0)?.name)
-                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(0)?.name)
+                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(0, true)?.name)
+                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName2) {
                         menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(1)?.name)
-                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(1)?.name)
+                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(1, true)?.name)
+                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterBoughtForName1) {
                         menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(0)?.name)
-                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(0)?.name)
+                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(0, true)?.name)
+                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name)
                     } else if (menu.getItem(i).getItemId() == R.id.FilterBoughtForName2) {
                         menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(1)?.name)
-                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(1)?.name)
+                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(1, true)?.name)
+                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name)
                     }
                 }
             } else if (menu.getItem(i).getItemId() == R.id.FilterTitle) {
@@ -510,48 +510,48 @@ class DashboardFragment : Fragment() {
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
             return true
         } else if (item.itemId == R.id.FilterPaidByName1) {
-            if (currentPaidByFilter == SpenderViewModel.getSpender(0)?.name) {
+            if (currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name) {
                 item.setChecked(false)
                 currentPaidByFilter = ""
             } else {
                 item.setChecked(true)
-                currentPaidByFilter = SpenderViewModel.getSpender(0)?.name.toString()
+                currentPaidByFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
             return true
         } else if (item.itemId == R.id.FilterPaidByName2) {
-            if (currentPaidByFilter == SpenderViewModel.getSpender(1)?.name) {
+            if (currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name) {
                 item.setChecked(false)
                 currentPaidByFilter = ""
             } else {
                 item.setChecked(true)
-                currentPaidByFilter = SpenderViewModel.getSpender(1)?.name.toString()
+                currentPaidByFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
             return true
         } else if (item.itemId == R.id.FilterBoughtForName1) {
-            if (currentBoughtForFilter == SpenderViewModel.getSpender(0)?.name) {
+            if (currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name) {
                 item.setChecked(false)
                 currentBoughtForFilter = ""
             } else {
                 item.setChecked(true)
-                currentBoughtForFilter = SpenderViewModel.getSpender(0)?.name.toString()
+                currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
             return true
         } else if (item.itemId == R.id.FilterBoughtForName2) {
-            if (currentBoughtForFilter == SpenderViewModel.getSpender(1)?.name) {
+            if (currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name) {
                 item.setChecked(false)
                 currentBoughtForFilter = ""
             } else {
                 item.setChecked(true)
-                currentBoughtForFilter = SpenderViewModel.getSpender(1)?.name.toString()
+                currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
             setActionBarTitle()
@@ -690,7 +690,7 @@ class DashboardRows {
                 }
             }
         }
-        // need to get budget categories for which there were no actuals
+        // need to get budget categories for which there are budgets but no actuals; but, skip annual budgets
         var tBudgetCategories = BudgetViewModel.getBudgetCategories(iBudgetMonth, iDiscFlag)
         for (i in 0..tBudgetCategories.size - 1) {
             val dash = tBudgetCategories[i].indexOf("-")
@@ -716,7 +716,7 @@ class DashboardRows {
         // add budget amounts
         var whoToLookup = iBoughtForFlag
         if (whoToLookup == "") {
-            if (SpenderViewModel.getCount() == 1)
+            if (SpenderViewModel.singleUser())
                 whoToLookup = SpenderViewModel.getSpenderName(0)
             else
                 whoToLookup = "Joint"
