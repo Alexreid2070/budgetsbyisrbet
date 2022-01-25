@@ -1,6 +1,6 @@
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,7 +14,7 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 
-class SettingsEditCategoryDialogFragment() : DialogFragment() {
+class SettingsEditCategoryDialogFragment : DialogFragment() {
     interface SettingsEditCategoryDialogFragmentListener {
         fun onNewDataSaved()
     }
@@ -51,17 +51,18 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCategoryEditDialogBinding.inflate(inflater, container, false)
         return binding.root
 //        return inflater.inflate(R.layout.fragment_category_edit_dialog, container, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("Alex", "OnViewCreated oldCategory is '" + oldCategory + "'")
-        setupClickListeners(view)
+        Log.d("Alex", "OnViewCreated oldCategory is '$oldCategory'")
+        setupClickListeners()
         binding.editCategoryNewName.requestFocus()
         val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
         val arrayAdapter = ArrayAdapter(
@@ -74,8 +75,8 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
             Log.d("Alex", "in blank")
             binding.editCategoryOldNameHeader.visibility = View.GONE
 //            binding.editCategoryOldName.visibility = View.GONE
-            binding.editCategoryOldName.setText("Category:")
-            binding.editSubcategoryOldName.setText("Sub Category: ")
+            binding.editCategoryOldName.text = "Category:"
+            binding.editSubcategoryOldName.text = "Sub Category: "
 //            binding.editSubcategoryOldName.visibility = View.GONE
             binding.editCategoryOldDisctype.visibility = View.GONE
             binding.categoryDialogButtonDelete.visibility = View.GONE
@@ -100,7 +101,7 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
         )
     }
 
-    private fun setupClickListeners(view: View) {
+    private fun setupClickListeners() {
         binding.categoryDialogButtonSave.setOnClickListener {
             Log.d("Alex", "on save " + oldCategory + " " + binding.editCategoryNewName.text.toString())
             val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
@@ -147,12 +148,12 @@ class SettingsEditCategoryDialogFragment() : DialogFragment() {
             AlertDialog.Builder(requireContext())
                 .setTitle("Are you sure?")
                 .setMessage("Are you sure that you want to delete this Cat/Subcat (" + binding.editCategoryOldName.text.toString() + "-" + binding.editSubcategoryOldName.text.toString() + ")?")
-                .setPositiveButton(android.R.string.yes) { _, _ -> yesClicked() }
-                .setNegativeButton(android.R.string.no) { _, _ -> noClicked() }
+                .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()
         }
 
-        binding.categoryDialogButtonCancel.setOnClickListener() {
+        binding.categoryDialogButtonCancel.setOnClickListener {
             dismiss()
         }
     }

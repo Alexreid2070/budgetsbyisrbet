@@ -31,11 +31,7 @@ class DashboardFragment : Fragment() {
     private var currentBoughtForFilter: String = ""
     private var collapsedCategories: MutableList<String> = ArrayList()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    fun startLoadData(iBudgetMonth: BudgetMonth, iRecFlag: String = "", iDiscFlag: String = "", iPaidByFlag: String = "", iBoughtForFlag: String = "") {
+    private fun startLoadData(iBudgetMonth: BudgetMonth, iRecFlag: String = "", iDiscFlag: String = "", iPaidByFlag: String = "", iBoughtForFlag: String = "") {
         val dashboardRows = DashboardRows()
         val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth, iRecFlag, iDiscFlag, iPaidByFlag, iBoughtForFlag)
 
@@ -84,10 +80,10 @@ class DashboardFragment : Fragment() {
         createViewRow("Grand total", i++, "Grand Total", "", "", grandBudgetTotal, grandActualTotal)
         // delta row
         if (grandActualTotal > grandBudgetTotal) {
-            createViewRow("Delta", i++, "Delta", "", "", 0.0, grandActualTotal-grandBudgetTotal)
+            createViewRow("Delta", i, "Delta", "", "", 0.0, grandActualTotal-grandBudgetTotal)
         }
         else {
-            createViewRow("Delta", i++, "Delta", "", "", grandBudgetTotal-grandActualTotal,0.0)
+            createViewRow("Delta", i, "Delta", "", "", grandBudgetTotal-grandActualTotal,0.0)
         }
     }
 
@@ -98,7 +94,7 @@ class DashboardFragment : Fragment() {
         val bottomRowMargin = 0
         val decimalFormat = DecimalFormat("0.00")
         val percentFormat = DecimalFormat("0.00%")
-        var pct: Double
+        val pct: Double
 
         val tv1 = TextView(requireContext())
         tv1.layoutParams = TableRow.LayoutParams(
@@ -112,12 +108,11 @@ class DashboardFragment : Fragment() {
             tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
             tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
-            if (iRowType == "Detail")
-                tv1.setText(iSubcategory)
-            else if (iRowType == "Sub-total")
-                tv1.setText(iCategory + " Total")
-            else
-                tv1.setText(iCategory)
+            when (iRowType) {
+                "Detail" -> tv1.text = iSubcategory
+                "Sub-total" -> tv1.text = "$iCategory Total"
+                else -> tv1.text = iCategory
+            }
             if (tv1.text.length > 15) {
                 tv1.text = tv1.text.substring(0,15) + "..."
             }
@@ -140,7 +135,7 @@ class DashboardFragment : Fragment() {
             tv2.tooltipText = "Indicates whether this budget item is Discretionary (D), or not (ND)."
         } else {
             tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
-            tv2.setText(iDiscFlag)
+            tv2.text = iDiscFlag
         }
         val tv3 = TextView(requireContext())
         if (iRowType == "Header") {
@@ -162,9 +157,9 @@ class DashboardFragment : Fragment() {
         } else {
             tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType == "Delta" && iBudgetAmount == 0.0)
-                tv3.setText("")
+                tv3.text = ""
             else
-                tv3.setText(decimalFormat.format(iBudgetAmount))
+                tv3.text = decimalFormat.format(iBudgetAmount)
         }
         val tv4 = TextView(requireContext())
         if (iRowType == "Header") {
@@ -186,9 +181,9 @@ class DashboardFragment : Fragment() {
         } else {
             tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType == "Delta" && iActualAmount == 0.0)
-                tv4.setText("")
+                tv4.text = ""
             else
-                tv4.setText(decimalFormat.format(iActualAmount))
+                tv4.text = decimalFormat.format(iActualAmount)
         }
         val tv5 = TextView(requireContext())
         if (iRowType == "Header") {
@@ -213,7 +208,7 @@ class DashboardFragment : Fragment() {
                 if (iActualAmount == 0.0 || iBudgetAmount == 0.0) 0.0
                 else iActualAmount / iBudgetAmount
             if (iRowType != "Delta")
-               tv5.setText(percentFormat.format(pct))
+               tv5.text = percentFormat.format(pct)
         }
         // add table row
         val tr = TableRow(requireContext())
@@ -346,30 +341,30 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    fun refreshRows(iCategory: String, iVisibility: Int) {
-        var firstDetailLine: Int = 0
-        var lastDetailLine: Int = 0
+    private fun refreshRows(iCategory: String, iVisibility: Int) {
+        var firstDetailLine: Int
+        var lastDetailLine = 0
         mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
         var tableRow: TableRow?
         do {
             lastDetailLine += 1
             tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
-            val cat = tableRow?.getChildAt(0) as TextView
-            Log.d("Alex", "tag is " + tableRow?.tag + " cat is '" + cat.text.toString() + "' iCategory is " + iCategory + " len " + iCategory.length)
+            val cat = tableRow.getChildAt(0) as TextView
+            Log.d("Alex", "tag is " + tableRow.tag + " cat is '" + cat.text.toString() + "' iCategory is " + iCategory + " len " + iCategory.length)
             val lenToCompare = if (cat.text.toString().length < iCategory.length) cat.text.toString().length else iCategory.length
-        } while (tableRow != null && !(tableRow?.tag == "Sub-total" && cat.text.toString().substring(0,lenToCompare) == iCategory))
+        } while (tableRow != null && !(tableRow.tag == "Sub-total" && cat.text.toString().substring(0,lenToCompare) == iCategory))
         if (tableRow == null) // no detail rows found
             return
         // found sub-total row, now work backwards
         lastDetailLine -= 1
         tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
-        if (tableRow?.tag != "Detail")  // ie no details for this category
+        if (tableRow.tag != "Detail")  // ie no details for this category
             return
         firstDetailLine = lastDetailLine
         do {
             firstDetailLine -= 1
             tableRow = mTableLayout!!.getChildAt(firstDetailLine) as TableRow
-        } while (tableRow != null && tableRow?.tag == "Detail")
+        } while (tableRow != null && tableRow.tag == "Detail")
         firstDetailLine += 1
         // now check if section should be expanded or collapsed
         for (i in firstDetailLine..lastDetailLine) {
@@ -395,25 +390,25 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        getView()?.findViewById<Button>(R.id.button_backward)?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_backward)?.setOnClickListener {
             moveOneMonthBackward()
         }
-        getView()?.findViewById<Button>(R.id.button_forward)?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_forward)?.setOnClickListener {
             moveOneMonthForward()
         }
-        getView()?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
             val dateNow = Calendar.getInstance()
             currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
-        getView()?.findViewById<Button>(R.id.button_by_year)?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
             currentBudgetMonth.month = 0
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
         mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
-        binding.tableDashboardRows.setStretchAllColumns(true);
+        binding.tableDashboardRows.isStretchAllColumns = true
 
         if (currentBudgetMonth.year == 0) {
             val dateNow = Calendar.getInstance()
@@ -429,57 +424,61 @@ class DashboardFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() == R.id.FilterRecurring) {
-                menu.getItem(i).setVisible(true)
-                menu.getItem(i).setChecked(currentRecFilter == "Recurring")
-            } else if (menu.getItem(i).getItemId() == R.id.FilterDiscretionary) {
-                menu.getItem(i).setVisible(true)
-                menu.getItem(i).setChecked(currentDiscFilter == "Discretionary")
-            } else if (menu.getItem(i).getItemId() == R.id.FilterNonDiscretionary) {
-                menu.getItem(i).setVisible(true)
-                menu.getItem(i).setChecked(currentDiscFilter == "Non-Discretionary")
-            } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1 ||
-                menu.getItem(i).getItemId() == R.id.FilterPaidByName2 ||
-                menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
-                menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle ||
-                menu.getItem(i).getItemId() == R.id.FilterBoughtForName1 ||
-                menu.getItem(i).getItemId() == R.id.FilterBoughtForName2) {
+            if (menu.getItem(i).itemId == R.id.FilterRecurring) {
+                menu.getItem(i).isVisible = true
+                menu.getItem(i).isChecked = currentRecFilter == "Recurring"
+            } else if (menu.getItem(i).itemId == R.id.FilterDiscretionary) {
+                menu.getItem(i).isVisible = true
+                menu.getItem(i).isChecked = currentDiscFilter == "Discretionary"
+            } else if (menu.getItem(i).itemId == R.id.FilterNonDiscretionary) {
+                menu.getItem(i).isVisible = true
+                menu.getItem(i).isChecked = currentDiscFilter == "Non-Discretionary"
+            } else if (menu.getItem(i).itemId == R.id.FilterPaidByName1 ||
+                menu.getItem(i).itemId == R.id.FilterPaidByName2 ||
+                menu.getItem(i).itemId == R.id.FilterPaidByTitle ||
+                menu.getItem(i).itemId == R.id.FilterBoughtForTitle ||
+                menu.getItem(i).itemId == R.id.FilterBoughtForName1 ||
+                menu.getItem(i).itemId == R.id.FilterBoughtForName2) {
                 if (!SpenderViewModel.singleUser()) {
-                    if (menu.getItem(i).getItemId() == R.id.FilterPaidByTitle ||
-                        menu.getItem(i).getItemId() == R.id.FilterBoughtForTitle) {
-                        menu.getItem(i).setVisible(true)
-                    } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName1) {
-                        menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(0, true)?.name)
-                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name)
-                    } else if (menu.getItem(i).getItemId() == R.id.FilterPaidByName2) {
-                        menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(1, true)?.name)
-                        menu.getItem(i).setChecked(currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name)
-                    } else if (menu.getItem(i).getItemId() == R.id.FilterBoughtForName1) {
-                        menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(0, true)?.name)
-                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name)
-                    } else if (menu.getItem(i).getItemId() == R.id.FilterBoughtForName2) {
-                        menu.getItem(i).setVisible(true)
-                        menu.getItem(i).setTitle(SpenderViewModel.getSpender(1, true)?.name)
-                        menu.getItem(i).setChecked(currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name)
+                    if (menu.getItem(i).itemId == R.id.FilterPaidByTitle ||
+                        menu.getItem(i).itemId == R.id.FilterBoughtForTitle) {
+                        menu.getItem(i).isVisible = true
+                    } else if (menu.getItem(i).itemId == R.id.FilterPaidByName1) {
+                        menu.getItem(i).isVisible = true
+                        menu.getItem(i).title = SpenderViewModel.getSpender(0, true)?.name
+                        menu.getItem(i).isChecked =
+                            currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name
+                    } else if (menu.getItem(i).itemId == R.id.FilterPaidByName2) {
+                        menu.getItem(i).isVisible = true
+                        menu.getItem(i).title = SpenderViewModel.getSpender(1, true)?.name
+                        menu.getItem(i).isChecked =
+                            currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name
+                    } else if (menu.getItem(i).itemId == R.id.FilterBoughtForName1) {
+                        menu.getItem(i).isVisible = true
+                        menu.getItem(i).title = SpenderViewModel.getSpender(0, true)?.name
+                        menu.getItem(i).isChecked =
+                            currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name
+                    } else if (menu.getItem(i).itemId == R.id.FilterBoughtForName2) {
+                        menu.getItem(i).isVisible = true
+                        menu.getItem(i).title = SpenderViewModel.getSpender(1, true)?.name
+                        menu.getItem(i).isChecked =
+                            currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name
                     }
                 }
-            } else if (menu.getItem(i).getItemId() == R.id.FilterTitle) {
-                menu.getItem(i).setVisible(true)
+            } else if (menu.getItem(i).itemId == R.id.FilterTitle) {
+                menu.getItem(i).isVisible = true
             } else
-                menu.getItem(i).setVisible(false)
+                menu.getItem(i).isVisible = false
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.FilterRecurring) {
             if (currentRecFilter == "Recurring") {
-                item.setChecked(false)
+                item.isChecked = false
                 currentRecFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentRecFilter = "Recurring"
             }
             setActionBarTitle()
@@ -487,10 +486,10 @@ class DashboardFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.FilterDiscretionary) {
             if (currentDiscFilter == "Discretionary") {
-                item.setChecked(false)
+                item.isChecked = false
                 currentDiscFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentDiscFilter = "Discretionary"
             }
             activity?.invalidateOptionsMenu()
@@ -499,10 +498,10 @@ class DashboardFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.FilterNonDiscretionary) {
             if (currentDiscFilter == "Non-Discretionary") {
-                item.setChecked(false)
+                item.isChecked = false
                 currentDiscFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentDiscFilter = "Non-Discretionary"
             }
             activity?.invalidateOptionsMenu()
@@ -511,10 +510,10 @@ class DashboardFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.FilterPaidByName1) {
             if (currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name) {
-                item.setChecked(false)
+                item.isChecked = false
                 currentPaidByFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentPaidByFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
@@ -523,10 +522,10 @@ class DashboardFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.FilterPaidByName2) {
             if (currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name) {
-                item.setChecked(false)
+                item.isChecked = false
                 currentPaidByFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentPaidByFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
@@ -535,10 +534,10 @@ class DashboardFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.FilterBoughtForName1) {
             if (currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name) {
-                item.setChecked(false)
+                item.isChecked = false
                 currentBoughtForFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
@@ -547,10 +546,10 @@ class DashboardFragment : Fragment() {
             return true
         } else if (item.itemId == R.id.FilterBoughtForName2) {
             if (currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name) {
-                item.setChecked(false)
+                item.isChecked = false
                 currentBoughtForFilter = ""
             } else {
-                item.setChecked(true)
+                item.isChecked = true
                 currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
             }
             activity?.invalidateOptionsMenu()
@@ -564,7 +563,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setActionBarTitle() {
-        var currentFilterIndicator: String = ""
+        var currentFilterIndicator = ""
         if (currentRecFilter != "" || currentDiscFilter != "" || currentPaidByFilter != "" || currentBoughtForFilter != "")
             currentFilterIndicator = " FILTERED! "
 
@@ -576,18 +575,18 @@ class DashboardFragment : Fragment() {
                 "Dashboard (" + MonthNames[currentBudgetMonth.month-1] + " " + currentBudgetMonth.year  + currentFilterIndicator + ")"
     }
 
-    fun moveOneMonthBackward() {
+    private fun moveOneMonthBackward() {
         if (currentBudgetMonth.month == 0)
             currentBudgetMonth.year--
         else
             currentBudgetMonth.decrementMonth()
         setActionBarTitle()
-        Log.d("Alex", "In backward, loading " + currentBudgetMonth.toString())
+        Log.d("Alex", "In backward, loading $currentBudgetMonth")
         startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
 
     }
 
-    fun moveOneMonthForward() {
+    private fun moveOneMonthForward() {
         if (currentBudgetMonth.month == 0)
             currentBudgetMonth.year++
         else
@@ -601,7 +600,7 @@ class DashboardFragment : Fragment() {
         _binding = null
     }
 
-    fun isInvisible(iCat: String): Boolean {
+    private fun isInvisible(iCat: String): Boolean {
         collapsedCategories.forEach {
             val len = if (it.length > iCat.length) iCat.length else it.length
             if (it.substring(0, len) == iCat.substring(0, len))
@@ -622,10 +621,10 @@ class DashboardData {
 
 class DashboardRows {
     fun getRows(iBudgetMonth: BudgetMonth, iRecFlag: String = "", iDiscFlag: String = "", iPaidByFlag: String = "", iBoughtForFlag: String = ""): MutableList<DashboardData> {
-        val data: MutableList<DashboardData> = mutableListOf<DashboardData>()
-        var expenditures = ExpenditureViewModel.getExpenditures()
-        var startDate: String
-        var endDate: String
+        val data: MutableList<DashboardData> = mutableListOf()
+        val expenditures = ExpenditureViewModel.getExpenditures()
+        val startDate: String
+        val endDate: String
         if (iBudgetMonth.month == 0) {
             startDate = iBudgetMonth.year.toString() + "-00-00"
             endDate = iBudgetMonth.year.toString() + "-99-99"
@@ -638,7 +637,9 @@ class DashboardRows {
                 endDate = iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
             }
         }
-        Log.d("Alex", "start date is " + startDate + " and end date is " + endDate + " iDiscFlag is '" + iDiscFlag + "' and iPaidByFlag is " + iPaidByFlag + "' and iBoughtForFlag is " + iBoughtForFlag)
+        Log.d("Alex",
+            "start date is $startDate and end date is $endDate iDiscFlag is '$iDiscFlag' and iPaidByFlag is $iPaidByFlag' and iBoughtForFlag is $iBoughtForFlag"
+        )
 
         loop@ for (expenditure in expenditures) {
             if (expenditure.date > startDate && expenditure.date < endDate) {
@@ -691,8 +692,8 @@ class DashboardRows {
             }
         }
         // need to get budget categories for which there are budgets but no actuals; but, skip annual budgets
-        var tBudgetCategories = BudgetViewModel.getBudgetCategories(iBudgetMonth, iDiscFlag)
-        for (i in 0..tBudgetCategories.size - 1) {
+        val  tBudgetCategories = BudgetViewModel.getBudgetCategories(iBudgetMonth, iDiscFlag)
+        for (i in 0 until tBudgetCategories.size) {
             val dash = tBudgetCategories[i].indexOf("-")
             val dRow: DashboardData? = data.find {
                 it.category == tBudgetCategories[i].substring(0, dash) &&
