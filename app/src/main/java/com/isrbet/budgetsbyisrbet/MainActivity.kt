@@ -165,13 +165,19 @@ class MainActivity : AppCompatActivity() {
             val mDrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             signInButton.visibility = View.VISIBLE
-            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
+//            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
             signInButton.setSize(SignInButton.SIZE_WIDE)
-            findViewById<TextView>(R.id.homeScreenMessage).text = "You must sign in using your Google account to proceed.  Click below to continue."
+//            findViewById<TextView>(R.id.homeScreenMessage).text = "You must sign in using your Google account to proceed.  Click below to continue."
+            // NEED TO CALL Home Fragment to make adjustments
         } else {
             signInButton.visibility = View.GONE
-            findViewById<TextView>(R.id.quote_field).visibility = View.VISIBLE
-            findViewById<TextView>(R.id.homeScreenMessage).text = ""
+            // NEED TO CALL Home Fragment to make adjustments
+/*            var quoteField = findViewById<TextView>(R.id.quote_field)
+            if (quoteField != null)
+                quoteField.visibility = View.VISIBLE
+            var homeScreenMessage = findViewById<TextView>(R.id.homeScreenMessage)
+            if (homeScreenMessage != null)
+                homeScreenMessage.text = "" */
         }
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         if (account?.email != "alexreid2070@gmail.com") {
@@ -212,19 +218,13 @@ class MainActivity : AppCompatActivity() {
         if (account == null) {
             signInButton.visibility = View.VISIBLE
             signInButton.setSize(SignInButton.SIZE_WIDE)
-            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
-        /*            findViewById<Button>(R.id.expenditure_button).visibility = View.GONE
-            findViewById<Button>(R.id.view_all_button).visibility = View.GONE
-            findViewById<Button>(R.id.dashboard_button).visibility = View.GONE
-            */
+            // NEED TO CALL Home Fragment to make adjustments
+//            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
         }
         else {
             signInButton.visibility = View.GONE
-            findViewById<TextView>(R.id.quote_field).visibility = View.VISIBLE
-/*            findViewById<Button>(R.id.expenditure_button).visibility = View.VISIBLE
-            findViewById<Button>(R.id.view_all_button).visibility = View.VISIBLE
-            findViewById<Button>(R.id.dashboard_button).visibility = View.VISIBLE
-            findViewById<TextView>(R.id.quote_field).visibility = View.VISIBLE */
+            // NEED TO CALL Home Fragment to make adjustments
+//            findViewById<TextView>(R.id.quote_field).visibility = View.VISIBLE
             if (account?.email == "alexreid2070@gmail.com")
                 MyApplication.adminMode = true
             invalidateOptionsMenu()
@@ -274,11 +274,11 @@ class MainActivity : AppCompatActivity() {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             findViewById<SignInButton>(R.id.sign_in_button).visibility = View.VISIBLE
             findViewById<SignInButton>(R.id.sign_in_button).setSize(SignInButton.SIZE_WIDE)
-            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
+//            findViewById<TextView>(R.id.quote_field).visibility = View.GONE
             findViewById<TextView>(R.id.expenditure_button).visibility = View.GONE
             findViewById<TextView>(R.id.view_all_button).visibility = View.GONE
             findViewById<TextView>(R.id.dashboard_button).visibility = View.GONE
-            findViewById<TextView>(R.id.homeScreenMessage).text = "You must sign in using your Google account to proceed.  Click below to continue."
+//            findViewById<TextView>(R.id.homeScreenMessage).text = "You must sign in using your Google account to proceed.  Click below to continue."
             return true
         } else {
             val navController = findNavController(R.id.nav_host_fragment_content_main)

@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.R.attr
 import android.app.Application
 import android.content.Context
 import android.icu.util.Calendar
@@ -21,6 +22,10 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.color.MaterialColors
 import kotlin.math.round
 import kotlin.random.Random
+import android.R.attr.y
+
+
+
 
 const val RC_SIGN_IN = 7
 const val cDiscTypeDiscretionary = "Discretionary"
@@ -67,7 +72,8 @@ class MyApplication : Application() {
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
-                val randomIndex = Random.nextInt(inspirationalQuotes.size);
+                var randomIndex = Random.nextInt() % inspirationalQuotes.size
+                randomIndex = if (randomIndex < 0) randomIndex + inspirationalQuotes.size else randomIndex
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
             }

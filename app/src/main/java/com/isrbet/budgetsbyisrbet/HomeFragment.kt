@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
@@ -30,6 +31,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -107,6 +109,8 @@ class HomeFragment : Fragment() {
             if (mDrawerLayout != null) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
+            binding.quoteField.visibility = View.VISIBLE
+            binding.homeScreenMessage.text = ""
         } else {
             Log.d("Alex", "false")
             binding.expenditureButton.visibility = View.GONE
@@ -114,6 +118,9 @@ class HomeFragment : Fragment() {
             binding.dashboardButton.visibility = View.GONE
             val mDrawerLayout = view?.findViewById<DrawerLayout>(R.id.drawer_layout)
             mDrawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            binding.quoteField.visibility = View.GONE
+            binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
+
         }
     }
 
