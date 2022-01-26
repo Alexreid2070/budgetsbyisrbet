@@ -159,7 +159,7 @@ class ExpenditureViewModel : ViewModel() {
                     .removeEventListener(singleInstance.expListener!!)
                 singleInstance.expListener = null
             }
-            singleInstance.dataUpdatedCallback = null
+//            singleInstance.dataUpdatedCallback = null
             singleInstance.expenditures.clear()
         }
 
@@ -181,6 +181,36 @@ class ExpenditureViewModel : ViewModel() {
             Log.d("Alex", "ind is " + ind + " and next is " + (ind+1))
             return singleInstance.expenditures[ind+1].mykey
         }
+
+        fun deleteTransaction(iTransactionID: String) {
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID).removeValue()
+            val expe =
+                getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
+            val ind = singleInstance.expenditures.indexOf(expe)
+            singleInstance.expenditures.removeAt(ind)
+        }
+
+        fun getExpenditure(iTransactionID: String): Expenditure? {
+            return singleInstance.expenditures.find { it.mykey == iTransactionID }
+        }
+
+        fun updateTransaction(iTransactionID: String, iExpenditure: ExpenditureOut) {
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID)
+                .setValue(iExpenditure)
+            val expe =
+                getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
+            if (expe != null) {
+                expe.date = iExpenditure.date
+                expe.note = iExpenditure.note
+                expe.subcategory = iExpenditure.subcategory
+                expe.category = iExpenditure.category
+                expe.amount = iExpenditure.amount
+                expe.paidby = iExpenditure.paidby
+                expe.boughtfor = iExpenditure.boughtfor
+                expe.bfname1split = iExpenditure.bfname1split
+                expe.bfname2split = iExpenditure.bfname2split
+            }
+        }
     }
 
     init {
@@ -197,18 +227,14 @@ class ExpenditureViewModel : ViewModel() {
         }
     }
 
-    fun getExpenditure(iTransactionID: String): Expenditure? {
-        return expenditures.find { it.mykey == iTransactionID }
-    }
-
     fun setCallback(iCallback: ExpenditureDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun loadExpenditures() {
         // Do an asynchronous operation to fetch expenditures
-        Log.d("Alex", "in loadExpenditures for expenditures")
+        Log.d("Alex", "in loadExpenditures for expenditures " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
         expListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -232,32 +258,6 @@ class ExpenditureViewModel : ViewModel() {
 
     fun getCount(): Int {
         return expenditures.size
-    }
-
-    fun updateTransaction(iTransactionID: String, iExpenditure: ExpenditureOut) {
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID)
-            .setValue(iExpenditure)
-        val expe =
-            getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
-        if (expe != null) {
-            expe.date = iExpenditure.date
-            expe.note = iExpenditure.note
-            expe.subcategory = iExpenditure.subcategory
-            expe.category = iExpenditure.category
-            expe.amount = iExpenditure.amount
-            expe.paidby = iExpenditure.paidby
-            expe.boughtfor = iExpenditure.boughtfor
-            expe.bfname1split = iExpenditure.bfname1split
-            expe.bfname2split = iExpenditure.bfname2split
-        }
-    }
-
-    fun deleteTransaction(iTransactionID: String) {
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID).removeValue()
-        val expe =
-            getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
-        val ind = expenditures.indexOf(expe)
-        expenditures.removeAt(ind)
     }
 }
 

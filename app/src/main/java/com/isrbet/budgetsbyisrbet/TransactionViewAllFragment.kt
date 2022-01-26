@@ -26,7 +26,8 @@ class TransactionViewAllFragment : Fragment() {
                 isEnabled = false  // without this line there will be a recursive call to OnBackPressed
                 activity?.onBackPressed()
             }
-        })    }
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +59,6 @@ class TransactionViewAllFragment : Fragment() {
             }
         })
 
-//        val eModel = (activity as MainActivity).getMyExpenditureModel()
         super.onViewCreated(itemView, savedInstanceState)
         //binding.recycler_view.apply {
         val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
@@ -153,7 +153,6 @@ class TransactionViewAllFragment : Fragment() {
             }
         })
 
-        Log.d("Alex", "transactionSearchText is " + transactionSearchText)
         if (transactionSearchText == "")
             binding.transactionSearch.visibility = View.GONE
         else {
@@ -227,7 +226,6 @@ class TransactionViewAllFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         hideKeyboard(requireContext(), requireView())
-        Log.d("Alex", "Leaving Transaction View")
         _binding = null
     }
 

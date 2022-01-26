@@ -66,7 +66,7 @@ class AdminFragment : Fragment() {
         ExpenditureViewModel.refresh()
         CategoryViewModel.refresh()
         SpenderViewModel.refresh()
-        BudgetViewModel.refresh(requireActivity())
+        BudgetViewModel.refresh()
         RecurringTransactionViewModel.refresh()
         activity?.onBackPressed()
     }

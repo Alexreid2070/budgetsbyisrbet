@@ -2,40 +2,123 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import com.google.android.material.navigation.NavigationView
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.SignInButton
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
-import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    private lateinit var auth: FirebaseAuth
+    private val defaultsModel: DefaultsViewModel by viewModels()
+    private val expenditureModel: ExpenditureViewModel by viewModels()
+    private val categoryModel: CategoryViewModel by viewModels()
+    private val spenderModel: SpenderViewModel by viewModels()
+    private val budgetModel: BudgetViewModel by viewModels()
+    private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
+    private val userModel: UserViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
+        spenderModel.clearCallback() // ditto, see above
+        userModel.clearCallback() // ditto, see above
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
-        inflater.inflate(R.layout.fragment_home, container, false)
+        // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
+//        inflater.inflate(R.layout.fragment_home, container, false)
+
+        val mainActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+            if(result.resultCode == Activity.RESULT_OK){
+                val data = result.data
+                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+                try {
+                    // Google Sign In was successful, authenticate with Firebase
+                    val account = task.getResult(ApiException::class.java)!!
+                    Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
+                    MyApplication.userGivenName = account.givenName.toString()
+                    firebaseAuthWithGoogle(account.idToken!!)
+                } catch (e: ApiException) {
+                    // Google Sign In failed, update UI appropriately
+                    Log.w("Alex", "Google sign in failed", e)
+                }
+            } else
+                Log.d("Alex", "in registerforactivityresult, result was not OK")
+        }
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
+        binding.signInButton.setOnClickListener {
+            onSignIn(mainActivityResultLauncher)
+        }
+        auth = Firebase.auth
+
+        // These 2 lines open up the notification settings app so that the user can give access to notifications permissions
+        // to this app
+//        var intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+//        startActivity(intent);
+        //     MyApplication.myCustomNotificationListenerService = CustomNotificationListenerService()
+
+        // This next line checks if the app has permission to look at notifications
+        if (Settings.Secure.getString((activity as MainActivity).contentResolver,"enabled_notification_listeners").contains(
+                (activity as MainActivity).applicationContext.packageName
+            )) {
+            // yes, it has permission
+//            Toast.makeText(this, "App has permission to look at notifications", Toast.LENGTH_SHORT).show()
+        }
+        else {
+            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            startActivity(intent)
+            if (Settings.Secure.getString((activity as MainActivity).contentResolver,"enabled_notification_listeners").contains(
+                    (activity as MainActivity).applicationContext.packageName
+                )) {
+                Log.d("Alex", "After asking, it's true")
+            } else
+                Log.d("Alex", "After asking, it's false")
+        }
         return binding.root
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.quoteField.text = MyApplication.getQuote()
 
         view.findViewById<Button>(R.id.expenditure_button)
             ?.setOnClickListener { iview: View ->
@@ -79,21 +162,110 @@ class HomeFragment : Fragment() {
             }
         })
 
-        alignExpenditureMenuWithDataState()
+//        alignExpenditureMenuWithDataState()
 
         CategoryViewModel.singleInstance.setCallback(object: CategoryDataUpdatedCallback {
             override fun onDataUpdate() {
+                Log.d("Alex", "in Category onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
             }
         })
         SpenderViewModel.singleInstance.setCallback(object: SpenderDataUpdatedCallback {
             override fun onDataUpdate() {
+                Log.d("Alex", "in Spender onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
                 if (SpenderViewModel.singleUser()) {
                     (activity as MainActivity).singleUserMode()
                 }
             }
         })
+
+        // Check for existing Google Sign In account, if the user is already signed in
+        // the GoogleSignInAccount will be non-null.
+        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
+        if (account?.email == null) {
+            // turn off all menu/buttons
+//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            (activity as MainActivity).setLoggedOutMode(true)
+            binding.signInButton.visibility = View.VISIBLE
+            binding.quoteField.text = ""
+            binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
+            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
+//            findViewById<TextView>(R.id.homeScreenMessage).text = "You must sign in using your Google account to proceed.  Click below to continue."
+            // NEED TO CALL Home Fragment to make adjustments
+        } else {
+            binding.signInButton.visibility = View.GONE
+            binding.homeScreenMessage.text = ""
+            binding.quoteField.text = MyApplication.getQuote()
+            // NEED TO CALL Home Fragment to make adjustments
+/*            var quoteField = findViewById<TextView>(R.id.quote_field)
+            if (quoteField != null)
+                quoteField.visibility = View.VISIBLE
+            var homeScreenMessage = findViewById<TextView>(R.id.homeScreenMessage)
+            if (homeScreenMessage != null)
+                homeScreenMessage.text = "" */
+        }
+        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
+        (activity as MainActivity).setAdminMode(account?.email == "alexreid2070@gmail.com")
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = auth.currentUser
+        signIn(currentUser)
+    }
+
+    private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
+        Log.d("Alex", "onSignIn")
+        binding.homeScreenMessage.text = ""
+        val signInIntent: Intent = mGoogleSignInClient.signInIntent
+        mainActivityResultLauncher.launch(signInIntent)
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    val user = auth.currentUser
+                    Log.d("Alex", "signInWithCredential:success.  User is " + user.toString())
+                    // this code is only hit when a user signs in successfully.
+                    signIn(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w("Alex", "signInWithCredential:failure", task.exception)
+                    signIn(null)
+                }
+            }
+    }
+
+    private fun signIn(account: FirebaseUser?) {
+        Log.d("Alex", "in signIn, account is " + account?.email)
+        MyApplication.userEmail = account?.email.toString()
+        MyApplication.userUID = account?.uid.toString()
+        MyApplication.currentUserEmail = account?.email.toString()
+        if (account == null) {
+            binding.signInButton.visibility = View.VISIBLE
+            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
+            binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
+        }
+        else {
+            binding.signInButton.visibility = View.GONE
+            binding.homeScreenMessage.text = ""
+            binding.quoteField.text = MyApplication.getQuote()
+            if (account?.email == "alexreid2070@gmail.com")
+                (activity as MainActivity).setAdminMode(true)
+            requireActivity().invalidateOptionsMenu()
+            Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
+            if (!MyApplication.haveLoadedDataForThisUser) {
+                defaultsModel.loadDefaults()
+                expenditureModel.loadExpenditures()
+                categoryModel.loadCategories()
+                spenderModel.loadSpenders()
+                budgetModel.loadBudgets()
+                recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
+                MyApplication.haveLoadedDataForThisUser = true
+            }
+        }
+        alignExpenditureMenuWithDataState()
     }
 
     private fun alignExpenditureMenuWithDataState() {
@@ -101,26 +273,62 @@ class HomeFragment : Fragment() {
             binding.homeScreenMessage.text = ""
 
         if (MyApplication.userUID != "" && CategoryViewModel.getCount() > 0 && SpenderViewModel.getActiveCount() > 0) {
-            Log.d("Alex", "true")
+            Log.d("Alex", "alignExpenditureMenu true")
             binding.expenditureButton.visibility = View.VISIBLE
             binding.viewAllButton.visibility = View.VISIBLE
             binding.dashboardButton.visibility = View.VISIBLE
-            val mDrawerLayout = view?.findViewById<DrawerLayout>(R.id.drawer_layout)
-            if (mDrawerLayout != null) {
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            }
+//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            (activity as MainActivity).setLoggedOutMode(false)
             binding.quoteField.visibility = View.VISIBLE
+            binding.quoteField.text = MyApplication.getQuote()
             binding.homeScreenMessage.text = ""
         } else {
-            Log.d("Alex", "false")
+            Log.d("Alex", "alignExpenditureMenu false")
             binding.expenditureButton.visibility = View.GONE
             binding.viewAllButton.visibility = View.GONE
             binding.dashboardButton.visibility = View.GONE
-            val mDrawerLayout = view?.findViewById<DrawerLayout>(R.id.drawer_layout)
-            mDrawerLayout?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            binding.quoteField.visibility = View.GONE
-            binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
+//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            (activity as MainActivity).setLoggedOutMode(true)
+        }
+    }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        for (i in 0 until menu.size()) {
+            if (menu.getItem(i).itemId == R.id.SignOut) {
+                menu.getItem(i).isVisible = true
+                menu.getItem(i).title = "Sign Out (" + MyApplication.userEmail + ")"
+            } else
+                menu.getItem(i).isVisible = false
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.SignOut) {
+            Log.d("Alex", "sign out attempted")
+            BudgetViewModel.clear()
+            CategoryViewModel.clear()
+            DefaultsViewModel.clear()
+            ExpenditureViewModel.clear()
+            RecurringTransactionViewModel.clear()
+            SpenderViewModel.clear()
+            Firebase.auth.signOut()
+            mGoogleSignInClient.signOut()
+            MyApplication.userUID = ""
+            requireActivity().invalidateOptionsMenu()
+//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            (activity as MainActivity).setLoggedOutMode(true)
+            binding.signInButton.visibility = View.VISIBLE
+            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
+            binding.quoteField.text = ""
+            binding.expenditureButton.visibility = View.GONE
+            binding.viewAllButton.visibility = View.GONE
+            binding.dashboardButton.visibility = View.GONE
+            MyApplication.haveLoadedDataForThisUser = false
+            return true
+        } else {
+            val navController = findNavController()
+            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
     }
 

@@ -21,8 +21,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     private var groupList: MutableList<Int> = mutableListOf<Int>()
 
     init {
-        Log.d("Alex", "transactionSearchTExt init is " + MyApplication.transactionSearchText)
-        Log.d("Alex", "calling filterTheList from init")
         filterTheList(MyApplication.transactionSearchText)
     }
     override fun getItemCount(): Int {
@@ -54,8 +52,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     fun filterTheList(iConstraint: String) {
         if (iConstraint.isEmpty()) {
             filteredList = list
-            Log.d("Alex", "filteredList changed 2, new size " + filteredList.size)
-            Log.d("Alex", "transactionSearchTExt2 is " + MyApplication.transactionSearchText)
         } else {
             val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
             val splitSearchTerms: List<String> = iConstraint.split(" ")

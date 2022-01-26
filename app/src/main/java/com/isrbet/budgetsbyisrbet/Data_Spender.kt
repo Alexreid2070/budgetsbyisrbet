@@ -81,7 +81,6 @@ class SpenderViewModel : ViewModel() {
         }
 
         fun singleUser(): Boolean {
-            Log.d("Alex", "in singleUser() active count is " + getActiveCount())
             return getActiveCount() == 1
         }
 
@@ -106,7 +105,7 @@ class SpenderViewModel : ViewModel() {
                     .removeEventListener(singleInstance.spenderListener!!)
                 singleInstance.spenderListener = null
             }
-            singleInstance.dataUpdatedCallback = null
+//            singleInstance.dataUpdatedCallback = null
             singleInstance.spenders.clear()
         }
     }
@@ -126,7 +125,7 @@ class SpenderViewModel : ViewModel() {
 
     fun setCallback(iCallback: SpenderDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun clearCallback() {

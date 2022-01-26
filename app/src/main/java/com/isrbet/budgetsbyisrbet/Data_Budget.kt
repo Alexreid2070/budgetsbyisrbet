@@ -426,8 +426,8 @@ class BudgetViewModel : ViewModel() {
             return tMonth
         }
 
-        fun refresh(iActivity: Activity) {
-            singleInstance.loadBudgets(iActivity)
+        fun refresh() {
+            singleInstance.loadBudgets()
         }
 
         fun clear() {
@@ -436,7 +436,7 @@ class BudgetViewModel : ViewModel() {
                     .removeEventListener(singleInstance.budgetListener!!)
                 singleInstance.budgetListener = null
             }
-            singleInstance.dataUpdatedCallback = null
+//            singleInstance.dataUpdatedCallback = null
             singleInstance.budgets.clear()
         }
     }
@@ -456,10 +456,10 @@ class BudgetViewModel : ViewModel() {
 
     fun setCallback(iCallback: NewBudgetDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
-    fun loadBudgets(activity: Activity) {
+    fun loadBudgets() {
         // Do an asynchronous operation to fetch budgets
         budgetListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -508,7 +508,6 @@ class BudgetViewModel : ViewModel() {
                                     tBudgetOut.occurence
                                 )
                             } catch (exception: Exception) {
-                                Toast.makeText(activity, "Budget deleted", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

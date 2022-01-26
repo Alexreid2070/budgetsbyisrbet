@@ -272,7 +272,7 @@ class TransferFragment : Fragment() {
 
     private fun deleteTransfer(iTransactionID: String) {
         fun yesClicked() {
-            (activity as MainActivity).getMyExpenditureModel().deleteTransaction(iTransactionID)
+            ExpenditureViewModel.deleteTransaction(iTransactionID)
             Toast.makeText(activity, "Transfer deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -289,7 +289,7 @@ class TransferFragment : Fragment() {
     }
 
     private fun viewTransfer(iTransactionID: String) {
-        val thisTransaction = (activity as MainActivity).getMyExpenditureModel().getExpenditure(iTransactionID)
+        val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
         if (thisTransaction != null) {  //
             editingKey = iTransactionID
 
@@ -414,7 +414,7 @@ class TransferFragment : Fragment() {
                 toRadioButton.text.toString(), bfName1Split, bfName2Split,"T"
             )
 
-            (activity as MainActivity).getMyExpenditureModel().updateTransaction(editingKey, expenditure)
+            ExpenditureViewModel.updateTransaction(editingKey, expenditure)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transfer updated", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()

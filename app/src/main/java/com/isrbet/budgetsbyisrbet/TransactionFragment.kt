@@ -298,67 +298,46 @@ class TransactionFragment : Fragment() {
         tomorrow.add(Calendar.DAY_OF_YEAR, 1);
         val daysInMonth = getDaysInMonth(dateNow)
 
-        val dbPastTitle: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_past_title)
-        dbPastTitle.text = "To " + giveMeMyDateFormat(dateNow)
+        binding.dashboardSummaryPastTitle.text = "To " + giveMeMyDateFormat(dateNow)
+        binding.dashboardSummaryRemTitle.text = "Rest of month"
 
-        val dbRemTitle: TextView = requireActivity().findViewById(R.id.dashboard_summary_rem_title)
-        dbRemTitle.text = "Rest of month"
-//            (dateNow.get(Calendar.MONTH) + 1).toString() + " " + tomorrow.get(Calendar.DATE) + "-" + daysInMonth
-
-        val tvTotalBudgetToDate: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_total_budget_to_date)
         val totalDiscBudgetToDate =
             BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow) * dateNow.get(Calendar.DATE) / daysInMonth
-        tvTotalBudgetToDate.text = format("%.2f", totalDiscBudgetToDate)
-        val tvDailyBudgetToDate: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_daily_budget_to_date)
+        binding.dashboardSummaryTotalBudgetToDate.text = format("%.2f", totalDiscBudgetToDate)
         val dailyDiscBudgetToDate =
             round((totalDiscBudgetToDate / dateNow.get(android.icu.util.Calendar.DATE)) * 100) / 100
-        tvDailyBudgetToDate.text = format("%.2f", dailyDiscBudgetToDate)
+        binding.dashboardSummaryDailyBudgetToDate.text = format("%.2f", dailyDiscBudgetToDate)
 
-        val tvTotalActualsToDate: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_total_actuals_to_date)
         val totalDiscActualsToDate =
             ExpenditureViewModel.getTotalDiscretionaryActualsToDate(dateNow)
-        tvTotalActualsToDate.text = format("%.2f", totalDiscActualsToDate)
-        val tvDailyActualsToDate: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_daily_actuals_to_date)
+        binding.dashboardSummaryTotalActualsToDate.text = format("%.2f", totalDiscActualsToDate)
         val dailyDiscActualsToDate =
             round((totalDiscActualsToDate / dateNow.get(android.icu.util.Calendar.DATE)) * 100) / 100
-        tvDailyActualsToDate.text = format("%.2f", dailyDiscActualsToDate)
+        binding.dashboardSummaryDailyActualsToDate.text = format("%.2f", dailyDiscActualsToDate)
 
-        val tvTotalDeltaToDate: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_total_delta_to_date)
-        tvTotalDeltaToDate.text = format("%.2f", (totalDiscBudgetToDate - totalDiscActualsToDate))
-        val tvDailyDeltaToDate: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_daily_delta_to_date)
+        binding.dashboardSummaryTotalDeltaToDate.text = format("%.2f", (totalDiscBudgetToDate - totalDiscActualsToDate))
         val dailyDeltaToDate =
             round((totalDiscBudgetToDate - totalDiscActualsToDate) / dateNow.get(android.icu.util.Calendar.DATE) * 100) / 100
-        tvDailyDeltaToDate.text = format("%.2f", dailyDeltaToDate)
+        binding.dashboardSummaryDailyDeltaToDate.text = format("%.2f", dailyDeltaToDate)
 
 
         val totalBudgetRem =
             ((BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow) - totalDiscActualsToDate))
-        val tvTotalBudgetRem: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_total_budget_rem)
-        val tvDailyBudgetRem: TextView =
-            requireActivity().findViewById(R.id.dashboard_summary_daily_budget_rem)
-        tvTotalBudgetRem.text = format("%.2f", totalBudgetRem)
+        binding.dashboardSummaryTotalBudgetRem.text = format("%.2f", totalBudgetRem)
         if (totalBudgetRem > 0) {
             val dailyBudgetRem =
                 round((totalBudgetRem / (daysInMonth - dateNow.get(android.icu.util.Calendar.DATE))) * 100) / 100
-            tvDailyBudgetRem.text = format("%.2f", dailyBudgetRem)
+            binding.dashboardSummaryDailyBudgetRem.text = format("%.2f", dailyBudgetRem)
         } else {
-            tvDailyBudgetRem.text = "0.00"
-            tvDailyBudgetRem.setTextColor(Color.RED);
+            binding.dashboardSummaryDailyBudgetRem.text = "0.00"
+            binding.dashboardSummaryDailyBudgetRem.setTextColor(Color.RED);
         }
 
         val color = getBudgetColour(requireContext(), totalDiscActualsToDate, totalDiscBudgetToDate)
-        tvTotalDeltaToDate.setBackgroundColor(color)
-        tvDailyDeltaToDate.setBackgroundColor(color)
-        tvTotalBudgetRem.setBackgroundColor(color)
-        tvDailyBudgetRem.setBackgroundColor(color)
+        binding.dashboardSummaryTotalDeltaToDate.setBackgroundColor(color)
+        binding.dashboardSummaryDailyDeltaToDate.setBackgroundColor(color)
+        binding.dashboardSummaryTotalBudgetRem.setBackgroundColor(color)
+        binding.dashboardSummaryDailyBudgetRem.setBackgroundColor(color)
     }
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
@@ -433,7 +412,7 @@ class TransactionFragment : Fragment() {
 
     private fun deleteTransaction(iTransactionID: String) {
         fun yesClicked() {
-            (activity as MainActivity).getMyExpenditureModel().deleteTransaction(iTransactionID)
+            ExpenditureViewModel.deleteTransaction(iTransactionID)
             Toast.makeText(activity, "Transaction deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -450,7 +429,7 @@ class TransactionFragment : Fragment() {
     }
 
     private fun viewTransaction(iTransactionID: String) {
-        val thisTransaction = (activity as MainActivity).getMyExpenditureModel().getExpenditure(iTransactionID)
+        val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
         if (thisTransaction != null) {  //
             editingKey = iTransactionID
 
@@ -680,7 +659,7 @@ class TransactionFragment : Fragment() {
                 radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split
             )
 
-            (activity as MainActivity).getMyExpenditureModel().updateTransaction(editingKey, expenditure)
+           ExpenditureViewModel.updateTransaction(editingKey, expenditure)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transaction updated", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()

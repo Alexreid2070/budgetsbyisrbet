@@ -123,13 +123,12 @@ class CategoryViewModel : ViewModel() {
                     .removeEventListener(singleInstance.catListener!!)
                 singleInstance.catListener = null
             }
-            singleInstance.dataUpdatedCallback = null
+//            singleInstance.dataUpdatedCallback = null
             singleInstance.categories.clear()
         }
     }
     init {
         singleInstance = this
-        Log.d("Alex", "assigning singleInstance Category")
     }
 
     override fun onCleared() {
@@ -143,7 +142,7 @@ class CategoryViewModel : ViewModel() {
 
     fun setCallback(iCallback: CategoryDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun clearCallback() {
@@ -152,7 +151,7 @@ class CategoryViewModel : ViewModel() {
 
     fun loadCategories() {
         // Do an asynchronous operation to fetch categories and subcategories
-        Log.d("Alex", "in loadCategories for categories")
+        Log.d("Alex", "in loadCategories for categories " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
         catListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {

@@ -69,6 +69,7 @@ class MyApplication : Application() {
         var currentUserEmail: String = ""
         var mediaPlayer: MediaPlayer? = null
         var adminMode: Boolean = false
+        var haveLoadedDataForThisUser = false
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
@@ -563,7 +564,6 @@ fun getColorInHex(iColor: Int, iOpacity: String): String {
     "It's not how much money you make, but how much money you keep, how hard it works for you, and how many generations you keep it for. --Robert Kiyosaki",
     "I have not failed. I’ve just found 10,000 ways that won’t work. --Thomas A. Edison",
     "If you don’t value your time, neither will others. Stop giving away your time and talents. Value what you know & start charging for it. --Kim Garst",
-    "Here’s to the crazy ones. The misfits. The rebels. The troublemakers. The round pegs in the square holes. The ones who see things differently. They’re not fond of rules. And they have no respect for the status quo. You can quote them, disagree with them, glorify or vilify them. About the only thing you can’t do is ignore them. Because they change things. They push the human race forward. And while some may see them as the crazy ones, we see genius. Because the people who are crazy enough to think they can change the world, are the ones who do. --Steve Jobs",
     "The habit of saving is itself an education; it fosters every virtue, teaches self-denial, cultivates the sense of order, trains to forethought, and so broadens the mind. --T.T. Munger",
     "Don't tell me what you value, show me your budget, and I'll tell you what you value.” --Joe Biden",
     "If you live for having it all, what you have is never enough. --Vicki Robin",

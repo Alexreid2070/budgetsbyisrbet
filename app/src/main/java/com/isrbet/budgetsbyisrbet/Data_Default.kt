@@ -58,7 +58,7 @@ class DefaultsViewModel : ViewModel() {
                     .removeEventListener(singleInstance.defaultsListener!!)
                 singleInstance.defaultsListener = null
             }
-            singleInstance.dataUpdatedCallback = null
+//            singleInstance.dataUpdatedCallback = null
         }
     }
 
@@ -77,7 +77,7 @@ class DefaultsViewModel : ViewModel() {
 
     fun setCallback(iCallback: DefaultsDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun setLocal(whichOne: String, iValue: String) {

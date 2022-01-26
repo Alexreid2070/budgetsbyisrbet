@@ -31,6 +31,11 @@
                     android:textAlignment="center"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp" />
+                <com.google.android.gms.common.SignInButton
+                    android:id="@+id/sign_in_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
                 <TextView
                     android:id="@+id/quote_field"
                     android:layout_width="match_parent"
