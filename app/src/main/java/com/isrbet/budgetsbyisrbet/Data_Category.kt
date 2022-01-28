@@ -34,6 +34,16 @@ class CategoryViewModel : ViewModel() {
             return cat?.discType ?: ""
         }
 
+        fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
+            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+            if (cat == null) {
+                addCategoryAndSubcategory(iCategory, iSubcategory, iDisctype)
+            } else {
+                cat.discType = iDisctype
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+            }
+        }
+
         fun deleteCategoryAndSubcategory(iCategory: String, iSubcategory: String) {
             // this block below ensures that the viewAll view is updated immediately
             val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
@@ -46,6 +56,7 @@ class CategoryViewModel : ViewModel() {
             // I need to add the new cat to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             val cat = Category(iCategory, iSubcategory, iDisctype)
             singleInstance.categories.add(cat)
+            singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
 
@@ -59,7 +70,12 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getCategoriesIncludingOff(): MutableList<Category> {
-            return singleInstance.categories
+            var tList: MutableList<Category>  = ArrayList()
+
+            singleInstance.categories.forEach {
+                tList.add(Category(it.categoryName, it.subcategoryName, it.discType))
+            }
+            return tList
         }
 
         fun getCategoryNames(): MutableList<String> {
@@ -107,13 +123,6 @@ class CategoryViewModel : ViewModel() {
             }
         }
 
-        fun deleteCategory(iCategory: String, iSubcategory: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
-        }
-
-        fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
-        }
         fun refresh() {
             singleInstance.loadCategories()
         }

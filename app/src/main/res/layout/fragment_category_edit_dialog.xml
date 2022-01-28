@@ -25,6 +25,7 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/new_name_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -36,33 +37,90 @@
 
     <LinearLayout
         android:id="@+id/category_dialog_linear_layout2"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout1"
         android:paddingBottom="10dp">
 
-    <TextView
+        <TextView
             android:id="@+id/edit_category_old_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+        <RelativeLayout
+            android:id="@+id/inputSpinnerRelativeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:background="@drawable/spinner_background"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/edit_category_new_name_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
+                android:background="@android:color/transparent"
+                android:gravity="end"
+                android:spinnerMode="dropdown" />
+
+            <ImageView
+                android:id="@+id/inputImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:contentDescription="Click to select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                tools:ignore="HardcodedText,RedundantDescriptionCheck" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/category_dialog_linear_layout3b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout2"
+        android:paddingBottom="10dp">
+
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="New Category: "
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
-        <EditText
-            android:id="@+id/edit_category_new_name"
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/catLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            tools:ignore="Autofill,LabelFor,TextFields" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Category"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_category_new_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:inputType="textCapSentences" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/category_dialog_linear_layout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout2"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3b"
         android:paddingBottom="10dp">
 
     <TextView
@@ -70,40 +128,52 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="Sub-Category: "
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/edit_subcategory_new_name"
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/subcatLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            tools:ignore="Autofill,LabelFor,TextFields" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Sub-Category"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_subcategory_new_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:inputType="textCapSentences" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/category_dialog_linear_layout4"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3"
-        android:paddingBottom="10dp">
+        android:paddingBottom="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3">
 
-    <TextView
+        <TextView
             android:id="@+id/edit_category_old_disctype"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="Type: "
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <RelativeLayout
             android:id="@+id/editCategorySpinnerLayout"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
-            android:layout_weight="1"
+            android:background="@drawable/spinner_background"
             android:orientation="horizontal">
 
             <Spinner
@@ -112,6 +182,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginStart="5dp"
+                android:background="@android:color/transparent"
                 android:gravity="end"
                 android:spinnerMode="dropdown" />
 

@@ -7,12 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
+import java.util.ArrayList
+
+const val cNEW_CATEGORY = "<add new category name>"
 
 class SettingsEditCategoryDialogFragment : DialogFragment() {
     interface SettingsEditCategoryDialogFragmentListener {
@@ -63,7 +67,29 @@ class SettingsEditCategoryDialogFragment : DialogFragment() {
 
         Log.d("Alex", "OnViewCreated oldCategory is '$oldCategory'")
         setupClickListeners()
-        binding.editCategoryNewName.requestFocus()
+
+        setupCategorySpinner(if (oldCategory == "") "first" else oldCategory)
+
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        binding.editCategoryNewNameSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.editCategoryNewNameSpinner.setPopupBackgroundResource(R.drawable.spinner)
+        binding.editCategoryNewNameSpinner.requestFocus()
+        binding.editCategoryNewNameSpinner.onItemSelectedListener = object:
+            AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY) {
+                    binding.categoryDialogLinearLayout3b.visibility = View.VISIBLE
+//                    binding.editCategoryNewName.requestFocus()
+                    focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                } else {
+                    binding.categoryDialogLinearLayout3b.visibility = View.GONE
+                }
+            }
+        }
+
         val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -74,23 +100,20 @@ class SettingsEditCategoryDialogFragment : DialogFragment() {
         if (oldCategory == "") { // ie this is an add, not an edit
             Log.d("Alex", "in blank")
             binding.editCategoryOldNameHeader.visibility = View.GONE
-//            binding.editCategoryOldName.visibility = View.GONE
             binding.editCategoryOldName.text = "Category:"
             binding.editSubcategoryOldName.text = "Sub Category: "
-//            binding.editSubcategoryOldName.visibility = View.GONE
             binding.editCategoryOldDisctype.visibility = View.GONE
             binding.categoryDialogButtonDelete.visibility = View.GONE
+            binding.newNameHeader.text = "New Category:"
         } else {
             binding.editCategoryOldName.text = oldCategory
             binding.editSubcategoryOldName.text = oldSubcategory
             binding.editCategoryOldDisctype.text = oldDisctype
-            binding.editCategoryNewName.setText(oldCategory)
             binding.editSubcategoryNewName.setText(oldSubcategory)
             dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
         }
-        dtSpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        dtSpinner.setBackgroundColor(Color.parseColor(hexColor))
         dtSpinner.setPopupBackgroundResource(R.drawable.spinner)
-
     }
 
     override fun onStart() {
@@ -101,11 +124,42 @@ class SettingsEditCategoryDialogFragment : DialogFragment() {
         )
     }
 
+    private fun setupCategorySpinner(iSelection: String) {
+        val categoryList: MutableList<String> = ArrayList()
+        categoryList.add(cNEW_CATEGORY)
+        CategoryViewModel.getCategoryNames().forEach() {
+            categoryList.add(it)
+        }
+        val catArrayAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            categoryList
+        )
+        binding.editCategoryNewNameSpinner.adapter = catArrayAdapter
+        if (iSelection == "first")
+            binding.editCategoryNewNameSpinner.setSelection(1)
+        else
+            binding.editCategoryNewNameSpinner.setSelection(catArrayAdapter.getPosition(iSelection))
+        catArrayAdapter.notifyDataSetChanged()
+    }
+
     private fun setupClickListeners() {
         binding.categoryDialogButtonSave.setOnClickListener {
-            Log.d("Alex", "on save " + oldCategory + " " + binding.editCategoryNewName.text.toString())
+            Log.d("Alex", "on save " + oldCategory + " " + binding.editCategoryNewNameSpinner.selectedItem.toString())
+
+            if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY &&
+                    binding.editCategoryNewName.text.toString() == "") {
+                binding.editCategoryNewName.error = "Enter new category name."
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                return@setOnClickListener
+            }
+
+            val chosenCategory = if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY)
+                binding.editCategoryNewName.text.toString().trim()
+            else
+                binding.editCategoryNewNameSpinner.selectedItem.toString()
             val dtSpinner:Spinner = binding.editCategoryNewDisctypeSpinner
-            if (oldCategory == binding.editCategoryNewName.text.toString() &&
+            if (oldCategory == chosenCategory &&
                     oldSubcategory == binding.editSubcategoryNewName.text.toString() &&
                     oldDisctype != dtSpinner.selectedItem.toString()) {
                 // disc type changed so update it
@@ -116,18 +170,20 @@ class SettingsEditCategoryDialogFragment : DialogFragment() {
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
             } else if (oldCategory == "") { // ie this is an add
-                CategoryViewModel.addCategoryAndSubcategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
+                CategoryViewModel.addCategoryAndSubcategory(chosenCategory, binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
+                setupCategorySpinner(chosenCategory)
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
-            } else if (oldCategory != binding.editCategoryNewName.text.toString() ||
+            } else if (oldCategory != chosenCategory ||
                     oldSubcategory != binding.editSubcategoryNewName.text.toString()) {
-                CategoryViewModel.deleteCategory(oldCategory, oldSubcategory)
-                CategoryViewModel.updateCategory(binding.editCategoryNewName.text.toString().trim(), binding.editSubcategoryNewName.text.toString().trim(), dtSpinner.selectedItem.toString())
+                CategoryViewModel.deleteCategoryAndSubcategory(oldCategory, oldSubcategory)
+                CategoryViewModel.updateCategory(chosenCategory, binding.editSubcategoryNewName.text.toString().trim(), dtSpinner.selectedItem.toString())
                 if (listener != null)
                     listener?.onNewDataSaved()
+                setupCategorySpinner(chosenCategory)
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
             }
