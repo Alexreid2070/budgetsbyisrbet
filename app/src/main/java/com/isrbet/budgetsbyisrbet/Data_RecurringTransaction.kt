@@ -64,11 +64,11 @@ class RecurringTransactionViewModel : ViewModel() {
             // I need to add the new RT to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             // also, if I don't add locally right away, the app crashes because of a sync issue
             singleInstance.recurringTransactions.add(iRecurringTransaction)
-            RecurringTransactionViewModel.singleInstance.recurringTransactions.sortWith(compareBy({it.name}))
+            singleInstance.recurringTransactions.sortWith(compareBy({it.name}))
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
         fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int, iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String) {
-            var myRT = RecurringTransactionViewModel.singleInstance.recurringTransactions.find{ it.name == iName }
+            val myRT = singleInstance.recurringTransactions.find{ it.name == iName }
             if (myRT != null) {
                 myRT.amount = iAmount
                 myRT.period = iPeriod
@@ -106,7 +106,7 @@ class RecurringTransactionViewModel : ViewModel() {
     }
 
     init {
-        RecurringTransactionViewModel.singleInstance = this
+        singleInstance = this
     }
 
     override fun onCleared() {
@@ -124,7 +124,7 @@ class RecurringTransactionViewModel : ViewModel() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 recurringTransactions.clear()
                 for (element in dataSnapshot.children.toMutableList()) {
-                    var tRecurringTransaction = RecurringTransaction()
+                    val tRecurringTransaction = RecurringTransaction()
                     tRecurringTransaction.setValue("name", element.key.toString())
                     for (child in element.children) {
                         tRecurringTransaction.setValue(child.key.toString(), child.value.toString())
@@ -135,7 +135,7 @@ class RecurringTransactionViewModel : ViewModel() {
                 val dateNow = giveMeMyDateFormat(Calendar.getInstance())
                 recurringTransactions.forEach {
                     if (it.nextdate <= dateNow) {
-                        var newNextDate = Calendar.getInstance()
+                        val newNextDate = Calendar.getInstance()
                         newNextDate.set(it.nextdate.substring(0,4).toInt(), it.nextdate.substring(5,7).toInt()-1, it.nextdate.substring(8,10).toInt())
                         Log.d("Alex", "newNextDate is " + giveMeMyDateFormat(newNextDate))
                         // Reset nextDate
@@ -151,10 +151,11 @@ class RecurringTransactionViewModel : ViewModel() {
                         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                         // add transaction
                         Log.d("Alex", "Adding a transaction")
-                        ExpenditureViewModel.addTransaction(ExpenditureOut(it.nextdate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
+                        val nextDate = getNextBusinessDate(it.nextdate)
+                        ExpenditureViewModel.addTransaction(ExpenditureOut(nextDate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
                             SpenderViewModel.getSpenderSplit(0), SpenderViewModel.getSpenderSplit(1), "R"))
                         if (mainActivity != null)
-                            Toast.makeText(mainActivity, "Recurring transaction was added: " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(mainActivity, "Recurring transaction was added for : $nextDate " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
                     }
                 }
                 sortYourself()

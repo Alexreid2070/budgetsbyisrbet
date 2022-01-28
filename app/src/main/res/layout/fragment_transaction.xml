@@ -407,6 +407,26 @@
                         android:visibility="gone"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="wrap_content"/>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/recurringFlagLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="30dp"
+                        android:hint="RT"
+                        android:visibility="gone"
+                        app:endIconMode="clear_text"
+                        tools:ignore="HardcodedText">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/recurringTransactionFlag"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="textCapSentences" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/button_linear_layout_transaction"

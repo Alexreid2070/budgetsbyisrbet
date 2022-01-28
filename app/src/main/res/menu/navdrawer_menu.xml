@@ -14,30 +14,23 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/TransactionFragment"
-            android:title="Add Transaction" />
+            android:title="Add Transaction"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/ViewTransactionsFragment"
             android:title="@string/transaction_view_all_fragment_label" />
         <item
             android:id="@+id/DashboardFragment"
-            android:title="Dashboard" />
-    </group>
-    <group
-        android:id="@+id/nav_drawer_group2"
-        android:checkableBehavior="single">
-        <item
-            android:id="@+id/BudgetFragment"
-            android:title="Add Budget" />
-        <item
-            android:id="@+id/BudgetViewAllFragment"
-            android:title="View Budgets" />
+            android:title="Dashboard"
+            tools:ignore="HardcodedText" />
     </group>
     <group
         android:id="@+id/nav_drawer_group3"
         android:checkableBehavior="single">
         <item
             android:id="@+id/TransferFragment"
-            android:title="Add Funds Transfer" />
+            android:title="Add Funds Transfer"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/AccountingFragment"
             android:title="@string/accounting_fragment_label" />
@@ -45,6 +38,10 @@
     <group
         android:id="@+id/nav_drawer_group4"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/BudgetViewAllFragment"
+            android:title="Budgets"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/RecurringTransactionFragment"
             android:title="@string/recurring_transaction_fragment_label" />
@@ -56,11 +53,18 @@
         android:id="@+id/nav_drawer_group5"
         android:checkableBehavior="single">
         <item
+            android:id="@+id/ChatFragment"
+            android:title="@string/chat_fragment_label" />
+    </group>
+    <group
+        android:id="@+id/nav_drawer_group6"
+        android:checkableBehavior="single">
+        <item
             android:id="@+id/HelpFragment"
             android:title="@string/help_fragment_label" />
     </group>
     <group
-        android:id="@+id/nav_drawer_group6"
+        android:id="@+id/nav_drawer_group7"
         android:checkableBehavior="single">
         <item
             android:id="@+id/AdminFragment"

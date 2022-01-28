@@ -65,4 +65,5 @@
     <string name="invalidMonth">Invalid month (valid values are 1 to 12)</string>
     <string name="budgetExistsAtThatNode">Budget already exists for that name, can\'t add.</string>
     <string name="toFromCantBeSame">To and From values can\'t be the same</string>
+    <string name="chat_fragment_label">Chats</string>
 </resources>

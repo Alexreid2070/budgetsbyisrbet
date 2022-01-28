@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -58,7 +59,7 @@ class BudgetFragment : Fragment() {
 //        binding.budgetAddMonth.setTextColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
-        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
+        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener({ _, checkedId ->
             Log.d("Alex", "clicked on radio group $checkedId")
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -79,7 +80,7 @@ class BudgetFragment : Fragment() {
             }
         }
 
-        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, _ ->
+        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener({ _, _ ->
             updateInformationFields()
         })
 
@@ -115,6 +116,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddAmount.setText(dec.format(tempDouble))
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupForEdit() {
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Budget"
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
@@ -154,6 +156,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddAmountLabel.text = "Enter new budget amount: "
     }
 
+    @SuppressLint("SetTextI18n")
     fun updateInformationFields() {
         Log.d("Alex", "In updateInformationFields")
         val prevMonth = BudgetMonth(
@@ -378,9 +381,9 @@ class BudgetFragment : Fragment() {
         var period = binding.budgetAddYear.value.toString()
         period = if (binding.budgetAddMonth.value != 0) {
             if (binding.budgetAddMonth.value < 10)
-                "$period-0$binding.budgetAddMonth.value"
+                period + "-0" + binding.budgetAddMonth.value
             else
-                "$period-$binding.budgetAddMonth.value"
+                period + binding.budgetAddMonth.value
         } else {
             "$period-00"
         }

@@ -7,13 +7,16 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/button_background.xml" value="0.13125" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/customborder.xml" value="0.1734375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_baseline_expand_more_24.xml" value="0.20625" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_far_check_circle.xml" value="0.108" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_far_edit.xml" value="0.14895833333333333" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_far_envelope_open.xml" value="0.108" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_far_folder_open.xml" value="0.1609375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_far_trash_alt.xml" value="0.14895833333333333" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_chevron_left.xml" value="0.20625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_chevron_right.xml" value="0.20625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_child.xml" value="0.13802083333333334" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_dollar_sign.xml" value="0.13802083333333334" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_envelope.xml" value="0.193" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_expand.xml" value="0.20625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_expand_arrows_alt.xml" value="0.20625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/ic_fas_plus.xml" value="0.12083333333333333" />
@@ -25,6 +28,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/myborder.xml" value="0.1734375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/row_border.xml" value="0.2546875" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/sample.xml" value="0.1734375" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/scrollbar.xml" value="0.108" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/shape_drop_down_normal.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/spinner.xml" value="0.15625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/drawable/spinner_background.xml" value="0.2703125" />
@@ -41,7 +45,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/enter_category_fragment.xml" value="0.115625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/expenditures_recycler.xml" value="0.15729166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_accounting.xml" value="0.2" />
-        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_admin.xml" value="0.140625" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_admin.xml" value="0.2" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_blank.xml" value="0.11145833333333334" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_blank2.xml" value="0.264" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_blank3.xml" value="0.11145833333333334" />
@@ -52,6 +56,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_budget_edit_dialog.xml" value="0.264" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_budget_view_all.xml" value="0.2" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_category_edit_dialog.xml" value="0.1983695652173913" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_chat.xml" value="0.16799999999999998" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_dashboard.xml" value="0.140625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_dashboard_summary.xml" value="0.13958333333333334" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/fragment_first.xml" value="0.264" />
@@ -72,6 +77,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/nav_header_main.xml" value="0.140625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/recurring_transaction_fragment.xml" value="0.15729166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/row_budget.xml" value="0.11510416666666666" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/row_chat.xml" value="0.3674911660777385" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/row_recurring_transaction.xml" value="0.128125" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/row_settings_category.xml" value="0.128125" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/layout/row_transaction_view_all.xml" value="0.2463768115942029" />

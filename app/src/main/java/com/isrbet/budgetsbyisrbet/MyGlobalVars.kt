@@ -70,6 +70,8 @@ class MyApplication : Application() {
         var mediaPlayer: MediaPlayer? = null
         var adminMode: Boolean = false
         var haveLoadedDataForThisUser = false
+        var lastReadChatsDate = ""
+        var lastReadChatsTime = ""
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
@@ -112,6 +114,7 @@ class MyApplication : Application() {
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
+        Log.d("Alex", "string is $period")
         val dash = period.indexOf("-")
         month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
         }
@@ -191,6 +194,19 @@ fun giveMeMyDateFormat(cal: Calendar) : String {
     return tempString
 }
 
+fun giveMeMyTimeFormat(cal: Calendar) : String {
+    var tempString = ""
+    if (cal.get(Calendar.HOUR_OF_DAY) < 10)
+        tempString = "0"
+    tempString = tempString + cal.get(Calendar.HOUR_OF_DAY).toString() + ":"
+    if (cal.get(Calendar.MINUTE) < 10)
+        tempString = tempString + "0"
+    tempString = tempString + (cal.get(Calendar.MINUTE)).toString() + ":"
+    if (cal.get(Calendar.SECOND) < 10)
+        tempString = tempString + "0"
+    tempString = tempString + cal.get(Calendar.SECOND).toString()
+    return tempString
+}
 fun hideKeyboard(context: Context, view: View) {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
@@ -335,11 +351,11 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
     open fun onSwipeBottom() {}
 }
 
-fun getBudgetColour(context: Context, iActual: Double, iBudget: Double): Int {
+fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysShowGreen: Boolean): Int {
     val rActual = round(iActual*100)
     val rBudget = round(iBudget*100)
     if (rActual <= rBudget) {
-        return Color.GREEN
+        return if (iAlwaysShowGreen) Color.GREEN else Color.WHITE
     } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
         (rBudget == 0.0 && rActual > 0.0)) {
             Log.d("Alex", "iActual " + iActual.toString() + " iBudget " + iBudget.toString() + " dsRed " + DefaultsViewModel.getDefault(cDEFAULT_SHOWRED) + " c1 " + (1.0 +(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0)).toString())
@@ -349,15 +365,36 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double): Int {
     }
 }
 
+fun getNextBusinessDate(iDate: String) : String {
+    val year = iDate.substring(0,4).toInt()
+    val month = iDate.substring(5,7).toInt()
+    val day = iDate.substring(8,10).toInt()
+    val thisDate = Calendar.getInstance()
+    thisDate.set(year, month-1, day)
+    if(Calendar.SATURDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
+        thisDate.add(Calendar.DATE, 2)
+        return giveMeMyDateFormat(thisDate)
+    } else if(Calendar.SUNDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
+        thisDate.add(Calendar.DATE, 1)
+        return giveMeMyDateFormat(thisDate)
+    }
+
+    return iDate
+}
+
+fun textIsAlphaOrSpace(string: String): Boolean {
+    return string.filter { it in 'A'..'Z' || it in 'a'..'z' || it == ' ' }.length == string.length
+}
+
 fun textIsSafe(iText: String) : Boolean {
-    if (iText.contains("("))
+    if (iText.contains("^"))
         return false
-    else if (iText.contains(")"))
-        return false
-    else if (iText.contains("^"))
-        return false
-    else if (iText.contains("."))
-        return false
+//    else if (iText.contains("("))
+//        return false
+//    else if (iText.contains(")"))
+//        return false
+//    else if (iText.contains("."))
+//        return false
     else if (iText.contains("/"))
         return false
     else if (iText.contains("\\"))

@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -12,7 +13,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -26,6 +28,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
 
@@ -41,12 +46,14 @@ class HomeFragment : Fragment() {
     private val budgetModel: BudgetViewModel by viewModels()
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
     private val userModel: UserViewModel by viewModels()
+    private val chatModel: ChatViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
         userModel.clearCallback() // ditto, see above
+        chatModel.clearCallback() // ditto, see above
     }
 
     override fun onCreateView(
@@ -66,7 +73,6 @@ class HomeFragment : Fragment() {
                     // Google Sign In was successful, authenticate with Firebase
                     val account = task.getResult(ApiException::class.java)!!
                     Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
-                    MyApplication.userGivenName = account.givenName.toString()
                     firebaseAuthWithGoogle(account.idToken!!)
                 } catch (e: ApiException) {
                     // Google Sign In failed, update UI appropriately
@@ -116,7 +122,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -179,6 +185,12 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+        ChatViewModel.singleInstance.setCallback(object: ChatDataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in Chat onDataUpdate callback")
+                tryToUpdateChatIcon()
+            }
+        })
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
@@ -206,6 +218,7 @@ class HomeFragment : Fragment() {
                 homeScreenMessage.text = "" */
         }
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
+        MyApplication.userGivenName = account?.givenName.toString()
         (activity as MainActivity).setAdminMode(account?.email == "alexreid2070@gmail.com")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
@@ -237,11 +250,14 @@ class HomeFragment : Fragment() {
             }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun signIn(account: FirebaseUser?) {
         Log.d("Alex", "in signIn, account is " + account?.email)
         MyApplication.userEmail = account?.email.toString()
-        MyApplication.userUID = account?.uid.toString()
-        MyApplication.currentUserEmail = account?.email.toString()
+        if (MyApplication.userUID == "")  // ie don't want to override this if Admin is impersonating another user...
+            MyApplication.userUID = account?.uid.toString()
+        if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
+            MyApplication.currentUserEmail = account?.email.toString()
         if (account == null) {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
@@ -251,18 +267,30 @@ class HomeFragment : Fragment() {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.quoteField.text = MyApplication.getQuote()
-            if (account?.email == "alexreid2070@gmail.com")
+            if (account.email == "alexreid2070@gmail.com")
                 (activity as MainActivity).setAdminMode(true)
             requireActivity().invalidateOptionsMenu()
             Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
+                getLastReadChatsInfo()
                 defaultsModel.loadDefaults()
                 expenditureModel.loadExpenditures()
                 categoryModel.loadCategories()
                 spenderModel.loadSpenders()
                 budgetModel.loadBudgets()
                 recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
+                chatModel.loadChats()
                 MyApplication.haveLoadedDataForThisUser = true
+                val dateNow = Calendar.getInstance()
+                MyApplication.database.getReference("Users/"+MyApplication.userUID)
+                    .child("Info")
+                    .child("LastSignIn")
+                    .child("date")
+                    .setValue(giveMeMyDateFormat(dateNow))
+                MyApplication.database.getReference("Users/"+MyApplication.userUID)
+                    .child("Info")
+                    .child("LastSignIn")
+                    .child("time").setValue(giveMeMyTimeFormat(dateNow))
             }
         }
         alignExpenditureMenuWithDataState()
@@ -298,6 +326,23 @@ class HomeFragment : Fragment() {
             if (menu.getItem(i).itemId == R.id.SignOut) {
                 menu.getItem(i).isVisible = true
                 menu.getItem(i).title = "Sign Out (" + MyApplication.userEmail + ")"
+            } else if (menu.getItem(i).itemId == R.id.ChatFragment) {
+                when (thereAreUnreadMessages()) {
+                    -1 -> {
+                        menu.getItem(i).isVisible = false
+                    }
+                    0 -> {
+/*                        menu.getItem(i).icon = null
+                        menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+                        menu.getItem(i).isVisible = true */
+                        menu.getItem(i).isVisible = false
+                    }
+                    1 -> {
+                        menu.getItem(i).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fas_envelope)
+                        menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+                        menu.getItem(i).isVisible = true
+                    }
+                }
             } else
                 menu.getItem(i).isVisible = false
         }
@@ -332,6 +377,51 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun getLastReadChatsInfo() {
+        val infoListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.value != null) { // nothing exists at this node so we can add it
+                    dataSnapshot.children.forEach {
+                        when (it.key) {
+                            "date" -> MyApplication.lastReadChatsDate = it.value.toString()
+                            "time" -> MyApplication.lastReadChatsTime = it.value.toString()
+                        }
+                    }
+                    tryToUpdateChatIcon()
+                }
+            }
+
+            override fun onCancelled(dataSnapshot: DatabaseError) {
+            }
+        }
+        val dbRef =
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                .child("Info")
+                .child("LastReadChats")
+        dbRef.addListenerForSingleValueEvent(infoListener)
+    }
+
+    fun tryToUpdateChatIcon() {
+        // this is called when lastSignedIn date/time are found, and also when chats are loaded.  When both are done then do something
+        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
+            Log.d("Alex", "should be updating chat icon now")
+            activity?.invalidateOptionsMenu()
+        }
+    }
+
+    fun thereAreUnreadMessages() : Int {
+        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
+            val tChat = ChatViewModel.getLastChat()
+            Log.d("Alex", MyApplication.lastReadChatsDate + " " + MyApplication.lastReadChatsTime + " " + tChat.date + " " + tChat.time)
+            if (MyApplication.lastReadChatsDate < tChat.date ||
+                (MyApplication.lastReadChatsDate == tChat.date && MyApplication.lastReadChatsTime < tChat.time))
+                    return 1 // there are unread chats
+            else
+                return 0 // there are no unread chats
+        } else
+            return -1    // don't show icon
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         CategoryViewModel.singleInstance.clearCallback()
@@ -339,3 +429,4 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 }
+

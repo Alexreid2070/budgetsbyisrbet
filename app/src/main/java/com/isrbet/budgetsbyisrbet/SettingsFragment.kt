@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -22,6 +23,7 @@ class SettingsFragment : Fragment() {
     private var oldFirstUser: String = ""
     private var oldSecondUser: String = ""
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
@@ -51,8 +53,7 @@ class SettingsFragment : Fragment() {
 
         var ctr = 400
         val spenderRadioGroup = binding.defaultSpenderRadioGroup
-        if (spenderRadioGroup == null) Log.d("Alex", " default spender radio group is null")
-        else spenderRadioGroup.removeAllViews()
+        spenderRadioGroup.removeAllViews()
 
         for (i in 0..2) { // always do this twice, so we will setup a possible new second user
             var spender  = ""
@@ -148,6 +149,7 @@ class SettingsFragment : Fragment() {
                 binding.splitSliderLayout.visibility = View.VISIBLE
                 binding.splitLayout.visibility = View.VISIBLE
                 binding.spenderLayout.visibility = View.VISIBLE
+                binding.splitSlider.value = 50.0F
             } else {
                 binding.secondUserLayout.visibility = View.GONE
                 binding.defaultsHeader.visibility = View.GONE
@@ -199,15 +201,15 @@ class SettingsFragment : Fragment() {
     }
 
     private fun onSaveButtonClicked () {
-        if (!textIsSafe(binding.settingsFirstUserName.text.toString())) {
+        if (!textIsAlphaOrSpace(binding.settingsFirstUserName.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
-            binding.settingsFirstUserName.error = "The text contains unsafe characters."
+            binding.settingsFirstUserName.error = "The text contains non-alphabetic characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
             return
         }
-        if (!textIsSafe(binding.settingsSecondUserName.text.toString())) {
+        if (!textIsAlphaOrSpace(binding.settingsSecondUserName.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
-            binding.settingsSecondUserName.error = "The text contains unsafe characters."
+            binding.settingsSecondUserName.error = "The text contains non-alphabetic characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
             return
         }
@@ -232,7 +234,7 @@ class SettingsFragment : Fragment() {
             val spenderCheckedID = defaultSpenderRadioGroup.checkedRadioButtonId
             Log.d("Alex", "spenderCheckedID $spenderCheckedID")
             if (spenderCheckedID == -1) { // must have been a name change
-                var but = binding.defaultSpenderRadioGroup.getChildAt(0) as RadioButton
+                val but = binding.defaultSpenderRadioGroup.getChildAt(0) as RadioButton
                 but.error = getString(R.string.oneUserMustBeDefault)
                 focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
                 return

@@ -209,6 +209,7 @@ class ExpenditureViewModel : ViewModel() {
                 expe.boughtfor = iExpenditure.boughtfor
                 expe.bfname1split = iExpenditure.bfname1split
                 expe.bfname2split = iExpenditure.bfname2split
+                expe.type = iExpenditure.type
             }
         }
     }

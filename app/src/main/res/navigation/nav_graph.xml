@@ -112,4 +112,9 @@
                 android:defaultValue="" />
         </action>
     </fragment>
+    <fragment
+        android:id="@+id/ChatFragment"
+        android:name="com.isrbet.budgetsbyisrbet.ChatFragment"
+        android:label="Chats"
+        tools:layout="@layout/fragment_chat" />
 </navigation>

@@ -94,6 +94,7 @@ class DashboardFragment : Fragment() {
         val bottomRowMargin = 0
         val decimalFormat = DecimalFormat("0.00")
         val percentFormat = DecimalFormat("0.00%")
+        val deltaFormat = DecimalFormat("#,##0.00;(#,##0.00)")
         val pct: Double
 
         val tv1 = TextView(requireContext())
@@ -200,7 +201,7 @@ class DashboardFragment : Fragment() {
         tv5.gravity = Gravity.END
         tv5.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
-            tv5.text = "%"
+            tv5.text = "Delta"
             tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
             tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
@@ -208,7 +209,7 @@ class DashboardFragment : Fragment() {
                 if (iActualAmount == 0.0 || iBudgetAmount == 0.0) 0.0
                 else iActualAmount / iBudgetAmount
             if (iRowType != "Delta")
-               tv5.text = percentFormat.format(pct)
+               tv5.text = deltaFormat.format(iBudgetAmount - iActualAmount)
         }
         // add table row
         val tr = TableRow(requireContext())
@@ -222,7 +223,7 @@ class DashboardFragment : Fragment() {
         tr.setPadding(0, 0, 0, 0)
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
-            val color = getBudgetColour(requireContext(), iActualAmount, iBudgetAmount)
+            val color = getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, false)
             tv5.setBackgroundColor(color)
         }
         else if (iRowType == "Header") {

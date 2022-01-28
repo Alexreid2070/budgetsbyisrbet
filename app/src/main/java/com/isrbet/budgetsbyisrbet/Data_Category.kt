@@ -165,7 +165,10 @@ class CategoryViewModel : ViewModel() {
                     }
                     dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID).child("Email").setValue(MyApplication.userEmail)
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID)
+                        .child("Info")
+                        .child("Email")
+                        .setValue(MyApplication.userEmail)
                 }
             }
 

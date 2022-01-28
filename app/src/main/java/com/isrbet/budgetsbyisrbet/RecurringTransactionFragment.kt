@@ -18,57 +18,49 @@ class RecurringTransactionFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRecurringTransactionBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         return binding.root
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(itemView, savedInstanceState)
         val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
 
         val listView: ListView = requireActivity().findViewById(R.id.recurring_transaction_list_view)
-        listView.setAdapter(adapter)
+        listView.adapter = adapter
 
-        listView.onItemClickListener = object : AdapterView.OnItemClickListener {
-
-            override fun onItemClick(parent: AdapterView<*>, view: View,
-                                     position: Int, id: Long) {
-
-                // value of item that is clicked
-                var itemValue = listView.getItemAtPosition(position) as RecurringTransaction
-                var rtdf = RecurringTransactionEditDialogFragment.newInstance(itemValue.name, itemValue.amount, itemValue.period, itemValue.nextdate, itemValue.regularity, itemValue.category, itemValue.subcategory, itemValue.paidby, itemValue.boughtfor)
+        listView.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, view, position, id -> // value of item that is clicked
+                val itemValue = listView.getItemAtPosition(position) as RecurringTransaction
+                val rtdf = RecurringTransactionEditDialogFragment.newInstance(itemValue.name, itemValue.amount, itemValue.period, itemValue.nextdate, itemValue.regularity, itemValue.category, itemValue.subcategory, itemValue.paidby, itemValue.boughtfor)
                 rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         Log.d("Alex", "in onNewDataSaved")
-                        val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
-                        listView.setAdapter(adapter)
-                        adapter.notifyDataSetChanged()
+                        val myAdapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
+                        listView.adapter = myAdapter
+                        myAdapter.notifyDataSetChanged()
                     }
                 })
-                rtdf.show(getParentFragmentManager(), "Edit Recurring Transaction")
+                rtdf.show(parentFragmentManager, "Edit Recurring Transaction")
             }
-        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() === R.id.AddRecurringTransaction)
-                menu.getItem(i).setVisible(true)
-            else
-                menu.getItem(i).setVisible(false)
+            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.AddRecurringTransaction
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId === R.id.AddRecurringTransaction) {
+        return if (item.itemId == R.id.AddRecurringTransaction) {
             addRecurringTransaction()
-            return true
+            true
         } else {
             val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
     }
 
@@ -77,17 +69,17 @@ class RecurringTransactionFragment : Fragment() {
         _binding = null
     }
 
-    fun addRecurringTransaction() {
-        var rtdf = RecurringTransactionEditDialogFragment.newInstance("", 0,"Month", "2022-01-01", 1, "", "", DefaultsViewModel.getDefault(
+    private fun addRecurringTransaction() {
+        val rtdf = RecurringTransactionEditDialogFragment.newInstance("", 0,"Month", "2022-01-01", 1, "", "", DefaultsViewModel.getDefault(
             cDEFAULT_SPENDER), DefaultsViewModel.getDefault(cDEFAULT_SPENDER))
         rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
                 val listView: ListView = requireActivity().findViewById(R.id.recurring_transaction_list_view)
-                listView.setAdapter(adapter)
+                listView.adapter = adapter
                 adapter.notifyDataSetChanged()
             }
         })
-        rtdf.show(getParentFragmentManager(), "Edit Recurring Transaction")
+        rtdf.show(parentFragmentManager, "Edit Recurring Transaction")
     }
 }
