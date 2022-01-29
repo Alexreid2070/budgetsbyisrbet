@@ -208,14 +208,10 @@ class HomeFragment : Fragment() {
         } else {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
-            binding.quoteField.text = MyApplication.getQuote()
-            // NEED TO CALL Home Fragment to make adjustments
-/*            var quoteField = findViewById<TextView>(R.id.quote_field)
-            if (quoteField != null)
-                quoteField.visibility = View.VISIBLE
-            var homeScreenMessage = findViewById<TextView>(R.id.homeScreenMessage)
-            if (homeScreenMessage != null)
-                homeScreenMessage.text = "" */
+            if (MyApplication.userEmail != MyApplication.currentUserEmail)
+                binding.quoteField.text = "Currently impersonating " + MyApplication.currentUserEmail
+            else
+                binding.quoteField.text = getQuote()
         }
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         MyApplication.userGivenName = account?.givenName.toString()
@@ -223,6 +219,13 @@ class HomeFragment : Fragment() {
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         signIn(currentUser)
+    }
+
+    private fun getQuote() : String {
+        if (MyApplication.userEmail != MyApplication.currentUserEmail)
+            return "Currently impersonating " + MyApplication.currentUserEmail
+        else
+            return MyApplication.getQuote()
     }
 
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
@@ -266,7 +269,7 @@ class HomeFragment : Fragment() {
         else {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
-            binding.quoteField.text = MyApplication.getQuote()
+            binding.quoteField.text = getQuote()
             if (account.email == "alexreid2070@gmail.com")
                 (activity as MainActivity).setAdminMode(true)
             requireActivity().invalidateOptionsMenu()
@@ -308,7 +311,7 @@ class HomeFragment : Fragment() {
 //            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             (activity as MainActivity).setLoggedOutMode(false)
             binding.quoteField.visibility = View.VISIBLE
-            binding.quoteField.text = MyApplication.getQuote()
+            binding.quoteField.text = getQuote()
             binding.homeScreenMessage.text = ""
         } else {
             Log.d("Alex", "alignExpenditureMenu false")

@@ -33,6 +33,7 @@ class AdminFragment : Fragment() {
             processButton()
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
+            clearData()
             UserViewModel.loadUsers()
             UserViewModel.setCallback(object: UserDataUpdatedCallback {
                 override fun onDataUpdate() {
@@ -81,6 +82,16 @@ class AdminFragment : Fragment() {
         binding.adminUser3Uid.text = UserViewModel.getUserUID(2)
         binding.adminUser4Email.text = UserViewModel.getUserEmail(3)
         binding.adminUser4Uid.text = UserViewModel.getUserUID(3)
+    }
+    fun clearData() {
+        binding.adminUser1Email.text = ""
+        binding.adminUser1Uid.text = ""
+        binding.adminUser2Email.text = ""
+        binding.adminUser2Uid.text = ""
+        binding.adminUser3Email.text = ""
+        binding.adminUser3Uid.text = ""
+        binding.adminUser4Email.text = ""
+        binding.adminUser4Uid.text = ""
     }
 
     override fun onDestroyView() {

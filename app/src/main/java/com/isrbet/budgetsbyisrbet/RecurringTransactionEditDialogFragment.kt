@@ -136,15 +136,6 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         else
             categorySpinner.setSelection(catArrayAdapter.getPosition(oldCategory))
 
-/*        var subCategorySpinner:Spinner = view.edit_rt_new_subcategory
-        val subCatArrayAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            CategoryViewModel.getSubcategoriesForSpinner(oldCategory)
-        )
-        subCategorySpinner.adapter = subCatArrayAdapter
-        subCategorySpinner.setSelection(subCatArrayAdapter.getPosition(oldSubcatgory)) */
-
         var paidBySpinner:Spinner = binding.editRtNewPaidBy
         val paidByArrayAdapter = ArrayAdapter(
             requireContext(),
@@ -196,27 +187,18 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             ).show()
         }
 
-        binding.editRtNewPeriodSpinner.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        binding.editRtNewPeriodSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewPeriodSpinner.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editRtNewCategory.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewCategory.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewCategory.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editRtNewSubcategory.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewSubcategory.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewSubcategory.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editRtNewPaidBy.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewPaidBy.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewPaidBy.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editRtNewBoughtFor.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.editRtNewBoughtFor.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewBoughtFor.setPopupBackgroundResource(R.drawable.spinner)
 
-/*        binding.editRtNewName.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewRegularity.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewNextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewPeriodSpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewCategory.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewSubcategory.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewPaidby.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.editRtNewBoughtfor.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-*/
         binding.editRtNewCategory.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 addSubCategories(binding.editRtNewCategory.selectedItem.toString())
