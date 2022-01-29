@@ -326,10 +326,34 @@
             </LinearLayout>
 
             <Space
-                android:id="@+id/budgetAdd_space2"
+                android:id="@+id/budgetAdd_space3"
                 android:layout_width="match_parent"
                 android:layout_height="10dp"
                 android:layout_below="@id/budgetAddPercentage_layout"/>
+
+            <LinearLayout
+                android:id="@+id/budgetAdd_button_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/budgetAdd_space3"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/budgetAdd_button_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:layout_margin="5dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <Space
+                android:id="@+id/budgetAdd_space2"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_below="@id/budgetAdd_button_linear_layout"/>
 
             <View
                 android:id="@+id/budgetAdd_view2"
@@ -466,38 +490,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:text="."
-                    tools:ignore="HardcodedText" />
-            </LinearLayout>
-
-            <Space
-                android:id="@+id/budgetAdd_space3"
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_below="@id/budgetAddAverageAmount_layout"/>
-
-            <View
-                android:id="@+id/budgetAdd_view3"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_below="@id/budgetAdd_space3"
-                android:paddingBottom="10dp"/>
-
-            <LinearLayout
-                android:id="@+id/budgetAdd_button_linear_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAdd_view3"
-                android:gravity="center"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/budgetAdd_button_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Save"
-                    android:layout_margin="5dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
         </RelativeLayout>

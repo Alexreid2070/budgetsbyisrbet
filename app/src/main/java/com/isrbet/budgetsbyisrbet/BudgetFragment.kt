@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -58,13 +59,13 @@ class BudgetFragment : Fragment() {
 //        binding.budgetAddMonth.setTextColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
-        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, checkedId ->
+        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener({ _, checkedId ->
             Log.d("Alex", "clicked on radio group $checkedId")
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString())
         })
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             binding.budgetAddWhoLabel.visibility = GONE
             binding.budgetAddWhoRadioGroup.visibility = GONE
         }
@@ -79,7 +80,7 @@ class BudgetFragment : Fragment() {
             }
         }
 
-        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { _, _ ->
+        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener({ _, _ ->
             updateInformationFields()
         })
 
@@ -115,6 +116,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddAmount.setText(dec.format(tempDouble))
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupForEdit() {
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Budget"
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
@@ -154,6 +156,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddAmountLabel.text = "Enter new budget amount: "
     }
 
+    @SuppressLint("SetTextI18n")
     fun updateInformationFields() {
         Log.d("Alex", "In updateInformationFields")
         val prevMonth = BudgetMonth(
@@ -263,8 +266,8 @@ class BudgetFragment : Fragment() {
         if (whoRadioGroup == null) Log.d("Alex", " rg 'paidby' is null")
         else whoRadioGroup.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getCount()) {
-            val spender = SpenderViewModel.getSpender(i)
+        for (i in 0 until SpenderViewModel.getActiveCount()) {
+            val spender = SpenderViewModel.getSpender(i, true)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -275,7 +278,7 @@ class BudgetFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             whoRadioGroup.addView(newRadioButton)
-            if (i == SpenderViewModel.getCount()-1)  // ie check the last one
+            if (i == SpenderViewModel.getActiveCount()-1)  // ie check the last one
                 newRadioButton.isChecked = true
         }
     }
@@ -330,7 +333,7 @@ class BudgetFragment : Fragment() {
             return
         }
         val selectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
-        val whoText = if (SpenderViewModel.getCount() == 1)
+        val whoText = if (SpenderViewModel.singleUser())
             SpenderViewModel.getSpenderName(0)
         else {
             val whoRadioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -378,9 +381,9 @@ class BudgetFragment : Fragment() {
         var period = binding.budgetAddYear.value.toString()
         period = if (binding.budgetAddMonth.value != 0) {
             if (binding.budgetAddMonth.value < 10)
-                "$period-0$binding.budgetAddMonth.value"
+                period + "-0" + binding.budgetAddMonth.value
             else
-                "$period-$binding.budgetAddMonth.value"
+                period + binding.budgetAddMonth.value
         } else {
             "$period-00"
         }

@@ -71,7 +71,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
             annualView.setTypeface(annualView.typeface, Typeface.BOLD)
             dateStartedView.setTypeface(dateStartedView.typeface, Typeface.BOLD)
         }
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             whoView.visibility = View.GONE
         }
 

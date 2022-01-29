@@ -79,8 +79,8 @@ class BudgetDialogFragment : DialogFragment() {
         setupClickListeners()
 
         var ctr = 200
-        for (i in 0 until SpenderViewModel.getCount()) {
-            val spender = SpenderViewModel.getSpender(i)
+        for (i in 0 until SpenderViewModel.getActiveCount()) {
+            val spender = SpenderViewModel.getSpender(i, true)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -115,6 +115,10 @@ class BudgetDialogFragment : DialogFragment() {
         }
         for (i in 0 until binding.budgetDialogOccurenceRadioGroup.childCount) {
             (binding.budgetDialogOccurenceRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+        }
+        if (SpenderViewModel.singleUser()) {
+            binding.budgetDialogWhoHeading.visibility = View.GONE
+            binding.budgetDialogNewWhoRadioGroup.visibility = View.GONE
         }
     }
 

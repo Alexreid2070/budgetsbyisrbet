@@ -79,8 +79,8 @@ data class ExpenditureOut(
 }
 
 class ExpenditureViewModel : ViewModel() {
-    lateinit var expListener: ValueEventListener
-    private val expenditures: MutableList<Expenditure> = mutableListOf<Expenditure>()
+    private var expListener: ValueEventListener? = null
+    private val expenditures: MutableList<Expenditure> = mutableListOf()
     var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
 
     companion object {
@@ -92,13 +92,13 @@ class ExpenditureViewModel : ViewModel() {
 
         fun getCopyOfExpenditures(): MutableList<Expenditure> {
             val copy = mutableListOf<Expenditure>()
-            copy.addAll(ExpenditureViewModel.getExpenditures())
+            copy.addAll(getExpenditures())
             return copy
         }
         fun getTotalDiscretionaryActualsToDate(iCal: Calendar) : Double {
-            var tmpTotal: Double = 0.0
-            var startDate: String
-            var endDate: String
+            var tmpTotal = 0.0
+            val startDate: String
+            val endDate: String
             val month = iCal.get(Calendar.MONTH)+1
             if (month < 10) {
                 startDate = iCal.get(Calendar.YEAR).toString() + "-0" + month.toString() + "-00"
@@ -107,7 +107,7 @@ class ExpenditureViewModel : ViewModel() {
                 startDate = iCal.get(Calendar.YEAR).toString() + "-" + month.toString() + "-00"
                 endDate = iCal.get(Calendar.YEAR).toString() + "-" + month.toString() + "-99"
             }
-            Log.d("Alex", "checking " + startDate + " to " + endDate)
+            Log.d("Alex", "checking $startDate to $endDate")
 
             singleInstance.expenditures.forEach {
                 val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(it.category, it.subcategory)
@@ -119,10 +119,12 @@ class ExpenditureViewModel : ViewModel() {
         }
 
         fun getActualsForPeriod(iCategory: String, iSubCategory: String, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
-            Log.d("Alex", "getting actuals for " + iCategory+"-"+iSubCategory + " for " + iWho + " from " + iStartPeriod.toString() + " to " + iEndPeriod.toString())
-            var tTotal: Double = 0.0
-            var firstDay = iStartPeriod.toString()+"-01"
-            var lastDay = iEndPeriod.toString()+"-31"
+            Log.d("Alex",
+                "getting actuals for $iCategory-$iSubCategory for $iWho from $iStartPeriod to $iEndPeriod"
+            )
+            var tTotal = 0.0
+            val firstDay = "$iStartPeriod-01"
+            val  lastDay = "$iEndPeriod-31"
             loop@ for (expenditure in singleInstance.expenditures) {
                 if (expenditure.type != "T" &&
                         expenditure.date >= firstDay &&
@@ -151,6 +153,15 @@ class ExpenditureViewModel : ViewModel() {
         fun refresh() {
             singleInstance.loadExpenditures()
         }
+        fun clear() {
+            if (singleInstance.expListener != null) {
+                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
+                    .removeEventListener(singleInstance.expListener!!)
+                singleInstance.expListener = null
+            }
+//            singleInstance.dataUpdatedCallback = null
+            singleInstance.expenditures.clear()
+        }
 
         fun getPreviousKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
@@ -170,37 +181,67 @@ class ExpenditureViewModel : ViewModel() {
             Log.d("Alex", "ind is " + ind + " and next is " + (ind+1))
             return singleInstance.expenditures[ind+1].mykey
         }
+
+        fun deleteTransaction(iTransactionID: String) {
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID).removeValue()
+            val expe =
+                getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
+            val ind = singleInstance.expenditures.indexOf(expe)
+            singleInstance.expenditures.removeAt(ind)
+        }
+
+        fun getExpenditure(iTransactionID: String): Expenditure? {
+            return singleInstance.expenditures.find { it.mykey == iTransactionID }
+        }
+
+        fun updateTransaction(iTransactionID: String, iExpenditure: ExpenditureOut) {
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID)
+                .setValue(iExpenditure)
+            val expe =
+                getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
+            if (expe != null) {
+                expe.date = iExpenditure.date
+                expe.note = iExpenditure.note
+                expe.subcategory = iExpenditure.subcategory
+                expe.category = iExpenditure.category
+                expe.amount = iExpenditure.amount
+                expe.paidby = iExpenditure.paidby
+                expe.boughtfor = iExpenditure.boughtfor
+                expe.bfname1split = iExpenditure.bfname1split
+                expe.bfname2split = iExpenditure.bfname2split
+                expe.type = iExpenditure.type
+            }
+        }
     }
 
     init {
-        ExpenditureViewModel.singleInstance = this
+        singleInstance = this
     }
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
-            .removeEventListener(expListener)
-    }
-
-    fun getExpenditure(iTransactionID: String): Expenditure? {
-        val expe: Expenditure? = expenditures.find { it.mykey == iTransactionID }
-        return expe
+        if (expListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Expenditures")
+                .orderByChild("date")
+                .removeEventListener(expListener!!)
+            expListener = null
+        }
     }
 
     fun setCallback(iCallback: ExpenditureDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun loadExpenditures() {
         // Do an asynchronous operation to fetch expenditures
-        Log.d("Alex", "in loadExpenditures for expenditures")
+        Log.d("Alex", "in loadExpenditures for expenditures " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
         expListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 expenditures.clear()
                 for (element in dataSnapshot.children.toMutableList()) {
-                    var tExp = Expenditure()
+                    val tExp = Expenditure()
                     tExp.setValue("key", element.key.toString())
                     for (child in element.children) {
                         tExp.setValue(child.key.toString(), child.value.toString())
@@ -213,136 +254,14 @@ class ExpenditureViewModel : ViewModel() {
             override fun onCancelled(dataSnapshot: DatabaseError) {
             }
         }
-        expDBRef.addValueEventListener(expListener)
+        expDBRef.addValueEventListener(expListener as ValueEventListener)
     }
 
     fun getCount(): Int {
         return expenditures.size
     }
-
-    fun getPositionOf(currentTopPosition: Int, jump: String): Int {
-        var newPosition: Int
-        when (jump) {
-            "-year" -> {
-                if (currentTopPosition == 0) return 0;
-                newPosition = currentTopPosition - 1
-                var targetYear: String
-                if (expenditures[currentTopPosition].date.substring(
-                        0,
-                        4
-                    ) == expenditures[currentTopPosition - 1].date.substring(0, 4)
-                )
-                // we're not at beginning of current year, so aim for that
-                    targetYear = expenditures[currentTopPosition].date.substring(0, 4)
-                else
-                //we're already at beginning of current year, so aim for previous year
-                    targetYear = expenditures[currentTopPosition - 1].date.substring(0, 4)
-                while (newPosition >= 0 && expenditures[newPosition].date.substring(
-                        0,
-                        4
-                    ) >= targetYear
-                ) {
-                    newPosition--
-                }
-                newPosition++
-                return newPosition
-            }
-            "-month" -> {
-                if (currentTopPosition == 0) return 0;
-                newPosition = currentTopPosition - 1
-                var targetYearMonth: String
-                if (expenditures[currentTopPosition].date.substring(
-                        0,
-                        7
-                    ) == expenditures[currentTopPosition - 1].date.substring(0, 7)
-                )
-                // we're not at beginning of current month, so aim for that
-                    targetYearMonth =
-                        expenditures[currentTopPosition].date.substring(0, 7).toString()
-                else
-                //we're already at beginning of current month, so aim for previous month
-                    targetYearMonth =
-                        expenditures[currentTopPosition - 1].date.substring(0, 7).toString()
-                while (newPosition >= 0 && expenditures[newPosition].date.substring(0, 7)
-                        .toString() >= targetYearMonth
-                ) {
-                    newPosition--
-                }
-                newPosition++
-                return newPosition
-            }
-            "today" -> {
-                var currentDate: String
-                var cal = android.icu.util.Calendar.getInstance()
-                currentDate = giveMeMyDateFormat(cal)
-                newPosition = 0
-                while (newPosition < expenditures.size && expenditures[newPosition].date < currentDate) {
-                    newPosition++
-                }
-                return newPosition
-            }
-            "+month" -> {
-                Log.d("Alex", "currentTopPosition = " + currentTopPosition.toString())
-                var currentYearMonth: String
-                newPosition = currentTopPosition + 1
-                currentYearMonth = expenditures[currentTopPosition].date.substring(0, 7)
-                while (newPosition < expenditures.size && expenditures[newPosition].date.substring(
-                        0,
-                        7
-                    ) == currentYearMonth
-                ) {
-                    newPosition++
-                }
-                Log.d("Alex", "newPosition is " + newPosition.toString())
-                return newPosition
-            }
-            "+year" -> {
-                var currentYear: String
-                newPosition = currentTopPosition + 1
-                currentYear = expenditures[currentTopPosition].date.substring(0, 4).toString()
-                while (newPosition < expenditures.size && expenditures[newPosition].date.substring(
-                        0,
-                        4
-                    ) == currentYear
-                ) {
-                    newPosition++
-                }
-                Log.d("Alex", "+year newPosition is " + newPosition)
-                if (newPosition >= expenditures.size)
-                    newPosition = expenditures.size - 1
-                return newPosition
-            }
-        }
-        return 0
-    }
-
-    fun updateTransaction(iTransactionID: String, iExpenditure: ExpenditureOut) {
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID)
-            .setValue(iExpenditure)
-        val expe =
-            getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
-        if (expe != null) {
-            expe.date = iExpenditure.date
-            expe.note = iExpenditure.note
-            expe.subcategory = iExpenditure.subcategory
-            expe.category = iExpenditure.category
-            expe.amount = iExpenditure.amount
-            expe.paidby = iExpenditure.paidby
-            expe.boughtfor = iExpenditure.boughtfor
-            expe.bfname1split = iExpenditure.bfname1split
-            expe.bfname2split = iExpenditure.bfname2split
-        }
-    }
-
-    fun deleteTransaction(iTransactionID: String) {
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID).removeValue()
-        val expe =
-            getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
-        val ind = expenditures.indexOf(expe)
-        expenditures.removeAt(ind)
-    }
 }
 
-public interface ExpenditureDataUpdatedCallback  {
+interface ExpenditureDataUpdatedCallback  {
     fun onDataUpdate()
 }

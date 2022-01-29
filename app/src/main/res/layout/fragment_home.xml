@@ -24,6 +24,19 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/homeScreenMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorSecondary"
+                    android:textAlignment="center"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp" />
+                <com.google.android.gms.common.SignInButton
+                    android:id="@+id/sign_in_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
+                <TextView
                     android:id="@+id/quote_field"
                     android:layout_width="match_parent"
                     android:layout_height="600dp"
@@ -33,7 +46,8 @@
                     android:paddingTop="35dp"
                     android:paddingEnd="5dp"
                     android:text="TextView"
-                    android:textSize="24dp" />
+                    android:textSize="24sp"
+                    tools:ignore="HardcodedText" />
         </LinearLayout>
 
         <LinearLayout
@@ -46,7 +60,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Add\nTransaction"
-            android:textSize="10sp" />
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,7 +72,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="View all\ntransactions"
-            android:textSize="10sp" />
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,6 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Dashboard\n"
-            android:textSize="10sp" />
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
         </LinearLayout>
 </FrameLayout>

@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -22,32 +23,68 @@ class SettingsFragment : Fragment() {
     private var oldFirstUser: String = ""
     private var oldSecondUser: String = ""
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
-        val spenderOne = SpenderViewModel.getSpender(0)
-        val spenderTwo = SpenderViewModel.getSpender(1)
+        val spenderOne = SpenderViewModel.getSpender(0, true)
+        val spenderTwo = SpenderViewModel.getSpender(1, false)
         binding.settingsFirstUserName.setText(spenderOne?.name.toString())
-        binding.settingsFirstPercentage.setText(spenderOne?.split.toString())
+        binding.firstUserEmail.text = spenderOne?.email
         if (spenderTwo != null) {
+            binding.switchSecondUserActive.isChecked = spenderTwo.isActive == 1
             binding.settingsSecondUserName.setText(spenderTwo.name)
-            binding.settingsSecondPercentage.setText(spenderTwo.split.toString())
+            binding.secondUserEmail.text = spenderTwo.email
         } else {
+            binding.switchSecondUserActive.isChecked = false
             binding.settingsSecondUserName.setText("")
-            binding.settingsSecondPercentage.setText("")
         }
-        if (spenderTwo?.name == "")
-            binding.settingsJointRow.visibility = View.GONE
-        else
-            binding.settingsJointRow.visibility = View.VISIBLE
-        when {
-            spenderOne?.name.toString() == DefaultsViewModel.getDefault(cDEFAULT_SPENDER) -> binding.settingsFirstUserCheckbox.isChecked =
-                true
-            spenderTwo?.name.toString() == DefaultsViewModel.getDefault(cDEFAULT_SPENDER) -> binding.settingsSecondUserCheckbox.isChecked =
-                true
-            DefaultsViewModel.getDefault(cDEFAULT_SPENDER) == "Joint" -> binding.settingsJointUserCheckbox.isChecked =
-                true
+
+        binding.splitSlider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
+        binding.splitName1.text = SpenderViewModel.getSpenderName(0)
+        binding.splitName2.text = SpenderViewModel.getSpenderName(1)
+        binding.splitName1Pct.text = SpenderViewModel.getSpenderSplit(0).toString()
+        binding.splitName2Pct.text = SpenderViewModel.getSpenderSplit(1).toString()
+        binding.splitSlider.addOnChangeListener { slider, value, fromUser ->
+            binding.splitName1Pct.setText(binding.splitSlider.value.toInt().toString())
+            binding.splitName2Pct.setText((100-binding.splitSlider.value.toInt()).toString())
+        }
+
+        var ctr = 400
+        val spenderRadioGroup = binding.defaultSpenderRadioGroup
+        spenderRadioGroup.removeAllViews()
+
+        for (i in 0..2) { // always do this twice, so we will setup a possible new second user
+            var spender  = ""
+            if (i == 0)
+                spender = SpenderViewModel.getSpenderName(0)
+            else if (i == 1) {
+                if (SpenderViewModel.getTotalCount() > 1)
+                    spender = SpenderViewModel.getSpenderName(1)
+                else {
+                    spender = "New User"
+                    binding.splitName2Pct.text = "New User"
+                }
+            } else {
+                spender = "Joint"
+            }
+            val newRadioButton = RadioButton(requireContext())
+            newRadioButton.layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            newRadioButton.buttonTintList=
+                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+            newRadioButton.setText(spender)
+            newRadioButton.id = ctr++
+            spenderRadioGroup.addView(newRadioButton)
+            Log.d("Alex", "spender.name is $spender?.name and default is ${DefaultsViewModel.getDefault(
+                cDEFAULT_SPENDER)}")
+            if (spender == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+                Log.d("Alex", "found default paidby " + spender)
+                spenderRadioGroup.check(newRadioButton.id)
+            }
         }
 
         oldFirstUser = spenderOne?.name.toString()
@@ -61,34 +98,24 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+
+        if (binding.switchSecondUserActive.isChecked) {
+            binding.secondUserLayout.visibility = View.VISIBLE
+            binding.defaultsHeader.visibility = View.VISIBLE
+            binding.splitSliderLayout.visibility = View.VISIBLE
+            binding.splitLayout.visibility = View.VISIBLE
+            binding.spenderLayout.visibility = View.VISIBLE
+        } else {
+            binding.secondUserLayout.visibility = View.GONE
+            binding.defaultsHeader.visibility = View.GONE
+            binding.splitSliderLayout.visibility = View.GONE
+            binding.splitLayout.visibility = View.GONE
+            binding.spenderLayout.visibility = View.GONE
+        }
+
         binding.settingsSaveButton.setOnClickListener {
             onSaveButtonClicked()
         }
-        val myFirstCheckBox = requireActivity().findViewById(R.id.settings_first_user_checkbox) as CheckBox
-        myFirstCheckBox.setOnClickListener({
-            if (myFirstCheckBox.isChecked) {
-                binding.settingsSecondUserCheckbox.isChecked = false
-                binding.settingsJointUserCheckbox.isChecked = false
-            }
-        })
-        myFirstCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        val mySecondCheckBox = requireActivity().findViewById(R.id.settings_second_user_checkbox) as CheckBox
-        mySecondCheckBox.setOnClickListener({
-            if (mySecondCheckBox.isChecked) {
-                binding.settingsFirstUserCheckbox.isChecked = false
-                binding.settingsJointUserCheckbox.isChecked = false
-            }
-        })
-        mySecondCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        val myJointCheckBox = requireActivity().findViewById(R.id.settings_joint_user_checkbox) as CheckBox
-        myJointCheckBox.setOnClickListener({
-            if (myJointCheckBox.isChecked) {
-                binding.settingsFirstUserCheckbox.isChecked = false
-                binding.settingsSecondUserCheckbox.isChecked = false
-            }
-        })
-        myJointCheckBox.buttonTintList = ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-
         val defaultCategorySpinner =
             requireActivity().findViewById<Spinner>(R.id.settingsCategorySpinner)
         val arrayAdapter = ArrayAdapter(
@@ -110,33 +137,44 @@ class SettingsFragment : Fragment() {
         binding.redPercentage.text = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt().toString()
 
         if (binding.settingsSecondUserName.text.toString() == "") {
-            binding.settingsSecondPercentage.isEnabled = false
-            binding.settingsSecondUserCheckbox.isEnabled = false
-            binding.settingsJointUserCheckbox.isEnabled = false
+            binding.splitSlider.isEnabled = false
+            for (i in 0 until binding.defaultSpenderRadioGroup.getChildCount()) {
+                (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+            }
         }
-        val mySecondName = requireActivity().findViewById(R.id.settings_second_user_name) as EditText
-        mySecondName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        binding.switchSecondUserActive.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (binding.switchSecondUserActive.isChecked) {
+                binding.secondUserLayout.visibility = View.VISIBLE
+                binding.defaultsHeader.visibility = View.VISIBLE
+                binding.splitSliderLayout.visibility = View.VISIBLE
+                binding.splitLayout.visibility = View.VISIBLE
+                binding.spenderLayout.visibility = View.VISIBLE
+                binding.splitSlider.value = 50.0F
+            } else {
+                binding.secondUserLayout.visibility = View.GONE
+                binding.defaultsHeader.visibility = View.GONE
+                binding.splitSliderLayout.visibility = View.GONE
+                binding.splitLayout.visibility = View.GONE
+                binding.spenderLayout.visibility = View.GONE
             }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-                if (p0.toString() == "") {
-                    binding.settingsSecondPercentage.isEnabled = false
-                    binding.settingsSecondUserCheckbox.isEnabled = false
-                    binding.settingsJointUserCheckbox.isEnabled = false
-                } else {
-                    binding.settingsSecondPercentage.isEnabled = true
-                    binding.settingsSecondUserCheckbox.isEnabled = true
-                    binding.settingsJointUserCheckbox.isEnabled = true
-                }
-            }
-        })
+        }
         binding.redPercentageSlider.addOnChangeListener { _, _, _ ->
             binding.redPercentage.text = binding.redPercentageSlider.value.toInt().toString()
         }
+
+        binding.settingsSecondUserName.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                if (binding.settingsSecondUserName.text.toString() != "") {
+                    binding.splitSlider.isEnabled = true
+                    for (i in 0 until binding.defaultSpenderRadioGroup.getChildCount()) {
+                        (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+                    }
+                }
+            }
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {}
+        })
+
         binding.settingsFirstUserName.requestFocus()
     }
 
@@ -148,12 +186,12 @@ class SettingsFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.EditCategory) {
+        return if (item.itemId == R.id.EditCategory) {
             view?.findNavController()?.navigate(R.id.SettingsEditCategoryFragment)
-            return true
+            true
         } else {
             val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
     }
 
@@ -163,15 +201,15 @@ class SettingsFragment : Fragment() {
     }
 
     private fun onSaveButtonClicked () {
-        if (!textIsSafe(binding.settingsFirstUserName.text.toString())) {
+        if (!textIsAlphaOrSpace(binding.settingsFirstUserName.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
-            binding.settingsFirstUserName.error = "The text contains unsafe characters."
+            binding.settingsFirstUserName.error = "The text contains non-alphabetic characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
             return
         }
-        if (!textIsSafe(binding.settingsSecondUserName.text.toString())) {
+        if (!textIsAlphaOrSpace(binding.settingsSecondUserName.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
-            binding.settingsSecondUserName.error = "The text contains unsafe characters."
+            binding.settingsSecondUserName.error = "The text contains non-alphabetic characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
             return
         }
@@ -183,68 +221,40 @@ class SettingsFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
             return
         }
-        if (binding.settingsFirstPercentage.text.toString() == "") {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingFirstUserPercentage))
-            binding.settingsFirstPercentage.error = getString(R.string.missingFirstUserPercentage)
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstPercentage)
-            return
-        }
-        // if second name or % is entered, then both must be entered
-        if ((binding.settingsSecondUserName.text.toString() != "" ||
-                    binding.settingsSecondPercentage.text.toString() != "" ||
-                    binding.settingsSecondUserCheckbox.isChecked) &&
-            (binding.settingsSecondUserName.text.toString() == "" ||
-                    binding.settingsSecondPercentage.text.toString() == "")) {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingSecondUserInformation))
-            binding.settingsSecondUserName.error = getString(R.string.missingSecondUserInformation)
+        if (binding.switchSecondUserActive.isChecked && binding.settingsSecondUserName.text.toString() == "") {
+            binding.settingsSecondUserName.error = getString(R.string.missingSecondUserName)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
             return
         }
-        // %'s must add to 100
-        if ((binding.settingsSecondPercentage.text.toString() == "" && binding.settingsFirstPercentage.text.toString().toInt() != 100) ||
-            (binding.settingsSecondPercentage.text.toString() != "" && binding.settingsFirstPercentage.text.toString().toInt() +
-            binding.settingsSecondPercentage.text.toString().toInt() != 100)) {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.percentagesDontAddTo100))
-            binding.settingsFirstPercentage.error = getString(R.string.percentagesDontAddTo100)
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstPercentage)
-            return
-        }
-        // at least one user must have its default checked
-        if (!binding.settingsFirstUserCheckbox.isChecked && !binding.settingsSecondUserCheckbox.isChecked && !binding.settingsJointUserCheckbox.isChecked) {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.oneUserMustBeDefault))
-            binding.settingsFirstUserCheckbox.error = getString(R.string.oneUserMustBeDefault)
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserCheckbox)
-            return
-        }
-        // only one user must have its default checked
-        var cChecked = 0
-        if (binding.settingsFirstUserCheckbox.isChecked)
-            cChecked++
-        if (binding.settingsSecondUserCheckbox.isChecked)
-            cChecked++
-        if (binding.settingsJointUserCheckbox.isChecked)
-            cChecked++
-        if (cChecked > 1) {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.onlyOneUserMustBeDefault))
-            binding.settingsFirstUserCheckbox.error = getString(R.string.onlyOneUserMustBeDefault)
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserCheckbox)
-            return
-        }
 
+        var spenderChecked = SpenderViewModel.getSpenderName(0)
+        var splitSliderValue = 100
+        if (binding.switchSecondUserActive.isChecked) {
+            val defaultSpenderRadioGroup = binding.defaultSpenderRadioGroup
+            val spenderCheckedID = defaultSpenderRadioGroup.checkedRadioButtonId
+            Log.d("Alex", "spenderCheckedID $spenderCheckedID")
+            if (spenderCheckedID == -1) { // must have been a name change
+                val but = binding.defaultSpenderRadioGroup.getChildAt(0) as RadioButton
+                but.error = getString(R.string.oneUserMustBeDefault)
+                focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
+                return
+            } else {
+                val buttonSpenderChecked =
+                    requireActivity().findViewById(spenderCheckedID) as RadioButton
+                spenderChecked = buttonSpenderChecked.text.toString()
+            }
+            splitSliderValue = binding.splitSlider.value.toInt()
+        }
+        val secondNameActive = if (binding.switchSecondUserActive.isChecked) 1 else 0
         // at this point the user information is valid
         // delete existing Spenders and add new info
         SpenderViewModel.deleteSpender(oldFirstUser)
         SpenderViewModel.deleteSpender(oldSecondUser)
-        SpenderViewModel.addSpender(Spender(binding.settingsFirstUserName.text.toString(), binding.settingsFirstPercentage.text.toString().toInt()))
+        SpenderViewModel.addSpender(Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), splitSliderValue, 1))
         if (binding.settingsSecondUserName.text.toString() != "") {
-            SpenderViewModel.addSpender(Spender(binding.settingsSecondUserName.text.toString(), binding.settingsSecondPercentage.text.toString().toInt()))
+            SpenderViewModel.addSpender(Spender(binding.settingsSecondUserName.text.toString(), binding.secondUserEmail.text.toString(), 100-splitSliderValue, secondNameActive))
         }
-        if (binding.settingsFirstUserCheckbox.isChecked)
-            DefaultsViewModel.updateDefault(cDEFAULT_SPENDER, binding.settingsFirstUserName.text.toString())
-        else if (binding.settingsSecondUserCheckbox.isChecked)
-            DefaultsViewModel.updateDefault(cDEFAULT_SPENDER, binding.settingsSecondUserName.text.toString())
-        else
-            DefaultsViewModel.updateDefault(cDEFAULT_SPENDER, "Joint")
+        DefaultsViewModel.updateDefault(cDEFAULT_SPENDER,spenderChecked)
 
         // check category default
         val defaultCategorySpinner = requireActivity().findViewById(R.id.settingsCategorySpinner) as Spinner

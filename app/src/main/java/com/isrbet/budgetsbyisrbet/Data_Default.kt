@@ -14,7 +14,7 @@ const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
 
 class DefaultsViewModel : ViewModel() {
-    private lateinit var defaultsListener: ValueEventListener
+    private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DefaultsDataUpdatedCallback? = null
     var defaultCategory: String = ""
     var defaultSubCategory: String = ""
@@ -52,6 +52,14 @@ class DefaultsViewModel : ViewModel() {
         fun refresh() {
             singleInstance.loadDefaults()
         }
+        fun clear() {
+            if (singleInstance.defaultsListener != null) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .removeEventListener(singleInstance.defaultsListener!!)
+                singleInstance.defaultsListener = null
+            }
+//            singleInstance.dataUpdatedCallback = null
+        }
     }
 
     init {
@@ -60,12 +68,16 @@ class DefaultsViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").removeEventListener(defaultsListener)
+        if (defaultsListener != null) {
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                .removeEventListener(defaultsListener!!)
+            defaultsListener = null
+        }
     }
 
     fun setCallback(iCallback: DefaultsDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun setLocal(whichOne: String, iValue: String) {
@@ -97,7 +109,6 @@ class DefaultsViewModel : ViewModel() {
                 Log.d("Alex", "onDataChange " + dataSnapshot.toString() + " username " + MyApplication.userUID)
                 dataSnapshot.children.forEach()
                 {
-                    Log.d("Alex", "processing " + it.key.toString() + " " + it.value.toString())
                     setLocal(it.key.toString(), it.value.toString())
                 }
             }
@@ -109,8 +120,9 @@ class DefaultsViewModel : ViewModel() {
         }
 //        MyApplication.database.getReference("Users").child(MyApplication.useruid)
 //            .child("Defaults").addValueEventListener(singleInstance.defaultsListener)
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").addValueEventListener(singleInstance.defaultsListener)
-        showMe()
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").addValueEventListener(
+            singleInstance.defaultsListener as ValueEventListener
+        )
     }
 }
 

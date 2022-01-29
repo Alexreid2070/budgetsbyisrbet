@@ -44,7 +44,7 @@ class UserViewModel : ViewModel() {
 
         fun setCallback(iCallback: UserDataUpdatedCallback?) {
             singleInstance.dataUpdatedCallback = iCallback
-            singleInstance.dataUpdatedCallback?.onDataUpdate()
+//            singleInstance.dataUpdatedCallback?.onDataUpdate()
         }
         fun clearCallback() {
             singleInstance.dataUpdatedCallback = null
@@ -76,7 +76,7 @@ class UserViewModel : ViewModel() {
     }
 
     init {
-        UserViewModel.singleInstance = this
+        singleInstance = this
     }
 
     override fun onCleared() {

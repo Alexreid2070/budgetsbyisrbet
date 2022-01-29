@@ -44,6 +44,12 @@
     <group
         android:id="@+id/directional_group">
         <item
+            android:id="@+id/AddBudget"
+            android:title="Add Budget"
+            android:icon="@drawable/ic_fas_plus"
+            app:showAsAction="ifRoom"
+            tools:ignore="HardcodedText" />
+        <item
             android:id="@+id/Previous"
             android:title="Previous"
             android:icon="@drawable/ic_fas_chevron_left"
@@ -128,7 +134,13 @@
             tools:ignore="HardcodedText" />
     </group>
     <group
-        android:id="@+id/sign_out_group">
+        android:id="@+id/groupx">
+        <item
+            android:id="@+id/ChatFragment"
+            android:title="Chats"
+            android:icon="@drawable/ic_fas_envelope"
+            app:showAsAction="ifRoom"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/SignOut"
             android:title="Sign Out"
@@ -150,10 +162,6 @@
             android:title="Edit Category List"
             android:icon="@drawable/ic_far_folder_open"
             app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/AddBudget"
-            android:title="Add Budget"
             tools:ignore="HardcodedText" />
     </group>
 </menu>

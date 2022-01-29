@@ -21,12 +21,9 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     private var groupList: MutableList<Int> = mutableListOf<Int>()
 
     init {
-        Log.d("Alex", "transactionSearchTExt init is " + MyApplication.transactionSearchText)
-        Log.d("Alex", "calling filterTheList from init")
         filterTheList(MyApplication.transactionSearchText)
     }
     override fun getItemCount(): Int {
-        Log.d("Alex", "getItemCount " + filteredList.size)
         return filteredList.size
     }
     override fun getFilter(): Filter {
@@ -55,8 +52,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     fun filterTheList(iConstraint: String) {
         if (iConstraint.isEmpty()) {
             filteredList = list
-            Log.d("Alex", "filteredList changed 2, new size " + filteredList.size)
-            Log.d("Alex", "transactionSearchTExt2 is " + MyApplication.transactionSearchText)
         } else {
             val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
@@ -95,7 +90,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Log.d("Alex", "list has " + filteredList.size + " rows and position requested is " + position)
         val data = filteredList[position]
 
         holder.vtf_date.text = data.date
@@ -119,7 +113,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         holder.vtf_note.text = data.note
         holder.vtf_type.text = data.type
         holder.itemView.setOnClickListener { listener(data) }
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             holder.vtf_who.visibility = View.GONE
         }
     }

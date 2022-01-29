@@ -5,9 +5,9 @@ import org.junit.Test
 class GetBudgetAmountTest {
     @Test
     fun budgetAmountTest() {
-        SpenderViewModel.addSpender(Spender("User1", 50))
-        SpenderViewModel.addSpender(Spender("User2", 50))
-        SpenderViewModel.addSpender(Spender("Joint", 100))
+        SpenderViewModel.addSpender(Spender("User1", "alexreid2070@gmail.com", 50, 1))
+        SpenderViewModel.addSpender(Spender("User2", "alexreid2071@gmail.com", 50, 1))
+        SpenderViewModel.addSpender(Spender("Joint", "", 100, 1))
         CategoryViewModel.addCategoryAndSubcategory("Housing", "Mortgage", "Non-Discretionary")
         CategoryViewModel.addCategoryAndSubcategory("Housing", "Property Taxes", "Non-Discretionary")
         CategoryViewModel.addCategoryAndSubcategory("Life", "Booze", "Discretionary")

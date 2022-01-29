@@ -106,7 +106,7 @@ class BudgetViewAllFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        (activity as AppCompatActivity).supportActionBar?.title = "View Budgets"
+        (activity as AppCompatActivity).supportActionBar?.title = "Budgets"
 
         val categorySpinner = binding.budgetCategorySpinner
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getCombinedCategoriesForSpinner())
@@ -132,7 +132,7 @@ class BudgetViewAllFragment : Fragment() {
             }
         }
 
-        if (SpenderViewModel.getCount() == 1) {
+        if (SpenderViewModel.singleUser()) {
             binding.rowBudgetWhoHeading.visibility = View.GONE
         }
     }

@@ -66,11 +66,13 @@ class AdminFragment : Fragment() {
         ExpenditureViewModel.refresh()
         CategoryViewModel.refresh()
         SpenderViewModel.refresh()
-        BudgetViewModel.refresh(requireActivity())
+        BudgetViewModel.refresh()
         RecurringTransactionViewModel.refresh()
+        activity?.onBackPressed()
     }
 
     fun refreshData() {
+        Log.d("Alex", "in user refresh data count is ${UserViewModel.getCount()}")
         binding.adminUser1Email.text = UserViewModel.getUserEmail(0)
         binding.adminUser1Uid.text = UserViewModel.getUserUID(0)
         binding.adminUser2Email.text = UserViewModel.getUserEmail(1)
@@ -86,18 +88,22 @@ class AdminFragment : Fragment() {
         _binding = null
     }
 
-        fun processButton() {
+    fun processButton() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach {
-                    val expKey = it.key.toString()
+                    var date = ""
+                    var note = ""
+                    var amount = ""
                     it.children.forEach {
+                        when (it.key.toString()) {
+                            "date" -> date = it.value.toString()
+                            "note" -> note = it.value.toString()
+                            "amount" -> amount = it.value.toString()
+                        }
                         if (it.key.toString() == "bfname1split" || it.key.toString() == "bfname2split") {
                             if (it.value.toString().toInt() > 100) {
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                                    .child(expKey)
-                                    .child(it.key.toString())
-                                    .setValue(it.value.toString().toInt()/100)
+                                Log.d("Alex", "found one $date $amount $note")
                             }
                         }
                     }
@@ -105,10 +111,10 @@ class AdminFragment : Fragment() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").addValueEventListener(listener)
+        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+            .addValueEventListener(listener)
     }
 }

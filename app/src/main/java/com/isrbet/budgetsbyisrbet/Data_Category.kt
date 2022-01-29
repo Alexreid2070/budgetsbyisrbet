@@ -7,11 +7,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Category(var categoryName: String, var subcategoryName: String, var discType: String) {
-}
+data class Category(var categoryName: String, var subcategoryName: String, var discType: String)
 
 class CategoryViewModel : ViewModel() {
-    lateinit var catListener: ValueEventListener
+    private var catListener: ValueEventListener? = null
     private val categories: MutableList<Category> = ArrayList()
     var dataUpdatedCallback: CategoryDataUpdatedCallback? = null
 
@@ -24,32 +23,40 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getCount() : Int {
-            if (::singleInstance.isInitialized)
-                return singleInstance.categories.size
+            return if (::singleInstance.isInitialized)
+                singleInstance.categories.size
             else
-                return 0
+                0
         }
 
         fun getDiscretionaryIndicator(iCategory: String, iSubcategory: String): String {
             val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
-            if (cat != null)
-                return cat.discType
-            else
-                return ""
+            return cat?.discType ?: ""
+        }
+
+        fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
+            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+            if (cat == null) {
+                addCategoryAndSubcategory(iCategory, iSubcategory, iDisctype)
+            } else {
+                cat.discType = iDisctype
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+            }
         }
 
         fun deleteCategoryAndSubcategory(iCategory: String, iSubcategory: String) {
             // this block below ensures that the viewAll view is updated immediately
-            val cat: Category? = CategoryViewModel.singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
-            val ind = CategoryViewModel.singleInstance.categories.indexOf(cat)
-            CategoryViewModel.singleInstance.categories.removeAt(ind)
+            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+            val ind = singleInstance.categories.indexOf(cat)
+            singleInstance.categories.removeAt(ind)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
         }
 
         fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String) {
             // I need to add the new cat to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             val cat = Category(iCategory, iSubcategory, iDisctype)
-            CategoryViewModel.singleInstance.categories.add(cat)
+            singleInstance.categories.add(cat)
+            singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
 
@@ -63,12 +70,17 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getCategoriesIncludingOff(): MutableList<Category> {
-            return singleInstance.categories
+            var tList: MutableList<Category>  = ArrayList()
+
+            singleInstance.categories.forEach {
+                tList.add(Category(it.categoryName, it.subcategoryName, it.discType))
+            }
+            return tList
         }
 
         fun getCategoryNames(): MutableList<String> {
             val tmpList: MutableList<String> = ArrayList()
-            var prevName: String = ""
+            var prevName = ""
             singleInstance.categories.forEach {
                 if (it.categoryName != prevName && it.discType != cDiscTypeOff) {
                     tmpList.add(it.categoryName)
@@ -88,7 +100,7 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getCombinedCategoriesForSpinner() : MutableList<String> {
-            var list : MutableList<String> = ArrayList()
+            val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.discType != "Off")
                     list.add(it.categoryName + "-" + it.subcategoryName)
@@ -96,7 +108,7 @@ class CategoryViewModel : ViewModel() {
             return list
         }
         fun getSubcategoriesForSpinner(iCategory: String) : MutableList<String> {
-            var list : MutableList<String> = ArrayList()
+            val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.categoryName == iCategory && it.discType != cDiscTypeOff)
                     list.add(it.subcategoryName)
@@ -105,37 +117,41 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun setDiscType(iCategory: String, iSubcategory: String, iDisctype: String) {
-            var myCat = singleInstance.categories.find{ it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+            val myCat = singleInstance.categories.find{ it.categoryName == iCategory && it.subcategoryName == iSubcategory }
             if (myCat != null) {
                 myCat.discType = iDisctype
             }
         }
 
-        fun deleteCategory(iCategory: String, iSubcategory: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
-        }
-
-        fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
-        }
         fun refresh() {
             singleInstance.loadCategories()
+        }
+        fun clear() {
+            if (singleInstance.catListener != null) {
+                MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Category")
+                    .removeEventListener(singleInstance.catListener!!)
+                singleInstance.catListener = null
+            }
+//            singleInstance.dataUpdatedCallback = null
+            singleInstance.categories.clear()
         }
     }
     init {
         singleInstance = this
-        Log.d("Alex", "assigning singleInstance Category")
     }
 
     override fun onCleared() {
         super.onCleared()
-        MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Category")
-            .removeEventListener(catListener)
+        if (catListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Category")
+                .removeEventListener(catListener!!)
+            catListener = null
+        }
     }
 
     fun setCallback(iCallback: CategoryDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-        dataUpdatedCallback?.onDataUpdate()
+//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun clearCallback() {
@@ -144,7 +160,7 @@ class CategoryViewModel : ViewModel() {
 
     fun loadCategories() {
         // Do an asynchronous operation to fetch categories and subcategories
-        Log.d("Alex", "in loadCategories for categories")
+        Log.d("Alex", "in loadCategories for categories " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
         catListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -158,7 +174,10 @@ class CategoryViewModel : ViewModel() {
                     }
                     dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID).child("Email").setValue(MyApplication.userEmail)
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID)
+                        .child("Info")
+                        .child("Email")
+                        .setValue(MyApplication.userEmail)
                 }
             }
 
@@ -167,10 +186,12 @@ class CategoryViewModel : ViewModel() {
                 Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").addValueEventListener(catListener)
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").addValueEventListener(
+            catListener as ValueEventListener
+        )
     }
 }
 
-public interface CategoryDataUpdatedCallback  {
+interface CategoryDataUpdatedCallback  {
     fun onDataUpdate()
 }
