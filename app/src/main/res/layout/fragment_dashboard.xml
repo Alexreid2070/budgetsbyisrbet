@@ -21,13 +21,12 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <TableLayout
                 android:id="@+id/table_dashboard_rows"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="0dp"
-                android:stretchColumns="*"></TableLayout>
+                android:stretchColumns="*"/>
         </ScrollView>
     </LinearLayout>
 
@@ -37,7 +36,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="5"
-        app:layout_constraintBottom_toBottomOf="parent">>
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <Space
             android:layout_width="0dp"
@@ -52,7 +51,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Prev"
-            android:textSize="10dp"></Button>
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
@@ -67,7 +67,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Next"
-            android:textSize="10dp"></Button>
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
@@ -82,7 +83,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Mo"
-            android:textSize="10dp"></Button>
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
@@ -97,7 +99,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Yr"
-            android:textSize="10dp">
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
         </Button>
 
         <Space

@@ -3,89 +3,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_weight="1"
+    android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/budget_category"
-        android:layout_width="match_parent"
+        android:id="@+id/row_budget_month_applicable"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="16dip"
-        android:textStyle="bold"></TextView>
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/row_budget_amount"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_weight="1"/>
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_month1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingLeft="30dp"
-            android:textSize="16dip"
-            android:textStyle="bold"></TextView>
-
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_month2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="16dip"
-            android:textStyle="bold"></TextView>
-
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_month3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="16dip"
-            android:textStyle="bold"></TextView>
-
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_month4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="16dip"
-            android:textStyle="bold"></TextView>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/row_budget_who"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_weight="1"/>
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_set_date1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingLeft="30dp"
-            android:text="date1"></TextView>
+    <TextView
+        android:id="@+id/row_budget_occurence"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_set_date2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="date2"></TextView>
+    <TextView
+        android:id="@+id/row_budget_annual"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_set_date3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="date3"></TextView>
-
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/budget_set_date4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="date4"></TextView>
-    </LinearLayout>
-
+    <TextView
+        android:id="@+id/row_budget_month_started"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 </LinearLayout>

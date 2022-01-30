@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:color="@color/sedona" />
-    <item android:state_focused="true" android:color="@android:color/holo_green_dark" />
+<item android:color="@color/mdtp_red" android:state_selected="true" />
+<item android:color="@color/sedona" android:state_checked="true" />
+<item android:color="@color/mdtp_dark_gray" android:state_enabled="false" />
+<item android:color="@color/pastel_orange" android:state_enabled="true" />
 </selector>

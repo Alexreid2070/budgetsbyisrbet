@@ -9,56 +9,82 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/pastel_orange"
+            android:background="?attr/colorPrimary"
             android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/pastel_orange"
-                    android:gravity="center_vertical"
+                    android:background="?attr/colorSecondary"
+                    android:textAlignment="center"
                     android:paddingTop="30dp"
                     android:paddingBottom="30dp"
                     android:text="@string/home_page_welcome"
-                    android:textAlignment="center"
                     android:textSize="34sp"
                     android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/homeScreenMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorSecondary"
+                    android:textAlignment="center"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp" />
+                <com.google.android.gms.common.SignInButton
+                    android:id="@+id/sign_in_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
                 <TextView
                     android:id="@+id/quote_field"
                     android:layout_width="match_parent"
                     android:layout_height="600dp"
                     android:layout_gravity="center"
-                    android:background="@color/pastel_orange"
+                    android:background="?attr/colorSecondary"
                     android:paddingStart="5dp"
                     android:paddingTop="35dp"
                     android:paddingEnd="5dp"
                     android:text="TextView"
-                    android:textSize="24dp" />
+                    android:textSize="24sp"
+                    tools:ignore="HardcodedText" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
         <Button
             android:id="@+id/expenditure_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|start"
-            android:text="Add Transaction"
-            android:textSize="8sp" />
-
+            android:layout_weight="1"
+            android:text="Add\nTransaction"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
         <Button
             android:id="@+id/view_all_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:text="View all transactions"
-            android:textSize="8sp" />
-
+            android:layout_weight="1"
+            android:text="View all\ntransactions"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
         <Button
             android:id="@+id/dashboard_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:text="Dashboard"
-            android:textSize="10sp" />
-
+            android:layout_weight="1"
+            android:text="Dashboard\n"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
+        </LinearLayout>
 </FrameLayout>

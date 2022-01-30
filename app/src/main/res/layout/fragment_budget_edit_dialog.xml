@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="12dp">
@@ -11,7 +12,11 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:text="category"
-        android:textSize="18dp"/>
+        android:textSize="18sp"
+        android:layout_gravity="start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
     <LinearLayout
         android:id="@+id/budget_dialog_linear_layout1"
@@ -20,35 +25,20 @@
         app:layout_constraintTop_toBottomOf="@+id/budget_dialog_category">
 
         <TextView
-            android:id="@+id/budget_dialog_m1_heading"
+            android:id="@+id/budget_dialog_year_heading"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="m1"
-            android:textSize="16dp"/>
+            android:text="Year: "
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/budget_dialog_m2_heading"
+            android:id="@+id/budget_dialog_year"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="m2"
-            android:textSize="16dp"/>
-        <TextView
-            android:id="@+id/budget_dialog_m3_heading"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="m3"
-            android:textSize="16dp"/>
-
-        <TextView
-            android:id="@+id/budget_dialog_m4_heading"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="m4"
-            android:textSize="16dp"/>
+            android:textSize="16sp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -57,62 +47,116 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/budget_dialog_linear_layout1">
 
-        <EditText
-            android:id="@+id/budget_dialog_m1_value"
+        <TextView
+            android:id="@+id/budget_dialog_month_heading"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:textSize="14dp" />
+            android:text="Month: "
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/budget_dialog_month"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/budget_dialog_who_heading"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Budget For: "
+        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_linear_layout2"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="16sp"
+        tools:ignore="HardcodedText" />
+
+    <RadioGroup
+        android:id="@+id/budget_dialog_new_who_RadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_who_heading"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="1dp"/>
+
+    <TextView
+        android:id="@+id/budget_dialog_OccurenceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_new_who_RadioGroup"
+        android:layout_gravity="start"
+        app:layout_constraintStart_toStartOf="parent"
+        android:paddingTop="10dp"
+        android:text="Frequency: "
+        android:textSize="16sp"
+        tools:ignore="HardcodedText" />
+
+    <RadioGroup
+        android:id="@+id/budget_dialog_occurenceRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_OccurenceLabel"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="1dp"/>
+
+    <LinearLayout
+        android:id="@+id/budget_dialog_linear_layout4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_occurenceRadioGroup">
+
+        <TextView
+            android:id="@+id/budget_dialog_amount_heading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="New Amount: "
+            android:textSize="16sp"
+            tools:ignore="HardcodedText" />
 
         <EditText
-            android:id="@+id/budget_dialog_m2_value"
+            android:id="@+id/budget_dialog_new_amount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
-            android:textSize="14dp" />
-
-        <EditText
-            android:id="@+id/budget_dialog_m3_value"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:textSize="14dp" />
-
-        <EditText
-            android:id="@+id/budget_dialog_m4_value"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:textSize="14dp" />
+            android:enabled="false"
+            android:textSize="16sp"
+            tools:ignore="Autofill,LabelFor" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_linear_layout2">
-
-    <Button
-            android:id="@+id/budget_dialog_button_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:text="Save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_linear_layout4">
 
         <Button
-            android:id="@+id/budget_dialog_button_cancel"
+            android:id="@+id/budget_dialog_button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="Cancel"
+            android:text="Edit"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-    </LinearLayout>
+            app:layout_constraintStart_toStartOf="parent"
+            style="?android:attr/buttonBarButtonStyle"
+            tools:ignore="HardcodedText" />
 
+        <Button
+            android:id="@+id/budget_dialog_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Delete"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="?android:attr/buttonBarButtonStyle"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

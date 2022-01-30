@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_ViewTransactionsFragment_to_TransactionFragment"
             app:destination="@id/TransactionFragment" />
+        <action
+            android:id="@+id/action_ViewTransactionsFragment_to_TransferFragment"
+            app:destination="@id/TransferFragment" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
@@ -55,13 +58,63 @@
         android:label="@string/admin_fragment_label"
         tools:layout="@layout/fragment_admin" />
     <fragment
-        android:id="@+id/BudgetFragment"
-        android:name="com.isrbet.budgetsbyisrbet.BudgetFragment"
-        android:label="@string/budget_fragment_label"
-        tools:layout="@layout/fragment_budget" />
-    <fragment
         android:id="@+id/SettingsEditCategoryFragment"
         android:name="com.isrbet.budgetsbyisrbet.SettingsCategoryFragment"
         android:label="@string/settings_edit_category_label"
         tools:layout="@layout/fragment_settings_edit_category" />
+    <fragment
+        android:id="@+id/AccountingFragment"
+        android:name="com.isrbet.budgetsbyisrbet.AccountingFragment"
+        android:label="@string/accounting_fragment_label" />
+    <fragment
+        android:id="@+id/TransferFragment"
+        android:name="com.isrbet.budgetsbyisrbet.TransferFragment"
+        android:label="@string/transfer_fragment_label">
+        <argument
+            android:name="transactionID"
+            app:argType="string"
+            android:defaultValue='' />
+    </fragment>
+    <fragment
+        android:id="@+id/HelpFragment"
+        android:name="com.isrbet.budgetsbyisrbet.HelpFragment"
+        android:label="@string/help_fragment_label"
+        tools:layout="@layout/fragment_help" />
+    <fragment
+        android:id="@+id/BudgetFragment"
+        android:name="com.isrbet.budgetsbyisrbet.BudgetFragment"
+        android:label="fragment_budget"
+        tools:layout="@layout/fragment_budget" >
+        <argument
+            android:name="category"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="subcategory"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+    <fragment
+        android:id="@+id/BudgetViewAllFragment"
+        android:name="com.isrbet.budgetsbyisrbet.BudgetViewAllFragment"
+        android:label="fragment_budget_view_all"
+        tools:layout="@layout/fragment_budget_view_all" >
+        <action
+            android:id="@+id/action_BudgetViewAllFragment_to_BudgetFragment"
+            app:destination="@id/BudgetFragment" >
+            <argument
+                android:name="category"
+                app:argType="string"
+                android:defaultValue="" />
+            <argument
+                android:name="subcategory"
+                app:argType="string"
+                android:defaultValue="" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/ChatFragment"
+        android:name="com.isrbet.budgetsbyisrbet.ChatFragment"
+        android:label="Chats"
+        tools:layout="@layout/fragment_chat" />
 </navigation>

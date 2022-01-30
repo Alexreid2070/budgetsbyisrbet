@@ -5,7 +5,6 @@
     <string name="transaction_fragment_label">Expenditures</string>
     <string name="recurring_transaction_fragment_label">Recurring Transactions</string>
     <string name="previous">Previous</string>
-
     <string name="inputDateLabel">Date:</string>
     <string name="inputAmountLabel">Amount:</string>
     <string name="inputCategoryLabel">Category:</string>
@@ -20,7 +19,7 @@
     <string name="category3">Housing</string>
     <string name="category4">Travel</string>
     <string name="ok">OK</string>
-    <string name="missingAmountError">Amount is missing.  Transaction not added.</string>
+    <string name="missingAmountError">Amount is missing.</string>
     <string name="missingNoteError">The note is missing.  Transaction not added.</string>
     <string name="state_on">On</string>
     <string name="state_off">Off</string>
@@ -47,9 +46,10 @@
     <string name="budget_fragment_label">Budget</string>
     <string name="dashboard_fragment_label">Dashboards</string>
     <string name="admin_fragment_label">Admin</string>
+    <string name="transfer_fragment_label">Transfer</string>
     <string name="missingFirstUserName">User name is missing</string>
     <string name="missingFirstUserPercentage">User % is missing</string>
-    <string name="missingSecondUserInformation">Second user information missing</string>
+    <string name="missingSecondUserName">Second user name missing</string>
     <string name="percentagesDontAddTo100">Percentages must add to 100</string>
     <string name="userMustBeSetAsDefault">User must be set as default</string>
     <string name="oneUserMustBeDefault">One user must be set to default</string>
@@ -57,4 +57,13 @@
     <string name="transaction_view_all_fragment_label">View All Transactions</string>
     <string name="settings_edit_category_label">Categories</string>
     <string name="fieldMustBeYesOrNo">Field must be Yes or No</string>
+    <string name="accounting_fragment_label">Accounting</string>
+    <string name="help_fragment_label">Help</string>
+    <string name="splitMustEqual100">Total split must equal 100%</string>
+    <string name="invalidYear">Invalid year</string>
+    <string name="budgetOverlap">Can\'t add, as it overlaps with an existing budget entry.</string>
+    <string name="invalidMonth">Invalid month (valid values are 1 to 12)</string>
+    <string name="budgetExistsAtThatNode">Budget already exists for that name, can\'t add.</string>
+    <string name="toFromCantBeSame">To and From values can\'t be the same</string>
+    <string name="chat_fragment_label">Chats</string>
 </resources>

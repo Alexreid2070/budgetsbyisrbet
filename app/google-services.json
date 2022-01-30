@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "54206436786-sneam4tvqusr4r0jq51oqd9i2uh0pckk.apps.googleusercontent.com",
+          "client_id": "54206436786-d2ejhqg8r9j5rb1lkgrt5gk9bm1h20m2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.isrbet.budgetsbyisrbet",
             "certificate_hash": "d05ae7148355459b8b1d5db3e31e66d821617dfa"
+          }
+        },
+        {
+          "client_id": "54206436786-mn924kgmpsud3nigf5dhkor8e6n8bpj5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.isrbet.budgetsbyisrbet",
+            "certificate_hash": "fa1ee6511be5126b8b905c5c081f69a8f9ba7838"
           }
         },
         {
