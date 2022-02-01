@@ -12,7 +12,7 @@ data class Category(var categoryName: String, var subcategoryName: String, var d
 class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
     private val categories: MutableList<Category> = ArrayList()
-    var dataUpdatedCallback: CategoryDataUpdatedCallback? = null
+    private var dataUpdatedCallback: CategoryDataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -75,7 +75,7 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getCategoriesIncludingOff(): MutableList<Category> {
-            var tList: MutableList<Category>  = ArrayList()
+            val tList: MutableList<Category>  = ArrayList()
 
             singleInstance.categories.forEach {
                 tList.add(Category(it.categoryName, it.subcategoryName, it.discType))

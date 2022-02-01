@@ -12,10 +12,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -217,6 +215,7 @@ class HomeFragment : Fragment() {
             (activity as MainActivity).setLoggedOutMode(true)
             binding.signInButton.visibility = View.VISIBLE
             binding.quoteField.text = ""
+            binding.quoteLabel.visibility = View.GONE
             binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
 //            findViewById<TextView>(R.id.homeScreenMessage).text = "You must sign in using your Google account to proceed.  Click below to continue."
@@ -224,7 +223,8 @@ class HomeFragment : Fragment() {
         } else {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
-            if (MyApplication.userEmail != MyApplication.currentUserEmail)
+            binding.quoteLabel.visibility = View.VISIBLE
+            if (MyApplication.currentUserEmail != null && MyApplication.userEmail != MyApplication.currentUserEmail)
                 binding.quoteField.text = "Currently impersonating " + MyApplication.currentUserEmail
             else
                 binding.quoteField.text = getQuote()
@@ -238,10 +238,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun getQuote() : String {
-        if (MyApplication.userEmail != MyApplication.currentUserEmail)
-            return "Currently impersonating " + MyApplication.currentUserEmail
+        return if (MyApplication.userEmail != MyApplication.currentUserEmail)
+            "Currently impersonating " + MyApplication.currentUserEmail
         else
-            return MyApplication.getQuote()
+            MyApplication.getQuote()
     }
 
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
@@ -276,7 +276,7 @@ class HomeFragment : Fragment() {
         if (MyApplication.userUID == "")  // ie don't want to override this if Admin is impersonating another user...
             MyApplication.userUID = account?.uid.toString()
         if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
-            MyApplication.currentUserEmail = account?.email.toString()
+            MyApplication.currentUserEmail = if (account != null) account.email.toString() else ""
         if (account == null) {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
@@ -285,6 +285,7 @@ class HomeFragment : Fragment() {
         else {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
+            binding.quoteLabel.visibility = View.VISIBLE
             binding.quoteField.text = getQuote()
             if (account.email == "alexreid2070@gmail.com")
                 (activity as MainActivity).setAdminMode(true)
@@ -326,6 +327,7 @@ class HomeFragment : Fragment() {
             binding.viewAllButton.visibility = View.VISIBLE
             binding.dashboardButton.visibility = View.VISIBLE
             (activity as MainActivity).setLoggedOutMode(false)
+            binding.quoteLabel.visibility = View.VISIBLE
             binding.quoteField.visibility = View.VISIBLE
             binding.quoteField.text = getQuote()
             binding.homeScreenMessage.text = ""
@@ -387,6 +389,7 @@ class HomeFragment : Fragment() {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
             binding.quoteField.text = ""
+            binding.quoteLabel.visibility = View.GONE
             binding.expenditureButton.visibility = View.GONE
             binding.viewAllButton.visibility = View.GONE
             binding.dashboardButton.visibility = View.GONE
@@ -433,7 +436,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    fun thereAreUnreadMessages() : Int {
+    private fun thereAreUnreadMessages() : Int {
         if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
             val tChat = ChatViewModel.getLastChat()
             Log.d("Alex", MyApplication.lastReadChatsDate + " " + MyApplication.lastReadChatsTime + " " + tChat.date + " " + tChat.time)

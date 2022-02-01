@@ -7,12 +7,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Spender(var name: String, var email: String, var split: Int, var isActive: Int)
+data class Spender(var name: String, var email: String, var split: Int, var isActive: Int) {
+    constructor(spender: Spender) : this(spender.name, spender.email, spender.split, spender.isActive)
+}
 
 class SpenderViewModel : ViewModel() {
     private var spenderListener: ValueEventListener? = null
-    val spenders: MutableList<Spender> = ArrayList()
-    var dataUpdatedCallback: SpenderDataUpdatedCallback? = null
+    private val spenders: MutableList<Spender> = ArrayList()
+    private var dataUpdatedCallback: SpenderDataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -29,7 +31,7 @@ class SpenderViewModel : ViewModel() {
         fun getSpender(pos:Int, activeOnly:Boolean): Spender? {
             if (pos  < singleInstance.spenders.size) {
                 if ((activeOnly && singleInstance.spenders[pos].isActive == 1) || !activeOnly)
-                    return singleInstance.spenders[pos]
+                    return Spender(singleInstance.spenders[pos])
                 else
                     return null
             } else

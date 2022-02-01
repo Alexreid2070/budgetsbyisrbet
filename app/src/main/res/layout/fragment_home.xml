@@ -48,13 +48,23 @@
                 android:layout_gravity="center" />
 
             <TextView
+                android:id="@+id/quote_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:background="?attr/colorSecondary"
+                android:paddingStart="5dp"
+                android:paddingTop="35dp"
+                android:paddingEnd="5dp"
+                android:text="Quote of the day:"
+                tools:ignore="HardcodedText" />
+            <TextView
                 android:id="@+id/quote_field"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_gravity="center"
                 android:background="?attr/colorSecondary"
                 android:paddingStart="5dp"
-                android:paddingTop="35dp"
                 android:paddingEnd="5dp"
                 android:paddingBottom="10dp"
                 android:text="TextView"

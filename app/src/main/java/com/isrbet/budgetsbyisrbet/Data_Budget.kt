@@ -1,9 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.app.Activity
 import android.icu.util.Calendar
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -53,14 +51,6 @@ data class Budget(var categoryName: String) {
         budgetPeriodList.sortWith(compareBy({ it.period.year }, { it.period.month }))
     }
 
-    fun getPeriod(iPeriod: String, iWho: String): BudgetPeriod? {
-        budgetPeriodList.forEach {
-            if (it.period.toString() == iPeriod && it.who == iWho)
-                return it
-        }
-        return null
-    }
-
     fun overlapsWithExistingBudget(period: String, who: String): Boolean {
         val pBudget = budgetPeriodList.find { it.period.toString() == period && it.who == who }
         if (pBudget != null) { // ie found it
@@ -100,7 +90,7 @@ data class Budget(var categoryName: String) {
 class BudgetViewModel : ViewModel() {
     private var budgetListener: ValueEventListener? = null
     private val budgets: MutableList<Budget> = ArrayList()
-    var dataUpdatedCallback: BudgetDataUpdatedCallback? = null
+    private var dataUpdatedCallback: BudgetDataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -332,8 +322,8 @@ class BudgetViewModel : ViewModel() {
                                 lastMonth.period.month = 1
                             var monthIterator = firstMonth.period.toString()
                             while (monthIterator <= lastMonth.period.toString()) {
-                                for (i in 1..SpenderViewModel.getActiveCount()) {
-                                    val spenderName = SpenderViewModel.getSpenderName(i - 1)
+                                for (i in 0 until SpenderViewModel.getActiveCount()) {
+                                    val spenderName = SpenderViewModel.getSpenderName(i)
                                     val  bAmount = getBudgetAmount(
                                         fullCategoryName,
                                         BudgetMonth(monthIterator),
@@ -421,7 +411,7 @@ class BudgetViewModel : ViewModel() {
         fun getBudget(iCategory: String): Budget? {
             return singleInstance.budgets.find { it.categoryName == iCategory }
         }
-        fun getFirstMonthOfBudget(iCategory: String): BudgetPeriod? {
+        private fun getFirstMonthOfBudget(iCategory: String): BudgetPeriod? {
             var tMonth = BudgetPeriod(BudgetMonth(9999,0), "", 0.0,0)
             val budget = singleInstance.budgets.find { it.categoryName == iCategory }
             if (budget != null) {
@@ -439,7 +429,7 @@ class BudgetViewModel : ViewModel() {
                 return null
         }
 
-        fun getLastMonthOfBudget(iCategory: String): BudgetPeriod {
+        private fun getLastMonthOfBudget(iCategory: String): BudgetPeriod {
             var tMonth = BudgetPeriod(BudgetMonth(0,0), "", 0.0 ,0)
             val budget = singleInstance.budgets.find { it.categoryName == iCategory }
             if (budget != null) {

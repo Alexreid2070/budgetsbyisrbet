@@ -26,7 +26,7 @@ data class Chat(
 class ChatViewModel : ViewModel() {
     private var chatListener: ValueEventListener? = null
     private val chats: MutableList<Chat> = ArrayList()
-    var dataUpdatedCallback: ChatDataUpdatedCallback? = null
+    private var dataUpdatedCallback: ChatDataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -41,10 +41,15 @@ class ChatViewModel : ViewModel() {
             return singleInstance.loaded
         }
 
-        fun getChats(): MutableList<Chat> {
+        private fun getChats(): MutableList<Chat> {
             return singleInstance.chats
         }
 
+        fun getCopyOfChats(): MutableList<Chat> {
+            val copy = mutableListOf<Chat>()
+            copy.addAll(getChats())
+            return copy
+        }
         fun getCount(): Int {
             return singleInstance.chats.count()
         }

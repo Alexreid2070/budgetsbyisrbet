@@ -135,7 +135,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         var c = 0 // row counter
         var j = 0 // number of transaction within specific date
 
-        for (i in 0..filteredList.size-1) {
+        for (i in 0 until filteredList.size) {
             if (groupList.size == 0) {
                 groupList.add(c,j)
                 c++

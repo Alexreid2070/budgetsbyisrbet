@@ -107,8 +107,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-//        CategoryViewModel.singleInstance.clearCallback()
-//        SpenderViewModel.singleInstance.clearCallback()
         MyApplication.releaseResources()
         MyApplication.haveLoadedDataForThisUser = false
     }

@@ -93,9 +93,7 @@ class DashboardFragment : Fragment() {
         val rightRowMargin = 0
         val bottomRowMargin = 0
         val decimalFormat = DecimalFormat("0.00")
-        val percentFormat = DecimalFormat("0.00%")
         val deltaFormat = DecimalFormat("#,##0.00;(#,##0.00)")
-        val pct: Double
 
         val tv1 = TextView(requireContext())
         tv1.layoutParams = TableRow.LayoutParams(
@@ -205,9 +203,9 @@ class DashboardFragment : Fragment() {
             tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
             tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
-            pct =
+/*            pct =
                 if (iActualAmount == 0.0 || iBudgetAmount == 0.0) 0.0
-                else iActualAmount / iBudgetAmount
+                else iActualAmount / iBudgetAmount */
             if (iRowType != "Delta")
                tv5.text = deltaFormat.format(iBudgetAmount - iActualAmount)
         }
@@ -623,7 +621,6 @@ class DashboardData {
 class DashboardRows {
     fun getRows(iBudgetMonth: BudgetMonth, iRecFlag: String = "", iDiscFlag: String = "", iPaidByFlag: String = "", iBoughtForFlag: String = ""): MutableList<DashboardData> {
         val data: MutableList<DashboardData> = mutableListOf()
-        val expenditures = ExpenditureViewModel.getExpenditures()
         val startDate: String
         val endDate: String
         if (iBudgetMonth.month == 0) {
@@ -642,7 +639,8 @@ class DashboardRows {
             "start date is $startDate and end date is $endDate iDiscFlag is '$iDiscFlag' and iPaidByFlag is $iPaidByFlag' and iBoughtForFlag is $iBoughtForFlag"
         )
 
-        loop@ for (expenditure in expenditures) {
+        for (i in 0 until ExpenditureViewModel.getCount()) {
+            val expenditure = ExpenditureViewModel.getExpenditure(i)
             if (expenditure.date > startDate && expenditure.date < endDate) {
                 val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(
                     expenditure.category,

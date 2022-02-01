@@ -228,7 +228,6 @@ class TransactionFragment : Fragment() {
             (activity as AppCompatActivity).supportActionBar?.title = "View Expenditure"
             binding.buttonSaveTransaction.visibility = View.GONE
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
-            binding.dashboardLayout.visibility = View.GONE
             binding.editTextDate.isEnabled = false
             binding.editTextAmount.isEnabled = false
             binding.editTextNote.isEnabled = false
@@ -261,14 +260,6 @@ class TransactionFragment : Fragment() {
             binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
 
-        updateDashboardSummary()
-
-        ExpenditureViewModel.singleInstance.setCallback(object: ExpenditureDataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "got a callback that expenditure data was updated")
-                updateDashboardSummary()
-            }
-        })
         binding.editTextAmount.requestFocus()
     }
 
@@ -289,54 +280,6 @@ class TransactionFragment : Fragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    fun updateDashboardSummary() {
-        val dateNow = android.icu.util.Calendar.getInstance()
-        val tomorrow = android.icu.util.Calendar.getInstance()
-        tomorrow.add(Calendar.DAY_OF_YEAR, 1)
-        val daysInMonth = getDaysInMonth(dateNow)
-
-        binding.dashboardSummaryPastTitle.text = "To " + giveMeMyDateFormat(dateNow)
-        binding.dashboardSummaryRemTitle.text = "Rest of month"
-
-        val totalDiscretionaryBudgetForMonth = BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow)
-        val totalDiscBudgetToDate =
-            totalDiscretionaryBudgetForMonth * dateNow.get(Calendar.DATE) / daysInMonth
-        binding.dashboardSummaryTotalBudgetToDate.text = format("%.2f", totalDiscBudgetToDate)
-        val dailyDiscBudgetToDate =
-            round((totalDiscBudgetToDate / dateNow.get(android.icu.util.Calendar.DATE)) * 100) / 100
-        binding.dashboardSummaryDailyBudgetToDate.text = format("%.2f", dailyDiscBudgetToDate)
-
-        val totalDiscActualsToDate =
-            ExpenditureViewModel.getTotalDiscretionaryActualsToDate(dateNow)
-        binding.dashboardSummaryTotalActualsToDate.text = format("%.2f", totalDiscActualsToDate)
-        val dailyDiscActualsToDate =
-            round((totalDiscActualsToDate / dateNow.get(android.icu.util.Calendar.DATE)) * 100) / 100
-        binding.dashboardSummaryDailyActualsToDate.text = format("%.2f", dailyDiscActualsToDate)
-
-        binding.dashboardSummaryTotalDeltaToDate.text = format("%.2f", (totalDiscBudgetToDate - totalDiscActualsToDate))
-        val dailyDeltaToDate =
-            round((totalDiscBudgetToDate - totalDiscActualsToDate) / dateNow.get(android.icu.util.Calendar.DATE) * 100) / 100
-        binding.dashboardSummaryDailyDeltaToDate.text = format("%.2f", dailyDeltaToDate)
-
-
-        val totalBudgetRem = (totalDiscretionaryBudgetForMonth - totalDiscActualsToDate)
-        binding.dashboardSummaryTotalBudgetRem.text = format("%.2f", totalBudgetRem)
-        if (totalBudgetRem > 0) {
-            val dailyBudgetRem =
-                round((totalBudgetRem / (daysInMonth - dateNow.get(android.icu.util.Calendar.DATE))) * 100) / 100
-            binding.dashboardSummaryDailyBudgetRem.text = format("%.2f", dailyBudgetRem)
-        } else {
-            binding.dashboardSummaryDailyBudgetRem.text = "0.00"
-            binding.dashboardSummaryDailyBudgetRem.setTextColor(Color.RED)
-        }
-
-        val color = getBudgetColour(requireContext(), totalDiscActualsToDate, totalDiscBudgetToDate, true)
-        binding.dashboardSummaryTotalDeltaToDate.setBackgroundColor(color)
-        binding.dashboardSummaryDailyDeltaToDate.setBackgroundColor(color)
-        binding.dashboardSummaryTotalBudgetRem.setBackgroundColor(color)
-        binding.dashboardSummaryDailyBudgetRem.setBackgroundColor(color)
-    }
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         if (newTransactionMode) {
@@ -650,7 +593,6 @@ class TransactionFragment : Fragment() {
             binding.editTextNote.setText("")
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transaction added", Toast.LENGTH_SHORT).show()
-            updateDashboardSummary()
 
             if (CustomNotificationListenerService.getExpenseNotificationCount() != 0) {
                 binding.buttonLoadTransactionFromTdmyspend.isEnabled = true
@@ -701,7 +643,6 @@ class TransactionFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        ExpenditureViewModel.singleInstance.setCallback(null)
         _binding = null
     }
 

@@ -13,7 +13,9 @@
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/ViewTransactionsFragment"
-            android:title="View transactions"
+            android:title="View all"
+            android:icon="@drawable/ic_fas_binoculars"
+            app:showAsAction="ifRoom"
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/ViewTransfersFragment"

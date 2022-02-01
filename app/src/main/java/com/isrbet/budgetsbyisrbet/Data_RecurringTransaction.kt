@@ -53,10 +53,14 @@ class RecurringTransactionViewModel : ViewModel() {
             }
         }
 
-        fun getRecurringTransactions(): MutableList<RecurringTransaction> {
+        private fun getRecurringTransactions(): MutableList<RecurringTransaction> {
             return singleInstance.recurringTransactions
         }
-
+        fun getCopyOfRecurringTransactions(): MutableList<RecurringTransaction> {
+            val copy = mutableListOf<RecurringTransaction>()
+            copy.addAll(getRecurringTransactions())
+            return copy
+        }
         fun deleteRecurringTransactionFromFirebase(iTransactionID: String) {
             // this block below ensures that the viewAll view is updated immediately
             val rt: RecurringTransaction? = singleInstance.recurringTransactions.find { it.name == iTransactionID }
@@ -69,7 +73,7 @@ class RecurringTransactionViewModel : ViewModel() {
             // I need to add the new RT to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             // also, if I don't add locally right away, the app crashes because of a sync issue
             singleInstance.recurringTransactions.add(iRecurringTransaction)
-            singleInstance.recurringTransactions.sortWith(compareBy({it.name}))
+            singleInstance.recurringTransactions.sortWith(compareBy { it.name })
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
         fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int, iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String) {

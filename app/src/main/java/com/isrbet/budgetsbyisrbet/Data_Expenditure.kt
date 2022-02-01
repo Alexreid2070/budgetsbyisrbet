@@ -81,7 +81,7 @@ data class ExpenditureOut(
 class ExpenditureViewModel : ViewModel() {
     private var expListener: ValueEventListener? = null
     private val expenditures: MutableList<Expenditure> = mutableListOf()
-    var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
+    private var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -91,10 +91,13 @@ class ExpenditureViewModel : ViewModel() {
             return singleInstance.loaded
         }
 
-        fun getExpenditures(): MutableList<Expenditure> {
+        private fun getExpenditures(): MutableList<Expenditure> {
             return singleInstance.expenditures
         }
 
+        fun getExpenditure(i:Int): Expenditure {
+            return singleInstance.expenditures[i]
+        }
         fun getCount(): Int {
             return singleInstance.expenditures.size
         }

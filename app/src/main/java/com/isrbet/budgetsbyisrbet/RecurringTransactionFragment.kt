@@ -26,7 +26,7 @@ class RecurringTransactionFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
+        val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getCopyOfRecurringTransactions())
 
         val listView: ListView = requireActivity().findViewById(R.id.recurring_transaction_list_view)
         listView.adapter = adapter
@@ -38,7 +38,7 @@ class RecurringTransactionFragment : Fragment() {
                 rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         Log.d("Alex", "in onNewDataSaved")
-                        val myAdapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
+                        val myAdapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getCopyOfRecurringTransactions())
                         listView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
@@ -74,7 +74,7 @@ class RecurringTransactionFragment : Fragment() {
             cDEFAULT_SPENDER), DefaultsViewModel.getDefault(cDEFAULT_SPENDER))
         rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
             override fun onNewDataSaved() {
-                val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getRecurringTransactions())
+                val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getCopyOfRecurringTransactions())
                 val listView: ListView = requireActivity().findViewById(R.id.recurring_transaction_list_view)
                 listView.adapter = adapter
                 adapter.notifyDataSetChanged()

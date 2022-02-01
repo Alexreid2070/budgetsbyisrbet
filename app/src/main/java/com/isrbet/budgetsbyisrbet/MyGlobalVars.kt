@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.R.attr
 import android.app.Application
 import android.content.Context
 import android.icu.util.Calendar
@@ -10,19 +9,15 @@ import android.view.inputmethod.InputMethodManager
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import android.app.Activity
 import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.fragment.app.FragmentManager
 import android.net.ConnectivityManager
 import android.view.GestureDetector
 import android.view.MotionEvent
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
-import com.google.android.material.color.MaterialColors
 import kotlin.math.round
 import kotlin.random.Random
-import android.R.attr.y
 
 
 
@@ -75,7 +70,7 @@ class MyApplication : Application() {
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
-                var randomIndex = Random.nextInt() % inspirationalQuotes.size
+                var randomIndex = Random.nextInt(0, inspirationalQuotes.size)
                 randomIndex = if (randomIndex < 0) randomIndex + inspirationalQuotes.size else randomIndex
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
@@ -89,7 +84,12 @@ class MyApplication : Application() {
 
             if (mediaPlayer == null)
                 mediaPlayer = MediaPlayer.create(context, iSound)
-            mediaPlayer?.start()
+            try {
+                mediaPlayer?.start()
+            }
+            catch (exception: Exception) {
+                Log.d("Alex", "caught an exception in playSound")
+            }
         }
 
         fun releaseResources() {

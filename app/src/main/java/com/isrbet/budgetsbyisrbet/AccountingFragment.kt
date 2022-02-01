@@ -61,71 +61,72 @@ class AccountingFragment : Fragment() {
         binding.accountingTToj1RowName.text = "Jt-$firstName"
         binding.accountingTToj2RowName.text = "Jt-$secondName"
 
-        ExpenditureViewModel.getExpenditures().forEach {
-            if (it.type == "T") {
-                when (it.paidby) {
+        for (i in 0 until ExpenditureViewModel.getCount()) {
+            val exp = ExpenditureViewModel.getExpenditure(i)
+            if (exp.type == "T") {
+                when (exp.paidby) {
                     firstName -> {
-                        when (it.boughtfor) {
-                            firstName -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (it.amount/100.0)
-                            secondName -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (it.amount/100.0)
+                        when (exp.boughtfor) {
+                            firstName -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            secondName -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             "Joint" -> {
-                                transferTotals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
-                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
                     secondName -> {
-                        when (it.boughtfor) {
-                            firstName -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (it.amount/100.0)
-                            secondName -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (it.amount/100.0)
+                        when (exp.boughtfor) {
+                            firstName -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            secondName -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             "Joint" -> {
-                                transferTotals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
-                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
                     "Joint" -> {
-                        when (it.boughtfor) {
-                            firstName -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (it.amount/100.0)
-                            secondName -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (it.amount/100.0)
+                        when (exp.boughtfor) {
+                            firstName -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            secondName -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             "Joint" -> {
-                                transferTotals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
-                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/100.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
                             }
                         }
                     }
                 }
             } else {
-                when (it.paidby) {
+                when (exp.paidby) {
                     firstName -> {
-                        when (it.boughtfor) {
-                            firstName -> totals[cFIRST_NAME][cFIRST_NAME] += (it.amount/100.0)
-                            secondName -> totals[cFIRST_NAME][cSECOND_NAME] += (it.amount/100.0)
+                        when (exp.boughtfor) {
+                            firstName -> totals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            secondName -> totals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             "Joint" -> {
-                                totals[cFIRST_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
-                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
+                                totals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
+                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
                     secondName -> {
-                        when (it.boughtfor) {
-                            firstName -> totals[cSECOND_NAME][cFIRST_NAME] += (it.amount/100.0)
-                            secondName -> totals[cSECOND_NAME][cSECOND_NAME] += (it.amount/100.0)
+                        when (exp.boughtfor) {
+                            firstName -> totals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            secondName -> totals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             "Joint" -> {
-                                totals[cSECOND_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
-                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split / 100.0))
+                                totals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
+                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
                     "Joint" -> {
-                        when (it.boughtfor) {
+                        when (exp.boughtfor) {
                             firstName -> {
-                                totals[cJOINT_NAME][cFIRST_NAME] += ((it.amount / 100.0) * (it.bfname1split / 100.0))
+                                totals[cJOINT_NAME][cFIRST_NAME] += ((exp.amount / 100.0) * (exp.bfname1split / 100.0))
                             }
-                            secondName -> totals[cJOINT_NAME][cSECOND_NAME] += ((it.amount/100.0) * (it.bfname2split/100.0))
+                            secondName -> totals[cJOINT_NAME][cSECOND_NAME] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
                             "Joint" -> {
-                                totals[cJOINT_NAME][cJOINT_NAME] += ((it.amount/100.0) * (it.bfname1split / 100.0))
-                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((it.amount/100.0) * (it.bfname2split/100.0))
+                                totals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
+                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
                             }
                         }
                     }
@@ -172,20 +173,6 @@ class AccountingFragment : Fragment() {
                 + ((transferTotals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
                 - ((transferTotals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100))
 
-/*        oneOwesTwo = ((-totals[cFIRST_NAME][cSECOND_NAME]/100.0)
-                + (totals[cSECOND_NAME][cFIRST_NAME]/100.0)
-                - (totals[cFIRST_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(1) /100)
-                + (totals[cSECOND_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
-                + (totals[cJOINT_NAME][cFIRST_NAME]/100 * SpenderViewModel.getSpenderSplit(1) / 100)
-                - (totals[cJOINT_NAME][cSECOND_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
-                - (transfer_totals[cFIRST_NAME][cSECOND_NAME]/100.0)
-                + (transfer_totals[cSECOND_NAME][cFIRST_NAME]/100.0)
-                - (transfer_totals[cFIRST_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(1) /100)
-                + (transfer_totals[cSECOND_NAME][cJOINT_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100)
-                + (transfer_totals[cJOINT_NAME][cFIRST_NAME]/100 * SpenderViewModel.getSpenderSplit(1) / 100)
-                - (transfer_totals[cJOINT_NAME][cSECOND_NAME]/100 * SpenderViewModel.getSpenderSplit(0) / 100))
-*/
-        Log.d("Alex", "one owes two is $oneOwesTwo")
         when {
             oneOwesTwo == 0.0 -> binding.accountingSummary.text = "Nobody owes anyone!"
             oneOwesTwo > 0 -> binding.accountingSummary.text = firstName + " owes " + secondName + " $ " + dec.format(oneOwesTwo)

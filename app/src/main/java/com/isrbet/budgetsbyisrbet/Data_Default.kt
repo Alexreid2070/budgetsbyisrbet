@@ -16,12 +16,12 @@ const val cDEFAULT_SOUND = "Sound"
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DefaultsDataUpdatedCallback? = null
-    var defaultCategory: String = ""
-    var defaultSubCategory: String = ""
-    var defaultSpender: String = ""
-    var defaultShowRed: String = "5"
-    var defaultIntegrateWithTDSpend: String = "No"
-    var defaultSound: String = "On"
+    private var defaultCategory: String = ""
+    private var defaultSubCategory: String = ""
+    private var defaultSpender: String = ""
+    private var defaultShowRed: String = "5"
+    private var defaultIntegrateWithTDSpend: String = "No"
+    private var defaultSound: String = "On"
     private var loaded:Boolean = false
 
     companion object {
