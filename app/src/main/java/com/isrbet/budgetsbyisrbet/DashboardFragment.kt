@@ -738,15 +738,13 @@ class DashboardRows {
                 var totalAnnualActualsForEarlierMonths = 0.0
                 if (iBudgetMonth.month != 1) {
                     if (whoToLookup == "Joint") {
-                        for (i in 0..2) {
-                            totalAnnualActualsForEarlierMonths +=
-                                ExpenditureViewModel.getActualsForPeriod(
-                                    it.category, it.subcategory,
-                                    BudgetMonth(iBudgetMonth.year, 1),
-                                    BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
-                                    SpenderViewModel.getSpenderName(i)
-                                )
-                        }
+                        totalAnnualActualsForEarlierMonths +=
+                            ExpenditureViewModel.getActualsForPeriod(
+                                it.category, it.subcategory,
+                                BudgetMonth(iBudgetMonth.year, 1),
+                                BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                                ""
+                            )
                     } else {
                         totalAnnualActualsForEarlierMonths =
                             ExpenditureViewModel.getActualsForPeriod(

@@ -20,6 +20,10 @@
             android:id="@+id/ViewTransactionsFragment"
             android:title="@string/transaction_view_all_fragment_label" />
         <item
+            android:id="@+id/TrackerFragment"
+            android:title="Tracker"
+            tools:ignore="HardcodedText" />
+        <item
             android:id="@+id/DashboardFragment"
             android:title="Dashboard"
             tools:ignore="HardcodedText" />

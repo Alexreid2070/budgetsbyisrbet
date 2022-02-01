@@ -39,9 +39,14 @@ data class RecurringTransaction(
 class RecurringTransactionViewModel : ViewModel() {
     private var recurringTransactionListener: ValueEventListener? = null
     private val recurringTransactions: MutableList<RecurringTransaction> = ArrayList()
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: RecurringTransactionViewModel // used to track static single instance of self
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
+        }
+
         fun showMe() {
             singleInstance.recurringTransactions.forEach {
                 Log.d("Alex", "SM Recurring Transaction is " + it.name + " amount " + it.amount + " regularity " + it.regularity + " period " + it.period + " lg " + it.nextdate)
@@ -159,6 +164,7 @@ class RecurringTransactionViewModel : ViewModel() {
                     }
                 }
                 sortYourself()
+                singleInstance.loaded = true
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

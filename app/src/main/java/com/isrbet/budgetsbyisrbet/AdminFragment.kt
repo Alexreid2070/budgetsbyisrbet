@@ -30,7 +30,7 @@ class AdminFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
         view?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener { _: View ->
-            processButton()
+           // processButton()
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
             clearData()

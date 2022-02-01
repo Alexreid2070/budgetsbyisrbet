@@ -22,6 +22,7 @@ class DefaultsViewModel : ViewModel() {
     var defaultShowRed: String = "5"
     var defaultIntegrateWithTDSpend: String = "No"
     var defaultSound: String = "On"
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
@@ -32,6 +33,10 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
             Log.d("Alex", "Default sound is " + singleInstance.defaultSound)
         }
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
+        }
+
         fun getDefault(whichOne:String): String {
             when (whichOne) {
                 cDEFAULT_CATEGORY -> return singleInstance.defaultCategory
@@ -111,6 +116,7 @@ class DefaultsViewModel : ViewModel() {
                 {
                     setLocal(it.key.toString(), it.value.toString())
                 }
+                singleInstance.loaded = true
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

@@ -299,8 +299,9 @@ class TransactionFragment : Fragment() {
         binding.dashboardSummaryPastTitle.text = "To " + giveMeMyDateFormat(dateNow)
         binding.dashboardSummaryRemTitle.text = "Rest of month"
 
+        val totalDiscretionaryBudgetForMonth = BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow)
         val totalDiscBudgetToDate =
-            BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow) * dateNow.get(Calendar.DATE) / daysInMonth
+            totalDiscretionaryBudgetForMonth * dateNow.get(Calendar.DATE) / daysInMonth
         binding.dashboardSummaryTotalBudgetToDate.text = format("%.2f", totalDiscBudgetToDate)
         val dailyDiscBudgetToDate =
             round((totalDiscBudgetToDate / dateNow.get(android.icu.util.Calendar.DATE)) * 100) / 100
@@ -319,8 +320,7 @@ class TransactionFragment : Fragment() {
         binding.dashboardSummaryDailyDeltaToDate.text = format("%.2f", dailyDeltaToDate)
 
 
-        val totalBudgetRem =
-            ((BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow) - totalDiscActualsToDate))
+        val totalBudgetRem = (totalDiscretionaryBudgetForMonth - totalDiscActualsToDate)
         binding.dashboardSummaryTotalBudgetRem.text = format("%.2f", totalBudgetRem)
         if (totalBudgetRem > 0) {
             val dailyBudgetRem =
