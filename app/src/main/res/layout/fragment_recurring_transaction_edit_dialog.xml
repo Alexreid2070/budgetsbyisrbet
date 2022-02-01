@@ -58,13 +58,27 @@
             android:layout_height="wrap_content"
             android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/edit_rt_new_name"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nameLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            tools:ignore="Autofill,LabelFor,TextFields" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Name"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_rt_new_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:longClickable="false"
+                android:inputType="date" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -90,14 +104,27 @@
             android:layout_height="wrap_content"
             android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/edit_rt_new_amount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/amountLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:inputType="numberDecimal"
-            tools:ignore="Autofill,LabelFor" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Amount"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_rt_new_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:longClickable="false"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -178,14 +205,27 @@
             android:layout_height="wrap_content"
             android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/edit_rt_new_regularity"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/regularityLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:inputType="number"
-            tools:ignore="Autofill,LabelFor" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Regularity"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_rt_new_regularity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:longClickable="false"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -210,20 +250,28 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textSize="14sp" />
-
-        <EditText
-            android:id="@+id/edit_rt_new_next_date"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dateLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:clickable="false"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:inputType="date"
-            android:longClickable="false"
-            tools:ignore="Autofill,LabelFor" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Next Date"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_rt_new_next_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:longClickable="false"
+                android:inputType="date" />
+        </com.google.android.material.textfield.TextInputLayout>
+
     </LinearLayout>
 
     <LinearLayout

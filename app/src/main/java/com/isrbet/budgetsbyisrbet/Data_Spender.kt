@@ -13,9 +13,14 @@ class SpenderViewModel : ViewModel() {
     private var spenderListener: ValueEventListener? = null
     val spenders: MutableList<Spender> = ArrayList()
     var dataUpdatedCallback: SpenderDataUpdatedCallback? = null
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: SpenderViewModel // used to track static single instance of self
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
+        }
+
         fun showMe() {
             singleInstance.spenders.forEach {
                 Log.d("Alex", "SM Spender is " + it.name + " and % is " + it.split)
@@ -154,6 +159,7 @@ class SpenderViewModel : ViewModel() {
                 }
                 if (getActiveCount() > 1)
                     spenders.add(Spender("Joint", "", 100, 1))
+                singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
             }
 

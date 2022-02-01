@@ -82,12 +82,21 @@ class ExpenditureViewModel : ViewModel() {
     private var expListener: ValueEventListener? = null
     private val expenditures: MutableList<Expenditure> = mutableListOf()
     var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: ExpenditureViewModel // used to track static single instance of self
 
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
+        }
+
         fun getExpenditures(): MutableList<Expenditure> {
             return singleInstance.expenditures
+        }
+
+        fun getCount(): Int {
+            return singleInstance.expenditures.size
         }
 
         fun getCopyOfExpenditures(): MutableList<Expenditure> {
@@ -131,7 +140,7 @@ class ExpenditureViewModel : ViewModel() {
                         expenditure.date <= lastDay &&
                         expenditure.category == iCategory &&
                         expenditure.subcategory == iSubCategory &&
-                        expenditure.boughtfor == iWho) {
+                        (expenditure.boughtfor == iWho || iWho == "")) {
                     // this is a transaction to add to our subtotal
                         tTotal += (expenditure.amount.toDouble() / 100)
                 }
@@ -233,6 +242,10 @@ class ExpenditureViewModel : ViewModel() {
 //        dataUpdatedCallback?.onDataUpdate()
     }
 
+    fun clearCallback() {
+        dataUpdatedCallback = null
+    }
+
     fun loadExpenditures() {
         // Do an asynchronous operation to fetch expenditures
         Log.d("Alex", "in loadExpenditures for expenditures " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
@@ -248,6 +261,7 @@ class ExpenditureViewModel : ViewModel() {
                     }
                     expenditures.add(tExp)
                 }
+                singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
             }
 
@@ -255,10 +269,6 @@ class ExpenditureViewModel : ViewModel() {
             }
         }
         expDBRef.addValueEventListener(expListener as ValueEventListener)
-    }
-
-    fun getCount(): Int {
-        return expenditures.size
     }
 }
 

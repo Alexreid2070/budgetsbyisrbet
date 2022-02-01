@@ -100,10 +100,16 @@ data class Budget(var categoryName: String) {
 class BudgetViewModel : ViewModel() {
     private var budgetListener: ValueEventListener? = null
     private val budgets: MutableList<Budget> = ArrayList()
-    var dataUpdatedCallback: NewBudgetDataUpdatedCallback? = null
+    var dataUpdatedCallback: BudgetDataUpdatedCallback? = null
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: BudgetViewModel // used to track static single instance of self
+
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
+        }
+
         fun showMe() {
             Log.d("Alex", "SHOW ME budgets " + singleInstance.budgets.size.toString())
             singleInstance.budgets.forEach {
@@ -116,6 +122,7 @@ class BudgetViewModel : ViewModel() {
 
         fun getBudgetAmount(iCategory: String, iBudgetMonth: BudgetMonth, iWho: String, onlyWho: Boolean): BudgetAmountResponse {
             val tResponse = BudgetAmountResponse()
+            tResponse.dateApplicable.setValue(iBudgetMonth)
             tResponse.who = iWho
             if (iBudgetMonth.month == 0) {
                 tResponse.dateStarted.setValue(iBudgetMonth)
@@ -253,14 +260,32 @@ class BudgetViewModel : ViewModel() {
                         "Joint",
                         false
                     )
-                    tmpTotal += bpAmt.amount
+                    if (bpAmt.dateStarted.month == 0) { // annual budget, so need to look at actuals as well
+                        val lookupStartDate = BudgetMonth(iCal.get(Calendar.YEAR), 0)
+                        val lookupEndDate = BudgetMonth(iCal.get(Calendar.YEAR), iCal.get(Calendar.MONTH)+1)
+                        val actualsThisMonth = ExpenditureViewModel.getActualsForPeriod(
+                            it.categoryName, it.subcategoryName,
+                            lookupEndDate, lookupEndDate, "")
+                        var actualsEarlierThisYear = 0.0
+                        if (lookupEndDate.month != 1)
+                            actualsEarlierThisYear = ExpenditureViewModel.getActualsForPeriod(
+                                it.categoryName, it.subcategoryName,
+                                lookupStartDate, lookupEndDate, "")
+                        val budgetRemaining = if (bpAmt.amount - actualsEarlierThisYear > 0.0) bpAmt.amount - actualsEarlierThisYear else 0.0
+                        Log.d("Alex", "getting budget for " + it.categoryName + " " + it.subcategoryName + " " +  if (actualsThisMonth < budgetRemaining) actualsThisMonth else budgetRemaining)
+                        tmpTotal += if (actualsThisMonth < budgetRemaining) actualsThisMonth else budgetRemaining
+                    } else {
+                        tmpTotal += bpAmt.amount
+                        Log.d("Alex", "getting budget for " + it.categoryName + " " + it.subcategoryName + " " +  bpAmt.amount)
+                    }
                 }
             }
             Log.d("Alex", "Discretionary budget for month is $tmpTotal")
             return tmpTotal
         }
 
-        // goal of getBudgetCategories is to return list of categories that have budgets for the period indicated; does not include Annuals
+        // goal of getBudgetCategories is to return list of categories that have budgets for the period indicated;
+        // does not include Annuals
         fun getBudgetCategories(iBudgetMonth: BudgetMonth, iDiscFlag: String): MutableList<String> {
             val myList: MutableList<String> = ArrayList()
             var tBudgetAmount: Double
@@ -454,9 +479,13 @@ class BudgetViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: NewBudgetDataUpdatedCallback?) {
+    fun setCallback(iCallback: BudgetDataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
+    }
+
+    fun clearCallback() {
+        dataUpdatedCallback = null
     }
 
     fun loadBudgets() {
@@ -512,6 +541,7 @@ class BudgetViewModel : ViewModel() {
                         }
                     }
                 }
+                loaded = true
                 dataUpdatedCallback?.onDataUpdate()
             }
 
@@ -526,6 +556,6 @@ class BudgetViewModel : ViewModel() {
     }
 }
 
-interface NewBudgetDataUpdatedCallback  {
+interface BudgetDataUpdatedCallback  {
     fun onDataUpdate()
 }

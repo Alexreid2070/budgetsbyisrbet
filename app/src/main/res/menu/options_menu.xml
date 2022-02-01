@@ -146,6 +146,12 @@
             android:title="Sign Out"
             tools:ignore="HardcodedText" />
         <item
+            android:id="@+id/DashboardFragment"
+            android:title="Dashboard"
+            android:icon="@drawable/ic_fas_compass"
+            app:showAsAction="ifRoom"
+            tools:ignore="HardcodedText" />
+        <item
             android:id="@+id/AddRecurringTransaction"
             android:title="Add Recurring Transaction"
             android:icon="@drawable/ic_fas_plus"

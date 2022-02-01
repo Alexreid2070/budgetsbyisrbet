@@ -86,15 +86,16 @@ class MainActivity : AppCompatActivity() {
         MyApplication.adminMode = inAdminMode
     }
 
-    fun setLoggedOutMode(inAdminMode: Boolean) {
+    fun setLoggedOutMode(loggedOut: Boolean) {
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val navMenu: Menu = navigationView.menu
         navMenu.forEach {
-            if (inAdminMode)
+            if (loggedOut)
                 it.isVisible = it.itemId == R.id.HelpFragment
             else
                 it.isVisible = true
         }
+        setAdminMode(MyApplication.adminMode)
     }
 
     fun setDrawerMode(iMode: Int) {

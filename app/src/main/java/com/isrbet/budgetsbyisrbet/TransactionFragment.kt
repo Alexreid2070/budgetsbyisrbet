@@ -192,16 +192,9 @@ class TransactionFragment : Fragment() {
             }
             binding.buttonPrevTransaction.visibility = View.GONE
             binding.buttonNextTransaction.visibility = View.GONE
-//            binding.editTextDate.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
             binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
-//            binding.transactionBoughtForName1Split.setBackgroundColor(Color.parseColor(hexColor))
-//            binding.transactionBoughtForName2Split.setBackgroundColor(Color.parseColor(hexColor))
-/*            binding.inputSpinnerRelativeLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-            */
             if (!SpenderViewModel.singleUser()) {
                 val selectedId = binding.boughtForRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -306,8 +299,9 @@ class TransactionFragment : Fragment() {
         binding.dashboardSummaryPastTitle.text = "To " + giveMeMyDateFormat(dateNow)
         binding.dashboardSummaryRemTitle.text = "Rest of month"
 
+        val totalDiscretionaryBudgetForMonth = BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow)
         val totalDiscBudgetToDate =
-            BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow) * dateNow.get(Calendar.DATE) / daysInMonth
+            totalDiscretionaryBudgetForMonth * dateNow.get(Calendar.DATE) / daysInMonth
         binding.dashboardSummaryTotalBudgetToDate.text = format("%.2f", totalDiscBudgetToDate)
         val dailyDiscBudgetToDate =
             round((totalDiscBudgetToDate / dateNow.get(android.icu.util.Calendar.DATE)) * 100) / 100
@@ -326,8 +320,7 @@ class TransactionFragment : Fragment() {
         binding.dashboardSummaryDailyDeltaToDate.text = format("%.2f", dailyDeltaToDate)
 
 
-        val totalBudgetRem =
-            ((BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow) - totalDiscActualsToDate))
+        val totalBudgetRem = (totalDiscretionaryBudgetForMonth - totalDiscActualsToDate)
         binding.dashboardSummaryTotalBudgetRem.text = format("%.2f", totalBudgetRem)
         if (totalBudgetRem > 0) {
             val dailyBudgetRem =

@@ -19,9 +19,11 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
 
     var filteredList: MutableList<Expenditure> = mutableListOf<Expenditure>()
     private var groupList: MutableList<Int> = mutableListOf<Int>()
+    var currentTotal = 0.0
 
     init {
         filterTheList(MyApplication.transactionSearchText)
+        currentTotal = getTotal()
     }
     override fun getItemCount(): Int {
         return filteredList.size
@@ -34,7 +36,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 filterTheList(charSearch)
                 val filterResults = FilterResults()
                 filterResults.values = filteredList
-                Log.d("Alex", "performFiltering '" + constraint + "' size is " + filteredList.size)
+                currentTotal = getTotal()
+                Log.d("Alex", "performFiltering '" + constraint + "' size is " + filteredList.size + " and total " + currentTotal)
                 return filterResults
             }
 
@@ -47,6 +50,15 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 notifyDataSetChanged()
             }
         }
+    }
+    fun getTotal() : Double {
+        var tTotal = 0.0
+        filteredList.forEach {
+            if (it.type != "T")
+                tTotal += (it.amount/100.0)
+        }
+        Log.d("Alex", "getTotal " + " size is " + filteredList.size + " and total is " + tTotal)
+        return tTotal
     }
 
     fun filterTheList(iConstraint: String) {

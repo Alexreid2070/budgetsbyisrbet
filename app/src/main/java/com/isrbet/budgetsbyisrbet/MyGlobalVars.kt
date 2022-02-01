@@ -114,7 +114,6 @@ class MyApplication : Application() {
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
-        Log.d("Alex", "string is $period")
         val dash = period.indexOf("-")
         month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
         }

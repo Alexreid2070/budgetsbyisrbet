@@ -8,13 +8,14 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import androidx.fragment.app.Fragment
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.get
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -33,6 +34,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
+
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -54,6 +56,8 @@ class HomeFragment : Fragment() {
         spenderModel.clearCallback() // ditto, see above
         userModel.clearCallback() // ditto, see above
         chatModel.clearCallback() // ditto, see above
+        expenditureModel.clearCallback()
+        budgetModel.clearCallback()
     }
 
     override fun onCreateView(
@@ -191,6 +195,18 @@ class HomeFragment : Fragment() {
                 tryToUpdateChatIcon()
             }
         })
+        ExpenditureViewModel.singleInstance.setCallback(object: ExpenditureDataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in Expenditure onDataUpdate callback")
+                alignExpenditureMenuWithDataState()
+            }
+        })
+        BudgetViewModel.singleInstance.setCallback(object: BudgetDataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in Budget onDataUpdate callback")
+                alignExpenditureMenuWithDataState()
+            }
+        })
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
@@ -208,14 +224,10 @@ class HomeFragment : Fragment() {
         } else {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
-            binding.quoteField.text = MyApplication.getQuote()
-            // NEED TO CALL Home Fragment to make adjustments
-/*            var quoteField = findViewById<TextView>(R.id.quote_field)
-            if (quoteField != null)
-                quoteField.visibility = View.VISIBLE
-            var homeScreenMessage = findViewById<TextView>(R.id.homeScreenMessage)
-            if (homeScreenMessage != null)
-                homeScreenMessage.text = "" */
+            if (MyApplication.userEmail != MyApplication.currentUserEmail)
+                binding.quoteField.text = "Currently impersonating " + MyApplication.currentUserEmail
+            else
+                binding.quoteField.text = getQuote()
         }
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         MyApplication.userGivenName = account?.givenName.toString()
@@ -223,6 +235,13 @@ class HomeFragment : Fragment() {
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         signIn(currentUser)
+    }
+
+    private fun getQuote() : String {
+        if (MyApplication.userEmail != MyApplication.currentUserEmail)
+            return "Currently impersonating " + MyApplication.currentUserEmail
+        else
+            return MyApplication.getQuote()
     }
 
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
@@ -266,7 +285,7 @@ class HomeFragment : Fragment() {
         else {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
-            binding.quoteField.text = MyApplication.getQuote()
+            binding.quoteField.text = getQuote()
             if (account.email == "alexreid2070@gmail.com")
                 (activity as MainActivity).setAdminMode(true)
             requireActivity().invalidateOptionsMenu()
@@ -300,22 +319,24 @@ class HomeFragment : Fragment() {
         if (MyApplication.userUID != "")
             binding.homeScreenMessage.text = ""
 
-        if (MyApplication.userUID != "" && CategoryViewModel.getCount() > 0 && SpenderViewModel.getActiveCount() > 0) {
+        if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
+            && ExpenditureViewModel.isLoaded() && BudgetViewModel.isLoaded()) {
             Log.d("Alex", "alignExpenditureMenu true")
             binding.expenditureButton.visibility = View.VISIBLE
             binding.viewAllButton.visibility = View.VISIBLE
             binding.dashboardButton.visibility = View.VISIBLE
-//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             (activity as MainActivity).setLoggedOutMode(false)
             binding.quoteField.visibility = View.VISIBLE
-            binding.quoteField.text = MyApplication.getQuote()
+            binding.quoteField.text = getQuote()
             binding.homeScreenMessage.text = ""
+            val trackerFragment: TrackerFragment =
+                childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
+            trackerFragment.loadGraph()
         } else {
             Log.d("Alex", "alignExpenditureMenu false")
             binding.expenditureButton.visibility = View.GONE
             binding.viewAllButton.visibility = View.GONE
             binding.dashboardButton.visibility = View.GONE
-//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             (activity as MainActivity).setLoggedOutMode(true)
         }
     }
@@ -324,6 +345,7 @@ class HomeFragment : Fragment() {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
             if (menu.getItem(i).itemId == R.id.SignOut) {
+                Log.d("Alex", "setting up signout")
                 menu.getItem(i).isVisible = true
                 menu.getItem(i).title = "Sign Out (" + MyApplication.userEmail + ")"
             } else if (menu.getItem(i).itemId == R.id.ChatFragment) {
@@ -332,9 +354,6 @@ class HomeFragment : Fragment() {
                         menu.getItem(i).isVisible = false
                     }
                     0 -> {
-/*                        menu.getItem(i).icon = null
-                        menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                        menu.getItem(i).isVisible = true */
                         menu.getItem(i).isVisible = false
                     }
                     1 -> {
@@ -360,6 +379,8 @@ class HomeFragment : Fragment() {
             Firebase.auth.signOut()
             mGoogleSignInClient.signOut()
             MyApplication.userUID = ""
+            MyApplication.currentUserEmail = ""
+            MyApplication.adminMode = false
             requireActivity().invalidateOptionsMenu()
 //            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             (activity as MainActivity).setLoggedOutMode(true)
@@ -369,6 +390,9 @@ class HomeFragment : Fragment() {
             binding.expenditureButton.visibility = View.GONE
             binding.viewAllButton.visibility = View.GONE
             binding.dashboardButton.visibility = View.GONE
+            val trackerFragment: TrackerFragment =
+                childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
+            trackerFragment.hideGraph()
             MyApplication.haveLoadedDataForThisUser = false
             return true
         } else {
@@ -426,6 +450,7 @@ class HomeFragment : Fragment() {
         super.onDestroy()
         CategoryViewModel.singleInstance.clearCallback()
         SpenderViewModel.singleInstance.clearCallback()
+        ExpenditureViewModel.singleInstance.clearCallback()
         _binding = null
     }
 }

@@ -104,15 +104,46 @@
         android:layout_height="0dp"
         android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/button_linear_layout"
+        app:layout_constraintBottom_toTopOf="@id/total_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout"
         app:layout_constraintVertical_bias="1.0"
         android:scrollbarSize="25dp"
-        android:scrollbarThumbVertical="@drawable/scrollbar" />
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="true" />
 
+    <LinearLayout
+        android:id="@+id/total_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/button_linear_layout">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/darker_gray" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total for this selection is: "
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/total_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/darker_gray" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/button_linear_layout"
         android:layout_width="match_parent"

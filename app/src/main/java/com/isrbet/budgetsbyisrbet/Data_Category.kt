@@ -13,6 +13,7 @@ class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
     private val categories: MutableList<Category> = ArrayList()
     var dataUpdatedCallback: CategoryDataUpdatedCallback? = null
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: CategoryViewModel // used to track static single instance of self
@@ -20,6 +21,10 @@ class CategoryViewModel : ViewModel() {
             singleInstance.categories.forEach {
                 Log.d("Alex", "ShowMe Category is " + it.categoryName + " subcategory is " + it.subcategoryName + " disc type is " + it.discType)
             }
+        }
+
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
         }
 
         fun getCount() : Int {
@@ -172,6 +177,7 @@ class CategoryViewModel : ViewModel() {
                             categories.add(Category(myC, it.key.toString(), it.value.toString()))
                         }
                     }
+                    singleInstance.loaded = true
                     dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)

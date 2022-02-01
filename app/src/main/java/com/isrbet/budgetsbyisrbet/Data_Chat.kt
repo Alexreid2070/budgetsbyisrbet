@@ -27,6 +27,7 @@ class ChatViewModel : ViewModel() {
     private var chatListener: ValueEventListener? = null
     private val chats: MutableList<Chat> = ArrayList()
     var dataUpdatedCallback: ChatDataUpdatedCallback? = null
+    private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: ChatViewModel // used to track static single instance of self
@@ -34,6 +35,10 @@ class ChatViewModel : ViewModel() {
             singleInstance.chats.forEach {
                 Log.d("Alex", "SM Chat is " + it.date + " " + it.time + " " + it.username + " " + it.text)
             }
+        }
+
+        fun isLoaded():Boolean {
+            return singleInstance.loaded
         }
 
         fun getChats(): MutableList<Chat> {
@@ -99,6 +104,7 @@ class ChatViewModel : ViewModel() {
                     chats.add(tChat)
                 }
                 sortYourself()
+                singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
             }
 
