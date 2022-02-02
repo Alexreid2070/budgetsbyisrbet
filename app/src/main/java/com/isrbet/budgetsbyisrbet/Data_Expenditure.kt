@@ -81,7 +81,7 @@ data class ExpenditureOut(
 class ExpenditureViewModel : ViewModel() {
     private var expListener: ValueEventListener? = null
     private val expenditures: MutableList<Expenditure> = mutableListOf()
-    private var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -145,8 +145,11 @@ class ExpenditureViewModel : ViewModel() {
                         expenditure.subcategory == iSubCategory &&
                         (expenditure.boughtfor == iWho || iWho == "")) {
                     // this is a transaction to add to our subtotal
-                        tTotal += (expenditure.amount.toDouble() / 100)
-                }
+                        if (iWho != "" && iWho != "Joint") // ie want a specific person
+                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
+                        else
+                            tTotal += (expenditure.amount.toDouble() / 100)
+                    }
             }
 
             return tTotal
@@ -171,8 +174,8 @@ class ExpenditureViewModel : ViewModel() {
                     .removeEventListener(singleInstance.expListener!!)
                 singleInstance.expListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
             singleInstance.expenditures.clear()
+            singleInstance.loaded = false
         }
 
         fun getPreviousKey(iKey: String): String {
@@ -240,7 +243,7 @@ class ExpenditureViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: ExpenditureDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -273,8 +276,4 @@ class ExpenditureViewModel : ViewModel() {
         }
         expDBRef.addValueEventListener(expListener as ValueEventListener)
     }
-}
-
-interface ExpenditureDataUpdatedCallback  {
-    fun onDataUpdate()
 }

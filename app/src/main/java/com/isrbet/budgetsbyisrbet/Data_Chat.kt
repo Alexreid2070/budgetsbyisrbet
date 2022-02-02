@@ -26,7 +26,7 @@ data class Chat(
 class ChatViewModel : ViewModel() {
     private var chatListener: ValueEventListener? = null
     private val chats: MutableList<Chat> = ArrayList()
-    private var dataUpdatedCallback: ChatDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -73,6 +73,7 @@ class ChatViewModel : ViewModel() {
                 singleInstance.chatListener = null
             }
             singleInstance.chats.clear()
+            singleInstance.loaded = false
         }
     }
 
@@ -88,7 +89,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: ChatDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
     }
 
@@ -115,7 +116,7 @@ class ChatViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                Log.w("Alex", "loadPost:onCancelled")
             }
         }
         MyApplication.database.getReference("Chats").addValueEventListener(
@@ -126,8 +127,4 @@ class ChatViewModel : ViewModel() {
     fun sortYourself() {
         chats.sortWith(compareBy({ it.date }, { it.time }))
     }
-}
-
-interface ChatDataUpdatedCallback  {
-    fun onDataUpdate()
 }

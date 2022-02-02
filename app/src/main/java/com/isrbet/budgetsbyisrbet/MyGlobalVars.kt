@@ -419,6 +419,28 @@ fun getColorInHex(iColor: Int, iOpacity: String): String {
     return hexColor
 }
 
+fun thisIsANewUser(): Boolean {
+    // this function is only valid once all Data models have been loaded.
+    Log.d("Alex","Values: " + CategoryViewModel.isLoaded() + CategoryViewModel.getCount() +
+            SpenderViewModel.isLoaded() + SpenderViewModel.getTotalCount() +
+            ExpenditureViewModel.isLoaded() + ExpenditureViewModel.getCount() +
+            BudgetViewModel.isLoaded() + BudgetViewModel.getCount() +
+            DefaultsViewModel.isLoaded() + DefaultsViewModel.isEmpty() +
+            RecurringTransactionViewModel.isLoaded() + RecurringTransactionViewModel.getCount())
+    if (MyApplication.userUID != "" &&
+        CategoryViewModel.isLoaded() && CategoryViewModel.getCount() == 0 &&
+        SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
+        ExpenditureViewModel.isLoaded() && ExpenditureViewModel.getCount() == 0 &&
+        BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
+            DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
+            RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0) {
+        return true
+    } else {
+        return false
+    }
+
+}
+
     val inspirationalQuotes = listOf(
     "Life is about making an impact, not making an income. -Kevin Kruse",
     "Whatever the mind of man can conceive and believe, it can achieve. -Napoleon Hill",

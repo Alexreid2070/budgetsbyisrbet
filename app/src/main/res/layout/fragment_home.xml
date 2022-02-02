@@ -21,17 +21,27 @@
             android:background="?attr/colorPrimary"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorSecondary"
-                android:paddingTop="30dp"
-                android:paddingBottom="30dp"
-                android:text="@string/home_page_welcome"
-                android:textAlignment="center"
-                android:textSize="34sp"
-                android:textStyle="bold" />
+                android:background="?attr/colorSecondary">
 
+                <ImageView
+                    android:id="@+id/iconView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_launcher_foreground"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="30dp"
+                    android:text="@string/home_page_welcome"
+                    android:textAlignment="center"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
             <TextView
                 android:id="@+id/homeScreenMessage"
                 android:layout_width="match_parent"

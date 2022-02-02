@@ -54,11 +54,11 @@ class TransactionViewAllFragment : Fragment() {
                 val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
                 val adapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
-                binding.totalLayout.visibility = View.VISIBLE
                 Log.d("Alex", "before filter " + " size is " + adapter.filteredList.size)
                 adapter.getFilter().filter(newText)
                 Log.d("Alex", "after filter " + " size is " + adapter.filteredList.size)
                 if (newText != "") {
+                    binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
                     binding.transactionSearch.visibility = View.VISIBLE
                 }

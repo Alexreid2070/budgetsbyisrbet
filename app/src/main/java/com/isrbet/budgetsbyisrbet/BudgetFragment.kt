@@ -172,7 +172,7 @@ class BudgetFragment : Fragment() {
         val catText = catRadioButton.text.toString()
         val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
 
-        val tmpPrevAmt = BudgetViewModel.getBudgetAmount("$catText-$subCatText", prevMonth, whoText, true)
+        val tmpPrevAmt = BudgetViewModel.getBudgetAmount("$catText-$subCatText", prevMonth, whoText)
 
         val dec = DecimalFormat("#.00")
         binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)

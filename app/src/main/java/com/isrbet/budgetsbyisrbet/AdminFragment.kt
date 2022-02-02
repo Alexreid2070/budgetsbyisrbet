@@ -35,7 +35,7 @@ class AdminFragment : Fragment() {
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
             clearData()
             UserViewModel.loadUsers()
-            UserViewModel.setCallback(object: UserDataUpdatedCallback {
+            UserViewModel.setCallback(object: DataUpdatedCallback {
                 override fun onDataUpdate() {
                     Log.d("Alex", "got a callback that user data was updated")
                     refreshData()

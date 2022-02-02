@@ -240,8 +240,7 @@ class BudgetDialogFragment : DialogFragment() {
                                     val tmpPrevAmt = BudgetViewModel.getBudgetAmount(
                                         binding.budgetDialogCategory.text.toString(),
                                         prevMonth,
-                                        newWho,
-                                        true
+                                        newWho
                                     )
                                 Log.d("Alex", "tmpDouble1 is " + tmpDouble1.toString() + " and tmpPrev is " + tmpPrevAmt.amount.toString())
                                 if (tmpDouble1 == tmpPrevAmt.amount) {

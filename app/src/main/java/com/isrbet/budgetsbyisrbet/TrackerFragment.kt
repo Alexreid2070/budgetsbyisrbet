@@ -1,9 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.graphics.Color
-import android.graphics.Color.green
 import android.os.Bundle
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
@@ -12,14 +9,16 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
-import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTrackerBinding
 import java.text.DecimalFormat
 import java.util.*
@@ -88,6 +87,9 @@ class TrackerFragment : Fragment() {
     }
 
     fun loadGraph() {
+        binding.chartTitle.visibility = View.VISIBLE
+        binding.barChart.visibility = View.VISIBLE
+        binding.chartSummaryText.visibility = View.VISIBLE
         initializeBarChart()
         createBarChart(getGraphData())
     }
@@ -121,6 +123,7 @@ class TrackerFragment : Fragment() {
         binding.barChart.xAxis.isEnabled = true
         binding.barChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
         binding.barChart.axisLeft.axisMinimum = 0F
+        binding.barChart.axisLeft.valueFormatter = (MyYAxisValueFormatter())
 
         binding.barChart.setDrawValueAboveBar(true)
 
@@ -145,7 +148,9 @@ class TrackerFragment : Fragment() {
 
             override fun onChartSingleTapped(me: MotionEvent?) {
                 Log.d("Alex", "Tapped!")
-                view?.findNavController()?.navigate(R.id.TrackerFragment)
+                if (parentFragment is HomeFragment) {
+                    view?.findNavController()?.navigate(R.id.TrackerFragment)
+                }
             }
 
             override fun onChartFling(
@@ -176,8 +181,8 @@ class TrackerFragment : Fragment() {
         val totalDiscActualsToDate =
             ExpenditureViewModel.getTotalDiscretionaryActualsToDate(dateNow)
         Log.d("Alex", "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate")
-        tList.add(DataObject("Budget this month", totalDiscBudget, ContextCompat.getColor(requireContext(), R.color.black)))
-        tList.add(DataObject("Budget to date", totalDiscBudgetToDate, ContextCompat.getColor(requireContext(), R.color.dark_gray)))
+        tList.add(DataObject("Budget this month", totalDiscBudget, ContextCompat.getColor(requireContext(), R.color.dark_gray)))
+        tList.add(DataObject("Budget to date", totalDiscBudgetToDate, ContextCompat.getColor(requireContext(), R.color.medium_gray)))
         if (totalDiscActualsToDate > totalDiscBudget)
             tList.add(DataObject("Actuals", totalDiscActualsToDate, ContextCompat.getColor(requireContext(), R.color.red)))
         else if (totalDiscActualsToDate > totalDiscBudgetToDate)
@@ -209,14 +214,14 @@ class TrackerFragment : Fragment() {
             dataSets.add(ds)
         }
         val set1: BarDataSet
-        if (binding.barChart.data != null &&
-            binding.barChart.data.dataSetCount > 0) {
+//        if (binding.barChart.data != null &&
+//            binding.barChart.data.dataSetCount > 0) {
             // code comes here after the first time, ie hits the else below the first time the chart is drawn
-            set1 = binding.barChart.data.getDataSetByIndex(0) as BarDataSet
+//            set1 = binding.barChart.data.getDataSetByIndex(0) as BarDataSet
 //            set1.values = values
-            binding.barChart.data.notifyDataChanged()
-            binding.barChart.notifyDataSetChanged()
-        } else {
+//            binding.barChart.data.notifyDataChanged()
+//            binding.barChart.notifyDataSetChanged()
+//        } else {
 //            set1 = BarDataSet(values, "Data Set")
 //            set1.setColors(SessionManagement.MATERIAL_COLORS)
 //            set1.setDrawValues(true)
@@ -238,7 +243,7 @@ class TrackerFragment : Fragment() {
 //            binding.barChart.invalidate()
             binding.barChart.data.notifyDataChanged()
             binding.barChart.notifyDataSetChanged()
-        }
+//        }
         val dateNow = android.icu.util.Calendar.getInstance()
         binding.chartTitle.text = "Discretionary Expense Tracker - " + dateNow.get(Calendar.YEAR) + "-" +
                 (if ((dateNow.get(Calendar.MONTH)+1) < 10 ) "0" else "") +
@@ -272,4 +277,17 @@ class TrackerFragment : Fragment() {
 }
 
 data class DataObject(var label: String, var value: Double, var color: Int)
+
+class MyYAxisValueFormatter : ValueFormatter() {
+    private val mFormat: DecimalFormat
+    override fun getFormattedValue(value: Float): String {
+        //write your logic here
+        //access the YAxis object to get more information
+        return mFormat.format(value.toDouble())
+    }
+
+    init {
+        mFormat = DecimalFormat("$ ###,###,##0")
+    }
+}
 

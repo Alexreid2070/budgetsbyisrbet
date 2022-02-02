@@ -14,7 +14,7 @@ data class Spender(var name: String, var email: String, var split: Int, var isAc
 class SpenderViewModel : ViewModel() {
     private var spenderListener: ValueEventListener? = null
     private val spenders: MutableList<Spender> = ArrayList()
-    private var dataUpdatedCallback: SpenderDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -60,6 +60,13 @@ class SpenderViewModel : ViewModel() {
                 return singleInstance.spenders[pos].split
             else
                 return 0
+        }
+        fun getSpenderSplit(iName:String): Int {
+            singleInstance.spenders.forEach {
+                if (it.name == iName)
+                    return it.split
+            }
+            return 0
         }
         fun getSpenders() : MutableList<String> {
             val list : MutableList<String> = ArrayList()
@@ -112,8 +119,8 @@ class SpenderViewModel : ViewModel() {
                     .removeEventListener(singleInstance.spenderListener!!)
                 singleInstance.spenderListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
             singleInstance.spenders.clear()
+            singleInstance.loaded = false
         }
     }
 
@@ -130,7 +137,7 @@ class SpenderViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: SpenderDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -174,8 +181,4 @@ class SpenderViewModel : ViewModel() {
             spenderListener as ValueEventListener
         )
     }
-}
-
-interface SpenderDataUpdatedCallback  {
-    fun onDataUpdate()
 }

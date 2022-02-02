@@ -12,7 +12,7 @@ data class Category(var categoryName: String, var subcategoryName: String, var d
 class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
     private val categories: MutableList<Category> = ArrayList()
-    private var dataUpdatedCallback: CategoryDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -139,6 +139,7 @@ class CategoryViewModel : ViewModel() {
             }
 //            singleInstance.dataUpdatedCallback = null
             singleInstance.categories.clear()
+            singleInstance.loaded = false
         }
     }
     init {
@@ -154,7 +155,7 @@ class CategoryViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: CategoryDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -177,7 +178,6 @@ class CategoryViewModel : ViewModel() {
                             categories.add(Category(myC, it.key.toString(), it.value.toString()))
                         }
                     }
-                    singleInstance.loaded = true
                     dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
@@ -185,6 +185,7 @@ class CategoryViewModel : ViewModel() {
                         .child("Email")
                         .setValue(MyApplication.userEmail)
                 }
+                singleInstance.loaded = true
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -196,8 +197,4 @@ class CategoryViewModel : ViewModel() {
             catListener as ValueEventListener
         )
     }
-}
-
-interface CategoryDataUpdatedCallback  {
-    fun onDataUpdate()
 }

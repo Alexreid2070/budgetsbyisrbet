@@ -39,12 +39,17 @@ data class RecurringTransaction(
 class RecurringTransactionViewModel : ViewModel() {
     private var recurringTransactionListener: ValueEventListener? = null
     private val recurringTransactions: MutableList<RecurringTransaction> = ArrayList()
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: RecurringTransactionViewModel // used to track static single instance of self
         fun isLoaded():Boolean {
             return singleInstance.loaded
+        }
+
+        fun getCount(): Int {
+            return singleInstance.recurringTransactions.size
         }
 
         fun showMe() {
@@ -111,6 +116,7 @@ class RecurringTransactionViewModel : ViewModel() {
                 singleInstance.recurringTransactionListener = null
             }
             singleInstance.recurringTransactions.clear()
+            singleInstance.loaded = false
         }
     }
 
@@ -125,6 +131,14 @@ class RecurringTransactionViewModel : ViewModel() {
                 .removeEventListener(recurringTransactionListener!!)
             recurringTransactionListener = null
         }
+    }
+
+    fun setCallback(iCallback: DataUpdatedCallback?) {
+        dataUpdatedCallback = iCallback
+    }
+
+    fun clearCallback() {
+        dataUpdatedCallback = null
     }
 
     fun loadRecurringTransactions(mainActivity: MainActivity? = null) {
@@ -169,6 +183,7 @@ class RecurringTransactionViewModel : ViewModel() {
                 }
                 sortYourself()
                 singleInstance.loaded = true
+                dataUpdatedCallback?.onDataUpdate()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

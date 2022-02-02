@@ -12,7 +12,7 @@ data class User(var email: String, var uid: String)
 class UserViewModel : ViewModel() {
     lateinit var userListener: ValueEventListener
     private val users: MutableList<User> = ArrayList()
-    private var dataUpdatedCallback: UserDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
 
     companion object {
         lateinit var singleInstance: UserViewModel // used to track static single instance of self
@@ -41,7 +41,7 @@ class UserViewModel : ViewModel() {
                 0
         }
 
-        fun setCallback(iCallback: UserDataUpdatedCallback?) {
+        fun setCallback(iCallback: DataUpdatedCallback?) {
             singleInstance.dataUpdatedCallback = iCallback
 //            singleInstance.dataUpdatedCallback?.onDataUpdate()
         }
@@ -91,8 +91,4 @@ class UserViewModel : ViewModel() {
     fun clearCallback() {
         dataUpdatedCallback = null
     }
-}
-
-interface UserDataUpdatedCallback  {
-    fun onDataUpdate()
 }

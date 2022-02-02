@@ -15,7 +15,7 @@ const val cDEFAULT_SOUND = "Sound"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
-    private var dataUpdatedCallback: DefaultsDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var defaultCategory: String = ""
     private var defaultSubCategory: String = ""
     private var defaultSpender: String = ""
@@ -26,6 +26,16 @@ class DefaultsViewModel : ViewModel() {
 
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
+
+        fun isEmpty(): Boolean {
+            Log.d("Alex", "Defaults: " + isLoaded() + (singleInstance.defaultCategory == "") +
+                    (singleInstance.defaultSubCategory == "") + (singleInstance.defaultSpender == ""))
+            return (isLoaded() &&
+                    singleInstance.defaultCategory == "" &&
+                    singleInstance.defaultSubCategory == "" &&
+                    singleInstance.defaultSpender == "")
+        }
+
         fun showMe() {
             Log.d("Alex", "Default Category/Subcategory is " + singleInstance.defaultCategory + "/" + singleInstance.defaultSubCategory)
             Log.d("Alex", "Default Spender is " + singleInstance.defaultSpender)
@@ -63,7 +73,13 @@ class DefaultsViewModel : ViewModel() {
                     .removeEventListener(singleInstance.defaultsListener!!)
                 singleInstance.defaultsListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
+            singleInstance.loaded = false
+            singleInstance.defaultCategory = ""
+            singleInstance.defaultSubCategory = ""
+            singleInstance.defaultSpender = ""
+            singleInstance.defaultShowRed = "5"
+            singleInstance.defaultIntegrateWithTDSpend = "No"
+            singleInstance.defaultSound = "On"
         }
     }
 
@@ -80,7 +96,7 @@ class DefaultsViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DefaultsDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -130,8 +146,4 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultsListener as ValueEventListener
         )
     }
-}
-
-interface DefaultsDataUpdatedCallback  {
-    fun onDataUpdate()
 }
