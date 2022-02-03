@@ -13,7 +13,8 @@
         android:orientation="vertical">
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,18 +72,20 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
                         android:text="Second User Active?  "
                         android:textSize="16sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText">
                     </TextView>
-                    <Switch
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_second_user_active"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textOn="On"
-                        android:textOff="Off"/>
+                        android:textOff="Off"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/secondUserLayout"
@@ -94,6 +97,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
                         android:minWidth="@dimen/custom_med_width"
                         android:hint="Second user name"
                         app:endIconMode="clear_text"
@@ -321,23 +325,15 @@
                         android:textStyle="bold"
                         tools:ignore="HardcodedText">
                     </TextView>
-                    <Switch
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_integrate_with_TD"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textOn="On"
-                        android:textOff="Off"/>
+                        android:textOff="Off"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="5dp"/>
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@android:color/darker_gray"
-                    android:paddingBottom="10dp"/>
 
                 <Space
                     android:layout_width="match_parent"
@@ -355,15 +351,41 @@
                         android:textStyle="bold"
                         tools:ignore="HardcodedText">
                     </TextView>
-                    <Switch
+                    <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_sound"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textOn="On"
-                        android:textOff="Off"/>
+                        android:textOff="Off"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:paddingTop="5dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Show Quote of the Day:  "
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:ignore="HardcodedText">
+                    </TextView>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_quote"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textOn="On"
+                        android:textOff="Off"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="5dp"/>
@@ -406,7 +428,8 @@
                             android:layout_gravity="center_vertical"
                             android:text="%: "
                             android:textSize="16sp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
                         <com.google.android.material.slider.Slider
                             android:id="@+id/redPercentageSlider"
                             android:layout_height="wrap_content"

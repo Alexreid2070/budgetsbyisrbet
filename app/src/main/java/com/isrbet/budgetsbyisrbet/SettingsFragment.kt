@@ -56,7 +56,7 @@ class SettingsFragment : Fragment() {
         spenderRadioGroup.removeAllViews()
 
         for (i in 0..2) { // always do this twice, so we will setup a possible new second user
-            var spender  = ""
+            var spender: String
             if (i == 0)
                 spender = SpenderViewModel.getSpenderName(0)
             else if (i == 1) {
@@ -131,6 +131,7 @@ class SettingsFragment : Fragment() {
         binding.settingsCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.switchSound.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SOUND) != "Off"
+        binding.switchQuote.isChecked = DefaultsViewModel.getDefault(cDEFAULT_QUOTE) != "Off"
         binding.switchIntegrateWithTD.isChecked =
             DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) != "Off"
         binding.redPercentageSlider.value = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
@@ -187,7 +188,7 @@ class SettingsFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.EditCategory) {
-            view?.findNavController()?.navigate(R.id.SettingsEditCategoryFragment)
+            view?.findNavController()?.navigate(R.id.CategoryFragment)
             true
         } else {
             val navController = findNavController()
@@ -279,6 +280,10 @@ class SettingsFragment : Fragment() {
         val soundField = if (binding.switchSound.isChecked) "On" else "Off"
         if (soundField != DefaultsViewModel.getDefault(cDEFAULT_SOUND))
             DefaultsViewModel.updateDefault(cDEFAULT_SOUND, soundField)
+        // check default Quote
+        val quoteField = if (binding.switchQuote.isChecked) "On" else "Off"
+        if (quoteField != DefaultsViewModel.getDefault(cDEFAULT_QUOTE))
+            DefaultsViewModel.updateDefault(cDEFAULT_QUOTE, quoteField)
 
         // check default showRed
         if (binding.redPercentageSlider.value.toInt() != DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt())

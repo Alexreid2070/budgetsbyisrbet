@@ -754,23 +754,13 @@ class DashboardRows {
                             }
                             var totalAnnualActualsForEarlierMonths = 0.0
                             if (iBudgetMonth.month != 1) {
-                                if (whoToLookup == "Joint") {
-                                    totalAnnualActualsForEarlierMonths +=
-                                        ExpenditureViewModel.getActualsForPeriod(
-                                            it.category, it.subcategory,
-                                            BudgetMonth(iBudgetMonth.year, 1),
-                                            BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
-                                            ""
-                                        )
-                                } else {
-                                    totalAnnualActualsForEarlierMonths =
-                                        ExpenditureViewModel.getActualsForPeriod(
-                                            it.category, it.subcategory,
-                                            BudgetMonth(iBudgetMonth.year, 1),
-                                            BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
-                                            whoToLookup
-                                        )
-                                }
+                                totalAnnualActualsForEarlierMonths =
+                                    ExpenditureViewModel.getActualsForPeriod(
+                                        it.category, it.subcategory,
+                                        BudgetMonth(iBudgetMonth.year, 1),
+                                        BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                                        whoToLookup
+                                    )
                             }
                             val budgetRemaining =
                                 if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0) totalAnnualBudget - totalAnnualActualsForEarlierMonths else 0.0

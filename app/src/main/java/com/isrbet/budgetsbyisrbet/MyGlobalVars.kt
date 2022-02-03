@@ -17,12 +17,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.core.content.ContextCompat
 import kotlin.math.round
-import kotlin.random.Random
 
-
-
-
-const val RC_SIGN_IN = 7
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
 const val cDiscTypeOff = "Off"
@@ -70,8 +65,7 @@ class MyApplication : Application() {
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
-                var randomIndex = Random.nextInt(0, inspirationalQuotes.size)
-                randomIndex = if (randomIndex < 0) randomIndex + inspirationalQuotes.size else randomIndex
+                val randomIndex = (0..inspirationalQuotes.size).random()
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
             }

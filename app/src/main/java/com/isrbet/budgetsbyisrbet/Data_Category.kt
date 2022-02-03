@@ -57,12 +57,13 @@ class CategoryViewModel : ViewModel() {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
         }
 
-        fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String) {
+        fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String, iLocalOnly: Boolean = false) {
             // I need to add the new cat to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             val cat = Category(iCategory, iSubcategory, iDisctype)
             singleInstance.categories.add(cat)
             singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+            if (!iLocalOnly)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
 
         fun getCategories(): MutableList<Category> { // returns only "on" categories

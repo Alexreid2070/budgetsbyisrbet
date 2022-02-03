@@ -105,6 +105,9 @@ class SpenderViewModel : ViewModel() {
             val ind = expenditures.indexOf(expe)
             expenditures.removeAt(ind)
   */      }
+        fun addLocalSpender(spender: Spender) {
+            singleInstance.spenders.add(spender)
+        }
         fun addSpender(spender: Spender) {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("email").setValue(spender.email)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("isactive").setValue(spender.isActive)

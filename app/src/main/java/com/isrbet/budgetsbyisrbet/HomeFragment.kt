@@ -57,6 +57,7 @@ class HomeFragment : Fragment() {
         expenditureModel.clearCallback()
         budgetModel.clearCallback()
         recurringTransactionModel.clearCallback()
+        defaultsModel.clearCallback()
     }
 
     override fun onCreateView(
@@ -230,11 +231,14 @@ class HomeFragment : Fragment() {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
-            binding.quoteLabel.visibility = View.VISIBLE
-            if (MyApplication.currentUserEmail != null && MyApplication.userEmail != MyApplication.currentUserEmail)
-                binding.quoteField.text = "Currently impersonating " + MyApplication.currentUserEmail
-            else
-                binding.quoteField.text = getQuote()
+            if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
+                binding.quoteLabel.visibility = View.VISIBLE
+                if (MyApplication.currentUserEmail != null && MyApplication.userEmail != MyApplication.currentUserEmail)
+                    binding.quoteField.text =
+                        "Currently impersonating " + MyApplication.currentUserEmail
+                else
+                    binding.quoteField.text = getQuote()
+            }
         }
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         MyApplication.userGivenName = account?.givenName.toString()
@@ -296,10 +300,12 @@ class HomeFragment : Fragment() {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
-            binding.quoteLabel.visibility = View.VISIBLE
-            binding.quoteField.text = getQuote()
-            if (account?.uid.toString() == "null")
-                binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
+            if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
+                binding.quoteLabel.visibility = View.VISIBLE
+                binding.quoteField.text = getQuote()
+                if (account?.uid.toString() == "null")
+                    binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
+            }
             if (account.email == "alexreid2070@gmail.com")
                 (activity as MainActivity).setAdminMode(true)
             requireActivity().invalidateOptionsMenu()
@@ -348,12 +354,14 @@ class HomeFragment : Fragment() {
             binding.viewAllButton.visibility = View.VISIBLE
             binding.dashboardButton.visibility = View.VISIBLE
             (activity as MainActivity).setLoggedOutMode(false)
-            binding.quoteLabel.visibility = View.VISIBLE
-            binding.quoteField.visibility = View.VISIBLE
-            if (thisIsANewUser())
-                binding.quoteField.text = "THIS IS A NEW USER.  NEED TO DO SETUP."
-            else
-                binding.quoteField.text = getQuote()
+            if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
+                binding.quoteLabel.visibility = View.VISIBLE
+                binding.quoteField.visibility = View.VISIBLE
+                if (thisIsANewUser())
+                    binding.quoteField.text = "THIS IS A NEW USER.  NEED TO DO SETUP."
+                else
+                    binding.quoteField.text = getQuote()
+            }
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
                 val trackerFragment: TrackerFragment =
@@ -483,6 +491,7 @@ class HomeFragment : Fragment() {
         ExpenditureViewModel.singleInstance.clearCallback()
         BudgetViewModel.singleInstance.clearCallback()
         RecurringTransactionViewModel.singleInstance.clearCallback()
+        DefaultsViewModel.singleInstance.clearCallback()
         _binding = null
     }
 }

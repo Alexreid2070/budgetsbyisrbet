@@ -58,10 +58,10 @@
         android:label="@string/admin_fragment_label"
         tools:layout="@layout/fragment_admin" />
     <fragment
-        android:id="@+id/SettingsEditCategoryFragment"
-        android:name="com.isrbet.budgetsbyisrbet.SettingsCategoryFragment"
+        android:id="@+id/CategoryFragment"
+        android:name="com.isrbet.budgetsbyisrbet.CategoryFragment"
         android:label="@string/settings_edit_category_label"
-        tools:layout="@layout/fragment_settings_edit_category" />
+        tools:layout="@layout/fragment_category" />
     <fragment
         android:id="@+id/AccountingFragment"
         android:name="com.isrbet.budgetsbyisrbet.AccountingFragment"

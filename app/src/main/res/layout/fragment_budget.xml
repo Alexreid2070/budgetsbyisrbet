@@ -89,11 +89,47 @@
                 </RelativeLayout>
             </LinearLayout>
 
+
+            <LinearLayout
+                android:id="@+id/annualIndicator"
+                android:layout_width="match_parent"
+                android:paddingTop="5dp"
+                android:layout_below="@id/budgetAddSubCategory_layout"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monthly or Annual budget? "
+                    android:layout_gravity="center"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText">
+                </TextView>
+                <RadioGroup
+                    android:id="@+id/regularityRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/monthlyRadioButton"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/monthlyRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Monthly"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Annual"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </LinearLayout>
             <LinearLayout
                 android:id="@+id/budgetAddYear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddSubCategory_layout"
+                android:layout_below="@id/annualIndicator"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
 
@@ -133,21 +169,11 @@
                     android:solidColor="?attr/colorPrimary"/>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/budgetAdd_monthNote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddYear_layout"
-                android:layout_gravity="end"
-                android:textAlignment="textEnd"
-                android:text="Set month to 0 to have budget apply to entire year"
-                tools:ignore="HardcodedText" />
-
             <Space
                 android:id="@+id/budgetAdd_space1"
                 android:layout_width="match_parent"
                 android:layout_height="10dp"
-                android:layout_below="@id/budgetAdd_monthNote"/>
+                android:layout_below="@id/budgetAddYear_layout"/>
 
             <LinearLayout
                 android:id="@+id/who_layout"
@@ -319,7 +345,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="start"
                     android:layout_gravity="center"
-                    android:text=" % to previous budget amount."
+                    android:text=" % to current budget amount."
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
@@ -376,7 +402,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="Previous budget amount is $"
+                    android:text="Current budget amount is $"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -390,7 +416,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text=" which is set for "
+                    android:text=" which was set "
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -398,6 +424,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="start" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="."
+                    android:gravity="start"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
 
             <LinearLayout
@@ -413,7 +445,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="Actual amount spent in specified period is $"
+                    android:text="Actual amount spent in previous period is $"
                     tools:ignore="HardcodedText" />
 
                 <TextView

@@ -119,8 +119,6 @@ class BudgetViewModel : ViewModel() {
             tResponse.dateApplicable.setValue(iBudgetMonth)
             tResponse.who = iWho
             if (iBudgetMonth.month == 0) {
-                if (iCategory == "Housing-Cottage-Property tax")
-                    tResponse.amount = tResponse.amount
                 tResponse.dateStarted.setValue(iBudgetMonth)
                 loop@for (i in 1..12) {
                     val tBudgetMonth = BudgetMonth(iBudgetMonth.year, i)
@@ -131,7 +129,7 @@ class BudgetViewModel : ViewModel() {
                         break@loop
                     }
                 }
-                Log.d("Alex", "returning " + tResponse.amount + " for annual amount for iCategory " + iCategory)
+                Log.d("Alex", "returning " + tResponse + " for annual amount for iCategory " + iCategory)
                 return tResponse
             }
             val tFirstNameBudget = BudgetAmountResponse(BudgetMonth(9999,12), SpenderViewModel.getSpenderName(0), 0.0, BudgetMonth(9999,12), -1)
@@ -221,14 +219,14 @@ class BudgetViewModel : ViewModel() {
                                     )
                                 val actualsThisMonth = ExpenditureViewModel.getActualsForPeriod(
                                     it.categoryName, it.subcategoryName,
-                                    lookupEndDate, lookupEndDate, ""
+                                    lookupEndDate, lookupEndDate, SpenderViewModel.getSpenderName(i)
                                 )
                                 var actualsEarlierThisYear = 0.0
                                 if (lookupEndDate.month != 1)
                                     actualsEarlierThisYear =
                                         ExpenditureViewModel.getActualsForPeriod(
                                             it.categoryName, it.subcategoryName,
-                                            lookupStartDate, lookupEndDate, ""
+                                            lookupStartDate, lookupEndDate, SpenderViewModel.getSpenderName(i)
                                         )
                                 val budgetRemaining =
                                     if (bpAmt.amount - actualsEarlierThisYear > 0.0) bpAmt.amount - actualsEarlierThisYear else 0.0
@@ -356,7 +354,7 @@ class BudgetViewModel : ViewModel() {
                 .child(iWho)
                 .removeValue()
         }
-        fun updateBudget(iCategory: String, iPeriod: String, iWho: String, iAmount: Int, iOccurence: String) {
+        fun updateBudget(iCategory: String, iPeriod: String, iWho: String, iAmount: Int, iOccurence: String, iLocalOnly: Boolean = false) {
             var budget = singleInstance.budgets.find { it.categoryName == iCategory }
             if (budget == null) { // first budget being added for this Category
                 budget = Budget(iCategory)
@@ -378,7 +376,8 @@ class BudgetViewModel : ViewModel() {
                         if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0
                     )
                 }
-                val budgetOut = BudgetOut(iAmount.toDouble(), if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0)
+            val budgetOut = BudgetOut(iAmount.toDouble(), if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0)
+            if (!iLocalOnly)
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget")
                     .child(iCategory)
                     .child(iPeriod)
@@ -416,6 +415,19 @@ class BudgetViewModel : ViewModel() {
                 }
             }
             return tMonth
+        }
+
+        fun budgetExistsForExactPeriod(iCategory: String, iBudgetMonth: BudgetMonth, iWho: String): Double {
+            val myBudget = singleInstance.budgets.find { it.categoryName == iCategory }
+            if (myBudget != null) {
+                myBudget.budgetPeriodList.forEach {
+                    if (it.who == iWho) {
+                        if (it.period.toString() == iBudgetMonth.toString())
+                            return it.amount/100.0
+                    }
+                }
+            }
+            return 0.0
         }
 
         fun refresh() {

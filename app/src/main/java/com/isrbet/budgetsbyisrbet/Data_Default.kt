@@ -12,6 +12,7 @@ const val cDEFAULT_SPENDER = "Spender"
 const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
+const val cDEFAULT_QUOTE = "Quote"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -22,6 +23,7 @@ class DefaultsViewModel : ViewModel() {
     private var defaultShowRed: String = "5"
     private var defaultIntegrateWithTDSpend: String = "No"
     private var defaultSound: String = "On"
+    private var defaultQuote: String = "Off"
     private var loaded:Boolean = false
 
     companion object {
@@ -42,6 +44,7 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default ShowRed is " + singleInstance.defaultShowRed)
             Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
             Log.d("Alex", "Default sound is " + singleInstance.defaultSound)
+            Log.d("Alex", "Default quote is " + singleInstance.defaultQuote)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -55,6 +58,7 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_SHOWRED -> return singleInstance.defaultShowRed
                 cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
                 cDEFAULT_SOUND -> return singleInstance.defaultSound
+                cDEFAULT_QUOTE -> return singleInstance.defaultQuote
                 else -> return ""
             }
         }
@@ -80,6 +84,7 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultShowRed = "5"
             singleInstance.defaultIntegrateWithTDSpend = "No"
             singleInstance.defaultSound = "On"
+            singleInstance.defaultQuote = "Off"
         }
     }
 
@@ -98,7 +103,9 @@ class DefaultsViewModel : ViewModel() {
 
     fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-//        dataUpdatedCallback?.onDataUpdate()
+    }
+    fun clearCallback() {
+        dataUpdatedCallback = null
     }
 
     fun setLocal(whichOne: String, iValue: String) {
@@ -121,6 +128,9 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SOUND -> {
                 singleInstance.defaultSound = iValue
             }
+            cDEFAULT_QUOTE -> {
+                singleInstance.defaultQuote = iValue
+            }
         }
     }
     fun loadDefaults() {
@@ -133,6 +143,7 @@ class DefaultsViewModel : ViewModel() {
                     setLocal(it.key.toString(), it.value.toString())
                 }
                 singleInstance.loaded = true
+                dataUpdatedCallback?.onDataUpdate()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

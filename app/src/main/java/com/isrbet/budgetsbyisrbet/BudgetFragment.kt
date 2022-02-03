@@ -23,6 +23,7 @@ class BudgetFragment : Fragment() {
     private var _binding: FragmentBudgetBinding? = null
     private val binding get() = _binding!!
     private val args: BudgetFragmentArgs by navArgs()
+    private var inAnnualMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,22 +50,21 @@ class BudgetFragment : Fragment() {
         binding.budgetAddYear.minValue = 2018
         binding.budgetAddYear.maxValue = 2040
         binding.budgetAddYear.wrapSelectorWheel = true
-//        binding.budgetAddYear.setTextColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
         binding.budgetAddYear.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
         binding.budgetAddYear.value = cal.get(Calendar.YEAR)
-        binding.budgetAddMonth.minValue = 0
+        binding.budgetAddMonth.minValue = 1
         binding.budgetAddMonth.maxValue = 12
         binding.budgetAddMonth.wrapSelectorWheel = true
         binding.budgetAddMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-//        binding.budgetAddMonth.setTextColor(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.budgetAddMonth.value = cal.get(Calendar.MONTH)+1
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
-        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener({ _, checkedId ->
+        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             Log.d("Alex", "clicked on radio group $checkedId")
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString())
-        })
+        }
         if (SpenderViewModel.singleUser()) {
             binding.budgetAddWhoLabel.visibility = GONE
             binding.budgetAddWhoRadioGroup.visibility = GONE
@@ -80,21 +80,13 @@ class BudgetFragment : Fragment() {
             }
         }
 
-        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener({ _, _ ->
+        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener { _, _ ->
             updateInformationFields()
-        })
+        }
 
-        binding.budgetAddYear.setOnValueChangedListener(object : NumberPicker.OnValueChangeListener {
-            override fun onValueChange(p0: NumberPicker?, p1: Int, p2: Int) {
-                updateInformationFields()
-            }
-        })
+        binding.budgetAddYear.setOnValueChangedListener { _, _, _ -> updateInformationFields() }
 
-        binding.budgetAddMonth.setOnValueChangedListener(object : NumberPicker.OnValueChangeListener {
-            override fun onValueChange(p0: NumberPicker?, p1: Int, p2: Int) {
-                updateInformationFields()
-            }
-        })
+        binding.budgetAddMonth.setOnValueChangedListener { _, _, _ -> updateInformationFields() }
 
         binding.budgetAddPercentage.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
@@ -123,15 +115,24 @@ class BudgetFragment : Fragment() {
         binding.budgetAddSubCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.budgetAddSubCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
 
-/*        binding.budgetAddCategoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddSubCategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddYear.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddMonth.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddWhoRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddOccurenceRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-        binding.budgetAddPercentage.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.robin_egg_blue))
-*/
+        binding.regularityRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            when {
+                radioButton.text.toString() == "Annual" -> {
+                    binding.budgetAddMonth.visibility = GONE
+                    binding.budgetAddMonthLabel.visibility = GONE
+                    inAnnualMode = true
+                    updateInformationFields()
+                }
+                radioButton.text.toString() == "Monthly" -> {
+                    binding.budgetAddMonth.visibility = VISIBLE
+                    binding.budgetAddMonthLabel.visibility = VISIBLE
+                    inAnnualMode = false
+                    updateInformationFields()
+                }
+            }
+        }
+
         binding.budgetAddButtonSave.visibility = VISIBLE
         binding.budgetAddButtonSave.setOnClickListener {
             onSaveButtonClicked()
@@ -161,7 +162,7 @@ class BudgetFragment : Fragment() {
         Log.d("Alex", "In updateInformationFields")
         val prevMonth = BudgetMonth(
             binding.budgetAddYear.value,
-            if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
+            if (inAnnualMode) 1 else binding.budgetAddMonth.value
         )
         prevMonth.decrementMonth()
         val whoSelectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
@@ -171,36 +172,48 @@ class BudgetFragment : Fragment() {
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
         val catText = catRadioButton.text.toString()
         val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
-
-        val tmpPrevAmt = BudgetViewModel.getBudgetAmount("$catText-$subCatText", prevMonth, whoText)
-
         val dec = DecimalFormat("#.00")
-        binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
-        if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
-            binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
-            binding.budgetAddPreviousAmountDate.text = ""
+
+        val toCheckAnnual = BudgetMonth(binding.budgetAddYear.value, 0)
+        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod("$catText-$subCatText", toCheckAnnual, whoText)
+        if (annualBudget != 0.0) {
+            binding.budgetAddPreviousAmount.text = dec.format(annualBudget)
+            binding.budgetAddPreviousAmountLabel2.text = " which was set for "
+            binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
-            binding.budgetAddPreviousAmountLabel2.text = " which is set for "
-            if (tmpPrevAmt.dateStarted.month == 0) // is an annual amount
-                binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.year.toString() + " (A)"
-            else
-                binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.toString()
+            val tmpPrevAmt = BudgetViewModel.getBudgetAmount("$catText-$subCatText", prevMonth, whoText)
+            binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
+            if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
+                binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
+                binding.budgetAddPreviousAmountDate.text = ""
+            } else {
+                binding.budgetAddPreviousAmountLabel2.text = " which was set "
+                if (tmpPrevAmt.dateStarted.month == 0) // is an annual amount
+                    binding.budgetAddPreviousAmountDate.text =
+                        tmpPrevAmt.dateStarted.year.toString() + " (A)"
+                else
+                    binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.toString()
+            }
         }
+        val startOfPeriod = BudgetMonth(binding.budgetAddYear.value, binding.budgetAddMonth.value)
+        val endOfPeriod = BudgetMonth(binding.budgetAddYear.value, binding.budgetAddMonth.value)
+        if (inAnnualMode) {
+            startOfPeriod.year -= 1
+            startOfPeriod.month = 1
+            endOfPeriod.year -= 1
+            endOfPeriod.month = 12
+        } else {
+            startOfPeriod.decrementMonth(1)
+            endOfPeriod.decrementMonth(1)
+        }
+        Log.d("Alex", "checking periods $whoText $startOfPeriod $endOfPeriod")
         binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
-            BudgetMonth(
-                binding.budgetAddYear.value,
-                if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
-            ),
-            BudgetMonth(
-                binding.budgetAddYear.value,
-                if (binding.budgetAddMonth.value == 0) 12 else binding.budgetAddMonth.value
-            ),
-        whoText))
+            startOfPeriod, endOfPeriod, whoText))
 
         val annualActuals = ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
             BudgetMonth(
                 binding.budgetAddYear.value - 1,
-                if (binding.budgetAddMonth.value == 0) 1 else binding.budgetAddMonth.value
+                if (inAnnualMode) 1 else binding.budgetAddMonth.value
             ),
             prevMonth,
             whoText)
@@ -350,7 +363,7 @@ class BudgetFragment : Fragment() {
         val tempBudget = BudgetViewModel.getBudget(tempCategory)
         if (tempBudget != null) {
             var chosenMonth = 0
-            if (binding.budgetAddMonth.value != 0)
+            if (!inAnnualMode)
                 chosenMonth = binding.budgetAddMonth.value
 
             Log.d("Alex", "year is '" + binding.budgetAddYear.value + "'")
@@ -379,7 +392,7 @@ class BudgetFragment : Fragment() {
         val amountInt = tempDouble.toInt()
 
         var period = binding.budgetAddYear.value.toString()
-        period = if (binding.budgetAddMonth.value != 0) {
+        period = if (!inAnnualMode) {
             if (binding.budgetAddMonth.value < 10)
                 period + "-0" + binding.budgetAddMonth.value
             else

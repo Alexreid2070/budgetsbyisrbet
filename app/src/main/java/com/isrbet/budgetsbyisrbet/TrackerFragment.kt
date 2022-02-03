@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -9,11 +10,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
@@ -68,12 +67,12 @@ class TrackerFragment : Fragment() {
             // remove top padding
             binding.constraintLayout.setPadding(binding.constraintLayout.paddingLeft, 0, binding.constraintLayout.paddingRight, binding.constraintLayout.paddingBottom)
         } else  {
-            Log.d("debug", "you are in Host (ie on Tracker page)");
+            Log.d("debug", "you are in Host (ie on Tracker page)")
         }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        if (!(parentFragment is HomeFragment)) { // ie only do this if displaying as own fragment
+        if (parentFragment !is HomeFragment) { // ie only do this if displaying as own fragment
             super.onPrepareOptionsMenu(menu)
             for (i in 0 until menu.size()) {
                 menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.DashboardFragment
@@ -127,7 +126,7 @@ class TrackerFragment : Fragment() {
 
         binding.barChart.setDrawValueAboveBar(true)
 
-        binding.barChart.setOnChartGestureListener(object : OnChartGestureListener  {
+        binding.barChart.onChartGestureListener = object : OnChartGestureListener  {
             override fun onChartGestureStart(
                 me: MotionEvent?,
                 lastPerformedGesture: ChartTouchListener.ChartGesture?
@@ -167,10 +166,11 @@ class TrackerFragment : Fragment() {
             override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
             }
 
-        })
+        }
         binding.barChart.invalidate()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun getGraphData() : ArrayList<DataObject> {
         val tList = ArrayList<DataObject>()
         val dateNow = android.icu.util.Calendar.getInstance()
@@ -183,7 +183,9 @@ class TrackerFragment : Fragment() {
         Log.d("Alex", "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate")
         tList.add(DataObject("Budget this month", totalDiscBudget, ContextCompat.getColor(requireContext(), R.color.dark_gray)))
         tList.add(DataObject("Budget to date", totalDiscBudgetToDate, ContextCompat.getColor(requireContext(), R.color.medium_gray)))
-        if (totalDiscActualsToDate > totalDiscBudget)
+        val showRed = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
+
+        if (totalDiscActualsToDate > (totalDiscBudgetToDate * (1+showRed/100)))
             tList.add(DataObject("Actuals", totalDiscActualsToDate, ContextCompat.getColor(requireContext(), R.color.red)))
         else if (totalDiscActualsToDate > totalDiscBudgetToDate)
             tList.add(DataObject("Actuals", totalDiscActualsToDate, ContextCompat.getColor(requireContext(), R.color.yellow)))
@@ -197,11 +199,12 @@ class TrackerFragment : Fragment() {
             val dollarFormat = DecimalFormat("$###.00")
 
             binding.chartSummaryText.text =
-                "Keeping discretionary expenditures below " + dollarFormat.format(remainingBudget/daysRemaining) + " per day will keep you within budget this month."
+                "Keeping discretionary expenses below " + dollarFormat.format(remainingBudget/daysRemaining) + " per day will keep you within budget this month."
         }
         return tList
     }
 
+    @SuppressLint("SetTextI18n")
     private fun createBarChart(iData: ArrayList<DataObject>) {
         val dataSets: ArrayList<IBarDataSet> = ArrayList()
         for (i in 0 until iData.size) { // for until loop excludes the "until" number
@@ -209,11 +212,11 @@ class TrackerFragment : Fragment() {
             val dataObject: DataObject = iData[i]
             values.add(BarEntry(i.toFloat(), dataObject.value.toFloat(), dataObject.color))
             val ds = BarDataSet(values, "Data Set")
-            ds.setColor(dataObject.color)
+            ds.color = dataObject.color
             ds.setDrawValues(true)
             dataSets.add(ds)
         }
-        val set1: BarDataSet
+//        val set1: BarDataSet
 //        if (binding.barChart.data != null &&
 //            binding.barChart.data.dataSetCount > 0) {
             // code comes here after the first time, ie hits the else below the first time the chart is drawn
@@ -245,9 +248,11 @@ class TrackerFragment : Fragment() {
             binding.barChart.notifyDataSetChanged()
 //        }
         val dateNow = android.icu.util.Calendar.getInstance()
-        binding.chartTitle.text = "Discretionary Expense Tracker - " + dateNow.get(Calendar.YEAR) + "-" +
-                (if ((dateNow.get(Calendar.MONTH)+1) < 10 ) "0" else "") +
-                        (dateNow.get(Calendar.MONTH)+1)
+        binding.chartTitle.text = "Discretionary Expense Tracker - " +
+                MonthNames[dateNow.get(Calendar.MONTH)] + " " +
+                dateNow.get(Calendar.YEAR)
+//                (if ((dateNow.get(Calendar.MONTH)+1) < 10 ) "0" else "") +
+//                        (dateNow.get(Calendar.MONTH)+1)
     }
 
     override fun onDestroy() {
@@ -279,15 +284,12 @@ class TrackerFragment : Fragment() {
 data class DataObject(var label: String, var value: Double, var color: Int)
 
 class MyYAxisValueFormatter : ValueFormatter() {
-    private val mFormat: DecimalFormat
+    private val mFormat: DecimalFormat = DecimalFormat("$ ###,###,##0")
     override fun getFormattedValue(value: Float): String {
         //write your logic here
         //access the YAxis object to get more information
         return mFormat.format(value.toDouble())
     }
 
-    init {
-        mFormat = DecimalFormat("$ ###,###,##0")
-    }
 }
 

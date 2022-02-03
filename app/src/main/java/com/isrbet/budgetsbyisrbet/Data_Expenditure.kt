@@ -137,17 +137,20 @@ class ExpenditureViewModel : ViewModel() {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
+            Log.d("Alex",
+                "getting actuals for $iCategory-$iSubCategory for $iWho from $firstDay to $lastDay"
+            )
             loop@ for (expenditure in singleInstance.expenditures) {
                 if (expenditure.type != "T" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
                         expenditure.category == iCategory &&
                         expenditure.subcategory == iSubCategory &&
-                        (expenditure.boughtfor == iWho || iWho == "")) {
+                        (expenditure.boughtfor == iWho || iWho == "Joint")) {
                     // this is a transaction to add to our subtotal
-                        if (iWho != "" && iWho != "Joint") // ie want a specific person
-                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
-                        else
+//                        if (iWho != "" && iWho != "Joint") // ie want a specific person
+//                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
+//                        else
                             tTotal += (expenditure.amount.toDouble() / 100)
                     }
             }
