@@ -1,21 +1,27 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import android.view.Menu
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.*
-import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
-import com.google.android.material.navigation.NavigationView
 import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
+import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -48,6 +54,11 @@ class MainActivity : AppCompatActivity() {
             // do something??
 //        }
         return super.onCreateView(name, context, attrs)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // want to go back to Home when mode changes.  Otherwise, app crashes when going back to Home screen.  Tracker fragment appears to disappear
     }
 
     override fun onSupportNavigateUp(): Boolean {

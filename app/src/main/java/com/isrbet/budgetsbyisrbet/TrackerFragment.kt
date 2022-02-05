@@ -81,8 +81,13 @@ class TrackerFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController()
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+        return if (item.itemId == R.id.DashboardFragment) {
+            view?.findNavController()?.navigate(R.id.DashboardFragment)
+            true
+        } else {
+            val navController = findNavController()
+            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+        }
     }
 
     fun loadGraph() {

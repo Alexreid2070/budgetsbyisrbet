@@ -101,13 +101,11 @@ class SettingsFragment : Fragment() {
 
         if (binding.switchSecondUserActive.isChecked) {
             binding.secondUserLayout.visibility = View.VISIBLE
-            binding.defaultsHeader.visibility = View.VISIBLE
             binding.splitSliderLayout.visibility = View.VISIBLE
             binding.splitLayout.visibility = View.VISIBLE
             binding.spenderLayout.visibility = View.VISIBLE
         } else {
             binding.secondUserLayout.visibility = View.GONE
-            binding.defaultsHeader.visibility = View.GONE
             binding.splitSliderLayout.visibility = View.GONE
             binding.splitLayout.visibility = View.GONE
             binding.spenderLayout.visibility = View.GONE
@@ -146,14 +144,12 @@ class SettingsFragment : Fragment() {
         binding.switchSecondUserActive.setOnCheckedChangeListener { buttonView, isChecked ->
             if (binding.switchSecondUserActive.isChecked) {
                 binding.secondUserLayout.visibility = View.VISIBLE
-                binding.defaultsHeader.visibility = View.VISIBLE
                 binding.splitSliderLayout.visibility = View.VISIBLE
                 binding.splitLayout.visibility = View.VISIBLE
                 binding.spenderLayout.visibility = View.VISIBLE
                 binding.splitSlider.value = 50.0F
             } else {
                 binding.secondUserLayout.visibility = View.GONE
-                binding.defaultsHeader.visibility = View.GONE
                 binding.splitSliderLayout.visibility = View.GONE
                 binding.splitLayout.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
@@ -182,18 +178,13 @@ class SettingsFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.EditCategory
+            menu.getItem(i).isVisible = false
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.EditCategory) {
-            view?.findNavController()?.navigate(R.id.CategoryFragment)
-            true
-        } else {
-            val navController = findNavController()
-            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-        }
+        val navController = findNavController()
+        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

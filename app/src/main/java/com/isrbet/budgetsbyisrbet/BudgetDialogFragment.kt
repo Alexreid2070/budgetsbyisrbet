@@ -190,8 +190,6 @@ class BudgetDialogFragment : DialogFragment() {
 
                 Log.d("Alex", "need to save new values")
                 var tmpDouble1: Double = binding.budgetDialogNewAmount.text.toString().toDouble()
-                tmpDouble1 = round(tmpDouble1 * 100) / 100
-                val amountInt: Int = (tmpDouble1 * 100.0).toInt()
 
                 var newWho = ""
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
@@ -216,7 +214,7 @@ class BudgetDialogFragment : DialogFragment() {
                             oldYear, oldMonth
                         ).toString(),
                         newWho,
-                        amountInt,
+                        tmpDouble1,
                         newOccurence)
                     if (listener != null)
                         listener?.onNewDataSaved()
@@ -274,7 +272,7 @@ class BudgetDialogFragment : DialogFragment() {
                                                     oldYear, oldMonth
                                                 ).toString(),
                                                 newWho,
-                                                amountInt,
+                                                tmpDouble1,
                                                 newOccurence
                                             )
                                             // delete oldWho

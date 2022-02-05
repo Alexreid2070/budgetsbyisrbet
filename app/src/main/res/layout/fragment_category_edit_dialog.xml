@@ -83,7 +83,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/category_dialog_linear_layout3b"
+        android:id="@+id/category_dialog_linear_layout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
@@ -117,10 +117,10 @@
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/category_dialog_linear_layout3"
+        android:id="@+id/category_dialog_linear_layout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3b"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3"
         android:paddingBottom="10dp">
 
     <TextView
@@ -151,12 +151,12 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/category_dialog_linear_layout4"
+        android:id="@+id/category_dialog_linear_layout5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3">
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout4">
 
         <TextView
             android:id="@+id/edit_category_old_disctype"
@@ -200,10 +200,43 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/category_dialog_linear_layout_budget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout5"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Starting Budget: "
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/subcatLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Amount"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_category_budget_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout4"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout_budget"
         android:paddingBottom="10dp">
 
         <Button

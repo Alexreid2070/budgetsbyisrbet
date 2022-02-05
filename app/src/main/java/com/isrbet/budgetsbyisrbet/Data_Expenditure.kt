@@ -35,6 +35,9 @@ data class Expenditure(
             "note" -> note = value.trim()
             "type" -> type = value.trim()
             "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
+            else -> {
+                Log.d("Alex", "Unknown field in Expenditures $key $value " + this.toString())
+            }
         }
     }
 
@@ -131,15 +134,9 @@ class ExpenditureViewModel : ViewModel() {
         }
 
         fun getActualsForPeriod(iCategory: String, iSubCategory: String, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
-            Log.d("Alex",
-                "getting actuals for $iCategory-$iSubCategory for $iWho from $iStartPeriod to $iEndPeriod"
-            )
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
-            Log.d("Alex",
-                "getting actuals for $iCategory-$iSubCategory for $iWho from $firstDay to $lastDay"
-            )
             loop@ for (expenditure in singleInstance.expenditures) {
                 if (expenditure.type != "T" &&
                         expenditure.date >= firstDay &&

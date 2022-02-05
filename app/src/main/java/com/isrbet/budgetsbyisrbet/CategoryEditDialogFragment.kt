@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 import java.util.ArrayList
+import kotlin.math.round
 
 const val cNEW_CATEGORY = "<add new category name>"
 
@@ -81,11 +83,11 @@ class CategoryEditDialogFragment : DialogFragment() {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY) {
-                    binding.categoryDialogLinearLayout3b.visibility = View.VISIBLE
+                    binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
 //                    binding.editCategoryNewName.requestFocus()
                     focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
                 } else {
-                    binding.categoryDialogLinearLayout3b.visibility = View.GONE
+                    binding.categoryDialogLinearLayout3.visibility = View.GONE
                 }
             }
         }
@@ -104,13 +106,14 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.editSubcategoryOldName.text = "Sub Category: "
             binding.editCategoryOldDisctype.visibility = View.GONE
             binding.categoryDialogButtonDelete.visibility = View.GONE
-            binding.newNameHeader.text = "New Category:"
+            binding.newNameHeader.text = "Add:"
         } else {
             binding.editCategoryOldName.text = oldCategory
             binding.editSubcategoryOldName.text = oldSubcategory
             binding.editCategoryOldDisctype.text = oldDisctype
             binding.editSubcategoryNewName.setText(oldSubcategory)
             dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
+            binding.categoryDialogLinearLayoutBudget.visibility = View.GONE
         }
         dtSpinner.setBackgroundColor(Color.parseColor(hexColor))
         dtSpinner.setPopupBackgroundResource(R.drawable.spinner)
@@ -153,7 +156,16 @@ class CategoryEditDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
                 return@setOnClickListener
             }
-
+            if (binding.editSubcategoryNewName.text.toString() == "") {
+                binding.editSubcategoryNewName.error = "Enter new sub-category name."
+                focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
+                return@setOnClickListener
+            }
+            if (oldCategory == "" && binding.editCategoryBudgetAmount.text.toString() == "") {
+                binding.editCategoryBudgetAmount.error = "Enter new budget amount."
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryBudgetAmount)
+                return@setOnClickListener
+            }
             val chosenCategory = if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY)
                 binding.editCategoryNewName.text.toString().trim()
             else
@@ -171,6 +183,13 @@ class CategoryEditDialogFragment : DialogFragment() {
                 dismiss()
             } else if (oldCategory == "") { // ie this is an add
                 CategoryViewModel.addCategoryAndSubcategory(chosenCategory, binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
+                val dateNow = Calendar.getInstance()
+                val bmNow = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1)
+                val newWho = if (SpenderViewModel.getActiveCount() > 1) "Joint" else SpenderViewModel.getSpenderName(0)
+                val tempDouble : Double = binding.editCategoryBudgetAmount.text.toString().toDouble()
+
+                BudgetViewModel.updateBudget(chosenCategory+"-"+binding.editSubcategoryNewName.text.toString().trim(),
+                    bmNow.toString(), newWho, tempDouble, cBUDGET_RECURRING)
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }

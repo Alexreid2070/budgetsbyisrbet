@@ -7,6 +7,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.lang.Exception
+import kotlin.math.round
 import java.text.DecimalFormat
 import java.util.ArrayList
 
@@ -146,7 +147,7 @@ class BudgetViewModel : ViewModel() {
                                     (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
                             )
                         ) {  // occurence of 1 means single
-                            tFirstNameBudget.amount = it.amount / 100.0
+                            tFirstNameBudget.amount = it.amount
                             tFirstNameBudget.dateApplicable.setValue(it.period)
                             tFirstNameBudget.dateStarted.setValue(it.period)
                             tFirstNameBudget.occurence = it.occurence
@@ -159,7 +160,7 @@ class BudgetViewModel : ViewModel() {
                                     (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
                                     )
                         ) {  // occurence of 1 means single
-                            tSecondNameBudget.amount = it.amount / 100.0
+                            tSecondNameBudget.amount = it.amount
                             tSecondNameBudget.dateApplicable.setValue(it.period)
                             tSecondNameBudget.dateStarted.setValue(it.period)
                             tSecondNameBudget.occurence = it.occurence
@@ -172,7 +173,7 @@ class BudgetViewModel : ViewModel() {
                                     (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
                                     )
                         ) {  // occurence of 1 means single
-                            tJointBudget.amount = it.amount / 100.0
+                            tJointBudget.amount = it.amount
                             tJointBudget.dateApplicable.setValue(it.period)
                             tJointBudget.dateStarted.setValue(it.period)
                             tJointBudget.occurence = it.occurence
@@ -230,17 +231,9 @@ class BudgetViewModel : ViewModel() {
                                         )
                                 val budgetRemaining =
                                     if (bpAmt.amount - actualsEarlierThisYear > 0.0) bpAmt.amount - actualsEarlierThisYear else 0.0
-                                Log.d(
-                                    "Alex",
-                                    "getting budget for " + it.categoryName + " " + it.subcategoryName + " " + if (actualsThisMonth < budgetRemaining) actualsThisMonth else budgetRemaining
-                                )
                                 tmpTotal += if (actualsThisMonth < budgetRemaining) actualsThisMonth else budgetRemaining
                             } else {
                                 tmpTotal += bpAmt.amount
-                                Log.d(
-                                    "Alex",
-                                    "getting budget for " + it.categoryName + " " + it.subcategoryName + " " + bpAmt.amount
-                                )
                             }
                         }
                     }
@@ -354,7 +347,8 @@ class BudgetViewModel : ViewModel() {
                 .child(iWho)
                 .removeValue()
         }
-        fun updateBudget(iCategory: String, iPeriod: String, iWho: String, iAmount: Int, iOccurence: String, iLocalOnly: Boolean = false) {
+        fun updateBudget(iCategory: String, iPeriod: String, iWho: String, iAmount: Double, iOccurence: String, iLocalOnly: Boolean = false) {
+            Log.d("Alex", "Adding budget amount " + iAmount)
             var budget = singleInstance.budgets.find { it.categoryName == iCategory }
             if (budget == null) { // first budget being added for this Category
                 budget = Budget(iCategory)
@@ -366,17 +360,17 @@ class BudgetViewModel : ViewModel() {
                     pBudget.period.year = bm.year
                     pBudget.period.month = bm.month
                     pBudget.who = iWho
-                    pBudget.amount = iAmount.toDouble()
+                    pBudget.amount = iAmount
                     pBudget.occurence = if (iOccurence == cBUDGET_JUST_THIS_MONTH)  1 else 0
                 } else {
                     budget.addBudgetPeriod(
                         iPeriod,
                         iWho,
-                        iAmount.toDouble(),
+                        iAmount,
                         if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0
                     )
                 }
-            val budgetOut = BudgetOut(iAmount.toDouble(), if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0)
+            val budgetOut = BudgetOut(round(iAmount*100), if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0)
             if (!iLocalOnly)
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget")
                     .child(iCategory)
@@ -423,7 +417,7 @@ class BudgetViewModel : ViewModel() {
                 myBudget.budgetPeriodList.forEach {
                     if (it.who == iWho) {
                         if (it.period.toString() == iBudgetMonth.toString())
-                            return it.amount/100.0
+                            return it.amount
                     }
                 }
             }
@@ -500,7 +494,7 @@ class BudgetViewModel : ViewModel() {
                                 val tBudgetOut = BudgetOut(0.0, 0)
                                 for (child in element.children) {
                                     if (child.key == "amount")
-                                        tBudgetOut.amount = child.value.toString().toDouble()
+                                        tBudgetOut.amount = child.value.toString().toDouble() / 100.0
                                     else if (child.key == "occurence")
                                         tBudgetOut.occurence = child.value.toString().toInt()
                                     else

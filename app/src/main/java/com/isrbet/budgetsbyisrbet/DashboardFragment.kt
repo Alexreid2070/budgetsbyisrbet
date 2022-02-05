@@ -14,6 +14,7 @@ import android.view.*
 import android.widget.TextView
 import android.widget.TableLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -265,10 +266,13 @@ class DashboardFragment : Fragment() {
         } else if (iRowType == "Delta") {
             if (tv3.text != "") {
                 tv1.text = "Under Budget"
-                tv3.setBackgroundColor(Color.GREEN)
+                if (inDarkMode(requireContext()))
+                    tv3.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.darkGreen))
+                else
+                    tv3.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
             } else if (tv4.text != "") {
                 tv1.text = "Over Budget"
-                tv4.setBackgroundColor(Color.RED)
+                tv4.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
             }
         }
         tr.addView(tv1)

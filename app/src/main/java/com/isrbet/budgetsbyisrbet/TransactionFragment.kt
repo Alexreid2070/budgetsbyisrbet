@@ -28,6 +28,7 @@ import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
+import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 
 class TransactionFragment : Fragment() {
@@ -302,6 +303,10 @@ class TransactionFragment : Fragment() {
             }
             R.id.Delete -> {
                 deleteTransaction(args.transactionID.toString())
+                true
+            }
+            R.id.ViewTransactionsFragment -> {
+                view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
                 true
             }
             else -> {

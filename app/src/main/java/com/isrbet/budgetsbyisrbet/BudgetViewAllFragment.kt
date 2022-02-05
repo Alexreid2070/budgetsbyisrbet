@@ -121,20 +121,30 @@ class BudgetViewAllFragment : Fragment() {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
+                setCategoryType()
                 loadRows(selection as String)
                 val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
                 Log.d("Alex", "scrolling to " + (listView.adapter.count-1))
                 listView.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-//                listView.smoothScrollToPosition(listView.adapter.count-1)
                 listView.setSelection(listView.adapter.count - 1)
-//                listView.isStackFromBottom = true
-//                listView.isStackFromBottom = true
             }
         }
-
+        setCategoryType()
         if (SpenderViewModel.singleUser()) {
             binding.rowBudgetWhoHeading.visibility = View.GONE
         }
+    }
+
+    fun setCategoryType() {
+        val categoryString = binding.budgetCategorySpinner.selectedItem.toString()
+        val dash = categoryString.indexOf("-")
+        var cat = ""
+        var subcat = ""
+        if (dash > -1) {
+            cat = categoryString.substring(0, dash)
+            subcat = categoryString.substring(dash + 1, categoryString.length)
+        }
+        binding.categoryType.text = CategoryViewModel.getDiscretionaryIndicator(cat, subcat)
     }
 
     fun loadRows(iCategory: String) {

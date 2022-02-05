@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import android.icu.util.Calendar
 import android.util.Log
 import android.view.View
@@ -15,7 +16,9 @@ import androidx.fragment.app.FragmentManager
 import android.net.ConnectivityManager
 import android.view.GestureDetector
 import android.view.MotionEvent
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import kotlin.math.round
 
 const val cDiscTypeDiscretionary = "Discretionary"
@@ -344,15 +347,35 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
     open fun onSwipeBottom() {}
 }
 
+fun inDarkMode(context: Context): Boolean {
+    when (context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+        Configuration.UI_MODE_NIGHT_YES -> { return true }
+        Configuration.UI_MODE_NIGHT_NO -> { return false }
+        Configuration.UI_MODE_NIGHT_UNDEFINED -> { return false }
+    }
+    return false
+}
+
 fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysShowGreen: Boolean): Int {
     val rActual = round(iActual*100)
     val rBudget = round(iBudget*100)
     if (rActual <= rBudget) {
-        return if (iAlwaysShowGreen) Color.GREEN else Color.WHITE
+        var colorToReturn: Int
+        if (iAlwaysShowGreen) {
+            if (inDarkMode(context))
+                colorToReturn = ContextCompat.getColor(context, R.color.darkGreen)
+            else
+                colorToReturn = ContextCompat.getColor(context, R.color.green)
+        } else
+            colorToReturn = MaterialColors.getColor(context, R.attr.background, Color.BLACK)
+        return colorToReturn
     } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
         (rBudget == 0.0 && rActual > 0.0)) {
             Log.d("Alex", "iActual " + iActual.toString() + " iBudget " + iBudget.toString() + " dsRed " + DefaultsViewModel.getDefault(cDEFAULT_SHOWRED) + " c1 " + (1.0 +(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0)).toString())
-        return Color.RED
+        if (inDarkMode(context))
+            return ContextCompat.getColor(context, R.color.darkRed)
+        else
+            return ContextCompat.getColor(context, R.color.red)
     } else {
         return ContextCompat.getColor(context, R.color.orange)  // orange
     }

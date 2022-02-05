@@ -313,6 +313,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/slider_layout"
                     android:layout_gravity="center_horizontal"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
                     <TextView

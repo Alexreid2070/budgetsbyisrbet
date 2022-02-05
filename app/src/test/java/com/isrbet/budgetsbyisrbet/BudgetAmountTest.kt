@@ -18,7 +18,7 @@ class GetBudgetAmountTest {
         CategoryViewModel.addCategoryAndSubcategory("Housing", "Property Taxes", "Non-Discretionary", true)
         CategoryViewModel.addCategoryAndSubcategory("Life", "Booze", "Discretionary", true)
         CategoryViewModel.addCategoryAndSubcategory("Life", "Groceries", "Discretionary", true)
-        BudgetViewModel.updateBudget("Life-Booze", "2021-01", "Alex", 500, cBUDGET_RECURRING, true)
+        BudgetViewModel.updateBudget("Life-Booze", "2021-01", "Alex", 5.0, cBUDGET_RECURRING, true)
         var bm = BudgetViewModel.getBudgetAmount("Life-Booze", BudgetMonth("2021-01"), "Alex")
         Assert.assertEquals(5.0, bm.amount, 0.0)
         bm = BudgetViewModel.getBudgetAmount("Life-Booze", BudgetMonth("2021-01"), "Joint")

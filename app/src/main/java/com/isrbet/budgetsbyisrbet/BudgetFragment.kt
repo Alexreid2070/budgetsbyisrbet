@@ -386,10 +386,7 @@ class BudgetFragment : Fragment() {
         Log.d("Alex", "Category is " + radioButton.text)
 
         val subcategorySpinner = binding.budgetAddSubCategorySpinner
-        Log.d("Alex", "Sub-category is " + subcategorySpinner.selectedItem.toString())
-
-        val tempDouble : Double = round(binding.budgetAddAmount.text.toString().toDouble()*100)
-        val amountInt = tempDouble.toInt()
+        val tempDouble : Double = binding.budgetAddAmount.text.toString().toDouble()
 
         var period = binding.budgetAddYear.value.toString()
         period = if (!inAnnualMode) {
@@ -401,11 +398,10 @@ class BudgetFragment : Fragment() {
             "$period-00"
         }
 
-        BudgetViewModel.updateBudget(tempCategory, period, whoText, amountInt, occurenceText)
-        binding.budgetAddAmount.setText("")
+        BudgetViewModel.updateBudget(tempCategory, period, whoText, tempDouble, occurenceText)
+//        binding.budgetAddAmount.setText("")
         binding.budgetAddAmount.requestFocus()
-        binding.budgetAddMonth.value = 0
-        binding.budgetAddPercentage.setText("")
+//        binding.budgetAddPercentage.setText("")
         hideKeyboard(requireContext(), requireView())
         Toast.makeText(activity, "Budget item added", Toast.LENGTH_SHORT).show()
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
