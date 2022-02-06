@@ -63,7 +63,7 @@ class AccountingFragment : Fragment() {
 
         for (i in 0 until ExpenditureViewModel.getCount()) {
             val exp = ExpenditureViewModel.getExpenditure(i)
-            if (exp.type == "T") {
+            if (exp.type == "Transfer") {
                 when (exp.paidby) {
                     firstName -> {
                         when (exp.boughtfor) {

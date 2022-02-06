@@ -43,17 +43,13 @@ data class Expenditure(
 
     fun contains(iSubString: String): Boolean {
         val lc = iSubString.lowercase()
-        if (amount.toString().lowercase().contains(lc) ||
-            category.lowercase().contains(lc) ||
-            subcategory.lowercase().contains(lc) ||
-            paidby.lowercase().contains(lc) ||
-            boughtfor.lowercase().contains(lc) ||
-            note.lowercase().contains(lc) ||
-            date.contains(lc)
-        )
-            return true
-        else
-            return false
+        return amount.toString().lowercase().contains(lc) ||
+                category.lowercase().contains(lc) ||
+                subcategory.lowercase().contains(lc) ||
+                paidby.lowercase().contains(lc) ||
+                boughtfor.lowercase().contains(lc) ||
+                note.lowercase().contains(lc) ||
+                date.contains(lc)
     }
 }
 
@@ -138,7 +134,7 @@ class ExpenditureViewModel : ViewModel() {
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
             loop@ for (expenditure in singleInstance.expenditures) {
-                if (expenditure.type != "T" &&
+                if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
                         expenditure.category == iCategory &&
@@ -157,7 +153,7 @@ class ExpenditureViewModel : ViewModel() {
 
         fun addTransaction(iExpenditure: ExpenditureOut) {
             val key: String
-            if (iExpenditure.type == "R")
+            if (iExpenditure.type == "Recurring")
                 key = iExpenditure.note + iExpenditure.date
             else
                 key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").push().key.toString()

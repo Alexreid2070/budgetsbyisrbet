@@ -233,7 +233,7 @@ class HomeFragment : Fragment() {
             binding.homeScreenMessage.visibility = View.GONE
             if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
                 binding.quoteLabel.visibility = View.VISIBLE
-                if (MyApplication.currentUserEmail != null && MyApplication.userEmail != MyApplication.currentUserEmail)
+                if (MyApplication.userEmail != MyApplication.currentUserEmail)
                     binding.quoteField.text =
                         "Currently impersonating " + MyApplication.currentUserEmail
                 else
@@ -289,7 +289,7 @@ class HomeFragment : Fragment() {
             Log.d("Alex", "Just set userUID to " + account?.uid.toString())
         }
         if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
-            MyApplication.currentUserEmail = if (account != null) account.email.toString() else ""
+            MyApplication.currentUserEmail = account?.email ?: ""
         if (account == null) {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
@@ -303,7 +303,7 @@ class HomeFragment : Fragment() {
             if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
                 binding.quoteLabel.visibility = View.VISIBLE
                 binding.quoteField.text = getQuote()
-                if (account?.uid.toString() == "null")
+                if (account.uid == "null")
                     binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
             }
             if (account.email == "alexreid2070@gmail.com")
@@ -335,6 +335,7 @@ class HomeFragment : Fragment() {
         alignExpenditureMenuWithDataState()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun alignExpenditureMenuWithDataState() {
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""

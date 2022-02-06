@@ -81,7 +81,7 @@ class TransferFragment : Fragment() {
             override fun afterTextChanged(arg0: Editable) {
                 val str = editAmountText.text.toString()
                 if (str.isEmpty()) return
-                val str2: String = PerfectDecimal(str, 5, 2)
+                val str2: String = perfectDecimal(str, 5, 2)
                 if (str2 != str) {
                     editAmountText.setText(str2)
                     editAmountText.setSelection(str2.length)
@@ -397,7 +397,7 @@ class TransferFragment : Fragment() {
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
                 binding.editTextNote.text.toString(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), bfName1Split, bfName2Split, "T"
+                toRadioButton.text.toString(), bfName1Split, bfName2Split, "Transfer"
             )
             ExpenditureViewModel.addTransaction(expenditure)
             binding.editTextAmount.setText("")
@@ -411,7 +411,7 @@ class TransferFragment : Fragment() {
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
                 binding.editTextNote.text.toString(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), bfName1Split, bfName2Split,"T"
+                toRadioButton.text.toString(), bfName1Split, bfName2Split,"Transfer"
             )
 
             ExpenditureViewModel.updateTransaction(editingKey, expenditure)

@@ -250,10 +250,14 @@ class BudgetViewModel : ViewModel() {
             var tBudgetAmount: Double
             singleInstance.budgets.forEach {
                 tBudgetAmount = 0.0
-                val tCategory = it.categoryName
+                var tCategory = it.categoryName
+                if (tCategory == "Cottage-Hydro")
+                    tCategory = tCategory
                 it.budgetPeriodList.forEach {
-                    if (it.period.month != 0 &&
-                        (iBudgetMonth.month != 0 && it.period.toString() <= iBudgetMonth.toString()) ||
+                    if (it.period.month == 0 && iBudgetMonth.month != 0) {
+                        tBudgetAmount = 0.0
+                    } else if ((iBudgetMonth.month != 0 && it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||
+                        (iBudgetMonth.month != 0 && it.occurence == 1 && it.period.toString() == iBudgetMonth.toString()) ||
                         (iBudgetMonth.month == 0 && it.period.year <= iBudgetMonth.year)
                     ) {
                         val dash = tCategory.indexOf("-")
@@ -348,7 +352,6 @@ class BudgetViewModel : ViewModel() {
                 .removeValue()
         }
         fun updateBudget(iCategory: String, iPeriod: String, iWho: String, iAmount: Double, iOccurence: String, iLocalOnly: Boolean = false) {
-            Log.d("Alex", "Adding budget amount " + iAmount)
             var budget = singleInstance.budgets.find { it.categoryName == iCategory }
             if (budget == null) { // first budget being added for this Category
                 budget = Budget(iCategory)

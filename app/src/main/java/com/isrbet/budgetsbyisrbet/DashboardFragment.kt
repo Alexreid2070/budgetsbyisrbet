@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.icu.text.DecimalFormat
@@ -88,6 +89,7 @@ class DashboardFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun createViewRow(iRowType: String, iRowNo: Int, iCategory: String, iSubcategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
         val leftRowMargin = 0
         val topRowMargin = 0
@@ -309,19 +311,19 @@ class DashboardFragment : Fragment() {
             tr.setOnClickListener {
                 Log.d("Alex", "header was clicked")
                 val tableRow = it as TableRow
-                val tv1 = tableRow.getChildAt(0) as TextView
-                val tv2 = tableRow.getChildAt(1) as TextView
-                Log.d("Alex", "header was clicked " + tv2.text.toString())
-                var tmpCat = tv1.text.toString().replace(" Total","")
+                val ttv1 = tableRow.getChildAt(0) as TextView
+                val ttv2 = tableRow.getChildAt(1) as TextView
+                Log.d("Alex", "header was clicked " + ttv2.text.toString())
+                var tmpCat = ttv1.text.toString().replace(" Total","")
                 tmpCat = tmpCat.replace("...","")
                 tmpCat = tmpCat.trim()
-                if (tv2.text.toString() == "+") {
+                if (ttv2.text.toString() == "+") {
                     Log.d("Alex", "Expand")
-                    tv2.text = "-"
+                    ttv2.text = "-"
                     refreshRows(tmpCat, View.VISIBLE)
                 } else {
                         Log.d("Alex", "Collapse")
-                    tv2.text = "+"
+                    ttv2.text = "+"
                     refreshRows(tmpCat, View.GONE)
                 }
             }
@@ -468,10 +470,8 @@ class DashboardFragment : Fragment() {
                             currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name
                     }
                 }
-            } else if (menu.getItem(i).itemId == R.id.FilterTitle) {
-                menu.getItem(i).isVisible = true
             } else
-                menu.getItem(i).isVisible = false
+                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.FilterTitle
         }
     }
 
@@ -650,8 +650,8 @@ class DashboardRows {
                     expenditure.category,
                     expenditure.subcategory
                 )
-                if (expenditure.type != "T") {
-                    if (iRecFlag == "" || (iRecFlag == "Recurring" && expenditure.type == "R")) {
+                if (expenditure.type != "Transfer") {
+                    if (iRecFlag == "" || (iRecFlag == "Recurring" && expenditure.type == "Recurring")) {
                         if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
                             if (iPaidByFlag == "" || expenditure.paidby == iPaidByFlag || expenditure.paidby == "Joint") {
                                 if (iBoughtForFlag == "" || expenditure.boughtfor == iBoughtForFlag || expenditure.boughtfor == "Joint") {
@@ -751,9 +751,7 @@ class DashboardRows {
                                 iBudgetMonth,
                                 SpenderViewModel.getSpenderName(i)
                             ).amount // get total annual budget
-                            if (whoToLookup == "Joint" || whoToLookup == SpenderViewModel.getSpenderName(i)) // ie want the entire amounts
-                                totalAnnualBudget = totalAnnualBudget
-                            else if (whoToLookup != "Joint" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
+                            if (whoToLookup != "Joint" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
                                 totalAnnualBudget *= splitToUse
                             }
                             var totalAnnualActualsForEarlierMonths = 0.0

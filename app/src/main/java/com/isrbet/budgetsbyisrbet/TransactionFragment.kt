@@ -23,7 +23,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
-import java.lang.String.format
 import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
@@ -139,7 +138,7 @@ class TransactionFragment : Fragment() {
         binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
             onLoadTransactionButtonClicked()
         }
-        binding.slider.addOnChangeListener { slider, value, fromUser ->
+        binding.slider.addOnChangeListener { _, _, _ ->
             binding.transactionBoughtForName1Split.text = binding.slider.value.toInt().toString()
             binding.transactionBoughtForName2Split.text = (100-binding.slider.value.toInt()).toString()
         }
@@ -153,7 +152,7 @@ class TransactionFragment : Fragment() {
             override fun afterTextChanged(arg0: Editable) {
                 val str = editAmountText.text.toString()
                 if (str.isEmpty()) return
-                val str2: String = PerfectDecimal(str, 5, 2)
+                val str2: String = perfectDecimal(str, 5, 2)
                 if (str2 != str) {
                     editAmountText.setText(str2)
                     editAmountText.setSelection(str2.length)
@@ -298,11 +297,11 @@ class TransactionFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.Edit -> {
-                editTransaction(args.transactionID.toString())
+                editTransaction(args.transactionID)
                 true
             }
             R.id.Delete -> {
-                deleteTransaction(args.transactionID.toString())
+                deleteTransaction(args.transactionID)
                 true
             }
             R.id.ViewTransactionsFragment -> {
@@ -418,7 +417,7 @@ class TransactionFragment : Fragment() {
             binding.recurringTransactionLabel.visibility = View.VISIBLE
             binding.recurringFlagLayout.visibility = View.VISIBLE
             binding.recurringTransactionFlag.setText(thisTransaction.type)
-            if (thisTransaction.type == "R") {
+            if (thisTransaction.type == "Recurring") {
                 binding.recurringTransactionLabel.text = "This recurring transaction was automatically generated."
                 binding.recurringTransactionLabel.visibility = View.VISIBLE
             } else {
@@ -527,8 +526,8 @@ class TransactionFragment : Fragment() {
         val iNote = notification.note.lowercase()
         val words = iNote.split(" ")
         var newStr = ""
-        words.forEach {
-            newStr += it.replaceFirstChar { it.uppercase() } + " "
+        words.forEach { s ->
+            newStr += s.replaceFirstChar { it.uppercase() } + " "
         }
         binding.editTextNote.setText(newStr)
 

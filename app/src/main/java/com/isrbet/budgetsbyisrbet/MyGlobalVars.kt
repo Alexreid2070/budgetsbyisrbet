@@ -13,12 +13,11 @@ import com.google.firebase.ktx.Firebase
 import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.fragment.app.FragmentManager
-import android.net.ConnectivityManager
 import android.view.GestureDetector
 import android.view.MotionEvent
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import com.google.android.material.color.MaterialColors
+import kotlin.math.abs
 import kotlin.math.round
 
 const val cDiscTypeDiscretionary = "Discretionary"
@@ -58,7 +57,7 @@ class MyApplication : Application() {
         var userUID: String = ""
         var userEmail: String = ""
         var userGivenName: String = ""
-        var quoteForThisSession: String = ""
+        private var quoteForThisSession: String = ""
         var currentUserEmail: String = ""
         var mediaPlayer: MediaPlayer? = null
         var adminMode: Boolean = false
@@ -68,7 +67,7 @@ class MyApplication : Application() {
 
         fun getQuote(): String {
             if (quoteForThisSession == "") {
-                val randomIndex = (0..inspirationalQuotes.size).random()
+                val randomIndex = (0 until inspirationalQuotes.size-1).random()
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
             }
@@ -100,7 +99,7 @@ class MyApplication : Application() {
         // initialization code here
         Firebase.database.setPersistenceEnabled(true)
         database = FirebaseDatabase.getInstance()
-        databaseref = database.getReference()
+        databaseref = database.reference
     }
 
     override fun onTerminate() {
@@ -134,12 +133,12 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
             return -1
         else
             return 1 */
-        if (year == iBM.year && month == iBM.month)
-            return 0
+        return if (year == iBM.year && month == iBM.month)
+            0
         else if (year < iBM.year || (year == iBM.year && month < iBM.month))
-            return -1
+            -1
         else
-            return 1
+            1
     }
 
     fun addMonth(inc: Int = 1) { // only works up to increases of 12
@@ -170,23 +169,22 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
 //        if (month == 0) {
 //            return year.toString()
 //        } else
-        if (month < 10) {
-            return year.toString() + "-0" + month.toString()
+        return if (month < 10) {
+            "$year-0$month"
         } else {
-            return year.toString() + "-" + month.toString()
+            "$year-$month"
         }
     }
 }
 
 fun giveMeMyDateFormat(cal: Calendar) : String {
-    var tempString: String
-    tempString = cal.get(Calendar.YEAR).toString() + "-"
+    var tempString: String = cal.get(Calendar.YEAR).toString() + "-"
     if (cal.get(Calendar.MONTH)+1 < 10)
-        tempString = tempString + "0"
+        tempString += "0"
     tempString = tempString + (cal.get(Calendar.MONTH)+1).toString() + "-"
     if (cal.get(Calendar.DATE) < 10)
-        tempString = tempString + "0"
-    tempString = tempString + cal.get(Calendar.DATE).toString()
+        tempString += "0"
+    tempString += cal.get(Calendar.DATE).toString()
     return tempString
 }
 
@@ -196,11 +194,11 @@ fun giveMeMyTimeFormat(cal: Calendar) : String {
         tempString = "0"
     tempString = tempString + cal.get(Calendar.HOUR_OF_DAY).toString() + ":"
     if (cal.get(Calendar.MINUTE) < 10)
-        tempString = tempString + "0"
+        tempString += "0"
     tempString = tempString + (cal.get(Calendar.MINUTE)).toString() + ":"
     if (cal.get(Calendar.SECOND) < 10)
-        tempString = tempString + "0"
-    tempString = tempString + cal.get(Calendar.SECOND).toString()
+        tempString += "0"
+    tempString += cal.get(Calendar.SECOND).toString()
     return tempString
 }
 fun hideKeyboard(context: Context, view: View) {
@@ -219,7 +217,7 @@ fun hideKeyboard(activity: Activity) {
     imm.hideSoftInputFromWindow(view.windowToken, 0)
 }
 */
-fun PerfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): String {
+fun perfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): String {
     var str = iStr
     if (str[0] == '.') str = "0$str"
     val max = str.length
@@ -231,7 +229,7 @@ fun PerfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): Strin
     var t: Char
     while (i < max) {
         t = str[i]
-        if (t != '.' && after == false) {
+        if (t != '.' && !after) {
             up++
             if (up > MAX_BEFORE_POINT) return rFinal
         } else if (t == '.') {
@@ -240,7 +238,7 @@ fun PerfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): Strin
             decimal++
             if (decimal > MAX_DECIMAL) return rFinal
         }
-        rFinal = rFinal + t
+        rFinal += t
         i++
     }
     return rFinal
@@ -258,7 +256,7 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
     imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
 }
 
-object InternetConnection {
+/* object InternetConnection {
     /**
      * CHECK WHETHER INTERNET CONNECTION IS AVAILABLE OR NOT
      */
@@ -274,7 +272,7 @@ object InternetConnection {
         }
         return false
     }
-}
+}*/
 
 fun getDaysInMonth(cal: Calendar): Int {
     val month = cal.get(Calendar.MONTH)+1
@@ -294,8 +292,8 @@ fun getDaysInMonth(cal: Calendar): Int {
 open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
     private val gestureDetector: GestureDetector
     companion object {
-        private val SWIPE_THRESHOLD = 100
-        private val SWIPE_VELOCITY_THRESHOLD = 100
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
     }
 
     init {
@@ -316,8 +314,8 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             try {
                 val diffY = e2.y - e1.y
                 val diffX = e2.x - e1.x
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (abs(diffX) > abs(diffY)) {
+                    if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
                             onSwipeRight()
                         } else {
@@ -325,7 +323,7 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
                         }
                         result = true
                     }
-                } else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                } else if (abs(diffY) > SWIPE_THRESHOLD && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                     if (diffY > 0) {
                         onSwipeBottom()
                     } else {
@@ -360,7 +358,7 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
     val rActual = round(iActual*100)
     val rBudget = round(iBudget*100)
     if (rActual <= rBudget) {
-        var colorToReturn: Int
+        val colorToReturn: Int
         if (iAlwaysShowGreen) {
             if (inDarkMode(context))
                 colorToReturn = ContextCompat.getColor(context, R.color.darkGreen)
@@ -411,6 +409,8 @@ fun textIsSafe(iText: String) : Boolean {
 //        return false
 //    else if (iText.contains("."))
 //        return false
+//    else if (iText.contains("#"))
+//        return false
     else if (iText.contains("/"))
         return false
     else if (iText.contains("\\"))
@@ -421,19 +421,13 @@ fun textIsSafe(iText: String) : Boolean {
         return false
     else if (iText.contains("+"))
         return false
-    else if (iText.contains("#"))
-        return false
     else if (iText.contains("$"))
         return false
-    else if (iText.contains("%"))
-        return false
-    else
-        return true
+    else return !iText.contains("%")
 }
 
 fun getColorInHex(iColor: Int, iOpacity: String): String {
-    val hexColor = java.lang.String.format("#%s%06X", iOpacity, 0xFFFFFF and iColor)
-    return hexColor
+    return java.lang.String.format("#%s%06X", iOpacity, 0xFFFFFF and iColor)
 }
 
 fun thisIsANewUser(): Boolean {
@@ -444,17 +438,13 @@ fun thisIsANewUser(): Boolean {
             BudgetViewModel.isLoaded() + BudgetViewModel.getCount() +
             DefaultsViewModel.isLoaded() + DefaultsViewModel.isEmpty() +
             RecurringTransactionViewModel.isLoaded() + RecurringTransactionViewModel.getCount())
-    if (MyApplication.userUID != "" &&
-        CategoryViewModel.isLoaded() && CategoryViewModel.getCount() == 0 &&
-        SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
-        ExpenditureViewModel.isLoaded() && ExpenditureViewModel.getCount() == 0 &&
-        BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
+    return MyApplication.userUID != "" &&
+            CategoryViewModel.isLoaded() && CategoryViewModel.getCount() == 0 &&
+            SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
+            ExpenditureViewModel.isLoaded() && ExpenditureViewModel.getCount() == 0 &&
+            BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
             DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
-            RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0) {
-        return true
-    } else {
-        return false
-    }
+            RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
 
 }
 

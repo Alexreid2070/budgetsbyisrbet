@@ -88,7 +88,7 @@ class TransactionViewAllFragment : Fragment() {
                 MyApplication.transactionFirstInList =
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
-                if (item.type == "T") {
+                if (item.type == "Transfer") {
                     val action =
                         TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransferFragment()
                             .setTransactionID(item.mykey)

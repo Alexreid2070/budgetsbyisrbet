@@ -1,7 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
@@ -56,11 +55,6 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateView(name, context, attrs)
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // want to go back to Home when mode changes.  Otherwise, app crashes when going back to Home screen.  Tracker fragment appears to disappear
-    }
-
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
@@ -107,13 +101,6 @@ class MainActivity : AppCompatActivity() {
                 it.isVisible = true
         }
         setAdminMode(MyApplication.adminMode)
-    }
-
-    fun setDrawerMode(iMode: Int) {
-        val mDrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        if (mDrawerLayout != null) {
-            mDrawerLayout.setDrawerLockMode(iMode)
-        }
     }
 
     override fun onDestroy() {

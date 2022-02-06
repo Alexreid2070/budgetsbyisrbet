@@ -176,7 +176,7 @@ class RecurringTransactionViewModel : ViewModel() {
                         Log.d("Alex", "Adding a transaction")
                         val nextDate = getNextBusinessDate(it.nextdate)
                         ExpenditureViewModel.addTransaction(ExpenditureOut(nextDate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
-                            SpenderViewModel.getSpenderSplit(0), SpenderViewModel.getSpenderSplit(1), "R"))
+                            SpenderViewModel.getSpenderSplit(0), SpenderViewModel.getSpenderSplit(1), "Recurring"))
                         if (mainActivity != null)
                             Toast.makeText(mainActivity, "Recurring transaction was added for : $nextDate " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
                     }

@@ -6,6 +6,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.AdapterView
 import android.widget.ListView
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRecurringTransactionBinding
@@ -50,13 +51,19 @@ class RecurringTransactionFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.AddRecurringTransaction
+            menu.getItem(i).isVisible =
+                (menu.getItem(i).itemId == R.id.AddRecurringTransaction ||
+                 menu.getItem(i).itemId == R.id.ViewRecurringTransactionsFragment)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.AddRecurringTransaction) {
             addRecurringTransaction()
+            true
+        } else if (item.itemId == R.id.ViewRecurringTransactionsFragment) {
+            MyApplication.transactionSearchText = "Recurring"
+            view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
             true
         } else {
             val navController = findNavController()

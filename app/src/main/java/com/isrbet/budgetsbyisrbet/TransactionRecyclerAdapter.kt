@@ -54,7 +54,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     fun getTotal() : Double {
         var tTotal = 0.0
         filteredList.forEach {
-            if (it.type != "T")
+            if (it.type != "Transfer")
                 tTotal += (it.amount/100.0)
         }
         Log.d("Alex", "getTotal " + " size is " + filteredList.size + " and total is " + tTotal)
@@ -123,7 +123,10 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 data.paidby.subSequence(0, 2).toString() + ":" + data.boughtfor.subSequence(0, 2)
                     .toString()
         holder.vtf_note.text = data.note
-        holder.vtf_type.text = data.type
+        if (data.type.length > 0)
+            holder.vtf_type.text = data.type.substring(0,1)
+        else
+            holder.vtf_type.text = ""
         holder.itemView.setOnClickListener { listener(data) }
         if (SpenderViewModel.singleUser()) {
             holder.vtf_who.visibility = View.GONE

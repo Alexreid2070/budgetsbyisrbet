@@ -69,7 +69,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:text="By:For"
-            android:tooltipText="Who paid for the expense, and who was it bought for.  If the name is the same for both, only one name is shown.  If the name is different, it is shown as Fir:Sec, ie abbreviated First and Second names."
+            android:tooltipText="Who paid for the expense, and who was it bought for.  If name is the same, only one name is shown."
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -91,8 +91,8 @@
             android:layout_height="wrap_content"
             android:layout_weight=".5"
             android:layout_gravity="end"
-            android:text="Rec"
-            android:tooltipText="If this is an automatically generated Recurring transaction then an R is shown.  Otherwise it's blank, which means it was manually entered by the user."
+            android:text="Typ"
+            android:tooltipText="R = Recurring transaction, T = Transfer, otherwise blank."
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
