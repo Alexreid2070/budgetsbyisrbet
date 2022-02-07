@@ -54,9 +54,7 @@ class TransactionViewAllFragment : Fragment() {
                 val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
                 val adapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
-                Log.d("Alex", "before filter " + " size is " + adapter.filteredList.size)
                 adapter.getFilter().filter(newText)
-                Log.d("Alex", "after filter " + " size is " + adapter.filteredList.size)
                 if (newText != "") {
                     binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
@@ -72,7 +70,6 @@ class TransactionViewAllFragment : Fragment() {
             val linearLayoutManager = object : LinearLayoutManager(requireContext(), VERTICAL, false) {
                 override fun onLayoutCompleted(state: RecyclerView.State?) {
                     super.onLayoutCompleted(state)
-                    Log.d("Alex", "done laying out!")
                     val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                     val dec = DecimalFormat("#.00")
                     binding.totalAmount.text = dec.format(adapter.currentTotal)

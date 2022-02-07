@@ -131,6 +131,9 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_QUOTE -> {
                 singleInstance.defaultQuote = iValue
             }
+            else -> {
+                Log.d("Alex", "Unknown default " + whichOne + " " + iValue)
+            }
         }
     }
     fun loadDefaults() {

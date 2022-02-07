@@ -85,7 +85,6 @@ class TransactionFragment : Fragment() {
 
         binding.boughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            Log.d("Alex", "clicked on radio group" + radioButton.text.toString())
             when {
                 radioButton.text.toString() == "Joint" -> {
                     binding.transactionBoughtForName1Split.text =
@@ -161,7 +160,6 @@ class TransactionFragment : Fragment() {
         })
 
         binding.categoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            Log.d("Alex", "clicked on radio group $checkedId")
             val selectedId = binding.categoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString(), "")
@@ -401,7 +399,6 @@ class TransactionFragment : Fragment() {
             val subCategorySpinner =
                 requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
             val subCategoryList: MutableList<String> = ArrayList()
-            Log.d("Alex","adding subcategory to view " + thisTransaction.subcategory)
             subCategoryList.add(thisTransaction.subcategory)
             val arrayAdapter = ArrayAdapter(
                 requireContext(),
@@ -425,7 +422,6 @@ class TransactionFragment : Fragment() {
             }
 
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
-            Log.d("Alex", "now in view paidby")
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
@@ -435,7 +431,6 @@ class TransactionFragment : Fragment() {
                 }
             }
             val bfRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.boughtForRadioGroup)
-            Log.d("Alex", "now in view boughtfor")
             for (i in 0 until bfRadioGroup.childCount) {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {

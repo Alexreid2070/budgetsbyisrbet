@@ -63,11 +63,8 @@ class TrackerFragment : Fragment() {
         if (ExpenditureViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1)
             loadGraph()
         if (parentFragment is HomeFragment){
-            Log.d("debug", "you are in Home")
             // remove top padding
             binding.constraintLayout.setPadding(binding.constraintLayout.paddingLeft, 0, binding.constraintLayout.paddingRight, binding.constraintLayout.paddingBottom)
-        } else  {
-            Log.d("debug", "you are in Host (ie on Tracker page)")
         }
     }
 

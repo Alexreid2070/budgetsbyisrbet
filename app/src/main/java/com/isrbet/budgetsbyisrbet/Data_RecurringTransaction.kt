@@ -31,6 +31,7 @@ data class RecurringTransaction(
             "subcategory" -> subcategory = value.trim()
             "paidby" -> paidby = value.trim()
             "boughtfor" -> boughtfor = value.trim()
+            else -> Log.d("Alex", "Unknown Recurring Transaction " + key + " " + value)
         }
     }
 }

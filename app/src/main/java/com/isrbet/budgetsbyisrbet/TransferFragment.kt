@@ -184,7 +184,6 @@ class TransferFragment : Fragment() {
         binding.splitName2Split.setBackgroundColor(Color.parseColor(hexColor))
         binding.toRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            Log.d("Alex", "clicked on radio group" + radioButton.text.toString())
             when {
                 radioButton.text.toString() == "Joint" -> {
                     binding.splitName1Split.setText(SpenderViewModel.getSpenderSplit(0).toString())
@@ -311,7 +310,6 @@ class TransferFragment : Fragment() {
             binding.splitName2Split.setText(dec2.format(formattedAmount2))
 
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
-            Log.d("Alex", "now in view from")
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
@@ -323,7 +321,6 @@ class TransferFragment : Fragment() {
                 }
             }
             val bfRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.toRadioGroup)
-            Log.d("Alex", "now in view to")
             for (i in 0 until bfRadioGroup.childCount) {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {

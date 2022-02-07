@@ -60,7 +60,6 @@ class BudgetFragment : Fragment() {
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            Log.d("Alex", "clicked on radio group $checkedId")
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString())

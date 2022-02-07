@@ -503,7 +503,7 @@ class BudgetViewModel : ViewModel() {
                                     else
                                         Log.d(
                                             "Alex",
-                                            "What is this???? (" + child.key + " " + child.value + " in budget load..."
+                                            "Unknown budget value???? (" + child.key + " " + child.value + " in budget load..."
                                         )
                                 }
                                 budgets[budgets.indexOf(myB)].addBudgetPeriod(
