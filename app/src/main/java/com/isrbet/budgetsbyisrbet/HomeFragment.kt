@@ -47,6 +47,7 @@ class HomeFragment : Fragment() {
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
     private val userModel: UserViewModel by viewModels()
     private val chatModel: ChatViewModel by viewModels()
+    private val translationModel: TranslationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -319,6 +320,7 @@ class HomeFragment : Fragment() {
                 recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
                 expenditureModel.loadExpenditures()
                 chatModel.loadChats()
+                translationModel.loadTranslations()
                 MyApplication.haveLoadedDataForThisUser = true
                 val dateNow = Calendar.getInstance()
                 MyApplication.database.getReference("Users/"+MyApplication.userUID)
@@ -367,7 +369,7 @@ class HomeFragment : Fragment() {
             binding.homeScreenMessage.visibility = View.GONE
                 val trackerFragment: TrackerFragment =
                 childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-            trackerFragment.loadGraph()
+            trackerFragment.loadBarChart()
         } else {
             Log.d("Alex", "alignExpenditureMenu false " + MyApplication.userUID + " C " + CategoryViewModel.isLoaded() + " S " + SpenderViewModel.isLoaded() +
             " E " + ExpenditureViewModel.isLoaded() + " B " + BudgetViewModel.isLoaded())
@@ -430,7 +432,7 @@ class HomeFragment : Fragment() {
             binding.dashboardButton.visibility = View.GONE
             val trackerFragment: TrackerFragment =
                 childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-            trackerFragment.hideGraph()
+            trackerFragment.hideBarChart()
             MyApplication.haveLoadedDataForThisUser = false
             return true
         } else {

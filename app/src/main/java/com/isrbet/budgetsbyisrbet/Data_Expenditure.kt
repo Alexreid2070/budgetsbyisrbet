@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import java.util.ArrayList
 
 data class Expenditure(
     var date: String = "",
@@ -62,16 +63,16 @@ data class ExpenditureOut(
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
     fun setValue(key: String, value: String) {
         when (key) {
-            "date" -> date = value
+            "date" -> date = value.trim()
             "amount" -> amount = value.toInt()
-            "category" -> category = value
-            "subcategory" -> subcategory = value
-            "paidby" -> paidby = value
-            "boughtfor" -> boughtfor = value
+            "category" -> category = value.trim()
+            "subcategory" -> subcategory = value.trim()
+            "paidby" -> paidby = value.trim()
+            "boughtfor" -> boughtfor = value.trim()
             "bfname1split" -> bfname1split = value.toInt()
             "bfname2split" -> bfname2split = value.toInt()
-            "note" -> note = value
-            "type" -> type = value
+            "note" -> note = value.trim()
+            "type" -> type = value.trim()
             "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
         }
     }
@@ -129,6 +130,26 @@ class ExpenditureViewModel : ViewModel() {
             return tmpTotal
         }
 
+        fun getCategoryActuals(iBudgetMonth: BudgetMonth) : ArrayList<DataObject> {
+            val tList: ArrayList<DataObject> = ArrayList()
+            var prevCategory = ""
+            var totalActuals = 0.0
+            CategoryViewModel.getCategories().forEach {
+                if (prevCategory != "" && prevCategory != it.categoryName) {
+                    // ie not the first row, and this was a change in category
+                    Log.d("Alex", "change from " + prevCategory + " to " + it.categoryName)
+                    tList.add(DataObject(prevCategory, totalActuals, 0))
+                    totalActuals = 0.0
+                }
+                val budget = getActualsForPeriod(it.categoryName, it.subcategoryName,
+                    iBudgetMonth, iBudgetMonth,
+                    "Joint")
+                totalActuals += budget
+                prevCategory = it.categoryName
+            }
+            return  tList
+        }
+
         fun getActualsForPeriod(iCategory: String, iSubCategory: String, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
@@ -154,7 +175,7 @@ class ExpenditureViewModel : ViewModel() {
         fun addTransaction(iExpenditure: ExpenditureOut) {
             val key: String
             if (iExpenditure.type == "Recurring")
-                key = iExpenditure.note + iExpenditure.date
+                key = iExpenditure.note + iExpenditure.date + "R"
             else
                 key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").push().key.toString()
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(key)

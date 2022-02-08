@@ -26,8 +26,26 @@
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         app:layout_constraintTop_toBottomOf="@id/chartTitle"
-        app:layout_constraintBottom_toTopOf="@id/chartSummaryText"/>
+        app:layout_constraintBottom_toTopOf="@id/budgetPieChart"/>
 
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/budgetPieChart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/barChart"
+        app:layout_constraintBottom_toTopOf="@id/actualPieChart"/>
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/actualPieChart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/budgetPieChart"
+        app:layout_constraintBottom_toTopOf="@id/chartSummaryText"/>
     <TextView
         android:id="@+id/chartSummaryText"
         android:layout_width="match_parent"
@@ -38,7 +56,36 @@
         android:paddingEnd="5dp"
         android:paddingBottom="5dp"
         android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/button_layout"
+        app:layout_constraintTop_toBottomOf="@id/actualPieChart" />
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barChart" />
+        app:layout_constraintStart_toStartOf="parent">
+        <Button
+            android:id="@+id/button_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Bar Chart"
+            tools:ignore="HardcodedText" />
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/button_pie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Pie Chart"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

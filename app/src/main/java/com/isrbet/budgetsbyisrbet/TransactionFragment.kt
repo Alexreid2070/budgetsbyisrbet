@@ -39,6 +39,7 @@ class TransactionFragment : Fragment() {
     private var editingKey: String = ""
     private var inExpandMode = false
     private var cal = android.icu.util.Calendar.getInstance()
+    private var startingTransactionNote = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -519,13 +520,18 @@ class TransactionFragment : Fragment() {
         }
         binding.editTextAmount.setText(notification.amount.toString())
         val iNote = notification.note.lowercase()
-        val words = iNote.split(" ")
-        var newStr = ""
-        words.forEach { s ->
-            newStr += s.replaceFirstChar { it.uppercase() } + " "
+        startingTransactionNote = iNote
+        val translatedNote = TranslationViewModel.getTranslation(iNote)
+        if (iNote == translatedNote) {
+            val words = iNote.split(" ")
+            var newStr = ""
+            words.forEach { s ->
+                newStr += s.replaceFirstChar { it.uppercase() } + " "
+            }
+            binding.editTextNote.setText(newStr)
+        } else {
+            binding.editTextNote.setText(translatedNote)
         }
-        binding.editTextNote.setText(newStr)
-
         if (CustomNotificationListenerService.getExpenseNotificationCount() == 0) {
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
         } else {
@@ -579,11 +585,17 @@ class TransactionFragment : Fragment() {
         val bfName1Split = binding.transactionBoughtForName1Split.text.toString().toInt()
         val bfName2Split = binding.transactionBoughtForName2Split.text.toString().toInt()
 
+        if (startingTransactionNote != "" && startingTransactionNote != binding.editTextNote.text.toString().trim()) {
+            // ie the user loaded the transaction from a TD MySpend, and then edited the Note.  We
+            // want to keep track of this 'translation' and use it going forward
+            TranslationViewModel.addTranslation(startingTransactionNote, binding.editTextNote.text.toString().trim())
+        }
+        startingTransactionNote = ""
         if (newTransactionMode) {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
-                binding.editTextNote.text.toString(), radioButtonPaidBy.text.toString(),
+                binding.editTextNote.text.toString().trim(), radioButtonPaidBy.text.toString(),
                 radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split
             )
             ExpenditureViewModel.addTransaction(expenditure)
@@ -600,7 +612,7 @@ class TransactionFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
-                binding.editTextNote.text.toString(), radioButtonPaidBy.text.toString(),
+                binding.editTextNote.text.toString().trim(), radioButtonPaidBy.text.toString(),
                 radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split, binding.recurringTransactionFlag.text.toString()
             )
 

@@ -1,7 +1,12 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
@@ -9,11 +14,13 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.listener.ChartTouchListener
@@ -23,30 +30,9 @@ import java.text.DecimalFormat
 import java.util.*
 
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [TrackerFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class TrackerFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
     private var _binding: FragmentTrackerBinding? = null
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,11 +46,27 @@ class TrackerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        TranslationViewModel.showMe()
         if (ExpenditureViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1)
-            loadGraph()
-        if (parentFragment is HomeFragment){
+            loadBarChart()
+        if (parentFragment is HomeFragment) { // ie on home page
             // remove top padding
-            binding.constraintLayout.setPadding(binding.constraintLayout.paddingLeft, 0, binding.constraintLayout.paddingRight, binding.constraintLayout.paddingBottom)
+            binding.constraintLayout.setPadding(
+                binding.constraintLayout.paddingLeft,
+                0,
+                binding.constraintLayout.paddingRight,
+                binding.constraintLayout.paddingBottom
+            )
+        } else { // ie on Tracker page
+            binding.buttonLayout.visibility = View.VISIBLE
+            binding.buttonBar.setOnClickListener {
+                hidePieChart()
+                loadBarChart()
+            }
+            binding.buttonPie.setOnClickListener {
+                hideBarChart()
+                loadPieChart()
+            }
         }
     }
 
@@ -87,19 +89,38 @@ class TrackerFragment : Fragment() {
         }
     }
 
-    fun loadGraph() {
+    fun loadBarChart() {
         binding.chartTitle.visibility = View.VISIBLE
         binding.barChart.visibility = View.VISIBLE
         binding.chartSummaryText.visibility = View.VISIBLE
         initializeBarChart()
-        createBarChart(getGraphData())
+        createBarChart(getBarChartData())
     }
 
-    fun hideGraph() {
+    fun hideBarChart() {
         binding.chartTitle.visibility = View.GONE
         binding.barChart.visibility = View.GONE
         binding.chartSummaryText.visibility = View.GONE
     }
+
+    private fun loadPieChart() {
+        binding.chartTitle.visibility = View.VISIBLE
+        binding.actualPieChart.visibility = View.VISIBLE
+        binding.budgetPieChart.visibility = View.VISIBLE
+        binding.chartSummaryText.visibility = View.VISIBLE
+        initializePieChart(binding.actualPieChart)
+        initializePieChart(binding.budgetPieChart)
+        createPieChart(binding.actualPieChart, getActualPieChartData(), "Actuals")
+        createPieChart(binding.budgetPieChart, getBudgetPieChartData(), "Budget")
+    }
+
+    private fun hidePieChart() {
+        binding.chartTitle.visibility = View.GONE
+        binding.actualPieChart.visibility = View.GONE
+        binding.budgetPieChart.visibility = View.GONE
+        binding.chartSummaryText.visibility = View.GONE
+    }
+
     private fun initializeBarChart() {
         binding.barChart.description.isEnabled = false
         // if more than 60 entries are displayed in the chart, no values will be drawn
@@ -128,7 +149,7 @@ class TrackerFragment : Fragment() {
 
         binding.barChart.setDrawValueAboveBar(true)
 
-        binding.barChart.onChartGestureListener = object : OnChartGestureListener  {
+        binding.barChart.onChartGestureListener = object : OnChartGestureListener {
             override fun onChartGestureStart(
                 me: MotionEvent?,
                 lastPerformedGesture: ChartTouchListener.ChartGesture?
@@ -148,7 +169,6 @@ class TrackerFragment : Fragment() {
             }
 
             override fun onChartSingleTapped(me: MotionEvent?) {
-                Log.d("Alex", "Tapped!")
                 if (parentFragment is HomeFragment) {
                     view?.findNavController()?.navigate(R.id.TrackerFragment)
                 }
@@ -173,26 +193,59 @@ class TrackerFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun getGraphData() : ArrayList<DataObject> {
+    private fun getBarChartData(): ArrayList<DataObject> {
         val tList = ArrayList<DataObject>()
         val dateNow = android.icu.util.Calendar.getInstance()
         val daysInMonth = getDaysInMonth(dateNow)
-        val totalDiscBudget = BudgetViewModel.getTotalDiscretionaryBudgetForMonth(dateNow)
+        val totalDiscBudget = BudgetViewModel.getTotalBudgetForMonth(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1), cDiscTypeDiscretionary)
         val totalDiscBudgetToDate =
             totalDiscBudget * dateNow.get(Calendar.DATE) / daysInMonth
         val totalDiscActualsToDate =
             ExpenditureViewModel.getTotalDiscretionaryActualsToDate(dateNow)
-        Log.d("Alex", "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate")
-        tList.add(DataObject("Budget this month", totalDiscBudget, ContextCompat.getColor(requireContext(), R.color.dark_gray)))
-        tList.add(DataObject("Budget to date", totalDiscBudgetToDate, ContextCompat.getColor(requireContext(), R.color.medium_gray)))
+        Log.d(
+            "Alex",
+            "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate"
+        )
+        tList.add(
+            DataObject(
+                "Budget this month",
+                totalDiscBudget,
+                ContextCompat.getColor(requireContext(), R.color.dark_gray)
+            )
+        )
+        tList.add(
+            DataObject(
+                "Budget to date",
+                totalDiscBudgetToDate,
+                ContextCompat.getColor(requireContext(), R.color.medium_gray)
+            )
+        )
         val showRed = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
 
-        if (totalDiscActualsToDate > (totalDiscBudgetToDate * (1+showRed/100)))
-            tList.add(DataObject("Actuals", totalDiscActualsToDate, ContextCompat.getColor(requireContext(), R.color.red)))
+        if (totalDiscActualsToDate > (totalDiscBudgetToDate * (1 + showRed / 100)))
+            tList.add(
+                DataObject(
+                    "Actuals",
+                    totalDiscActualsToDate,
+                    ContextCompat.getColor(requireContext(), R.color.red)
+                )
+            )
         else if (totalDiscActualsToDate > totalDiscBudgetToDate)
-            tList.add(DataObject("Actuals", totalDiscActualsToDate, ContextCompat.getColor(requireContext(), R.color.yellow)))
+            tList.add(
+                DataObject(
+                    "Actuals",
+                    totalDiscActualsToDate,
+                    ContextCompat.getColor(requireContext(), R.color.yellow)
+                )
+            )
         else
-            tList.add(DataObject("Actuals", totalDiscActualsToDate, ContextCompat.getColor(requireContext(), R.color.green)))
+            tList.add(
+                DataObject(
+                    "Actuals",
+                    totalDiscActualsToDate,
+                    ContextCompat.getColor(requireContext(), R.color.green)
+                )
+            )
         if (totalDiscActualsToDate > totalDiscBudget)
             binding.chartSummaryText.text = "You are over your discretionary budget this month."
         else {
@@ -201,7 +254,7 @@ class TrackerFragment : Fragment() {
             val dollarFormat = DecimalFormat("$###.00")
 
             binding.chartSummaryText.text =
-                "Keeping discretionary expenses below " + dollarFormat.format(remainingBudget/daysRemaining) + " per day will keep you within budget this month."
+                "Keeping discretionary expenses below " + dollarFormat.format(remainingBudget / daysRemaining) + " per day will keep you within budget this month."
         }
         return tList
     }
@@ -221,7 +274,7 @@ class TrackerFragment : Fragment() {
 //        val set1: BarDataSet
 //        if (binding.barChart.data != null &&
 //            binding.barChart.data.dataSetCount > 0) {
-            // code comes here after the first time, ie hits the else below the first time the chart is drawn
+        // code comes here after the first time, ie hits the else below the first time the chart is drawn
 //            set1 = binding.barChart.data.getDataSetByIndex(0) as BarDataSet
 //            set1.values = values
 //            binding.barChart.data.notifyDataChanged()
@@ -231,59 +284,142 @@ class TrackerFragment : Fragment() {
 //            set1.setColors(SessionManagement.MATERIAL_COLORS)
 //            set1.setDrawValues(true)
 //            dataSets.add(set1)
-            val data = BarData(dataSets)
-            binding.barChart.data = data
-            binding.barChart.setVisibleXRange(1.0F, iData.size.toFloat())
-            binding.barChart.setFitBars(true)
-            val xAxis: XAxis = binding.barChart.xAxis
-            xAxis.granularity = 1f
-            xAxis.isGranularityEnabled = true
-            val labelList = ArrayList<String>()
-            for (j in 0 until iData.size)
-                labelList.add(iData[j].label)
-            xAxis.valueFormatter =
-                IndexAxisValueFormatter(labelList) //setting String values in X axis
-            for (set in binding.barChart.data
-                .dataSets) set.setDrawValues(!set.isDrawValuesEnabled)
-//            binding.barChart.invalidate()
-            binding.barChart.data.notifyDataChanged()
-            binding.barChart.notifyDataSetChanged()
-//        }
+        val data = BarData(dataSets)
+        binding.barChart.data = data
+        binding.barChart.setVisibleXRange(1.0F, iData.size.toFloat())
+        binding.barChart.setFitBars(true)
+        val xAxis: XAxis = binding.barChart.xAxis
+        xAxis.granularity = 1f
+        xAxis.isGranularityEnabled = true
+        val labelList = ArrayList<String>()
+        for (j in 0 until iData.size)
+            labelList.add(iData[j].label)
+        xAxis.valueFormatter =
+            IndexAxisValueFormatter(labelList) //setting String values in X axis
+        for (set in binding.barChart.data
+            .dataSets) set.setDrawValues(!set.isDrawValuesEnabled)
+        binding.barChart.data.notifyDataChanged()
+        binding.barChart.notifyDataSetChanged()
         val dateNow = android.icu.util.Calendar.getInstance()
         binding.chartTitle.text = "Discretionary Expense Tracker - " +
                 MonthNames[dateNow.get(Calendar.MONTH)] + " " +
                 dateNow.get(Calendar.YEAR)
-//                (if ((dateNow.get(Calendar.MONTH)+1) < 10 ) "0" else "") +
-//                        (dateNow.get(Calendar.MONTH)+1)
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun getActualPieChartData(): PieDataSet {
+        val dateNow = android.icu.util.Calendar.getInstance()
+        val catActuals = ExpenditureViewModel.getCategoryActuals(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
+        val pieEntries: ArrayList<PieEntry> = ArrayList()
+
+        //initializing colors for the entries
+        val colors: ArrayList<Int> = ArrayList()
+        colors.add(Color.parseColor("#304567"))
+        colors.add(Color.parseColor("#309967"))
+        colors.add(Color.parseColor("#476567"))
+        colors.add(Color.parseColor("#890567"))
+        colors.add(Color.parseColor("#a35567"))
+        colors.add(Color.parseColor("#ff5f67"))
+        colors.add(Color.parseColor("#3ca567"))
+
+        //input data and fit data into pie chart entry
+        for (actual in catActuals) {
+            pieEntries.add(PieEntry(actual.value.toFloat(), actual.label))
+        }
+        //collecting the entries with label name
+        val label = ""
+        val pieDataSet = PieDataSet(pieEntries, label)
+        //providing color list for coloring different entries
+        pieDataSet.colors = colors
+        pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
+        pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
+        pieDataSet.valueTextColor = Color.BLACK
+        return pieDataSet
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun getBudgetPieChartData(): PieDataSet {
+        val dateNow = android.icu.util.Calendar.getInstance()
+        val catBudgets = BudgetViewModel.getCategoryBudgets(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
+        val label = "Category"
+        val pieEntries: ArrayList<PieEntry> = ArrayList()
+
+        //initializing colors for the entries
+        val colors: ArrayList<Int> = ArrayList()
+        colors.add(Color.parseColor("#304567"))
+        colors.add(Color.parseColor("#309967"))
+        colors.add(Color.parseColor("#476567"))
+        colors.add(Color.parseColor("#890567"))
+        colors.add(Color.parseColor("#a35567"))
+        colors.add(Color.parseColor("#ff5f67"))
+        colors.add(Color.parseColor("#3ca567"))
+
+        //input data and fit data into pie chart entry
+        for (budget in catBudgets) {
+            pieEntries.add(PieEntry(budget.value.toFloat(), budget.label))
+        }
+        //collecting the entries with label name
+        val pieDataSet = PieDataSet(pieEntries, label)
+        //providing color list for coloring different entries
+        pieDataSet.colors = colors
+        pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
+        pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
+        pieDataSet.valueTextColor = Color.BLACK
+        return pieDataSet
+    }
+    private fun initializePieChart(pieChart: PieChart) {
+        //using percentage as values instead of amount
+        pieChart.setUsePercentValues(true)
+        //remove the description label on the lower left corner, default true if not set
+        pieChart.getDescription().setEnabled(true)
+        pieChart.description.textSize = 16F
+        //enabling the user to rotate the chart, default true
+        pieChart.setRotationEnabled(false)
+        //adding friction when rotating the pie chart
+        pieChart.setDragDecelerationFrictionCoef(0.9f)
+        //setting the first entry start from right hand side, default starting from top
+        pieChart.setRotationAngle(0F)
+        //highlight the entry when it is tapped, default true if not set
+        pieChart.setHighlightPerTapEnabled(true)
+        //adding animation so the entries pop up from 0 degree
+        pieChart.animateY(1400, Easing.EaseInOutQuad)
+        //setting the color of the hole in the middle, default white
+        pieChart.setHoleColor(Color.parseColor("#FFFFFF"))
+        pieChart.setEntryLabelColor(Color.BLACK)
+        pieChart.legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun createPieChart(pieChart: PieChart, pieDataSet: PieDataSet, iDescription: String) {
+        //setting text size of the value
+        pieDataSet.valueTextSize = 12f
+        //grouping the data set from entry to chart
+        //showing the value of the entries, default true if not set
+        val pieData = PieData(pieDataSet)
+        pieData.setDrawValues(true)
+        pieData.setValueFormatter(PercentFormatter(pieChart))
+        pieChart.setData(pieData)
+        pieChart.description.text = ""
+//        pieChart.centerText = iDescription
+//        pieChart.setCenterTextSize(14F)
+        val s = SpannableString(iDescription)
+        s.setSpan(RelativeSizeSpan(2f), 0, s.length, 0)
+        s.setSpan(StyleSpan(Typeface.BOLD), 0, s.length, 0)
+        pieChart.centerText = s
+        pieChart.invalidate()
+
+        val dateNow = android.icu.util.Calendar.getInstance()
+        binding.chartTitle.text = "Allocation (%) of Budget and Actuals - " +
+                MonthNames[dateNow.get(Calendar.MONTH)] + " " +
+                dateNow.get(Calendar.YEAR)
+        binding.chartSummaryText.text = ""
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
     }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TrackerFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            TrackerFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 }
-
-data class DataObject(var label: String, var value: Double, var color: Int)
 
 class MyYAxisValueFormatter : ValueFormatter() {
     private val mFormat: DecimalFormat = DecimalFormat("$ ###,###,##0")

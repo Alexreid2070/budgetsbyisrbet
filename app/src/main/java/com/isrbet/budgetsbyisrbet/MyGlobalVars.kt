@@ -23,6 +23,7 @@ import kotlin.math.round
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
 const val cDiscTypeOff = "Off"
+const val cDiscTypeAll = "All"
 val DiscTypeValues = listOf(cDiscTypeDiscretionary, cDiscTypeNondiscretionary, cDiscTypeOff)
 const val cPeriodWeek = "Week"
 const val cPeriodMonth = "Month"
@@ -107,6 +108,8 @@ class MyApplication : Application() {
         mediaPlayer?.release()
     }
 }
+
+data class DataObject(var label: String, var value: Double, var color: Int)
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
@@ -254,6 +257,7 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
     // open the soft keyboard
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+//    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0) don't use this it causes the app to crash if you type random chars in the Search box
 }
 
 /* object InternetConnection {

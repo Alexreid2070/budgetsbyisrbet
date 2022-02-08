@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.res.ColorStateList
@@ -48,6 +49,7 @@ class TransferFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
@@ -393,7 +395,7 @@ class TransferFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
-                binding.editTextNote.text.toString(), fromRadioButton.text.toString(),
+                binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
                 toRadioButton.text.toString(), bfName1Split, bfName2Split, "Transfer"
             )
             ExpenditureViewModel.addTransaction(expenditure)
@@ -407,7 +409,7 @@ class TransferFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
-                binding.editTextNote.text.toString(), fromRadioButton.text.toString(),
+                binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
                 toRadioButton.text.toString(), bfName1Split, bfName2Split,"Transfer"
             )
 
