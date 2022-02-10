@@ -164,7 +164,7 @@ class BudgetViewAllFragment : Fragment() {
                         (bmDateApplicable.month == 1 && bmDateStart.month == 0)) {// ie only allow edits on "real" entries
                     val bmDateStarted = BudgetMonth(itemValue.dateStarted)
                     var monthToSend: Int = bmDateApplicable.month
-                    if (bmDateStarted.month == 0)
+                    if (bmDateStarted.isAnnualBudget())
                         monthToSend = 0
                     val amountToSend = if (monthToSend == 0)
                         itemValue.amount.toDouble() * 12

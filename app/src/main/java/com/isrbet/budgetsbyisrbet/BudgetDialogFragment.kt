@@ -152,7 +152,6 @@ class BudgetDialogFragment : DialogFragment() {
         for (i in 0 until whoRadioGroup.childCount) {
             val o = whoRadioGroup.getChildAt(i)
             if (o is RadioButton) {
-                Log.d("Alex", "who.text is " + o.text)
                 if (o.text == who) {
                     o.isChecked = true
                 }
@@ -230,16 +229,16 @@ class BudgetDialogFragment : DialogFragment() {
                                     0
                                 else
                                     binding.budgetDialogMonth.text.toString().toInt()
-                                    val prevMonth = BudgetMonth(
-                                        binding.budgetDialogYear.text.toString().toInt(),
-                                        monthToUse
-                                    )
-                                    prevMonth.decrementMonth()
-                                    val tmpPrevAmt = BudgetViewModel.getBudgetAmount(
-                                        binding.budgetDialogCategory.text.toString(),
-                                        prevMonth,
-                                        newWho
-                                    )
+                                val prevMonth = BudgetMonth(
+                                    binding.budgetDialogYear.text.toString().toInt(),
+                                    monthToUse
+                                )
+                                prevMonth.decrementMonth()
+                                val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(
+                                    binding.budgetDialogCategory.text.toString(),
+                                    prevMonth,
+                                    newWho
+                                )
                                 Log.d("Alex", "tmpDouble1 is " + tmpDouble1.toString() + " and tmpPrev is " + tmpPrevAmt.amount.toString())
                                 if (tmpDouble1 == tmpPrevAmt.amount) {
                                     // ie new amount is same as previous month, so we can just delete this month's change

@@ -9,6 +9,9 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.*
+import android.widget.Button
+import android.widget.RadioButton
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -33,6 +36,7 @@ import java.util.*
 class TrackerFragment : Fragment() {
     private var _binding: FragmentTrackerBinding? = null
     private val binding get() = _binding!!
+    private var currentBudgetMonth: BudgetMonth = BudgetMonth(0,0)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +50,10 @@ class TrackerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        TranslationViewModel.showMe()
+        val dateNow = android.icu.util.Calendar.getInstance()
+        currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+            android.icu.util.Calendar.MONTH) + 1)
+        hidePieChart()
         if (ExpenditureViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1)
             loadBarChart()
         if (parentFragment is HomeFragment) { // ie on home page
@@ -59,6 +66,8 @@ class TrackerFragment : Fragment() {
             )
         } else { // ie on Tracker page
             binding.buttonLayout.visibility = View.VISIBLE
+            binding.buttonLayout2.visibility = View.VISIBLE
+            setActionBarTitle()
             binding.buttonBar.setOnClickListener {
                 hidePieChart()
                 loadBarChart()
@@ -66,6 +75,69 @@ class TrackerFragment : Fragment() {
             binding.buttonPie.setOnClickListener {
                 hideBarChart()
                 loadPieChart()
+            }
+        }
+        binding.numericTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            setPieGraphNumericStyle(binding.actualPieChart, radioButton.text.toString())
+            setPieGraphNumericStyle(binding.budgetPieChart, radioButton.text.toString())
+            binding.actualPieChart.invalidate()
+            binding.budgetPieChart.invalidate()
+        }
+        view?.findViewById<Button>(R.id.button_backward)?.setOnClickListener {
+            moveOneMonthBackward()
+        }
+        view?.findViewById<Button>(R.id.button_forward)?.setOnClickListener {
+            moveOneMonthForward()
+        }
+        view?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
+            val dateNow = android.icu.util.Calendar.getInstance()
+            currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                android.icu.util.Calendar.MONTH) + 1)
+            setActionBarTitle()
+//            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        }
+        view?.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
+            currentBudgetMonth.month = 0
+            setActionBarTitle()
+//            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        }
+    }
+    fun moveOneMonthBackward() {
+
+    }
+    fun moveOneMonthForward() {
+
+    }
+    private fun setActionBarTitle() {
+        if (currentBudgetMonth.month == 0)
+            (activity as AppCompatActivity).supportActionBar?.title =
+                "Tracker (" + currentBudgetMonth.year  + ")"
+        else
+            (activity as AppCompatActivity).supportActionBar?.title =
+                "Tracker (" + MonthNames[currentBudgetMonth.month-1] + " " + currentBudgetMonth.year  + ")"
+    }
+
+    fun setPieGraphNumericStyle(pieChart: PieChart, iStyle: String) {
+        val dateNow = android.icu.util.Calendar.getInstance()
+        when (iStyle) {
+            "%" -> {
+                pieChart.setUsePercentValues(true)
+                pieChart.setUsePercentValues(true)
+                pieChart.data.setValueFormatter(PercentFormatter(pieChart))
+                pieChart.data.setValueFormatter(PercentFormatter(pieChart))
+                binding.chartTitle.text = "Allocation (%) of Budget and Actuals - " +
+                        MonthNames[dateNow.get(Calendar.MONTH)] + " " +
+                        dateNow.get(Calendar.YEAR)
+            }
+            "#" -> {
+                pieChart.setUsePercentValues(false)
+                pieChart.setUsePercentValues(false)
+                pieChart.data.setValueFormatter(MyYAxisValueFormatter())
+                pieChart.data.setValueFormatter(MyYAxisValueFormatter())
+                binding.chartTitle.text = "Allocation ($) of Budget and Actuals - " +
+                        MonthNames[dateNow.get(Calendar.MONTH)] + " " +
+                        dateNow.get(Calendar.YEAR)
             }
         }
     }
@@ -107,6 +179,8 @@ class TrackerFragment : Fragment() {
         binding.chartTitle.visibility = View.VISIBLE
         binding.actualPieChart.visibility = View.VISIBLE
         binding.budgetPieChart.visibility = View.VISIBLE
+        binding.numericTypeRadioGroup.visibility = View.VISIBLE
+        binding.numericText.visibility = View.VISIBLE
         binding.chartSummaryText.visibility = View.VISIBLE
         initializePieChart(binding.actualPieChart)
         initializePieChart(binding.budgetPieChart)
@@ -118,6 +192,8 @@ class TrackerFragment : Fragment() {
         binding.chartTitle.visibility = View.GONE
         binding.actualPieChart.visibility = View.GONE
         binding.budgetPieChart.visibility = View.GONE
+        binding.numericTypeRadioGroup.visibility = View.GONE
+        binding.numericText.visibility = View.GONE
         binding.chartSummaryText.visibility = View.GONE
     }
 
@@ -197,11 +273,11 @@ class TrackerFragment : Fragment() {
         val tList = ArrayList<DataObject>()
         val dateNow = android.icu.util.Calendar.getInstance()
         val daysInMonth = getDaysInMonth(dateNow)
-        val totalDiscBudget = BudgetViewModel.getTotalBudgetForMonth(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1), cDiscTypeDiscretionary)
+        val totalDiscBudget = BudgetViewModel.getTotalCalculatedBudgetForMonth(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1), cDiscTypeDiscretionary)
         val totalDiscBudgetToDate =
             totalDiscBudget * dateNow.get(Calendar.DATE) / daysInMonth
         val totalDiscActualsToDate =
-            ExpenditureViewModel.getTotalDiscretionaryActualsToDate(dateNow)
+            ExpenditureViewModel.getTotalDiscretionaryActualsToDate(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
         Log.d(
             "Alex",
             "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate"
@@ -397,7 +473,6 @@ class TrackerFragment : Fragment() {
         //showing the value of the entries, default true if not set
         val pieData = PieData(pieDataSet)
         pieData.setDrawValues(true)
-        pieData.setValueFormatter(PercentFormatter(pieChart))
         pieChart.setData(pieData)
         pieChart.description.text = ""
 //        pieChart.centerText = iDescription
@@ -406,13 +481,12 @@ class TrackerFragment : Fragment() {
         s.setSpan(RelativeSizeSpan(2f), 0, s.length, 0)
         s.setSpan(StyleSpan(Typeface.BOLD), 0, s.length, 0)
         pieChart.centerText = s
-        pieChart.invalidate()
 
-        val dateNow = android.icu.util.Calendar.getInstance()
-        binding.chartTitle.text = "Allocation (%) of Budget and Actuals - " +
-                MonthNames[dateNow.get(Calendar.MONTH)] + " " +
-                dateNow.get(Calendar.YEAR)
         binding.chartSummaryText.text = ""
+        val selectedId = binding.numericTypeRadioGroup.checkedRadioButtonId
+        val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+        setPieGraphNumericStyle(pieChart, radioButton.text.toString())
+        pieChart.invalidate()
     }
 
     override fun onDestroy() {

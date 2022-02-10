@@ -49,13 +49,13 @@ class GlobalVarsUnitTest {
         assertEquals("2021-12", bm.toString())
         bm = BudgetMonth(2021)
         assertEquals("2021-00", bm.toString())
-        var pd = PerfectDecimal("98.7654321", 2, 3)
+        var pd = perfectDecimal("98.7654321", 2, 3)
         assertEquals("98.765", pd)
-        pd = PerfectDecimal("98.7654321", 2, 2)
+        pd = perfectDecimal("98.7654321", 2, 2)
         assertEquals("98.76", pd)
-        pd = PerfectDecimal("98.7654321", 2, 1)
+        pd = perfectDecimal("98.7654321", 2, 1)
         assertEquals("98.7", pd)
-        pd = PerfectDecimal("98.4", 2, 3)
+        pd = perfectDecimal("98.4", 2, 3)
         assertEquals("98.4", pd)
     }
 }

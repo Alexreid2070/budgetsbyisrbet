@@ -130,7 +130,8 @@
             android:layout_weight="1"
             android:text="Sub-Category: "
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/subcatLayout"
@@ -165,7 +166,8 @@
             android:layout_gravity="center"
             android:text="Type: "
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <RelativeLayout
             android:id="@+id/editCategorySpinnerLayout"
@@ -212,7 +214,8 @@
             android:layout_weight="1"
             android:text="Starting Budget: "
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/subcatLayout2"

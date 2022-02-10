@@ -13,7 +13,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAdminBinding
-import kotlin.math.exp
 
 class AdminFragment : Fragment() {
     private var _binding: FragmentAdminBinding? = null
@@ -61,7 +60,7 @@ class AdminFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).setVisible(false)
+            menu.getItem(i).isVisible = false
         }
     }
     private fun uidClicked(uid: String, email: String) {
@@ -91,7 +90,7 @@ class AdminFragment : Fragment() {
         binding.adminUser4Email.text = UserViewModel.getUserEmail(3)
         binding.adminUser4Uid.text = UserViewModel.getUserUID(3)
     }
-    fun clearData() {
+    private fun clearData() {
         binding.adminUser1Email.text = ""
         binding.adminUser1Uid.text = ""
         binding.adminUser2Email.text = ""

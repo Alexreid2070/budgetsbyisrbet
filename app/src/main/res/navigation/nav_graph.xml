@@ -10,11 +10,13 @@
         android:name="com.isrbet.budgetsbyisrbet.TransactionFragment"
         android:label="@string/transaction_fragment_label"
         tools:layout="@layout/fragment_transaction">
-
         <argument
             android:name="transactionID"
             app:argType="string"
             android:defaultValue='' />
+        <action
+            android:id="@+id/action_TransactionFragment_to_TransferFragment"
+            app:destination="@id/TransferFragment" />
     </fragment>
     <fragment
         android:id="@+id/RecurringTransactionFragment"
@@ -71,6 +73,10 @@
         android:name="com.isrbet.budgetsbyisrbet.TransferFragment"
         android:label="@string/transfer_fragment_label">
         <argument
+            android:name="mode"
+            app:argType="string"
+            android:defaultValue='' />
+        <argument
             android:name="transactionID"
             app:argType="string"
             android:defaultValue='' />
@@ -122,4 +128,9 @@
         android:name="com.isrbet.budgetsbyisrbet.TrackerFragment"
         android:label="Tracker"
         tools:layout="@layout/fragment_tracker" />
+    <fragment
+        android:id="@+id/ViewTranslationsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.TranslationViewAllFragment"
+        android:label="Translations"
+        tools:layout="@layout/fragment_translation_view_all" />
 </navigation>

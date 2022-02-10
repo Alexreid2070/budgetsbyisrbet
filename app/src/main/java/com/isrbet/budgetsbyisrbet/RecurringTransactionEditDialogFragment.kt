@@ -271,7 +271,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         var somethingChanged = false
         amountInt = round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt()
 
-        if (!textIsSafe(binding.editRtNewName.text.toString())) {
+        if (!textIsSafeForKey(binding.editRtNewName.text.toString())) {
             showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
             return

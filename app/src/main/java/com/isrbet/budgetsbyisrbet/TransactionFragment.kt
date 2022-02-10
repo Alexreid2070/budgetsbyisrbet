@@ -27,6 +27,7 @@ import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 
@@ -135,8 +136,10 @@ class TransactionFragment : Fragment() {
         binding.buttonSaveTransaction.setOnClickListener {
             onSaveTransactionButtonClicked()
         }
-        binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
-            onLoadTransactionButtonClicked()
+        if (DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "On") {
+            binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
+                onLoadTransactionButtonClicked()
+            }
         }
         binding.slider.addOnChangeListener { _, _, _ ->
             binding.transactionBoughtForName1Split.text = binding.slider.value.toInt().toString()
@@ -160,7 +163,7 @@ class TransactionFragment : Fragment() {
             }
         })
 
-        binding.categoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+        binding.categoryRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.categoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString(), "")
@@ -184,7 +187,8 @@ class TransactionFragment : Fragment() {
             (activity as AppCompatActivity).supportActionBar?.title = "Add Transaction"
             binding.inputPaidByLabel.text = "Who:"
             binding.recurringTransactionLabel.visibility = View.GONE
-            if (CustomNotificationListenerService.getExpenseNotificationCount() > 0) {
+            if (CustomNotificationListenerService.getExpenseNotificationCount() > 0 &&
+                DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "On") {
                 binding.buttonLoadTransactionFromTdmyspend.visibility = View.VISIBLE
             } else {
                 binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
@@ -231,7 +235,7 @@ class TransactionFragment : Fragment() {
             binding.editTextAmount.isEnabled = false
             binding.editTextNote.isEnabled = false
             binding.recurringTransactionLabel.isEnabled = false
-            binding.recurringTransactionFlag.isEnabled = false
+            binding.transactionTypeLayout.isEnabled = false
             binding.inputSubcategorySpinner.isEnabled = false
             for (i in 0 until binding.categoryRadioGroup.childCount) {
                 (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
@@ -296,7 +300,15 @@ class TransactionFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.Edit -> {
-                editTransaction(args.transactionID)
+                if (binding.transactionType.text.toString() == "Transfer") {
+                    val action =
+                        TransactionFragmentDirections.actionTransactionFragmentToTransferFragment()
+                    action.mode = "edit"
+                    action.transactionID = binding.transactionId.text.toString()
+                    findNavController().navigate(action)
+                }
+                else
+                    editTransaction(args.transactionID)
                 true
             }
             R.id.Delete -> {
@@ -350,7 +362,7 @@ class TransactionFragment : Fragment() {
         val currentSubCategory = binding.inputSubcategorySpinner.selectedItem.toString()
         addSubCategories(currentCategory, currentSubCategory)
         if (MyApplication.adminMode) {
-            binding.recurringTransactionFlag.isEnabled = true
+            binding.transactionTypeLayout.isEnabled = true
         }
     }
 
@@ -378,6 +390,19 @@ class TransactionFragment : Fragment() {
         if (thisTransaction != null) {  //
             editingKey = iTransactionID
 
+            if (thisTransaction.type == "Transfer") {
+                (activity as AppCompatActivity).supportActionBar?.title = "View Transfer"
+                binding.inputCategoryLabel.visibility = View.GONE
+                binding.categoryRadioGroup.visibility = View.GONE
+                binding.inputSubcategoryLabel.visibility = View.GONE
+                binding.inputSpinnerRelativeLayout.visibility = View.GONE
+            } else {
+                (activity as AppCompatActivity).supportActionBar?.title = "View Expenditure"
+                binding.inputCategoryLabel.visibility = View.VISIBLE
+                binding.categoryRadioGroup.visibility = View.VISIBLE
+                binding.inputSubcategoryLabel.visibility = View.VISIBLE
+                binding.inputSpinnerRelativeLayout.visibility = View.VISIBLE
+            }
             val iAmount = thisTransaction.amount
             val dec = DecimalFormat("#.00")
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
@@ -386,7 +411,7 @@ class TransactionFragment : Fragment() {
             if (MyApplication.adminMode) {
                 binding.transactionIdLayout.visibility = View.VISIBLE
                 binding.transactionId.visibility = View.VISIBLE
-                binding.recurringTransactionFlag.visibility = View.VISIBLE
+                binding.transactionTypeLayout.visibility = View.VISIBLE
             }
 
             val categoryGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
@@ -413,8 +438,8 @@ class TransactionFragment : Fragment() {
             binding.editTextDate.setText(thisTransaction.date)
             binding.editTextNote.setText(thisTransaction.note)
             binding.recurringTransactionLabel.visibility = View.VISIBLE
-            binding.recurringFlagLayout.visibility = View.VISIBLE
-            binding.recurringTransactionFlag.setText(thisTransaction.type)
+            binding.transactionTypeLayout.visibility = View.VISIBLE
+            binding.transactionType.setText(thisTransaction.type)
             if (thisTransaction.type == "Recurring") {
                 binding.recurringTransactionLabel.text = "This recurring transaction was automatically generated."
                 binding.recurringTransactionLabel.visibility = View.VISIBLE
@@ -510,6 +535,7 @@ class TransactionFragment : Fragment() {
         arrayAdapter.notifyDataSetChanged()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun onLoadTransactionButtonClicked() {
         val notification = CustomNotificationListenerService.getTransactionFromNotificationAndDeleteIt()
         if (notification == null) {
@@ -530,6 +556,8 @@ class TransactionFragment : Fragment() {
             }
             binding.editTextNote.setText(newStr)
         } else {
+            binding.translatedNoteMessage.visibility = View.VISIBLE
+            binding.translatedNoteMessage.text = "Translated from: " + startingTransactionNote
             binding.editTextNote.setText(translatedNote)
         }
         if (CustomNotificationListenerService.getExpenseNotificationCount() == 0) {
@@ -541,7 +569,7 @@ class TransactionFragment : Fragment() {
     }
 
     private fun onSaveTransactionButtonClicked () {
-        if (!textIsSafe(binding.editTextNote.text.toString())) {
+        if (!textIsSafeForValue(binding.editTextNote.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.editTextNote.error="The text contains unsafe characters!"
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
@@ -588,9 +616,12 @@ class TransactionFragment : Fragment() {
         if (startingTransactionNote != "" && startingTransactionNote != binding.editTextNote.text.toString().trim()) {
             // ie the user loaded the transaction from a TD MySpend, and then edited the Note.  We
             // want to keep track of this 'translation' and use it going forward
-            TranslationViewModel.addTranslation(startingTransactionNote, binding.editTextNote.text.toString().trim())
+            if (!TranslationViewModel.exists(startingTransactionNote))
+                TranslationViewModel.addTranslation(startingTransactionNote, binding.editTextNote.text.toString().trim())
         }
         startingTransactionNote = ""
+        binding.translatedNoteMessage.visibility = View.GONE
+        binding.translatedNoteMessage.text = ""
         if (newTransactionMode) {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
@@ -613,7 +644,7 @@ class TransactionFragment : Fragment() {
                 binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
                 binding.editTextNote.text.toString().trim(), radioButtonPaidBy.text.toString(),
-                radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split, binding.recurringTransactionFlag.text.toString()
+                radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split, binding.transactionType.text.toString()
             )
 
            ExpenditureViewModel.updateTransaction(editingKey, expenditure)

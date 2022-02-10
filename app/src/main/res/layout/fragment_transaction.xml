@@ -23,7 +23,8 @@
                 android:layout_height="match_parent"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
-                tools:layout_editor_absoluteY="56dp">
+                tools:layout_editor_absoluteY="56dp"
+                tools:ignore="UselessParent">
                 <LinearLayout
                     android:id="@+id/dateHeadingLayout"
                     android:layout_width="match_parent"
@@ -217,11 +218,22 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/translatedNoteMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="end"
+                    android:visibility="gone"
+                    android:layout_below="@id/transaction_note_layout"
+                    android:textSize="14sp"
+                    android:textStyle="italic" />
+
                 <LinearLayout
                     android:id="@+id/transaction_paid_by_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/transaction_note_layout"
+                    android:layout_below="@id/translatedNoteMessage"
                     android:orientation="horizontal"
                     android:paddingTop="10dp">
 
@@ -376,7 +388,7 @@
                         tools:ignore="HardcodedText" />
                 </LinearLayout>
                 <LinearLayout
-                    android:id="@+id/transaction_type_layout"
+                    android:id="@+id/recurring_transaction_type_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/transaction_bought_for_name_layout"
@@ -398,7 +410,7 @@
                     android:id="@+id/transaction_id_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/transaction_type_layout"
+                    android:layout_below="@+id/recurring_transaction_type_layout"
                     android:visibility="gone"
                     android:gravity="center">
                     <TextView
@@ -412,16 +424,16 @@
                         android:layout_width="10dp"
                         android:layout_height="wrap_content"/>
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/recurringFlagLayout"
+                        android:id="@+id/transaction_type_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:minWidth="30dp"
-                        android:hint="RT"
+                        android:hint="Type"
                         android:visibility="gone"
                         app:endIconMode="clear_text"
                         tools:ignore="HardcodedText">
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/recurringTransactionFlag"
+                            android:id="@+id/transaction_type"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"

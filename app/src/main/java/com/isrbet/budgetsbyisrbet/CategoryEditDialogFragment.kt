@@ -16,7 +16,6 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 import java.util.ArrayList
-import kotlin.math.round
 
 const val cNEW_CATEGORY = "<add new category name>"
 
@@ -130,7 +129,7 @@ class CategoryEditDialogFragment : DialogFragment() {
     private fun setupCategorySpinner(iSelection: String) {
         val categoryList: MutableList<String> = ArrayList()
         categoryList.add(cNEW_CATEGORY)
-        CategoryViewModel.getCategoryNames().forEach() {
+        CategoryViewModel.getCategoryNames().forEach {
             categoryList.add(it)
         }
         val catArrayAdapter = ArrayAdapter(
@@ -150,6 +149,16 @@ class CategoryEditDialogFragment : DialogFragment() {
         binding.categoryDialogButtonSave.setOnClickListener {
             Log.d("Alex", "on save " + oldCategory + " " + binding.editCategoryNewNameSpinner.selectedItem.toString())
 
+            if (!textIsSafeForKey(binding.editCategoryNewName.text.toString())) {
+                binding.editCategoryNewName.error = "Category name has invalid characters."
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                return@setOnClickListener
+            }
+            if (!textIsSafeForKey(binding.editSubcategoryNewName.text.toString())) {
+                binding.editSubcategoryNewName.error = "Subcategory name has invalid characters."
+                focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
+                return@setOnClickListener
+            }
             if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY &&
                     binding.editCategoryNewName.text.toString() == "") {
                 binding.editCategoryNewName.error = "Enter new category name."

@@ -97,6 +97,8 @@ class TransferFragment : Fragment() {
         }
         if (newTransferMode) {
             (activity as AppCompatActivity).supportActionBar?.title = "Add Transfer"
+            binding.buttonPrevTransfer.visibility = View.GONE
+            binding.buttonNextTransfer.visibility = View.GONE
             if (!SpenderViewModel.singleUser()) {
                 var button = binding.fromRadioGroup.getChildAt(0) as RadioButton
                 button.isChecked = true
@@ -208,6 +210,14 @@ class TransferFragment : Fragment() {
                 binding.splitName2Split.isEnabled = false
             }
         }
+        binding.buttonPrevTransfer.setOnClickListener {
+            viewTransfer(ExpenditureViewModel.getPreviousTransferKey(binding.transactionId.text.toString()))
+        }
+        binding.buttonNextTransfer.setOnClickListener {
+            viewTransfer(ExpenditureViewModel.getNextTransferKey(binding.transactionId.text.toString()))
+        }
+        if (args.mode == "edit")
+            editTransfer(args.transactionID)
     }
 
     override fun onPause() {
@@ -253,7 +263,10 @@ class TransferFragment : Fragment() {
     }
     private fun editTransfer(iTransactionID: String) {
         Log.d("Alex", "clicked on $iTransactionID")
+        (activity as AppCompatActivity).supportActionBar?.title = "Edit Transfer"
         binding.buttonSaveTransfer.visibility = View.VISIBLE
+        binding.buttonNextTransfer.visibility = View.GONE
+        binding.buttonPrevTransfer.visibility = View.GONE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
@@ -291,6 +304,11 @@ class TransferFragment : Fragment() {
 
     private fun viewTransfer(iTransactionID: String) {
         val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
+        binding.transactionId.text = iTransactionID
+        if (MyApplication.adminMode) {
+            binding.transactionIdLayout.visibility = View.VISIBLE
+            binding.transactionId.visibility = View.VISIBLE
+        }
         if (thisTransaction != null) {  //
             editingKey = iTransactionID
 
@@ -300,22 +318,13 @@ class TransferFragment : Fragment() {
             binding.editTextAmount.setText(dec.format(formattedAmount))
             binding.editTextDate.setText(thisTransaction.date)
             binding.editTextNote.setText(thisTransaction.note)
-            var tSplit = thisTransaction.bfname1split
-            Log.d("Alex", "found split 1 $tSplit")
-            val dec2 = DecimalFormat("#.##")
-            var formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
-            binding.splitName1Split.setText(dec2.format(formattedAmount2))
-
-            tSplit = thisTransaction.bfname2split
-            Log.d("Alex", "found split 2 $tSplit")
-            formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
-            binding.splitName2Split.setText(dec2.format(formattedAmount2))
+            binding.splitName1Split.setText(thisTransaction.bfname1split.toString())
+            binding.splitName2Split.setText(thisTransaction.bfname2split.toString())
 
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    Log.d("Alex", "o.text is " + o.text)
                     if (o.text == thisTransaction.paidby) {
                         Log.d("Alex", "match")
                         o.isChecked = true
@@ -326,7 +335,6 @@ class TransferFragment : Fragment() {
             for (i in 0 until bfRadioGroup.childCount) {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    Log.d("Alex", "o.text is " + o.text)
                     if (o.text == thisTransaction.boughtfor) {
                         Log.d("Alex", "match")
                         o.isChecked = true
@@ -342,7 +350,7 @@ class TransferFragment : Fragment() {
     }
 
     private fun onSaveButtonClicked () {
-        if (!textIsSafe(binding.editTextNote.text.toString())) {
+        if (!textIsSafeForValue(binding.editTextNote.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.editTextNote.error = "The text contains unsafe characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
@@ -361,9 +369,9 @@ class TransferFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
-        val totalSplit = binding.splitName1Split.text.toString().toDouble() +
-                binding.splitName2Split.text.toString().toDouble()
-        if (totalSplit != 100.0) {
+        val totalSplit = binding.splitName1Split.text.toString().toInt() +
+                binding.splitName2Split.text.toString().toInt()
+        if (totalSplit != 100) {
             binding.splitName1Split.error=getString(R.string.splitMustEqual100)
             focusAndOpenSoftKeyboard(requireContext(), binding.splitName1Split)
             return
@@ -382,21 +390,17 @@ class TransferFragment : Fragment() {
         }
 
         val amountInt: Int
-        var amountDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
+        val amountDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = amountDouble.toInt()
         Log.d("Alex", "text is " + binding.editTextAmount.text + " and double is " + amountDouble.toString() + " and int is " + amountInt.toString())
-
-        amountDouble = round(binding.splitName1Split.text.toString().toDouble()*100)
-        val bfName1Split: Int = amountDouble.toInt()
-        amountDouble = round(binding.splitName2Split.text.toString().toDouble()*100)
-        val bfName2Split: Int = amountDouble.toInt()
 
         if (newTransferMode) {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
                 binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), bfName1Split, bfName2Split, "Transfer"
+                toRadioButton.text.toString(), binding.splitName1Split.text.toString().toInt(),
+                binding.splitName2Split.text.toString().toInt(), "Transfer"
             )
             ExpenditureViewModel.addTransaction(expenditure)
             binding.editTextAmount.setText("")
@@ -410,15 +414,16 @@ class TransferFragment : Fragment() {
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
                 binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), bfName1Split, bfName2Split,"Transfer"
+                toRadioButton.text.toString(), binding.splitName1Split.text.toString().toInt(),
+                binding.splitName2Split.text.toString().toInt(),"Transfer"
             )
 
             ExpenditureViewModel.updateTransaction(editingKey, expenditure)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transfer updated", Toast.LENGTH_SHORT).show()
-            requireActivity().onBackPressed()
         }
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        activity?.onBackPressed()
     }
 
     private fun loadSpenderRadioButtons() {

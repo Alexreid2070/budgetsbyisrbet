@@ -43,16 +43,14 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
+        <ImageButton
             android:id="@+id/button_backward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Prev"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText" />
+            android:src="@android:drawable/arrow_down_float" />
 
         <Space
             android:layout_width="0dp"
@@ -85,6 +83,22 @@
             android:text="Mo"
             android:textSize="11sp"
             tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <Button
+            android:id="@+id/button_ytd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="YTD"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
+        </Button>
 
         <Space
             android:layout_width="0dp"

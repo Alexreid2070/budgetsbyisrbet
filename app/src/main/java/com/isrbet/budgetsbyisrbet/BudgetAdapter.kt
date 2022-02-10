@@ -58,12 +58,12 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
 
         when {
             bData.dateStarted == "9999-12" -> dateStartedView.text = ""
-            bmDateStarted.month == 0 -> dateStartedView.text = bmDateStarted.year.toString()
+            bmDateStarted.isAnnualBudget() -> dateStartedView.text = bmDateStarted.year.toString()
             else -> dateStartedView.text = bData.dateStarted
         }
 
         if (bData.dateApplicable == bData.dateStarted ||
-            (bmDateApplicable.month == 1 && bmDateStarted.month == 0)) {
+            (bmDateApplicable.month == 1 && bmDateStarted.isAnnualBudget())) {
             dateApplicableView.setTypeface(dateApplicableView.typeface, Typeface.BOLD)
             amountView.setTypeface(amountView.typeface, Typeface.BOLD)
             whoView.setTypeface(whoView.typeface, Typeface.BOLD)

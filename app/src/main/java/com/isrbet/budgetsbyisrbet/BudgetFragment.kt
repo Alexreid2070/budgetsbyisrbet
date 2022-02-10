@@ -180,14 +180,14 @@ class BudgetFragment : Fragment() {
             binding.budgetAddPreviousAmountLabel2.text = " which was set for "
             binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
-            val tmpPrevAmt = BudgetViewModel.getBudgetAmount("$catText-$subCatText", prevMonth, whoText)
+            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount("$catText-$subCatText", prevMonth, whoText)
             binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
                 binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
                 binding.budgetAddPreviousAmountDate.text = ""
             } else {
                 binding.budgetAddPreviousAmountLabel2.text = " which was set "
-                if (tmpPrevAmt.dateStarted.month == 0) // is an annual amount
+                if (tmpPrevAmt.dateStarted.isAnnualBudget()) // is an annual amount
                     binding.budgetAddPreviousAmountDate.text =
                         tmpPrevAmt.dateStarted.year.toString() + " (A)"
                 else

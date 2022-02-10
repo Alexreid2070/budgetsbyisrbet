@@ -107,22 +107,22 @@ class ExpenditureViewModel : ViewModel() {
             copy.addAll(getExpenditures())
             return copy
         }
-        fun getTotalDiscretionaryActualsToDate(iCal: Calendar) : Double {
+        fun getTotalDiscretionaryActualsToDate(iBudgetMonth: BudgetMonth) : Double {
             var tmpTotal = 0.0
             val startDate: String
             val endDate: String
-            val month = iCal.get(Calendar.MONTH)+1
-            if (month < 10) {
-                startDate = iCal.get(Calendar.YEAR).toString() + "-0" + month.toString() + "-00"
-                endDate = iCal.get(Calendar.YEAR).toString() + "-0" + month.toString() + "-99"
+            if (iBudgetMonth.month < 10) {
+                startDate = iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-00"
+                endDate = iBudgetMonth.year.toString() +  "-0" + iBudgetMonth.month.toString() + "-99"
             } else {
-                startDate = iCal.get(Calendar.YEAR).toString() + "-" + month.toString() + "-00"
-                endDate = iCal.get(Calendar.YEAR).toString() + "-" + month.toString() + "-99"
+                startDate = iBudgetMonth.year.toString() +  "-" + iBudgetMonth.month.toString() + "-00"
+                endDate = iBudgetMonth.year.toString() +  "-" + iBudgetMonth.month.toString() + "-99"
             }
-            Log.d("Alex", "checking $startDate to $endDate")
+            Log.d("Alex", "checking $startDate to $endDate size " + singleInstance.expenditures.size)
 
             singleInstance.expenditures.forEach {
                 val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(it.category, it.subcategory)
+                Log.d("Alex", "ZZ: " + it.date + " " + startDate + " " + endDate)
                 if (expDiscIndicator == cDiscTypeDiscretionary && it.date > startDate && it.date < endDate) {
                     tmpTotal += (it.amount / 100.0)
                 }
@@ -141,10 +141,15 @@ class ExpenditureViewModel : ViewModel() {
                     tList.add(DataObject(prevCategory, totalActuals, 0))
                     totalActuals = 0.0
                 }
-                val budget = getActualsForPeriod(it.categoryName, it.subcategoryName,
-                    iBudgetMonth, iBudgetMonth,
-                    "Joint")
-                totalActuals += budget
+                var actual = 0.0
+                for (i in 0 until SpenderViewModel.getTotalCount()) {
+                    actual = getActualsForPeriod(
+                        it.categoryName, it.subcategoryName,
+                        iBudgetMonth, iBudgetMonth,
+                        SpenderViewModel.getSpenderName(i)
+                    )
+                    totalActuals += actual
+                }
                 prevCategory = it.categoryName
             }
             return  tList
@@ -154,32 +159,39 @@ class ExpenditureViewModel : ViewModel() {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
+            Log.d("Alex", "first day is $firstDay and last day is $lastDay")
             loop@ for (expenditure in singleInstance.expenditures) {
                 if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
                         expenditure.category == iCategory &&
                         expenditure.subcategory == iSubCategory &&
-                        (expenditure.boughtfor == iWho || iWho == "Joint")) {
+                        (expenditure.boughtfor == iWho))  // || iWho == "Joint")) {
                     // this is a transaction to add to our subtotal
 //                        if (iWho != "" && iWho != "Joint") // ie want a specific person
 //                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
 //                        else
                             tTotal += (expenditure.amount.toDouble() / 100)
                     }
-            }
-
             return tTotal
         }
 
-        fun addTransaction(iExpenditure: ExpenditureOut) {
-            val key: String
-            if (iExpenditure.type == "Recurring")
-                key = iExpenditure.note + iExpenditure.date + "R"
-            else
-                key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").push().key.toString()
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(key)
-                .setValue(iExpenditure)
+        fun addTransaction(iExpenditure: ExpenditureOut, iLocalOnly: Boolean = false) {
+            if (iLocalOnly) {
+                singleInstance.expenditures.add(Expenditure(iExpenditure.date, iExpenditure.amount, iExpenditure.category, iExpenditure.subcategory,
+                    iExpenditure.note, iExpenditure.paidby, iExpenditure.boughtfor, iExpenditure.type, iExpenditure.bfname1split, iExpenditure.bfname2split))
+            } else {
+                val key: String
+                if (iExpenditure.type == "Recurring")
+                    key = iExpenditure.note + iExpenditure.date + "R"
+                else
+                    key =
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                            .push().key.toString()
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                    .child(key)
+                    .setValue(iExpenditure)
+            }
         }
 
         fun refresh() {
@@ -212,6 +224,30 @@ class ExpenditureViewModel : ViewModel() {
                 ind = -1
             Log.d("Alex", "ind is " + ind + " and next is " + (ind+1))
             return singleInstance.expenditures[ind+1].mykey
+        }
+        fun getPreviousTransferKey(iKey: String): String {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            var ind = singleInstance.expenditures.indexOf(exp)
+            for (i in ind-1 until 0)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            // if we get here, we didn't find a transfer in the rest of the expenditure list, so start at the beginning
+            for (i in singleInstance.expenditures.size-1 until ind)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            return iKey
+        }
+        fun getNextTransferKey(iKey: String): String {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            var ind = singleInstance.expenditures.indexOf(exp)
+            for (i in ind+1 until singleInstance.expenditures.size)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            // if we get here, we didn't find a transfer in the rest of the expenditure list, so start at the beginning
+            for (i in 0 until singleInstance.expenditures.size)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            return iKey
         }
 
         fun deleteTransaction(iTransactionID: String) {

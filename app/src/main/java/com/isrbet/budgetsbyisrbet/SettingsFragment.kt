@@ -178,13 +178,22 @@ class SettingsFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
+            menu.getItem(i).isVisible = (menu.getItem(i).itemId == R.id.ViewTranslationsFragment &&
+                    DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "On")
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController()
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.ViewTranslationsFragment -> {
+                view?.findNavController()?.navigate(R.id.ViewTranslationsFragment)
+                true
+            }
+            else -> {
+                val navController = findNavController()
+                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -265,8 +274,9 @@ class SettingsFragment : Fragment() {
         // check default Integrate with TD Spend
         Log.d("Alex", "td switch is " + binding.switchIntegrateWithTD.showText)
         val integrateField = if (binding.switchIntegrateWithTD.isChecked) "On" else "Off"
-        if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
+        if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND)) {
             DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, integrateField)
+        }
         // check default Sound
         val soundField = if (binding.switchSound.isChecked) "On" else "Off"
         if (soundField != DefaultsViewModel.getDefault(cDEFAULT_SOUND))

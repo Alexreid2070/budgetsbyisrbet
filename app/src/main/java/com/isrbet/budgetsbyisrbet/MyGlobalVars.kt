@@ -34,6 +34,7 @@ const val cEXPANDED = "Expanded"
 const val cCONDENSED = "Condensed"
 const val cBUDGET_RECURRING = "Recurring"
 const val cBUDGET_JUST_THIS_MONTH = "Just once"
+const val cFAKING_TD = false
 
 const val january = "Jan"
 const val february = "Feb"
@@ -117,6 +118,10 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
         }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
+
+    fun isAnnualBudget(): Boolean {
+        return (month == 0)
+    }
 
     fun setValue(iBM:BudgetMonth) {
         year = iBM.year
@@ -220,6 +225,7 @@ fun hideKeyboard(activity: Activity) {
     imm.hideSoftInputFromWindow(view.windowToken, 0)
 }
 */
+
 fun perfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): String {
     var str = iStr
     if (str[0] == '.') str = "0$str"
@@ -404,17 +410,11 @@ fun textIsAlphaOrSpace(string: String): Boolean {
     return string.filter { it in 'A'..'Z' || it in 'a'..'z' || it == ' ' }.length == string.length
 }
 
-fun textIsSafe(iText: String) : Boolean {
-    if (iText.contains("^"))
+fun textIsSafeForKey(iText: String) : Boolean {
+    if (iText.contains("."))
         return false
-//    else if (iText.contains("("))
-//        return false
-//    else if (iText.contains(")"))
-//        return false
-//    else if (iText.contains("."))
-//        return false
-//    else if (iText.contains("#"))
-//        return false
+    else if (iText.contains("#"))
+        return false
     else if (iText.contains("/"))
         return false
     else if (iText.contains("\\"))
@@ -428,6 +428,13 @@ fun textIsSafe(iText: String) : Boolean {
     else if (iText.contains("$"))
         return false
     else return !iText.contains("%")
+}
+
+fun textIsSafeForValue(iText: String) : Boolean {
+    if (iText.contains("\\"))
+        return false
+    else
+        return true
 }
 
 fun getColorInHex(iColor: Int, iOpacity: String): String {

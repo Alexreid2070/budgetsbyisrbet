@@ -73,7 +73,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendChat() {
-        if (!textIsSafe(binding.chatInput.text.toString())) {
+        if (!textIsSafeForValue(binding.chatInput.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.chatInput.error="The text contains unsafe characters!"
             focusAndOpenSoftKeyboard(requireContext(), binding.chatInput)

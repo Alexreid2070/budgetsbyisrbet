@@ -22,25 +22,56 @@ class TranslationViewModel : ViewModel() {
             return singleInstance.loaded
         }
 
+        fun getTranslations():MutableList<Translation> {
+            val copy = mutableListOf<Translation>()
+            copy.addAll(Companion.singleInstance.translations)
+            return copy
+        }
+
         fun showMe() {
             singleInstance.translations.forEach {
                 Log.d("Alex", "Translation is '" + it.before + "' to '" + it.after + "'")
             }
         }
-        fun getTranslation(iBefore: String): String {
+        fun exists(iString: String): Boolean {
             if (::singleInstance.isInitialized) {
                 singleInstance.translations.forEach {
+                    if (it.before == iString)
+                        return true
+                }
+            }
+            return false
+        }
+        fun getTranslation(iBefore: String): String {
+            if (::singleInstance.isInitialized) {
+                // first look for exact matches
+                singleInstance.translations.forEach {
                     if (it.before == iBefore)
+                        return it.after
+                }
+                // then look for translations where the before text includes after text
+                singleInstance.translations.forEach {
+                    if (iBefore.contains(it.after, true)) // 'before' string contains an after
                         return it.after
                 }
             }
             return iBefore
         }
-        fun deleteTranslation(iBefore: String) {
+        fun deleteTranslation(iKey: String) {
+            if (::singleInstance.isInitialized) {
+                val tr: Translation? = singleInstance.translations.find { it.key == iKey }
+                val ind = singleInstance.translations.indexOf(tr)
+                singleInstance.translations.removeAt(ind)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(iKey).removeValue()
+                }
+        }
+        fun updateTranslation(iKey: String, iAfter: String) {
             if (::singleInstance.isInitialized) {
                 singleInstance.translations.forEach {
-                    if (it.before == iBefore) {
-                        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(it.key).removeValue()
+                    if (it.key == iKey) {
+                        it.after = iAfter
+                        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation")
+                            .child(it.key).child("after").setValue(iAfter)
                     }
                 }
             }

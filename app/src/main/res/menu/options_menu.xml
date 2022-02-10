@@ -18,6 +18,10 @@
             app:showAsAction="ifRoom"
             tools:ignore="HardcodedText" />
         <item
+            android:id="@+id/ViewTranslationsFragment"
+            android:title="View Translations"
+            tools:ignore="HardcodedText" />
+        <item
             android:id="@+id/ViewTransfersFragment"
             android:title="View transfers"
             android:icon="@drawable/ic_fas_binoculars"
@@ -82,10 +86,6 @@
             android:title="Filter"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/FilterRecurring"
-            android:title=" Recurring"
-            tools:ignore="HardcodedText" />
-        <item
             android:id="@+id/FilterDiscretionary"
             android:title=" Discretionary"
             tools:ignore="HardcodedText" />
@@ -130,6 +130,14 @@
             android:title=" Expanded View"
             android:icon="@drawable/ic_fas_expand"
             app:showAsAction="ifRoom"
+            tools:ignore="HardcodedText" />
+        <item
+            android:id="@+id/DeltaPercentage"
+            android:title="Show Delta as %"
+            tools:ignore="HardcodedText" />
+        <item
+            android:id="@+id/DeltaNumeric"
+            android:title="Show Delta as $"
             tools:ignore="HardcodedText" />
     </group>
     <group

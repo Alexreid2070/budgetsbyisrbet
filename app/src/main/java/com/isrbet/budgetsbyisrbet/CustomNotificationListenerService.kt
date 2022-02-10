@@ -14,6 +14,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
         fun getExpenseNotificationCount(): Int {
             Log.d("Alex", "getting expense count")
+            if (cFAKING_TD)
+                return 1
             if (!::singleInstance.isInitialized)
                 return 0
             val activeNotnCount = singleInstance.activeNotifications.size
@@ -35,6 +37,9 @@ class CustomNotificationListenerService : NotificationListenerService() {
             val tCategory: String
             var tAmount: Double
             val tNote: String
+
+            if (cFAKING_TD)
+                return TransactionDataFromTD(123.45, "mty Bulk Barn # 145", "Groceries")
 
             for (count in 0 until singleInstance.activeNotifications.size) {
                 val sbn = singleInstance.activeNotifications[count]
