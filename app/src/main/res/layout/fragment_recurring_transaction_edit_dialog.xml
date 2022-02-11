@@ -72,12 +72,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
+                android:clickable="true"
+                android:cursorVisible="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:longClickable="false"
-                android:inputType="date" />
+                android:inputType="textCapSentences" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -118,10 +118,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
+                android:clickable="true"
+                android:cursorVisible="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:longClickable="false"
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -219,10 +219,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:clickable="false"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
+                android:clickable="true"
+                android:cursorVisible="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:longClickable="false"
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
