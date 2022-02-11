@@ -7,7 +7,21 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Category(var categoryName: String, var subcategoryName: String, var discType: String)
+data class Category(var categoryName: String, var subcategoryName: String, var discType: String = "") {
+    constructor(iFullCategoryName: String) : this(iFullCategoryName, iFullCategoryName) {
+        val dash = iFullCategoryName.indexOf("-")
+        try {
+            categoryName = iFullCategoryName.substring(0, dash)
+            subcategoryName = iFullCategoryName.substring(dash + 1, iFullCategoryName.length)
+        }
+        catch (exception: Exception) {
+            Log.d("Alex", "caught an exception in Category constructor (missing dash) $iFullCategoryName")
+        }
+    }
+    fun fullCategoryName() : String {
+        return "$categoryName-$subcategoryName"
+    }
+}
 
 class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
@@ -100,7 +114,7 @@ class CategoryViewModel : ViewModel() {
             val tmpList: MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.discType != cDiscTypeOff)
-                    tmpList.add(it.categoryName + "-" + it.subcategoryName)
+                    tmpList.add(it.fullCategoryName())
             }
             return tmpList
         }
@@ -109,7 +123,7 @@ class CategoryViewModel : ViewModel() {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.discType != "Off")
-                    list.add(it.categoryName + "-" + it.subcategoryName)
+                    list.add(it.fullCategoryName())
             }
             return list
         }

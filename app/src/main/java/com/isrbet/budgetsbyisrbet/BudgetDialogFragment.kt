@@ -15,7 +15,6 @@ import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
 import java.text.DecimalFormat
-import kotlin.math.round
 
 class BudgetDialogFragment : DialogFragment() {
     interface BudgetEditDialogFragmentListener {
@@ -30,6 +29,7 @@ class BudgetDialogFragment : DialogFragment() {
 
     companion object {
         private const val KEY_CATEGORY = "KEY_CATEGORY"
+        private const val KEY_SUBCATEGORY = "KEY_SUBCATEGORY"
         private const val KEY_YEAR_VALUE = "KEY_YEAR_VALUE"
         private const val KEY_MONTH_VALUE = "KEY_MONTH_VALUE"
         private const val KEY_WHO_VALUE = "KEY_WHO_VALUE"
@@ -42,11 +42,12 @@ class BudgetDialogFragment : DialogFragment() {
         private var oldOccurence: Int = -1
 
         fun newInstance(
-            category: String,
+            fullCategory: Category,
             year: Int, month: Int, who: String, amount: Double, occurence: Int
         ): BudgetDialogFragment {
             val args = Bundle()
-            args.putString(KEY_CATEGORY, category)
+            args.putString(KEY_CATEGORY, fullCategory.categoryName)
+            args.putString(KEY_SUBCATEGORY, fullCategory.subcategoryName)
             args.putString(KEY_YEAR_VALUE, year.toString())
             args.putString(KEY_MONTH_VALUE, month.toString())
             args.putString(KEY_WHO_VALUE, who)
@@ -132,6 +133,7 @@ class BudgetDialogFragment : DialogFragment() {
 
     private fun setupView() {
         binding.budgetDialogCategory.text = arguments?.getString(KEY_CATEGORY)
+        binding.budgetDialogSubcategory.text = arguments?.getString(KEY_SUBCATEGORY)
         binding.budgetDialogYear.text = arguments?.getString(KEY_YEAR_VALUE)
         val month = arguments?.getString(KEY_MONTH_VALUE)
         if (month == "0")
@@ -208,7 +210,7 @@ class BudgetDialogFragment : DialogFragment() {
                 Log.d("Alex", "oldOccurence is $oldOccurence and new is $newOccurence")
                 if (oldWho == newWho) {
                     BudgetViewModel.updateBudget(
-                        binding.budgetDialogCategory.text.toString(),
+                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),
                         BudgetMonth(
                             oldYear, oldMonth
                         ).toString(),
@@ -235,22 +237,21 @@ class BudgetDialogFragment : DialogFragment() {
                                 )
                                 prevMonth.decrementMonth()
                                 val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(
-                                    binding.budgetDialogCategory.text.toString(),
-                                    prevMonth,
+                                    Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                    prevMonth,
                                     newWho
                                 )
                                 Log.d("Alex", "tmpDouble1 is " + tmpDouble1.toString() + " and tmpPrev is " + tmpPrevAmt.amount.toString())
                                 if (tmpDouble1 == tmpPrevAmt.amount) {
                                     // ie new amount is same as previous month, so we can just delete this month's change
                                     BudgetViewModel.deleteBudget(
-                                        binding.budgetDialogCategory.text.toString(),
-                                        BudgetMonth(
+                                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                        BudgetMonth(
                                             oldYear, oldMonth
                                         ).toString(),
                                         newWho
                                     )
                                     // delete oldWho
-                                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), BudgetMonth(
+                                    BudgetViewModel.deleteBudget(
+                                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                        BudgetMonth(
                                         oldYear, oldMonth).toString(), oldWho)
                                     if (listener != null)
                                         listener?.onNewDataSaved()
@@ -260,13 +261,13 @@ class BudgetDialogFragment : DialogFragment() {
                                         "tmpDouble1 is same as previous month so just deleted the entry '$tmpDouble1'"
                                     )
                                 } else { // new amount is different from previous month, so need to record it
-                                    val  tempBudget = BudgetViewModel.getBudget(binding.budgetDialogCategory.text.toString())
+                                    val  tempBudget = BudgetViewModel.getBudget(Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()))
                                     if (tempBudget != null) {
                                         if (!tempBudget.overlapsWithExistingBudget(
                                                 BudgetMonth(binding.budgetDialogYear.text.toString().toInt(), monthToUse).toString(),
                                                 newWho)) {
                                             BudgetViewModel.updateBudget(
-                                                binding.budgetDialogCategory.text.toString(),
+                                                Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),
                                                 BudgetMonth(
                                                     oldYear, oldMonth
                                                 ).toString(),
@@ -276,7 +277,7 @@ class BudgetDialogFragment : DialogFragment() {
                                             )
                                             // delete oldWho
                                             BudgetViewModel.deleteBudget(
-                                                binding.budgetDialogCategory.text.toString(),
+                                                Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),
                                                 BudgetMonth(
                                                     oldYear, oldMonth
                                                 ).toString(),
@@ -315,7 +316,7 @@ class BudgetDialogFragment : DialogFragment() {
                         binding.budgetDialogMonth.text.toString().toInt()
                     val dbRef =
                         MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
-                            .child(binding.budgetDialogCategory.text.toString())
+                            .child(binding.budgetDialogCategory.text.toString()+"-"+binding.budgetDialogSubcategory.text.toString())
                             .child(
                                 BudgetMonth(
                                     binding.budgetDialogYear.text.toString().toInt(),
@@ -334,7 +335,8 @@ class BudgetDialogFragment : DialogFragment() {
                         0
                     else
                         binding.budgetDialogMonth.text.toString().toInt()
-                    BudgetViewModel.deleteBudget(binding.budgetDialogCategory.text.toString(), BudgetMonth(
+                    BudgetViewModel.deleteBudget(
+                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                        BudgetMonth(
                         binding.budgetDialogYear.text.toString().toInt(),
                         monthToUse
                     ).toString(), oldWho)

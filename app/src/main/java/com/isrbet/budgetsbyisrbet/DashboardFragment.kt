@@ -771,15 +771,15 @@ class DashboardRows {
                         BudgetMonth(
                             iBudgetMonth.year,
                             i
-                        ), it.category, it.subcategory, whoToLookup
-                    )
+                        ),
+                        Category(it.category, it.subcategory),
+                        whoToLookup)
                     Log.d("Alex", it.category + " " + it.subcategory + "it.budgetamount is now" + it.budgetAmount)
                 }
             } else
                 it.budgetAmount = BudgetViewModel.getCalculatedBudgetAmount(
                     iBudgetMonth,
-                    it.category,
-                    it.subcategory,
+                    Category(it.category, it.subcategory),
                     whoToLookup
                 )
             Log.d("Alex", it.category + " " + it.subcategory + "it.budgetamount is " + it.budgetAmount)

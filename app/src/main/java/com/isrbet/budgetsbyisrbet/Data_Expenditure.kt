@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.icu.util.Calendar
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -141,10 +140,10 @@ class ExpenditureViewModel : ViewModel() {
                     tList.add(DataObject(prevCategory, totalActuals, 0))
                     totalActuals = 0.0
                 }
-                var actual = 0.0
+                var actual: Double
                 for (i in 0 until SpenderViewModel.getTotalCount()) {
                     actual = getActualsForPeriod(
-                        it.categoryName, it.subcategoryName,
+                        Category(it.categoryName, it.subcategoryName),
                         iBudgetMonth, iBudgetMonth,
                         SpenderViewModel.getSpenderName(i)
                     )
@@ -155,7 +154,7 @@ class ExpenditureViewModel : ViewModel() {
             return  tList
         }
 
-        fun getActualsForPeriod(iCategory: String, iSubCategory: String, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
+        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
@@ -164,8 +163,8 @@ class ExpenditureViewModel : ViewModel() {
                 if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
-                        expenditure.category == iCategory &&
-                        expenditure.subcategory == iSubCategory &&
+                        expenditure.category == iCategory.categoryName &&
+                        expenditure.subcategory == iCategory.subcategoryName &&
                         (expenditure.boughtfor == iWho))  // || iWho == "Joint")) {
                     // this is a transaction to add to our subtotal
 //                        if (iWho != "" && iWho != "Joint") // ie want a specific person
@@ -227,7 +226,7 @@ class ExpenditureViewModel : ViewModel() {
         }
         fun getPreviousTransferKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
-            var ind = singleInstance.expenditures.indexOf(exp)
+            val ind = singleInstance.expenditures.indexOf(exp)
             for (i in ind-1 until 0)
                 if (singleInstance.expenditures[i].type == "Transfer")
                     return singleInstance.expenditures[i].mykey
@@ -239,7 +238,7 @@ class ExpenditureViewModel : ViewModel() {
         }
         fun getNextTransferKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
-            var ind = singleInstance.expenditures.indexOf(exp)
+            val ind = singleInstance.expenditures.indexOf(exp)
             for (i in ind+1 until singleInstance.expenditures.size)
                 if (singleInstance.expenditures[i].type == "Transfer")
                     return singleInstance.expenditures[i].mykey

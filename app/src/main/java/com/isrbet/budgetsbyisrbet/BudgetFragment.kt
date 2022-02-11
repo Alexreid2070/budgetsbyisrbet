@@ -17,7 +17,6 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
 import java.text.DecimalFormat
 import java.util.*
-import kotlin.math.round
 
 class BudgetFragment : Fragment() {
     private var _binding: FragmentBudgetBinding? = null
@@ -174,13 +173,13 @@ class BudgetFragment : Fragment() {
         val dec = DecimalFormat("#.00")
 
         val toCheckAnnual = BudgetMonth(binding.budgetAddYear.value, 0)
-        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod("$catText-$subCatText", toCheckAnnual, whoText)
+        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(Category(catText, subCatText),toCheckAnnual, whoText)
         if (annualBudget != 0.0) {
             binding.budgetAddPreviousAmount.text = dec.format(annualBudget)
             binding.budgetAddPreviousAmountLabel2.text = " which was set for "
             binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
-            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount("$catText-$subCatText", prevMonth, whoText)
+            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(Category(catText, subCatText), prevMonth, whoText)
             binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
                 binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
@@ -206,10 +205,10 @@ class BudgetFragment : Fragment() {
             endOfPeriod.decrementMonth(1)
         }
         Log.d("Alex", "checking periods $whoText $startOfPeriod $endOfPeriod")
-        binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
+        binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(Category(catText, subCatText),
             startOfPeriod, endOfPeriod, whoText))
 
-        val annualActuals = ExpenditureViewModel.getActualsForPeriod(catText, subCatText,
+        val annualActuals = ExpenditureViewModel.getActualsForPeriod(Category(catText, subCatText),
             BudgetMonth(
                 binding.budgetAddYear.value - 1,
                 if (inAnnualMode) 1 else binding.budgetAddMonth.value
@@ -358,7 +357,7 @@ class BudgetFragment : Fragment() {
 
         val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
-        val tempCategory: String = catRadioButton.text.toString() + "-" + binding.budgetAddSubCategorySpinner.selectedItem.toString()
+        val tempCategory = Category(catRadioButton.text.toString(), binding.budgetAddSubCategorySpinner.selectedItem.toString())
         val tempBudget = BudgetViewModel.getBudget(tempCategory)
         if (tempBudget != null) {
             var chosenMonth = 0

@@ -8,6 +8,7 @@ import com.google.firebase.database.ValueEventListener
 
 const val cDEFAULT_CATEGORY = "Category"
 const val cDEFAULT_SUBCATEGORY = "SubCategory"
+const val cDEFAULT_FULLCATEGORYNAME = "FullCategoryName"
 const val cDEFAULT_SPENDER = "Spender"
 const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
@@ -17,8 +18,7 @@ const val cDEFAULT_QUOTE = "Quote"
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DataUpdatedCallback? = null
-    private var defaultCategory: String = ""
-    private var defaultSubCategory: String = ""
+    private var defaultCategory: Category = Category("","")
     private var defaultSpender: String = ""
     private var defaultShowRed: String = "5"
     private var defaultIntegrateWithTDSpend: String = "No"
@@ -30,16 +30,14 @@ class DefaultsViewModel : ViewModel() {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
 
         fun isEmpty(): Boolean {
-            Log.d("Alex", "Defaults: " + isLoaded() + (singleInstance.defaultCategory == "") +
-                    (singleInstance.defaultSubCategory == "") + (singleInstance.defaultSpender == ""))
             return (isLoaded() &&
-                    singleInstance.defaultCategory == "" &&
-                    singleInstance.defaultSubCategory == "" &&
+                    singleInstance.defaultCategory.categoryName == "" &&
+                    singleInstance.defaultCategory.subcategoryName == "" &&
                     singleInstance.defaultSpender == "")
         }
 
         fun showMe() {
-            Log.d("Alex", "Default Category/Subcategory is " + singleInstance.defaultCategory + "/" + singleInstance.defaultSubCategory)
+            Log.d("Alex", "Default Category/Subcategory is " + singleInstance.defaultCategory.fullCategoryName())
             Log.d("Alex", "Default Spender is " + singleInstance.defaultSpender)
             Log.d("Alex", "Default ShowRed is " + singleInstance.defaultShowRed)
             Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
@@ -52,8 +50,9 @@ class DefaultsViewModel : ViewModel() {
 
         fun getDefault(whichOne:String): String {
             when (whichOne) {
-                cDEFAULT_CATEGORY -> return singleInstance.defaultCategory
-                cDEFAULT_SUBCATEGORY -> return singleInstance.defaultSubCategory
+                cDEFAULT_CATEGORY -> return singleInstance.defaultCategory.categoryName
+                cDEFAULT_SUBCATEGORY -> return singleInstance.defaultCategory.subcategoryName
+                cDEFAULT_FULLCATEGORYNAME -> return singleInstance.defaultCategory.fullCategoryName()
                 cDEFAULT_SPENDER -> return singleInstance.defaultSpender
                 cDEFAULT_SHOWRED -> return singleInstance.defaultShowRed
                 cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
@@ -78,8 +77,7 @@ class DefaultsViewModel : ViewModel() {
                 singleInstance.defaultsListener = null
             }
             singleInstance.loaded = false
-            singleInstance.defaultCategory = ""
-            singleInstance.defaultSubCategory = ""
+            singleInstance.defaultCategory = Category("","")
             singleInstance.defaultSpender = ""
             singleInstance.defaultShowRed = "5"
             singleInstance.defaultIntegrateWithTDSpend = "No"
@@ -111,10 +109,10 @@ class DefaultsViewModel : ViewModel() {
     fun setLocal(whichOne: String, iValue: String) {
         when (whichOne) {
             cDEFAULT_CATEGORY -> {
-                singleInstance.defaultCategory = iValue
+                singleInstance.defaultCategory.categoryName = iValue
             }
             cDEFAULT_SUBCATEGORY -> {
-                singleInstance.defaultSubCategory = iValue
+                singleInstance.defaultCategory.subcategoryName = iValue
             }
             cDEFAULT_SPENDER -> {
                 singleInstance.defaultSpender = iValue

@@ -123,7 +123,7 @@ class SettingsFragment : Fragment() {
         )
         defaultCategorySpinner.adapter = arrayAdapter
         defaultCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefault(
-            cDEFAULT_CATEGORY) + "-" + DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY)))
+            cDEFAULT_FULLCATEGORYNAME)))
         arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.settingsCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
@@ -262,14 +262,11 @@ class SettingsFragment : Fragment() {
 
         if (defaultCategorySpinner.selectedItem != null) {
             Log.d("Alex", "Sub-category is " + defaultCategorySpinner.selectedItem.toString())
-            val dash = defaultCategorySpinner.selectedItem.toString().indexOf("-")
-            val defCat = defaultCategorySpinner.selectedItem.toString().substring(0, dash)
-            val defSubCat = defaultCategorySpinner.selectedItem.toString()
-                .substring(dash + 1, defaultCategorySpinner.selectedItem.toString().length)
-            if (defCat != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
-                DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defCat)
-            if (defSubCat != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
-                DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defSubCat)
+            val defaultCategory = Category(defaultCategorySpinner.selectedItem.toString())
+            if (defaultCategory.categoryName != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
+                DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defaultCategory.categoryName)
+            if (defaultCategory.subcategoryName != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
+                DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defaultCategory.subcategoryName)
         }
         // check default Integrate with TD Spend
         Log.d("Alex", "td switch is " + binding.switchIntegrateWithTD.showText)

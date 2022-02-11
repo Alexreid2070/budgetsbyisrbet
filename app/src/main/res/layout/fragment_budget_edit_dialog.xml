@@ -6,23 +6,37 @@
     android:layout_height="wrap_content"
     android:padding="12dp">
 
-    <TextView
-        android:id="@+id/budget_dialog_category"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <LinearLayout
+        android:id="@+id/categoryLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="category"
-        android:textSize="18sp"
-        android:layout_gravity="start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText" />
-
+        android:layout_weight="1"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/budget_dialog_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="category"
+            android:textSize="18sp"
+            android:layout_gravity="start"
+            tools:ignore="HardcodedText" />
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/budget_dialog_subcategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="subcategory"
+            android:textSize="18sp"
+            android:layout_gravity="start"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/budget_dialog_linear_layout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_category">
+        app:layout_constraintTop_toBottomOf="@+id/categoryLayout">
 
         <TextView
             android:id="@+id/budget_dialog_year_heading"

@@ -27,7 +27,6 @@ import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 

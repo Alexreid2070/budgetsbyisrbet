@@ -149,6 +149,11 @@ class CategoryEditDialogFragment : DialogFragment() {
         binding.categoryDialogButtonSave.setOnClickListener {
             Log.d("Alex", "on save " + oldCategory + " " + binding.editCategoryNewNameSpinner.selectedItem.toString())
 
+            if (binding.editCategoryNewName.text.toString().contains("-")) {
+                binding.editCategoryNewName.error = "Category name has invalid character '-'."
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                return@setOnClickListener
+            }
             if (!textIsSafeForKey(binding.editCategoryNewName.text.toString())) {
                 binding.editCategoryNewName.error = "Category name has invalid characters."
                 focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
@@ -197,7 +202,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 val newWho = if (SpenderViewModel.getActiveCount() > 1) "Joint" else SpenderViewModel.getSpenderName(0)
                 val tempDouble : Double = binding.editCategoryBudgetAmount.text.toString().toDouble()
 
-                BudgetViewModel.updateBudget(chosenCategory+"-"+binding.editSubcategoryNewName.text.toString().trim(),
+                BudgetViewModel.updateBudget(Category(chosenCategory, binding.editSubcategoryNewName.text.toString().trim()),
                     bmNow.toString(), newWho, tempDouble, cBUDGET_RECURRING)
                 if (listener != null) {
                     listener?.onNewDataSaved()
