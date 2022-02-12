@@ -127,6 +127,7 @@ class BudgetViewModel : ViewModel() {
 
         fun getCalculatedBudgetAmount(iBudgetMonth: BudgetMonth, iCategory: Category, iWhoToLookup: String): Double {
             // if iWhoToLookup is blank, then will calculate for all Spenders
+            // if iWhoToLookup is a specific name, then include the right % of Joint
             var tBudgetAmount = 0.0
             var accumulatedBudgetRemaining = 0.0
             var accumulatedActualsThisMonth = 0.0
@@ -134,13 +135,13 @@ class BudgetViewModel : ViewModel() {
             val splitToUse = SpenderViewModel.getSpenderSplit(iWhoToLookup)
             for (i in 0 until SpenderViewModel.getTotalCount()) {
                 if (SpenderViewModel.isActive(i)) {
-                    if (iWhoToLookup == "" || iWhoToLookup == SpenderViewModel.getSpenderName(i)) {
+                    if (iWhoToLookup == "" || iWhoToLookup == SpenderViewModel.getSpenderName(i) ||
+                            SpenderViewModel.getSpenderName(i) == "Joint") {
                         val budgetForPeriod = getOriginalBudgetAmount(
                             iCategory,
                             iBudgetMonth,
                             SpenderViewModel.getSpenderName(i)
                         )
-                        Log.d("Alex", "got $iCategory " + SpenderViewModel.getSpenderName(i) + " " + iBudgetMonth.toString() + " " + budgetForPeriod.dateStarted.toString() + " " + budgetForPeriod.amount)
 
                         if (iBudgetMonth.month == 0 || budgetForPeriod.dateStarted.month != 0) { // ie an annual view, or not an annual budget
                             if (iWhoToLookup == "" || iWhoToLookup == SpenderViewModel.getSpenderName(i)) { // ie want the entire amounts
@@ -174,7 +175,6 @@ class BudgetViewModel : ViewModel() {
                                     iBudgetMonth,
                                     SpenderViewModel.getSpenderName(i)
                                 )
-                            Log.d("Alex", "annualBudget $totalAnnualBudget priorActuals $totalAnnualActualsForEarlierMonths this month actuals $accumulatedActualsThisMonth")
                             val budgetRemaining =
                                 if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0) totalAnnualBudget - totalAnnualActualsForEarlierMonths else 0.0
                             accumulatedBudgetRemaining += budgetRemaining
@@ -186,7 +186,6 @@ class BudgetViewModel : ViewModel() {
                 tBudgetAmount =
                     if (accumulatedActualsThisMonth < accumulatedBudgetRemaining) accumulatedActualsThisMonth else accumulatedBudgetRemaining
             }
-            Log.d("Alex", "returning $iCategory "  + " " + iBudgetMonth.toString() + " " + tBudgetAmount)
             return tBudgetAmount
         }
 
@@ -205,7 +204,6 @@ class BudgetViewModel : ViewModel() {
                         break@loop
                     }
                 }
-                Log.d("Alex", "returning " + tResponse + " for annual amount for iCategory " + iCategory)
                 return tResponse
             }
             val tFirstNameBudget = BudgetAmountResponse(BudgetMonth(9999,12), SpenderViewModel.getSpenderName(0), 0.0, BudgetMonth(9999,12), -1)
@@ -290,8 +288,8 @@ class BudgetViewModel : ViewModel() {
             val discIndicator = CategoryViewModel.getDiscretionaryIndicator(iCategory.categoryName, iCategory.subcategoryName)
             if (discIndicator == iDiscType || iDiscType == cDiscTypeAll) {
                 for (i in 0 until SpenderViewModel.getTotalCount()) {
-                    if (SpenderViewModel.isActive(i)) {
-                        val bpAmt = getCalculatedBudgetAmount(
+                    if (SpenderViewModel.isActive(i) && SpenderViewModel.getSpenderName(i) != "Joint") {
+                        val bpAmt = getCalculatedBudgetAmount( // this includes the right % of Joint with each individual Spender
                             iBudgetMonth,
                             iCategory,
                             SpenderViewModel.getSpenderName(i)

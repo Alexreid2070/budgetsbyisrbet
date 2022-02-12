@@ -158,7 +158,6 @@ class ExpenditureViewModel : ViewModel() {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
-            Log.d("Alex", "first day is $firstDay and last day is $lastDay")
             loop@ for (expenditure in singleInstance.expenditures) {
                 if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&

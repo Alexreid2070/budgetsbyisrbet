@@ -62,7 +62,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val textAmount = notificationText.substring(dollarSign+1, space).trim()
                             tAmount = textAmount.toDouble()
                             val credited = notificationText.indexOf("credited")
-                            Log.d("Alex", "found '$textAmount' for tAmount")
                             if (credited != -1) {
                                 Log.d("Alex", "it's a credit!")
                                 tAmount *= -1
@@ -76,13 +75,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
                                 lbracket = notificationText.indexOf("[", space)
                                 tNote = "unknown"
                             }
-                            Log.d("Alex", "space2 is $space2")
-                            Log.d("Alex", "lbracket is $lbracket")
-                            Log.d("Alex", "found '$tNote' for tNote")
                             val rbracket = notificationText.indexOf("]", lbracket + 1)
                             tCategory = notificationText.substring(lbracket+1, rbracket).trim()
-                            Log.d("Alex", "found '$tCategory' for tCategory")
-                            Log.d("Alex", "returning")
                             singleInstance.cancelNotification(sbn.key)
                             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TDMySpend_Success")
                                 .child(key).setValue(notificationText)
