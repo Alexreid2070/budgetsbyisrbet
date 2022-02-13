@@ -407,7 +407,7 @@ class DashboardFragment : Fragment() {
         view?.findViewById<ImageButton>(R.id.button_backward)?.setOnClickListener {
             moveOneMonthBackward()
         }
-        view?.findViewById<Button>(R.id.button_forward)?.setOnClickListener {
+        view?.findViewById<ImageButton>(R.id.button_forward)?.setOnClickListener {
             moveOneMonthForward()
         }
         view?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {

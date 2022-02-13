@@ -32,20 +32,17 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                Log.d("Alex", "calling filterTheList from performFiltering")
                 filterTheList(charSearch)
                 val filterResults = FilterResults()
                 filterResults.values = filteredList
                 currentTotal = getTotal()
-                Log.d("Alex", "performFiltering '" + constraint + "' size is " + filteredList.size + " and total " + currentTotal)
                 return filterResults
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 filteredList = results?.values as MutableList<Expenditure>
-                Log.d("Alex", "filteredList changed 1, new size " + filteredList.size)
-                Log.d("Alex", "transactionSearchTExt1 is " + MyApplication.transactionSearchText)
                 setGroupList()
                 notifyDataSetChanged()
             }
@@ -57,7 +54,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             if (it.type != "Transfer")
                 tTotal += (it.amount/100.0)
         }
-        Log.d("Alex", "getTotal " + " size is " + filteredList.size + " and total is " + tTotal)
         return tTotal
     }
 
@@ -70,8 +66,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             for (row in list) {
                 var found = true
                 for (r in splitSearchTerms) {
-                    if (! row.contains(r))
-                        found = false
+                    found = row.contains(r)
                 }
 
                 if (found) {
@@ -79,8 +74,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 }
             }
             filteredList = resultList
-            Log.d("Alex", "filteredList changed 3, new size " + filteredList.size)
-            Log.d("Alex", "transactionSearchTExt3 is " + MyApplication.transactionSearchText)
         }
         setGroupList()
     }
@@ -222,7 +215,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 return (newPosition -1)
             }
             "+month" -> {
-                Log.d("Alex", "currentTopPosition = $currentTopPosition")
                 val currentYearMonth: String
                 newPosition = currentTopPosition + 1
                 currentYearMonth = filteredList[currentTopPosition].date.substring(0, 7)
@@ -233,7 +225,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 ) {
                     newPosition++
                 }
-                Log.d("Alex", "newPosition is $newPosition")
                 return newPosition
             }
             "+year" -> {
@@ -247,7 +238,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 ) {
                     newPosition++
                 }
-                Log.d("Alex", "+year newPosition is $newPosition")
                 if (newPosition >= filteredList.size)
                     newPosition = filteredList.size - 1
                 return newPosition

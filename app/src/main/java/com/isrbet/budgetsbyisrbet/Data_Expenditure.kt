@@ -49,7 +49,8 @@ data class Expenditure(
                 paidby.lowercase().contains(lc) ||
                 boughtfor.lowercase().contains(lc) ||
                 note.lowercase().contains(lc) ||
-                date.contains(lc)
+                date.contains(lc) ||
+                type.lowercase().contains(lc)
     }
 }
 
@@ -121,7 +122,6 @@ class ExpenditureViewModel : ViewModel() {
 
             singleInstance.expenditures.forEach {
                 val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(it.category, it.subcategory)
-                Log.d("Alex", "ZZ: " + it.date + " " + startDate + " " + endDate)
                 if (expDiscIndicator == cDiscTypeDiscretionary && it.date > startDate && it.date < endDate) {
                     tmpTotal += (it.amount / 100.0)
                 }

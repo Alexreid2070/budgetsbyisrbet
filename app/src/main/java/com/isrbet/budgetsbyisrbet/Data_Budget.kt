@@ -317,7 +317,6 @@ class BudgetViewModel : ViewModel() {
                     }
                 }
             }
-            Log.d("Alex", "Discretionary budget for month is $tmpTotal")
             return tmpTotal
         }
 
@@ -359,7 +358,7 @@ class BudgetViewModel : ViewModel() {
                     if (it.discType != "Off") {
                         val firstMonth = getFirstMonthOfBudget(Category(it.categoryName, it.subcategoryName))
                         val lastMonth = getLastMonthOfBudget(Category(it.categoryName, it.subcategoryName))
-                        if (firstMonth != null && lastMonth != null) {
+                        if (firstMonth != null) {
                             if (firstMonth.period.month == 0)
                                 firstMonth.period.month = 1
                             if (lastMonth.period.month == 0)

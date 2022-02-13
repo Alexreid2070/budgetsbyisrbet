@@ -51,9 +51,7 @@ class TransactionViewAllFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
-                val adapter: TransactionRecyclerAdapter =
-                    recyclerView.adapter as TransactionRecyclerAdapter
+                val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                 adapter.getFilter().filter(newText)
                 if (newText != "") {
                     binding.totalLayout.visibility = View.VISIBLE
@@ -210,10 +208,6 @@ class TransactionViewAllFragment : Fragment() {
             binding.transactionSearch.visibility = View.VISIBLE
             binding.transactionSearch.setQuery(transactionSearchText, true)
         }
-        Log.d(
-            "Alex",
-            "transactionFirstInList is " + MyApplication.transactionFirstInList.toString()
-        )
         if (MyApplication.transactionFirstInList == 0)
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getCount() - 1,

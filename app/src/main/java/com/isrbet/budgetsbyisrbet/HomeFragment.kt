@@ -468,7 +468,6 @@ class HomeFragment : Fragment() {
     fun tryToUpdateChatIcon() {
         // this is called when lastSignedIn date/time are found, and also when chats are loaded.  When both are done then do something
         if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
-            Log.d("Alex", "should be updating chat icon now")
             activity?.invalidateOptionsMenu()
         }
     }
