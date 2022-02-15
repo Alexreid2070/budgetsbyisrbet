@@ -26,16 +26,179 @@
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         app:layout_constraintTop_toBottomOf="@id/chartTitle"
+        app:layout_constraintBottom_toTopOf="@id/budgetPieChart"/>
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/budgetPieChart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/barChart"
+        app:layout_constraintBottom_toTopOf="@id/actualPieChart"/>
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/actualPieChart"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/budgetPieChart"
         app:layout_constraintBottom_toTopOf="@id/chartSummaryText"/>
     <TextView
         android:id="@+id/chartSummaryText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="center"
-        android:textSize="14sp"
+        android:gravity="start"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@id/barChart"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/numericLayout"
+        app:layout_constraintTop_toBottomOf="@id/actualPieChart" />
+
+    <LinearLayout
+        android:id="@+id/numericLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/button_layout"
+        app:layout_constraintTop_toBottomOf="@id/chartSummaryText" >
+        <TextView
+            android:id="@+id/numericText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="Click to see in percentages or numeric: "/>
+        <RadioGroup
+            android:id="@+id/numericTypeRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/showPercentageRadioButton"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+            <RadioButton
+                android:id="@+id/showPercentageRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="%"
+                tools:ignore="HardcodedText" />
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#"
+                tools:ignore="HardcodedText" />
+        </RadioGroup>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/button_layout2"
+        app:layout_constraintStart_toStartOf="parent">
+        <Button
+            android:id="@+id/button_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Bar Chart"
+            tools:ignore="HardcodedText" />
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/button_pie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Pie Chart"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/button_layout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="5"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_backward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Prev"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Next"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_by_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Mo"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_by_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Yr"
+            android:textSize="11sp"
+            tools:ignore="HardcodedText">
+        </Button>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

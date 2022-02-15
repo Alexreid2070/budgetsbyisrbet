@@ -6,23 +6,37 @@
     android:layout_height="wrap_content"
     android:padding="12dp">
 
-    <TextView
-        android:id="@+id/budget_dialog_category"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <LinearLayout
+        android:id="@+id/categoryLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="category"
-        android:textSize="18sp"
-        android:layout_gravity="start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText" />
-
+        android:layout_weight="1"
+        app:layout_constraintTop_toTopOf="parent">
+        <TextView
+            android:id="@+id/budget_dialog_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="category"
+            android:textSize="18sp"
+            android:layout_gravity="start"
+            tools:ignore="HardcodedText" />
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/budget_dialog_subcategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="subcategory"
+            android:textSize="18sp"
+            android:layout_gravity="start"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/budget_dialog_linear_layout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_category">
+        app:layout_constraintTop_toBottomOf="@+id/categoryLayout">
 
         <TextView
             android:id="@+id/budget_dialog_year_heading"
@@ -116,19 +130,33 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:text="New Amount: "
             android:textSize="16sp"
             tools:ignore="HardcodedText" />
 
-        <EditText
-            android:id="@+id/budget_dialog_new_amount"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/amountLayout"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:enabled="false"
-            android:textSize="16sp"
-            tools:ignore="Autofill,LabelFor" />
+            android:minWidth="@dimen/custom_med_width"
+            android:hint="Amount"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/budget_dialog_new_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="start"
+                android:clickable="true"
+                android:cursorVisible="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:longClickable="false"
+                android:enabled="false"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout

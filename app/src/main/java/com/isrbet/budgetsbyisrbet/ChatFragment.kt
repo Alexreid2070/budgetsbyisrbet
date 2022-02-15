@@ -8,7 +8,6 @@ import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import android.widget.ListView
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.isrbet.budgetsbyisrbet.databinding.FragmentChatBinding
 
 class ChatFragment : Fragment() {
@@ -28,7 +27,7 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        val adapter = ChatAdapter(requireContext(), ChatViewModel.getChats())
+        val adapter = ChatAdapter(requireContext(), ChatViewModel.getCopyOfChats())
         val listView: ListView = requireActivity().findViewById(R.id.chat_list_view)
         listView.adapter = adapter
         listView.setSelection(listView.count-1)
@@ -36,7 +35,7 @@ class ChatFragment : Fragment() {
         binding.sendIcon.setOnClickListener {
             sendChat()
         }
-        binding.chatInput.setOnEditorActionListener() { v, actionID, event ->
+        binding.chatInput.setOnEditorActionListener { _, actionID, _ ->
             Log.d("Alex", "actionID is $actionID")
             when (actionID) {
                 EditorInfo.IME_ACTION_DONE -> { sendChat(); true}
@@ -74,7 +73,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun sendChat() {
-        if (!textIsSafe(binding.chatInput.text.toString())) {
+        if (!textIsSafeForValue(binding.chatInput.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.chatInput.error="The text contains unsafe characters!"
             focusAndOpenSoftKeyboard(requireContext(), binding.chatInput)
@@ -87,7 +86,7 @@ class ChatFragment : Fragment() {
             MyApplication.userGivenName,
             binding.chatInput.text.toString())
         ChatViewModel.addChat(tChat)
-        val adapter = ChatAdapter(requireContext(), ChatViewModel.getChats())
+        val adapter = ChatAdapter(requireContext(), ChatViewModel.getCopyOfChats())
         val listView: ListView = requireActivity().findViewById(R.id.chat_list_view)
         listView.adapter = adapter
         adapter.notifyDataSetChanged()

@@ -40,25 +40,30 @@
             android:title="@string/accounting_fragment_label" />
     </group>
     <group
+        android:id="@+id/nav_drawer_group5"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/ChatFragment"
+            android:title="@string/chat_fragment_label" />
+    </group>
+    <group
         android:id="@+id/nav_drawer_group4"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/CategoryFragment"
+            android:title="Categories"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/BudgetViewAllFragment"
             android:title="Budgets"
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/RecurringTransactionFragment"
-            android:title="@string/recurring_transaction_fragment_label" />
+            android:title="Recurring Transactions"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/SettingsFragment"
             android:title="@string/settings_fragment_label" />
-    </group>
-    <group
-        android:id="@+id/nav_drawer_group5"
-        android:checkableBehavior="single">
-        <item
-            android:id="@+id/ChatFragment"
-            android:title="@string/chat_fragment_label" />
     </group>
     <group
         android:id="@+id/nav_drawer_group6"

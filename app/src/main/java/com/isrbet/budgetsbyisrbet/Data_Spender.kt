@@ -7,12 +7,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Spender(var name: String, var email: String, var split: Int, var isActive: Int)
+data class Spender(var name: String, var email: String, var split: Int, var isActive: Int) {
+    constructor(spender: Spender) : this(spender.name, spender.email, spender.split, spender.isActive)
+}
 
 class SpenderViewModel : ViewModel() {
     private var spenderListener: ValueEventListener? = null
-    val spenders: MutableList<Spender> = ArrayList()
-    var dataUpdatedCallback: SpenderDataUpdatedCallback? = null
+    private val spenders: MutableList<Spender> = ArrayList()
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -29,7 +31,7 @@ class SpenderViewModel : ViewModel() {
         fun getSpender(pos:Int, activeOnly:Boolean): Spender? {
             if (pos  < singleInstance.spenders.size) {
                 if ((activeOnly && singleInstance.spenders[pos].isActive == 1) || !activeOnly)
-                    return singleInstance.spenders[pos]
+                    return Spender(singleInstance.spenders[pos])
                 else
                     return null
             } else
@@ -58,6 +60,13 @@ class SpenderViewModel : ViewModel() {
                 return singleInstance.spenders[pos].split
             else
                 return 0
+        }
+        fun getSpenderSplit(iName:String): Int {
+            singleInstance.spenders.forEach {
+                if (it.name == iName)
+                    return it.split
+            }
+            return 0
         }
         fun getSpenders() : MutableList<String> {
             val list : MutableList<String> = ArrayList()
@@ -96,6 +105,9 @@ class SpenderViewModel : ViewModel() {
             val ind = expenditures.indexOf(expe)
             expenditures.removeAt(ind)
   */      }
+        fun addLocalSpender(spender: Spender) {
+            singleInstance.spenders.add(spender)
+        }
         fun addSpender(spender: Spender) {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("email").setValue(spender.email)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("isactive").setValue(spender.isActive)
@@ -110,8 +122,8 @@ class SpenderViewModel : ViewModel() {
                     .removeEventListener(singleInstance.spenderListener!!)
                 singleInstance.spenderListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
             singleInstance.spenders.clear()
+            singleInstance.loaded = false
         }
     }
 
@@ -128,7 +140,7 @@ class SpenderViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: SpenderDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -172,8 +184,4 @@ class SpenderViewModel : ViewModel() {
             spenderListener as ValueEventListener
         )
     }
-}
-
-interface SpenderDataUpdatedCallback  {
-    fun onDataUpdate()
 }

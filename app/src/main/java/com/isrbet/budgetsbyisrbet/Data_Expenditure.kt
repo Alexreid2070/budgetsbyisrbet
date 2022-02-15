@@ -1,11 +1,11 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.icu.util.Calendar
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import java.util.ArrayList
 
 data class Expenditure(
     var date: String = "",
@@ -35,22 +35,22 @@ data class Expenditure(
             "note" -> note = value.trim()
             "type" -> type = value.trim()
             "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
+            else -> {
+                Log.d("Alex", "Unknown field in Expenditures $key $value " + this.toString())
+            }
         }
     }
 
     fun contains(iSubString: String): Boolean {
         val lc = iSubString.lowercase()
-        if (amount.toString().lowercase().contains(lc) ||
-            category.lowercase().contains(lc) ||
-            subcategory.lowercase().contains(lc) ||
-            paidby.lowercase().contains(lc) ||
-            boughtfor.lowercase().contains(lc) ||
-            note.lowercase().contains(lc) ||
-            date.contains(lc)
-        )
-            return true
-        else
-            return false
+        return amount.toString().lowercase().contains(lc) ||
+                category.lowercase().contains(lc) ||
+                subcategory.lowercase().contains(lc) ||
+                paidby.lowercase().contains(lc) ||
+                boughtfor.lowercase().contains(lc) ||
+                note.lowercase().contains(lc) ||
+                date.contains(lc) ||
+                type.lowercase().contains(lc)
     }
 }
 
@@ -63,16 +63,16 @@ data class ExpenditureOut(
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
     fun setValue(key: String, value: String) {
         when (key) {
-            "date" -> date = value
+            "date" -> date = value.trim()
             "amount" -> amount = value.toInt()
-            "category" -> category = value
-            "subcategory" -> subcategory = value
-            "paidby" -> paidby = value
-            "boughtfor" -> boughtfor = value
+            "category" -> category = value.trim()
+            "subcategory" -> subcategory = value.trim()
+            "paidby" -> paidby = value.trim()
+            "boughtfor" -> boughtfor = value.trim()
             "bfname1split" -> bfname1split = value.toInt()
             "bfname2split" -> bfname2split = value.toInt()
-            "note" -> note = value
-            "type" -> type = value
+            "note" -> note = value.trim()
+            "type" -> type = value.trim()
             "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
         }
     }
@@ -81,7 +81,7 @@ data class ExpenditureOut(
 class ExpenditureViewModel : ViewModel() {
     private var expListener: ValueEventListener? = null
     private val expenditures: MutableList<Expenditure> = mutableListOf()
-    var dataUpdatedCallback: ExpenditureDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -91,10 +91,13 @@ class ExpenditureViewModel : ViewModel() {
             return singleInstance.loaded
         }
 
-        fun getExpenditures(): MutableList<Expenditure> {
+        private fun getExpenditures(): MutableList<Expenditure> {
             return singleInstance.expenditures
         }
 
+        fun getExpenditure(i:Int): Expenditure {
+            return singleInstance.expenditures[i]
+        }
         fun getCount(): Int {
             return singleInstance.expenditures.size
         }
@@ -104,19 +107,18 @@ class ExpenditureViewModel : ViewModel() {
             copy.addAll(getExpenditures())
             return copy
         }
-        fun getTotalDiscretionaryActualsToDate(iCal: Calendar) : Double {
+        fun getTotalDiscretionaryActualsToDate(iBudgetMonth: BudgetMonth) : Double {
             var tmpTotal = 0.0
             val startDate: String
             val endDate: String
-            val month = iCal.get(Calendar.MONTH)+1
-            if (month < 10) {
-                startDate = iCal.get(Calendar.YEAR).toString() + "-0" + month.toString() + "-00"
-                endDate = iCal.get(Calendar.YEAR).toString() + "-0" + month.toString() + "-99"
+            if (iBudgetMonth.month < 10) {
+                startDate = iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-00"
+                endDate = iBudgetMonth.year.toString() +  "-0" + iBudgetMonth.month.toString() + "-99"
             } else {
-                startDate = iCal.get(Calendar.YEAR).toString() + "-" + month.toString() + "-00"
-                endDate = iCal.get(Calendar.YEAR).toString() + "-" + month.toString() + "-99"
+                startDate = iBudgetMonth.year.toString() +  "-" + iBudgetMonth.month.toString() + "-00"
+                endDate = iBudgetMonth.year.toString() +  "-" + iBudgetMonth.month.toString() + "-99"
             }
-            Log.d("Alex", "checking $startDate to $endDate")
+            Log.d("Alex", "checking $startDate to $endDate size " + singleInstance.expenditures.size)
 
             singleInstance.expenditures.forEach {
                 val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(it.category, it.subcategory)
@@ -127,36 +129,67 @@ class ExpenditureViewModel : ViewModel() {
             return tmpTotal
         }
 
-        fun getActualsForPeriod(iCategory: String, iSubCategory: String, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
-            Log.d("Alex",
-                "getting actuals for $iCategory-$iSubCategory for $iWho from $iStartPeriod to $iEndPeriod"
-            )
+        fun getCategoryActuals(iBudgetMonth: BudgetMonth) : ArrayList<DataObject> {
+            val tList: ArrayList<DataObject> = ArrayList()
+            var prevCategory = ""
+            var totalActuals = 0.0
+            CategoryViewModel.getCategories().forEach {
+                if (prevCategory != "" && prevCategory != it.categoryName) {
+                    // ie not the first row, and this was a change in category
+                    Log.d("Alex", "change from " + prevCategory + " to " + it.categoryName)
+                    tList.add(DataObject(prevCategory, totalActuals, 0))
+                    totalActuals = 0.0
+                }
+                var actual: Double
+                for (i in 0 until SpenderViewModel.getTotalCount()) {
+                    actual = getActualsForPeriod(
+                        Category(it.categoryName, it.subcategoryName),
+                        iBudgetMonth, iBudgetMonth,
+                        SpenderViewModel.getSpenderName(i)
+                    )
+                    totalActuals += actual
+                }
+                prevCategory = it.categoryName
+            }
+            return  tList
+        }
+
+        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
             loop@ for (expenditure in singleInstance.expenditures) {
-                if (expenditure.type != "T" &&
+                if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
-                        expenditure.category == iCategory &&
-                        expenditure.subcategory == iSubCategory &&
-                        (expenditure.boughtfor == iWho || iWho == "")) {
+                        expenditure.category == iCategory.categoryName &&
+                        expenditure.subcategory == iCategory.subcategoryName &&
+                        (expenditure.boughtfor == iWho))  // || iWho == "Joint")) {
                     // this is a transaction to add to our subtotal
-                        tTotal += (expenditure.amount.toDouble() / 100)
-                }
-            }
-
+//                        if (iWho != "" && iWho != "Joint") // ie want a specific person
+//                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
+//                        else
+                            tTotal += (expenditure.amount.toDouble() / 100)
+                    }
             return tTotal
         }
 
-        fun addTransaction(iExpenditure: ExpenditureOut) {
-            val key: String
-            if (iExpenditure.type == "R")
-                key = iExpenditure.note + iExpenditure.date
-            else
-                key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").push().key.toString()
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(key)
-                .setValue(iExpenditure)
+        fun addTransaction(iExpenditure: ExpenditureOut, iLocalOnly: Boolean = false) {
+            if (iLocalOnly) {
+                singleInstance.expenditures.add(Expenditure(iExpenditure.date, iExpenditure.amount, iExpenditure.category, iExpenditure.subcategory,
+                    iExpenditure.note, iExpenditure.paidby, iExpenditure.boughtfor, iExpenditure.type, iExpenditure.bfname1split, iExpenditure.bfname2split))
+            } else {
+                val key: String
+                if (iExpenditure.type == "Recurring")
+                    key = iExpenditure.note + iExpenditure.date + "R"
+                else
+                    key =
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                            .push().key.toString()
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                    .child(key)
+                    .setValue(iExpenditure)
+            }
         }
 
         fun refresh() {
@@ -168,8 +201,8 @@ class ExpenditureViewModel : ViewModel() {
                     .removeEventListener(singleInstance.expListener!!)
                 singleInstance.expListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
             singleInstance.expenditures.clear()
+            singleInstance.loaded = false
         }
 
         fun getPreviousKey(iKey: String): String {
@@ -189,6 +222,30 @@ class ExpenditureViewModel : ViewModel() {
                 ind = -1
             Log.d("Alex", "ind is " + ind + " and next is " + (ind+1))
             return singleInstance.expenditures[ind+1].mykey
+        }
+        fun getPreviousTransferKey(iKey: String): String {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            val ind = singleInstance.expenditures.indexOf(exp)
+            for (i in ind-1 until 0)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            // if we get here, we didn't find a transfer in the rest of the expenditure list, so start at the beginning
+            for (i in singleInstance.expenditures.size-1 until ind)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            return iKey
+        }
+        fun getNextTransferKey(iKey: String): String {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            val ind = singleInstance.expenditures.indexOf(exp)
+            for (i in ind+1 until singleInstance.expenditures.size)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            // if we get here, we didn't find a transfer in the rest of the expenditure list, so start at the beginning
+            for (i in 0 until singleInstance.expenditures.size)
+                if (singleInstance.expenditures[i].type == "Transfer")
+                    return singleInstance.expenditures[i].mykey
+            return iKey
         }
 
         fun deleteTransaction(iTransactionID: String) {
@@ -237,7 +294,7 @@ class ExpenditureViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: ExpenditureDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -270,8 +327,4 @@ class ExpenditureViewModel : ViewModel() {
         }
         expDBRef.addValueEventListener(expListener as ValueEventListener)
     }
-}
-
-interface ExpenditureDataUpdatedCallback  {
-    fun onDataUpdate()
 }

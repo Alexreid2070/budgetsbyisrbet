@@ -7,12 +7,26 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Category(var categoryName: String, var subcategoryName: String, var discType: String)
+data class Category(var categoryName: String, var subcategoryName: String, var discType: String = "") {
+    constructor(iFullCategoryName: String) : this(iFullCategoryName, iFullCategoryName) {
+        val dash = iFullCategoryName.indexOf("-")
+        try {
+            categoryName = iFullCategoryName.substring(0, dash)
+            subcategoryName = iFullCategoryName.substring(dash + 1, iFullCategoryName.length)
+        }
+        catch (exception: Exception) {
+            Log.d("Alex", "caught an exception in Category constructor (missing dash) $iFullCategoryName")
+        }
+    }
+    fun fullCategoryName() : String {
+        return "$categoryName-$subcategoryName"
+    }
+}
 
 class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
     private val categories: MutableList<Category> = ArrayList()
-    var dataUpdatedCallback: CategoryDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
@@ -57,12 +71,13 @@ class CategoryViewModel : ViewModel() {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
         }
 
-        fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String) {
+        fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String, iLocalOnly: Boolean = false) {
             // I need to add the new cat to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
             val cat = Category(iCategory, iSubcategory, iDisctype)
             singleInstance.categories.add(cat)
             singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+            if (!iLocalOnly)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
         }
 
         fun getCategories(): MutableList<Category> { // returns only "on" categories
@@ -75,7 +90,7 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getCategoriesIncludingOff(): MutableList<Category> {
-            var tList: MutableList<Category>  = ArrayList()
+            val tList: MutableList<Category>  = ArrayList()
 
             singleInstance.categories.forEach {
                 tList.add(Category(it.categoryName, it.subcategoryName, it.discType))
@@ -99,7 +114,7 @@ class CategoryViewModel : ViewModel() {
             val tmpList: MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.discType != cDiscTypeOff)
-                    tmpList.add(it.categoryName + "-" + it.subcategoryName)
+                    tmpList.add(it.fullCategoryName())
             }
             return tmpList
         }
@@ -108,7 +123,7 @@ class CategoryViewModel : ViewModel() {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.discType != "Off")
-                    list.add(it.categoryName + "-" + it.subcategoryName)
+                    list.add(it.fullCategoryName())
             }
             return list
         }
@@ -139,6 +154,7 @@ class CategoryViewModel : ViewModel() {
             }
 //            singleInstance.dataUpdatedCallback = null
             singleInstance.categories.clear()
+            singleInstance.loaded = false
         }
     }
     init {
@@ -154,7 +170,7 @@ class CategoryViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: CategoryDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
 //        dataUpdatedCallback?.onDataUpdate()
     }
@@ -177,7 +193,6 @@ class CategoryViewModel : ViewModel() {
                             categories.add(Category(myC, it.key.toString(), it.value.toString()))
                         }
                     }
-                    singleInstance.loaded = true
                     dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
@@ -185,6 +200,7 @@ class CategoryViewModel : ViewModel() {
                         .child("Email")
                         .setValue(MyApplication.userEmail)
                 }
+                singleInstance.loaded = true
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -196,8 +212,4 @@ class CategoryViewModel : ViewModel() {
             catListener as ValueEventListener
         )
     }
-}
-
-interface CategoryDataUpdatedCallback  {
-    fun onDataUpdate()
 }

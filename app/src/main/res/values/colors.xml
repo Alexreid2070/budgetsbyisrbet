@@ -19,7 +19,9 @@
     <color name="triadAqua">#5DC1BE</color>
     <color name="triadOrange">#F6CF22</color>
     <color name="triadYellow">#EDDB7C</color>
-    <color name="green">#00A36C</color>
-    <color name="red">#E42217</color>
-    <color name="yellow">#FAF884</color>
+    <color name="darkGreen">#008080</color>
+    <color name="green">#50C878</color>
+    <color name="red">#F67280</color>
+    <color name="darkRed">#E42217</color>
+    <color name="yellow">#FFFF33</color>
 </resources>

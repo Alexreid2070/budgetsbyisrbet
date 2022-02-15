@@ -51,14 +51,10 @@ class TransactionViewAllFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
-                val adapter: TransactionRecyclerAdapter =
-                    recyclerView.adapter as TransactionRecyclerAdapter
-                binding.totalLayout.visibility = View.VISIBLE
-                Log.d("Alex", "before filter " + " size is " + adapter.filteredList.size)
+                val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                 adapter.getFilter().filter(newText)
-                Log.d("Alex", "after filter " + " size is " + adapter.filteredList.size)
                 if (newText != "") {
+                    binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
                     binding.transactionSearch.visibility = View.VISIBLE
                 }
@@ -72,7 +68,6 @@ class TransactionViewAllFragment : Fragment() {
             val linearLayoutManager = object : LinearLayoutManager(requireContext(), VERTICAL, false) {
                 override fun onLayoutCompleted(state: RecyclerView.State?) {
                     super.onLayoutCompleted(state)
-                    Log.d("Alex", "done laying out!")
                     val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                     val dec = DecimalFormat("#.00")
                     binding.totalAmount.text = dec.format(adapter.currentTotal)
@@ -88,7 +83,7 @@ class TransactionViewAllFragment : Fragment() {
                 MyApplication.transactionFirstInList =
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
-                if (item.type == "T") {
+                if (item.type == "Transfer") {
                     val action =
                         TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransferFragment()
                             .setTransactionID(item.mykey)
@@ -213,10 +208,6 @@ class TransactionViewAllFragment : Fragment() {
             binding.transactionSearch.visibility = View.VISIBLE
             binding.transactionSearch.setQuery(transactionSearchText, true)
         }
-        Log.d(
-            "Alex",
-            "transactionFirstInList is " + MyApplication.transactionFirstInList.toString()
-        )
         if (MyApplication.transactionFirstInList == 0)
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getCount() - 1,

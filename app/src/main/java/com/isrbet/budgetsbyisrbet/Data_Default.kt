@@ -8,30 +8,41 @@ import com.google.firebase.database.ValueEventListener
 
 const val cDEFAULT_CATEGORY = "Category"
 const val cDEFAULT_SUBCATEGORY = "SubCategory"
+const val cDEFAULT_FULLCATEGORYNAME = "FullCategoryName"
 const val cDEFAULT_SPENDER = "Spender"
 const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
+const val cDEFAULT_QUOTE = "Quote"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
-    private var dataUpdatedCallback: DefaultsDataUpdatedCallback? = null
-    var defaultCategory: String = ""
-    var defaultSubCategory: String = ""
-    var defaultSpender: String = ""
-    var defaultShowRed: String = "5"
-    var defaultIntegrateWithTDSpend: String = "No"
-    var defaultSound: String = "On"
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
+    private var defaultCategory: Category = Category("","")
+    private var defaultSpender: String = ""
+    private var defaultShowRed: String = "5"
+    private var defaultIntegrateWithTDSpend: String = "No"
+    private var defaultSound: String = "On"
+    private var defaultQuote: String = "Off"
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
+
+        fun isEmpty(): Boolean {
+            return (isLoaded() &&
+                    singleInstance.defaultCategory.categoryName == "" &&
+                    singleInstance.defaultCategory.subcategoryName == "" &&
+                    singleInstance.defaultSpender == "")
+        }
+
         fun showMe() {
-            Log.d("Alex", "Default Category/Subcategory is " + singleInstance.defaultCategory + "/" + singleInstance.defaultSubCategory)
+            Log.d("Alex", "Default Category/Subcategory is " + singleInstance.defaultCategory.fullCategoryName())
             Log.d("Alex", "Default Spender is " + singleInstance.defaultSpender)
             Log.d("Alex", "Default ShowRed is " + singleInstance.defaultShowRed)
             Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
             Log.d("Alex", "Default sound is " + singleInstance.defaultSound)
+            Log.d("Alex", "Default quote is " + singleInstance.defaultQuote)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -39,12 +50,14 @@ class DefaultsViewModel : ViewModel() {
 
         fun getDefault(whichOne:String): String {
             when (whichOne) {
-                cDEFAULT_CATEGORY -> return singleInstance.defaultCategory
-                cDEFAULT_SUBCATEGORY -> return singleInstance.defaultSubCategory
+                cDEFAULT_CATEGORY -> return singleInstance.defaultCategory.categoryName
+                cDEFAULT_SUBCATEGORY -> return singleInstance.defaultCategory.subcategoryName
+                cDEFAULT_FULLCATEGORYNAME -> return singleInstance.defaultCategory.fullCategoryName()
                 cDEFAULT_SPENDER -> return singleInstance.defaultSpender
                 cDEFAULT_SHOWRED -> return singleInstance.defaultShowRed
                 cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
                 cDEFAULT_SOUND -> return singleInstance.defaultSound
+                cDEFAULT_QUOTE -> return singleInstance.defaultQuote
                 else -> return ""
             }
         }
@@ -63,7 +76,13 @@ class DefaultsViewModel : ViewModel() {
                     .removeEventListener(singleInstance.defaultsListener!!)
                 singleInstance.defaultsListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
+            singleInstance.loaded = false
+            singleInstance.defaultCategory = Category("","")
+            singleInstance.defaultSpender = ""
+            singleInstance.defaultShowRed = "5"
+            singleInstance.defaultIntegrateWithTDSpend = "No"
+            singleInstance.defaultSound = "On"
+            singleInstance.defaultQuote = "Off"
         }
     }
 
@@ -80,18 +99,20 @@ class DefaultsViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DefaultsDataUpdatedCallback?) {
+    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-//        dataUpdatedCallback?.onDataUpdate()
+    }
+    fun clearCallback() {
+        dataUpdatedCallback = null
     }
 
     fun setLocal(whichOne: String, iValue: String) {
         when (whichOne) {
             cDEFAULT_CATEGORY -> {
-                singleInstance.defaultCategory = iValue
+                singleInstance.defaultCategory.categoryName = iValue
             }
             cDEFAULT_SUBCATEGORY -> {
-                singleInstance.defaultSubCategory = iValue
+                singleInstance.defaultCategory.subcategoryName = iValue
             }
             cDEFAULT_SPENDER -> {
                 singleInstance.defaultSpender = iValue
@@ -105,6 +126,12 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SOUND -> {
                 singleInstance.defaultSound = iValue
             }
+            cDEFAULT_QUOTE -> {
+                singleInstance.defaultQuote = iValue
+            }
+            else -> {
+                Log.d("Alex", "Unknown default " + whichOne + " " + iValue)
+            }
         }
     }
     fun loadDefaults() {
@@ -117,6 +144,7 @@ class DefaultsViewModel : ViewModel() {
                     setLocal(it.key.toString(), it.value.toString())
                 }
                 singleInstance.loaded = true
+                dataUpdatedCallback?.onDataUpdate()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -130,8 +158,4 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultsListener as ValueEventListener
         )
     }
-}
-
-interface DefaultsDataUpdatedCallback  {
-    fun onDataUpdate()
 }

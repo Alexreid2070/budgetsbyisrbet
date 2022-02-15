@@ -56,7 +56,7 @@ class SettingsFragment : Fragment() {
         spenderRadioGroup.removeAllViews()
 
         for (i in 0..2) { // always do this twice, so we will setup a possible new second user
-            var spender  = ""
+            var spender: String
             if (i == 0)
                 spender = SpenderViewModel.getSpenderName(0)
             else if (i == 1) {
@@ -101,13 +101,11 @@ class SettingsFragment : Fragment() {
 
         if (binding.switchSecondUserActive.isChecked) {
             binding.secondUserLayout.visibility = View.VISIBLE
-            binding.defaultsHeader.visibility = View.VISIBLE
             binding.splitSliderLayout.visibility = View.VISIBLE
             binding.splitLayout.visibility = View.VISIBLE
             binding.spenderLayout.visibility = View.VISIBLE
         } else {
             binding.secondUserLayout.visibility = View.GONE
-            binding.defaultsHeader.visibility = View.GONE
             binding.splitSliderLayout.visibility = View.GONE
             binding.splitLayout.visibility = View.GONE
             binding.spenderLayout.visibility = View.GONE
@@ -125,12 +123,13 @@ class SettingsFragment : Fragment() {
         )
         defaultCategorySpinner.adapter = arrayAdapter
         defaultCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefault(
-            cDEFAULT_CATEGORY) + "-" + DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY)))
+            cDEFAULT_FULLCATEGORYNAME)))
         arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.settingsCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.switchSound.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SOUND) != "Off"
+        binding.switchQuote.isChecked = DefaultsViewModel.getDefault(cDEFAULT_QUOTE) != "Off"
         binding.switchIntegrateWithTD.isChecked =
             DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) != "Off"
         binding.redPercentageSlider.value = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
@@ -145,14 +144,12 @@ class SettingsFragment : Fragment() {
         binding.switchSecondUserActive.setOnCheckedChangeListener { buttonView, isChecked ->
             if (binding.switchSecondUserActive.isChecked) {
                 binding.secondUserLayout.visibility = View.VISIBLE
-                binding.defaultsHeader.visibility = View.VISIBLE
                 binding.splitSliderLayout.visibility = View.VISIBLE
                 binding.splitLayout.visibility = View.VISIBLE
                 binding.spenderLayout.visibility = View.VISIBLE
                 binding.splitSlider.value = 50.0F
             } else {
                 binding.secondUserLayout.visibility = View.GONE
-                binding.defaultsHeader.visibility = View.GONE
                 binding.splitSliderLayout.visibility = View.GONE
                 binding.splitLayout.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
@@ -181,17 +178,21 @@ class SettingsFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.EditCategory
+            menu.getItem(i).isVisible = (menu.getItem(i).itemId == R.id.ViewTranslationsFragment &&
+                    DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "On")
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.EditCategory) {
-            view?.findNavController()?.navigate(R.id.SettingsEditCategoryFragment)
-            true
-        } else {
-            val navController = findNavController()
-            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.ViewTranslationsFragment -> {
+                view?.findNavController()?.navigate(R.id.ViewTranslationsFragment)
+                true
+            }
+            else -> {
+                val navController = findNavController()
+                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            }
         }
     }
 
@@ -261,24 +262,26 @@ class SettingsFragment : Fragment() {
 
         if (defaultCategorySpinner.selectedItem != null) {
             Log.d("Alex", "Sub-category is " + defaultCategorySpinner.selectedItem.toString())
-            val dash = defaultCategorySpinner.selectedItem.toString().indexOf("-")
-            val defCat = defaultCategorySpinner.selectedItem.toString().substring(0, dash)
-            val defSubCat = defaultCategorySpinner.selectedItem.toString()
-                .substring(dash + 1, defaultCategorySpinner.selectedItem.toString().length)
-            if (defCat != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
-                DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defCat)
-            if (defSubCat != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
-                DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defSubCat)
+            val defaultCategory = Category(defaultCategorySpinner.selectedItem.toString())
+            if (defaultCategory.categoryName != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
+                DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defaultCategory.categoryName)
+            if (defaultCategory.subcategoryName != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
+                DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defaultCategory.subcategoryName)
         }
         // check default Integrate with TD Spend
         Log.d("Alex", "td switch is " + binding.switchIntegrateWithTD.showText)
         val integrateField = if (binding.switchIntegrateWithTD.isChecked) "On" else "Off"
-        if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND))
+        if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND)) {
             DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, integrateField)
+        }
         // check default Sound
         val soundField = if (binding.switchSound.isChecked) "On" else "Off"
         if (soundField != DefaultsViewModel.getDefault(cDEFAULT_SOUND))
             DefaultsViewModel.updateDefault(cDEFAULT_SOUND, soundField)
+        // check default Quote
+        val quoteField = if (binding.switchQuote.isChecked) "On" else "Off"
+        if (quoteField != DefaultsViewModel.getDefault(cDEFAULT_QUOTE))
+            DefaultsViewModel.updateDefault(cDEFAULT_QUOTE, quoteField)
 
         // check default showRed
         if (binding.redPercentageSlider.value.toInt() != DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt())
