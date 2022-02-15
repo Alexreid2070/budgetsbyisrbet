@@ -59,19 +59,10 @@ class BudgetViewAllFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.AddBudget) {
-            val currentCategory = binding.budgetCategorySpinner.selectedItem.toString()
-            var cat = ""
-            var subcat = ""
-            val dash = currentCategory.indexOf("-")
-            if (dash > -1) {
-                cat = currentCategory.substring(0,dash)
-                subcat = currentCategory.substring(dash + 1, currentCategory.length)
-                Log.d("Alex", "cat is '$cat'")
-                Log.d("Alex", "subcat is '$subcat'")
-            }
+            val currentCategory = Category(binding.budgetCategorySpinner.selectedItem.toString())
             val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
-            action.category = cat
-            action.subcategory = subcat
+            action.category = currentCategory.categoryName
+            action.subcategory = currentCategory.subcategoryName
             findNavController().navigate(action)
 
 //            findNavController().navigate(R.id.action_BudgetViewAllFragment_to_BudgetFragment)
@@ -82,7 +73,7 @@ class BudgetViewAllFragment : Fragment() {
                 currentFilter = cEXPANDED
             }
             activity?.invalidateOptionsMenu()
-            loadRows(binding.budgetCategorySpinner.selectedItem.toString())
+            loadRows(Category(binding.budgetCategorySpinner.selectedItem.toString()))
             return true
         } else if (item.itemId == R.id.FilterCondensed) {
             if (currentFilter != cCONDENSED) {
@@ -90,7 +81,7 @@ class BudgetViewAllFragment : Fragment() {
                 currentFilter = cCONDENSED
             }
             activity?.invalidateOptionsMenu()
-            loadRows(binding.budgetCategorySpinner.selectedItem.toString())
+            loadRows(Category(binding.budgetCategorySpinner.selectedItem.toString()))
             return true
         } else if (item.itemId == R.id.Previous) {
             moveCategories(-1)
@@ -121,23 +112,27 @@ class BudgetViewAllFragment : Fragment() {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
-                loadRows(selection as String)
+                setCategoryType()
+                loadRows(Category(selection as String))
                 val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
                 Log.d("Alex", "scrolling to " + (listView.adapter.count-1))
                 listView.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-//                listView.smoothScrollToPosition(listView.adapter.count-1)
                 listView.setSelection(listView.adapter.count - 1)
-//                listView.isStackFromBottom = true
-//                listView.isStackFromBottom = true
             }
         }
-
+        setCategoryType()
         if (SpenderViewModel.singleUser()) {
             binding.rowBudgetWhoHeading.visibility = View.GONE
         }
     }
 
-    fun loadRows(iCategory: String) {
+    fun setCategoryType() {
+        val category = Category(binding.budgetCategorySpinner.selectedItem.toString())
+        binding.categoryType.text = CategoryViewModel.getDiscretionaryIndicator(
+            category.categoryName, category.subcategoryName)
+    }
+
+    fun loadRows(iCategory: Category) {
         Log.d("Alex", "in load rows, iCategory is '$iCategory'")
         val adapter = BudgetAdapter(requireContext(), BudgetViewModel.getBudgetInputRows(iCategory, currentFilter))
         val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
@@ -154,14 +149,14 @@ class BudgetViewAllFragment : Fragment() {
                         (bmDateApplicable.month == 1 && bmDateStart.month == 0)) {// ie only allow edits on "real" entries
                     val bmDateStarted = BudgetMonth(itemValue.dateStarted)
                     var monthToSend: Int = bmDateApplicable.month
-                    if (bmDateStarted.month == 0)
+                    if (bmDateStarted.isAnnualBudget())
                         monthToSend = 0
                     val amountToSend = if (monthToSend == 0)
                         itemValue.amount.toDouble() * 12
                     else
                         itemValue.amount.toDouble()
                     val rtdf = BudgetDialogFragment.newInstance(
-                        binding.budgetCategorySpinner.selectedItem.toString(),
+                        Category(binding.budgetCategorySpinner.selectedItem.toString()),
                         bmDateApplicable.year,
                         monthToSend,
                         itemValue.who,
@@ -205,7 +200,7 @@ class BudgetViewAllFragment : Fragment() {
         }
         val newCategory = binding.budgetCategorySpinner.getItemAtPosition(newCategoryPosition)
         binding.budgetCategorySpinner.setSelection(newCategoryPosition)
-        loadRows(newCategory.toString())
+        loadRows(Category(newCategory.toString()))
     }
 
     override fun onDestroyView() {

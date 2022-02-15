@@ -69,7 +69,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:text="By:For"
-            android:tooltipText="Who paid for the expense, and who was it bought for.  If the name is the same for both, only one name is shown.  If the name is different, it is shown as Fir:Sec, ie abbreviated First and Second names."
+            android:tooltipText="Who paid for the expense, and who was it bought for.  If name is the same, only one name is shown."
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -91,8 +91,8 @@
             android:layout_height="wrap_content"
             android:layout_weight=".5"
             android:layout_gravity="end"
-            android:text="Rec"
-            android:tooltipText="If this is an automatically generated Recurring transaction then an R is shown.  Otherwise it's blank, which means it was manually entered by the user."
+            android:text="Typ"
+            android:tooltipText="R = Recurring transaction, T = Transfer, otherwise blank."
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -104,15 +104,46 @@
         android:layout_height="0dp"
         android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/button_linear_layout"
+        app:layout_constraintBottom_toTopOf="@id/total_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout"
         app:layout_constraintVertical_bias="1.0"
         android:scrollbarSize="25dp"
-        android:scrollbarThumbVertical="@drawable/scrollbar" />
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:fastScrollEnabled="true"
+        android:fastScrollAlwaysVisible="true" />
 
+    <LinearLayout
+        android:id="@+id/total_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/button_linear_layout">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/darker_gray" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total for this selection is: "
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/total_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/darker_gray" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/button_linear_layout"
         android:layout_width="match_parent"

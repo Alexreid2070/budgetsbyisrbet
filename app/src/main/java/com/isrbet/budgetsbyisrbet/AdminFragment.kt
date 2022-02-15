@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -12,7 +13,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAdminBinding
-import kotlin.math.exp
 
 class AdminFragment : Fragment() {
     private var _binding: FragmentAdminBinding? = null
@@ -21,6 +21,7 @@ class AdminFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentAdminBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
 
         inflater.inflate(R.layout.fragment_settings, container, false)
         return binding.root
@@ -30,11 +31,12 @@ class AdminFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
         view?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener { _: View ->
-            processButton()
+     //       processButton()
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
+            clearData()
             UserViewModel.loadUsers()
-            UserViewModel.setCallback(object: UserDataUpdatedCallback {
+            UserViewModel.setCallback(object: DataUpdatedCallback {
                 override fun onDataUpdate() {
                     Log.d("Alex", "got a callback that user data was updated")
                     refreshData()
@@ -55,6 +57,12 @@ class AdminFragment : Fragment() {
         }
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        for (i in 0 until menu.size()) {
+            menu.getItem(i).isVisible = false
+        }
+    }
     private fun uidClicked(uid: String, email: String) {
         Toast.makeText(activity, "Switching to user $email", Toast.LENGTH_SHORT).show()
         binding.adminCurrentUser.text = email
@@ -82,6 +90,16 @@ class AdminFragment : Fragment() {
         binding.adminUser4Email.text = UserViewModel.getUserEmail(3)
         binding.adminUser4Uid.text = UserViewModel.getUserUID(3)
     }
+    private fun clearData() {
+        binding.adminUser1Email.text = ""
+        binding.adminUser1Uid.text = ""
+        binding.adminUser2Email.text = ""
+        binding.adminUser2Uid.text = ""
+        binding.adminUser3Email.text = ""
+        binding.adminUser3Uid.text = ""
+        binding.adminUser4Email.text = ""
+        binding.adminUser4Uid.text = ""
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -92,18 +110,22 @@ class AdminFragment : Fragment() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach {
-                    var date = ""
-                    var note = ""
-                    var amount = ""
+                    val key = it.key.toString()
                     it.children.forEach {
-                        when (it.key.toString()) {
-                            "date" -> date = it.value.toString()
-                            "note" -> note = it.value.toString()
-                            "amount" -> amount = it.value.toString()
-                        }
-                        if (it.key.toString() == "bfname1split" || it.key.toString() == "bfname2split") {
-                            if (it.value.toString().toInt() > 100) {
-                                Log.d("Alex", "found one $date $amount $note")
+                        if (it.key.toString() == "type") {
+                            if (it.value.toString() == "R") {
+                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                                    .child(key)
+                                    .child("type")
+                                    .setValue("Recurring")
+                                Log.d("Alex", "Updating transaction R")
+                            }
+                            if (it.value.toString() == "T") {
+                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                                    .child(key)
+                                    .child("type")
+                                    .setValue("Transfer")
+                                Log.d("Alex", "Updating transaction T")
                             }
                         }
                     }

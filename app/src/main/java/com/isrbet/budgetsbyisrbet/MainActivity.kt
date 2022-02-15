@@ -1,21 +1,26 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import android.view.Menu
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.*
-import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
-import com.google.android.material.navigation.NavigationView
 import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
+import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -86,28 +91,20 @@ class MainActivity : AppCompatActivity() {
         MyApplication.adminMode = inAdminMode
     }
 
-    fun setLoggedOutMode(inAdminMode: Boolean) {
+    fun setLoggedOutMode(loggedOut: Boolean) {
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val navMenu: Menu = navigationView.menu
         navMenu.forEach {
-            if (inAdminMode)
+            if (loggedOut)
                 it.isVisible = it.itemId == R.id.HelpFragment
             else
                 it.isVisible = true
         }
-    }
-
-    fun setDrawerMode(iMode: Int) {
-        val mDrawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        if (mDrawerLayout != null) {
-            mDrawerLayout.setDrawerLockMode(iMode)
-        }
+        setAdminMode(MyApplication.adminMode)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        CategoryViewModel.singleInstance.clearCallback()
-//        SpenderViewModel.singleInstance.clearCallback()
         MyApplication.releaseResources()
         MyApplication.haveLoadedDataForThisUser = false
     }

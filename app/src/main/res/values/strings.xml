@@ -41,8 +41,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="nav_header_title">Main Menu</string>
-    <string name="home_page_welcome">Welcome to Budgets by ISRBET!</string>
-    <string name="main_label">Main</string>
+    <string name="home_page_welcome">Welcome to \nBudgets by ISRBET!</string>
+    <string name="main_label">Home</string>
     <string name="budget_fragment_label">Budget</string>
     <string name="dashboard_fragment_label">Dashboards</string>
     <string name="admin_fragment_label">Admin</string>

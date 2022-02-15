@@ -7,13 +7,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class User(var email: String, var uid: String) {
-}
+data class User(var email: String, var uid: String)
 
 class UserViewModel : ViewModel() {
     lateinit var userListener: ValueEventListener
     private val users: MutableList<User> = ArrayList()
-    var dataUpdatedCallback: UserDataUpdatedCallback? = null
+    private var dataUpdatedCallback: DataUpdatedCallback? = null
 
     companion object {
         lateinit var singleInstance: UserViewModel // used to track static single instance of self
@@ -23,26 +22,26 @@ class UserViewModel : ViewModel() {
             }
         }
         fun getUserEmail(pos:Int): String {
-            if (pos  < singleInstance.users.size)
-                return singleInstance.users[pos].email
+            return if (pos  < singleInstance.users.size)
+                singleInstance.users[pos].email
             else
-                return ""
+                ""
         }
         fun getUserUID(pos:Int): String {
-            if (pos  < singleInstance.users.size)
-                return singleInstance.users[pos].uid
+            return if (pos  < singleInstance.users.size)
+                singleInstance.users[pos].uid
             else
-                return ""
+                ""
         }
 
         fun getCount(): Int {
-            if (::singleInstance.isInitialized)
-                return singleInstance.users.size
+            return if (::singleInstance.isInitialized)
+                singleInstance.users.size
             else
-                return 0
+                0
         }
 
-        fun setCallback(iCallback: UserDataUpdatedCallback?) {
+        fun setCallback(iCallback: DataUpdatedCallback?) {
             singleInstance.dataUpdatedCallback = iCallback
 //            singleInstance.dataUpdatedCallback?.onDataUpdate()
         }
@@ -56,10 +55,14 @@ class UserViewModel : ViewModel() {
                     singleInstance.users.clear()
                     for (element in dataSnapshot.children.toMutableList()) {
                         val uid = element.key.toString()
-                        var email : String = ""
+                        var email = ""
                         for (child in element.children) {
-                            if (child.key.toString() == "Email")
-                                email = child.value.toString()
+                            if (child.key.toString() == "Info") {
+                                for ( nChild in child.children) {
+                                    if (nChild.key.toString() == "Email")
+                                        email = nChild.value.toString()
+                                }
+                            }
                         }
                         singleInstance.users.add(User(email, uid))
                     }
@@ -88,8 +91,4 @@ class UserViewModel : ViewModel() {
     fun clearCallback() {
         dataUpdatedCallback = null
     }
-}
-
-public interface UserDataUpdatedCallback  {
-    fun onDataUpdate()
 }
