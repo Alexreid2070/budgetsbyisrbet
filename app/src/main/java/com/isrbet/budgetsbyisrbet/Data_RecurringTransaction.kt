@@ -18,7 +18,9 @@ data class RecurringTransaction(
     var category: String = "",
     var subcategory: String = "",
     var paidby: String = "",
-    var boughtfor: String = ""
+    var boughtfor: String = "",
+    var split1: Int = 100,
+    var split2: Int = 0
 ) {
     fun setValue(key: String, value: String) {
         when (key) {
@@ -31,11 +33,12 @@ data class RecurringTransaction(
             "subcategory" -> subcategory = value.trim()
             "paidby" -> paidby = value.trim()
             "boughtfor" -> boughtfor = value.trim()
-            else -> Log.d("Alex", "Unknown Recurring Transaction " + key + " " + value)
+            "split1" -> split1 = value.toInt()
+            "split2" -> split2 = value.toInt()
+            else -> Log.d("Alex", "Unknown Recurring Transaction $key $value")
         }
     }
 }
-
 
 class RecurringTransactionViewModel : ViewModel() {
     private var recurringTransactionListener: ValueEventListener? = null
@@ -82,7 +85,9 @@ class RecurringTransactionViewModel : ViewModel() {
             singleInstance.recurringTransactions.sortWith(compareBy { it.name })
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
-        fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int, iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String) {
+        fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int,
+                                       iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String,
+                                        iSplit1: Int, iSplit2: Int) {
             val myRT = singleInstance.recurringTransactions.find{ it.name == iName }
             if (myRT != null) {
                 myRT.amount = iAmount
@@ -93,6 +98,8 @@ class RecurringTransactionViewModel : ViewModel() {
                 myRT.subcategory = iSubcategory
                 myRT.paidby = iPaidBy
                 myRT.boughtfor = iBoughtFor
+                myRT.split1 = iSplit1
+                myRT.split2  = iSplit2
             }
         }
         fun updateRecurringTransactionStringField(iName: String, iField: String, iValue: String) {
@@ -161,23 +168,28 @@ class RecurringTransactionViewModel : ViewModel() {
                     if (it.nextdate <= dateNow) {
                         val newNextDate = Calendar.getInstance()
                         newNextDate.set(it.nextdate.substring(0,4).toInt(), it.nextdate.substring(5,7).toInt()-1, it.nextdate.substring(8,10).toInt())
-                        Log.d("Alex", "newNextDate is " + giveMeMyDateFormat(newNextDate))
                         // Reset nextDate
-                        if (it.period == cPeriodWeek) {
-                            newNextDate.add(Calendar.WEEK_OF_YEAR, it.regularity)
-                        } else if (it.period == cPeriodMonth) {
-                            newNextDate.add(Calendar.MONTH, it.regularity)
-                        } else if (it.period == cPeriodQuarter) {
-                            newNextDate.add(Calendar.MONTH, it.regularity*3)
-                        } else if (it.period == cPeriodYear) {
-                            newNextDate.add(Calendar.YEAR, it.regularity)
+                        when (it.period) {
+                            cPeriodWeek -> {
+                                newNextDate.add(Calendar.WEEK_OF_YEAR, it.regularity)
+                            }
+                            cPeriodMonth -> {
+                                newNextDate.add(Calendar.MONTH, it.regularity)
+                            }
+                            cPeriodQuarter -> {
+                                newNextDate.add(Calendar.MONTH, it.regularity*3)
+                            }
+                            cPeriodYear -> {
+                                newNextDate.add(Calendar.YEAR, it.regularity)
+                            }
                         }
                         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                         // add transaction
                         Log.d("Alex", "Adding a transaction")
                         val nextDate = getNextBusinessDate(it.nextdate)
-                        ExpenditureViewModel.addTransaction(ExpenditureOut(nextDate, it.amount, it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
-                            SpenderViewModel.getSpenderSplit(0), SpenderViewModel.getSpenderSplit(1), "Recurring"))
+                        ExpenditureViewModel.addTransaction(ExpenditureOut(nextDate, it.amount,
+                            it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
+                            it.split1, it.split2, "Recurring"))
                         if (mainActivity != null)
                             Toast.makeText(mainActivity, "Recurring transaction was added for : $nextDate " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
                     }

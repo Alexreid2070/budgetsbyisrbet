@@ -233,8 +233,9 @@ class DashboardFragment : Fragment() {
         tr.setPadding(0, 0, 0, 0)
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
-            val color = getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, false)
-            tv5.setBackgroundColor(color)
+            tv5.setBackgroundColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, false))
+            if (iActualAmount <= iBudgetAmount)
+            tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
         }
         else if (iRowType == "Header") {
             tv1.setTypeface(null, Typeface.BOLD)
