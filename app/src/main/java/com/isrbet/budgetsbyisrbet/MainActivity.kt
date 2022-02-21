@@ -1,24 +1,17 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
-import androidx.core.view.forEach
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.navigation.NavigationView
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
 
 
@@ -29,21 +22,38 @@ class MainActivity : AppCompatActivity() {
     // MainActivity's onStart is called only once at app start-up
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("Alex", "zzz in main activity onCreate START")
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+/*        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        val navController = navHostFragment.navController
+
+
+
         appBarConfiguration = AppBarConfiguration(navController.graph, binding.drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         findViewById<NavigationView>(R.id.nav_view).setupWithNavController(navController)
+*/
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        binding.bottomNavigationView.setupWithNavController(navController)
 
+        binding.bottomNavigationView.setOnItemSelectedListener {
+            repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
+                Log.d("Alex", "popping")
+                navHostFragment.childFragmentManager.popBackStack()
+            }
+            when(it.itemId){
+                R.id.homeFragment -> { // no navigation needed since we've popped our way back...
+                }
+                R.id.ViewTransactionsFragment-> navController.navigate(R.id.ViewTransactionsFragment)
+                R.id.DashboardFragment-> navController.navigate(R.id.DashboardFragment)
+                R.id.AccountingFragment-> navController.navigate(R.id.AccountingFragment)
+            }
+            true
+        }
     }
 
     // MainActivity's onCreateView is called often, especially when Fragments are loading.  So be careful what I put here...
@@ -52,11 +62,12 @@ class MainActivity : AppCompatActivity() {
 //        if (intCon.checkConnection(this)) { // we're on wifi..  But do we need this check?
             // do something??
 //        }
+
         return super.onCreateView(name, context, attrs)
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
@@ -69,29 +80,36 @@ class MainActivity : AppCompatActivity() {
 
     fun openDrawer() {
         Log.d("Alex", "Opening drawer")
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+/*        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
             drawer.openDrawer(GravityCompat.START)
         }
+ */
     }
 
     fun singleUserMode() {
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
+/*        val navigationView: NavigationView = findViewById(R.id.nav_view)
         val navMenu: Menu = navigationView.menu
         navMenu.findItem(R.id.TransferFragment).isVisible = false
         navMenu.findItem(R.id.AccountingFragment).isVisible = false
+
+ */
     }
 
     fun setAdminMode(inAdminMode: Boolean) {
+        /*
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val navMenu: Menu = navigationView.menu
         navMenu.findItem(R.id.AdminFragment).isVisible = inAdminMode
         MyApplication.adminMode = inAdminMode
+
+         */
     }
 
     fun setLoggedOutMode(loggedOut: Boolean) {
+        /*
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val navMenu: Menu = navigationView.menu
         navMenu.forEach {
@@ -101,6 +119,7 @@ class MainActivity : AppCompatActivity() {
                 it.isVisible = true
         }
         setAdminMode(MyApplication.adminMode)
+         */
     }
 
     override fun onDestroy() {

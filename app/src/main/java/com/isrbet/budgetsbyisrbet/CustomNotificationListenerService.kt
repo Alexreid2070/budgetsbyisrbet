@@ -121,7 +121,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
      private fun fetchCurrentNotifications() {
         val activeNotnCount = this@CustomNotificationListenerService.activeNotifications.size
-        Log.d("Alex", "fetchCurrentNotifications: activeNotnCount is $activeNotnCount")
 
         if (activeNotnCount > 0) {
             /*

@@ -1,28 +1,36 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.R.attr
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.Button
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -48,6 +56,7 @@ class HomeFragment : Fragment() {
     private val userModel: UserViewModel by viewModels()
     private val chatModel: ChatViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
+    private var gestureDetector: GestureDetectorCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +78,32 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
+
+        gestureDetector = GestureDetectorCompat(requireActivity(), object:
+            GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                event1: MotionEvent,
+                event2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (event2.y > event1.y) {
+                    // negative for up, positive for down
+                    Log.d("Alex", "swiped down " + binding.scrollView.canScrollVertically(-1))
+                    if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
+                        if (binding.expansionAreaLayout.visibility == View.GONE)
+                            onExpandClicked()
+                    }
+                } else if (event2.y < event1.y) {
+                    Log.d("Alex", "swiped up " + binding.scrollView.canScrollVertically(1))
+                    if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
+                        if (binding.expansionAreaLayout.visibility == View.VISIBLE)
+                            onExpandClicked()
+                    }
+                }
+                return true
+            }
+        })
 
         val mainActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
             if(result.resultCode == Activity.RESULT_OK){
@@ -124,6 +159,24 @@ class HomeFragment : Fragment() {
             } else
                 Log.d("Alex", "After asking, it's false")
         }
+        binding.transactionAddFab.setOnClickListener {
+            findNavController().navigate(R.id.TransactionFragment)
+        }
+        binding.expandButton.setOnClickListener {
+            onExpandClicked()
+        }
+        binding.settingsButton.setOnClickListener {
+            findNavController().navigate(R.id.SettingsMasterFragment)
+        }
+        binding.helpButton.setOnClickListener {
+            findNavController().navigate(R.id.HelpFragment)
+        }
+        binding.chatButton.setOnClickListener {
+            findNavController().navigate(R.id.ChatFragment)
+        }
+        binding.adminButton.setOnClickListener {
+            findNavController().navigate(R.id.AdminFragment)
+        }
         return binding.root
     }
 
@@ -131,7 +184,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.expenditure_button)
+/*        view.findViewById<Button>(R.id.expenditure_button)
             ?.setOnClickListener { iview: View ->
                 iview.findNavController().navigate(R.id.TransactionFragment)
             }
@@ -143,33 +196,54 @@ class HomeFragment : Fragment() {
             ?.setOnClickListener { iview: View ->
                 iview.findNavController().navigate(R.id.DashboardFragment)
             }
-        view.findViewById<TextView>(R.id.quote_field)?.setOnTouchListener(object :
-            OnSwipeTouchListener(requireContext()) {
-            override fun onSwipeLeft() {
-                super.onSwipeLeft()
-                Log.d("Alex", "swiped left")
-                val navController = view.findNavController()
-                navController.navigate(R.id.DashboardFragment)
+  */
+        val scrollView = view.findViewById<NestedScrollView>(R.id.scroll_view)
+/*        scrollView.viewTreeObserver?.addOnScrollChangedListener {
+            if (!scrollView.canScrollVertically(1)) {
+                Log.d("Alex", "Can't scroll vertically")
             }
+            else
+                Log.d("Alex", "Can scroll vertically")
+        }
 
-            override fun onSwipeRight() {
-                super.onSwipeRight()
-                Log.d("Alex", "swiped right")
-                val navController = view.findNavController()
-                navController.navigate(R.id.ViewTransactionsFragment)
+
+        scrollView.setOnScrollChangeListener (object: View.OnScrollChangeListener {
+            override fun onScrollChange(p0: View?, p1: Int, p2: Int, p3: Int, p4: Int) {
+                val bottom =
+                    scrollView.getChildAt(scrollView.childCount - 1).height - scrollView.height - attr.scrollY
+
+                if (attr.scrollY == 0) {
+                    Log.d("Alex", "top detected in scroll")
+                }
+                if (bottom == 0) {
+                    Log.d("Alex", "bottom detected in scroll")
+                }
             }
+        })
 
-            override fun onSwipeBottom() {
-                super.onSwipeBottom()
-                Log.d("Alex", "swiped bottom, want to show menu")
-                (activity as MainActivity).openDrawer()
+
+
+        scrollView.viewTreeObserver.addOnScrollChangedListener {
+            if (scrollView.scrollY < scrollView.getChildAt(0).bottom - scrollView.height - 0) {
+                Log.d("Alex", "top detected in scroll")
+            } else {
+                Log.d("Alex", "bottom detected in scroll")
             }
+        }
 
-            override fun onSwipeTop() {
-                super.onSwipeTop()
-                Log.d("Alex", "swiped top, want to go to Add Transaction")
-                val navController = view.findNavController()
-                navController.navigate(R.id.TransactionFragment)
+        scrollView.setOnClickListener(object :
+            View.OnClickListener {
+            override fun onClick(p0: View?) {
+                Log.d("Alex", "clicked " + scrollView.canScrollVertically(1))
+            }
+        })
+*/
+        scrollView.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                if (p1 != null) {
+                    gestureDetector?.onTouchEvent(p1)
+                }
+                return false
             }
         })
 
@@ -243,10 +317,32 @@ class HomeFragment : Fragment() {
         }
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         MyApplication.userGivenName = account?.givenName.toString()
+        MyApplication.userFamilyName = account?.familyName.toString()
+        if (account != null) {
+            MyApplication.userPhotoURL = account.photoUrl.toString()
+            Glide.with(requireContext()).load(MyApplication.userPhotoURL)
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.imgProfilePic)
+            binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
+        }
         (activity as MainActivity).setAdminMode(account?.email == "alexreid2070@gmail.com")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         signIn(currentUser)
+    }
+
+    private fun onExpandClicked() {
+        if (binding.expansionAreaLayout.visibility == View.GONE) { // ie expand the section
+            binding.expandButtonLayout.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK))
+            binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
+            binding.expansionAreaLayout.visibility = View.VISIBLE
+        } else { // ie retract the section
+            binding.expandButtonLayout.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondary, Color.BLACK))
+            binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
+            binding.expansionAreaLayout.visibility = View.GONE
+        }
     }
 
     private fun getQuote() : String {
@@ -352,10 +448,9 @@ class HomeFragment : Fragment() {
             } else {
                 Log.d("Alex", "This is not a new user")
             }
-            Log.d("Alex", "alignExpenditureMenu true")
-            binding.expenditureButton.visibility = View.VISIBLE
-            binding.viewAllButton.visibility = View.VISIBLE
-            binding.dashboardButton.visibility = View.VISIBLE
+//            binding.expenditureButton.visibility = View.VISIBLE
+//            binding.viewAllButton.visibility = View.VISIBLE
+//            binding.dashboardButton.visibility = View.VISIBLE
             (activity as MainActivity).setLoggedOutMode(false)
             if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
                 binding.quoteLabel.visibility = View.VISIBLE
@@ -371,11 +466,6 @@ class HomeFragment : Fragment() {
                 childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
             trackerFragment.loadBarChart()
         } else {
-            Log.d("Alex", "alignExpenditureMenu false " + MyApplication.userUID + " C " + CategoryViewModel.isLoaded() + " S " + SpenderViewModel.isLoaded() +
-            " E " + ExpenditureViewModel.isLoaded() + " B " + BudgetViewModel.isLoaded())
-            binding.expenditureButton.visibility = View.GONE
-            binding.viewAllButton.visibility = View.GONE
-            binding.dashboardButton.visibility = View.GONE
             (activity as MainActivity).setLoggedOutMode(true)
         }
     }
@@ -427,9 +517,9 @@ class HomeFragment : Fragment() {
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
             binding.quoteField.text = ""
             binding.quoteLabel.visibility = View.GONE
-            binding.expenditureButton.visibility = View.GONE
-            binding.viewAllButton.visibility = View.GONE
-            binding.dashboardButton.visibility = View.GONE
+//            binding.expenditureButton.visibility = View.GONE
+//            binding.viewAllButton.visibility = View.GONE
+//            binding.dashboardButton.visibility = View.GONE
             val trackerFragment: TrackerFragment =
                 childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
             trackerFragment.hideBarChart()
@@ -497,4 +587,3 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 }
-

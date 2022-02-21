@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
 import java.text.DecimalFormat
 
@@ -32,6 +33,9 @@ class AccountingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fillInContent()
+        binding.transferAddFab.setOnClickListener {
+            findNavController().navigate(R.id.TransferFragment)
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

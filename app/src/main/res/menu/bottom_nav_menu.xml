@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:title="Home"
+        android:icon="@drawable/ic_baseline_home_24"
+        app:showAsAction="ifRoom"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/ViewTransactionsFragment"
+        android:title="Transactions"
+        android:icon="@drawable/ic_baseline_table_rows_24"
+        app:showAsAction="ifRoom"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/DashboardFragment"
+        android:title="Dashboard"
+        android:icon="@drawable/ic_baseline_dashboard_24"
+        app:showAsAction="ifRoom"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/AccountingFragment"
+        android:title="Accounting"
+        android:icon="@drawable/ic_baseline_account_balance_24"
+        app:showAsAction="ifRoom"
+        tools:ignore="HardcodedText" />
+</menu>

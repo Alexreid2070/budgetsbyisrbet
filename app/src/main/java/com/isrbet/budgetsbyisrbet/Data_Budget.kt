@@ -94,7 +94,10 @@ class BudgetViewModel : ViewModel() {
         }
 
         fun getCount(): Int {
-            return singleInstance.budgets.size
+            return if (::singleInstance.isInitialized)
+                singleInstance.budgets.size
+            else
+                0
         }
 
         fun showMe() {
@@ -166,7 +169,6 @@ class BudgetViewModel : ViewModel() {
                                         BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
                                         SpenderViewModel.getSpenderName(i)
                                     )
-                                Log.d("Alex", "got totalAnnualActualsForEarlierMonths " + totalAnnualActualsForEarlierMonths)
                             }
                             accumulatedActualsThisMonth +=
                                 ExpenditureViewModel.getActualsForPeriod(

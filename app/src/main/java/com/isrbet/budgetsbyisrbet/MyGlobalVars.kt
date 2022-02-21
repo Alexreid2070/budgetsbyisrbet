@@ -12,6 +12,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import android.graphics.Color
 import android.media.MediaPlayer
+import android.net.Uri
 import androidx.fragment.app.FragmentManager
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -59,6 +60,8 @@ class MyApplication : Application() {
         var userUID: String = ""
         var userEmail: String = ""
         var userGivenName: String = ""
+        var userFamilyName: String = ""
+        var userPhotoURL: String = ""
         private var quoteForThisSession: String = ""
         var currentUserEmail: String = ""
         var mediaPlayer: MediaPlayer? = null
@@ -443,12 +446,6 @@ fun getColorInHex(iColor: Int, iOpacity: String): String {
 
 fun thisIsANewUser(): Boolean {
     // this function is only valid once all Data models have been loaded.
-    Log.d("Alex","Values: " + CategoryViewModel.isLoaded() + CategoryViewModel.getCount() +
-            SpenderViewModel.isLoaded() + SpenderViewModel.getTotalCount() +
-            ExpenditureViewModel.isLoaded() + ExpenditureViewModel.getCount() +
-            BudgetViewModel.isLoaded() + BudgetViewModel.getCount() +
-            DefaultsViewModel.isLoaded() + DefaultsViewModel.isEmpty() +
-            RecurringTransactionViewModel.isLoaded() + RecurringTransactionViewModel.getCount())
     return MyApplication.userUID != "" &&
             CategoryViewModel.isLoaded() && CategoryViewModel.getCount() == 0 &&
             SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&

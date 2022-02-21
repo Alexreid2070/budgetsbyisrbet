@@ -1,16 +1,21 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import java.text.DecimalFormat
@@ -43,6 +48,7 @@ class TransactionViewAllFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -52,7 +58,7 @@ class TransactionViewAllFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-                adapter.getFilter().filter(newText)
+                adapter.filter.filter(newText)
                 if (newText != "") {
                     binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
@@ -100,8 +106,8 @@ class TransactionViewAllFragment : Fragment() {
 //        val dec = DecimalFormat("#.00")
 //        binding.totalAmount.text = dec.format(adapter.currentTotal)
         // for some reason "binding.buttonToday.setOnClickListener doesn't work, but the following does
-        getView()?.findViewById<Button>(R.id.button_year_forward)
-            ?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_year_forward)
+            ?.setOnClickListener { _: View ->
                 val getNewPosition = adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
                     "+year"
@@ -112,8 +118,8 @@ class TransactionViewAllFragment : Fragment() {
                 )
             }
 
-        getView()?.findViewById<Button>(R.id.button_month_forward)
-            ?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_month_forward)
+            ?.setOnClickListener { _: View ->
                 (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                     adapter.getPositionOf(
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
@@ -122,42 +128,8 @@ class TransactionViewAllFragment : Fragment() {
                 )
             }
 
-        getView()?.findViewById<Button>(R.id.button_page_forward)
-            ?.setOnClickListener { view: View ->
-                val firstItem =
-                    (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                val itemsOnPage = recyclerView.childCount
-                (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                    firstItem + itemsOnPage - 1,
-                    0
-                )
-            }
-
-        getView()?.findViewById<Button>(R.id.button_today)?.setOnClickListener { view: View ->
-            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                adapter.getPositionOf(
-                    (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                    "today"
-                ), 0
-            )
-        }
-
-        getView()?.findViewById<Button>(R.id.button_page_backward)
-            ?.setOnClickListener { view: View ->
-                val firstItem =
-                    (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                val itemsOnPage = recyclerView.childCount
-                if (firstItem - itemsOnPage < 0)
-                    (recyclerView.layoutManager as LinearLayoutManager).scrollToPosition(0)
-                else
-                    (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                        firstItem - itemsOnPage,
-                        0
-                    )
-            }
-
-        getView()?.findViewById<Button>(R.id.button_month_backward)
-            ?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_month_backward)
+            ?.setOnClickListener { _: View ->
                 (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                     adapter.getPositionOf(
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
@@ -166,8 +138,8 @@ class TransactionViewAllFragment : Fragment() {
                 )
             }
 
-        getView()?.findViewById<Button>(R.id.button_year_backward)
-            ?.setOnClickListener { view: View ->
+        view?.findViewById<Button>(R.id.button_year_backward)
+            ?.setOnClickListener { _: View ->
                 (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                     adapter.getPositionOf(
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
@@ -222,15 +194,39 @@ class TransactionViewAllFragment : Fragment() {
         if (SpenderViewModel.singleUser()) {
             binding.whoHeading.visibility = View.GONE
         }
+        binding.expandNav.setOnClickListener {
+            onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
+        }
+        binding.expandOptions.setOnClickListener {
+            onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
+        }
+        binding.expandView.setOnClickListener {
+            onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
+        }
+        binding.expandFilter.setOnClickListener {
+            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+        }
+        binding.buttonSearch.setOnClickListener {
+            if (binding.transactionSearch.visibility == View.GONE) {
+                binding.transactionSearch.visibility = View.VISIBLE
+                val searchView = binding.transactionSearch
+                focusAndOpenSoftKeyboard(requireContext(), searchView)
+            } else {
+                binding.transactionSearch.visibility = View.GONE
+                adapter.filter.filter("")
+                // clear filter
+                val searchView = binding.transactionSearch
+                searchView.setQuery("", false)
+                searchView.clearFocus()
+                binding.totalLayout.visibility = View.GONE
+            }
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() == R.id.Search)
-                menu.getItem(i).setVisible(true)
-            else
-                menu.getItem(i).setVisible(false)
+            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.Search
         }
     }
 
@@ -249,7 +245,7 @@ class TransactionViewAllFragment : Fragment() {
                 val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
                 val adapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
-                adapter.getFilter().filter("")
+                adapter.filter.filter("")
                 // clear filter
                 val searchView = binding.transactionSearch
                 searchView.setQuery("", false)
@@ -263,6 +259,28 @@ class TransactionViewAllFragment : Fragment() {
         } else
             Log.d("Alex", "what was this " + item.itemId)
         return true
+    }
+
+    private fun onExpandClicked(button: TextView, layout: LinearLayout) {
+        if (layout.visibility == View.GONE) { // ie expand the section
+            // first hide all other possible expansions
+            resetLayout(binding.expandNav, binding.navButtonLinearLayout)
+            resetLayout(binding.expandView, binding.viewButtonLinearLayout)
+            resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
+            resetLayout(binding.expandOptions, binding.optionsButtonLinearLayout)
+            button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
+            button.textSize = 16F
+            button.setBackgroundResource(R.drawable.rounded_top_corners)
+            layout.visibility = View.VISIBLE
+        } else { // ie retract the section
+            resetLayout(button, layout)
+        }
+    }
+    private fun resetLayout(button: TextView, layout: LinearLayout) {
+        button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
+        button.textSize = 14F
+        button.setBackgroundResource(android.R.color.transparent)
+        layout.visibility = View.GONE
     }
 
 /*

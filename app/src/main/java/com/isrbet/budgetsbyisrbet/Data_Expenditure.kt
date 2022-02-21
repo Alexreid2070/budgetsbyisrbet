@@ -99,7 +99,10 @@ class ExpenditureViewModel : ViewModel() {
             return singleInstance.expenditures[i]
         }
         fun getCount(): Int {
-            return singleInstance.expenditures.size
+            return if (::singleInstance.isInitialized)
+                singleInstance.expenditures.size
+            else
+                0
         }
 
         fun getCopyOfExpenditures(): MutableList<Expenditure> {

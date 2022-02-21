@@ -14,7 +14,6 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.TextView
 import android.widget.TableLayout
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -98,6 +97,7 @@ class DashboardFragment : Fragment() {
         val bottomRowMargin = 0
         val decimalFormat = DecimalFormat("0.00")
         val deltaFormat = DecimalFormat("#,##0.00;(#,##0.00)")
+        Log.d("Alex", "in Dashboard")
 
         val tv1 = TextView(requireContext())
         tv1.layoutParams = TableRow.LayoutParams(
@@ -210,12 +210,12 @@ class DashboardFragment : Fragment() {
             if (iRowType != "Delta") {
                 if (currentDeltaFilter == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
-                    if (iActualAmount == 0.0)
-                        tv5.text = "0 %"
-                    else if (iBudgetAmount == 0.0)
-                        tv5.text = "INF %"
-                    else {
-                        tv5.text = percentFormat.format(iActualAmount / iBudgetAmount)
+                    when {
+                        iActualAmount == 0.0 -> tv5.text = "0 %"
+                        iBudgetAmount == 0.0 -> tv5.text = "INF %"
+                        else -> {
+                            tv5.text = percentFormat.format(iActualAmount / iBudgetAmount)
+                        }
                     }
                 } else
                     tv5.text = deltaFormat.format(iBudgetAmount - iActualAmount)
@@ -441,7 +441,6 @@ class DashboardFragment : Fragment() {
         }
         setActionBarTitle()
         startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -497,105 +496,115 @@ class DashboardFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.DeltaPercentage) {
-            currentDeltaFilter = "%"
-            activity?.invalidateOptionsMenu()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.DeltaNumeric) {
-            currentDeltaFilter = "#"
-            activity?.invalidateOptionsMenu()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.FilterDiscretionary) {
-            if (currentDiscFilter == "Discretionary") {
-                item.isChecked = false
-                currentDiscFilter = ""
-            } else {
-                item.isChecked = true
-                currentDiscFilter = "Discretionary"
+        when (item.itemId) {
+            R.id.DeltaPercentage -> {
+                currentDeltaFilter = "%"
+                activity?.invalidateOptionsMenu()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.FilterNonDiscretionary) {
-            if (currentDiscFilter == "Non-Discretionary") {
-                item.isChecked = false
-                currentDiscFilter = ""
-            } else {
-                item.isChecked = true
-                currentDiscFilter = "Non-Discretionary"
+            R.id.DeltaNumeric -> {
+                currentDeltaFilter = "#"
+                activity?.invalidateOptionsMenu()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.FilterPaidByName1) {
-            if (currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name) {
-                item.isChecked = false
-                currentPaidByFilter = ""
-            } else {
-                item.isChecked = true
-                currentPaidByFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
+            R.id.FilterDiscretionary -> {
+                if (currentDiscFilter == "Discretionary") {
+                    item.isChecked = false
+                    currentDiscFilter = ""
+                } else {
+                    item.isChecked = true
+                    currentDiscFilter = "Discretionary"
+                }
+                activity?.invalidateOptionsMenu()
+                setActionBarTitle()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.FilterPaidByName2) {
-            if (currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name) {
-                item.isChecked = false
-                currentPaidByFilter = ""
-            } else {
-                item.isChecked = true
-                currentPaidByFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
+            R.id.FilterNonDiscretionary -> {
+                if (currentDiscFilter == "Non-Discretionary") {
+                    item.isChecked = false
+                    currentDiscFilter = ""
+                } else {
+                    item.isChecked = true
+                    currentDiscFilter = "Non-Discretionary"
+                }
+                activity?.invalidateOptionsMenu()
+                setActionBarTitle()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.FilterBoughtForName1) {
-            if (currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name) {
-                item.isChecked = false
-                currentBoughtForFilter = ""
-            } else {
-                item.isChecked = true
-                currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
+            R.id.FilterPaidByName1 -> {
+                if (currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name) {
+                    item.isChecked = false
+                    currentPaidByFilter = ""
+                } else {
+                    item.isChecked = true
+                    currentPaidByFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
+                }
+                activity?.invalidateOptionsMenu()
+                setActionBarTitle()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else if (item.itemId == R.id.FilterBoughtForName2) {
-            if (currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name) {
-                item.isChecked = false
-                currentBoughtForFilter = ""
-            } else {
-                item.isChecked = true
-                currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
+            R.id.FilterPaidByName2 -> {
+                if (currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name) {
+                    item.isChecked = false
+                    currentPaidByFilter = ""
+                } else {
+                    item.isChecked = true
+                    currentPaidByFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
+                }
+                activity?.invalidateOptionsMenu()
+                setActionBarTitle()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-            return true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            R.id.FilterBoughtForName1 -> {
+                if (currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name) {
+                    item.isChecked = false
+                    currentBoughtForFilter = ""
+                } else {
+                    item.isChecked = true
+                    currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
+                }
+                activity?.invalidateOptionsMenu()
+                setActionBarTitle()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
+            }
+            R.id.FilterBoughtForName2 -> {
+                if (currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name) {
+                    item.isChecked = false
+                    currentBoughtForFilter = ""
+                } else {
+                    item.isChecked = true
+                    currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
+                }
+                activity?.invalidateOptionsMenu()
+                setActionBarTitle()
+                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                return true
+            }
+            else -> {
+                val navController = findNavController()
+                return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            }
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setActionBarTitle() {
         var currentFilterIndicator = ""
         if (currentDiscFilter != "" || currentPaidByFilter != "" || currentBoughtForFilter != "")
             currentFilterIndicator = " FILTERED! "
 
         if (currentBudgetMonth.month == 0)
-            (activity as AppCompatActivity).supportActionBar?.title =
-                "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
+            binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
         else
-            (activity as AppCompatActivity).supportActionBar?.title =
-                "Dashboard (" + MonthNames[currentBudgetMonth.month-1] + " " + currentBudgetMonth.year  + currentFilterIndicator + ")"
+            binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month-1] +
+                    " " + currentBudgetMonth.year  + currentFilterIndicator + ")"
     }
 
     private fun moveOneMonthBackward() {
@@ -655,11 +664,10 @@ class DashboardRows {
         val endDate: String
         if (iYTDMode) {
             startDate = iBudgetMonth.year.toString() + "-00-00"
-            if (iBudgetMonth.month < 10) {
-                endDate =
-                    iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-99"
+            endDate = if (iBudgetMonth.month < 10) {
+                iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-99"
             } else {
-                endDate = iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
+                iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
             }
         } else if (iBudgetMonth.month == 0) {
             startDate = iBudgetMonth.year.toString() + "-00-00"
@@ -695,21 +703,21 @@ class DashboardRows {
                                 // this is a transaction to add to our subtotal
                                 var multiplier = 1.0
                                 if (iPaidByFlag != "") {
-                                    if (expenditure.paidby == "Joint" || expenditure.paidby == iPaidByFlag) {
+                                    multiplier = if (expenditure.paidby == "Joint" || expenditure.paidby == iPaidByFlag) {
                                         if (SpenderViewModel.getSpenderName(0) == iPaidByFlag)
-                                            multiplier = expenditure.bfname1split.toDouble() / 100
+                                            expenditure.bfname1split.toDouble() / 100
                                         else
-                                            multiplier = expenditure.bfname2split.toDouble() / 100
+                                            expenditure.bfname2split.toDouble() / 100
                                     } else
-                                        multiplier = 0.0
+                                        0.0
                                 } else if (iBoughtForFlag != "") {
-                                    if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
+                                    multiplier = if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
                                         if (SpenderViewModel.getSpenderName(0) == iBoughtForFlag)
-                                            multiplier = expenditure.bfname1split.toDouble() / 100
+                                            expenditure.bfname1split.toDouble() / 100
                                         else
-                                            multiplier = expenditure.bfname2split.toDouble() / 100
+                                            expenditure.bfname2split.toDouble() / 100
                                     } else
-                                        multiplier = 0.0
+                                        0.0
                                 }
                                 val bdRow: DashboardData? =
                                     data.find { it.category == expenditure.category && it.subcategory == expenditure.subcategory }
@@ -775,7 +783,7 @@ class DashboardRows {
                         ),
                         Category(it.category, it.subcategory),
                         whoToLookup)
-                    Log.d("Alex", it.category + " " + it.subcategory + "it.budgetamount is now" + it.budgetAmount)
+                    Log.d("Alex", it.category + " " + it.subcategory + "it.budgetAmount is now" + it.budgetAmount)
                 }
             } else
                 it.budgetAmount = BudgetViewModel.getCalculatedBudgetAmount(
@@ -783,7 +791,7 @@ class DashboardRows {
                     Category(it.category, it.subcategory),
                     whoToLookup
                 )
-            Log.d("Alex", it.category + " " + it.subcategory + "it.budgetamount is " + it.budgetAmount)
+            Log.d("Alex", it.category + " " + it.subcategory + "it.budgetAmount is " + it.budgetAmount)
         }
 
         data.sortWith(compareBy({ it.category }, { it.subcategory }))

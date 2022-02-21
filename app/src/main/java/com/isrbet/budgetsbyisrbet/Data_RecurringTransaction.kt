@@ -53,7 +53,10 @@ class RecurringTransactionViewModel : ViewModel() {
         }
 
         fun getCount(): Int {
-            return singleInstance.recurringTransactions.size
+            return if (::singleInstance.isInitialized)
+                singleInstance.recurringTransactions.size
+            else
+                0
         }
 
         fun showMe() {

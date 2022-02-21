@@ -51,7 +51,10 @@ class ChatViewModel : ViewModel() {
             return copy
         }
         fun getCount(): Int {
-            return singleInstance.chats.count()
+            return if (::singleInstance.isInitialized)
+                singleInstance.chats.size
+            else
+                0
         }
 
         fun getLastChat(): Chat {
