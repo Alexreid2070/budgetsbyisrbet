@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
 import android.widget.CheckBox
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -46,7 +47,7 @@ class SettingsFragment : Fragment() {
         binding.splitName2.text = SpenderViewModel.getSpenderName(1)
         binding.splitName1Pct.text = SpenderViewModel.getSpenderSplit(0).toString()
         binding.splitName2Pct.text = SpenderViewModel.getSpenderSplit(1).toString()
-        binding.splitSlider.addOnChangeListener { slider, value, fromUser ->
+        binding.splitSlider.addOnChangeListener { _, _, _ ->
             binding.splitName1Pct.setText(binding.splitSlider.value.toInt().toString())
             binding.splitName2Pct.setText((100-binding.splitSlider.value.toInt()).toString())
         }
@@ -79,10 +80,7 @@ class SettingsFragment : Fragment() {
             newRadioButton.setText(spender)
             newRadioButton.id = ctr++
             spenderRadioGroup.addView(newRadioButton)
-            Log.d("Alex", "spender.name is $spender?.name and default is ${DefaultsViewModel.getDefault(
-                cDEFAULT_SPENDER)}")
             if (spender == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default paidby " + spender)
                 spenderRadioGroup.check(newRadioButton.id)
             }
         }
@@ -114,6 +112,15 @@ class SettingsFragment : Fragment() {
         binding.settingsSaveButton.setOnClickListener {
             onSaveButtonClicked()
         }
+        binding.expandCategories.setOnClickListener {
+            findNavController().navigate(R.id.CategoryFragment)
+        }
+        binding.expandBudgets.setOnClickListener {
+            findNavController().navigate(R.id.BudgetViewAllFragment)
+        }
+        binding.expandRecurringTransactions.setOnClickListener {
+            findNavController().navigate(R.id.RecurringTransactionFragment)
+        }
         val defaultCategorySpinner =
             requireActivity().findViewById<Spinner>(R.id.settingsCategorySpinner)
         val arrayAdapter = ArrayAdapter(
@@ -141,7 +148,7 @@ class SettingsFragment : Fragment() {
                 (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
         }
-        binding.switchSecondUserActive.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.switchSecondUserActive.setOnCheckedChangeListener { _, _ ->
             if (binding.switchSecondUserActive.isChecked) {
                 binding.secondUserLayout.visibility = View.VISIBLE
                 binding.splitSliderLayout.visibility = View.VISIBLE

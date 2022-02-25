@@ -12,6 +12,7 @@ import android.view.View.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
@@ -58,7 +59,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddMonth.value = cal.get(Calendar.MONTH)+1
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
-        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+        binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString())
@@ -134,6 +135,9 @@ class BudgetFragment : Fragment() {
         binding.budgetAddButtonSave.visibility = VISIBLE
         binding.budgetAddButtonSave.setOnClickListener {
             onSaveButtonClicked()
+        }
+        binding.budgetAddButtonCancel.setOnClickListener {
+            findNavController().popBackStack()
         }
 
         binding.budgetAddSubCategorySpinner.isEnabled = true
@@ -383,9 +387,7 @@ class BudgetFragment : Fragment() {
         val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
         Log.d("Alex", "Category is " + radioButton.text)
 
-        val subcategorySpinner = binding.budgetAddSubCategorySpinner
         val tempDouble : Double = binding.budgetAddAmount.text.toString().toDouble()
-
         var period = binding.budgetAddYear.value.toString()
         period = if (!inAnnualMode) {
             if (binding.budgetAddMonth.value < 10)

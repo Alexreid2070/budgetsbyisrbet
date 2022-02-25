@@ -6,6 +6,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.AdapterView
 import android.widget.ListView
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -33,7 +34,7 @@ class RecurringTransactionFragment : Fragment() {
         listView.adapter = adapter
 
         listView.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, view, position, id -> // value of item that is clicked
+            AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as RecurringTransaction
                 val rtdf = RecurringTransactionEditDialogFragment.newInstance(itemValue.name, itemValue.amount, itemValue.period, itemValue.nextdate, itemValue.regularity, itemValue.category, itemValue.subcategory, itemValue.paidby, itemValue.boughtfor, itemValue.split1, itemValue.split2)
                 rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
@@ -46,6 +47,24 @@ class RecurringTransactionFragment : Fragment() {
                 })
                 rtdf.show(parentFragmentManager, "Edit Recurring Transaction")
             }
+        binding.expandSettings.setOnClickListener {
+            findNavController().navigate(R.id.SettingsFragment)
+        }
+        binding.expandCategories.setOnClickListener {
+            findNavController().navigate(R.id.CategoryFragment)
+        }
+        binding.expandBudgets.setOnClickListener {
+            findNavController().navigate(R.id.BudgetViewAllFragment)
+        }
+        binding.rtAddFab.setOnClickListener {
+            addRecurringTransaction()
+        }
+        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
+        val set = ConstraintSet()
+        val constraintLayout = binding.constraintLayout
+        set.clone(constraintLayout)
+        set.clear(R.id.rt_add_fab, ConstraintSet.TOP)
+        set.applyTo(constraintLayout)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

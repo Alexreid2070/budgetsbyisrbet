@@ -100,16 +100,13 @@ class CategoryEditDialogFragment : DialogFragment() {
         dtSpinner.adapter = arrayAdapter
         if (oldCategory == "") { // ie this is an add, not an edit
             Log.d("Alex", "in blank")
-            binding.editCategoryOldNameHeader.visibility = View.GONE
-            binding.editCategoryOldName.text = "Category:"
-            binding.editSubcategoryOldName.text = "Sub Category: "
-            binding.editCategoryOldDisctype.visibility = View.GONE
+            binding.oldCategoryLayout.visibility = View.GONE
             binding.categoryDialogButtonDelete.visibility = View.GONE
-            binding.newNameHeader.text = "Add:"
-        } else {
-            binding.editCategoryOldName.text = oldCategory
-            binding.editSubcategoryOldName.text = oldSubcategory
-            binding.editCategoryOldDisctype.text = oldDisctype
+            binding.newNameHeader.text = "Add Category / SubCategory"
+        } else { // ie this is an edit
+            binding.oldCategoryName.text = oldCategory
+            binding.oldSubcategoryName.text = oldSubcategory
+            binding.oldDisctype.text = oldDisctype
             binding.editSubcategoryNewName.setText(oldSubcategory)
             dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
             binding.categoryDialogLinearLayoutBudget.visibility = View.GONE
@@ -224,7 +221,7 @@ class CategoryEditDialogFragment : DialogFragment() {
 
         binding.categoryDialogButtonDelete.setOnClickListener {
             fun yesClicked() {
-                CategoryViewModel.deleteCategoryAndSubcategory(binding.editCategoryOldName.text.toString(), binding.editSubcategoryOldName.text.toString())
+                CategoryViewModel.deleteCategoryAndSubcategory(binding.oldCategoryName.text.toString(), binding.oldSubcategoryName.text.toString())
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }
@@ -236,7 +233,9 @@ class CategoryEditDialogFragment : DialogFragment() {
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Are you sure?")
-                .setMessage("Are you sure that you want to delete this Cat/Subcat (" + binding.editCategoryOldName.text.toString() + "-" + binding.editSubcategoryOldName.text.toString() + ")?")
+                .setMessage("Are you sure that you want to delete this Cat/Subcat (" +
+                        binding.oldCategoryName.text.toString() + "-" +
+                        binding.oldSubcategoryName.text.toString() + ")?")
                 .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()

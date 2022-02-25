@@ -97,7 +97,6 @@ class DashboardFragment : Fragment() {
         val bottomRowMargin = 0
         val decimalFormat = DecimalFormat("0.00")
         val deltaFormat = DecimalFormat("#,##0.00;(#,##0.00)")
-        Log.d("Alex", "in Dashboard")
 
         val tv1 = TextView(requireContext())
         tv1.layoutParams = TableRow.LayoutParams(
@@ -149,7 +148,7 @@ class DashboardFragment : Fragment() {
         } else {
             tv3.layoutParams = TableRow.LayoutParams(
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.MATCH_PARENT
+                TableRow.LayoutParams.WRAP_CONTENT
             )
         }
         tv3.gravity = Gravity.END
@@ -173,7 +172,7 @@ class DashboardFragment : Fragment() {
         } else {
             tv4.layoutParams = TableRow.LayoutParams(
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.MATCH_PARENT
+                TableRow.LayoutParams.WRAP_CONTENT
             )
         }
         tv4.gravity = Gravity.END
@@ -197,7 +196,7 @@ class DashboardFragment : Fragment() {
         } else {
             tv5.layoutParams = TableRow.LayoutParams(
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.MATCH_PARENT
+                TableRow.LayoutParams.WRAP_CONTENT
             )
         }
         tv5.gravity = Gravity.END
@@ -365,7 +364,6 @@ class DashboardFragment : Fragment() {
             lastDetailLine += 1
             tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
             val cat = tableRow.getChildAt(0) as TextView
-            Log.d("Alex", "tag is " + tableRow.tag + " cat is '" + cat.text.toString() + "' iCategory is " + iCategory + " len " + iCategory.length)
             val lenToCompare = if (cat.text.toString().length < iCategory.length) cat.text.toString().length else iCategory.length
         } while (tableRow != null && !(tableRow.tag == "Sub-total" && cat.text.toString().substring(0,lenToCompare) == iCategory))
         if (tableRow == null) // no detail rows found
@@ -405,27 +403,27 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        view?.findViewById<ImageButton>(R.id.button_backward)?.setOnClickListener {
-            moveOneMonthBackward()
+        binding.buttonBackward.setOnClickListener {
+            moveBackward()
         }
-        view?.findViewById<ImageButton>(R.id.button_forward)?.setOnClickListener {
-            moveOneMonthForward()
+        binding.buttonForward.setOnClickListener {
+            moveForward()
         }
-        view?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
+        binding.buttonViewMonth.setOnClickListener {
             ytdMode = false
             val dateNow = Calendar.getInstance()
             currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
-        view?.findViewById<Button>(R.id.button_ytd)?.setOnClickListener {
+        binding.buttonViewYtd.setOnClickListener {
             ytdMode = true
             val dateNow = Calendar.getInstance()
             currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
-        view?.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
+        binding.buttonViewYear.setOnClickListener {
             ytdMode = false
             currentBudgetMonth.month = 0
             setActionBarTitle()
@@ -441,6 +439,41 @@ class DashboardFragment : Fragment() {
         }
         setActionBarTitle()
         startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        binding.expandNav.setOnClickListener {
+            onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
+        }
+        binding.expandOptions.setOnClickListener {
+            onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
+        }
+        binding.expandView.setOnClickListener {
+            onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
+        }
+        binding.expandFilter.setOnClickListener {
+            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+        }
+    }
+
+    private fun onExpandClicked(button: TextView, layout: LinearLayout) {
+        Log.d("Alex", "onExpandClicked")
+        if (layout.visibility == View.GONE) { // ie expand the section
+            // first hide all other possible expansions
+            resetLayout(binding.expandNav, binding.navButtonLinearLayout)
+            resetLayout(binding.expandView, binding.viewButtonLinearLayout)
+            resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
+            resetLayout(binding.expandOptions, binding.optionsButtonLinearLayout)
+            button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
+            button.textSize = 16F
+            button.setBackgroundResource(R.drawable.rounded_top_corners)
+            layout.visibility = View.VISIBLE
+        } else { // ie retract the section
+            resetLayout(button, layout)
+        }
+    }
+    private fun resetLayout(button: TextView, layout: LinearLayout) {
+        button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
+        button.textSize = 14F
+        button.setBackgroundResource(android.R.color.transparent)
+        layout.visibility = View.GONE
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -607,7 +640,7 @@ class DashboardFragment : Fragment() {
                     " " + currentBudgetMonth.year  + currentFilterIndicator + ")"
     }
 
-    private fun moveOneMonthBackward() {
+    private fun moveBackward() {
         if (currentBudgetMonth.month == 0)
             currentBudgetMonth.year--
         else
@@ -618,7 +651,7 @@ class DashboardFragment : Fragment() {
 
     }
 
-    private fun moveOneMonthForward() {
+    private fun moveForward() {
         if (currentBudgetMonth.month == 0)
             currentBudgetMonth.year++
         else

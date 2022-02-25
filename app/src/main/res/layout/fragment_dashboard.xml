@@ -10,11 +10,15 @@
         android:id="@+id/dashboard_title_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <TextView
             android:id="@+id/dashboard_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:gravity="center"
             android:text="Dashboard"
             android:textSize="18sp"
@@ -25,15 +29,16 @@
         android:id="@+id/dashboard_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="horizontal"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        app:layout_constraintTop_toBottomOf="@id/dashboard_title_layout">
+        app:layout_constraintTop_toBottomOf="@id/dashboard_title_layout"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout">
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="?android:attr/actionBarSize"
             tools:ignore="UselessParent">
 
             <TableLayout
@@ -42,101 +47,7 @@
                 android:layout_height="wrap_content"
                 android:padding="0dp"
                 android:stretchColumns="*" />
-        </ScrollView>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/button_linear_layout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="5"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
-        app:layout_constraintTop_toBottomOf="@id/dashboard_linear_layout">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
-
-        <ImageButton
-            android:id="@+id/button_backward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="@android:color/white"
-            android:contentDescription="Previous"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_arrow_back_24"
-            android:tooltipText="Previous period"
-            tools:ignore="HardcodedText" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
-
-        <ImageButton
-            android:id="@+id/button_forward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="@android:color/white"
-            android:contentDescription="Next"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_arrow_forward_24"
-            android:tooltipText="Next period"
-            tools:ignore="HardcodedText" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/button_by_month"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Mo"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/button_ytd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="YTD"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText"/>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/button_by_year"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Yr"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText"/>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+        </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 
     <LinearLayout
@@ -146,8 +57,9 @@
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:paddingTop="5dp"
+        android:paddingBottom="?android:attr/actionBarSize"
         app:layout_constraintBottom_toTopOf="@+id/nav_button_linear_layout"
-        app:layout_constraintTop_toBottomOf="@+id/button_linear_layout2">
+        app:layout_constraintTop_toBottomOf="@id/dashboard_linear_layout">
 
         <Space
             android:layout_width="5dp"
@@ -159,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Nav"
+            android:text="Navigate"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
@@ -212,7 +124,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSecondary"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         android:weightSum="5"
         app:layout_constraintBottom_toTopOf="@+id/view_button_linear_layout"
         app:layout_constraintTop_toBottomOf="@+id/expansion_layout">
@@ -223,7 +135,7 @@
             android:layout_weight="1" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_year_backward"
+            android:id="@+id/button_backward"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -231,7 +143,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="-Yr"
+            android:text="-"
             tools:ignore="HardcodedText" />
 
         <Space
@@ -240,46 +152,14 @@
             android:layout_weight="1" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_month_backward"
+            android:id="@+id/button_forward"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="-Mo"
-            tools:ignore="HardcodedText" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_month_forward"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Mo+"
-            tools:ignore="HardcodedText" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_year_forward"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Yr+"
+            android:text="+"
             tools:ignore="HardcodedText" />
 
         <Space
@@ -294,7 +174,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSecondary"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/filter_button_linear_layout"
         app:layout_constraintTop_toBottomOf="@+id/nav_button_linear_layout">
 
@@ -304,18 +184,54 @@
             android:layout_weight="1" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_view"
+            android:id="@+id/button_view_month"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search"
-            app:icon="@drawable/ic_fas_search"
+            android:background="?attr/colorSecondary"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Month"
             tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_view_ytd"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="YTD"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_view_year"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Year"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -324,7 +240,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSecondary"
         android:orientation="horizontal"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/options_button_linear_layout"
         app:layout_constraintTop_toBottomOf="@+id/view_button_linear_layout">
 
@@ -354,28 +270,47 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSecondary"
         android:orientation="horizontal"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter_button_linear_layout">
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_search"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/show_delta_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Search"
-            app:icon="@drawable/ic_fas_search"
-            tools:ignore="HardcodedText" />
+            android:paddingTop="5dp">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Show Delta as "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RadioGroup
+                android:id="@+id/showDeltaRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/dollarRadioButton"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/dollarRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$"
+                    tools:ignore="HardcodedText" />
+
+                <RadioButton
+                    android:id="@+id/percentageRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="%"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

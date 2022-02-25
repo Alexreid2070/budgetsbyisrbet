@@ -1,7 +1,6 @@
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.*
@@ -128,7 +126,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         binding.editRtOldSubcategory.text = oldSubcatgory
         binding.editRtOldPaidBy.text = oldPaidBy
         binding.editRtOldBoughtFor.text = oldBoughtFor
-        setupClickListeners(view)
+        setupClickListeners()
         binding.editRtNewName.requestFocus()
 
         val pSpinner:Spinner = binding.editRtNewPeriodSpinner
@@ -187,7 +185,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         binding.editRtNewNextDate.setText(giveMeMyDateFormat(cal))
 
         val dateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -292,12 +290,10 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         else
             subCategorySpinner.setSelection(arrayAdapter.getPosition(oldSubcatgory))
 
-        if (arrayAdapter != null) {
-            arrayAdapter.notifyDataSetChanged()
-        }
+        arrayAdapter.notifyDataSetChanged()
     }
 
-    private fun setupClickListeners(view: View) {
+    private fun setupClickListeners() {
         binding.rtDialogButtonSave.setOnClickListener {
             onSaveButtonClicked()
         }
@@ -317,8 +313,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             AlertDialog.Builder(requireContext())
                 .setTitle("Are you sure?")
                 .setMessage("Are you sure that you want to delete this recurring transaction(" + binding.editRtOldName.text.toString() + ")?")
-                .setPositiveButton(android.R.string.yes) { _, _ -> yesClicked() }
-                .setNegativeButton(android.R.string.no) { _, _ -> noClicked() }
+                .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()
         }
 

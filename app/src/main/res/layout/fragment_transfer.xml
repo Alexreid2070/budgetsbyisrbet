@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TransferFragment"
-    android:paddingTop="?android:attr/actionBarSize">
+    tools:context=".TransferFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -16,15 +15,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/relativeLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                tools:layout_editor_absoluteY="56dp"
-                tools:ignore="UselessParent">
-
+                <LinearLayout
+                    android:id="@+id/page_title_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/page_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="24dp"
+                        android:textStyle="bold"
+                        android:text="Add Transfer"
+                        android:paddingBottom="20dp"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
                 <LinearLayout
                     android:id="@+id/linearlayoutDate"
                     android:layout_width="match_parent"
@@ -311,7 +318,6 @@
                         android:textStyle="bold"/>
                 </LinearLayout>
 
-            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
     <LinearLayout
@@ -352,12 +358,34 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:ignore="HardcodedText" />
         </LinearLayout>
-        <Button
-            android:id="@+id/button_save_transfer"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/button_linear_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
             android:gravity="center"
-            android:text="Save"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/button_cancel_transfer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:text="Cancel"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/button_save_transfer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Save"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_gravity="center"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

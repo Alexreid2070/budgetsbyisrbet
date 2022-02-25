@@ -2,8 +2,10 @@ package com.isrbet.budgetsbyisrbet
 
 import CategoryEditDialogFragment
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -13,10 +15,6 @@ class CategoryFragment : Fragment() {
     private var _binding: FragmentCategoryBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -24,7 +22,8 @@ class CategoryFragment : Fragment() {
         // Inflate the layout for this fragment
         setHasOptionsMenu(true)
         _binding = FragmentCategoryBinding.inflate(inflater, container, false)
-        return inflater.inflate(R.layout.fragment_category, container, false)
+        inflater.inflate(R.layout.fragment_category, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
@@ -52,6 +51,25 @@ class CategoryFragment : Fragment() {
 
             }
         }
+        binding.expandSettings.setOnClickListener {
+            Log.d("Alex", "clicked on Settings")
+            findNavController().navigate(R.id.SettingsFragment)
+        }
+        binding.expandBudgets.setOnClickListener {
+            findNavController().navigate(R.id.BudgetViewAllFragment)
+        }
+        binding.expandRecurringTransactions.setOnClickListener {
+            findNavController().navigate(R.id.RecurringTransactionFragment)
+        }
+        binding.categoryAddFab.setOnClickListener {
+            addCategory()
+        }
+        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
+        val set = ConstraintSet()
+        val constraintLayout = binding.constraintLayout
+        set.clone(constraintLayout)
+        set.clear(R.id.category_add_fab, ConstraintSet.TOP)
+        set.applyTo(constraintLayout)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -85,7 +103,6 @@ class CategoryFragment : Fragment() {
             }
         })
         cdf.show(getParentFragmentManager(), "Add Category")
-
     }
 
     override fun onDestroyView() {

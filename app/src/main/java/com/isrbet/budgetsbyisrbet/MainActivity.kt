@@ -7,11 +7,13 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.forEach
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
 
 
@@ -98,28 +100,12 @@ class MainActivity : AppCompatActivity() {
  */
     }
 
-    fun setAdminMode(inAdminMode: Boolean) {
-        /*
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
-        val navMenu: Menu = navigationView.menu
-        navMenu.findItem(R.id.AdminFragment).isVisible = inAdminMode
-        MyApplication.adminMode = inAdminMode
-
-         */
-    }
-
     fun setLoggedOutMode(loggedOut: Boolean) {
-        /*
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val navigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         val navMenu: Menu = navigationView.menu
         navMenu.forEach {
-            if (loggedOut)
-                it.isVisible = it.itemId == R.id.HelpFragment
-            else
-                it.isVisible = true
+            it.isEnabled = !loggedOut
         }
-        setAdminMode(MyApplication.adminMode)
-         */
     }
 
     override fun onDestroy() {

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -124,6 +125,24 @@ class BudgetViewAllFragment : Fragment() {
         if (SpenderViewModel.singleUser()) {
             binding.rowBudgetWhoHeading.visibility = View.GONE
         }
+        binding.expandSettings.setOnClickListener {
+            findNavController().navigate(R.id.SettingsFragment)
+        }
+        binding.expandCategories.setOnClickListener {
+            findNavController().navigate(R.id.CategoryFragment)
+        }
+        binding.expandRecurringTransactions.setOnClickListener {
+            findNavController().navigate(R.id.RecurringTransactionFragment)
+        }
+        binding.budgetAddFab.setOnClickListener {
+            findNavController().navigate(R.id.BudgetFragment)
+        }
+        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
+        val set = ConstraintSet()
+        val constraintLayout = binding.constraintLayout
+        set.clone(constraintLayout)
+        set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
+        set.applyTo(constraintLayout)
     }
 
     fun setCategoryType() {
@@ -138,15 +157,13 @@ class BudgetViewAllFragment : Fragment() {
         val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
         listView.adapter = adapter
 
-        listView.onItemClickListener = object : AdapterView.OnItemClickListener {
-
-            override fun onItemClick(parent: AdapterView<*>, view: View,
-                                     position: Int, id: Long) {
+        listView.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
                 val itemValue = listView.getItemAtPosition(position) as BudgetInputRow
                 val bmDateApplicable = BudgetMonth(itemValue.dateApplicable)
                 val bmDateStart = BudgetMonth(itemValue.dateStarted)
                 if (itemValue.dateApplicable == itemValue.dateStarted ||
-                        (bmDateApplicable.month == 1 && bmDateStart.month == 0)) {// ie only allow edits on "real" entries
+                    (bmDateApplicable.month == 1 && bmDateStart.month == 0)) {// ie only allow edits on "real" entries
                     val bmDateStarted = BudgetMonth(itemValue.dateStarted)
                     var monthToSend: Int = bmDateApplicable.month
                     if (bmDateStarted.isAnnualBudget())
@@ -180,7 +197,6 @@ class BudgetViewAllFragment : Fragment() {
                     Toast.makeText(requireActivity(), "Only actual budget entries (in bold) are clickable.", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
     }
 
     private fun moveCategories(iDirection: Int) {

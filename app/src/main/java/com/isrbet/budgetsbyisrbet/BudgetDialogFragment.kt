@@ -1,3 +1,4 @@
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -161,11 +162,12 @@ class BudgetDialogFragment : DialogFragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
-        binding.budgetDialogButton1.setOnClickListener {
+        binding.budgetDialogButtonEdit.setOnClickListener {
             if (currentMode == "View") {
-                binding.budgetDialogButton1.text = "Save"
-                binding.budgetDialogButton2.text = "Cancel"
+                binding.budgetDialogButtonEdit.text = "Save"
+                binding.budgetDialogButtonDelete.text = "Cancel"
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
                     (binding.budgetDialogNewWhoRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
                 }
@@ -190,7 +192,7 @@ class BudgetDialogFragment : DialogFragment() {
                 }
 
                 Log.d("Alex", "need to save new values")
-                var tmpDouble1: Double = binding.budgetDialogNewAmount.text.toString().toDouble()
+                val tmpDouble1: Double = binding.budgetDialogNewAmount.text.toString().toDouble()
 
                 var newWho = ""
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
@@ -328,7 +330,7 @@ class BudgetDialogFragment : DialogFragment() {
                 }
             }
         }
-        binding.budgetDialogButton2.setOnClickListener {
+        binding.budgetDialogButtonDelete.setOnClickListener {
             if (currentMode == "View") { // ie user chose Delete
                 fun yesClicked() {
                     val monthToUse: Int = if (binding.budgetDialogMonth.text.toString() == "")
@@ -359,6 +361,9 @@ class BudgetDialogFragment : DialogFragment() {
             } else { // ie user chose Cancel
                 dismiss()
             }
+        }
+        binding.budgetDialogButtonCancel.setOnClickListener {
+            dismiss()
         }
     }
 

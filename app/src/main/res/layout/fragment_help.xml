@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?android:attr/actionBarSize"
     tools:context="com.isrbet.budgetsbyisrbet.HelpFragment">
 
     <ScrollView
@@ -47,7 +46,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Welcome to Budgets by ISRBET!  If this is the first time you've logged into the app, it will take
+                android:text="Welcome to On Budget!  If this is the first time you've logged into the app, it will take
     you just a few minutes to set up.\n" />
             <TextView
                 android:layout_width="match_parent"

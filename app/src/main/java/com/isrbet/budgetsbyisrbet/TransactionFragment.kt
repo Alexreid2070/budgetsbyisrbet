@@ -135,6 +135,9 @@ class TransactionFragment : Fragment() {
         binding.buttonSaveTransaction.setOnClickListener {
             onSaveTransactionButtonClicked()
         }
+        binding.buttonCancelTransaction.setOnClickListener {
+            activity?.onBackPressed()
+        }
         if (DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "On") {
             binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
                 onLoadTransactionButtonClicked()
@@ -228,6 +231,7 @@ class TransactionFragment : Fragment() {
         }
         else {
             (activity as AppCompatActivity).supportActionBar?.title = "View Expenditure"
+            binding.buttonCancelTransaction.visibility = View.GONE
             binding.buttonSaveTransaction.visibility = View.GONE
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
             binding.editTextDate.isEnabled = false
@@ -330,6 +334,7 @@ class TransactionFragment : Fragment() {
         var currentCategory = ""
         Log.d("Alex", "clicked edit")
         (activity as AppCompatActivity).supportActionBar?.title = "Edit Transaction"
+        binding.buttonCancelTransaction.visibility = View.VISIBLE
         binding.buttonSaveTransaction.visibility = View.VISIBLE
         binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
         binding.buttonPrevTransaction.visibility = View.GONE
@@ -607,8 +612,6 @@ class TransactionFragment : Fragment() {
         val amountInt: Int
         val tempDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = tempDouble.toInt()
-        SpenderViewModel.showMe()
-        Log.d("Alex", "Splits are ${binding.transactionBoughtForName1Split.text} and ${binding.transactionBoughtForName2Split.text}")
         val bfName1Split = binding.transactionBoughtForName1Split.text.toString().toInt()
         val bfName2Split = binding.transactionBoughtForName2Split.text.toString().toInt()
 
@@ -675,7 +678,6 @@ class TransactionFragment : Fragment() {
             radioGroup.addView(newRadioButton)
             if (newTransactionMode && newRadioButton.text.toString() == DefaultsViewModel.getDefault(
                     cDEFAULT_CATEGORY)) {
-                Log.d("Alex", "found default " + newRadioButton.text.toString())
                 radioGroup.check(newRadioButton.id)
             }
         }
@@ -706,7 +708,6 @@ class TransactionFragment : Fragment() {
             newRadioButton.id = ctr++
             paidByRadioGroup.addView(newRadioButton)
             if (newTransactionMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default paidby $spender")
                 paidByRadioGroup.check(newRadioButton.id)
             }
         }
@@ -728,7 +729,6 @@ class TransactionFragment : Fragment() {
             newRadioButton.id = ctr++
             boughtForRadioGroup.addView(newRadioButton)
             if (newTransactionMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default boughtfor $spender")
                 boughtForRadioGroup.check(newRadioButton.id)
             }
         }

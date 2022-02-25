@@ -84,20 +84,19 @@ class TrackerFragment : Fragment() {
             binding.actualPieChart.invalidate()
             binding.budgetPieChart.invalidate()
         }
-        view?.findViewById<Button>(R.id.button_backward)?.setOnClickListener {
+        view.findViewById<Button>(R.id.button_backward)?.setOnClickListener {
             moveOneMonthBackward()
         }
-        view?.findViewById<Button>(R.id.button_forward)?.setOnClickListener {
+        view.findViewById<Button>(R.id.button_forward)?.setOnClickListener {
             moveOneMonthForward()
         }
-        view?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
-            val dateNow = android.icu.util.Calendar.getInstance()
+        view.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
             currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
                 android.icu.util.Calendar.MONTH) + 1)
             setActionBarTitle()
 //            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
-        view?.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
+        view.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
             currentBudgetMonth.month = 0
             setActionBarTitle()
 //            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)

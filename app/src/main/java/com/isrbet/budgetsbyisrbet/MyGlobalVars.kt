@@ -3,23 +3,28 @@ package com.isrbet.budgetsbyisrbet
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.icu.util.Calendar
+import android.media.MediaPlayer
+import android.util.AttributeSet
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
+import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import android.graphics.Color
-import android.media.MediaPlayer
-import android.net.Uri
-import androidx.fragment.app.FragmentManager
-import android.view.GestureDetector
-import android.view.MotionEvent
-import androidx.core.content.ContextCompat
-import com.google.android.material.color.MaterialColors
 import kotlin.math.abs
 import kotlin.math.round
+
 
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
@@ -454,6 +459,90 @@ fun thisIsANewUser(): Boolean {
             DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
             RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
 
+}
+
+class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
+    private var downRawX = 0f
+    private var downRawY = 0f
+    private var dX = 0f
+    private var dY = 0f
+
+    constructor(context: Context?) : super(context!!) {
+        init()
+    }
+
+    constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs) {
+        init()
+    }
+
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context!!, attrs, defStyleAttr
+    ) {
+        init()
+    }
+
+    private fun init() {
+        setOnTouchListener(this)
+    }
+
+    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
+        val layoutParams = view.layoutParams as MarginLayoutParams
+        val action = motionEvent.action
+        return if (action == MotionEvent.ACTION_DOWN) {
+            downRawX = motionEvent.rawX
+            downRawY = motionEvent.rawY
+            dX = view.x - downRawX
+            dY = view.y - downRawY
+            true // Consumed
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            val viewWidth = view.width
+            val viewHeight = view.height
+            val viewParent = view.parent as View
+            val parentWidth = viewParent.width
+            val parentHeight = viewParent.height
+            var newX = motionEvent.rawX + dX
+            newX = Math.max(
+                layoutParams.leftMargin.toFloat(),
+                newX
+            ) // Don't allow the FAB past the left hand side of the parent
+            newX = Math.min(
+                (parentWidth - viewWidth - layoutParams.rightMargin).toFloat(),
+                newX
+            ) // Don't allow the FAB past the right hand side of the parent
+            var newY = motionEvent.rawY + dY
+            newY = Math.max(
+                layoutParams.topMargin.toFloat(),
+                newY
+            ) // Don't allow the FAB past the top of the parent
+            newY = Math.min(
+                (parentHeight - viewHeight - layoutParams.bottomMargin).toFloat(),
+                newY
+            ) // Don't allow the FAB past the bottom of the parent
+            view.animate()
+                .x(newX)
+                .y(newY)
+                .setDuration(0)
+                .start()
+            true // Consumed
+        } else if (action == MotionEvent.ACTION_UP) {
+            val upRawX = motionEvent.rawX
+            val upRawY = motionEvent.rawY
+            val upDX = upRawX - downRawX
+            val upDY = upRawY - downRawY
+            if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
+                performClick()
+            } else { // A drag
+                true // Consumed
+            }
+        } else {
+            super.onTouchEvent(motionEvent)
+        }
+    }
+
+    companion object {
+        private const val CLICK_DRAG_TOLERANCE =
+            10f // Often, there will be a slight, unintentional, drag when the user taps the FAB, so we need to account for this.
+    }
 }
 
     val inspirationalQuotes = listOf(

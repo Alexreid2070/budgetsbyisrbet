@@ -56,6 +56,16 @@
                     android:layout_gravity="center"/>
                 <Space
                     android:layout_width="match_parent"
+                    android:layout_height="5dp"/>
+                <TextView
+                    android:id="@+id/signout_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Sign out"/>
+                <Space
+                    android:layout_width="match_parent"
                     android:layout_height="20dp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -157,16 +167,11 @@
                             android:textStyle="bold"
                             android:text="Admin"/>
                     </LinearLayout>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
                 </LinearLayout>
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="20dp"/>
             </LinearLayout>
-
             <LinearLayout
                 android:id="@+id/expand_button_layout"
                 android:layout_width="match_parent"
@@ -198,11 +203,12 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="serif"
                     android:paddingTop="30dp"
                     android:paddingBottom="30dp"
                     android:text="@string/home_page_welcome"
                     android:textAlignment="center"
-                    android:textSize="30sp"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -213,6 +219,7 @@
                 android:background="?attr/colorSecondary"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
+                android:text="TEST"
                 android:textAlignment="center" />
 
             <com.google.android.gms.common.SignInButton

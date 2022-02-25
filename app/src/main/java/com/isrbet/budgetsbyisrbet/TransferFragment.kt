@@ -74,6 +74,9 @@ class TransferFragment : Fragment() {
         binding.buttonSaveTransfer.setOnClickListener {
             onSaveButtonClicked()
         }
+        binding.buttonCancelTransfer.setOnClickListener {
+            activity?.onBackPressed()
+        }
 
         loadSpenderRadioButtons()
         val editAmountText = binding.editTextAmount
@@ -445,7 +448,6 @@ class TransferFragment : Fragment() {
             newRadioButton.id = ctr++
             fromRadioGroup.addView(newRadioButton)
             if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default from $spender")
                 fromRadioGroup.check(newRadioButton.id)
             }
         }
@@ -467,7 +469,6 @@ class TransferFragment : Fragment() {
             newRadioButton.id = ctr++
             toRadioGroup.addView(newRadioButton)
             if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default to $spender")
                 toRadioGroup.check(newRadioButton.id)
             }
         }

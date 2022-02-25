@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.R.attr
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.icu.util.Calendar
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.*
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
@@ -113,13 +115,15 @@ class HomeFragment : Fragment() {
                     // Google Sign In was successful, authenticate with Firebase
                     val account = task.getResult(ApiException::class.java)!!
                     Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
+                    MyApplication.userGivenName = account?.givenName.toString()
+                    MyApplication.userFamilyName = account?.familyName.toString()
                     firebaseAuthWithGoogle(account.idToken!!)
                 } catch (e: ApiException) {
                     // Google Sign In failed, update UI appropriately
                     Log.w("Alex", "Google sign in failed", e)
                 }
             } else
-                Log.d("Alex", "in registerforactivityresult, result was not OK")
+                Log.d("Alex", "in registerforactivityresult, result was not OK " + result.resultCode)
         }
 
         // Configure sign-in to request the user's ID, email address, and basic
@@ -166,7 +170,7 @@ class HomeFragment : Fragment() {
             onExpandClicked()
         }
         binding.settingsButton.setOnClickListener {
-            findNavController().navigate(R.id.SettingsMasterFragment)
+            findNavController().navigate(R.id.SettingsFragment)
         }
         binding.helpButton.setOnClickListener {
             findNavController().navigate(R.id.HelpFragment)
@@ -177,6 +181,7 @@ class HomeFragment : Fragment() {
         binding.adminButton.setOnClickListener {
             findNavController().navigate(R.id.AdminFragment)
         }
+        Log.d("Alex", "aa useruid is '" + MyApplication.userUID + "'")
         return binding.root
     }
 
@@ -238,6 +243,7 @@ class HomeFragment : Fragment() {
             }
         })
 */
+        Log.d("Alex", "aa1 useruid is '" + MyApplication.userUID + "'")
         scrollView.setOnTouchListener(object: View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 if (p1 != null) {
@@ -264,6 +270,7 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+        Log.d("Alex", "aa2 useruid is '" + MyApplication.userUID + "'")
         ChatViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
                 Log.d("Alex", "in Chat onDataUpdate callback")
@@ -288,6 +295,7 @@ class HomeFragment : Fragment() {
                 alignExpenditureMenuWithDataState()
             }
         })
+        Log.d("Alex", "aa3 useruid is '" + MyApplication.userUID + "'")
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
@@ -295,17 +303,22 @@ class HomeFragment : Fragment() {
         if (account?.email == null) {
             // turn off all menu/buttons
 //            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            Log.d("Alex", "aa4 useruid is '" + MyApplication.userUID + "'")
             (activity as MainActivity).setLoggedOutMode(true)
+            binding.expandButton.isEnabled = false
             binding.signInButton.visibility = View.VISIBLE
             binding.quoteField.text = ""
             binding.quoteLabel.visibility = View.GONE
+            Log.d("Alex", "Making homeScreenMessage visible 2")
             binding.homeScreenMessage.visibility = View.VISIBLE
             binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
         } else {
+            Log.d("Alex", "aa5 useruid is '" + MyApplication.userUID + "'")
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
+            Log.d("Alex", "Making homeScreenMessage invisible 4")
             if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
                 binding.quoteLabel.visibility = View.VISIBLE
                 if (MyApplication.userEmail != MyApplication.currentUserEmail)
@@ -315,6 +328,7 @@ class HomeFragment : Fragment() {
                     binding.quoteField.text = getQuote()
             }
         }
+        Log.d("Alex", "aa5 useruid is '" + MyApplication.userUID + "'")
         Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
         MyApplication.userGivenName = account?.givenName.toString()
         MyApplication.userFamilyName = account?.familyName.toString()
@@ -327,10 +341,30 @@ class HomeFragment : Fragment() {
                 .into(binding.imgProfilePic)
             binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
         }
-        (activity as MainActivity).setAdminMode(account?.email == "alexreid2070@gmail.com")
+        Log.d("Alex", "aa6 useruid is '" + MyApplication.userUID + "'")
+        setAdminMode(account?.email == "alexreid2070@gmail.com")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
+        Log.d("Alex", "aa7 useruid is '" + MyApplication.userUID + "'")
         signIn(currentUser)
+        Log.d("Alex", "aa8 useruid is '" + MyApplication.userUID + "'")
+        binding.imgProfilePic.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Are you sure?")
+                .setMessage("Are you sure that you want to sign out?")
+                .setPositiveButton("Sign Out") { _, _ -> signout() }
+                .setNegativeButton(android.R.string.cancel) { _, _ ->  }  // nothing should happen, other than dialog closes
+                .show()
+        }
+        binding.signoutText.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Are you sure?")
+                .setMessage("Are you sure that you want to sign out?")
+                .setPositiveButton("Sign Out") { _, _ -> signout() }
+                .setNegativeButton(android.R.string.cancel) { _, _ ->  }  // nothing should happen, other than dialog closes
+                .show()
+        }
+        Log.d("Alex", "aaa useruid is '" + MyApplication.userUID + "'")
     }
 
     private fun onExpandClicked() {
@@ -354,7 +388,7 @@ class HomeFragment : Fragment() {
 
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
         Log.d("Alex", "onSignIn")
-        binding.homeScreenMessage.text = ""
+//        binding.homeScreenMessage.text = ""
         val signInIntent: Intent = mGoogleSignInClient.signInIntent
         mainActivityResultLauncher.launch(signInIntent)
     }
@@ -379,17 +413,27 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun signIn(account: FirebaseUser?) {
-        Log.d("Alex", "in signIn, account is " + account?.email)
+        Log.d("Alex", "in signIn, account is " + account?.email + " and uid is " + MyApplication.userUID)
         MyApplication.userEmail = account?.email.toString()
-        if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
-            MyApplication.userUID = account?.uid.toString()
-            Log.d("Alex", "Just set userUID to " + account?.uid.toString())
+        if (account != null) {
+            if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
+                MyApplication.userUID = account?.uid.toString()
+                Log.d("Alex", "Just set userUID to " + account?.uid.toString())
+            }
+            if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
+                MyApplication.currentUserEmail = account?.email ?: ""
+            MyApplication.userPhotoURL = account.photoUrl.toString()
+            Glide.with(requireContext()).load(MyApplication.userPhotoURL)
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.imgProfilePic)
+            binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
         }
-        if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
-            MyApplication.currentUserEmail = account?.email ?: ""
         if (account == null) {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
+            Log.d("Alex", "Making homeScreenMessage visible 1")
             binding.homeScreenMessage.visibility = View.VISIBLE
             binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
         }
@@ -397,6 +441,7 @@ class HomeFragment : Fragment() {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
+            Log.d("Alex", "Making homeScreenMessage invisible 1")
             if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
                 binding.quoteLabel.visibility = View.VISIBLE
                 binding.quoteField.text = getQuote()
@@ -404,10 +449,11 @@ class HomeFragment : Fragment() {
                     binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
             }
             if (account.email == "alexreid2070@gmail.com")
-                (activity as MainActivity).setAdminMode(true)
+                setAdminMode(true)
             requireActivity().invalidateOptionsMenu()
             Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
+                Log.d("Alex", "uid is " + MyApplication.userUID)
                 getLastReadChatsInfo()
                 defaultsModel.loadDefaults()
                 categoryModel.loadCategories()
@@ -438,6 +484,7 @@ class HomeFragment : Fragment() {
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
+            Log.d("Alex", "Making homeScreenMessage visible 2")
         }
 
             if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
@@ -452,6 +499,7 @@ class HomeFragment : Fragment() {
 //            binding.viewAllButton.visibility = View.VISIBLE
 //            binding.dashboardButton.visibility = View.VISIBLE
             (activity as MainActivity).setLoggedOutMode(false)
+            binding.expandButton.isEnabled = true
             if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
                 binding.quoteLabel.visibility = View.VISIBLE
                 binding.quoteField.visibility = View.VISIBLE
@@ -462,11 +510,13 @@ class HomeFragment : Fragment() {
             }
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
+                Log.d("Alex", "Making homeScreenMessage invisible 3")
                 val trackerFragment: TrackerFragment =
                 childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
             trackerFragment.loadBarChart()
         } else {
             (activity as MainActivity).setLoggedOutMode(true)
+                binding.expandButton.isEnabled = false
         }
     }
 
@@ -497,38 +547,50 @@ class HomeFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.SignOut) {
-            Log.d("Alex", "sign out attempted")
-            BudgetViewModel.clear()
-            CategoryViewModel.clear()
-            ChatViewModel.clear()
-            DefaultsViewModel.clear()
-            ExpenditureViewModel.clear()
-            RecurringTransactionViewModel.clear()
-            SpenderViewModel.clear()
-            Firebase.auth.signOut()
-            mGoogleSignInClient.signOut()
-            MyApplication.userUID = ""
-            MyApplication.currentUserEmail = ""
-            MyApplication.adminMode = false
-            requireActivity().invalidateOptionsMenu()
-//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            (activity as MainActivity).setLoggedOutMode(true)
-            binding.signInButton.visibility = View.VISIBLE
-            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
-            binding.quoteField.text = ""
-            binding.quoteLabel.visibility = View.GONE
-//            binding.expenditureButton.visibility = View.GONE
-//            binding.viewAllButton.visibility = View.GONE
-//            binding.dashboardButton.visibility = View.GONE
-            val trackerFragment: TrackerFragment =
-                childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-            trackerFragment.hideBarChart()
-            MyApplication.haveLoadedDataForThisUser = false
+            signout()
             return true
         } else {
             val navController = findNavController()
             return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
+    }
+    private fun signout() {
+        Log.d("Alex", "sign out attempted")
+        BudgetViewModel.clear()
+        CategoryViewModel.clear()
+        ChatViewModel.clear()
+        DefaultsViewModel.clear()
+        ExpenditureViewModel.clear()
+        RecurringTransactionViewModel.clear()
+        SpenderViewModel.clear()
+        Firebase.auth.signOut()
+        mGoogleSignInClient.signOut()
+        MyApplication.userUID = ""
+        MyApplication.currentUserEmail = ""
+        MyApplication.userFamilyName = ""
+        MyApplication.userPhotoURL = ""
+        MyApplication.adminMode = false
+        requireActivity().invalidateOptionsMenu()
+        (activity as MainActivity).setLoggedOutMode(true)
+        binding.expandButton.isEnabled = false
+        binding.signInButton.visibility = View.VISIBLE
+        binding.signInButton.setSize(SignInButton.SIZE_WIDE)
+        binding.quoteField.text = ""
+        binding.quoteLabel.visibility = View.GONE
+        val trackerFragment: TrackerFragment =
+            childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
+        trackerFragment.hideBarChart()
+        MyApplication.haveLoadedDataForThisUser = false
+        onExpandClicked()
+        binding.adminButton.visibility = View.GONE
+    }
+
+    fun setAdminMode(inAdminMode: Boolean) {
+        if (inAdminMode)
+            binding.adminButton.visibility = View.VISIBLE
+        else
+            binding.adminButton.visibility = View.GONE
+        MyApplication.adminMode = inAdminMode
     }
 
     private fun getLastReadChatsInfo() {

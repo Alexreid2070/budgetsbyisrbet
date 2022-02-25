@@ -5,51 +5,148 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="12dp">
+    <LinearLayout
+        android:id="@+id/old_category_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/category_dialog_old_header_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/edit_category_old_name_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Current Details: "
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="Category: "
+                tools:ignore="HardcodedText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/old_category_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sub-Category: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/old_subcategory_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Type: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/old_disctype"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/category_dialog_linear_layout1"
+        android:id="@+id/category_dialog_new_header_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/edit_category_old_name_header"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Old Name"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+        app:layout_constraintTop_toBottomOf="@+id/old_category_layout">
 
         <TextView
             android:id="@+id/new_name_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="New Name"
-            android:textSize="16sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Change To:"
+            android:textSize="24sp"
             android:textStyle="bold"
+            android:paddingTop="20dp"
             tools:ignore="HardcodedText" />
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/category_dialog_linear_layout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout1"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_new_header_linear_layout"
         android:paddingBottom="10dp">
 
         <TextView
-            android:id="@+id/edit_category_old_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:text="Category: "
+            tools:ignore="HardcodedText" />
         <RelativeLayout
             android:id="@+id/inputSpinnerRelativeLayout"
             android:layout_width="wrap_content"
@@ -95,7 +192,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="16sp"
-            android:text="New Category: "
+            android:text="New Category Name: "
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -123,15 +220,14 @@
         app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout3"
         android:paddingBottom="10dp">
 
-    <TextView
-            android:id="@+id/edit_subcategory_old_name"
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Sub-Category: "
             android:textSize="16sp"
             android:textStyle="bold"
-        tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/subcatLayout"
@@ -160,7 +256,6 @@
         app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout4">
 
         <TextView
-            android:id="@+id/edit_category_old_disctype"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -234,7 +329,6 @@
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
