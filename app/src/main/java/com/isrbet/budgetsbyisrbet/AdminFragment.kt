@@ -110,24 +110,19 @@ class AdminFragment : Fragment() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach {
+                    var split1 = 0
+                    var split2 = 0
                     val key = it.key.toString()
                     it.children.forEach {
-                        if (it.key.toString() == "type") {
-                            if (it.value.toString() == "R") {
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                                    .child(key)
-                                    .child("type")
-                                    .setValue("Recurring")
-                                Log.d("Alex", "Updating transaction R")
-                            }
-                            if (it.value.toString() == "T") {
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                                    .child(key)
-                                    .child("type")
-                                    .setValue("Transfer")
-                                Log.d("Alex", "Updating transaction T")
-                            }
+                        if (it.key.toString() == "bfname1split") {
+                            split1 = it.value.toString().toDouble().toInt()
                         }
+                        if (it.key.toString() == "bfname2split") {
+                            split2 = it.value.toString().toDouble().toInt()
+                        }
+                    }
+                    if (split1 + split2 != 100) {
+                        Log.d("Alex", "Bad expenditure " + it.toString())
                     }
                 }
             }

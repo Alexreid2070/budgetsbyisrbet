@@ -151,14 +151,14 @@ class BudgetViewModel : ViewModel() {
                                 tBudgetAmount += budgetForPeriod.amount
                             } else {
                                 if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint") { // ie want a specific person, so also need his/her share of the Joint budget
-                                    tBudgetAmount += budgetForPeriod.amount * splitToUse / 100
+                                    tBudgetAmount += budgetForPeriod.amount * splitToUse / 100.0
                                 }
                             }
                         } else {
                             handlingAnnualBudget = true
                             var totalAnnualBudget = budgetForPeriod.amount // get total annual budget
                             if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
-                                totalAnnualBudget *= splitToUse
+                                totalAnnualBudget *= splitToUse/100.0
                             }
                             var totalAnnualActualsForEarlierMonths = 0.0
                             if (iBudgetMonth.month != 1) {
@@ -169,16 +169,26 @@ class BudgetViewModel : ViewModel() {
                                         BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
                                         SpenderViewModel.getSpenderName(i)
                                     )
+                                if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
+                                    totalAnnualActualsForEarlierMonths *= splitToUse/100.0
+                                }
                             }
-                            accumulatedActualsThisMonth +=
+                            var accumulatedActualsThisMonthForThisUser =
                                 ExpenditureViewModel.getActualsForPeriod(
                                     iCategory,
                                     iBudgetMonth,
                                     iBudgetMonth,
                                     SpenderViewModel.getSpenderName(i)
                                 )
+                            if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
+                                accumulatedActualsThisMonthForThisUser *= splitToUse/100.0
+                            }
+                            accumulatedActualsThisMonth += accumulatedActualsThisMonthForThisUser
                             val budgetRemaining =
-                                if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0) totalAnnualBudget - totalAnnualActualsForEarlierMonths else 0.0
+                                if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0)
+                                    totalAnnualBudget - totalAnnualActualsForEarlierMonths
+                                else
+                                    0.0
                             accumulatedBudgetRemaining += budgetRemaining
                         }
                     }

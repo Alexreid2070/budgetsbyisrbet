@@ -18,18 +18,21 @@ class GetBudgetAmountTest {
         SpenderViewModel.addLocalSpender(Spender("Joint", "", 100, 1))
         CategoryViewModel.addCategoryAndSubcategory("Housing", "Mortgage", "Non-Discretionary", true)
         CategoryViewModel.addCategoryAndSubcategory("Housing", "Property Taxes", "Non-Discretionary", true)
+        CategoryViewModel.addCategoryAndSubcategory("Housing", "Renos", "Non-Discretionary", true)
         CategoryViewModel.addCategoryAndSubcategory("Life", "Booze", "Discretionary", true)
         CategoryViewModel.addCategoryAndSubcategory("Life", "Annual", "Discretionary", true)
         BudgetViewModel.updateBudget(Category("Life-Booze"), "2022-01", "Alex", 5.0, cBUDGET_RECURRING, true)
         BudgetViewModel.updateBudget(Category("Life-Annual"), "2022-00", "Alex", 10.0, cBUDGET_RECURRING, true)
         BudgetViewModel.updateBudget(Category("Life-Annual"), "2022-00", "Brent", 10.0, cBUDGET_RECURRING, true)
         BudgetViewModel.updateBudget(Category("Housing-Mortgage"), "2022-01", "Joint", 100.0, cBUDGET_RECURRING, true)
+        BudgetViewModel.updateBudget(Category("Housing-Renos"), "2022-00", "Joint", 12000.0, cBUDGET_JUST_THIS_MONTH, true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-02-15", 4*100, "Life", "Booze", "test", "Alex", "Alex", 100, 0, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-01-15", 1*100, "Life", "Annual", "test", "Brent", "Brent", 0, 100, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-01-15", 2*100, "Life", "Annual", "test", "Alex", "Alex", 100, 0, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-02-15", 4*100, "Life", "Annual", "test", "Alex", "Alex", 100, 0, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-03-15", 7*100, "Life", "Annual", "test", "Alex", "Alex", 100, 0, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-04-15", 4*100, "Life", "Annual", "test", "Alex", "Alex", 100, 0, ""), true)
+        ExpenditureViewModel.addTransaction(ExpenditureOut("2022-02-15", 100*100, "Housing", "Renos", "test", "Joint", "Joint", 50, 50, ""), true)
 
         var ac = ExpenditureViewModel.getActualsForPeriod(Category("Life", "Booze"), BudgetMonth(2022,1), BudgetMonth(2022,1), "Alex")
         Assert.assertEquals(0.0, ac, 0.0)
@@ -210,5 +213,10 @@ class GetBudgetAmountTest {
         Assert.assertEquals(100.0, bmr, 0.0)
         bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-02"), Category("Housing-Mortgage"), "")
         Assert.assertEquals(100.0, bmr, 0.0)
+
+        bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-02"), Category("Housing-Renos"), "")
+        Assert.assertEquals(100.0, bmr, 0.0)
+        bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-02"), Category("Housing-Renos"), "Alex")
+        Assert.assertEquals(50.0, bmr, 0.0)
     }
 }
