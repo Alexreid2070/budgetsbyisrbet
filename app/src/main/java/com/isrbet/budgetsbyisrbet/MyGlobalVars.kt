@@ -387,7 +387,6 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
         return colorToReturn
     } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
         (rBudget == 0.0 && rActual > 0.0)) {
-            Log.d("Alex", "iActual " + iActual.toString() + " iBudget " + iBudget.toString() + " dsRed " + DefaultsViewModel.getDefault(cDEFAULT_SHOWRED) + " c1 " + (1.0 +(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0)).toString())
         if (inDarkMode(context))
             return ContextCompat.getColor(context, R.color.darkRed)
         else

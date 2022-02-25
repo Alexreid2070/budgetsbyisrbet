@@ -14,7 +14,7 @@
         <!-- used for dashboard rows -->
         <item name="colorOnPrimary">@color/lightestgray</item>
         <item name="colorOnSecondary">@color/lighter_gray</item>
-        <item name="colorSecondaryVariant">@color/light_gray</item>
+        <item name="colorSecondaryVariant">@color/sedona_opac</item>
         <item name="android:editTextBackground">@color/sedona</item>
         <item name="colorOnSurface">@color/sedona</item>
     </style>

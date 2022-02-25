@@ -4,21 +4,18 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.icu.text.DecimalFormat
-import android.icu.util.Calendar
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
-import android.widget.*
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
-import android.widget.TextView
-import android.widget.TableLayout
+import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
+import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.util.*
 
 class DashboardFragment : Fragment() {
@@ -34,6 +31,7 @@ class DashboardFragment : Fragment() {
     private var ytdMode: Boolean = false
 
     private fun startLoadData(iBudgetMonth: BudgetMonth, iDiscFlag: String = "", iPaidByFlag: String = "", iBoughtForFlag: String = "") {
+        Log.d("Alex", "startLoadData filters for $iBudgetMonth Disc: $iDiscFlag BoughtFor: $iBoughtForFlag")
         val dashboardRows = DashboardRows()
         val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth, iDiscFlag, iPaidByFlag, iBoughtForFlag, ytdMode)
 
@@ -358,7 +356,7 @@ class DashboardFragment : Fragment() {
     private fun refreshRows(iCategory: String, iVisibility: Int) {
         var firstDetailLine: Int
         var lastDetailLine = 0
-        mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
+        mTableLayout = binding.tableDashboardRows
         var tableRow: TableRow?
         do {
             lastDetailLine += 1
@@ -393,16 +391,27 @@ class DashboardFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_dashboard, container, false)
+        inflater.inflate(R.layout.fragment_dashboard, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+        mTableLayout = binding.tableDashboardRows
+        binding.tableDashboardRows.isStretchAllColumns = true
+
+        if (currentBudgetMonth.year == 0) {
+            val dateNow = Calendar.getInstance()
+            currentBudgetMonth =
+                BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+        }
+        startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+
         binding.buttonBackward.setOnClickListener {
             moveBackward()
         }
@@ -429,16 +438,6 @@ class DashboardFragment : Fragment() {
             setActionBarTitle()
             startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
-        mTableLayout = requireActivity().findViewById(R.id.table_dashboard_rows) as TableLayout
-        binding.tableDashboardRows.isStretchAllColumns = true
-
-        if (currentBudgetMonth.year == 0) {
-            val dateNow = Calendar.getInstance()
-            currentBudgetMonth =
-                BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
-        }
-        setActionBarTitle()
-        startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         binding.expandNav.setOnClickListener {
             onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
         }
@@ -451,6 +450,60 @@ class DashboardFragment : Fragment() {
         binding.expandFilter.setOnClickListener {
             onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
         }
+        binding.showDeltaRadioGroup.setOnCheckedChangeListener { _, optionId ->
+            when (optionId) {
+                R.id.dollarRadioButton -> {
+                    currentDeltaFilter = "#"
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    // do something when radio button 1 is selected
+                }
+                R.id.percentageRadioButton -> {
+                    currentDeltaFilter = "%"
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                }
+            }
+        }
+        binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
+            when (optionId) {
+                R.id.discRadioButton -> {
+                    currentDiscFilter = "Discretionary"
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    // do something when radio button 1 is selected
+                }
+                R.id.nonDiscRadioButton -> {
+                    currentDiscFilter = "Non-Discretionary"
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                }
+                R.id.allDiscRadioButton -> {
+                    currentDiscFilter = ""
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                }
+            }
+        }
+        binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
+            when (optionId) {
+                R.id.name1RadioButton -> {
+                    currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    // do something when radio button 1 is selected
+                }
+                R.id.name2RadioButton -> {
+                    currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                }
+                R.id.whoAllRadioButton -> {
+                    currentBoughtForFilter = ""
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                }
+            }
+        }
+        setActionBarTitle()
     }
 
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {
@@ -632,12 +685,15 @@ class DashboardFragment : Fragment() {
         var currentFilterIndicator = ""
         if (currentDiscFilter != "" || currentPaidByFilter != "" || currentBoughtForFilter != "")
             currentFilterIndicator = " FILTERED! "
-
         if (currentBudgetMonth.month == 0)
             binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
-        else
-            binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month-1] +
-                    " " + currentBudgetMonth.year  + currentFilterIndicator + ")"
+        else {
+            binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month - 1] +
+                        " " + currentBudgetMonth.year
+            if (ytdMode)
+                binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + " YTD"
+            binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + currentFilterIndicator + ")"
+        }
     }
 
     private fun moveBackward() {
@@ -717,10 +773,6 @@ class DashboardRows {
                 endDate = iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
             }
         }
-        Log.d(
-            "Alex",
-            "start date is $startDate and end date is $endDate iDiscFlag is '$iDiscFlag' and iPaidByFlag is $iPaidByFlag' and iBoughtForFlag is $iBoughtForFlag"
-        )
 
         for (i in 0 until ExpenditureViewModel.getCount()) {
             val expenditure = ExpenditureViewModel.getExpenditure(i)
@@ -806,7 +858,6 @@ class DashboardRows {
  //               whoToLookup = "Joint"
         }
         data.forEach {
-            Log.d("Alex", "iBudgetMonth.month is " + iBudgetMonth.month)
             if (iYTDMode) {
                 for (i in 1 until iBudgetMonth.month + 1) {
                     it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
@@ -816,7 +867,6 @@ class DashboardRows {
                         ),
                         Category(it.category, it.subcategory),
                         whoToLookup)
-                    Log.d("Alex", it.category + " " + it.subcategory + "it.budgetAmount is now" + it.budgetAmount)
                 }
             } else
                 it.budgetAmount = BudgetViewModel.getCalculatedBudgetAmount(
@@ -824,7 +874,6 @@ class DashboardRows {
                     Category(it.category, it.subcategory),
                     whoToLookup
                 )
-            Log.d("Alex", it.category + " " + it.subcategory + "it.budgetAmount is " + it.budgetAmount)
         }
 
         data.sortWith(compareBy({ it.category }, { it.subcategory }))

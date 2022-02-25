@@ -111,8 +111,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
     // this is called when a new notification is created
     override fun onNotificationPosted(newNotification: StatusBarNotification) {
-        Log.i("Alex", "-------- onNotificationPosted(): " + "ID :" + newNotification.id + "\t" + newNotification.notification.tickerText + "\t" + newNotification.packageName)
-        Log.d("Alex", "onNotificationPosted :" + newNotification.packageName + "\n")
+//        Log.i("Alex", "-------- onNotificationPosted(): " + "ID :" + newNotification.id + "\t" + newNotification.notification.tickerText + "\t" + newNotification.packageName)
+//        Log.d("Alex", "onNotificationPosted :" + newNotification.packageName + "\n")
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
