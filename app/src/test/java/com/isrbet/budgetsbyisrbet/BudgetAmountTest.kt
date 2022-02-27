@@ -33,6 +33,7 @@ class GetBudgetAmountTest {
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-03-15", 7*100, "Life", "Annual", "test", "Alex", "Alex", 100, 0, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-04-15", 4*100, "Life", "Annual", "test", "Alex", "Alex", 100, 0, ""), true)
         ExpenditureViewModel.addTransaction(ExpenditureOut("2022-02-15", 100*100, "Housing", "Renos", "test", "Joint", "Joint", 50, 50, ""), true)
+        ExpenditureViewModel.addTransaction(ExpenditureOut("2022-03-15", 100*100, "Housing", "Renos", "test", "Joint", "Joint", 20, 80, ""), true)
 
         var ac = ExpenditureViewModel.getActualsForPeriod(Category("Life", "Booze"), BudgetMonth(2022,1), BudgetMonth(2022,1), "Alex")
         Assert.assertEquals(0.0, ac, 0.0)
@@ -218,5 +219,14 @@ class GetBudgetAmountTest {
         Assert.assertEquals(100.0, bmr, 0.0)
         bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-02"), Category("Housing-Renos"), "Alex")
         Assert.assertEquals(50.0, bmr, 0.0)
+
+        bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-03"), Category("Housing-Renos"), "")
+        Assert.assertEquals(100.0, bmr, 0.0)
+        bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-03"), Category("Housing-Renos"), "Alex")
+        Assert.assertEquals(20.0, bmr, 0.0)
+        bmr = BudgetViewModel.getCalculatedBudgetAmount(BudgetMonth("2022-03"), Category("Housing-Renos"), "Brent")
+        Assert.assertEquals(80.0, bmr, 0.0)
+        bmr = BudgetViewModel.getTotalCalculatedBudgetForMonthForCategory(Category("Housing-Renos"), BudgetMonth("2022-03"), cDiscTypeAll)
+        Assert.assertEquals(100.0, bmr, 0.0)
     }
 }

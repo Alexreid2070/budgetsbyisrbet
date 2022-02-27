@@ -12,10 +12,7 @@ import java.util.ArrayList
 
 data class BudgetPeriod(var period: BudgetMonth, var who: String, var amount: Double, var occurence: Int) {
     fun isAnnualBudget(): Boolean {
-        if (period.month == 0)
-            return true
-        else
-            return false
+        return (period.month == 0)
     }
     fun getYear(): Int {
         return period.year
@@ -47,7 +44,7 @@ data class Budget(var category: Category) {
     fun overlapsWithExistingBudget(period: String, who: String): Boolean {
         val pBudget = budgetPeriodList.find { it.period.toString() == period && it.who == who }
         if (pBudget != null) { // ie found it
-            Log.d("Alex", "Found overlap " + period + " and " + pBudget.toString() )
+            Log.d("Alex", "Found overlap $period and $pBudget")
             return true  // ie it overlaps
         }
         // if incoming is an annual, and there is an existing monthly
@@ -56,7 +53,7 @@ data class Budget(var category: Category) {
             var ti: String
             for (i in 1..12) {
                 if (i < 10)
-                    ti = "0" + i.toString()
+                    ti = "0$i"
                 else
                     ti = i.toString()
                 budgetPeriodList.forEach {
@@ -167,22 +164,24 @@ class BudgetViewModel : ViewModel() {
                                         iCategory,
                                         BudgetMonth(iBudgetMonth.year, 1),
                                         BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
-                                        SpenderViewModel.getSpenderName(i)
+                                        SpenderViewModel.getSpenderName(i),
+                                        iWhoToLookup
                                     )
-                                if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
+/*                                if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
                                     totalAnnualActualsForEarlierMonths *= splitToUse/100.0
-                                }
+                                } */
                             }
                             var accumulatedActualsThisMonthForThisUser =
                                 ExpenditureViewModel.getActualsForPeriod(
                                     iCategory,
                                     iBudgetMonth,
                                     iBudgetMonth,
-                                    SpenderViewModel.getSpenderName(i)
+                                    SpenderViewModel.getSpenderName(i),
+                                    iWhoToLookup
                                 )
-                            if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
+/*                            if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
                                 accumulatedActualsThisMonthForThisUser *= splitToUse/100.0
-                            }
+                            } */
                             accumulatedActualsThisMonth += accumulatedActualsThisMonthForThisUser
                             val budgetRemaining =
                                 if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0)
@@ -306,7 +305,8 @@ class BudgetViewModel : ViewModel() {
                             iCategory,
                             SpenderViewModel.getSpenderName(i)
                         )
-                        if (iBudgetMonth.month == 0) { // annual budget, so need to look at actuals as well
+                        Log.d("Alex", "bpAmt is $bpAmt")
+/*                        if (iBudgetMonth.month == 0) { // annual budget, so need to look at actuals as well
                             val lookupStartDate = BudgetMonth(iBudgetMonth.year, 0)
                             val lookupEndDate = iBudgetMonth
                             val actualsThisMonth = ExpenditureViewModel.getActualsForPeriod(
@@ -323,9 +323,9 @@ class BudgetViewModel : ViewModel() {
                             val budgetRemaining =
                                 if (bpAmt - actualsEarlierThisYear > 0.0) bpAmt - actualsEarlierThisYear else 0.0
                             tmpTotal += if (actualsThisMonth < budgetRemaining) actualsThisMonth else budgetRemaining
-                        } else {
+                        } else { */
                             tmpTotal += bpAmt
-                        }
+//                        }
                     }
                 }
             }

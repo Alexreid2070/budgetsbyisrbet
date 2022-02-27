@@ -157,7 +157,7 @@ class ExpenditureViewModel : ViewModel() {
             return  tList
         }
 
-        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String): Double {
+        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String, iSubWho: String = ""): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
@@ -167,13 +167,21 @@ class ExpenditureViewModel : ViewModel() {
                         expenditure.date <= lastDay &&
                         expenditure.category == iCategory.categoryName &&
                         expenditure.subcategory == iCategory.subcategoryName &&
-                        (expenditure.boughtfor == iWho))  // || iWho == "Joint")) {
+                        (expenditure.boughtfor == iWho)) { // || iWho == "Joint")) {
                     // this is a transaction to add to our subtotal
 //                        if (iWho != "" && iWho != "Joint") // ie want a specific person
 //                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
 //                        else
-                            tTotal += (expenditure.amount.toDouble() / 100)
+                    if (iWho == "Joint" && iSubWho != "") {
+                        if (SpenderViewModel.getSpenderName(0) == iSubWho)
+                            tTotal += (expenditure.amount.toDouble() / 100 * expenditure.bfname1split /100)
+                        else
+                            tTotal += (expenditure.amount.toDouble() / 100 * expenditure.bfname2split /100)
+                    } else {
+                        tTotal += (expenditure.amount.toDouble() / 100)
                     }
+                }
+            }
             return tTotal
         }
 
@@ -229,11 +237,11 @@ class ExpenditureViewModel : ViewModel() {
         fun getPreviousTransferKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
             val ind = singleInstance.expenditures.indexOf(exp)
-            for (i in ind-1 until 0)
+            for (i in ind-1 downTo 0)
                 if (singleInstance.expenditures[i].type == "Transfer")
                     return singleInstance.expenditures[i].mykey
             // if we get here, we didn't find a transfer in the rest of the expenditure list, so start at the beginning
-            for (i in singleInstance.expenditures.size-1 until ind)
+            for (i in singleInstance.expenditures.size-1 downTo ind)
                 if (singleInstance.expenditures[i].type == "Transfer")
                     return singleInstance.expenditures[i].mykey
             return iKey

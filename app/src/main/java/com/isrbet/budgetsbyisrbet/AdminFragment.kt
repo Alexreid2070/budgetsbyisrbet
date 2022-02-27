@@ -112,8 +112,16 @@ class AdminFragment : Fragment() {
                 dataSnapshot.children.forEach {
                     var split1 = 0
                     var split2 = 0
+                    var paidby = ""
+                    var boughtfor = ""
                     val key = it.key.toString()
                     it.children.forEach {
+                        if (it.key.toString() == "paidby") {
+                            paidby = it.value.toString()
+                        }
+                        if (it.key.toString() == "boughtfor") {
+                            boughtfor = it.value.toString()
+                        }
                         if (it.key.toString() == "bfname1split") {
                             split1 = it.value.toString().toDouble().toInt()
                         }
@@ -121,8 +129,14 @@ class AdminFragment : Fragment() {
                             split2 = it.value.toString().toDouble().toInt()
                         }
                     }
-                    if (split1 + split2 != 100) {
-                        Log.d("Alex", "Bad expenditure " + it.toString())
+                    if (boughtfor == "Alex" && split1 != 100) {
+                        Log.d("Alex", "Alex != 100 " + it.toString())
+                    }
+                    if (boughtfor == "Brent" && split2 != 100) {
+                        Log.d("Alex", "Brent != 100 " + it.toString())
+                    }
+                    if (boughtfor == "Joint" && (split1 != 50 || split2 != 50)) {
+                        Log.d("Alex", "Joint != 50 " + it.toString())
                     }
                 }
             }

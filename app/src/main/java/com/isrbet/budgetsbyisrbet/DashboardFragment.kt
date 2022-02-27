@@ -411,6 +411,8 @@ class DashboardFragment : Fragment() {
                 BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
         }
         startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
+        binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
 
         binding.buttonBackward.setOnClickListener {
             moveBackward()

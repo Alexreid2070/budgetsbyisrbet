@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -99,7 +100,7 @@ class TransferFragment : Fragment() {
             binding.splitName2Label.text = SpenderViewModel.getSpenderName(1)
         }
         if (newTransferMode) {
-            (activity as AppCompatActivity).supportActionBar?.title = "Add Transfer"
+            binding.pageTitle.text = "Add Transfer"
             binding.buttonPrevTransfer.visibility = View.GONE
             binding.buttonNextTransfer.visibility = View.GONE
             if (!SpenderViewModel.singleUser()) {
@@ -107,8 +108,9 @@ class TransferFragment : Fragment() {
                 button.isChecked = true
                 button = binding.toRadioGroup.getChildAt(1) as RadioButton
                 button.isChecked = true
-            }
-            if (!SpenderViewModel.singleUser()) {
+
+                binding.splitLayout.visibility = View.GONE
+
                 val selectedId = binding.toRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 when {
@@ -131,8 +133,9 @@ class TransferFragment : Fragment() {
                 }
             }
         } else {
-            (activity as AppCompatActivity).supportActionBar?.title = "View Transfer"
+            binding.pageTitle.text = "View Transfer"
             binding.buttonSaveTransfer.visibility = View.GONE
+            binding.buttonCancelTransfer.visibility = View.GONE
             binding.editTextDate.isEnabled = false
             binding.editTextAmount.isEnabled = false
             binding.editTextNote.isEnabled = false
@@ -208,9 +211,11 @@ class TransferFragment : Fragment() {
             if (radioButton.text == "Joint") {
                 binding.splitName1Split.isEnabled = true
                 binding.splitName2Split.isEnabled = true
+                binding.splitLayout.visibility = View.VISIBLE
             } else {
                 binding.splitName1Split.isEnabled = false
                 binding.splitName2Split.isEnabled = false
+                binding.splitLayout.visibility = View.GONE
             }
         }
         binding.buttonPrevTransfer.setOnClickListener {
@@ -266,7 +271,7 @@ class TransferFragment : Fragment() {
     }
     private fun editTransfer(iTransactionID: String) {
         Log.d("Alex", "clicked on $iTransactionID")
-        (activity as AppCompatActivity).supportActionBar?.title = "Edit Transfer"
+        binding.pageTitle.text = "Edit Transfer"
         binding.buttonSaveTransfer.visibility = View.VISIBLE
         binding.buttonNextTransfer.visibility = View.GONE
         binding.buttonPrevTransfer.visibility = View.GONE
@@ -306,6 +311,7 @@ class TransferFragment : Fragment() {
     }
 
     private fun viewTransfer(iTransactionID: String) {
+        Log.d("Alex", "viewTransfer key $iTransactionID")
         val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
         binding.transactionId.text = iTransactionID
         if (MyApplication.adminMode) {
@@ -323,13 +329,16 @@ class TransferFragment : Fragment() {
             binding.editTextNote.setText(thisTransaction.note)
             binding.splitName1Split.setText(thisTransaction.bfname1split.toString())
             binding.splitName2Split.setText(thisTransaction.bfname2split.toString())
-
+            if (thisTransaction.boughtfor == "Joint") {
+                binding.splitLayout.visibility = View.VISIBLE
+            } else {
+                binding.splitLayout.visibility = View.GONE
+            }
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == thisTransaction.paidby) {
-                        Log.d("Alex", "match")
                         o.isChecked = true
                     }
                 }
@@ -339,7 +348,6 @@ class TransferFragment : Fragment() {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == thisTransaction.boughtfor) {
-                        Log.d("Alex", "match")
                         o.isChecked = true
                     }
                 }
