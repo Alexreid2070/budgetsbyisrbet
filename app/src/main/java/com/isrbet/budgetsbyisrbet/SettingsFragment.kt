@@ -139,6 +139,10 @@ class SettingsFragment : Fragment() {
         binding.switchQuote.isChecked = DefaultsViewModel.getDefault(cDEFAULT_QUOTE) != "Off"
         binding.switchIntegrateWithTD.isChecked =
             DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) != "Off"
+        if (binding.switchIntegrateWithTD.isChecked)
+            binding.manageTranslationsLayout.visibility = View.VISIBLE
+        else
+            binding.manageTranslationsLayout.visibility = View.GONE
         binding.redPercentageSlider.value = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
         binding.redPercentage.text = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt().toString()
 
@@ -147,6 +151,16 @@ class SettingsFragment : Fragment() {
             for (i in 0 until binding.defaultSpenderRadioGroup.getChildCount()) {
                 (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
+        }
+        binding.switchIntegrateWithTD.setOnCheckedChangeListener { _, _ ->
+            if (binding.switchIntegrateWithTD.isChecked) {
+                binding.manageTranslationsLayout.visibility = View.VISIBLE
+            } else {
+                binding.manageTranslationsLayout.visibility = View.GONE
+            }
+        }
+        binding.buttonEditTranslations.setOnClickListener {
+            findNavController().navigate(R.id.ViewTranslationsFragment)
         }
         binding.switchSecondUserActive.setOnCheckedChangeListener { _, _ ->
             if (binding.switchSecondUserActive.isChecked) {

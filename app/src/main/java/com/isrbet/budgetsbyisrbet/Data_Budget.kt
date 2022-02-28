@@ -305,7 +305,6 @@ class BudgetViewModel : ViewModel() {
                             iCategory,
                             SpenderViewModel.getSpenderName(i)
                         )
-                        Log.d("Alex", "bpAmt is $bpAmt")
 /*                        if (iBudgetMonth.month == 0) { // annual budget, so need to look at actuals as well
                             val lookupStartDate = BudgetMonth(iBudgetMonth.year, 0)
                             val lookupEndDate = iBudgetMonth

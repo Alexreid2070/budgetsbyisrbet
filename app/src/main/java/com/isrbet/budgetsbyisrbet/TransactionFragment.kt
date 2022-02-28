@@ -132,6 +132,20 @@ class TransactionFragment : Fragment() {
         binding.buttonNextTransaction.setOnClickListener {
             viewTransaction(ExpenditureViewModel.getNextKey(binding.transactionId.text.toString()))
         }
+        binding.buttonEdit.setOnClickListener {
+            if (binding.transactionType.text.toString() == "Transfer") {
+                val action =
+                    TransactionFragmentDirections.actionTransactionFragmentToTransferFragment()
+                action.mode = "edit"
+                action.transactionID = binding.transactionId.text.toString()
+                findNavController().navigate(action)
+            }
+            else
+                editTransaction(args.transactionID)
+        }
+        binding.buttonDelete.setOnClickListener {
+            deleteTransaction(args.transactionID)
+        }
         binding.buttonSaveTransaction.setOnClickListener {
             onSaveTransactionButtonClicked()
         }
@@ -186,7 +200,8 @@ class TransactionFragment : Fragment() {
         }
 
         if (newTransactionMode) {
-            (activity as AppCompatActivity).supportActionBar?.title = "Add Transaction"
+            binding.expansionLayout.visibility = View.GONE
+            binding.pageTitle.text = "Add Transaction"
             binding.inputPaidByLabel.text = "Who:"
             binding.recurringTransactionLabel.visibility = View.GONE
             if (CustomNotificationListenerService.getExpenseNotificationCount() > 0 &&
@@ -195,8 +210,6 @@ class TransactionFragment : Fragment() {
             } else {
                 binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
             }
-            binding.buttonPrevTransaction.visibility = View.GONE
-            binding.buttonNextTransaction.visibility = View.GONE
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
             binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
@@ -230,7 +243,7 @@ class TransactionFragment : Fragment() {
             }
         }
         else {
-            (activity as AppCompatActivity).supportActionBar?.title = "View Expenditure"
+            binding.pageTitle.text = "View Expenditure"
             binding.buttonCancelTransaction.visibility = View.GONE
             binding.buttonSaveTransaction.visibility = View.GONE
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
@@ -333,12 +346,11 @@ class TransactionFragment : Fragment() {
         Log.d("Alex", "editing $iTransactionID")
         var currentCategory = ""
         Log.d("Alex", "clicked edit")
-        (activity as AppCompatActivity).supportActionBar?.title = "Edit Transaction"
+        binding.pageTitle.text = "Edit Transaction"
         binding.buttonCancelTransaction.visibility = View.VISIBLE
         binding.buttonSaveTransaction.visibility = View.VISIBLE
         binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
-        binding.buttonPrevTransaction.visibility = View.GONE
-        binding.buttonNextTransaction.visibility = View.GONE
+        binding.expansionLayout.visibility = View.GONE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
@@ -395,13 +407,13 @@ class TransactionFragment : Fragment() {
             editingKey = iTransactionID
 
             if (thisTransaction.type == "Transfer") {
-                (activity as AppCompatActivity).supportActionBar?.title = "View Transfer"
+                binding.pageTitle.text = "View Transfer"
                 binding.inputCategoryLabel.visibility = View.GONE
                 binding.categoryRadioGroup.visibility = View.GONE
                 binding.inputSubcategoryLabel.visibility = View.GONE
                 binding.inputSpinnerRelativeLayout.visibility = View.GONE
             } else {
-                (activity as AppCompatActivity).supportActionBar?.title = "View Expenditure"
+                binding.pageTitle.text = "View Expenditure"
                 binding.inputCategoryLabel.visibility = View.VISIBLE
                 binding.categoryRadioGroup.visibility = View.VISIBLE
                 binding.inputSubcategoryLabel.visibility = View.VISIBLE

@@ -317,75 +317,110 @@
                         android:textSize="16sp"
                         android:textStyle="bold"/>
                 </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_below="@id/transaction_id_layout">
+
+                <LinearLayout
+                    android:id="@+id/button_linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_gravity="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/button_cancel_transfer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:text="Cancel"
+                        app:layout_constraintStart_toStartOf="parent"
+                        tools:ignore="HardcodedText" />
+
+                    <Button
+                        android:id="@+id/button_save_transfer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Save"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_gravity="center"
+                        app:layout_constraintStart_toStartOf="parent"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
     <LinearLayout
+        android:id="@+id/expansion_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:background="?attr/colorSecondaryVariant"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/button_prev_transfer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:text="Prev"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:ignore="HardcodedText" />
-            <Space
-                android:layout_width="20dp"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:id="@+id/button_next_transfer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_weight="1"
-                android:text="Next"
-                app:layout_constraintStart_toEndOf="@id/button_prev_transaction"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:ignore="HardcodedText" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/button_linear_layout"
-            android:layout_width="match_parent"
+        <ImageButton
+            android:id="@+id/button_prev_transfer"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_gravity="center"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:tooltipText="Previous transfer"
             android:gravity="center"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/button_cancel_transfer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="Cancel"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:ignore="HardcodedText" />
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:src="@drawable/ic_baseline_arrow_back_24" />
 
-            <Button
-                android:id="@+id/button_save_transfer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Save"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_gravity="center"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:ignore="HardcodedText" />
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/button_next_transfer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:tooltipText="Next transfer"
+            android:gravity="center"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:src="@drawable/ic_baseline_arrow_forward_24" />
+
+        <ImageButton
+            android:id="@+id/button_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:tooltipText="Edit transaction"
+            android:gravity="center"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:src="@drawable/ic_baseline_edit_24" />
+
+        <ImageButton
+            android:id="@+id/button_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:tooltipText="Delete transaction"
+            android:gravity="center"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:src="@drawable/ic_baseline_delete_24" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

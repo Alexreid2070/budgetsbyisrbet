@@ -101,8 +101,7 @@ class TransferFragment : Fragment() {
         }
         if (newTransferMode) {
             binding.pageTitle.text = "Add Transfer"
-            binding.buttonPrevTransfer.visibility = View.GONE
-            binding.buttonNextTransfer.visibility = View.GONE
+            binding.expansionLayout.visibility = View.GONE
             if (!SpenderViewModel.singleUser()) {
                 var button = binding.fromRadioGroup.getChildAt(0) as RadioButton
                 button.isChecked = true
@@ -224,6 +223,12 @@ class TransferFragment : Fragment() {
         binding.buttonNextTransfer.setOnClickListener {
             viewTransfer(ExpenditureViewModel.getNextTransferKey(binding.transactionId.text.toString()))
         }
+        binding.buttonEdit.setOnClickListener {
+            editTransfer(args.transactionID)
+        }
+        binding.buttonDelete.setOnClickListener {
+            deleteTransfer(args.transactionID)
+        }
         if (args.mode == "edit")
             editTransfer(args.transactionID)
     }
@@ -272,9 +277,9 @@ class TransferFragment : Fragment() {
     private fun editTransfer(iTransactionID: String) {
         Log.d("Alex", "clicked on $iTransactionID")
         binding.pageTitle.text = "Edit Transfer"
-        binding.buttonSaveTransfer.visibility = View.VISIBLE
-        binding.buttonNextTransfer.visibility = View.GONE
-        binding.buttonPrevTransfer.visibility = View.GONE
+        binding.expansionLayout.visibility = View.GONE
+        binding.buttonEdit.visibility = View.GONE
+        binding.buttonDelete.visibility = View.GONE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
