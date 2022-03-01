@@ -126,7 +126,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
-                            android:inputType="numberDecimal" />
+                            android:inputType="numberDecimal|numberSigned" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 

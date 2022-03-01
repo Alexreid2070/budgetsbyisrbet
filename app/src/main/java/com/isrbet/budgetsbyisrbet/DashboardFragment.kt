@@ -12,8 +12,6 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.util.*
@@ -23,17 +21,15 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
     private var mTableLayout: TableLayout? = null
     private var currentBudgetMonth: BudgetMonth = BudgetMonth(0,0)
-    private var currentDiscFilter: String = ""
-    private var currentDeltaFilter: String = "#"
-    private var currentPaidByFilter: String = ""
-    private var currentBoughtForFilter: String = ""
     private var collapsedCategories: MutableList<String> = ArrayList()
-    private var ytdMode: Boolean = false
 
-    private fun startLoadData(iBudgetMonth: BudgetMonth, iDiscFlag: String = "", iPaidByFlag: String = "", iBoughtForFlag: String = "") {
-        Log.d("Alex", "startLoadData filters for $iBudgetMonth Disc: $iDiscFlag BoughtFor: $iBoughtForFlag")
+    private fun startLoadData(iBudgetMonth: BudgetMonth) {
+        Log.d("Alex", "startLoadData filters for $iBudgetMonth")
         val dashboardRows = DashboardRows()
-        val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth, iDiscFlag, iPaidByFlag, iBoughtForFlag, ytdMode)
+        val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth,
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD),
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD),
+            DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD))
 
         val rows = data.size
         var textSpacer: TextView?
@@ -205,7 +201,7 @@ class DashboardFragment : Fragment() {
         } else {
             tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType != "Delta") {
-                if (currentDeltaFilter == "%") {
+                if (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD) == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
                     when {
                         iActualAmount == 0.0 -> tv5.text = "0 %"
@@ -393,7 +389,6 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
 
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_dashboard, container, false)
@@ -407,10 +402,28 @@ class DashboardFragment : Fragment() {
 
         if (currentBudgetMonth.year == 0) {
             val dateNow = Calendar.getInstance()
-            currentBudgetMonth =
-                BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+            if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
+                currentBudgetMonth =
+                    BudgetMonth(dateNow.get(Calendar.YEAR), 0)
+            else
+                currentBudgetMonth =
+                    BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
         }
-        startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD)) {
+            cDiscTypeDiscretionary -> binding.discRadioButton.isChecked = true
+            cDiscTypeNondiscretionary -> binding.nonDiscRadioButton.isChecked = true
+            else -> binding.allDiscRadioButton.isChecked = true
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)) {
+            SpenderViewModel.getSpenderName(0) -> binding.name1RadioButton.isChecked = true
+            SpenderViewModel.getSpenderName(1) -> binding.name2RadioButton.isChecked = true
+            else -> binding.whoAllRadioButton.isChecked = true
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD)) {
+            "#" -> binding.dollarRadioButton.isChecked = true
+            "%" -> binding.percentageRadioButton.isChecked = true
+        }
+        startLoadData(currentBudgetMonth)
         binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
         binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
 
@@ -421,24 +434,24 @@ class DashboardFragment : Fragment() {
             moveForward()
         }
         binding.buttonViewMonth.setOnClickListener {
-            ytdMode = false
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Month")
             val dateNow = Calendar.getInstance()
             currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+            startLoadData(currentBudgetMonth)
         }
         binding.buttonViewYtd.setOnClickListener {
-            ytdMode = true
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "YTD")
             val dateNow = Calendar.getInstance()
             currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+            startLoadData(currentBudgetMonth)
         }
         binding.buttonViewYear.setOnClickListener {
-            ytdMode = false
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Year")
             currentBudgetMonth.month = 0
             setActionBarTitle()
-            startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+            startLoadData(currentBudgetMonth)
         }
         binding.expandNav.setOnClickListener {
             onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
@@ -455,55 +468,67 @@ class DashboardFragment : Fragment() {
         binding.showDeltaRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
                 R.id.dollarRadioButton -> {
-                    currentDeltaFilter = "#"
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "#")
+                    startLoadData(currentBudgetMonth)
                     // do something when radio button 1 is selected
                 }
                 R.id.percentageRadioButton -> {
-                    currentDeltaFilter = "%"
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "%")
+                    startLoadData(currentBudgetMonth)
                 }
             }
         }
         binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
                 R.id.discRadioButton -> {
-                    currentDiscFilter = cDiscTypeDiscretionary
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeDiscretionary)
                     setActionBarTitle()
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    startLoadData(currentBudgetMonth)
                     // do something when radio button 1 is selected
                 }
                 R.id.nonDiscRadioButton -> {
-                    currentDiscFilter = cDiscTypeNondiscretionary
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeNondiscretionary)
                     setActionBarTitle()
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    startLoadData(currentBudgetMonth)
                 }
                 R.id.allDiscRadioButton -> {
-                    currentDiscFilter = ""
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
                     setActionBarTitle()
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    startLoadData(currentBudgetMonth)
                 }
             }
         }
         binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
                 R.id.name1RadioButton -> {
-                    currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(0, true)?.name.toString())
                     setActionBarTitle()
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    startLoadData(currentBudgetMonth)
                     // do something when radio button 1 is selected
                 }
                 R.id.name2RadioButton -> {
-                    currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(1, true)?.name.toString())
                     setActionBarTitle()
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    startLoadData(currentBudgetMonth)
                 }
                 R.id.whoAllRadioButton -> {
-                    currentBoughtForFilter = ""
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "")
                     setActionBarTitle()
-                    startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+                    startLoadData(currentBudgetMonth)
                 }
             }
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD)) {
+            "Month" -> binding.buttonViewMonth.isChecked = true
+            "YTD" -> binding.buttonViewYtd.isChecked = true
+            "Year" -> binding.buttonViewYear.isChecked = true
+        }
+        binding.resetFilterButton.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
+            binding.allDiscRadioButton.isChecked = true
+            DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "")
+            binding.whoAllRadioButton.isChecked = true
+            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
         }
         setActionBarTitle()
     }
@@ -531,168 +556,19 @@ class DashboardFragment : Fragment() {
         layout.visibility = View.GONE
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            if (menu.getItem(i).itemId == R.id.DeltaPercentage) {
-                menu.getItem(i).isVisible = true
-                menu.getItem(i).isChecked = currentDeltaFilter == "%"
-            } else if (menu.getItem(i).itemId == R.id.DeltaNumeric) {
-                menu.getItem(i).isVisible = true
-                menu.getItem(i).isChecked = currentDeltaFilter == "#"
-            } else if (menu.getItem(i).itemId == R.id.FilterDiscretionary) {
-                menu.getItem(i).isVisible = true
-                menu.getItem(i).isChecked = currentDiscFilter == cDiscTypeDiscretionary
-            } else if (menu.getItem(i).itemId == R.id.FilterNonDiscretionary) {
-                menu.getItem(i).isVisible = true
-                menu.getItem(i).isChecked = currentDiscFilter == cDiscTypeNondiscretionary
-            } else if (menu.getItem(i).itemId == R.id.FilterPaidByName1 ||
-                menu.getItem(i).itemId == R.id.FilterPaidByName2 ||
-                menu.getItem(i).itemId == R.id.FilterPaidByTitle ||
-                menu.getItem(i).itemId == R.id.FilterBoughtForTitle ||
-                menu.getItem(i).itemId == R.id.FilterBoughtForName1 ||
-                menu.getItem(i).itemId == R.id.FilterBoughtForName2) {
-                if (!SpenderViewModel.singleUser()) {
-                    if (menu.getItem(i).itemId == R.id.FilterPaidByTitle ||
-                        menu.getItem(i).itemId == R.id.FilterBoughtForTitle) {
-                        menu.getItem(i).isVisible = true
-                    } else if (menu.getItem(i).itemId == R.id.FilterPaidByName1) {
-                        menu.getItem(i).isVisible = true
-                        menu.getItem(i).title = SpenderViewModel.getSpender(0, true)?.name
-                        menu.getItem(i).isChecked =
-                            currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name
-                    } else if (menu.getItem(i).itemId == R.id.FilterPaidByName2) {
-                        menu.getItem(i).isVisible = true
-                        menu.getItem(i).title = SpenderViewModel.getSpender(1, true)?.name
-                        menu.getItem(i).isChecked =
-                            currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name
-                    } else if (menu.getItem(i).itemId == R.id.FilterBoughtForName1) {
-                        menu.getItem(i).isVisible = true
-                        menu.getItem(i).title = SpenderViewModel.getSpender(0, true)?.name
-                        menu.getItem(i).isChecked =
-                            currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name
-                    } else if (menu.getItem(i).itemId == R.id.FilterBoughtForName2) {
-                        menu.getItem(i).isVisible = true
-                        menu.getItem(i).title = SpenderViewModel.getSpender(1, true)?.name
-                        menu.getItem(i).isChecked =
-                            currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name
-                    }
-                }
-            } else
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.FilterTitle
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.DeltaPercentage -> {
-                currentDeltaFilter = "%"
-                activity?.invalidateOptionsMenu()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.DeltaNumeric -> {
-                currentDeltaFilter = "#"
-                activity?.invalidateOptionsMenu()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.FilterDiscretionary -> {
-                if (currentDiscFilter == cDiscTypeDiscretionary) {
-                    item.isChecked = false
-                    currentDiscFilter = ""
-                } else {
-                    item.isChecked = true
-                    currentDiscFilter = cDiscTypeDiscretionary
-                }
-                activity?.invalidateOptionsMenu()
-                setActionBarTitle()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.FilterNonDiscretionary -> {
-                if (currentDiscFilter == cDiscTypeNondiscretionary) {
-                    item.isChecked = false
-                    currentDiscFilter = ""
-                } else {
-                    item.isChecked = true
-                    currentDiscFilter = cDiscTypeNondiscretionary
-                }
-                activity?.invalidateOptionsMenu()
-                setActionBarTitle()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.FilterPaidByName1 -> {
-                if (currentPaidByFilter == SpenderViewModel.getSpender(0, true)?.name) {
-                    item.isChecked = false
-                    currentPaidByFilter = ""
-                } else {
-                    item.isChecked = true
-                    currentPaidByFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
-                }
-                activity?.invalidateOptionsMenu()
-                setActionBarTitle()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.FilterPaidByName2 -> {
-                if (currentPaidByFilter == SpenderViewModel.getSpender(1, true)?.name) {
-                    item.isChecked = false
-                    currentPaidByFilter = ""
-                } else {
-                    item.isChecked = true
-                    currentPaidByFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
-                }
-                activity?.invalidateOptionsMenu()
-                setActionBarTitle()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.FilterBoughtForName1 -> {
-                if (currentBoughtForFilter == SpenderViewModel.getSpender(0, true)?.name) {
-                    item.isChecked = false
-                    currentBoughtForFilter = ""
-                } else {
-                    item.isChecked = true
-                    currentBoughtForFilter = SpenderViewModel.getSpender(0, true)?.name.toString()
-                }
-                activity?.invalidateOptionsMenu()
-                setActionBarTitle()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            R.id.FilterBoughtForName2 -> {
-                if (currentBoughtForFilter == SpenderViewModel.getSpender(1, true)?.name) {
-                    item.isChecked = false
-                    currentBoughtForFilter = ""
-                } else {
-                    item.isChecked = true
-                    currentBoughtForFilter = SpenderViewModel.getSpender(1, true)?.name.toString()
-                }
-                activity?.invalidateOptionsMenu()
-                setActionBarTitle()
-                startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-                return true
-            }
-            else -> {
-                val navController = findNavController()
-                return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-            }
-        }
-    }
-
     @SuppressLint("SetTextI18n")
     private fun setActionBarTitle() {
         var currentFilterIndicator = ""
-        if (currentDiscFilter != "" || currentPaidByFilter != "" || currentBoughtForFilter != "")
-            currentFilterIndicator = " FILTERED! "
+        if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD) != "")
+            currentFilterIndicator = " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD).substring(0,5)
+        if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD) != "")
+            currentFilterIndicator = currentFilterIndicator + " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)
         if (currentBudgetMonth.month == 0)
             binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
         else {
             binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month - 1] +
                         " " + currentBudgetMonth.year
-            if (ytdMode)
+            if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "YTD")
                 binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + " YTD"
             binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + currentFilterIndicator + ")"
         }
@@ -705,7 +581,7 @@ class DashboardFragment : Fragment() {
             currentBudgetMonth.decrementMonth()
         setActionBarTitle()
         Log.d("Alex", "In backward, loading $currentBudgetMonth")
-        startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        startLoadData(currentBudgetMonth)
 
     }
 
@@ -715,7 +591,7 @@ class DashboardFragment : Fragment() {
         else
             currentBudgetMonth.addMonth()
         setActionBarTitle()
-        startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+        startLoadData(currentBudgetMonth)
     }
 
     override fun onDestroyView() {
@@ -746,23 +622,24 @@ class DashboardRows {
     fun getRows(
         iBudgetMonth: BudgetMonth,
         iDiscFlag: String = "",
-        iPaidByFlag: String = "",
         iBoughtForFlag: String = "",
-        iYTDMode: Boolean = false
+        iViewPeriod: String = "Month"
     ): MutableList<DashboardData> {
+        Log.d("Alex", "iviewperiod is $iViewPeriod")
         val data: MutableList<DashboardData> = mutableListOf()
         val startDate: String
         val endDate: String
-        if (iYTDMode) {
+        if (iViewPeriod == "YTD") {
             startDate = iBudgetMonth.year.toString() + "-00-00"
             endDate = if (iBudgetMonth.month < 10) {
                 iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-99"
             } else {
                 iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
             }
-        } else if (iBudgetMonth.month == 0) {
+        } else if (iViewPeriod == "Year") { //(iBudgetMonth.month == 0) {
             startDate = iBudgetMonth.year.toString() + "-00-00"
             endDate = iBudgetMonth.year.toString() + "-99-99"
+            Log.d("Alex", "start date is $startDate and enddate is $endDate")
         } else {
             if (iBudgetMonth.month < 10) {
                 startDate =
@@ -785,19 +662,10 @@ class DashboardRows {
                 )
                 if (expenditure.type != "Transfer") {
                     if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
-                        if (iPaidByFlag == "" || expenditure.paidby == iPaidByFlag || expenditure.paidby == "Joint") {
                             if (iBoughtForFlag == "" || expenditure.boughtfor == iBoughtForFlag || expenditure.boughtfor == "Joint") {
                                 // this is a transaction to add to our subtotal
                                 var multiplier = 1.0
-                                if (iPaidByFlag != "") {
-                                    multiplier = if (expenditure.paidby == "Joint" || expenditure.paidby == iPaidByFlag) {
-                                        if (SpenderViewModel.getSpenderName(0) == iPaidByFlag)
-                                            expenditure.bfname1split.toDouble() / 100
-                                        else
-                                            expenditure.bfname2split.toDouble() / 100
-                                    } else
-                                        0.0
-                                } else if (iBoughtForFlag != "") {
+                                if (iBoughtForFlag != "") {
                                     multiplier = if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
                                         if (SpenderViewModel.getSpenderName(0) == iBoughtForFlag)
                                             expenditure.bfname1split.toDouble() / 100
@@ -820,7 +688,6 @@ class DashboardRows {
                                 } else {
                                     bdRow.actualAmount += (expenditure.amount.toDouble() / 100 * multiplier)
                                 }
-                            }
                         }
                     }
                 }
@@ -860,7 +727,7 @@ class DashboardRows {
  //               whoToLookup = "Joint"
         }
         data.forEach {
-            if (iYTDMode) {
+            if (iViewPeriod == "YTD") {
                 for (i in 1 until iBudgetMonth.month + 1) {
                     it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
                         BudgetMonth(

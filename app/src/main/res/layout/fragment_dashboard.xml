@@ -127,6 +127,8 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorSecondaryVariant"
             android:orientation="horizontal"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:visibility="gone">
 
             <Space
@@ -167,64 +169,57 @@
             android:id="@+id/view_button_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:background="?attr/colorSecondaryVariant"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:visibility="gone">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="View by: "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                <RadioGroup
+                    android:id="@+id/viewRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/allDiscRadioButton"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_view_month"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_width="wrap_content"
+                    <RadioButton
+                        android:id="@+id/button_view_month"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Month"
+                        tools:ignore="HardcodedText" />
+
+                    <RadioButton
+                        android:id="@+id/button_view_ytd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="YTD"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/button_view_year"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Year"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorSecondary"
-                android:minWidth="50dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="Month"
+                android:gravity="center"
+                android:text="These settings are sticky."
                 tools:ignore="HardcodedText" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_view_ytd"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="50dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="YTD"
-                tools:ignore="HardcodedText" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_view_year"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="50dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="Year"
-                tools:ignore="HardcodedText" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -320,6 +315,23 @@
                         tools:ignore="HardcodedText" />
                 </RadioGroup>
             </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/resetFilterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_gravity="center"
+                android:text="Reset all filters"
+                android:minWidth="50dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="These settings are sticky."
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
         <LinearLayout
@@ -327,7 +339,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorSecondaryVariant"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <LinearLayout
@@ -371,6 +383,12 @@
                         tools:ignore="HardcodedText" />
                 </RadioGroup>
             </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="These settings are sticky."
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

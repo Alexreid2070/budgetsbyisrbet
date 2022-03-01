@@ -18,6 +18,10 @@ const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL = "ShowWhoinViewAll"
 const val cDEFAULT_SHOW_NOTE_VIEW_ALL = "ShowNoteinViewAll"
 const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL = "ShowDiscinViewAll"
 const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL = "ShowTypeinViewAll"
+const val cDEFAULT_VIEW_PERIOD_DASHBOARD = "ViewPeriodDashboard"
+const val cDEFAULT_FILTER_DISC_DASHBOARD = "FilterDiscDashboard"
+const val cDEFAULT_FILTER_WHO_DASHBOARD = "FilterWhoDashboard"
+const val cDEFAULT_DELTA_DASHBOARD = "DeltaDashboard"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -32,6 +36,10 @@ class DefaultsViewModel : ViewModel() {
     private var defaultShowNoteInViewAll: String = "true"
     private var defaultShowDiscInViewAll: String = "true"
     private var defaultShowTypeInViewAll: String = "true"
+    private var defaultViewPeriodDashboard: String = "Month"
+    private var defaultFilterDiscDashboard: String = ""
+    private var defaultFilterWhoDashboard: String = ""
+    private var defaultDeltaDashboard: String = "#"
     private var loaded:Boolean = false
 
     companion object {
@@ -55,6 +63,10 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default showNote is " + singleInstance.defaultShowNoteInViewAll)
             Log.d("Alex", "Default showDisc is " + singleInstance.defaultShowDiscInViewAll)
             Log.d("Alex", "Default showType is " + singleInstance.defaultShowTypeInViewAll)
+            Log.d("Alex", "Default showViewPeriodDashboard is " + singleInstance.defaultViewPeriodDashboard)
+            Log.d("Alex", "Default filterDiscDashboard is " + singleInstance.defaultFilterDiscDashboard)
+            Log.d("Alex", "Default filterWhoDashboard is " + singleInstance.defaultFilterWhoDashboard)
+            Log.d("Alex", "Default deltaDashboard is " + singleInstance.defaultDeltaDashboard)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -74,6 +86,10 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_SHOW_NOTE_VIEW_ALL -> return singleInstance.defaultShowNoteInViewAll
                 cDEFAULT_SHOW_DISC_IN_VIEW_ALL -> return singleInstance.defaultShowDiscInViewAll
                 cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> return singleInstance.defaultShowTypeInViewAll
+                cDEFAULT_VIEW_PERIOD_DASHBOARD -> return singleInstance.defaultViewPeriodDashboard
+                cDEFAULT_FILTER_DISC_DASHBOARD -> return singleInstance.defaultFilterDiscDashboard
+                cDEFAULT_FILTER_WHO_DASHBOARD -> return singleInstance.defaultFilterWhoDashboard
+                cDEFAULT_DELTA_DASHBOARD -> return singleInstance.defaultDeltaDashboard
                 else -> return ""
             }
         }
@@ -156,6 +172,18 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> {
                 singleInstance.defaultShowTypeInViewAll = iValue
+            }
+            cDEFAULT_VIEW_PERIOD_DASHBOARD -> {
+                singleInstance.defaultViewPeriodDashboard = iValue
+            }
+            cDEFAULT_FILTER_DISC_DASHBOARD -> {
+                singleInstance.defaultFilterDiscDashboard = iValue
+            }
+            cDEFAULT_FILTER_WHO_DASHBOARD -> {
+                singleInstance.defaultFilterWhoDashboard = iValue
+            }
+            cDEFAULT_DELTA_DASHBOARD -> {
+                singleInstance.defaultDeltaDashboard = iValue
             }
             else -> {
                 Log.d("Alex", "Unknown default " + whichOne + " " + iValue)

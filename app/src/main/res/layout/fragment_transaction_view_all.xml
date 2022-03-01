@@ -209,15 +209,15 @@
             tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/expand_options"
+            android:id="@+id/search"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Options"
+            android:text="Search"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            app:drawableStartCompat="@drawable/ic_baseline_search_24"
             tools:ignore="HardcodedText" />
         <Space
             android:layout_width="5dp"
@@ -437,7 +437,7 @@
         android:paddingEnd="5dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/view_button_linear_layout"
-        app:layout_constraintBottom_toTopOf="@+id/options_button_linear_layout">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -451,7 +451,8 @@
                 android:layout_marginBottom="5dp"
                 android:text="Category: "
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -495,7 +496,8 @@
                 android:layout_gravity="start"
                 android:text="Sub-Category:"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
 
             <RelativeLayout
                 android:id="@+id/inputSpinnerRelativeLayout"
@@ -716,35 +718,6 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             tools:ignore="HardcodedText" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/options_button_linear_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/colorSecondaryVariant"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/filter_button_linear_layout"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_search"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search"
-            app:icon="@drawable/ic_fas_search"
-            tools:ignore="HardcodedText" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

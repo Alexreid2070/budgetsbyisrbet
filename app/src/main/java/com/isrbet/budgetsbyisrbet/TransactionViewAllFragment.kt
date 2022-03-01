@@ -271,28 +271,19 @@ class TransactionViewAllFragment : Fragment() {
         binding.expandNav.setOnClickListener {
             onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
         }
-        binding.expandOptions.setOnClickListener {
-            onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
-        }
         binding.expandView.setOnClickListener {
             onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
         }
         binding.expandFilter.setOnClickListener {
             onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
         }
-        binding.buttonSearch.setOnClickListener {
+        binding.search.setOnClickListener {
             if (binding.transactionSearch.visibility == View.GONE) {
                 binding.transactionSearch.visibility = View.VISIBLE
                 val searchView = binding.transactionSearch
                 focusAndOpenSoftKeyboard(requireContext(), searchView)
             } else {
-                binding.transactionSearch.visibility = View.GONE
-                adapter.filter.filter("")
-                // clear filter
-                val searchView = binding.transactionSearch
-                searchView.setQuery("", false)
-                searchView.clearFocus()
-                binding.totalLayout.visibility = View.GONE
+                closeSearch()
             }
         }
         if (SpenderViewModel.getActiveCount() > 1) {
@@ -378,6 +369,16 @@ class TransactionViewAllFragment : Fragment() {
         }
     }
 
+    fun closeSearch() {
+        val adapter: TransactionRecyclerAdapter = binding.recyclerView.adapter as TransactionRecyclerAdapter
+        binding.transactionSearch.visibility = View.GONE
+        adapter.filter.filter("")
+        // clear filter
+        val searchView = binding.transactionSearch
+        searchView.setQuery("", false)
+        searchView.clearFocus()
+        binding.totalLayout.visibility = View.GONE
+    }
     fun updateView() {
         val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
@@ -447,10 +448,10 @@ class TransactionViewAllFragment : Fragment() {
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {
         if (layout.visibility == View.GONE) { // ie expand the section
             // first hide all other possible expansions
+            closeSearch()
             resetLayout(binding.expandNav, binding.navButtonLinearLayout)
             resetLayout(binding.expandView, binding.viewButtonLinearLayout)
             resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
-            resetLayout(binding.expandOptions, binding.optionsButtonLinearLayout)
             button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
             button.textSize = 16F
             button.setBackgroundResource(R.drawable.rounded_top_corners)
