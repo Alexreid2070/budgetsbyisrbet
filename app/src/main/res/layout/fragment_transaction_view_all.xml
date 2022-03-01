@@ -84,6 +84,17 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/discHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight=".5"
+            android:text="D?"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="D = Discretionary, ND = Non-Discretionary"
+            tools:ignore="HardcodedText" />
+        <TextView
             android:id="@+id/typeHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -217,12 +228,12 @@
         android:id="@+id/nav_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorSecondaryVariant"
         android:orientation="horizontal"
         android:visibility="gone"
         android:weightSum="5"
-        android:background="?attr/colorSecondary"
-        app:layout_constraintTop_toBottomOf="@+id/expansion_layout"
-        app:layout_constraintBottom_toTopOf="@+id/view_button_linear_layout">
+        app:layout_constraintBottom_toTopOf="@+id/view_button_linear_layout"
+        app:layout_constraintTop_toBottomOf="@+id/expansion_layout">
 
         <Space
             android:layout_width="0dp"
@@ -234,11 +245,11 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/colorSecondary"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Yr"
-            android:background="?attr/colorSecondary"
             tools:ignore="HardcodedText" />
 
         <Space
@@ -298,8 +309,8 @@
         android:id="@+id/view_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/colorSecondary"
+        android:orientation="vertical"
+        android:background="?attr/colorSecondaryVariant"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/nav_button_linear_layout"
         app:layout_constraintBottom_toTopOf="@+id/filter_button_linear_layout">
@@ -309,55 +320,409 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_view"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search"
-            app:icon="@drawable/ic_fas_search"
-            tools:ignore="HardcodedText" />
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Who column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_who_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="true"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Note column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_note_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="true"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Discretionary indicator column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_disc_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="true"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Type column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_type_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="true"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="These settings are sticky."
+            tools:ignore="HardcodedText" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/filter_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="?attr/colorSecondary"
+        android:orientation="vertical"
+        android:background="?attr/colorSecondaryVariant"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/view_button_linear_layout"
         app:layout_constraintBottom_toTopOf="@+id/options_button_linear_layout">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp">
+            <TextView
+                android:id="@+id/categoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginBottom="5dp"
+                android:text="Category: "
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_filter"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:background="@drawable/spinner_background"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/categorySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="end"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:contentDescription="Click to select"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                    tools:ignore="HardcodedText" />
+            </RelativeLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/subCategoryLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Search"
-            app:icon="@drawable/ic_fas_search"
-            tools:ignore="HardcodedText" />
+            android:paddingTop="10dp">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <TextView
+                android:id="@+id/subcategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Sub-Category:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:id="@+id/inputSpinnerRelativeLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:background="@drawable/spinner_background"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/subcategorySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="end"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/inputImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:contentDescription="Click to select"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                    tools:ignore="HardcodedText" />
+            </RelativeLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Discretionary? "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RadioGroup
+                android:id="@+id/filterDiscRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/allDiscRadioButton"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/discRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Disc"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/nonDiscRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Non-Disc"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/offRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Off"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/allDiscRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/paidby_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Paid by: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RadioGroup
+                android:id="@+id/filterPaidByRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/allPaidByRadioButton"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/name1PaidByRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Al"
+                    tools:ignore="HardcodedText" />
+
+                <RadioButton
+                    android:id="@+id/name2PaidByRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Br"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/allPaidByRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/boughtfor_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Bought for: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RadioGroup
+                android:id="@+id/filterBoughtForRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/allBoughtForRadioButton"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/name1BoughtForRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Al"
+                    tools:ignore="HardcodedText" />
+
+                <RadioButton
+                    android:id="@+id/name2BoughtForRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Br"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/allBoughtForRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Type: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RadioGroup
+                android:id="@+id/filterTypeRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/allTypeRadioButton"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/manuallyEnteredTypeRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ordinary"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/rtTypeRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recurring"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/transferTypeRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transfer"
+                    tools:ignore="HardcodedText" />
+                <RadioButton
+                    android:id="@+id/allTypeRadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resetFilterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_gravity="center"
+            android:text="Reset all filters"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/options_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="?attr/colorSecondary"
+        android:background="?attr/colorSecondaryVariant"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/filter_button_linear_layout"
         app:layout_constraintBottom_toBottomOf="parent">

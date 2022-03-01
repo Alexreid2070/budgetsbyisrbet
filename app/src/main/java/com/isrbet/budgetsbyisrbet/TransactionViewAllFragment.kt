@@ -1,21 +1,17 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import java.text.DecimalFormat
@@ -23,6 +19,12 @@ import java.text.DecimalFormat
 class TransactionViewAllFragment : Fragment() {
     private var _binding: FragmentTransactionViewAllBinding? = null
     private val binding get() = _binding!!
+    private var categoryFilter = ""
+    private var subcategoryFilter = ""
+    private var discretionaryFilter = ""
+    private var paidbyFilter = ""
+    private var boughtforFilter = ""
+    private var typeFilter = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +53,9 @@ class TransactionViewAllFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        super.onViewCreated(itemView, savedInstanceState)
+
+        loadCategoryRadioButtons()
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -68,7 +73,76 @@ class TransactionViewAllFragment : Fragment() {
             }
         })
 
-        super.onViewCreated(itemView, savedInstanceState)
+        binding.categorySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selection = parent?.getItemAtPosition(position).toString()
+                addSubCategories(selection)
+                if (selection == "All")
+                    categoryFilter = ""
+                else
+                    categoryFilter = selection
+                binding.totalLayout.visibility = View.VISIBLE
+                val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+                adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
+            }
+        }
+        binding.subcategorySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selection = parent?.getItemAtPosition(position).toString()
+                if (selection == "All")
+                    subcategoryFilter = ""
+                else
+                    subcategoryFilter = selection
+                binding.totalLayout.visibility = View.VISIBLE
+                val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+                adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
+            }
+        }
+        binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            when (radioButton.text.toString()) {
+                "Disc" -> discretionaryFilter = cDiscTypeDiscretionary
+                "Non-Disc" -> discretionaryFilter = cDiscTypeNondiscretionary
+                "Off" -> discretionaryFilter = cDiscTypeOff
+                "All" -> discretionaryFilter = ""
+            }
+            binding.totalLayout.visibility = View.VISIBLE
+            val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+            adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
+        }
+        binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            if (radioButton.text.toString() == "All")
+                paidbyFilter = ""
+            else
+                paidbyFilter = radioButton.text.toString()
+            binding.totalLayout.visibility = View.VISIBLE
+            val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+            adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
+        }
+        binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            if (radioButton.text.toString() == "All")
+                boughtforFilter = ""
+            else
+                boughtforFilter = radioButton.text.toString()
+            binding.totalLayout.visibility = View.VISIBLE
+            val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+            adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
+        }
+        binding.filterTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            typeFilter = radioButton.text.toString()
+            binding.totalLayout.visibility = View.VISIBLE
+            val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+            adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
+        }
         recyclerView.apply {
             // set a LinearLayoutManager to handle Android RecyclerView behavior
             val linearLayoutManager = object : LinearLayoutManager(requireContext(), VERTICAL, false) {
@@ -221,6 +295,94 @@ class TransactionViewAllFragment : Fragment() {
                 binding.totalLayout.visibility = View.GONE
             }
         }
+        if (SpenderViewModel.getActiveCount() > 1) {
+            binding.name1BoughtForRadioButton.text = SpenderViewModel.getSpenderName(0)
+            binding.name2BoughtForRadioButton.text = SpenderViewModel.getSpenderName(1)
+            binding.name1PaidByRadioButton.text = SpenderViewModel.getSpenderName(0)
+            binding.name2PaidByRadioButton.text = SpenderViewModel.getSpenderName(1)
+        } else {
+            binding.paidbyLinearLayout.visibility = View.GONE
+            binding.boughtforLinearLayout.visibility = View.GONE
+        }
+        binding.showWhoColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true") {
+            binding.whoHeading.visibility = View.GONE
+        }
+        binding.showNoteColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true") {
+            binding.noteHeading.visibility = View.GONE
+        }
+        binding.showDiscColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true") {
+            binding.discHeading.visibility = View.GONE
+        }
+        binding.showTypeColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true") {
+            binding.typeHeading.visibility = View.GONE
+        }
+        binding.showWhoColumn.setOnCheckedChangeListener { _, _ ->
+            if (binding.showWhoColumn.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, "true")
+                binding.whoHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, "false")
+                binding.whoHeading.visibility = View.GONE
+            }
+            updateView()
+        }
+        binding.showNoteColumn.setOnCheckedChangeListener { _, _ ->
+            if (binding.showNoteColumn.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL, "true")
+                binding.noteHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL, "false")
+                binding.noteHeading.visibility = View.GONE
+            }
+            updateView()
+        }
+        binding.showDiscColumn.setOnCheckedChangeListener { _, _ ->
+            if (binding.showDiscColumn.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, "true")
+                binding.discHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, "false")
+                binding.discHeading.visibility = View.GONE
+            }
+            updateView()
+        }
+        binding.showTypeColumn.setOnCheckedChangeListener { _, _ ->
+            if (binding.showTypeColumn.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, "true")
+                binding.typeHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, "false")
+                binding.typeHeading.visibility = View.GONE
+            }
+            updateView()
+        }
+        binding.resetFilterButton.setOnClickListener {
+            categoryFilter = ""
+            binding.categorySpinner.setSelection(0)
+            subcategoryFilter = ""
+            binding.subcategorySpinner.setSelection(0)
+            discretionaryFilter = ""
+            binding.allDiscRadioButton.isChecked = true
+            paidbyFilter = ""
+            binding.allPaidByRadioButton.isChecked = true
+            boughtforFilter = ""
+            binding.allBoughtForRadioButton.isChecked = true
+            typeFilter = ""
+            binding.allTypeRadioButton.isChecked = true
+            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+            binding.totalLayout.visibility = View.GONE
+        }
+    }
+
+    fun updateView() {
+        val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        recyclerView.setAdapter(null)
+        recyclerView.setAdapter(adapter)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -259,6 +421,27 @@ class TransactionViewAllFragment : Fragment() {
         } else
             Log.d("Alex", "what was this " + item.itemId)
         return true
+    }
+
+    private fun loadCategoryRadioButtons() {
+        val radioGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
+        if (radioGroup == null) Log.d("Alex", " rg is null")
+        else radioGroup.removeAllViews()
+
+        val categoryNames = CategoryViewModel.getCategoryNames()
+        categoryNames.add(0,"All")
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryNames)
+
+        binding.categorySpinner.adapter = arrayAdapter
+        binding.categorySpinner.setSelection(0)
+    }
+    private fun addSubCategories(iCategory: String) {
+        val subcategoryList = CategoryViewModel.getSubcategoriesForSpinner(iCategory)
+        subcategoryList.add(0,"All")
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subcategoryList)
+        binding.subcategorySpinner.adapter = arrayAdapter
+        binding.subcategorySpinner.setSelection(0)
+        arrayAdapter.notifyDataSetChanged()
     }
 
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {

@@ -122,7 +122,7 @@ class CategoryViewModel : ViewModel() {
         fun getCombinedCategoriesForSpinner() : MutableList<String> {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
-                if (it.discType != "Off")
+                if (it.discType != cDiscTypeOff)
                     list.add(it.fullCategoryName())
             }
             return list

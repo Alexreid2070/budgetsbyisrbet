@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,6 +56,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         return tTotal
     }
 
+    // this version is used by search
     fun filterTheList(iConstraint: String) {
         if (iConstraint.isEmpty()) {
             filteredList = list
@@ -78,6 +78,35 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         setGroupList()
     }
 
+    // this version is for my column filters
+    fun filterTheList(iCategoryFilter: String, iSubCategoryFilter: String, iDiscretionaryFilter: String,
+    iPaidByFilter: String, iBoughtForFilter: String, iTypeFilter: String) {
+        if (iCategoryFilter == "" && iSubCategoryFilter == "" && iDiscretionaryFilter == "" &&
+                iPaidByFilter == "" && iBoughtForFilter == "" && iTypeFilter == "") {
+            filteredList = list
+        } else {
+            val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
+            var subcatDiscIndicator = ""
+            for (row in list) {
+                if (iDiscretionaryFilter != "") {
+                    subcatDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(row.category, row.subcategory)
+                }
+                if ((iCategoryFilter == "" || row.category == iCategoryFilter) &&
+                    (iSubCategoryFilter == "" || row.subcategory == iSubCategoryFilter) &&
+                    (iPaidByFilter == "" || row.paidby == iPaidByFilter) &&
+                    (iBoughtForFilter == "" || row.boughtfor == iBoughtForFilter) &&
+                    (iTypeFilter == "All" || row.type == iTypeFilter || (row.type == "" && iTypeFilter == "Ordinary")) &&
+                    (iDiscretionaryFilter == "" || iDiscretionaryFilter == subcatDiscIndicator)) {
+                    resultList.add(row)
+                }
+            }
+            filteredList = resultList
+        }
+        setGroupList()
+        currentTotal = getTotal()
+        notifyDataSetChanged()
+    }
+
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
         val vtf_date: TextView = view.findViewById(R.id.vtf_date)
         val vtf_amount: TextView = view.findViewById(R.id.vtf_amount)
@@ -85,6 +114,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         val vtf_subcategory: TextView = view.findViewById(R.id.vtf_subcategory)
         val vtf_who: TextView = view.findViewById(R.id.vtf_who)
         val vtf_note: TextView = view.findViewById(R.id.vtf_note)
+        val vtf_disc: TextView = view.findViewById(R.id.vtf_disc)
         val vtf_type: TextView = view.findViewById(R.id.vtf_type)
     }
 
@@ -116,6 +146,10 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 data.paidby.subSequence(0, 2).toString() + ":" + data.boughtfor.subSequence(0, 2)
                     .toString()
         holder.vtf_note.text = data.note
+        if (CategoryViewModel.getDiscretionaryIndicator(data.category, data.subcategory) == cDiscTypeDiscretionary)
+            holder.vtf_disc.text = "D"
+        else
+            holder.vtf_disc.text = "ND"
         if (data.type.length > 0)
             holder.vtf_type.text = data.type.substring(0,1)
         else
@@ -124,6 +158,14 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         if (SpenderViewModel.singleUser()) {
             holder.vtf_who.visibility = View.GONE
         }
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true")
+            holder.vtf_who.visibility = View.GONE
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true")
+            holder.vtf_note.visibility = View.GONE
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true")
+            holder.vtf_disc.visibility = View.GONE
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true")
+            holder.vtf_type.visibility = View.GONE
     }
 
     fun setGroupList() {

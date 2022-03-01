@@ -93,7 +93,7 @@ class CategoryFragment : Fragment() {
     }
 
     fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("", "","Off")
+        val cdf = CategoryEditDialogFragment.newInstance("", "",cDiscTypeOff)
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())

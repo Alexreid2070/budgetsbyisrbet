@@ -72,6 +72,15 @@
         </TextView>
 
         <TextView
+            android:id="@+id/vtf_disc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:textAlignment="textEnd"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp">
+        </TextView>
+        <TextView
             android:id="@+id/vtf_type"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

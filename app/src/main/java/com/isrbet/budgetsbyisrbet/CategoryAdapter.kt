@@ -45,7 +45,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         categoryView.text = cData.categoryName
         subcategoryView.text = cData.subcategoryName
         discTypeView.text = cData.discType
-        if (cData.discType == "Off") {
+        if (cData.discType == cDiscTypeOff) {
             categoryView.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             subcategoryView.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             discTypeView.setTextColor(ContextCompat.getColor(myContext, R.color.red))

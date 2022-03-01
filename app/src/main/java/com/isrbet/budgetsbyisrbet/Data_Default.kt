@@ -14,6 +14,10 @@ const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
 const val cDEFAULT_QUOTE = "Quote"
+const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL = "ShowWhoinViewAll"
+const val cDEFAULT_SHOW_NOTE_VIEW_ALL = "ShowNoteinViewAll"
+const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL = "ShowDiscinViewAll"
+const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL = "ShowTypeinViewAll"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -24,6 +28,10 @@ class DefaultsViewModel : ViewModel() {
     private var defaultIntegrateWithTDSpend: String = "No"
     private var defaultSound: String = "On"
     private var defaultQuote: String = "Off"
+    private var defaultShowWhoInViewAll: String = "true"
+    private var defaultShowNoteInViewAll: String = "true"
+    private var defaultShowDiscInViewAll: String = "true"
+    private var defaultShowTypeInViewAll: String = "true"
     private var loaded:Boolean = false
 
     companion object {
@@ -43,6 +51,10 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
             Log.d("Alex", "Default sound is " + singleInstance.defaultSound)
             Log.d("Alex", "Default quote is " + singleInstance.defaultQuote)
+            Log.d("Alex", "Default showWho is " + singleInstance.defaultShowWhoInViewAll)
+            Log.d("Alex", "Default showNote is " + singleInstance.defaultShowNoteInViewAll)
+            Log.d("Alex", "Default showDisc is " + singleInstance.defaultShowDiscInViewAll)
+            Log.d("Alex", "Default showType is " + singleInstance.defaultShowTypeInViewAll)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -58,6 +70,10 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
                 cDEFAULT_SOUND -> return singleInstance.defaultSound
                 cDEFAULT_QUOTE -> return singleInstance.defaultQuote
+                cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> return singleInstance.defaultShowWhoInViewAll
+                cDEFAULT_SHOW_NOTE_VIEW_ALL -> return singleInstance.defaultShowNoteInViewAll
+                cDEFAULT_SHOW_DISC_IN_VIEW_ALL -> return singleInstance.defaultShowDiscInViewAll
+                cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> return singleInstance.defaultShowTypeInViewAll
                 else -> return ""
             }
         }
@@ -129,6 +145,18 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_QUOTE -> {
                 singleInstance.defaultQuote = iValue
             }
+            cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> {
+                singleInstance.defaultShowWhoInViewAll = iValue
+            }
+            cDEFAULT_SHOW_NOTE_VIEW_ALL -> {
+                singleInstance.defaultShowNoteInViewAll = iValue
+            }
+            cDEFAULT_SHOW_DISC_IN_VIEW_ALL -> {
+                singleInstance.defaultShowDiscInViewAll = iValue
+            }
+            cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> {
+                singleInstance.defaultShowTypeInViewAll = iValue
+            }
             else -> {
                 Log.d("Alex", "Unknown default " + whichOne + " " + iValue)
             }
@@ -145,6 +173,7 @@ class DefaultsViewModel : ViewModel() {
                 }
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
+                showMe()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

@@ -468,13 +468,13 @@ class DashboardFragment : Fragment() {
         binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
                 R.id.discRadioButton -> {
-                    currentDiscFilter = "Discretionary"
+                    currentDiscFilter = cDiscTypeDiscretionary
                     setActionBarTitle()
                     startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
                     // do something when radio button 1 is selected
                 }
                 R.id.nonDiscRadioButton -> {
-                    currentDiscFilter = "Non-Discretionary"
+                    currentDiscFilter = cDiscTypeNondiscretionary
                     setActionBarTitle()
                     startLoadData(currentBudgetMonth, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
                 }
@@ -542,10 +542,10 @@ class DashboardFragment : Fragment() {
                 menu.getItem(i).isChecked = currentDeltaFilter == "#"
             } else if (menu.getItem(i).itemId == R.id.FilterDiscretionary) {
                 menu.getItem(i).isVisible = true
-                menu.getItem(i).isChecked = currentDiscFilter == "Discretionary"
+                menu.getItem(i).isChecked = currentDiscFilter == cDiscTypeDiscretionary
             } else if (menu.getItem(i).itemId == R.id.FilterNonDiscretionary) {
                 menu.getItem(i).isVisible = true
-                menu.getItem(i).isChecked = currentDiscFilter == "Non-Discretionary"
+                menu.getItem(i).isChecked = currentDiscFilter == cDiscTypeNondiscretionary
             } else if (menu.getItem(i).itemId == R.id.FilterPaidByName1 ||
                 menu.getItem(i).itemId == R.id.FilterPaidByName2 ||
                 menu.getItem(i).itemId == R.id.FilterPaidByTitle ||
@@ -598,12 +598,12 @@ class DashboardFragment : Fragment() {
                 return true
             }
             R.id.FilterDiscretionary -> {
-                if (currentDiscFilter == "Discretionary") {
+                if (currentDiscFilter == cDiscTypeDiscretionary) {
                     item.isChecked = false
                     currentDiscFilter = ""
                 } else {
                     item.isChecked = true
-                    currentDiscFilter = "Discretionary"
+                    currentDiscFilter = cDiscTypeDiscretionary
                 }
                 activity?.invalidateOptionsMenu()
                 setActionBarTitle()
@@ -611,12 +611,12 @@ class DashboardFragment : Fragment() {
                 return true
             }
             R.id.FilterNonDiscretionary -> {
-                if (currentDiscFilter == "Non-Discretionary") {
+                if (currentDiscFilter == cDiscTypeNondiscretionary) {
                     item.isChecked = false
                     currentDiscFilter = ""
                 } else {
                     item.isChecked = true
-                    currentDiscFilter = "Non-Discretionary"
+                    currentDiscFilter = cDiscTypeNondiscretionary
                 }
                 activity?.invalidateOptionsMenu()
                 setActionBarTitle()
@@ -813,7 +813,7 @@ class DashboardRows {
                                     row.category = expenditure.category
                                     row.subcategory = expenditure.subcategory
                                     row.discIndicator =
-                                        if (expDiscIndicator == "Discretionary") "D" else "ND"
+                                        if (expDiscIndicator == cDiscTypeDiscretionary) "D" else "ND"
                                     row.actualAmount =
                                         expenditure.amount.toDouble() / 100 * multiplier
                                     data.add(row)
@@ -845,7 +845,7 @@ class DashboardRows {
                     tBudgetCategories[i].substring(dash + 1, tBudgetCategories[i].length)
                 row.discIndicator =
                     if (CategoryViewModel.getDiscretionaryIndicator(row.category, row.subcategory)
-                        == "Discretionary"
+                        == cDiscTypeDiscretionary
                     ) "D" else "ND"
                 row.actualAmount = 0.0
                 data.add(row)

@@ -366,7 +366,7 @@ class BudgetViewModel : ViewModel() {
             var isAnnual: String
             CategoryViewModel.getCategories().forEach {
                 if (iCategory.categoryName == it.categoryName && iCategory.subcategoryName == it.subcategoryName) {
-                    if (it.discType != "Off") {
+                    if (it.discType != cDiscTypeOff) {
                         val firstMonth = getFirstMonthOfBudget(Category(it.categoryName, it.subcategoryName))
                         val lastMonth = getLastMonthOfBudget(Category(it.categoryName, it.subcategoryName))
                         if (firstMonth != null) {
