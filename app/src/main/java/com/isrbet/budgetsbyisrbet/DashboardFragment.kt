@@ -297,10 +297,25 @@ class DashboardFragment : Fragment() {
         if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total" && iRowType != "Delta") {
             tr.setOnClickListener {
                 Log.d("Alex", "row " + it.id + " was clicked")
+                var currentRow = it.id
+                var cat = ""
+                do {
+                    currentRow++
+                    var tableRow = mTableLayout!!.getChildAt(currentRow) as TableRow
+                    val catTV = tableRow.getChildAt(0) as TextView
+                    cat = catTV.text.toString()
+                } while (tableRow != null && !(tableRow.tag == "Sub-total"))
+                Log.d("Alex", "cat is $cat")
+                var ind = cat.indexOf("Total")
+                if (ind == -1)
+                    ind = cat.indexOf("...")
+                if (ind != -1)
+                    cat = cat.substring(0,ind).trim()
+                Log.d("Alex", "cat is '$cat'")
                 // go to ViewAll with the SubCategory as the search term
                 val tableRow = it as TableRow
                 val textView = tableRow.getChildAt(0) as TextView
-                MyApplication.transactionSearchText = textView.text.toString() + " " + currentBudgetMonth.year.toString()
+                MyApplication.transactionSearchText = cat + " " + textView.text.toString() + " " + currentBudgetMonth.year.toString()
                 MyApplication.transactionSearchText = MyApplication.transactionSearchText.replace("...","")
                 if (currentBudgetMonth.month != 0) {
                     if (currentBudgetMonth.month < 10)

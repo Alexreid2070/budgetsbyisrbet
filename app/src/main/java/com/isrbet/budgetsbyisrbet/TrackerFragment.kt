@@ -277,10 +277,6 @@ class TrackerFragment : Fragment() {
             totalDiscBudget * dateNow.get(Calendar.DATE) / daysInMonth
         val totalDiscActualsToDate =
             ExpenditureViewModel.getTotalDiscretionaryActualsToDate(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
-        Log.d(
-            "Alex",
-            "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate"
-        )
         tList.add(
             DataObject(
                 "Budget this month",

@@ -31,7 +31,7 @@ class AdminFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
         view?.findViewById<Button>(R.id.button_reinit)?.setOnClickListener { _: View ->
-     //       processButton()
+            processButton()
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
             clearData()
@@ -129,14 +129,14 @@ class AdminFragment : Fragment() {
                             split2 = it.value.toString().toDouble().toInt()
                         }
                     }
-                    if (boughtfor == "Alex" && split1 != 100) {
-                        Log.d("Alex", "Alex != 100 " + it.toString())
+                    if (boughtfor == SpenderViewModel.getSpenderName(0) && split1 != 100) {
+                        Log.d("Alex", "Name1 != 100 " + it.toString())
                     }
-                    if (boughtfor == "Brent" && split2 != 100) {
-                        Log.d("Alex", "Brent != 100 " + it.toString())
+                    if (boughtfor == SpenderViewModel.getSpenderName(1) && split2 != 100) {
+                        Log.d("Alex", "Name2 != 100 " + it.toString())
                     }
-                    if (boughtfor == "Joint" && (split1 != 50 || split2 != 50)) {
-                        Log.d("Alex", "Joint != 50 " + it.toString())
+                    if (boughtfor == "Joint" && (split1 + split2 != 100)) {
+                        Log.d("Alex", "Joint != 100 " + it.toString())
                     }
                 }
             }

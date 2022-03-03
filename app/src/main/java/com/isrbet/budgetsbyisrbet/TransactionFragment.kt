@@ -27,6 +27,7 @@ import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 
@@ -40,6 +41,7 @@ class TransactionFragment : Fragment() {
     private var inExpandMode = false
     private var cal = android.icu.util.Calendar.getInstance()
     private var startingTransactionNote = ""
+    private var gestureDetector: GestureDetectorCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -279,6 +281,39 @@ class TransactionFragment : Fragment() {
             binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
 
+        gestureDetector = GestureDetectorCompat(requireActivity(), object:
+            GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                event1: MotionEvent,
+                event2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (event2.y > event1.y) {
+                    // negative for up, positive for down
+                    Log.d("Alex", "swiped down ")
+                    if (binding.inputBoughtForLabel.visibility == View.GONE) { // ie expand the section
+                        inExpandMode = true
+                        setExpansionFields(View.VISIBLE)
+                    }
+                } else if (event2.y < event1.y) {
+                    Log.d("Alex", "swiped up ")
+                    if (binding.inputBoughtForLabel.visibility == View.VISIBLE) { // ie retract the section
+                        inExpandMode = false
+                        setExpansionFields(View.GONE)
+                    }
+                }
+                return true
+            }
+        })
+        binding.scrollView.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                if (p1 != null) {
+                    gestureDetector?.onTouchEvent(p1)
+                }
+                return false
+            }
+        })
         binding.editTextAmount.requestFocus()
     }
 
@@ -288,11 +323,9 @@ class TransactionFragment : Fragment() {
     }
 
     private fun onExpandClicked() {
-
         if (binding.inputBoughtForLabel.visibility == View.GONE) { // ie expand the section
             inExpandMode = true
             setExpansionFields(View.VISIBLE)
-
         } else { // ie retract the section
             inExpandMode = false
             setExpansionFields(View.GONE)

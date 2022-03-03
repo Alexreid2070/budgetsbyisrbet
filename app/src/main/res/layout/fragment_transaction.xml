@@ -8,10 +8,12 @@
     tools:context=".TransactionFragment">
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:fillViewport="true">
 
         <RelativeLayout
             android:id="@+id/relativeLayout"
@@ -526,7 +528,6 @@
                     android:text="Load Data From TD MySpend (and delete notification)"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
-
         </RelativeLayout>
     </ScrollView>
 

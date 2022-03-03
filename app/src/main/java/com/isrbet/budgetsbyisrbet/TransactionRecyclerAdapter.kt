@@ -66,7 +66,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             for (row in list) {
                 var found = true
                 for (r in splitSearchTerms) {
-                    found = row.contains(r)
+                    found = found && row.contains(r)
                 }
 
                 if (found) {

@@ -80,10 +80,7 @@ class TransactionViewAllFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position).toString()
                 addSubCategories(selection)
-                if (selection == "All")
-                    categoryFilter = ""
-                else
-                    categoryFilter = selection
+                categoryFilter = if (selection == "All") "" else selection
                 binding.totalLayout.visibility = View.VISIBLE
                 val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                 adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
@@ -95,10 +92,10 @@ class TransactionViewAllFragment : Fragment() {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position).toString()
-                if (selection == "All")
-                    subcategoryFilter = ""
+                subcategoryFilter = if (selection == "All")
+                    ""
                 else
-                    subcategoryFilter = selection
+                    selection
                 binding.totalLayout.visibility = View.VISIBLE
                 val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
                 adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
@@ -118,20 +115,20 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            if (radioButton.text.toString() == "All")
-                paidbyFilter = ""
+            paidbyFilter = if (radioButton.text.toString() == "All")
+                ""
             else
-                paidbyFilter = radioButton.text.toString()
+                radioButton.text.toString()
             binding.totalLayout.visibility = View.VISIBLE
             val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
             adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
         }
         binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            if (radioButton.text.toString() == "All")
-                boughtforFilter = ""
+            boughtforFilter = if (radioButton.text.toString() == "All")
+                ""
             else
-                boughtforFilter = radioButton.text.toString()
+                radioButton.text.toString()
             binding.totalLayout.visibility = View.VISIBLE
             val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
             adapter.filterTheList(categoryFilter, subcategoryFilter, discretionaryFilter, paidbyFilter, boughtforFilter, typeFilter)
@@ -369,7 +366,7 @@ class TransactionViewAllFragment : Fragment() {
         }
     }
 
-    fun closeSearch() {
+    private fun closeSearch() {
         val adapter: TransactionRecyclerAdapter = binding.recyclerView.adapter as TransactionRecyclerAdapter
         binding.transactionSearch.visibility = View.GONE
         adapter.filter.filter("")
@@ -379,11 +376,11 @@ class TransactionViewAllFragment : Fragment() {
         searchView.clearFocus()
         binding.totalLayout.visibility = View.GONE
     }
-    fun updateView() {
+    private fun updateView() {
         val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        recyclerView.setAdapter(null)
-        recyclerView.setAdapter(adapter)
+        recyclerView.adapter = null
+        recyclerView.adapter = adapter
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
