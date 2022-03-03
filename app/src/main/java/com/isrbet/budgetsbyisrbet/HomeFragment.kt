@@ -95,6 +95,8 @@ class HomeFragment : Fragment() {
                     if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
                         if (binding.expansionAreaLayout.visibility == View.GONE)
                             onExpandClicked()
+                        else // already expanded and user swiped down, so open Settings
+                            findNavController().navigate(R.id.SettingsFragment)
                     }
                 } else if (event2.y < event1.y) {
                     Log.d("Alex", "swiped up " + binding.scrollView.canScrollVertically(1))

@@ -173,7 +173,6 @@
                     android:id="@+id/budgetAddYear"
                     android:layout_width="wrap_content"
                     android:layout_height="90dp"
-                    android:background="?attr/colorPrimaryVariant"
                     android:solidColor="?attr/colorPrimary" />
 
                 <TextView
@@ -192,7 +191,6 @@
                     android:id="@+id/budgetAddMonth"
                     android:layout_width="wrap_content"
                     android:layout_height="90dp"
-                    android:background="?attr/colorPrimaryVariant"
                     android:solidColor="?attr/colorPrimary" />
             </LinearLayout>
 
