@@ -405,6 +405,7 @@ class BudgetFragment : Fragment() {
         hideKeyboard(requireContext(), requireView())
         Toast.makeText(activity, "Budget item added", Toast.LENGTH_SHORT).show()
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        activity?.onBackPressed()
     }
 
     override fun onDestroyView() {
