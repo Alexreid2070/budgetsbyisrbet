@@ -92,6 +92,13 @@ class DashboardFragment : Fragment() {
         val decimalFormat = DecimalFormat("0.00")
         val deltaFormat = DecimalFormat("#,##0.00;(#,##0.00)")
 
+        val tv0 = TextView(requireContext())
+        tv0.layoutParams = TableRow.LayoutParams(
+            TableRow.LayoutParams.WRAP_CONTENT,
+            TableRow.LayoutParams.WRAP_CONTENT)
+        tv0.visibility = View.GONE
+        tv0.text = iCategory
+
         val tv1 = TextView(requireContext())
         tv1.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.WRAP_CONTENT,
@@ -280,6 +287,7 @@ class DashboardFragment : Fragment() {
                 tv4.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
             }
         }
+        tr.addView(tv0)
         tr.addView(tv1)
         tr.addView(tv2)
         tr.addView(tv3)
@@ -296,25 +304,12 @@ class DashboardFragment : Fragment() {
 
         if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total" && iRowType != "Delta") {
             tr.setOnClickListener {
-                Log.d("Alex", "row " + it.id + " was clicked")
-                var currentRow = it.id
-                var cat = ""
-                do {
-                    currentRow++
-                    var tableRow = mTableLayout!!.getChildAt(currentRow) as TableRow
-                    val catTV = tableRow.getChildAt(0) as TextView
-                    cat = catTV.text.toString()
-                } while (tableRow != null && !(tableRow.tag == "Sub-total"))
-                Log.d("Alex", "cat is $cat")
-                var ind = cat.indexOf("Total")
-                if (ind == -1)
-                    ind = cat.indexOf("...")
-                if (ind != -1)
-                    cat = cat.substring(0,ind).trim()
-                Log.d("Alex", "cat is '$cat'")
-                // go to ViewAll with the SubCategory as the search term
                 val tableRow = it as TableRow
-                val textView = tableRow.getChildAt(0) as TextView
+                val catTV = tableRow.getChildAt(0) as TextView
+                val cat = catTV.text.toString()
+                Log.d("Alex", "row " + it.id + " was clicked, category is " + cat)
+                // go to ViewAll with the SubCategory as the search term
+                val textView = tableRow.getChildAt(1) as TextView
                 MyApplication.transactionSearchText = cat + " " + textView.text.toString() + " " + currentBudgetMonth.year.toString()
                 MyApplication.transactionSearchText = MyApplication.transactionSearchText.replace("...","")
                 if (currentBudgetMonth.month != 0) {
@@ -329,8 +324,8 @@ class DashboardFragment : Fragment() {
             tr.setOnClickListener {
                 Log.d("Alex", "header was clicked")
                 val tableRow = it as TableRow
-                val ttv1 = tableRow.getChildAt(0) as TextView
-                val ttv2 = tableRow.getChildAt(1) as TextView
+                val ttv1 = tableRow.getChildAt(1) as TextView
+                val ttv2 = tableRow.getChildAt(2) as TextView
                 Log.d("Alex", "header was clicked " + ttv2.text.toString())
                 var tmpCat = ttv1.text.toString().replace(" Total","")
                 tmpCat = tmpCat.replace("...","")
@@ -372,9 +367,9 @@ class DashboardFragment : Fragment() {
         do {
             lastDetailLine += 1
             tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
-            val cat = tableRow.getChildAt(0) as TextView
-            val lenToCompare = if (cat.text.toString().length < iCategory.length) cat.text.toString().length else iCategory.length
-        } while (tableRow != null && !(tableRow.tag == "Sub-total" && cat.text.toString().substring(0,lenToCompare) == iCategory))
+            val catTV = tableRow.getChildAt(0) as TextView
+            val cat = catTV.text.toString()
+        } while (tableRow != null && !(tableRow.tag == "Sub-total" && cat == iCategory))
         if (tableRow == null) // no detail rows found
             return
         // found sub-total row, now work backwards
