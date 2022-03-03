@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.R.attr
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -11,18 +10,13 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.bumptech.glide.Glide
@@ -117,8 +111,8 @@ class HomeFragment : Fragment() {
                     // Google Sign In was successful, authenticate with Firebase
                     val account = task.getResult(ApiException::class.java)!!
                     Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
-                    MyApplication.userGivenName = account?.givenName.toString()
-                    MyApplication.userFamilyName = account?.familyName.toString()
+                    MyApplication.userGivenName = account.givenName.toString()
+                    MyApplication.userFamilyName = account.familyName.toString()
                     firebaseAuthWithGoogle(account.idToken!!)
                 } catch (e: ApiException) {
                     // Google Sign In failed, update UI appropriately
@@ -407,11 +401,11 @@ class HomeFragment : Fragment() {
         MyApplication.userEmail = account?.email.toString()
         if (account != null) {
             if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
-                MyApplication.userUID = account?.uid.toString()
-                Log.d("Alex", "Just set userUID to " + account?.uid.toString())
+                MyApplication.userUID = account.uid
+                Log.d("Alex", "Just set userUID to " + account.uid)
             }
             if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
-                MyApplication.currentUserEmail = account?.email ?: ""
+                MyApplication.currentUserEmail = account.email ?: ""
             MyApplication.userPhotoURL = account.photoUrl.toString()
             Glide.with(requireContext()).load(MyApplication.userPhotoURL)
                 .thumbnail(0.5f)
@@ -571,7 +565,7 @@ class HomeFragment : Fragment() {
         binding.adminButton.visibility = View.GONE
     }
 
-    fun setAdminMode(inAdminMode: Boolean) {
+    private fun setAdminMode(inAdminMode: Boolean) {
         if (inAdminMode)
             binding.adminButton.visibility = View.VISIBLE
         else

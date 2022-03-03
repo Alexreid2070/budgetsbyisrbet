@@ -463,6 +463,11 @@ class DashboardFragment : Fragment() {
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
+        binding.buttonViewAllTime.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "All-Time")
+            setActionBarTitle()
+            startLoadData(currentBudgetMonth)
+        }
         binding.expandNav.setOnClickListener {
             onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
         }
@@ -532,6 +537,7 @@ class DashboardFragment : Fragment() {
             "Month" -> binding.buttonViewMonth.isChecked = true
             "YTD" -> binding.buttonViewYtd.isChecked = true
             "Year" -> binding.buttonViewYear.isChecked = true
+            "All-Time" -> binding.buttonViewAllTime.isChecked = true
         }
         binding.resetFilterButton.setOnClickListener {
             DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
@@ -573,7 +579,9 @@ class DashboardFragment : Fragment() {
             currentFilterIndicator = " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD).substring(0,5)
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD) != "")
             currentFilterIndicator = currentFilterIndicator + " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)
-        if (currentBudgetMonth.month == 0)
+        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "All-Time")
+            binding.dashboardTitle.text = "Dashboard (All-Time)"
+        else if (currentBudgetMonth.month == 0)
             binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
         else {
             binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month - 1] +
@@ -639,7 +647,10 @@ class DashboardRows {
         val data: MutableList<DashboardData> = mutableListOf()
         val startDate: String
         val endDate: String
-        if (iViewPeriod == "YTD") {
+        if (iViewPeriod == "All-Time") {
+            startDate = "0000-00-00"
+            endDate = "9999-99-99"
+        } else if (iViewPeriod == "YTD") {
             startDate = iBudgetMonth.year.toString() + "-00-00"
             endDate = if (iBudgetMonth.month < 10) {
                 iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-99"
@@ -666,10 +677,10 @@ class DashboardRows {
         for (i in 0 until ExpenditureViewModel.getCount()) {
             val expenditure = ExpenditureViewModel.getExpenditure(i)
             if (expenditure.date > startDate && expenditure.date < endDate) {
-                val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(
+                val expDiscIndicator = if (iDiscFlag != "") CategoryViewModel.getDiscretionaryIndicator(
                     expenditure.category,
                     expenditure.subcategory
-                )
+                ) else ""
                 if (expenditure.type != "Transfer") {
                     if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
                             if (iBoughtForFlag == "" || expenditure.boughtfor == iBoughtForFlag || expenditure.boughtfor == "Joint") {
@@ -737,7 +748,38 @@ class DashboardRows {
  //               whoToLookup = "Joint"
         }
         data.forEach {
-            if (iViewPeriod == "YTD") {
+            if (iViewPeriod == "All-Time") {
+                val dateNow = android.icu.util.Calendar.getInstance()
+                var lastAnnualYear = 0
+                lastAnnualYear = if (dateNow.get(Calendar.MONTH) == 11) // ie Dec
+                    dateNow.get(Calendar.YEAR)
+                else
+                    dateNow.get(Calendar.YEAR)-1
+                // add annual budgets for previous years, and current year if it is Dec
+                val earliestYear = ExpenditureViewModel.getEarliestYear()
+                for (i in earliestYear until lastAnnualYear+1) {
+                    it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
+                        BudgetMonth(i, 0),
+                        Category(it.category, it.subcategory),
+                        whoToLookup
+                    )
+                    Log.d("Alex", "Budget for $i " + it.category + " " + it.subcategory + " is now " + it.budgetAmount)
+                }
+                // then add YTD for current year (if it's not Dec)
+                if (dateNow.get(Calendar.MONTH) != 11) {
+                    for (i in 1 until iBudgetMonth.month + 1) {
+                        it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
+                            BudgetMonth(
+                                iBudgetMonth.year,
+                                i
+                            ),
+                            Category(it.category, it.subcategory),
+                            whoToLookup
+                        )
+                        Log.d("Alex", "Budget for " + iBudgetMonth.year + " $i " + it.category + " " + it.subcategory + " is now " + it.budgetAmount)
+                    }
+                }
+            } else if (iViewPeriod == "YTD") {
                 for (i in 1 until iBudgetMonth.month + 1) {
                     it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
                         BudgetMonth(

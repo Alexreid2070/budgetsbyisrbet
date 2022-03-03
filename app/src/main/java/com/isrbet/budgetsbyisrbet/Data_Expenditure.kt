@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.ArrayList
+import java.util.*
 
 data class Expenditure(
     var date: String = "",
@@ -288,6 +288,12 @@ class ExpenditureViewModel : ViewModel() {
                 expe.bfname2split = iExpenditure.bfname2split
                 expe.type = iExpenditure.type
             }
+        }
+        fun getEarliestYear() : Int {
+            // since we know that this table is sorted on date, we simply return the first date
+            return if (singleInstance.expenditures.size == 0)
+                0
+            else singleInstance.expenditures[0].date.substring(0,4).toInt()
         }
     }
 

@@ -212,6 +212,12 @@
                         android:layout_height="wrap_content"
                         android:text="Year"
                         tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/button_view_all_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All-Time"
+                        tools:ignore="HardcodedText" />
                 </RadioGroup>
             </LinearLayout>
             <TextView
