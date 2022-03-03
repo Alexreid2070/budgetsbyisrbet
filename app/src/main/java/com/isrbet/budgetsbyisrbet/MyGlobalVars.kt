@@ -122,8 +122,14 @@ data class DataObject(var label: String, var value: Double, var color: Int)
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
+        // might get "2022-02-23", or might get "2022-02", or might get "2022-2"
         val dash = period.indexOf("-")
-        month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
+        val dash2 = period.indexOf("-", dash+1)
+        if (dash2 == -1)
+            month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
+        else {
+            month = if (dash > -1) period.substring(dash + 1, dash2).toInt() else 0
+        }
         }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
 

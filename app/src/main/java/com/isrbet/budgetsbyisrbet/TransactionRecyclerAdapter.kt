@@ -10,11 +10,12 @@ import android.widget.Filterable
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.l4digital.fastscroll.FastScroller
 import java.text.DecimalFormat
 
 class TransactionRecyclerAdapter(private val context: Context, private val list: MutableList<Expenditure>,
                                  private val listener: (Expenditure) -> Unit = {}) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
-                        Filterable {
+                        Filterable, FastScroller.SectionIndexer {
 
     var filteredList: MutableList<Expenditure> = mutableListOf<Expenditure>()
     private var groupList: MutableList<Int> = mutableListOf<Int>()
@@ -286,5 +287,11 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             }
         }
         return 0
+    }
+
+    override fun getSectionText(position: Int): CharSequence {
+//        val bm = BudgetMonth(filteredList[element].date)
+//        var elDate = Date(bm.year, bm.month, 1)
+        return filteredList[position].date
     }
 }

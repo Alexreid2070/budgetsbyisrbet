@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
+import com.l4digital.fastscroll.FastScrollRecyclerView
 import java.text.DecimalFormat
 
 class TransactionViewAllFragment : Fragment() {
@@ -52,7 +53,7 @@ class TransactionViewAllFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.recycler_view)
         super.onViewCreated(itemView, savedInstanceState)
 
         loadCategoryRadioButtons()
@@ -174,8 +175,6 @@ class TransactionViewAllFragment : Fragment() {
             }
         }
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-//        val dec = DecimalFormat("#.00")
-//        binding.totalAmount.text = dec.format(adapter.currentTotal)
         // for some reason "binding.buttonToday.setOnClickListener doesn't work, but the following does
         view?.findViewById<Button>(R.id.button_year_forward)
             ?.setOnClickListener { _: View ->
@@ -367,7 +366,8 @@ class TransactionViewAllFragment : Fragment() {
     }
 
     private fun closeSearch() {
-        val adapter: TransactionRecyclerAdapter = binding.recyclerView.adapter as TransactionRecyclerAdapter
+        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         binding.transactionSearch.visibility = View.GONE
         adapter.filter.filter("")
         // clear filter
@@ -377,7 +377,7 @@ class TransactionViewAllFragment : Fragment() {
         binding.totalLayout.visibility = View.GONE
     }
     private fun updateView() {
-        val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         recyclerView.adapter = null
         recyclerView.adapter = adapter
