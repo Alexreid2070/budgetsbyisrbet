@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,12 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     var filteredList: MutableList<Expenditure> = mutableListOf<Expenditure>()
     private var groupList: MutableList<Int> = mutableListOf<Int>()
     var currentTotal = 0.0
+    private var categoryFilter = ""
+    private var subcategoryFilter = ""
+    private var discretionaryFilter = ""
+    private var paidbyFilter = ""
+    private var boughtforFilter = ""
+    private var typeFilter = ""
 
     init {
         filterTheList(MyApplication.transactionSearchText)
@@ -35,7 +42,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 filterTheList(charSearch)
                 val filterResults = FilterResults()
                 filterResults.values = filteredList
-                currentTotal = getTotal()
+//                currentTotal = getTotal()
                 return filterResults
             }
 
@@ -43,7 +50,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 filteredList = results?.values as MutableList<Expenditure>
-                setGroupList()
+//                setGroupList()
                 notifyDataSetChanged()
             }
         }
@@ -59,17 +66,37 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
 
     // this version is used by search
     fun filterTheList(iConstraint: String) {
-        if (iConstraint.isEmpty()) {
+        if (iConstraint.isEmpty() && categoryFilter == "" && subcategoryFilter == "" &&
+            discretionaryFilter == "" && paidbyFilter == "" &&
+            boughtforFilter == "" && typeFilter == "") {
             filteredList = list
         } else {
             val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
+            var subcatDiscIndicator = ""
             for (row in list) {
                 var found = true
                 for (r in splitSearchTerms) {
                     found = found && row.contains(r)
                 }
-
+                if (found) { // ie no sense looking further if search term didn't match
+                    if (discretionaryFilter != "") {
+                        subcatDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(
+                            row.category,
+                            row.subcategory
+                        )
+                    }
+                    if ((categoryFilter == "" || row.category == categoryFilter) &&
+                        (subcategoryFilter == "" || row.subcategory == subcategoryFilter) &&
+                        (paidbyFilter == "" || row.paidby == paidbyFilter) &&
+                        (boughtforFilter == "" || row.boughtfor == boughtforFilter) &&
+                        (typeFilter == "All" || row.type == typeFilter || (row.type == "" && typeFilter == "Ordinary")) &&
+                        (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator)
+                    ) {
+                        found = found && true
+                    } else
+                        found = false
+                }
                 if (found) {
                     resultList.add(row)
                 }
@@ -77,6 +104,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             filteredList = resultList
         }
         setGroupList()
+        currentTotal = getTotal()
+//        setGroupList()
     }
 
     // this version is for my column filters
@@ -169,6 +198,24 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             holder.vtf_type.visibility = View.GONE
     }
 
+    fun setCategoryFilter(iFilter: String) {
+        categoryFilter = iFilter
+    }
+    fun setSubcategoryFilter(iFilter: String) {
+        subcategoryFilter = iFilter
+    }
+    fun setDiscretionaryFilter(iFilter: String) {
+        discretionaryFilter = iFilter
+    }
+    fun setPaidByFilter(iFilter: String) {
+        paidbyFilter = iFilter
+    }
+    fun setBoughtForFilter(iFilter: String) {
+        boughtforFilter = iFilter
+    }
+    fun setTypeFilter(iFilter: String) {
+        typeFilter = iFilter
+    }
     fun setGroupList() {
         groupList.clear()
         var c = 0 // row counter
@@ -181,12 +228,12 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 j++
             } else {
                 if (filteredList[i].date == filteredList[i-1].date) {
-                    groupList.add(c,j)
+                    groupList.add(c, j)
                     c++
                     j++
                 } else {
                     j=0
-                    groupList.add(c,j)
+                    groupList.add(c, j)
                     c++
                     j++
                 }

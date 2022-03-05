@@ -1,10 +1,12 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.icu.text.DecimalFormat
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.*
@@ -546,6 +548,18 @@ class DashboardFragment : Fragment() {
             binding.whoAllRadioButton.isChecked = true
             onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
         }
+        binding.scrollView.setLeftSwipeCallback(object: DataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in left swipe  callback")
+                moveForward()
+            }
+        })
+        binding.scrollView.setRightSwipeCallback(object: DataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in right swipe  callback")
+                moveBackward()
+            }
+        })
         setActionBarTitle()
     }
 
@@ -593,23 +607,28 @@ class DashboardFragment : Fragment() {
     }
 
     private fun moveBackward() {
-        if (currentBudgetMonth.month == 0)
-            currentBudgetMonth.year--
-        else
-            currentBudgetMonth.decrementMonth()
-        setActionBarTitle()
-        Log.d("Alex", "In backward, loading $currentBudgetMonth")
-        startLoadData(currentBudgetMonth)
-
+        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) != "YTD" &&
+            DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) != "All-Time") {
+            if (currentBudgetMonth.month == 0)
+                currentBudgetMonth.year--
+            else
+                currentBudgetMonth.decrementMonth()
+            setActionBarTitle()
+            Log.d("Alex", "In backward, loading $currentBudgetMonth")
+            startLoadData(currentBudgetMonth)
+        }
     }
 
     private fun moveForward() {
-        if (currentBudgetMonth.month == 0)
-            currentBudgetMonth.year++
-        else
-            currentBudgetMonth.addMonth()
-        setActionBarTitle()
-        startLoadData(currentBudgetMonth)
+        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) != "YTD" &&
+                DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) != "All-Time") {
+            if (currentBudgetMonth.month == 0)
+                currentBudgetMonth.year++
+            else
+                currentBudgetMonth.addMonth()
+            setActionBarTitle()
+            startLoadData(currentBudgetMonth)
+        }
     }
 
     override fun onDestroyView() {
@@ -750,8 +769,7 @@ class DashboardRows {
         data.forEach {
             if (iViewPeriod == "All-Time") {
                 val dateNow = android.icu.util.Calendar.getInstance()
-                var lastAnnualYear = 0
-                lastAnnualYear = if (dateNow.get(Calendar.MONTH) == 11) // ie Dec
+                val lastAnnualYear = if (dateNow.get(Calendar.MONTH) == 11) // ie Dec
                     dateNow.get(Calendar.YEAR)
                 else
                     dateNow.get(Calendar.YEAR)-1
@@ -763,7 +781,6 @@ class DashboardRows {
                         Category(it.category, it.subcategory),
                         whoToLookup
                     )
-                    Log.d("Alex", "Budget for $i " + it.category + " " + it.subcategory + " is now " + it.budgetAmount)
                 }
                 // then add YTD for current year (if it's not Dec)
                 if (dateNow.get(Calendar.MONTH) != 11) {
@@ -776,7 +793,6 @@ class DashboardRows {
                             Category(it.category, it.subcategory),
                             whoToLookup
                         )
-                        Log.d("Alex", "Budget for " + iBudgetMonth.year + " $i " + it.category + " " + it.subcategory + " is now " + it.budgetAmount)
                     }
                 }
             } else if (iViewPeriod == "YTD") {
@@ -799,5 +815,50 @@ class DashboardRows {
 
         data.sortWith(compareBy({ it.category }, { it.subcategory }))
         return data
+    }
+}
+
+class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
+    ScrollView(context, attrs) {
+    private val mGestureDetector: GestureDetector
+    private var leftSwipeCallback: DataUpdatedCallback? = null
+    private var rightSwipeCallback: DataUpdatedCallback? = null
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        Log.d("Alex", "mGestureDetector is $mGestureDetector")
+        if (!mGestureDetector.onTouchEvent(ev))
+            return super.onInterceptTouchEvent(ev)
+        else
+            return true
+    }
+    fun setLeftSwipeCallback(iCallback: DataUpdatedCallback?) {
+        leftSwipeCallback = iCallback
+    }
+    fun setRightSwipeCallback(iCallback: DataUpdatedCallback?) {
+        rightSwipeCallback = iCallback
+    }
+
+    internal inner class YScrollDetector : GestureDetector.SimpleOnGestureListener() {
+        override fun onScroll(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
+            val horizontalScroll = Math.abs(distanceY) <= Math.abs(distanceX)
+            if (horizontalScroll) {
+                Log.d("Alex", "scrolling horizontally $distanceX")
+                if (distanceX > 0)
+                    leftSwipeCallback?.onDataUpdate()
+                else
+                    rightSwipeCallback?.onDataUpdate()
+                return true
+            } else
+                return false
+        }
+    }
+
+    init {
+        mGestureDetector = GestureDetector(context, YScrollDetector())
+        setFadingEdgeLength(0)
     }
 }
