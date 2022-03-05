@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 
 class SettingsFragment : Fragment() {
@@ -23,6 +24,15 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
     private var oldFirstUser: String = ""
     private var oldSecondUser: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        enterTransition = inflater.inflateTransition(R.transition.slide_top)
+        returnTransition = null
+//        exitTransition = inflater.inflateTransition(R.transition.slide_bottom)
+    }
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

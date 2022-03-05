@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             }
             when(it.itemId){
                 R.id.homeFragment -> { // no navigation needed since we've popped our way back...
+                    binding.bottomNavigationView.menu.findItem(it.itemId).isChecked = true
                 }
                 R.id.ViewTransactionsFragment-> navController.navigate(R.id.ViewTransactionsFragment)
                 R.id.DashboardFragment-> navController.navigate(R.id.DashboardFragment)

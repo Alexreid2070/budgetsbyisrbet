@@ -83,20 +83,22 @@ class HomeFragment : Fragment() {
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
-                if (event2.y > event1.y) {
-                    // negative for up, positive for down
-                    Log.d("Alex", "swiped down " + binding.scrollView.canScrollVertically(-1))
-                    if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
-                        if (binding.expansionAreaLayout.visibility == View.GONE)
-                            onExpandClicked()
-                        else // already expanded and user swiped down, so open Settings
-                            findNavController().navigate(R.id.SettingsFragment)
-                    }
-                } else if (event2.y < event1.y) {
-                    Log.d("Alex", "swiped up " + binding.scrollView.canScrollVertically(1))
-                    if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
-                        if (binding.expansionAreaLayout.visibility == View.VISIBLE)
-                            onExpandClicked()
+                if (event1 != null && event2 != null) { // not sure why they'd be null, but sometimes they are...
+                    if (event2.y > event1.y) {
+                        // negative for up, positive for down
+                        Log.d("Alex", "swiped down " + binding.scrollView.canScrollVertically(-1))
+                        if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
+                            if (binding.expansionAreaLayout.visibility == View.GONE)
+                                onExpandClicked()
+                            else // already expanded and user swiped down, so open Settings
+                                findNavController().navigate(R.id.SettingsFragment)
+                        }
+                    } else if (event2.y < event1.y) {
+                        Log.d("Alex", "swiped up " + binding.scrollView.canScrollVertically(1))
+                        if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
+                            if (binding.expansionAreaLayout.visibility == View.VISIBLE)
+                                onExpandClicked()
+                        }
                     }
                 }
                 return true

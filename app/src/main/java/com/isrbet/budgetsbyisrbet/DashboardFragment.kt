@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.util.*
@@ -24,6 +25,181 @@ class DashboardFragment : Fragment() {
     private var mTableLayout: TableLayout? = null
     private var currentBudgetMonth: BudgetMonth = BudgetMonth(0,0)
     private var collapsedCategories: MutableList<String> = ArrayList()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        enterTransition = inflater.inflateTransition(R.transition.slide_right)
+        returnTransition = null
+//        exitTransition = inflater.inflateTransition(R.transition.slide_left)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+
+        // Inflate the layout for this fragment
+        inflater.inflate(R.layout.fragment_dashboard, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(itemView, savedInstanceState)
+        mTableLayout = binding.tableDashboardRows
+        binding.tableDashboardRows.isStretchAllColumns = true
+
+        if (currentBudgetMonth.year == 0) {
+            val dateNow = Calendar.getInstance()
+            if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
+                currentBudgetMonth =
+                    BudgetMonth(dateNow.get(Calendar.YEAR), 0)
+            else
+                currentBudgetMonth =
+                    BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD)) {
+            cDiscTypeDiscretionary -> binding.discRadioButton.isChecked = true
+            cDiscTypeNondiscretionary -> binding.nonDiscRadioButton.isChecked = true
+            else -> binding.allDiscRadioButton.isChecked = true
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)) {
+            SpenderViewModel.getSpenderName(0) -> binding.name1RadioButton.isChecked = true
+            SpenderViewModel.getSpenderName(1) -> binding.name2RadioButton.isChecked = true
+            else -> binding.whoAllRadioButton.isChecked = true
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD)) {
+            "#" -> binding.dollarRadioButton.isChecked = true
+            "%" -> binding.percentageRadioButton.isChecked = true
+        }
+        startLoadData(currentBudgetMonth)
+        binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
+        binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
+
+        binding.buttonBackward.setOnClickListener {
+            moveBackward()
+        }
+        binding.buttonForward.setOnClickListener {
+            moveForward()
+        }
+        binding.buttonViewMonth.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Month")
+            val dateNow = Calendar.getInstance()
+            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+            setActionBarTitle()
+            startLoadData(currentBudgetMonth)
+        }
+        binding.buttonViewYtd.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "YTD")
+            val dateNow = Calendar.getInstance()
+            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+            setActionBarTitle()
+            startLoadData(currentBudgetMonth)
+        }
+        binding.buttonViewYear.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Year")
+            currentBudgetMonth.month = 0
+            setActionBarTitle()
+            startLoadData(currentBudgetMonth)
+        }
+        binding.buttonViewAllTime.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "All-Time")
+            setActionBarTitle()
+            startLoadData(currentBudgetMonth)
+        }
+        binding.expandNav.setOnClickListener {
+            onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
+        }
+        binding.expandOptions.setOnClickListener {
+            onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
+        }
+        binding.expandView.setOnClickListener {
+            onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
+        }
+        binding.expandFilter.setOnClickListener {
+            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+        }
+        binding.showDeltaRadioGroup.setOnCheckedChangeListener { _, optionId ->
+            when (optionId) {
+                R.id.dollarRadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "#")
+                    startLoadData(currentBudgetMonth)
+                    // do something when radio button 1 is selected
+                }
+                R.id.percentageRadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "%")
+                    startLoadData(currentBudgetMonth)
+                }
+            }
+        }
+        binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
+            when (optionId) {
+                R.id.discRadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeDiscretionary)
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth)
+                    // do something when radio button 1 is selected
+                }
+                R.id.nonDiscRadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeNondiscretionary)
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth)
+                }
+                R.id.allDiscRadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth)
+                }
+            }
+        }
+        binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
+            when (optionId) {
+                R.id.name1RadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(0, true)?.name.toString())
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth)
+                    // do something when radio button 1 is selected
+                }
+                R.id.name2RadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(1, true)?.name.toString())
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth)
+                }
+                R.id.whoAllRadioButton -> {
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "")
+                    setActionBarTitle()
+                    startLoadData(currentBudgetMonth)
+                }
+            }
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD)) {
+            "Month" -> binding.buttonViewMonth.isChecked = true
+            "YTD" -> binding.buttonViewYtd.isChecked = true
+            "Year" -> binding.buttonViewYear.isChecked = true
+            "All-Time" -> binding.buttonViewAllTime.isChecked = true
+        }
+        binding.resetFilterButton.setOnClickListener {
+            DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
+            binding.allDiscRadioButton.isChecked = true
+            DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "")
+            binding.whoAllRadioButton.isChecked = true
+            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+        }
+        binding.scrollView.setLeftSwipeCallback(object: DataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in left swipe  callback")
+                moveForward()
+            }
+        })
+        binding.scrollView.setRightSwipeCallback(object: DataUpdatedCallback {
+            override fun onDataUpdate() {
+                Log.d("Alex", "in right swipe  callback")
+                moveBackward()
+            }
+        })
+        setActionBarTitle()
+    }
 
     private fun startLoadData(iBudgetMonth: BudgetMonth) {
         Log.d("Alex", "startLoadData filters for $iBudgetMonth")
@@ -314,7 +490,7 @@ class DashboardFragment : Fragment() {
                 val textView = tableRow.getChildAt(1) as TextView
                 MyApplication.transactionSearchText = cat + " " + textView.text.toString() + " " + currentBudgetMonth.year.toString()
                 MyApplication.transactionSearchText = MyApplication.transactionSearchText.replace("...","")
-                if (currentBudgetMonth.month != 0) {
+                if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Month") {
                     if (currentBudgetMonth.month < 10)
                         MyApplication.transactionSearchText += "-0" + currentBudgetMonth.month.toString()
                     else
@@ -394,173 +570,6 @@ class DashboardFragment : Fragment() {
             collapsedCategories.remove(iCategory)
         else
             collapsedCategories.add(iCategory)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-
-        // Inflate the layout for this fragment
-        inflater.inflate(R.layout.fragment_dashboard, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(itemView, savedInstanceState)
-        mTableLayout = binding.tableDashboardRows
-        binding.tableDashboardRows.isStretchAllColumns = true
-
-        if (currentBudgetMonth.year == 0) {
-            val dateNow = Calendar.getInstance()
-            if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
-                currentBudgetMonth =
-                    BudgetMonth(dateNow.get(Calendar.YEAR), 0)
-            else
-                currentBudgetMonth =
-                    BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
-        }
-        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD)) {
-            cDiscTypeDiscretionary -> binding.discRadioButton.isChecked = true
-            cDiscTypeNondiscretionary -> binding.nonDiscRadioButton.isChecked = true
-            else -> binding.allDiscRadioButton.isChecked = true
-        }
-        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)) {
-            SpenderViewModel.getSpenderName(0) -> binding.name1RadioButton.isChecked = true
-            SpenderViewModel.getSpenderName(1) -> binding.name2RadioButton.isChecked = true
-            else -> binding.whoAllRadioButton.isChecked = true
-        }
-        when (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD)) {
-            "#" -> binding.dollarRadioButton.isChecked = true
-            "%" -> binding.percentageRadioButton.isChecked = true
-        }
-        startLoadData(currentBudgetMonth)
-        binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
-        binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
-
-        binding.buttonBackward.setOnClickListener {
-            moveBackward()
-        }
-        binding.buttonForward.setOnClickListener {
-            moveForward()
-        }
-        binding.buttonViewMonth.setOnClickListener {
-            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Month")
-            val dateNow = Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth)
-        }
-        binding.buttonViewYtd.setOnClickListener {
-            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "YTD")
-            val dateNow = Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth)
-        }
-        binding.buttonViewYear.setOnClickListener {
-            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Year")
-            currentBudgetMonth.month = 0
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth)
-        }
-        binding.buttonViewAllTime.setOnClickListener {
-            DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "All-Time")
-            setActionBarTitle()
-            startLoadData(currentBudgetMonth)
-        }
-        binding.expandNav.setOnClickListener {
-            onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
-        }
-        binding.expandOptions.setOnClickListener {
-            onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
-        }
-        binding.expandView.setOnClickListener {
-            onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
-        }
-        binding.expandFilter.setOnClickListener {
-            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
-        }
-        binding.showDeltaRadioGroup.setOnCheckedChangeListener { _, optionId ->
-            when (optionId) {
-                R.id.dollarRadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "#")
-                    startLoadData(currentBudgetMonth)
-                    // do something when radio button 1 is selected
-                }
-                R.id.percentageRadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "%")
-                    startLoadData(currentBudgetMonth)
-                }
-            }
-        }
-        binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
-            when (optionId) {
-                R.id.discRadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeDiscretionary)
-                    setActionBarTitle()
-                    startLoadData(currentBudgetMonth)
-                    // do something when radio button 1 is selected
-                }
-                R.id.nonDiscRadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeNondiscretionary)
-                    setActionBarTitle()
-                    startLoadData(currentBudgetMonth)
-                }
-                R.id.allDiscRadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
-                    setActionBarTitle()
-                    startLoadData(currentBudgetMonth)
-                }
-            }
-        }
-        binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
-            when (optionId) {
-                R.id.name1RadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(0, true)?.name.toString())
-                    setActionBarTitle()
-                    startLoadData(currentBudgetMonth)
-                    // do something when radio button 1 is selected
-                }
-                R.id.name2RadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(1, true)?.name.toString())
-                    setActionBarTitle()
-                    startLoadData(currentBudgetMonth)
-                }
-                R.id.whoAllRadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "")
-                    setActionBarTitle()
-                    startLoadData(currentBudgetMonth)
-                }
-            }
-        }
-        when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD)) {
-            "Month" -> binding.buttonViewMonth.isChecked = true
-            "YTD" -> binding.buttonViewYtd.isChecked = true
-            "Year" -> binding.buttonViewYear.isChecked = true
-            "All-Time" -> binding.buttonViewAllTime.isChecked = true
-        }
-        binding.resetFilterButton.setOnClickListener {
-            DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_DASHBOARD, "")
-            binding.allDiscRadioButton.isChecked = true
-            DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "")
-            binding.whoAllRadioButton.isChecked = true
-            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
-        }
-        binding.scrollView.setLeftSwipeCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in left swipe  callback")
-                moveForward()
-            }
-        })
-        binding.scrollView.setRightSwipeCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in right swipe  callback")
-                moveBackward()
-            }
-        })
-        setActionBarTitle()
     }
 
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {

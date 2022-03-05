@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import androidx.transition.TransitionInflater
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
 import java.text.DecimalFormat
 
@@ -19,6 +20,14 @@ const val cJOINT_NAME = 2
 class AccountingFragment : Fragment() {
     private var _binding: FragmentAccountingBinding? = null
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        enterTransition = inflater.inflateTransition(R.transition.slide_right)
+        returnTransition = null
+//        exitTransition = inflater.inflateTransition(R.transition.slide_left)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

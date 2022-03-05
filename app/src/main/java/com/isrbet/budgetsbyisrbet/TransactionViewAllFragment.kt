@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionInflater
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.l4digital.fastscroll.FastScrollRecyclerView
@@ -37,6 +38,10 @@ class TransactionViewAllFragment : Fragment() {
                 activity?.onBackPressed()
             }
         })
+        val inflater = TransitionInflater.from(requireContext())
+        enterTransition = inflater.inflateTransition(R.transition.slide_right)
+        returnTransition = null
+//        exitTransition = inflater.inflateTransition(R.transition.slide_left)
     }
 
     override fun onCreateView(
@@ -90,6 +95,7 @@ class TransactionViewAllFragment : Fragment() {
                     adapter.filterTheList(transactionSearchText)
                     adapter.notifyDataSetChanged()
                     prevCategoryFilter = categoryFilter
+                    goToCorrectRow()
                 }
             }
         }
@@ -111,12 +117,13 @@ class TransactionViewAllFragment : Fragment() {
                     adapter.filterTheList(transactionSearchText)
                     adapter.notifyDataSetChanged()
                     prevSubcategoryFilter = subcategoryFilter
+                    goToCorrectRow()
                 }
             }
         }
         binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            var discretionaryFilter = ""
+            val discretionaryFilter: String
             when (radioButton.text.toString()) {
                 "Disc" -> discretionaryFilter = cDiscTypeDiscretionary
                 "Non-Disc" -> discretionaryFilter = cDiscTypeNondiscretionary
@@ -131,6 +138,7 @@ class TransactionViewAllFragment : Fragment() {
                 adapter.filterTheList(transactionSearchText)
                 adapter.notifyDataSetChanged()
                 prevDiscretionaryFilter = discretionaryFilter
+                goToCorrectRow()
             }
         }
         binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -147,6 +155,7 @@ class TransactionViewAllFragment : Fragment() {
                 adapter.filterTheList(transactionSearchText)
                 adapter.notifyDataSetChanged()
                 prevPaidbyFilter = paidbyFilter
+                goToCorrectRow()
             }
         }
         binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -163,6 +172,7 @@ class TransactionViewAllFragment : Fragment() {
                 adapter.filterTheList(transactionSearchText)
                 adapter.notifyDataSetChanged()
                 prevBoughtForFilter = boughtforFilter
+                goToCorrectRow()
             }
         }
         binding.filterTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -176,6 +186,7 @@ class TransactionViewAllFragment : Fragment() {
                 adapter.filterTheList(transactionSearchText)
                 adapter.notifyDataSetChanged()
                 prevTypeFilter = typeFilter
+                goToCorrectRow()
             }
         }
         recyclerView.apply {

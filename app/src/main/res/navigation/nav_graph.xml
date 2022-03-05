@@ -71,7 +71,7 @@
     <fragment
         android:id="@+id/AccountingFragment"
         android:name="com.isrbet.budgetsbyisrbet.AccountingFragment"
-        android:label="@string/accounting_fragment_label" />
+        android:label="@string/accounting_fragment_label"/>
     <fragment
         android:id="@+id/TransferFragment"
         android:name="com.isrbet.budgetsbyisrbet.TransferFragment"
@@ -137,9 +137,4 @@
         android:name="com.isrbet.budgetsbyisrbet.TranslationViewAllFragment"
         android:label="Translations"
         tools:layout="@layout/fragment_translation_view_all" />
-    <fragment
-        android:id="@+id/SettingsMasterFragment"
-        android:name="com.isrbet.budgetsbyisrbet.SettingsMasterFragment"
-        android:label="fragment_settings_master"
-        tools:layout="@layout/fragment_settings_master" />
 </navigation>
