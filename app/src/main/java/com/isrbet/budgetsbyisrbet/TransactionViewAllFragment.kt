@@ -533,13 +533,18 @@ class TransactionViewAllFragment : Fragment() {
         layout.visibility = View.GONE
     }
 
-/*
+
     override fun onResume() {
         super.onResume()
-        val recyclerView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
-        recyclerView.adapter!!.notifyDataSetChanged() // doesn't do anything
+        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        adapter.filterTheList(transactionSearchText)
+        adapter.notifyDataSetChanged()
+        goToCorrectRow()
+//        recyclerView.adapter!!.notifyDataSetChanged() // doesn't do anything
+
     }
-*/
+
 
     override fun onPause() {
         super.onPause()
