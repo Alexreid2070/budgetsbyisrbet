@@ -322,7 +322,6 @@ class ExpenditureViewModel : ViewModel() {
 
     fun loadExpenditures() {
         // Do an asynchronous operation to fetch expenditures
-        Log.d("Alex", "in loadExpenditures for expenditures " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
         expListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {

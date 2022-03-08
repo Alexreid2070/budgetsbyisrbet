@@ -201,7 +201,6 @@ class DefaultsViewModel : ViewModel() {
                 }
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
-                showMe()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

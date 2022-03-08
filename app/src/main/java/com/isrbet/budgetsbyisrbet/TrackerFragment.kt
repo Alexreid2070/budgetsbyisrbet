@@ -213,7 +213,7 @@ class TrackerFragment : Fragment() {
         binding.barChart.axisLeft.isEnabled = true
         binding.barChart.xAxis.setDrawGridLines(false)
         // add a nice and smooth animation
-        binding.barChart.animateY(1500)
+        binding.barChart.animateY(1000)
         binding.barChart.legend.isEnabled = false
         binding.barChart.setTouchEnabled(true)
         binding.barChart.isDoubleTapToZoomEnabled = false

@@ -15,6 +15,7 @@ import com.l4digital.fastscroll.FastScroller
 import java.text.DecimalFormat
 
 class TransactionRecyclerAdapter(private val context: Context, private val list: MutableList<Expenditure>,
+                                 filters: PreviousFilters,
                                  private val listener: (Expenditure) -> Unit = {}) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
                         Filterable, FastScroller.SectionIndexer {
 
@@ -29,6 +30,13 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     private var typeFilter = ""
 
     init {
+        categoryFilter = filters.prevCategoryFilter
+        subcategoryFilter = filters.prevSubcategoryFilter
+        discretionaryFilter = filters.prevDiscretionaryFilter
+        paidbyFilter = filters.prevPaidbyFilter
+        boughtforFilter = filters.prevBoughtForFilter
+        typeFilter = filters.prevTypeFilter
+        Log.d("Alex", "init search text is " + MyApplication.transactionSearchText)
         filterTheList(MyApplication.transactionSearchText)
         currentTotal = getTotal()
     }
@@ -39,10 +47,12 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
+                Log.d("Alex", "performFiltering")
                 filterTheList(charSearch)
                 val filterResults = FilterResults()
                 filterResults.values = filteredList
-//                currentTotal = getTotal()
+                Log.d("Alex", "performFiltering filteredList size is " + filteredList.size)
+                currentTotal = getTotal()
                 return filterResults
             }
 
@@ -52,6 +62,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 filteredList = results?.values as MutableList<Expenditure>
 //                setGroupList()
                 notifyDataSetChanged()
+                Log.d("Alex", "publishResults filteredList size is " + filteredList.size)
             }
         }
     }
@@ -66,6 +77,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
 
     // this version is used by search
     fun filterTheList(iConstraint: String) {
+        Log.d("Alex", "filterTheList prevs are $iConstraint $categoryFilter $subcategoryFilter $discretionaryFilter $paidbyFilter $boughtforFilter $typeFilter")
         if (iConstraint.isEmpty() && categoryFilter == "" && subcategoryFilter == "" &&
             discretionaryFilter == "" && paidbyFilter == "" &&
             boughtforFilter == "" && typeFilter == "") {
@@ -104,37 +116,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             filteredList = resultList
         }
         setGroupList()
+        Log.d("Alex", "filteredList size is " + filteredList.size + " and groupList size is " + groupList.size)
         currentTotal = getTotal()
-//        setGroupList()
-    }
-
-    // this version is for my column filters
-    fun filterTheList(iCategoryFilter: String, iSubCategoryFilter: String, iDiscretionaryFilter: String,
-    iPaidByFilter: String, iBoughtForFilter: String, iTypeFilter: String) {
-        if (iCategoryFilter == "" && iSubCategoryFilter == "" && iDiscretionaryFilter == "" &&
-                iPaidByFilter == "" && iBoughtForFilter == "" && iTypeFilter == "") {
-            filteredList = list
-        } else {
-            val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
-            var subcatDiscIndicator = ""
-            for (row in list) {
-                if (iDiscretionaryFilter != "") {
-                    subcatDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(row.category, row.subcategory)
-                }
-                if ((iCategoryFilter == "" || row.category == iCategoryFilter) &&
-                    (iSubCategoryFilter == "" || row.subcategory == iSubCategoryFilter) &&
-                    (iPaidByFilter == "" || row.paidby == iPaidByFilter) &&
-                    (iBoughtForFilter == "" || row.boughtfor == iBoughtForFilter) &&
-                    (iTypeFilter == "All" || row.type == iTypeFilter || (row.type == "" && iTypeFilter == "Ordinary")) &&
-                    (iDiscretionaryFilter == "" || iDiscretionaryFilter == subcatDiscIndicator)) {
-                    resultList.add(row)
-                }
-            }
-            filteredList = resultList
-        }
-        setGroupList()
-        currentTotal = getTotal()
-        notifyDataSetChanged()
     }
 
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
@@ -217,28 +200,31 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         typeFilter = iFilter
     }
     fun setGroupList() {
-        groupList.clear()
+        var tgroupList: MutableList<Int> = mutableListOf<Int>()
+        tgroupList.clear()
         var c = 0 // row counter
         var j = 0 // number of transaction within specific date
+        Log.d("Alex", "setGroupList filteredList size is " + filteredList.size)
 
         for (i in 0 until filteredList.size) {
-            if (groupList.size == 0) {
-                groupList.add(c,j)
+            if (tgroupList.size == 0) {
+                tgroupList.add(c,j)
                 c++
                 j++
             } else {
                 if (filteredList[i].date == filteredList[i-1].date) {
-                    groupList.add(c, j)
+                    tgroupList.add(c, j)
                     c++
                     j++
                 } else {
                     j=0
-                    groupList.add(c, j)
+                    tgroupList.add(c, j)
                     c++
                     j++
                 }
             }
         }
+        groupList = tgroupList
     }
 
     fun getCount(): Int {
@@ -337,8 +323,6 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     }
 
     override fun getSectionText(position: Int): CharSequence {
-//        val bm = BudgetMonth(filteredList[element].date)
-//        var elDate = Date(bm.year, bm.month, 1)
         return filteredList[position].date
     }
 }

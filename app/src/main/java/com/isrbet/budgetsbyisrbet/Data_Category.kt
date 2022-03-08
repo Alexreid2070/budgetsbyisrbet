@@ -181,7 +181,6 @@ class CategoryViewModel : ViewModel() {
 
     fun loadCategories() {
         // Do an asynchronous operation to fetch categories and subcategories
-        Log.d("Alex", "in loadCategories for categories " + if (dataUpdatedCallback == null) "no callback " else "callback exists" )
         catListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {

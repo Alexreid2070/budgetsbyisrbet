@@ -135,7 +135,11 @@ class BudgetViewAllFragment : Fragment() {
             findNavController().navigate(R.id.RecurringTransactionFragment)
         }
         binding.budgetAddFab.setOnClickListener {
-            findNavController().navigate(R.id.BudgetFragment)
+            val currentCategory = Category(binding.budgetCategorySpinner.selectedItem.toString())
+            val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
+            action.category = currentCategory.categoryName
+            action.subcategory = currentCategory.subcategoryName
+            findNavController().navigate(action)
         }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
@@ -152,7 +156,6 @@ class BudgetViewAllFragment : Fragment() {
     }
 
     fun loadRows(iCategory: Category) {
-        Log.d("Alex", "in load rows, iCategory is '$iCategory'")
         val adapter = BudgetAdapter(requireContext(), BudgetViewModel.getBudgetInputRows(iCategory, currentFilter))
         val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
         listView.adapter = adapter

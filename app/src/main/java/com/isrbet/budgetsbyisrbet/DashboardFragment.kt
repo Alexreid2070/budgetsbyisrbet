@@ -28,9 +28,9 @@ class DashboardFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val inflater = TransitionInflater.from(requireContext())
-        enterTransition = inflater.inflateTransition(R.transition.slide_right)
-        returnTransition = null
+//        val inflater = TransitionInflater.from(requireContext())
+//        enterTransition = inflater.inflateTransition(R.transition.slide_right)
+//        returnTransition = null
 //        exitTransition = inflater.inflateTransition(R.transition.slide_left)
     }
 

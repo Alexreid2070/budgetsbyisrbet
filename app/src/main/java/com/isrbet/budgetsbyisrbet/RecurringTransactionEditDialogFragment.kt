@@ -169,6 +169,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(oldBoughtFor))
 
         if (oldName == "") { // ie this is an add, not an edit
+            binding.rtDialogLinearLayout1.visibility = View.GONE
             binding.editRtOldAmount.visibility = View.GONE
             binding.editRtOldPeriod.visibility = View.GONE
             binding.editRtOldRegularity.visibility = View.GONE
@@ -176,7 +177,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             binding.rtCurrentValueHeader.visibility = View.GONE
             binding.editRtOldPaidBy.visibility = View.GONE
             binding.editRtOldBoughtFor.visibility = View.GONE
-        } else {
+        } else { // ie it's an edit
+            binding.rtTitle.visibility = View.GONE
             val tOldDate = LocalDate.parse(oldDate, DateTimeFormatter.ISO_DATE)
             cal.set(Calendar.YEAR, tOldDate.year)
             cal.set(Calendar.MONTH, tOldDate.monthValue-1)

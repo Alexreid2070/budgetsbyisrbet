@@ -11,19 +11,21 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
-import android.widget.CheckBox
-import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
+import java.lang.Exception
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private var oldFirstUser: String = ""
     private var oldSecondUser: String = ""
+    private var gestureDetector: GestureDetectorCompat? = null
+    private var secondSwipeUp = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +60,8 @@ class SettingsFragment : Fragment() {
         binding.splitName1Pct.text = SpenderViewModel.getSpenderSplit(0).toString()
         binding.splitName2Pct.text = SpenderViewModel.getSpenderSplit(1).toString()
         binding.splitSlider.addOnChangeListener { _, _, _ ->
-            binding.splitName1Pct.setText(binding.splitSlider.value.toInt().toString())
-            binding.splitName2Pct.setText((100-binding.splitSlider.value.toInt()).toString())
+            binding.splitName1Pct.text = binding.splitSlider.value.toInt().toString()
+            binding.splitName2Pct.text = (100-binding.splitSlider.value.toInt()).toString()
         }
 
         var ctr = 400
@@ -87,7 +89,7 @@ class SettingsFragment : Fragment() {
             )
             newRadioButton.buttonTintList=
                 ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-            newRadioButton.setText(spender)
+            newRadioButton.text = spender
             newRadioButton.id = ctr++
             spenderRadioGroup.addView(newRadioButton)
             if (spender == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
@@ -158,7 +160,7 @@ class SettingsFragment : Fragment() {
 
         if (binding.settingsSecondUserName.text.toString() == "") {
             binding.splitSlider.isEnabled = false
-            for (i in 0 until binding.defaultSpenderRadioGroup.getChildCount()) {
+            for (i in 0 until binding.defaultSpenderRadioGroup.childCount) {
                 (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
         }
@@ -194,13 +196,50 @@ class SettingsFragment : Fragment() {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
                 if (binding.settingsSecondUserName.text.toString() != "") {
                     binding.splitSlider.isEnabled = true
-                    for (i in 0 until binding.defaultSpenderRadioGroup.getChildCount()) {
+                    for (i in 0 until binding.defaultSpenderRadioGroup.childCount) {
                         (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
                     }
                 }
             }
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun afterTextChanged(arg0: Editable) {}
+        })
+
+        gestureDetector = GestureDetectorCompat(requireActivity(), object:
+            GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                event1: MotionEvent,
+                event2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (event2.y < event1.y) { // swiped up.  If at bottom already, close Settings
+                    Log.d("Alex", "swiped up " + binding.scrollView.canScrollVertically(1))
+                    if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
+                        secondSwipeUp++
+                        if (secondSwipeUp == 2)
+                            activity?.onBackPressed()
+                    }
+                }
+                else
+                    secondSwipeUp = 0
+                return true
+            }
+        })
+        binding.scrollView.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                if (p1 != null) {
+                    try {
+                        // this call is in a "try" because  sometimes it crashes.  So we want to ignore that gesture
+                        gestureDetector?.onTouchEvent(p1)
+                    }
+                    catch (e: Exception) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+                return false
+            }
         })
 
         binding.settingsFirstUserName.requestFocus()

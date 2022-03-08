@@ -4,17 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/rt_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Recurring Transaction"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <LinearLayout
         android:id="@+id/rt_dialog_linear_layout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/rt_title">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight=".5"
             android:textSize="16sp" />
 
         <TextView
@@ -24,6 +35,7 @@
             android:layout_weight="1"
             android:text="Current Value"
             android:textSize="16sp"
+            android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -31,6 +43,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="New Value"
+            android:textStyle="bold"
             android:textSize="16sp"
             tools:ignore="HardcodedText" />
     </LinearLayout>

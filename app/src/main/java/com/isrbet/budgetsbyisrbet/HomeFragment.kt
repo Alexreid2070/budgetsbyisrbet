@@ -36,6 +36,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
+import java.lang.Exception
 
 
 class HomeFragment : Fragment() {
@@ -83,7 +84,7 @@ class HomeFragment : Fragment() {
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
-                if (event1 != null && event2 != null) { // not sure why they'd be null, but sometimes they are...
+//                if (event1 != null && event2 != null) { // not sure why they'd be null, but sometimes they are...
                     if (event2.y > event1.y) {
                         // negative for up, positive for down
                         Log.d("Alex", "swiped down " + binding.scrollView.canScrollVertically(-1))
@@ -100,7 +101,7 @@ class HomeFragment : Fragment() {
                                 onExpandClicked()
                         }
                     }
-                }
+//                }
                 return true
             }
         })
@@ -243,7 +244,14 @@ class HomeFragment : Fragment() {
         scrollView.setOnTouchListener(object: View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 if (p1 != null) {
-                    gestureDetector?.onTouchEvent(p1)
+                    try {
+                        // this call is in a "try" because if the user swipes partially over the tracker on the home page, it crashes.  So we want to ignore that gesture
+                        gestureDetector?.onTouchEvent(p1)
+                    }
+                    catch (e: Exception) {
+                        e.printStackTrace();
+                        return false;
+                    }
                 }
                 return false
             }
@@ -253,13 +261,11 @@ class HomeFragment : Fragment() {
 
         CategoryViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
-                Log.d("Alex", "in Category onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
             }
         })
         SpenderViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
-                Log.d("Alex", "in Spender onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
                 if (SpenderViewModel.singleUser()) {
                     (activity as MainActivity).singleUserMode()
@@ -268,25 +274,21 @@ class HomeFragment : Fragment() {
         })
         ChatViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
-                Log.d("Alex", "in Chat onDataUpdate callback")
                 tryToUpdateChatIcon()
             }
         })
         ExpenditureViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
-                Log.d("Alex", "in Expenditure onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
             }
         })
         BudgetViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
-                Log.d("Alex", "in Budget onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
             }
         })
         RecurringTransactionViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
-                Log.d("Alex", "in RecurringTransaction onDataUpdate callback")
                 alignExpenditureMenuWithDataState()
             }
         })
