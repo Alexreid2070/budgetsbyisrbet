@@ -193,7 +193,7 @@ class HomeFragment : Fragment() {
             }
         view.findViewById<Button>(R.id.view_all_button)
             ?.setOnClickListener { iview: View ->
-                iview.findNavController().navigate(R.id.ViewTransactionsFragment)
+                iview.findNavController().navigate(R.id.TransactionViewAllFragment)
             }
         view.findViewById<Button>(R.id.dashboard_button)
             ?.setOnClickListener { iview: View ->

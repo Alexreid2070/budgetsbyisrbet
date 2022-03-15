@@ -82,7 +82,7 @@ class RecurringTransactionFragment : Fragment() {
             true
         } else if (item.itemId == R.id.ViewRecurringTransactionsFragment) {
             MyApplication.transactionSearchText = "Recurring"
-            view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
+            view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
             true
         } else {
             val navController = findNavController()

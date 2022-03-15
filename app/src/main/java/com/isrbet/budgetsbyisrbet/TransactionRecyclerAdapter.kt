@@ -12,15 +12,20 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.l4digital.fastscroll.FastScroller
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 
-class TransactionRecyclerAdapter(private val context: Context, private val list: MutableList<Expenditure>,
-                                 filters: PreviousFilters,
-                                 private val listener: (Expenditure) -> Unit = {}) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
-                        Filterable, FastScroller.SectionIndexer {
+class TransactionRecyclerAdapter(
+    private val context: Context, private val list: MutableList<Expenditure>,
+    filters: PreviousFilters,
+    private val listener: (Expenditure) -> Unit = {}
+) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
+    Filterable, FastScroller.SectionIndexer {
 
-    var filteredList: MutableList<Expenditure> = mutableListOf<Expenditure>()
-    private var groupList: MutableList<Int> = mutableListOf<Int>()
+    var filteredList: MutableList<Expenditure> = mutableListOf()
+    private var groupList: MutableList<Int> = mutableListOf()
+    private var runningTotalList: MutableList<Double> = mutableListOf()
     var currentTotal = 0.0
     private var categoryFilter = ""
     private var subcategoryFilter = ""
@@ -28,6 +33,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     private var paidbyFilter = ""
     private var boughtforFilter = ""
     private var typeFilter = ""
+    private var accountingFilter = false
 
     init {
         categoryFilter = filters.prevCategoryFilter
@@ -40,9 +46,11 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
         filterTheList(MyApplication.transactionSearchText)
         currentTotal = getTotal()
     }
+
     override fun getItemCount(): Int {
         return filteredList.size
     }
+
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
@@ -60,30 +68,34 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 filteredList = results?.values as MutableList<Expenditure>
-//                setGroupList()
                 notifyDataSetChanged()
                 Log.d("Alex", "publishResults filteredList size is " + filteredList.size)
             }
         }
     }
-    fun getTotal() : Double {
+
+    fun getTotal(): Double {
         var tTotal = 0.0
         filteredList.forEach {
             if (it.type != "Transfer")
-                tTotal += (it.amount/100.0)
+                tTotal += (it.amount / 100.0)
         }
         return tTotal
     }
 
     // this version is used by search
     fun filterTheList(iConstraint: String) {
-        Log.d("Alex", "filterTheList prevs are $iConstraint $categoryFilter $subcategoryFilter $discretionaryFilter $paidbyFilter $boughtforFilter $typeFilter")
+        Log.d(
+            "Alex",
+            "filterTheList prevs are $iConstraint $categoryFilter $subcategoryFilter $discretionaryFilter $paidbyFilter $boughtforFilter $typeFilter"
+        )
         if (iConstraint.isEmpty() && categoryFilter == "" && subcategoryFilter == "" &&
             discretionaryFilter == "" && paidbyFilter == "" &&
-            boughtforFilter == "" && typeFilter == "") {
+            boughtforFilter == "" && typeFilter == "" && !accountingFilter
+        ) {
             filteredList = list
         } else {
-            val resultList: MutableList<Expenditure> = mutableListOf<Expenditure>()
+            val resultList: MutableList<Expenditure> = mutableListOf()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
             var subcatDiscIndicator = ""
             for (row in list) {
@@ -98,16 +110,26 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                             row.subcategory
                         )
                     }
-                    if ((categoryFilter == "" || row.category == categoryFilter) &&
+                    found = if ((categoryFilter == "" || row.category == categoryFilter) &&
                         (subcategoryFilter == "" || row.subcategory == subcategoryFilter) &&
                         (paidbyFilter == "" || row.paidby == paidbyFilter) &&
                         (boughtforFilter == "" || row.boughtfor == boughtforFilter) &&
-                        (typeFilter == "All" || row.type == typeFilter || (row.type == "" && typeFilter == "Ordinary")) &&
+                        (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter == "Ordinary")) &&
                         (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator)
                     ) {
-                        found = found && true
+                        if (accountingFilter) {
+                            if (row.paidby == row.boughtfor && row.paidby != "Joint")
+                                false
+                            else if (row.paidby == "Joint" && row.boughtfor == "Joint" &&
+                                row.bfname1split == SpenderViewModel.getSpenderSplit(0)
+                            )
+                                false
+                            else
+                                found
+                        } else
+                            found
                     } else
-                        found = false
+                        false
                 }
                 if (found) {
                     resultList.add(row)
@@ -116,23 +138,30 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             filteredList = resultList
         }
         setGroupList()
-        Log.d("Alex", "filteredList size is " + filteredList.size + " and groupList size is " + groupList.size)
+        Log.d(
+            "Alex",
+            "filteredList size is " + filteredList.size + " and groupList size is " + groupList.size
+        )
         currentTotal = getTotal()
     }
 
-    class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
-        val vtf_date: TextView = view.findViewById(R.id.vtf_date)
-        val vtf_amount: TextView = view.findViewById(R.id.vtf_amount)
-        val vtf_category: TextView = view.findViewById(R.id.vtf_category)
-        val vtf_subcategory: TextView = view.findViewById(R.id.vtf_subcategory)
-        val vtf_who: TextView = view.findViewById(R.id.vtf_who)
-        val vtf_note: TextView = view.findViewById(R.id.vtf_note)
-        val vtf_disc: TextView = view.findViewById(R.id.vtf_disc)
-        val vtf_type: TextView = view.findViewById(R.id.vtf_type)
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val vtfdate: TextView = view.findViewById(R.id.vtf_date)
+        val vtfamount: TextView = view.findViewById(R.id.vtf_amount)
+        val vtfpercentage1: TextView = view.findViewById(R.id.vtf_percentage1)
+        val vtfpercentage2: TextView = view.findViewById(R.id.vtf_percentage2)
+        val vtfcategory: TextView = view.findViewById(R.id.vtf_category)
+        val vtfsubcategory: TextView = view.findViewById(R.id.vtf_subcategory)
+        val vtfwho: TextView = view.findViewById(R.id.vtf_who)
+        val vtfnote: TextView = view.findViewById(R.id.vtf_note)
+        val vtfdisc: TextView = view.findViewById(R.id.vtf_disc)
+        val vtftype: TextView = view.findViewById(R.id.vtf_type)
+        val vtfrunningtotal: TextView = view.findViewById(R.id.vtf_running_total)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.row_transaction_view_all,parent, false)
+        val view =
+            LayoutInflater.from(context).inflate(R.layout.row_transaction_view_all, parent, false)
         return ViewHolder(view)
     }
 
@@ -140,84 +169,134 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val data = filteredList[position]
 
-        holder.vtf_date.text = data.date
+        holder.vtfdate.text = data.date
         if (groupList[position] == 0) { // ie first transaction on this date
-            holder.vtf_date.isVisible = true
-            holder.vtf_date.paint.isUnderlineText = true
+            holder.vtfdate.isVisible = true
+            holder.vtfdate.paint.isUnderlineText = true
         } else {
-            holder.vtf_date.isVisible = false
+            holder.vtfdate.isVisible = false
         }
         val dec = DecimalFormat("#.00")
         val formattedAmount = (data.amount / 100).toDouble() + (data.amount % 100).toDouble() / 100
-        holder.vtf_amount.text = dec.format(formattedAmount)
-        holder.vtf_category.text = data.category
-        holder.vtf_subcategory.text = data.subcategory
+        holder.vtfamount.text = dec.format(formattedAmount)
+        val percentage1 = formattedAmount * data.bfname1split / 100
+        val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
+        holder.vtfpercentage1.text = dec.format(rounded.toDouble())
+        val percentage2 = formattedAmount - rounded.toDouble()
+        holder.vtfpercentage2.text = dec.format(percentage2)
+        holder.vtfrunningtotal.text = dec.format(runningTotalList[position])
+        holder.vtfcategory.text = data.category
+        holder.vtfsubcategory.text = data.subcategory
         if (data.paidby == data.boughtfor)
-            holder.vtf_who.text = data.paidby
+            holder.vtfwho.text = data.paidby
         else
-            holder.vtf_who.text =
+            holder.vtfwho.text =
                 data.paidby.subSequence(0, 2).toString() + ":" + data.boughtfor.subSequence(0, 2)
                     .toString()
-        holder.vtf_note.text = data.note
-        if (CategoryViewModel.getDiscretionaryIndicator(data.category, data.subcategory) == cDiscTypeDiscretionary)
-            holder.vtf_disc.text = "D"
+        holder.vtfnote.text = data.note
+        if (CategoryViewModel.getDiscretionaryIndicator(
+                data.category,
+                data.subcategory
+            ) == cDiscTypeDiscretionary
+        )
+            holder.vtfdisc.text = "D"
         else
-            holder.vtf_disc.text = "ND"
-        if (data.type.length > 0)
-            holder.vtf_type.text = data.type.substring(0,1)
+            holder.vtfdisc.text = "ND"
+        if (data.type.isNotEmpty())
+            holder.vtftype.text = data.type.substring(0, 1)
         else
-            holder.vtf_type.text = ""
+            holder.vtftype.text = ""
         holder.itemView.setOnClickListener { listener(data) }
         if (SpenderViewModel.singleUser()) {
-            holder.vtf_who.visibility = View.GONE
+            holder.vtfwho.visibility = View.GONE
         }
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true")
-            holder.vtf_who.visibility = View.GONE
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true")
-            holder.vtf_note.visibility = View.GONE
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true")
-            holder.vtf_disc.visibility = View.GONE
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true")
-            holder.vtf_type.visibility = View.GONE
+        if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
+            holder.vtfcategory.visibility = View.GONE
+            holder.vtfsubcategory.visibility = View.GONE
+        }
+        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
+            holder.vtfpercentage1.visibility = View.GONE
+            holder.vtfpercentage2.visibility = View.GONE
+        }
+        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true")
+            holder.vtftype.visibility = View.GONE
+        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true")
+            holder.vtfwho.visibility = View.GONE
+        if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true")
+            holder.vtfnote.visibility = View.GONE
+        if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true")
+            holder.vtfdisc.visibility = View.GONE
+        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) != "true")
+            holder.vtfrunningtotal.visibility = View.GONE
     }
 
     fun setCategoryFilter(iFilter: String) {
         categoryFilter = iFilter
     }
+
     fun setSubcategoryFilter(iFilter: String) {
         subcategoryFilter = iFilter
     }
+
     fun setDiscretionaryFilter(iFilter: String) {
         discretionaryFilter = iFilter
     }
+
     fun setPaidByFilter(iFilter: String) {
         paidbyFilter = iFilter
     }
+
     fun setBoughtForFilter(iFilter: String) {
         boughtforFilter = iFilter
     }
+
     fun setTypeFilter(iFilter: String) {
         typeFilter = iFilter
     }
-    fun setGroupList() {
-        var tgroupList: MutableList<Int> = mutableListOf<Int>()
+
+    fun setAccountingFilter(iFilter: Boolean) {
+        accountingFilter = iFilter
+    }
+
+    private fun setGroupList() {
+        val tgroupList: MutableList<Int> = mutableListOf()
         tgroupList.clear()
+        val trunningTotalList: MutableList<Double> = mutableListOf()
+        trunningTotalList.clear()
         var c = 0 // row counter
         var j = 0 // number of transaction within specific date
-        Log.d("Alex", "setGroupList filteredList size is " + filteredList.size)
+        var previousRunningTotal = 0.0
 
         for (i in 0 until filteredList.size) {
+            // calculating what name 1 owes name 2
+            if (filteredList[i].paidby != filteredList[i].boughtfor ||
+                filteredList[i].paidby == "Joint"
+            ) {
+                val name1PortionOfExpense =
+                    filteredList[i].amount / 100.0 * filteredList[i].bfname1split / 100.0
+                val name1PortionOfFundsUsed =
+                    when (filteredList[i].paidby) {
+                        SpenderViewModel.getSpenderName(0) -> filteredList[i].amount / 100.0
+                        SpenderViewModel.getSpenderName(1) -> 0.0
+                        else // must be Joint
+                        -> filteredList[i].amount / 100.0 * SpenderViewModel.getSpenderSplit(0) / 100.0
+                    }
+                trunningTotalList.add(previousRunningTotal + name1PortionOfExpense - name1PortionOfFundsUsed)
+                previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed)
+            } else {
+                trunningTotalList.add(previousRunningTotal)
+            }
             if (tgroupList.size == 0) {
-                tgroupList.add(c,j)
+                tgroupList.add(c, j)
                 c++
                 j++
             } else {
-                if (filteredList[i].date == filteredList[i-1].date) {
+                if (filteredList[i].date == filteredList[i - 1].date) {
                     tgroupList.add(c, j)
                     c++
                     j++
                 } else {
-                    j=0
+                    j = 0
                     tgroupList.add(c, j)
                     c++
                     j++
@@ -225,6 +304,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             }
         }
         groupList = tgroupList
+        runningTotalList = trunningTotalList
     }
 
     fun getCount(): Int {
@@ -237,8 +317,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             "-year" -> {
                 if (currentTopPosition == 0) return 0
                 newPosition = currentTopPosition - 1
-                val targetYear: String
-                targetYear = if (filteredList[currentTopPosition].date.substring(
+                val targetYear: String = if (filteredList[currentTopPosition].date.substring(
                         0,
                         4
                     ) == filteredList[currentTopPosition - 1].date.substring(0, 4)
@@ -261,8 +340,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
             "-month" -> {
                 if (currentTopPosition == 0) return 0
                 newPosition = currentTopPosition - 1
-                val targetYearMonth: String
-                targetYearMonth = if (filteredList[currentTopPosition].date.substring(
+                val targetYearMonth: String = if (filteredList[currentTopPosition].date.substring(
                         0,
                         7
                     ) == filteredList[currentTopPosition - 1].date.substring(0, 7)
@@ -273,7 +351,7 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 //we're already at beginning of current month, so aim for previous month
                     filteredList[currentTopPosition - 1].date.substring(0, 7)
                 while (newPosition >= 0 && filteredList[newPosition].date.substring(0, 7)
-                         >= targetYearMonth
+                    >= targetYearMonth
                 ) {
                     newPosition--
                 }
@@ -288,12 +366,11 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 while (newPosition < filteredList.size && filteredList[newPosition].date < currentDate) {
                     newPosition++
                 }
-                return (newPosition -1)
+                return (newPosition - 1)
             }
             "+month" -> {
-                val currentYearMonth: String
                 newPosition = currentTopPosition + 1
-                currentYearMonth = filteredList[currentTopPosition].date.substring(0, 7)
+                val currentYearMonth: String = filteredList[currentTopPosition].date.substring(0, 7)
                 while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
                         0,
                         7
@@ -304,9 +381,8 @@ class TransactionRecyclerAdapter(private val context: Context, private val list:
                 return newPosition
             }
             "+year" -> {
-                val currentYear: String
                 newPosition = currentTopPosition + 1
-                currentYear = filteredList[currentTopPosition].date.substring(0, 4)
+                val currentYear: String = filteredList[currentTopPosition].date.substring(0, 4)
                 while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
                         0,
                         4

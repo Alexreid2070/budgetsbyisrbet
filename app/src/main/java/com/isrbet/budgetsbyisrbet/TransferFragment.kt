@@ -12,9 +12,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -265,7 +263,7 @@ class TransferFragment : Fragment() {
             }
             R.id.ViewTransfersFragment -> {
                 MyApplication.transactionSearchText = "Transfer"
-                view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
+                view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
                 true
             }
             else -> {

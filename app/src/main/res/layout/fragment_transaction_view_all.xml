@@ -29,7 +29,8 @@
             android:id="@+id/amountHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="end"
+            android:gravity="end"
             android:layout_weight="1"
             android:text="Amt"
             android:textSize="16sp"
@@ -37,10 +38,33 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/percentage1Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:gravity="end"
+            android:layout_weight="1"
+            android:text="Amt1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/percentage2Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:gravity="end"
+            android:layout_weight="1"
+            android:text="Amt2"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+        <TextView
             android:id="@+id/categoryHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="end"
+            android:gravity="end"
             android:layout_weight="1"
             android:text="Cat"
             android:textSize="16sp"
@@ -52,7 +76,8 @@
             android:id="@+id/subCategoryHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="end"
+            android:gravity="end"
             android:layout_weight="1"
             android:text="SubCat"
             android:textSize="16sp"
@@ -64,7 +89,8 @@
             android:id="@+id/whoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="end"
+            android:gravity="end"
             android:layout_weight="1"
             android:text="By:For"
             android:textSize="16sp"
@@ -76,7 +102,8 @@
             android:id="@+id/noteHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="end"
+            android:gravity="end"
             android:layout_weight="1"
             android:text="Note"
             android:textSize="16sp"
@@ -100,10 +127,23 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_weight=".5"
+            android:gravity="end"
             android:text="Typ"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="R = Recurring transaction, T = Transfer, otherwise blank."
+            tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/runningTotalHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:gravity="end"
+            android:layout_weight=".8"
+            android:text="Owes"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="Amount that primary user owes secondary user"
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
@@ -325,6 +365,57 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Split Amount columns?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_individual_amounts_columns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="false"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:layout_weight="1"
+                android:text="Show Category/Subcategory columns?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_category_columns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="true"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="Show Who column?  "
@@ -349,6 +440,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="Show Note column?  "
@@ -373,6 +465,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="Show Discretionary indicator column?  "
@@ -397,6 +490,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="Show Type column?  "
@@ -412,6 +506,31 @@
                 android:textOn="On"
                 android:textOff="Off"
                 android:checked="true"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Running Total column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText">
+            </TextView>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_running_total_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textOn="On"
+                android:textOff="Off"
+                android:checked="false"
                 tools:ignore="HardcodedText" />
         </LinearLayout>
         <Space

@@ -1,3 +1,5 @@
+package com.isrbet.budgetsbyisrbet
+
 import com.isrbet.budgetsbyisrbet.*
 import org.junit.Assert
 import org.junit.Test

@@ -39,10 +39,31 @@
         </TextView>
 
         <TextView
+            android:id="@+id/vtf_percentage1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".8"
+            android:textAlignment="textEnd"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp">
+        </TextView>
+
+        <TextView
+            android:id="@+id/vtf_percentage2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".8"
+            android:textAlignment="textEnd"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp">
+        </TextView>
+
+        <TextView
             android:id="@+id/vtf_category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textAlignment="textEnd"
             android:ellipsize="end"
             android:singleLine="true">
         </TextView>
@@ -52,6 +73,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textAlignment="textEnd"
             android:ellipsize="end"
             android:singleLine="true">
         </TextView>
@@ -61,7 +83,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textAlignment="center"/>
+            android:textAlignment="textEnd"/>
 
         <TextView
             android:id="@+id/vtf_note"
@@ -69,6 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ellipsize="end"
+            android:textAlignment="textEnd"
             android:singleLine="true">
         </TextView>
 
@@ -86,6 +109,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
+            android:textAlignment="textEnd"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp">
+        </TextView>
+        <TextView
+            android:id="@+id/vtf_running_total"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".8"
             android:textAlignment="textEnd"
             android:paddingLeft="2dp"
             android:paddingRight="2dp">

@@ -1,3 +1,5 @@
+package com.isrbet.budgetsbyisrbet
+
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
@@ -10,7 +12,6 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
-import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRecurringTransactionEditDialogBinding
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -25,7 +26,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
     }
     private var listener: RecurringTransactionEditDialogFragmentListener? = null
     private var initialLoad = true
-    var cal = android.icu.util.Calendar.getInstance()
+    var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
 
     companion object {
         private const val KEY_NAME = "KEY_NAME"

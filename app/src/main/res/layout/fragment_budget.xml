@@ -124,7 +124,7 @@
                     android:text="Monthly or Annual budget? "
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"></TextView>
+                    tools:ignore="HardcodedText"/>
 
                 <RadioGroup
                     android:id="@+id/regularityRadioGroup"

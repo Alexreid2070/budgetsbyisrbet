@@ -9,7 +9,7 @@
         app:showAsAction="ifRoom"
         tools:ignore="HardcodedText" />
     <item
-        android:id="@+id/ViewTransactionsFragment"
+        android:id="@+id/TransactionViewAllFragment"
         android:title="Transactions"
         android:icon="@drawable/ic_baseline_table_rows_24"
         app:showAsAction="ifRoom"

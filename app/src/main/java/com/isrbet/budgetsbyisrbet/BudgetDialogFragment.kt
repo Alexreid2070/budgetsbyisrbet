@@ -1,3 +1,5 @@
+package com.isrbet.budgetsbyisrbet
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
@@ -13,7 +15,6 @@ import androidx.fragment.app.DialogFragment
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
 import java.text.DecimalFormat
 
@@ -254,7 +255,9 @@ class BudgetDialogFragment : DialogFragment() {
                                     // delete oldWho
                                     BudgetViewModel.deleteBudget(
                                         Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                        BudgetMonth(
-                                        oldYear, oldMonth).toString(), oldWho)
+                                        oldYear, oldMonth
+                                        ).toString(), oldWho
+                                    )
                                     if (listener != null)
                                         listener?.onNewDataSaved()
                                     dismiss()
@@ -341,7 +344,8 @@ class BudgetDialogFragment : DialogFragment() {
                         Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                        BudgetMonth(
                         binding.budgetDialogYear.text.toString().toInt(),
                         monthToUse
-                    ).toString(), oldWho)
+                    ).toString(), oldWho
+                    )
                     if (listener != null)
                         listener?.onNewDataSaved()
                     Toast.makeText(activity, "Budget deleted", Toast.LENGTH_SHORT).show()

@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/expansion_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></ListView>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
         android:id="@+id/rt_add_fab"

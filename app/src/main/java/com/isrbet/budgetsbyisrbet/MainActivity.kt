@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
+            MyApplication.transactionSearchText = ""
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
                 Log.d("Alex", "popping")
                 navHostFragment.childFragmentManager.popBackStack()
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment -> { // no navigation needed since we've popped our way back...
                     binding.bottomNavigationView.menu.findItem(it.itemId).isChecked = true
                 }
-                R.id.ViewTransactionsFragment-> navController.navigate(R.id.ViewTransactionsFragment)
+                R.id.TransactionViewAllFragment-> navController.navigate(R.id.TransactionViewAllFragment)
                 R.id.DashboardFragment-> navController.navigate(R.id.DashboardFragment)
                 R.id.AccountingFragment-> navController.navigate(R.id.AccountingFragment)
             }

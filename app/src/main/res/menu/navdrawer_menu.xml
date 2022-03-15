@@ -17,7 +17,7 @@
             android:title="Add Transaction"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/ViewTransactionsFragment"
+            android:id="@+id/TransactionViewAllFragment"
             android:title="@string/transaction_view_all_fragment_label" />
         <item
             android:id="@+id/TrackerFragment"

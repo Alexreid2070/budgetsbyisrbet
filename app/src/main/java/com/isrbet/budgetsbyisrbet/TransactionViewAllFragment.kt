@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
@@ -31,10 +32,14 @@ class PreviousFilters : ViewModel() {
 class TransactionViewAllFragment : Fragment() {
     private var _binding: FragmentTransactionViewAllBinding? = null
     private val binding get() = _binding!!
+    private val args: TransactionViewAllFragmentArgs by navArgs()
     private val filters: PreviousFilters by viewModels()
+    private var accountingMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        accountingMode = args.accountingFlag == "Accounting"
+        Log.d("Alex", "accounting mode is $accountingMode")
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("Alex", "onBackPressed")
@@ -89,12 +94,12 @@ class TransactionViewAllFragment : Fragment() {
 
                 if (item.type == "Transfer") {
                     val action =
-                        TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransferFragment()
+                        TransactionViewAllFragmentDirections.actionTransactionViewAllFragmentToTransferFragment()
                             .setTransactionID(item.mykey)
                     this@TransactionViewAllFragment.findNavController().navigate(action)
                 } else {
                     val action =
-                        TransactionViewAllFragmentDirections.actionViewTransactionsFragmentToTransactionFragment()
+                        TransactionViewAllFragmentDirections.actionTransactionViewAllFragmentToTransactionFragment()
                             .setTransactionID(item.mykey)
                     this@TransactionViewAllFragment.findNavController().navigate(action)
                 }
@@ -224,7 +229,10 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.filterTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            val typeFilter = radioButton.text.toString()
+            val typeFilter = if (radioButton.text.toString() == "All")
+                ""
+            else
+                radioButton.text.toString()
             if (typeFilter != filters.prevTypeFilter) {
                 binding.totalLayout.visibility = View.VISIBLE
                 val adapter: TransactionRecyclerAdapter =
@@ -339,21 +347,72 @@ class TransactionViewAllFragment : Fragment() {
             binding.paidbyLinearLayout.visibility = View.GONE
             binding.boughtforLinearLayout.visibility = View.GONE
         }
-        binding.showWhoColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true") {
-            binding.whoHeading.visibility = View.GONE
+        if (accountingMode) {
+            setViewsToAccounting()
+            setFiltersToAccounting()
+        } else {
+            binding.showCategoryColumns.isChecked = DefaultsViewModel.getDefault(
+                cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL
+            ) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
+                binding.categoryHeading.visibility = View.GONE
+                binding.subCategoryHeading.visibility = View.GONE
+            }
+            binding.showIndividualAmountsColumns.isChecked =
+                DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
+                binding.percentage1Heading.visibility = View.GONE
+                binding.percentage2Heading.visibility = View.GONE
+            }
+            binding.showWhoColumn.isChecked =
+                DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true") {
+                binding.whoHeading.visibility = View.GONE
+            }
+            binding.showNoteColumn.isChecked =
+                DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true") {
+                binding.noteHeading.visibility = View.GONE
+            }
+            binding.showDiscColumn.isChecked =
+                DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true") {
+                binding.discHeading.visibility = View.GONE
+            }
+            binding.showTypeColumn.isChecked =
+                DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true") {
+                binding.typeHeading.visibility = View.GONE
+            }
+            binding.showRunningTotalColumn.isChecked =
+                DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) == "true"
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) != "true") {
+                binding.runningTotalHeading.visibility = View.GONE
+            }
         }
-        binding.showNoteColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true") {
-            binding.noteHeading.visibility = View.GONE
+        binding.showIndividualAmountsColumns.setOnCheckedChangeListener { _, _ ->
+            if (binding.showIndividualAmountsColumns.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, "true")
+                binding.percentage1Heading.visibility = View.VISIBLE
+                binding.percentage2Heading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, "false")
+                binding.percentage1Heading.visibility = View.GONE
+                binding.percentage2Heading.visibility = View.GONE
+            }
+            updateView()
         }
-        binding.showDiscColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true") {
-            binding.discHeading.visibility = View.GONE
-        }
-        binding.showTypeColumn.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true") {
-            binding.typeHeading.visibility = View.GONE
+        binding.showCategoryColumns.setOnCheckedChangeListener { _, _ ->
+            if (binding.showCategoryColumns.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, "true")
+                binding.categoryHeading.visibility = View.VISIBLE
+                binding.subCategoryHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, "false")
+                binding.categoryHeading.visibility = View.GONE
+                binding.subCategoryHeading.visibility = View.GONE
+            }
+            updateView()
         }
         binding.showWhoColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showWhoColumn.isChecked) {
@@ -395,23 +454,18 @@ class TransactionViewAllFragment : Fragment() {
             }
             updateView()
         }
+        binding.showRunningTotalColumn.setOnCheckedChangeListener { _, _ ->
+            if (binding.showRunningTotalColumn.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, "true")
+                binding.runningTotalHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, "false")
+                binding.runningTotalHeading.visibility = View.GONE
+            }
+            updateView()
+        }
         binding.resetFilterButton.setOnClickListener {
-            val recyclerView: FastScrollRecyclerView =
-                requireActivity().findViewById(R.id.recycler_view)
-            val adapter: TransactionRecyclerAdapter =
-                recyclerView.adapter as TransactionRecyclerAdapter
-            binding.categorySpinner.setSelection(0)
-            adapter.setCategoryFilter("")
-            binding.subcategorySpinner.setSelection(0)
-            adapter.setSubcategoryFilter("")
-            binding.allDiscRadioButton.isChecked = true
-            adapter.setDiscretionaryFilter("")
-            binding.allPaidByRadioButton.isChecked = true
-            adapter.setPaidByFilter("")
-            binding.allBoughtForRadioButton.isChecked = true
-            adapter.setBoughtForFilter("")
-            binding.allTypeRadioButton.isChecked = true
-            adapter.setTypeFilter("")
+            resetFilters()
             onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
             binding.totalLayout.visibility = View.GONE
             adapter.filterTheList(transactionSearchText)
@@ -420,6 +474,68 @@ class TransactionViewAllFragment : Fragment() {
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
         goToCorrectRow()
+    }
+
+    private fun setFiltersToAccounting() {
+        resetFilters()
+        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.recycler_view)
+        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        adapter.setAccountingFilter(true)
+        adapter.filterTheList(transactionSearchText)
+        adapter.notifyDataSetChanged()
+        goToCorrectRow()
+    }
+
+    private fun setViewsToAccounting() {
+        binding.showIndividualAmountsColumns.isChecked = true
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, "true")
+        binding.percentage1Heading.visibility = View.VISIBLE
+        binding.percentage2Heading.visibility = View.VISIBLE
+
+        binding.showRunningTotalColumn.isChecked = true
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, "true")
+        binding.runningTotalHeading.visibility = View.VISIBLE
+
+        binding.showWhoColumn.isChecked = true
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, "true")
+        binding.whoHeading.visibility = View.VISIBLE
+
+        binding.showCategoryColumns.isChecked = false
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, "false")
+        binding.categoryHeading.visibility = View.GONE
+        binding.subCategoryHeading.visibility = View.GONE
+
+        binding.showNoteColumn.isChecked = false
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL, "false")
+        binding.noteHeading.visibility = View.GONE
+
+        binding.showDiscColumn.isChecked = false
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, "false")
+        binding.discHeading.visibility = View.GONE
+
+        binding.showTypeColumn.isChecked = true
+//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, "false")
+        binding.typeHeading.visibility = View.VISIBLE
+        updateView()
+    }
+
+    private fun resetFilters() {
+        val recyclerView: FastScrollRecyclerView =
+            requireActivity().findViewById(R.id.recycler_view)
+        val adapter: TransactionRecyclerAdapter =
+            recyclerView.adapter as TransactionRecyclerAdapter
+        binding.categorySpinner.setSelection(0)
+        adapter.setCategoryFilter("")
+        binding.subcategorySpinner.setSelection(0)
+        adapter.setSubcategoryFilter("")
+        binding.allDiscRadioButton.isChecked = true
+        adapter.setDiscretionaryFilter("")
+        binding.allPaidByRadioButton.isChecked = true
+        adapter.setPaidByFilter("")
+        binding.allBoughtForRadioButton.isChecked = true
+        adapter.setBoughtForFilter("")
+        binding.allTypeRadioButton.isChecked = true
+        adapter.setTypeFilter("")
     }
 
     private fun closeSearch() {

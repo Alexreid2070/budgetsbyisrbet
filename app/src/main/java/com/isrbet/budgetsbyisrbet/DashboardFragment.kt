@@ -17,7 +17,10 @@ import androidx.navigation.findNavController
 import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.*
+import kotlin.math.round
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -395,8 +398,10 @@ class DashboardFragment : Fragment() {
                             tv5.text = percentFormat.format(iActualAmount / iBudgetAmount)
                         }
                     }
-                } else
-                    tv5.text = deltaFormat.format(iBudgetAmount - iActualAmount)
+                } else {
+                    val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
+                    tv5.text = deltaFormat.format(diff)
+                }
             }
         }
         // add table row
@@ -412,8 +417,9 @@ class DashboardFragment : Fragment() {
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
             tv5.setBackgroundColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, false))
-            if (iActualAmount <= iBudgetAmount)
-            tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+            val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
+            if (diff.compareTo(BigDecimal(0)) == 0)
+                tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
         }
         else if (iRowType == "Header") {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -488,7 +494,10 @@ class DashboardFragment : Fragment() {
                 Log.d("Alex", "row " + it.id + " was clicked, category is " + cat)
                 // go to ViewAll with the SubCategory as the search term
                 val textView = tableRow.getChildAt(1) as TextView
-                MyApplication.transactionSearchText = cat + " " + textView.text.toString() + " " + currentBudgetMonth.year.toString()
+                MyApplication.transactionSearchText = cat + " " + textView.text.toString()
+                if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Month" ||
+                    DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
+                    MyApplication.transactionSearchText = MyApplication.transactionSearchText + " " + currentBudgetMonth.year.toString()
                 MyApplication.transactionSearchText = MyApplication.transactionSearchText.replace("...","")
                 if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Month") {
                     if (currentBudgetMonth.month < 10)
@@ -496,7 +505,7 @@ class DashboardFragment : Fragment() {
                     else
                         MyApplication.transactionSearchText += "-" + currentBudgetMonth.month.toString()
                 }
-                view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
+                view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
             }
         } else if (iRowType == "Sub-total") {
             tr.setOnClickListener {
@@ -603,7 +612,7 @@ class DashboardFragment : Fragment() {
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD) != "")
             currentFilterIndicator = currentFilterIndicator + " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)
         if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "All-Time")
-            binding.dashboardTitle.text = "Dashboard (All-Time)"
+            binding.dashboardTitle.text = "Dashboard (All-Time" + currentFilterIndicator + ")"
         else if (currentBudgetMonth.month == 0)
             binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
         else {

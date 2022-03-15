@@ -12,7 +12,7 @@
             android:title="Recurring Transactions"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/ViewTransactionsFragment"
+            android:id="@+id/TransactionViewAllFragment"
             android:title="View all"
             android:icon="@drawable/ic_fas_binoculars"
             app:showAsAction="ifRoom"

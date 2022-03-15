@@ -1,3 +1,5 @@
+package com.isrbet.budgetsbyisrbet
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
@@ -9,7 +11,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
-import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationEditDialogBinding
 
 class TranslationEditDialogFragment : DialogFragment() {

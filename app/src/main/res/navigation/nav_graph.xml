@@ -29,15 +29,19 @@
         android:label="@string/settings_fragment_label"
         tools:layout="@layout/fragment_settings" />
     <fragment
-        android:id="@+id/ViewTransactionsFragment"
+        android:id="@+id/TransactionViewAllFragment"
         android:name="com.isrbet.budgetsbyisrbet.TransactionViewAllFragment"
         android:label="View Transactions"
         tools:layout="@layout/fragment_transaction_view_all" >
+        <argument
+            android:name="accountingFlag"
+            app:argType="string"
+            android:defaultValue='' />
         <action
-            android:id="@+id/action_ViewTransactionsFragment_to_TransactionFragment"
+            android:id="@+id/action_TransactionViewAllFragment_to_TransactionFragment"
             app:destination="@id/TransactionFragment" />
         <action
-            android:id="@+id/action_ViewTransactionsFragment_to_TransferFragment"
+            android:id="@+id/action_TransactionViewAllFragment_to_TransferFragment"
             app:destination="@id/TransferFragment" />
     </fragment>
     <fragment
@@ -46,8 +50,8 @@
         android:label="@string/app_name"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_ViewTransactionsFragment"
-            app:destination="@id/ViewTransactionsFragment" />
+            android:id="@+id/action_homeFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
     </fragment>
     <fragment
         android:id="@+id/DashboardFragment"
@@ -55,8 +59,8 @@
         android:label="@string/dashboard_fragment_label"
         tools:layout="@layout/fragment_dashboard" >
         <action
-            android:id="@+id/action_DashboardFragment_to_ViewTransactionsFragment"
-            app:destination="@id/ViewTransactionsFragment" />
+            android:id="@+id/action_DashboardFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
     </fragment>
     <fragment
         android:id="@+id/AdminFragment"
@@ -71,7 +75,11 @@
     <fragment
         android:id="@+id/AccountingFragment"
         android:name="com.isrbet.budgetsbyisrbet.AccountingFragment"
-        android:label="@string/accounting_fragment_label"/>
+        android:label="@string/accounting_fragment_label">
+        <action
+            android:id="@+id/action_AccountingFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
+    </fragment>
     <fragment
         android:id="@+id/TransferFragment"
         android:name="com.isrbet.budgetsbyisrbet.TransferFragment"

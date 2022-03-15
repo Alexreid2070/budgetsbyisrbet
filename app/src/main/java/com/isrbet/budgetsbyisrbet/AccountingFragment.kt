@@ -1,17 +1,17 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
+import android.graphics.Typeface
 import android.os.Bundle
-import android.util.Log
+import android.view.*
+import android.widget.GridLayout
+import android.widget.GridLayout.Spec
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.View
-import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import androidx.transition.TransitionInflater
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
 import java.text.DecimalFormat
+
 
 const val cFIRST_NAME = 0
 const val cSECOND_NAME = 1
@@ -44,6 +44,12 @@ class AccountingFragment : Fragment() {
         fillInContent()
         binding.transferAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransferFragment)
+        }
+        binding.accountingSummary.setOnClickListener {
+            val action =
+                AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
+            action.accountingFlag = "Accounting"
+            findNavController().navigate(action)
         }
     }
 
@@ -177,6 +183,8 @@ class AccountingFragment : Fragment() {
                 + (totals[cSECOND_NAME][cJOINT_NAME])
                 + ((totals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
                 - ((totals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100)
+                + ((totals[cJOINT_NAME][cJOINT_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
+                - ((totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(1)/100)
                 - (transferTotals[cFIRST_NAME][cSECOND_NAME])
                 + (transferTotals[cSECOND_NAME][cFIRST_NAME])
                 - (transferTotals[cFIRST_NAME][cJOINT_NAME+1])
@@ -184,11 +192,167 @@ class AccountingFragment : Fragment() {
                 + ((transferTotals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
                 - ((transferTotals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100))
 
+        val gridLayout = binding.gridLayout
+        var cellIndex = 0
+        gridLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS)
+        gridLayout.setColumnCount(2)
+        gridLayout.setRowCount(14)
+        var subtotal = 0.0
+
+        if (totals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+                SpenderViewModel.getSpenderName(1),
+                totals[cFIRST_NAME][cSECOND_NAME], cellIndex)
+            cellIndex += 2
+            subtotal += totals[cFIRST_NAME][cSECOND_NAME]
+        }
+        if (totals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+                "Jt-"+SpenderViewModel.getSpenderName(1),
+                totals[cFIRST_NAME][cJOINT_NAME+1], cellIndex)
+            cellIndex += 2
+            subtotal += totals[cFIRST_NAME][cJOINT_NAME+1]
+        }
+        if (totals[cJOINT_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout, "Joint",
+                SpenderViewModel.getSpenderName(1),
+                totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100, cellIndex)
+            cellIndex += 2
+            subtotal += totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100
+        }
+        if (totals[cJOINT_NAME][cJOINT_NAME+1] != 0.0) {
+            buildGrid(gridLayout, "Joint",
+                "Jt-"+SpenderViewModel.getSpenderName(1),
+                totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)/100, cellIndex)
+            cellIndex += 2
+            subtotal += totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)/100
+        }
+        if (transferTotals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+                SpenderViewModel.getSpenderName(1),
+                transferTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, "Transfer")
+            cellIndex += 2
+            subtotal += transferTotals[cFIRST_NAME][cSECOND_NAME]
+        }
+        if (transferTotals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+                "Jt-"+SpenderViewModel.getSpenderName(1),
+                transferTotals[cFIRST_NAME][cJOINT_NAME+1], cellIndex, "Transfer")
+            cellIndex += 2
+            subtotal += transferTotals[cFIRST_NAME][cJOINT_NAME+1]
+        }
+        if (transferTotals[cJOINT_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout, "Joint",
+                SpenderViewModel.getSpenderName(1),
+                transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100,
+                cellIndex, "Transfer")
+            cellIndex += 2
+            subtotal += transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100
+        }
+        buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+            SpenderViewModel.getSpenderName(1),
+            subtotal, cellIndex, "Sub-Total")
+        cellIndex += 2
+
+        var subtotal2 = 0.0
+        if (totals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+                SpenderViewModel.getSpenderName(0),
+                totals[cSECOND_NAME][cFIRST_NAME], cellIndex)
+            cellIndex += 2
+            subtotal2 += totals[cSECOND_NAME][cFIRST_NAME]
+        }
+        if (totals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+                "Jt-"+SpenderViewModel.getSpenderName(0),
+                totals[cSECOND_NAME][cJOINT_NAME], cellIndex)
+            cellIndex += 2
+            subtotal2 += totals[cSECOND_NAME][cJOINT_NAME]
+        }
+        if (totals[cJOINT_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout, "Joint",
+                SpenderViewModel.getSpenderName(0),
+                totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100, cellIndex)
+            cellIndex += 2
+            subtotal2 += totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100
+        }
+        if (totals[cJOINT_NAME][cJOINT_NAME] != 0.0) {
+            buildGrid(gridLayout, "Joint",
+                "Jt-"+SpenderViewModel.getSpenderName(0),
+                totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)/100, cellIndex)
+            cellIndex += 2
+            subtotal2 += totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)/100
+        }
+        if (transferTotals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+                SpenderViewModel.getSpenderName(0),
+                transferTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, "Transfer")
+            cellIndex += 2
+            subtotal2 += transferTotals[cSECOND_NAME][cFIRST_NAME]
+        }
+        if (transferTotals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
+            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+                "Jt-"+SpenderViewModel.getSpenderName(0),
+                transferTotals[cSECOND_NAME][cJOINT_NAME], cellIndex, "Transfer")
+            cellIndex += 2
+            subtotal2 += transferTotals[cSECOND_NAME][cJOINT_NAME]
+        }
+        if (transferTotals[cJOINT_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout, "Joint",
+                SpenderViewModel.getSpenderName(0),
+                transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100,
+                cellIndex, "Transfer")
+            cellIndex += 2
+            subtotal2 += transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100
+        }
+        buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+            SpenderViewModel.getSpenderName(0),
+            subtotal2, cellIndex, "Sub-Total")
+        cellIndex += 2
+
         when {
             oneOwesTwo == 0.0 -> binding.accountingSummary.text = "Nobody owes anyone!"
-            oneOwesTwo > 0 -> binding.accountingSummary.text = firstName + " owes " + secondName + " $ " + dec.format(oneOwesTwo)
-            else -> binding.accountingSummary.text = secondName + " owes " + firstName + " $ " + dec.format(oneOwesTwo*-1)
+            oneOwesTwo > 0 -> {
+                binding.accountingSummary.text = firstName + " owes " + secondName + " $ " + dec.format(oneOwesTwo)
+                binding.accountingSummary2.text = " (" + dec.format(subtotal2) + " - " + dec.format(subtotal) + ")"
+            }
+            else -> {
+                binding.accountingSummary.text = secondName + " owes " + firstName + " $ " + dec.format(oneOwesTwo*-1)
+                binding.accountingSummary2.text = " (" + dec.format(subtotal) + " - " + dec.format(subtotal2) + ")"
+            }
         }
+
+    }
+
+    private fun buildGrid(iGridLayout: GridLayout, iName1: String, iName2: String, iAmount: Double, iCellIndex: Int, iTransfer: String = "") {
+        val paramsT: GridLayout.LayoutParams = GridLayout.LayoutParams()
+        paramsT.rowSpec = GridLayout.spec(iCellIndex / 2, GridLayout.CENTER)
+        paramsT.columnSpec = GridLayout.spec(iCellIndex % 2, GridLayout.RIGHT)
+        val paramsA: GridLayout.LayoutParams = GridLayout.LayoutParams()
+        paramsA.rowSpec = GridLayout.spec(iCellIndex / 2, GridLayout.CENTER)
+        paramsA.columnSpec = GridLayout.spec(iCellIndex % 2 + 1, GridLayout.RIGHT)
+        val dec = DecimalFormat("#.00")
+
+        val titleText = TextView(context)
+        val amountText = TextView(context)
+        if (iTransfer == "Transfer")
+            titleText.text = iName1 + " transferred to " + iName2 + " "
+        else if (iTransfer == "Sub-Total") {
+            paramsT.topMargin = 10
+            paramsT.bottomMargin = 40
+            titleText.setTypeface(null, Typeface.BOLD)
+            amountText.setTypeface(null, Typeface.BOLD)
+            titleText.text = "Total " + iName1 + "'s funds used for " + iName2 + "  "
+        } else
+            titleText.text = iName1 + " paid for " + iName2 + "  "
+        titleText.layoutParams = paramsT
+        iGridLayout.addView(titleText,0)
+        if (iTransfer == "Sub-Total")
+            amountText.text = "$ " + dec.format(iAmount)
+        else
+            amountText.text = dec.format(iAmount)
+        amountText.layoutParams = paramsA
+        iGridLayout.addView(amountText,1)
     }
 
     override fun onDestroyView() {

@@ -14,10 +14,13 @@ const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
 const val cDEFAULT_QUOTE = "Quote"
+const val cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL = "ShowIndividualAmountsinViewAll"
 const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL = "ShowWhoinViewAll"
+const val cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL = "ShowCategoryinViewAll"
 const val cDEFAULT_SHOW_NOTE_VIEW_ALL = "ShowNoteinViewAll"
 const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL = "ShowDiscinViewAll"
 const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL = "ShowTypeinViewAll"
+const val cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL = "ShowRunningTotalinViewAll"
 const val cDEFAULT_VIEW_PERIOD_DASHBOARD = "ViewPeriodDashboard"
 const val cDEFAULT_FILTER_DISC_DASHBOARD = "FilterDiscDashboard"
 const val cDEFAULT_FILTER_WHO_DASHBOARD = "FilterWhoDashboard"
@@ -32,10 +35,13 @@ class DefaultsViewModel : ViewModel() {
     private var defaultIntegrateWithTDSpend: String = "No"
     private var defaultSound: String = "On"
     private var defaultQuote: String = "Off"
+    private var defaultShowIndividualAmountsInViewAll: String = "false"
     private var defaultShowWhoInViewAll: String = "true"
+    private var defaultShowCategoryInViewAll: String = "true"
     private var defaultShowNoteInViewAll: String = "true"
     private var defaultShowDiscInViewAll: String = "true"
     private var defaultShowTypeInViewAll: String = "true"
+    private var defaultShowRunningTotalInViewAll: String = "false"
     private var defaultViewPeriodDashboard: String = "Month"
     private var defaultFilterDiscDashboard: String = ""
     private var defaultFilterWhoDashboard: String = ""
@@ -82,10 +88,13 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
                 cDEFAULT_SOUND -> return singleInstance.defaultSound
                 cDEFAULT_QUOTE -> return singleInstance.defaultQuote
+                cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> return singleInstance.defaultShowIndividualAmountsInViewAll
                 cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> return singleInstance.defaultShowWhoInViewAll
+                cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL -> return singleInstance.defaultShowCategoryInViewAll
                 cDEFAULT_SHOW_NOTE_VIEW_ALL -> return singleInstance.defaultShowNoteInViewAll
                 cDEFAULT_SHOW_DISC_IN_VIEW_ALL -> return singleInstance.defaultShowDiscInViewAll
                 cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> return singleInstance.defaultShowTypeInViewAll
+                cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL -> return singleInstance.defaultShowRunningTotalInViewAll
                 cDEFAULT_VIEW_PERIOD_DASHBOARD -> return singleInstance.defaultViewPeriodDashboard
                 cDEFAULT_FILTER_DISC_DASHBOARD -> return singleInstance.defaultFilterDiscDashboard
                 cDEFAULT_FILTER_WHO_DASHBOARD -> return singleInstance.defaultFilterWhoDashboard
@@ -161,6 +170,12 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_QUOTE -> {
                 singleInstance.defaultQuote = iValue
             }
+            cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> {
+                singleInstance.defaultShowIndividualAmountsInViewAll = iValue
+            }
+            cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL -> {
+                singleInstance.defaultShowCategoryInViewAll = iValue
+            }
             cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> {
                 singleInstance.defaultShowWhoInViewAll = iValue
             }
@@ -172,6 +187,9 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> {
                 singleInstance.defaultShowTypeInViewAll = iValue
+            }
+            cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL -> {
+                singleInstance.defaultShowRunningTotalInViewAll = iValue
             }
             cDEFAULT_VIEW_PERIOD_DASHBOARD -> {
                 singleInstance.defaultViewPeriodDashboard = iValue

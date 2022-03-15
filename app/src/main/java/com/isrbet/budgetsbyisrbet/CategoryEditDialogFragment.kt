@@ -1,3 +1,5 @@
+package com.isrbet.budgetsbyisrbet
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
@@ -13,7 +15,6 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
-import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 import java.util.ArrayList
 

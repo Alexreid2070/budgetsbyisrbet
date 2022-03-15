@@ -336,7 +336,7 @@ class TransactionFragment : Fragment() {
         super.onPrepareOptionsMenu(menu)
         if (newTransactionMode) {
             for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.ViewTransactionsFragment
+                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.TransactionViewAllFragment
             }
         }
         else { // in view mode
@@ -364,8 +364,8 @@ class TransactionFragment : Fragment() {
                 deleteTransaction(args.transactionID)
                 true
             }
-            R.id.ViewTransactionsFragment -> {
-                view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
+            R.id.TransactionViewAllFragment -> {
+                view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
                 true
             }
             else -> {
@@ -526,11 +526,13 @@ class TransactionFragment : Fragment() {
 //            formattedAmount2 = (tSplit/100).toDouble() + (tSplit % 100).toDouble()/100
             binding.transactionBoughtForName2Split.text = thisTransaction.bfname2split.toString()
 
-            if (thisTransaction.paidby == thisTransaction.boughtfor) {
-                setExpansionFields(View.GONE)
-            } else {
+            if ((thisTransaction.boughtfor == "Joint" && binding.slider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
+                thisTransaction.paidby != thisTransaction.boughtfor) {
+                inExpandMode = true
                 setExpansionFields(View.VISIBLE)
             }
+            else
+                setExpansionFields(View.GONE)
         }
         else { // this doesn't make sense...
             Log.d("Alex",
