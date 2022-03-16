@@ -271,7 +271,7 @@ class DashboardFragment : Fragment() {
         val rightRowMargin = 0
         val bottomRowMargin = 0
         val decimalFormat = DecimalFormat("0.00")
-        val deltaFormat = DecimalFormat("#,##0.00;(#,##0.00)")
+        val deltaFormat = DecimalFormat("###0.00;(###0.00)")
 
         val tv0 = TextView(requireContext())
         tv0.layoutParams = TableRow.LayoutParams(

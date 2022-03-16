@@ -14,7 +14,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/TransactionFragment"
-            android:title="Add Transaction"
+            android:title="Add Expense"
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/TransactionViewAllFragment"

@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".TransactionViewAllFragment">
@@ -197,6 +198,19 @@
             android:background="@android:color/darker_gray" />
     </LinearLayout>
 
+    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+        android:id="@+id/transaction_add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:background="?attr/colorSecondary"
+        android:tooltipText="Add Expense"
+        android:contentDescription="@string/app_name"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_fas_plus"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
     <LinearLayout
         android:id="@+id/expansion_layout"
         android:layout_width="match_parent"

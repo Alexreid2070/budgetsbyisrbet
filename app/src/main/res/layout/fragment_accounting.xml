@@ -2,11 +2,13 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AccountingFragment">
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,23 +19,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/accounting_heading_one"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Expenses"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="HardcodedText" />
-
             <LinearLayout
                 android:id="@+id/accounting_first_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@+id/accounting_heading_one">
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -46,7 +36,7 @@
                         android:gravity="center"
                         android:rotation="270"
                         android:text="For"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
 
@@ -64,7 +54,13 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:gravity="center" />
+                                android:layout_gravity="start"
+                                android:gravity="start"
+                                android:text="Expenses"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary"
+                                tools:ignore="HardcodedText" />
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -72,7 +68,7 @@
                                 android:layout_weight="1"
                                 android:gravity="start"
                                 android:text="Paid By"
-                                android:textSize="16sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 tools:ignore="HardcodedText" />
                         </LinearLayout>
@@ -292,23 +288,12 @@
                 android:layout_height="10dp"
                 app:layout_constraintTop_toBottomOf="@+id/accounting_first_section" />
 
-            <TextView
-                android:id="@+id/accounting_heading_two"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Transfers"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@+id/accounting_space"
-                tools:ignore="HardcodedText" />
-
             <LinearLayout
                 android:id="@+id/accounting_second_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@+id/accounting_heading_two">
+                app:layout_constraintTop_toBottomOf="@+id/accounting_space">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -320,7 +305,7 @@
                         android:gravity="center"
                         android:rotation="270"
                         android:text="To"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
 
@@ -338,7 +323,12 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:gravity="center" />
+                                android:text="Transfers"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:gravity="start"
+                                android:textColor="?attr/colorPrimary"
+                                tools:ignore="HardcodedText" />
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -346,7 +336,7 @@
                                 android:layout_weight="1"
                                 android:gravity="start"
                                 android:text="From"
-                                android:textSize="16sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 tools:ignore="HardcodedText" />
                         </LinearLayout>
@@ -551,80 +541,92 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <Space
+                <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="20dp" />
-
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Calculations"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:paddingTop="20dp"
+                    android:textColor="?attr/colorPrimary"
+                    tools:ignore="HardcodedText" />
                 <GridLayout
                     android:id="@+id/gridLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:columnCount="2"
                     android:paddingStart="20dp"
-                    android:paddingTop="20dp"
                     android:paddingEnd="20dp"
-                    android:rowCount="14"></GridLayout>
+                    android:rowCount="14"/>
 
                 <LinearLayout
+                    android:id="@+id/summary_linear_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:text="Summary:  "
-                        android:textSize="16sp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="Summary"
+                        android:textSize="24sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/colorPrimary"
                         tools:ignore="HardcodedText" />
-
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="(Click to see filtered list of transactions that contribute to this total.)"
+                        android:textSize="12sp"
+                        tools:ignore="HardcodedText" />
                     <TextView
                         android:id="@+id/accounting_summary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
                         android:text="text"
-                        android:textSize="16sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
+                        android:tooltipText="Click for list of transactions that contribute to this total."
                         tools:ignore="HardcodedText" />
+                    <TextView
+                        android:id="@+id/accounting_summary2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/accounting_summary2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/fab_layout"
-        android:layout_width="match_parent"
+    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+        android:id="@+id/transfer_add_fab"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_gravity="bottom|center"
+        android:background="?attr/colorSecondary"
+        android:tooltipText="Add Transfer"
+        android:contentDescription="@string/app_name"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_fas_plus"
+        app:layout_constraintBottom_toTopOf="@id/bottom_space"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"/>
+    <Space
+        android:id="@+id/bottom_space"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/transfer_add_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_fas_plus"
-            android:tooltipText="Add Transfer"
-            app:layout_anchor="@id/bottom" />
 
-        <Space
-            android:id="@+id/space1"
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

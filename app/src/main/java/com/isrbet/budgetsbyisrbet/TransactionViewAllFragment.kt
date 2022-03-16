@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
@@ -110,6 +111,9 @@ class TransactionViewAllFragment : Fragment() {
         loadCategoryRadioButtons()
         Log.d("Alex", "onViewCreated after loadCategory")
 
+        binding.transactionAddFab.setOnClickListener {
+            findNavController().navigate(R.id.TransactionFragment)
+        }
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -474,6 +478,12 @@ class TransactionViewAllFragment : Fragment() {
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
         goToCorrectRow()
+        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
+        val set = ConstraintSet()
+        val constraintLayout = binding.constraintLayout
+        set.clone(constraintLayout)
+        set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
+        set.applyTo(constraintLayout)
     }
 
     private fun setFiltersToAccounting() {

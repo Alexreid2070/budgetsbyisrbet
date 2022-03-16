@@ -290,7 +290,7 @@
             android:layout_height="0dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:tooltipText="Add Transaction"
+            android:tooltipText="Add Expense"
             android:contentDescription="@string/app_name"
             android:src="@drawable/ic_fas_plus"
             app:layout_anchor="@id/bottom"/>
