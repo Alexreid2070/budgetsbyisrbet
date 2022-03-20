@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.*
 import android.widget.GridLayout
-import android.widget.GridLayout.Spec
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
@@ -71,8 +70,8 @@ class AccountingFragment : Fragment() {
     fun fillInContent() {
         val totals = Array(3) {DoubleArray(4) {0.0} }
         val transferTotals = Array(3) {DoubleArray(4) {0.0} }
-        val firstName = SpenderViewModel.getSpender(0, true)?.name.toString()
-        val secondName = SpenderViewModel.getSpender(1, true)?.name.toString()
+        val firstName = SpenderViewModel.getSpender(0)?.name.toString()
+        val secondName = SpenderViewModel.getSpender(1)?.name.toString()
         binding.accountingHeaderFirstHeaderName.text = firstName
         binding.accountingHeaderSecondHeaderName.text = secondName
         binding.accountingHeaderTFheadername.text = firstName
@@ -90,31 +89,31 @@ class AccountingFragment : Fragment() {
             val exp = ExpenditureViewModel.getExpenditure(i)
             if (exp.type == "Transfer") {
                 when (exp.paidby) {
-                    firstName -> {
+                    0 -> {
                         when (exp.boughtfor) {
-                            firstName -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            secondName -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
-                            "Joint" -> {
+                            0 -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            1 -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            2 -> {
                                 transferTotals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
                                 transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
-                    secondName -> {
+                    1 -> {
                         when (exp.boughtfor) {
-                            firstName -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            secondName -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
-                            "Joint" -> {
+                            0 -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            1 -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            2 -> {
                                 transferTotals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
                                 transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
-                    "Joint" -> {
+                    2 -> {
                         when (exp.boughtfor) {
-                            firstName -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            secondName -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (exp.amount/100.0)
-                            "Joint" -> {
+                            0 -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            1 -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            2 -> {
                                 transferTotals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
                                 transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
                             }
@@ -123,33 +122,33 @@ class AccountingFragment : Fragment() {
                 }
             } else {
                 when (exp.paidby) {
-                    firstName -> {
+                    0 -> {
                         when (exp.boughtfor) {
-                            firstName -> totals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            secondName -> totals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
-                            "Joint" -> {
+                            0 -> totals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            1 -> totals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            2 -> {
                                 totals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
                                 totals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
-                    secondName -> {
+                    1 -> {
                         when (exp.boughtfor) {
-                            firstName -> totals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            secondName -> totals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
-                            "Joint" -> {
+                            0 -> totals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
+                            1 -> totals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            2 -> {
                                 totals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
                                 totals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
                             }
                         }
                     }
-                    "Joint" -> {
+                    2 -> {
                         when (exp.boughtfor) {
-                            firstName -> {
+                            0 -> {
                                 totals[cJOINT_NAME][cFIRST_NAME] += ((exp.amount / 100.0) * (exp.bfname1split / 100.0))
                             }
-                            secondName -> totals[cJOINT_NAME][cSECOND_NAME] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
-                            "Joint" -> {
+                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
+                            2 -> {
                                 totals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
                                 totals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
                             }
@@ -264,7 +263,7 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
-                "Jt-"+SpenderViewModel.getSpenderName(1),
+                "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
                 totals[cFIRST_NAME][cJOINT_NAME+1], cellIndex)
             cellIndex += 2
             subtotal += totals[cFIRST_NAME][cJOINT_NAME+1]
@@ -278,7 +277,7 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cJOINT_NAME][cJOINT_NAME+1] != 0.0) {
             buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
-                "Jt-"+SpenderViewModel.getSpenderName(1),
+                "Joint ("+SpenderViewModel.getSpenderName(1)+"'s)",
                 totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)/100, cellIndex)
             cellIndex += 2
             subtotal += totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)/100
@@ -292,7 +291,7 @@ class AccountingFragment : Fragment() {
         }
         if (transferTotals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
-                "Jt-"+SpenderViewModel.getSpenderName(1),
+                "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
                 transferTotals[cFIRST_NAME][cJOINT_NAME+1], cellIndex, "Transfer")
             cellIndex += 2
             subtotal += transferTotals[cFIRST_NAME][cJOINT_NAME+1]
@@ -320,7 +319,7 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
-                "Jt-"+SpenderViewModel.getSpenderName(0),
+                "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
                 totals[cSECOND_NAME][cJOINT_NAME], cellIndex)
             cellIndex += 2
             subtotal2 += totals[cSECOND_NAME][cJOINT_NAME]
@@ -334,7 +333,7 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cJOINT_NAME][cJOINT_NAME] != 0.0) {
             buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
-                "Jt-"+SpenderViewModel.getSpenderName(0),
+                "Joint ("+SpenderViewModel.getSpenderName(0)+"'s)",
                 totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)/100, cellIndex)
             cellIndex += 2
             subtotal2 += totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)/100
@@ -348,7 +347,7 @@ class AccountingFragment : Fragment() {
         }
         if (transferTotals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
-                "Jt-"+SpenderViewModel.getSpenderName(0),
+                "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
                 transferTotals[cSECOND_NAME][cJOINT_NAME], cellIndex, "Transfer")
             cellIndex += 2
             subtotal2 += transferTotals[cSECOND_NAME][cJOINT_NAME]

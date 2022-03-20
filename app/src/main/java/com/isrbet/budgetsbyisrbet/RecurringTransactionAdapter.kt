@@ -62,8 +62,8 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         tvSplit1.text = rtData.split1.toString()
         tvSplit2.text = rtData.split2.toString()
         if (!SpenderViewModel.singleUser()) {
-            tvPaidby.text = rtData.paidby
-            tvBoughtfor.text = rtData.boughtfor
+            tvPaidby.text = SpenderViewModel.getSpenderName(rtData.paidby)
+            tvBoughtfor.text = SpenderViewModel.getSpenderName(rtData.boughtfor)
         }
         tvDescription.text = rtData.name + " payment of $" + dec.format(formattedAmount) + " occurs "
         if (rtData.regularity == 1)
@@ -76,7 +76,7 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
             tvDescription2.text = tvDescription2.text.toString() + rtData.paidby
         else
             tvDescription2.text = tvDescription2.text.toString() + " paid by " + rtData.paidby + " for " + rtData.boughtfor
-        if (rtData.boughtfor == "Joint") {
+        if (rtData.boughtfor == 2) {
             tvDescription2.text = tvDescription2.text.toString() + " " + rtData.split1 + ":" + rtData.split2
         }
         tvDescription2.text = tvDescription2.text.toString() + ")"

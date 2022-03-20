@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.slider.Slider
 import java.lang.Exception
 
 class SettingsFragment : Fragment() {
@@ -26,6 +27,9 @@ class SettingsFragment : Fragment() {
     private var oldSecondUser: String = ""
     private var gestureDetector: GestureDetectorCompat? = null
     private var secondSwipeUp = 0
+    private var authorizeButtonStartingState = false
+    private var joinOtherUserButtonStartingState = false
+    private var disconnectButtonStartingState = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,18 +44,37 @@ class SettingsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-
-        val spenderOne = SpenderViewModel.getSpender(0, true)
-        val spenderTwo = SpenderViewModel.getSpender(1, false)
-        binding.settingsFirstUserName.setText(spenderOne?.name.toString())
+        val spenderOne = SpenderViewModel.getSpender(0)
+        val spenderTwo = SpenderViewModel.getSpender(1)
+        if (spenderOne == null)
+            binding.settingsFirstUserName.setText(MyApplication.userGivenName)
+        else
+            binding.settingsFirstUserName.setText(spenderOne?.name.toString())
         binding.firstUserEmail.text = spenderOne?.email
         if (spenderTwo != null) {
-            binding.switchSecondUserActive.isChecked = spenderTwo.isActive == 1
-            binding.settingsSecondUserName.setText(spenderTwo.name)
-            binding.secondUserEmail.text = spenderTwo.email
-        } else {
-            binding.switchSecondUserActive.isChecked = false
-            binding.settingsSecondUserName.setText("")
+            if (spenderTwo.isActive == 1) {
+                binding.switchSecondUserActive.isChecked = spenderTwo.isActive == 1
+                authorizeButtonStartingState = spenderTwo.isActive == 1
+                binding.settingsSecondUserName.setText(spenderTwo.name)
+                binding.secondUserEmail.setText(spenderTwo.email)
+                if (iAmPrimaryUser()) {
+                    binding.switchSecondUserLayout.visibility = View.VISIBLE
+                    binding.shareUIDLayout.visibility = View.VISIBLE
+                    binding.authorizationKey.setText(MyApplication.userUID)
+                    binding.switchJoinOtherUserLayout.visibility = View.GONE
+                } else {
+                    binding.switchJoinOtherUserLayout.visibility = View.GONE
+                    binding.switchSecondUserLayout.visibility = View.GONE
+                    binding.shareUIDLayout.visibility = View.GONE
+                    binding.settingsFirstUserName.isEnabled = false
+                    binding.secondUserEmail.isEnabled = false
+                    binding.switchDisconnectLayout.visibility = View.VISIBLE
+                }
+            } else {
+                binding.switchSecondUserActive.isChecked = false
+                authorizeButtonStartingState = false
+                binding.settingsSecondUserName.setText("")
+            }
         }
 
         binding.splitSlider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
@@ -92,7 +115,7 @@ class SettingsFragment : Fragment() {
             newRadioButton.text = spender
             newRadioButton.id = ctr++
             spenderRadioGroup.addView(newRadioButton)
-            if (spender == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+            if (spender == SpenderViewModel.getDefaultSpender()) {
                 spenderRadioGroup.check(newRadioButton.id)
             }
         }
@@ -108,7 +131,6 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-
         if (binding.switchSecondUserActive.isChecked) {
             binding.secondUserLayout.visibility = View.VISIBLE
             binding.splitSliderLayout.visibility = View.VISIBLE
@@ -121,27 +143,13 @@ class SettingsFragment : Fragment() {
             binding.spenderLayout.visibility = View.GONE
         }
 
-        binding.settingsSaveButton.setOnClickListener {
-            onSaveButtonClicked()
-        }
-        binding.expandCategories.setOnClickListener {
-            findNavController().navigate(R.id.CategoryFragment)
-        }
-        binding.expandBudgets.setOnClickListener {
-            findNavController().navigate(R.id.BudgetViewAllFragment)
-        }
-        binding.expandRecurringTransactions.setOnClickListener {
-            findNavController().navigate(R.id.RecurringTransactionFragment)
-        }
-        val defaultCategorySpinner =
-            requireActivity().findViewById<Spinner>(R.id.settingsCategorySpinner)
         val arrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
             CategoryViewModel.getCategoryAndSubcategoryList()
         )
-        defaultCategorySpinner.adapter = arrayAdapter
-        defaultCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefault(
+        binding.settingsCategorySpinner.adapter = arrayAdapter
+        binding.settingsCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefault(
             cDEFAULT_FULLCATEGORYNAME)))
         arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
@@ -164,47 +172,6 @@ class SettingsFragment : Fragment() {
                 (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
         }
-        binding.switchIntegrateWithTD.setOnCheckedChangeListener { _, _ ->
-            if (binding.switchIntegrateWithTD.isChecked) {
-                binding.manageTranslationsLayout.visibility = View.VISIBLE
-            } else {
-                binding.manageTranslationsLayout.visibility = View.GONE
-            }
-        }
-        binding.buttonEditTranslations.setOnClickListener {
-            findNavController().navigate(R.id.ViewTranslationsFragment)
-        }
-        binding.switchSecondUserActive.setOnCheckedChangeListener { _, _ ->
-            if (binding.switchSecondUserActive.isChecked) {
-                binding.secondUserLayout.visibility = View.VISIBLE
-                binding.splitSliderLayout.visibility = View.VISIBLE
-                binding.splitLayout.visibility = View.VISIBLE
-                binding.spenderLayout.visibility = View.VISIBLE
-                binding.splitSlider.value = 50.0F
-            } else {
-                binding.secondUserLayout.visibility = View.GONE
-                binding.splitSliderLayout.visibility = View.GONE
-                binding.splitLayout.visibility = View.GONE
-                binding.spenderLayout.visibility = View.GONE
-            }
-        }
-        binding.redPercentageSlider.addOnChangeListener { _, _, _ ->
-            binding.redPercentage.text = binding.redPercentageSlider.value.toInt().toString()
-        }
-
-        binding.settingsSecondUserName.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
-                if (binding.settingsSecondUserName.text.toString() != "") {
-                    binding.splitSlider.isEnabled = true
-                    for (i in 0 until binding.defaultSpenderRadioGroup.childCount) {
-                        (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
-                    }
-                }
-            }
-            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun afterTextChanged(arg0: Editable) {}
-        })
-
         gestureDetector = GestureDetectorCompat(requireActivity(), object:
             GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
@@ -234,13 +201,272 @@ class SettingsFragment : Fragment() {
                         gestureDetector?.onTouchEvent(p1)
                     }
                     catch (e: Exception) {
-                        e.printStackTrace();
-                        return false;
+                        e.printStackTrace()
+                        return false
                     }
                 }
                 return false
             }
         })
+
+        binding.settingsSaveButton.setOnClickListener {
+            onSaveButtonClicked()
+        }
+        binding.settingsCancelButton.setOnClickListener {
+            activity?.onBackPressed()
+        }
+        binding.copyButton.setOnClickListener {
+            requireContext().copyToClipboard("Auth key", binding.authorizationKey.text.toString())
+            Toast.makeText(activity, "Authorization key has been copied to your clipboard", Toast.LENGTH_SHORT).show()
+        }
+        binding.expandCategories.setOnClickListener {
+            findNavController().navigate(R.id.CategoryFragment)
+        }
+        binding.expandBudgets.setOnClickListener {
+            findNavController().navigate(R.id.BudgetViewAllFragment)
+        }
+        binding.expandRecurringTransactions.setOnClickListener {
+            findNavController().navigate(R.id.RecurringTransactionFragment)
+        }
+
+        binding.buttonEditTranslations.setOnClickListener {
+            findNavController().navigate(R.id.ViewTranslationsFragment)
+        }
+        binding.switchSecondUserActive.setOnCheckedChangeListener { _, _ ->
+            if (authorizeButtonStartingState != binding.switchSecondUserActive.isChecked) {
+                binding.settingsSaveButton.visibility = View.VISIBLE
+                binding.settingsCancelButton.visibility = View.VISIBLE
+            }
+            if (binding.switchSecondUserActive.isChecked) {
+                binding.secondUserLayout.visibility = View.VISIBLE
+                binding.shareUIDLayout.visibility = View.VISIBLE
+                binding.splitSliderLayout.visibility = View.VISIBLE
+                binding.splitLayout.visibility = View.VISIBLE
+                binding.spenderLayout.visibility = View.VISIBLE
+                binding.splitSlider.value = 50.0F
+                binding.switchJoinOtherUserLayout.visibility = View.GONE
+            } else {
+                binding.secondUserLayout.visibility = View.GONE
+                binding.shareUIDLayout.visibility = View.GONE
+                binding.splitSliderLayout.visibility = View.GONE
+                binding.splitLayout.visibility = View.GONE
+                binding.spenderLayout.visibility = View.GONE
+                binding.switchJoinOtherUserLayout.visibility = View.VISIBLE
+/*                if (!binding.switchJoinOtherUser.isChecked) {
+                    // update default on screen field
+                    val id = binding.defaultSpenderRadioGroup.getChildAt(0).id
+                    binding.defaultSpenderRadioGroup.check(id)
+
+                    // update default in db
+                    DefaultsViewModel.updateDefault(cDEFAULT_SPENDER,"0")
+                }*/
+            }
+        }
+        binding.switchJoinOtherUser.setOnCheckedChangeListener { _, _ ->
+            if (joinOtherUserButtonStartingState != binding.switchJoinOtherUser.isChecked) {
+                binding.settingsSaveButton.visibility = View.VISIBLE
+                binding.settingsCancelButton.visibility = View.VISIBLE
+            }
+            if (binding.switchJoinOtherUser.isChecked) {
+                binding.firstNameLayout.visibility = View.GONE
+                binding.secondUserLayout.visibility = View.GONE
+                binding.splitSliderLayout.visibility = View.GONE
+                binding.splitLayout.visibility = View.GONE
+                binding.spenderLayout.visibility = View.GONE
+                binding.switchSecondUserLayout.visibility = View.GONE
+                binding.shareUIDLayout.visibility = View.GONE
+                binding.settingsCategorySpinnerLayout.visibility = View.GONE
+                binding.settingsIntegrationWithTdLayout.visibility = View.GONE
+                binding.manageTranslationsLayout.visibility = View.GONE
+                binding.settingsSoundEffectsLayout.visibility = View.GONE
+                binding.settingsQuoteLayout.visibility = View.GONE
+                binding.settingsRedPercentageLayout.visibility = View.GONE
+                binding.uidLayout.visibility = View.VISIBLE
+                binding.secondUserEmail.setText("")
+                binding.settingsSecondUserName.setText("")
+            } else {
+                binding.firstNameLayout.visibility = View.VISIBLE
+                binding.secondUserLayout.visibility = View.GONE
+                binding.splitSliderLayout.visibility = View.GONE
+                binding.splitLayout.visibility = View.GONE
+                binding.spenderLayout.visibility = View.GONE
+                binding.switchSecondUserLayout.visibility = View.VISIBLE
+                binding.shareUIDLayout.visibility = View.VISIBLE
+                binding.authorizationKey.setText(MyApplication.userUID)
+                binding.settingsCategorySpinnerLayout.visibility = View.VISIBLE
+                binding.settingsIntegrationWithTdLayout.visibility = View.VISIBLE
+                if (binding.switchIntegrateWithTD.isChecked) {
+                    binding.manageTranslationsLayout.visibility = View.VISIBLE
+                } else {
+                    binding.manageTranslationsLayout.visibility = View.GONE
+                }
+                binding.settingsSoundEffectsLayout.visibility = View.VISIBLE
+                binding.settingsQuoteLayout.visibility = View.VISIBLE
+                binding.settingsRedPercentageLayout.visibility = View.VISIBLE
+                binding.uidLayout.visibility = View.GONE
+                binding.joinUid.setText("")
+            }
+        }
+        binding.switchDisconnect.setOnCheckedChangeListener { _, _ ->
+            if (disconnectButtonStartingState != binding.switchDisconnect.isChecked) {
+                binding.settingsSaveButton.visibility = View.VISIBLE
+                binding.settingsCancelButton.visibility = View.VISIBLE
+            }
+        }
+
+        binding.redPercentageSlider.addOnChangeListener { _, _, _ ->
+            binding.redPercentage.text = binding.redPercentageSlider.value.toInt().toString()
+        }
+
+        binding.settingsFirstUserName.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                binding.settingsSaveButton.visibility = View.VISIBLE
+                binding.settingsCancelButton.visibility = View.VISIBLE
+                if (binding.settingsFirstUserName.text.toString() != "") {
+                    for (i in 0 until binding.defaultSpenderRadioGroup.childCount) {
+                        if (i == 0) { // ie the first user
+                            (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).text =
+                                binding.settingsFirstUserName.text
+                            binding.splitName1.text = binding.settingsFirstUserName.text
+                        }
+                    }
+                }
+            }
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {}
+        })
+
+        binding.settingsSecondUserName.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                binding.settingsSaveButton.visibility = View.VISIBLE
+                binding.settingsCancelButton.visibility = View.VISIBLE
+                if (binding.settingsSecondUserName.text.toString() != "") {
+                    binding.splitSlider.isEnabled = true
+
+                    for (i in 0 until binding.defaultSpenderRadioGroup.childCount) {
+                        if (i == 1) { // ie the second user
+                            (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).text =
+                                binding.settingsSecondUserName.text
+                            binding.splitName2.text = binding.settingsSecondUserName.text
+                        }
+                        (binding.defaultSpenderRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+                    }
+                }
+            }
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {}
+        })
+
+        binding.secondUserEmail.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
+                binding.settingsSaveButton.visibility = View.VISIBLE
+                binding.settingsCancelButton.visibility = View.VISIBLE
+            }
+            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
+            override fun afterTextChanged(arg0: Editable) {}
+        })
+
+        binding.settingsCategorySpinner.onItemSelectedListener = object:
+            AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val chosenCategory = binding.settingsCategorySpinner.selectedItem.toString()
+                if (chosenCategory != DefaultsViewModel.getDefault((cDEFAULT_FULLCATEGORYNAME))) {
+                    Log.d("Alex", "Changed category to $chosenCategory")
+
+                    if (binding.settingsCategorySpinner.selectedItem != null) {
+                        val defaultCategory = Category(binding.settingsCategorySpinner.selectedItem.toString())
+                        if (defaultCategory.categoryName != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY) ||
+                            defaultCategory.subcategoryName != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY)) {
+                            DefaultsViewModel.updateDefault(
+                                cDEFAULT_CATEGORY,
+                                defaultCategory.categoryName
+                            )
+                            DefaultsViewModel.updateDefault(
+                                cDEFAULT_SUBCATEGORY,
+                                defaultCategory.subcategoryName
+                            )
+                            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.defaultSpenderRadioGroup.setOnCheckedChangeListener { _, _ ->
+            val selectedId = binding.defaultSpenderRadioGroup.checkedRadioButtonId
+            val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+            val newSpender = radioButton.text.toString()
+            if (newSpender != SpenderViewModel.getDefaultSpender()) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SPENDER, SpenderViewModel.getSpenderIndex(newSpender).toString())
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            }
+        }
+
+        binding.splitSlider.addOnSliderTouchListener( object : Slider.OnSliderTouchListener {
+            @SuppressLint("RestrictedApi")
+            override fun onStartTrackingTouch(slider: Slider) {
+                Log.d("Alex", "Initial value is " + slider.value)
+            }
+
+            @SuppressLint("RestrictedApi")
+            override fun onStopTrackingTouch(slider: Slider) {
+                if (binding.splitSlider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) {
+                    Log.d("Alex", "Ending value is " + slider.value)
+                    SpenderViewModel.updateSpenderSplits(binding.splitSlider.value.toInt())
+                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                }
+            }
+        })
+
+        binding.redPercentageSlider.addOnSliderTouchListener( object : Slider.OnSliderTouchListener {
+            @SuppressLint("RestrictedApi")
+            override fun onStartTrackingTouch(slider: Slider) {
+                Log.d("Alex", "Initial split value is " + slider.value)
+            }
+
+            @SuppressLint("RestrictedApi")
+            override fun onStopTrackingTouch(slider: Slider) {
+                if (binding.redPercentageSlider.value.toInt() != DefaultsViewModel.getDefault(
+                        cDEFAULT_SHOWRED).toInt()) {
+                    Log.d("Alex", "Ending red value is " + slider.value)
+                    DefaultsViewModel.updateDefault(cDEFAULT_SHOWRED, binding.redPercentageSlider.value.toInt().toString())
+                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                }
+            }
+        })
+
+        binding.switchIntegrateWithTD.setOnCheckedChangeListener { _, _ ->
+            if (binding.switchIntegrateWithTD.isChecked) {
+                binding.manageTranslationsLayout.visibility = View.VISIBLE
+            } else {
+                binding.manageTranslationsLayout.visibility = View.GONE
+            }
+            val integrateField = if (binding.switchIntegrateWithTD.isChecked) "On" else "Off"
+            if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND)) {
+                Log.d("Alex", "td switch is now $integrateField")
+                DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, integrateField)
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            }
+        }
+        binding.switchSound.setOnCheckedChangeListener { _, _ ->
+            val soundField = if (binding.switchSound.isChecked) "On" else "Off"
+            if (soundField != DefaultsViewModel.getDefault(cDEFAULT_SOUND)) {
+                Log.d("Alex", "sound is now $soundField")
+                DefaultsViewModel.updateDefault(cDEFAULT_SOUND, soundField)
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            }
+        }
+        binding.switchQuote.setOnCheckedChangeListener { _, _ ->
+            val quoteField = if (binding.switchQuote.isChecked) "On" else "Off"
+            if (quoteField != DefaultsViewModel.getDefault(cDEFAULT_QUOTE)) {
+                Log.d("Alex", "quote is now $quoteField")
+                DefaultsViewModel.updateDefault(cDEFAULT_QUOTE, quoteField)
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            }
+        }
 
         binding.settingsFirstUserName.requestFocus()
     }
@@ -273,89 +499,110 @@ class SettingsFragment : Fragment() {
 
     private fun onSaveButtonClicked () {
         if (!textIsAlphaOrSpace(binding.settingsFirstUserName.text.toString())) {
-//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.settingsFirstUserName.error = "The text contains non-alphabetic characters."
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
-            return
-        }
-        if (!textIsAlphaOrSpace(binding.settingsSecondUserName.text.toString())) {
-//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
-            binding.settingsSecondUserName.error = "The text contains non-alphabetic characters."
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
             return
         }
         // need to reject if all the fields aren't entered correctly
         // first user cannot be blank
         if (binding.settingsFirstUserName.text.toString() == "") {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingFirstUserName))
             binding.settingsFirstUserName.error = getString(R.string.missingFirstUserName)
             focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
             return
         }
-        if (binding.switchSecondUserActive.isChecked && binding.settingsSecondUserName.text.toString() == "") {
-            binding.settingsSecondUserName.error = getString(R.string.missingSecondUserName)
-            focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
-            return
-        }
-
-        var spenderChecked = SpenderViewModel.getSpenderName(0)
         var splitSliderValue = 100
         if (binding.switchSecondUserActive.isChecked) {
+            if (binding.settingsSecondUserName.text.toString() == "") {
+                binding.settingsSecondUserName.error = getString(R.string.missingSecondUserName)
+                focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
+                return
+            }
+            if (!textIsAlphaOrSpace(binding.settingsSecondUserName.text.toString())) {
+                binding.settingsSecondUserName.error =
+                    "The text contains non-alphabetic characters."
+                focusAndOpenSoftKeyboard(requireContext(), binding.settingsSecondUserName)
+                return
+            }
+            if (!binding.secondUserEmail.text.toString().isEmailValid()) {
+                binding.secondUserEmail.error =
+                    "This is not a valid email address."
+                focusAndOpenSoftKeyboard(requireContext(), binding.secondUserEmail)
+                return
+            }
+
             val defaultSpenderRadioGroup = binding.defaultSpenderRadioGroup
             val spenderCheckedID = defaultSpenderRadioGroup.checkedRadioButtonId
-            Log.d("Alex", "spenderCheckedID $spenderCheckedID")
             if (spenderCheckedID == -1) { // must have been a name change
                 val but = binding.defaultSpenderRadioGroup.getChildAt(0) as RadioButton
                 but.error = getString(R.string.oneUserMustBeDefault)
                 focusAndOpenSoftKeyboard(requireContext(), binding.settingsFirstUserName)
                 return
-            } else {
-                val buttonSpenderChecked =
-                    requireActivity().findViewById(spenderCheckedID) as RadioButton
-                spenderChecked = buttonSpenderChecked.text.toString()
             }
             splitSliderValue = binding.splitSlider.value.toInt()
         }
-        val secondNameActive = if (binding.switchSecondUserActive.isChecked) 1 else 0
+        if (binding.switchJoinOtherUser.isChecked) {
+            if (binding.joinUid.text.toString() == "") {
+                binding.joinUid.error =
+                    "Authorization key must not be blank."
+                focusAndOpenSoftKeyboard(requireContext(), binding.joinUid)
+                return
+            }
+            splitSliderValue = binding.splitSlider.value.toInt()
+        }
         // at this point the user information is valid
-        // delete existing Spenders and add new info
-        SpenderViewModel.deleteSpender(oldFirstUser)
-        SpenderViewModel.deleteSpender(oldSecondUser)
-        SpenderViewModel.addSpender(Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), splitSliderValue, 1))
-        if (binding.settingsSecondUserName.text.toString() != "") {
-            SpenderViewModel.addSpender(Spender(binding.settingsSecondUserName.text.toString(), binding.secondUserEmail.text.toString(), 100-splitSliderValue, secondNameActive))
-        }
-        DefaultsViewModel.updateDefault(cDEFAULT_SPENDER,spenderChecked)
+        // update existing Spenders to add new info
 
-        // check category default
-        val defaultCategorySpinner = requireActivity().findViewById(R.id.settingsCategorySpinner) as Spinner
-
-        if (defaultCategorySpinner.selectedItem != null) {
-            Log.d("Alex", "Sub-category is " + defaultCategorySpinner.selectedItem.toString())
-            val defaultCategory = Category(defaultCategorySpinner.selectedItem.toString())
-            if (defaultCategory.categoryName != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY))
-                DefaultsViewModel.updateDefault(cDEFAULT_CATEGORY, defaultCategory.categoryName)
-            if (defaultCategory.subcategoryName != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY))
-                DefaultsViewModel.updateDefault(cDEFAULT_SUBCATEGORY, defaultCategory.subcategoryName)
+        if (binding.switchDisconnect.isChecked) {
+            binding.switchDisconnectLayout.visibility = View.GONE
+            binding.switchDisconnect.isChecked = false // prepare for next time
+            binding.secondUserLayout.visibility = View.GONE
+            binding.splitSliderLayout.visibility = View.GONE
+            binding.splitLayout.visibility = View.GONE
+            binding.spenderLayout.visibility = View.GONE
+            binding.switchSecondUserLayout.visibility = View.GONE
+            binding.shareUIDLayout.visibility = View.GONE
+            binding.uidLayout.visibility = View.VISIBLE
+            binding.secondUserEmail.setText("")
+            binding.settingsSecondUserName.setText("")
+            MyApplication.userUID = MyApplication.originalUserUID
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                .child("Info")
+                .child("JoinUser").removeValue()
+            switchTo(MyApplication.userUID)
+            Toast.makeText(activity, "Leaving other user.", Toast.LENGTH_SHORT).show()
+        } else if (!binding.switchSecondUserActive.isChecked && !binding.switchJoinOtherUser.isChecked) { // ie single mode
+            SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), 100, 1))
+            DefaultsViewModel.updateDefault(cDEFAULT_SPENDER,"0")
+            if (SpenderViewModel.getTotalCount() >1) {
+                // single mode, so if previous other users were there, turn them off
+                SpenderViewModel.updateSpender(1, Spender("Other", "", 0, 0))
+                SpenderViewModel.getSpender(2)?.isActive = 0
+            }
+        } else if (binding.switchSecondUserActive.isChecked) {
+            SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), splitSliderValue, 1))
+            if (SpenderViewModel.getTotalCount() > 1) {
+                SpenderViewModel.updateSpender(1, Spender(binding.settingsSecondUserName.text.toString(),
+                        binding.secondUserEmail.text.toString(), 100 - splitSliderValue, 1))
+            } else {
+                SpenderViewModel.addSpender( 1, Spender(binding.settingsSecondUserName.text.toString(),
+                        binding.secondUserEmail.text.toString(), 100 - splitSliderValue, 1))
+                SpenderViewModel.addLocalSpender( Spender("Joint","", 0, 1))
+            }
+            if (binding.secondUserEmail.text.toString() == binding.firstUserEmail.text.toString())
+                SpenderViewModel.removeSecondAllowedUser()
+            else
+                SpenderViewModel.saveAsSecondAllowedUser(binding.secondUserEmail.text.toString())
+        } else { // binding.switchJoinUser isChecked
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                .child("Info")
+                .child("JoinUser").setValue(binding.joinUid.text.toString())
+            Toast.makeText(activity, "Joining user.", Toast.LENGTH_SHORT).show()
+            switchTo(binding.joinUid.text.toString())
+//            activity?.onBackPressed()
         }
-        // check default Integrate with TD Spend
-        Log.d("Alex", "td switch is " + binding.switchIntegrateWithTD.showText)
-        val integrateField = if (binding.switchIntegrateWithTD.isChecked) "On" else "Off"
-        if (integrateField != DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND)) {
-            DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, integrateField)
-        }
-        // check default Sound
-        val soundField = if (binding.switchSound.isChecked) "On" else "Off"
-        if (soundField != DefaultsViewModel.getDefault(cDEFAULT_SOUND))
-            DefaultsViewModel.updateDefault(cDEFAULT_SOUND, soundField)
-        // check default Quote
-        val quoteField = if (binding.switchQuote.isChecked) "On" else "Off"
-        if (quoteField != DefaultsViewModel.getDefault(cDEFAULT_QUOTE))
-            DefaultsViewModel.updateDefault(cDEFAULT_QUOTE, quoteField)
 
-        // check default showRed
-        if (binding.redPercentageSlider.value.toInt() != DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat().toInt())
-            DefaultsViewModel.updateDefault(cDEFAULT_SHOWRED, binding.redPercentageSlider.value.toInt().toString())
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        Toast.makeText(activity, "Changes saved", Toast.LENGTH_SHORT).show()
+        activity?.onBackPressed()
     }
 }

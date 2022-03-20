@@ -197,7 +197,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 CategoryViewModel.addCategoryAndSubcategory(chosenCategory, binding.editSubcategoryNewName.text.toString().trim(), binding.editCategoryNewDisctypeSpinner.selectedItem.toString())
                 val dateNow = Calendar.getInstance()
                 val bmNow = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1)
-                val newWho = if (SpenderViewModel.getActiveCount() > 1) "Joint" else SpenderViewModel.getSpenderName(0)
+                val newWho = if (SpenderViewModel.getActiveCount() > 1) 2 else 0
                 val tempDouble : Double = binding.editCategoryBudgetAmount.text.toString().toDouble()
 
                 BudgetViewModel.updateBudget(Category(chosenCategory, binding.editSubcategoryNewName.text.toString().trim()),

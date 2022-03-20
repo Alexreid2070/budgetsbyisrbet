@@ -17,7 +17,7 @@ class CategoryFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         setHasOptionsMenu(true)
         _binding = FragmentCategoryBinding.inflate(inflater, container, false)
@@ -29,27 +29,21 @@ class CategoryFragment : Fragment() {
         val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
 
         val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
-        listView.setAdapter(adapter)
+        listView.adapter = adapter
 
-        listView.onItemClickListener = object : AdapterView.OnItemClickListener {
-
-            override fun onItemClick(parent: AdapterView<*>, view: View,
-                                     position: Int, id: Long) {
-
-                // value of item that is clicked
+        listView.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Category
                 val cdf = CategoryEditDialogFragment.newInstance(itemValue.categoryName, itemValue.subcategoryName, itemValue.discType) // what do I pass here? zzz
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
-                        listView.setAdapter(myAdapter)
+                        listView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
                 })
-                cdf.show(getParentFragmentManager(), "Edit Category")
-
+                cdf.show(parentFragmentManager, "Edit Category")
             }
-        }
         binding.expandSettings.setOnClickListener {
             Log.d("Alex", "clicked on Settings")
             findNavController().navigate(R.id.SettingsFragment)
@@ -74,10 +68,7 @@ class CategoryFragment : Fragment() {
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() == R.id.AddCategory)
-                menu.getItem(i).setVisible(true)
-            else
-                menu.getItem(i).setVisible(false)
+            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.AddCategory
         }
     }
 
@@ -91,17 +82,17 @@ class CategoryFragment : Fragment() {
         }
     }
 
-    fun addCategory() {
+    private fun addCategory() {
         val cdf = CategoryEditDialogFragment.newInstance("", "",cDiscTypeOff)
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
                 val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
-                listView.setAdapter(adapter)
+                listView.adapter = adapter
                 adapter.notifyDataSetChanged()
             }
         })
-        cdf.show(getParentFragmentManager(), "Add Category")
+        cdf.show(parentFragmentManager, "Add Category")
     }
 
     override fun onDestroyView() {

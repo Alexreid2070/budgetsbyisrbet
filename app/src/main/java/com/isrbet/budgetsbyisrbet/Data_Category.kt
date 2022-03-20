@@ -183,8 +183,8 @@ class CategoryViewModel : ViewModel() {
         // Do an asynchronous operation to fetch categories and subcategories
         catListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                categories.clear()
                 if (dataSnapshot.exists()) {
-                    categories.clear()
                     dataSnapshot.children.forEach()
                     {
                         val myC: String = it.key.toString()
@@ -192,10 +192,17 @@ class CategoryViewModel : ViewModel() {
                             categories.add(Category(myC, it.key.toString(), it.value.toString()))
                         }
                     }
+                    // the line below is temporary until all 5 users have the email written
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID)
+                        .child("Info")
+                        .child(SpenderViewModel.myIndex().toString())
+                        .child("Email")
+                        .setValue(MyApplication.userEmail)
                     dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
                         .child("Info")
+                        .child(SpenderViewModel.myIndex().toString())
                         .child("Email")
                         .setValue(MyApplication.userEmail)
                 }
@@ -204,7 +211,7 @@ class CategoryViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 105.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").addValueEventListener(

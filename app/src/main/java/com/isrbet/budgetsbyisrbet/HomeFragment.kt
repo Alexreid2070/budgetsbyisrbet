@@ -249,8 +249,8 @@ class HomeFragment : Fragment() {
                         gestureDetector?.onTouchEvent(p1)
                     }
                     catch (e: Exception) {
-                        e.printStackTrace();
-                        return false;
+                        e.printStackTrace()
+                        return false
                     }
                 }
                 return false
@@ -406,6 +406,7 @@ class HomeFragment : Fragment() {
         if (account != null) {
             if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
                 MyApplication.userUID = account.uid
+                MyApplication.originalUserUID = account.uid
                 Log.d("Alex", "Just set userUID to " + account.uid)
             }
             if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
@@ -439,30 +440,56 @@ class HomeFragment : Fragment() {
             requireActivity().invalidateOptionsMenu()
             Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
-                Log.d("Alex", "uid is " + MyApplication.userUID)
-                getLastReadChatsInfo()
-                defaultsModel.loadDefaults()
-                categoryModel.loadCategories()
-                spenderModel.loadSpenders()
-                budgetModel.loadBudgets()
-                recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
-                expenditureModel.loadExpenditures()
-                chatModel.loadChats()
-                translationModel.loadTranslations()
-                MyApplication.haveLoadedDataForThisUser = true
-                val dateNow = Calendar.getInstance()
-                MyApplication.database.getReference("Users/"+MyApplication.userUID)
-                    .child("Info")
-                    .child("LastSignIn")
-                    .child("date")
-                    .setValue(giveMeMyDateFormat(dateNow))
-                MyApplication.database.getReference("Users/"+MyApplication.userUID)
-                    .child("Info")
-                    .child("LastSignIn")
-                    .child("time").setValue(giveMeMyTimeFormat(dateNow))
+                // check if I should load my own UID, or if I'm a JoinUser
+                val joinListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.value != null) {  // found the JoinUser node
+                            Log.d("Alex", "dataSnapshot.value is " + dataSnapshot.value)
+                            MyApplication.userUID = dataSnapshot.value.toString()
+                        }
+                        loadEverything()
+                    }
+
+                    override fun onCancelled(dataSnapshot: DatabaseError) {
+                        MyApplication.displayToast("User authorization failed 112.")
+                    }
+                }
+                val dbRef =
+                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                        .child("Info")
+                        .child("JoinUser")
+                dbRef.addListenerForSingleValueEvent(joinListener)
+
+                loadEverything()
             }
         }
         alignExpenditureMenuWithDataState()
+    }
+
+    private fun loadEverything() {
+        Log.d("Alex", "uid is " + MyApplication.userUID)
+        getLastReadChatsInfo()
+        defaultsModel.loadDefaults()
+        categoryModel.loadCategories()
+        spenderModel.loadSpenders()
+        budgetModel.loadBudgets()
+        recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
+        expenditureModel.loadExpenditures()
+        chatModel.loadChats()
+        translationModel.loadTranslations()
+        MyApplication.haveLoadedDataForThisUser = true
+        val dateNow = Calendar.getInstance()
+        MyApplication.database.getReference("Users/"+MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("LastSignIn")
+            .child("date")
+            .setValue(giveMeMyDateFormat(dateNow))
+        MyApplication.database.getReference("Users/"+MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("LastSignIn")
+            .child("time").setValue(giveMeMyTimeFormat(dateNow))
     }
 
     @SuppressLint("SetTextI18n")
@@ -592,11 +619,13 @@ class HomeFragment : Fragment() {
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
+                MyApplication.displayToast("User authorization failed 113.")
             }
         }
         val dbRef =
             MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                 .child("Info")
+                .child(SpenderViewModel.myIndex().toString())
                 .child("LastReadChats")
         dbRef.addListenerForSingleValueEvent(infoListener)
     }

@@ -9,7 +9,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import java.text.DecimalFormat
 
-data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: String, var occurence: String, var isAnnual: String, var dateStarted: String)
+data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: Int, var occurence: String, var isAnnual: String, var dateStarted: String)
 
 class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseAdapter() {
 
@@ -48,7 +48,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         val dec = DecimalFormat("#.00")
         dateApplicableView.text = bData.dateApplicable
         amountView.text = dec.format(bData.amount.toDouble())
-        whoView.text = bData.who
+        whoView.text = SpenderViewModel.getSpenderName(bData.who)
         occurenceView.text = bData.occurence
         if (bData.occurence != "1")
             occurenceView.visibility = View.INVISIBLE

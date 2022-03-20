@@ -17,6 +17,8 @@ class SpenderViewModel : ViewModel() {
     private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
+    // The primary user is always at index 0, and the secondary is always at index 1
+
     companion object {
         lateinit var singleInstance: SpenderViewModel // used to track static single instance of self
         fun isLoaded():Boolean {
@@ -25,93 +27,116 @@ class SpenderViewModel : ViewModel() {
 
         fun showMe() {
             singleInstance.spenders.forEach {
-                Log.d("Alex", "SM Spender is " + it.name + " and % is " + it.split)
+                Log.d("Alex", "SM Spender is ${it.name} ${it.split} ${it.email} ${it.isActive}")
             }
         }
-        fun getSpender(pos:Int, activeOnly:Boolean): Spender? {
-            if (pos  < singleInstance.spenders.size) {
-                if ((activeOnly && singleInstance.spenders[pos].isActive == 1) || !activeOnly)
-                    return Spender(singleInstance.spenders[pos])
-                else
-                    return null
+        fun getSpender(index:Int): Spender? {
+            return if (index  < singleInstance.spenders.size) {
+                Spender(singleInstance.spenders[index])
             } else
-                return null
+                null
         }
-        fun getSpenderName(pos:Int): String {
-            if (pos  < singleInstance.spenders.size)
-                return singleInstance.spenders[pos].name
+        fun getSpenderName(index:Int): String {
+            return if (index  < singleInstance.spenders.size)
+                singleInstance.spenders[index].name
             else
-                return ""
+                ""
         }
-        fun getSpenderEmail(pos:Int): String {
-            if (pos  < singleInstance.spenders.size)
-                return singleInstance.spenders[pos].email
+        fun getSpenderSplit(index: Int): Int {
+            return if (index  < singleInstance.spenders.size && index >= 0)
+                singleInstance.spenders[index].split
             else
-                return ""
+                0
         }
-        fun isActive(pos:Int): Boolean {
-            if (pos  < singleInstance.spenders.size)
-                return singleInstance.spenders[pos].isActive == 1
+        fun myIndex(): Int {
+            return if (iAmPrimaryUser())
+                0
             else
-                return false
+                1
         }
-        fun getSpenderSplit(pos:Int): Int {
-            if (pos  < singleInstance.spenders.size)
-                return singleInstance.spenders[pos].split
-            else
-                return 0
-        }
-        fun getSpenderSplit(iName:String): Int {
-            singleInstance.spenders.forEach {
-                if (it.name == iName)
-                    return it.split
+        fun getSpenderIndex(iName:String): Int {
+            return when (iName) {
+                singleInstance.spenders[0].name -> 0
+                singleInstance.spenders[1].name -> 1
+                else -> 2
             }
-            return 0
         }
-        fun getSpenders() : MutableList<String> {
+        fun getDefaultSpender() : String {
+            val ind = DefaultsViewModel.getDefault(cDEFAULT_SPENDER).toInt()
+            return getSpenderName(ind)
+        }
+        fun updateSpenderSplits(iFirstSplit: Int) {
+            singleInstance.spenders[0].split = iFirstSplit
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(
+                "0").child("split").setValue(iFirstSplit)
+            if (singleInstance.spenders.size > 1) {
+                singleInstance.spenders[1].split = 100 - iFirstSplit
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(
+                    "1").child("split").setValue(100-iFirstSplit)
+            }
+        }
+
+        fun getActiveSpenders() : MutableList<String> {
             val list : MutableList<String> = ArrayList()
             singleInstance.spenders.forEach {
-                list.add(it.name)
+                if (it.isActive == 1)
+                    list.add(it.name)
             }
             return list
         }
 
         fun getTotalCount(): Int {
-            if (::singleInstance.isInitialized)
-                return singleInstance.spenders.size
+            return if (::singleInstance.isInitialized)
+                singleInstance.spenders.size
             else
-                return 0
+                0
         }
         fun getActiveCount(): Int {
-            if (::singleInstance.isInitialized) {
+            return if (::singleInstance.isInitialized) {
                 var ctr = 0
                 singleInstance.spenders.forEach {
                     if (it.isActive == 1)
                         ctr++
                 }
-                return ctr
+                ctr
             } else
-                return 0
+                0
         }
 
         fun singleUser(): Boolean {
             return getActiveCount() == 1
         }
 
-        fun deleteSpender(iSpender: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(iSpender).removeValue()
-/*            val expe =
-                getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
-            val ind = expenditures.indexOf(expe)
-            expenditures.removeAt(ind)
-  */      }
         fun addLocalSpender(spender: Spender) {
             singleInstance.spenders.add(spender)
         }
-        fun addSpender(spender: Spender) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("email").setValue(spender.email)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("isactive").setValue(spender.isActive)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(spender.name).child("split").setValue(spender.split)
+        fun addSpender(index: Int, spender: Spender) {
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                .child(index.toString()).child("name").setValue(spender.name)
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                .child(index.toString()).child("email").setValue(spender.email)
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                .child(index.toString()).child("isactive").setValue(spender.isActive)
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                .child(index.toString()).child("split").setValue(spender.split)
+    }
+        fun updateSpender(index: Int, spender: Spender) {
+            if (spender.name != singleInstance.spenders[index].name) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                    .child(index.toString()).child("name").setValue(spender.name)
+            }
+            if (spender.email != singleInstance.spenders[index].email) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                    .child(index.toString()).child("email").setValue(spender.email)
+            }
+            if (spender.isActive != singleInstance.spenders[index].isActive) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                    .child(index.toString()).child("isactive").setValue(spender.isActive)
+            }
+            if (spender.split != singleInstance.spenders[index].split) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
+                    .child(index.toString()).child("split").setValue(spender.split)
+            }
         }
         fun refresh() {
             singleInstance.loadSpenders()
@@ -124,6 +149,12 @@ class SpenderViewModel : ViewModel() {
             }
             singleInstance.spenders.clear()
             singleInstance.loaded = false
+        }
+        fun removeSecondAllowedUser() {
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Info").child("SecondUser").removeValue()
+        }
+        fun saveAsSecondAllowedUser(iEmail: String) {
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Info").child("SecondUser").setValue(iEmail)
         }
     }
 
@@ -142,7 +173,6 @@ class SpenderViewModel : ViewModel() {
 
     fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
-//        dataUpdatedCallback?.onDataUpdate()
     }
 
     fun clearCallback() {
@@ -156,12 +186,13 @@ class SpenderViewModel : ViewModel() {
                 spenders.clear()
                 dataSnapshot.children.forEach()
                 {
-                    val name = it.key.toString()
                     var email = ""
                     var isActive = 1
                     var split = 0
-                    it.children.forEach() {
+                    var name = ""
+                    it.children.forEach {
                         when (it.key.toString()) {
+                            "name" -> name = it.value.toString()
                             "email" -> email = it.value.toString()
                             "isactive" -> isActive = it.value.toString().toInt()
                             "split" -> split = it.value.toString().toInt()
@@ -176,8 +207,7 @@ class SpenderViewModel : ViewModel() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 110.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").addValueEventListener(

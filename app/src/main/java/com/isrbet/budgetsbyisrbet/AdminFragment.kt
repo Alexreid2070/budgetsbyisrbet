@@ -69,13 +69,7 @@ class AdminFragment : Fragment() {
         MyApplication.currentUserEmail = email
         UserViewModel.clearCallback()
         Log.d("Alex", "I clicked uid $uid")
-        MyApplication.userUID=uid
-        DefaultsViewModel.refresh()
-        ExpenditureViewModel.refresh()
-        CategoryViewModel.refresh()
-        SpenderViewModel.refresh()
-        BudgetViewModel.refresh()
-        RecurringTransactionViewModel.refresh()
+        switchTo(uid)
         activity?.onBackPressed()
     }
 
@@ -142,7 +136,7 @@ class AdminFragment : Fragment() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 102.")
             }
         }
         MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")

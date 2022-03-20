@@ -131,8 +131,7 @@ class TranslationViewModel : ViewModel() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 111.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").addValueEventListener(

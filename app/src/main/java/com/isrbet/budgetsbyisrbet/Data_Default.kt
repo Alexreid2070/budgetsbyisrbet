@@ -30,11 +30,11 @@ class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var defaultCategory: Category = Category("","")
-    private var defaultSpender: String = ""
+    private var defaultSpender: String = "0"
     private var defaultShowRed: String = "5"
-    private var defaultIntegrateWithTDSpend: String = "No"
+    private var defaultIntegrateWithTDSpend: String = "Off"
     private var defaultSound: String = "On"
-    private var defaultQuote: String = "Off"
+    private var defaultQuote: String = "On"
     private var defaultShowIndividualAmountsInViewAll: String = "false"
     private var defaultShowWhoInViewAll: String = "true"
     private var defaultShowCategoryInViewAll: String = "true"
@@ -105,7 +105,9 @@ class DefaultsViewModel : ViewModel() {
 
         fun updateDefault(whichOne: String, iValue: String) {
             singleInstance.setLocal(whichOne, iValue)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").child(whichOne).setValue(iValue)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults")
+                .child(SpenderViewModel.myIndex().toString())
+                .child(whichOne).setValue(iValue)
         }
 
         fun refresh() {
@@ -114,16 +116,30 @@ class DefaultsViewModel : ViewModel() {
         fun clear() {
             if (singleInstance.defaultsListener != null) {
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .child(SpenderViewModel.myIndex().toString())
                     .removeEventListener(singleInstance.defaultsListener!!)
                 singleInstance.defaultsListener = null
             }
-            singleInstance.loaded = false
+            resetToDefaults()
+        }
+        private fun resetToDefaults() {
             singleInstance.defaultCategory = Category("","")
-            singleInstance.defaultSpender = ""
+            singleInstance.defaultSpender = "0"
             singleInstance.defaultShowRed = "5"
-            singleInstance.defaultIntegrateWithTDSpend = "No"
+            singleInstance.defaultIntegrateWithTDSpend = "Off"
             singleInstance.defaultSound = "On"
-            singleInstance.defaultQuote = "Off"
+            singleInstance.defaultQuote = "On"
+            singleInstance.defaultShowIndividualAmountsInViewAll = "false"
+            singleInstance.defaultShowWhoInViewAll = "true"
+            singleInstance.defaultShowCategoryInViewAll = "true"
+            singleInstance.defaultShowNoteInViewAll = "true"
+            singleInstance.defaultShowDiscInViewAll = "true"
+            singleInstance.defaultShowTypeInViewAll = "true"
+            singleInstance.defaultShowRunningTotalInViewAll = "false"
+            singleInstance.defaultViewPeriodDashboard = "Month"
+            singleInstance.defaultFilterDiscDashboard = ""
+            singleInstance.defaultFilterWhoDashboard = ""
+            singleInstance.defaultDeltaDashboard = "#"
         }
     }
 
@@ -135,6 +151,7 @@ class DefaultsViewModel : ViewModel() {
         super.onCleared()
         if (defaultsListener != null) {
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                .child(SpenderViewModel.myIndex().toString())
                 .removeEventListener(defaultsListener!!)
             defaultsListener = null
         }
@@ -211,8 +228,8 @@ class DefaultsViewModel : ViewModel() {
     fun loadDefaults() {
         singleInstance.defaultsListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                clear()
                 // Get Post object and use the values to update the UI
-                Log.d("Alex", "onDataChange " + dataSnapshot.toString() + " username " + MyApplication.userUID)
                 dataSnapshot.children.forEach()
                 {
                     setLocal(it.key.toString(), it.value.toString())
@@ -223,13 +240,13 @@ class DefaultsViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 107.")
             }
         }
-//        MyApplication.database.getReference("Users").child(MyApplication.useruid)
-//            .child("Defaults").addValueEventListener(singleInstance.defaultsListener)
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults").addValueEventListener(
-            singleInstance.defaultsListener as ValueEventListener
-        )
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults")
+            .child(SpenderViewModel.myIndex().toString())
+            .addValueEventListener(
+                singleInstance.defaultsListener as ValueEventListener
+            )
     }
 }

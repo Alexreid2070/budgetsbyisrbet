@@ -13,8 +13,8 @@ data class Expenditure(
     var category: String = "",
     var subcategory: String = "",
     var note: String = "",
-    var paidby: String = "",
-    var boughtfor: String = "",
+    var paidby: Int = -1,
+    var boughtfor: Int = -1,
     var type: String = "",
     var bfname1split: Int = 0,
     var bfname2split: Int = 0,
@@ -28,13 +28,13 @@ data class Expenditure(
             "amount" -> amount = value.toInt()
             "category" -> category = value.trim()
             "subcategory" -> subcategory = value.trim()
-            "paidby" -> paidby = value.trim()
-            "boughtfor" -> boughtfor = value.trim()
+            "paidby" -> paidby = value.toInt()
+            "boughtfor" -> boughtfor = value.toInt()
             "bfname1split" -> bfname1split = value.toInt()
             "bfname2split" -> bfname2split = value.toInt()
             "note" -> note = value.trim()
             "type" -> type = value.trim()
-            "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
+            "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
             else -> {
                 Log.d("Alex", "Unknown field in Expenditures $key $value " + this.toString())
             }
@@ -46,8 +46,8 @@ data class Expenditure(
         return amount.toString().lowercase().contains(lc) ||
                 category.lowercase().contains(lc) ||
                 subcategory.lowercase().contains(lc) ||
-                paidby.lowercase().contains(lc) ||
-                boughtfor.lowercase().contains(lc) ||
+                SpenderViewModel.getSpenderName(paidby).lowercase().contains(lc) ||
+                SpenderViewModel.getSpenderName(boughtfor).lowercase().contains(lc) ||
                 note.lowercase().contains(lc) ||
                 date.contains(lc) ||
                 type.lowercase().contains(lc)
@@ -56,7 +56,7 @@ data class Expenditure(
 
 data class ExpenditureOut(
     var date: String = "", var amount: Int = 0, var category: String = "",
-    var subcategory: String = "", var note: String = "", var paidby: String = "", var boughtfor: String = "",
+    var subcategory: String = "", var note: String = "", var paidby: Int = -1, var boughtfor: Int = -1,
     var bfname1split: Int = 0, var bfname2split: Int = 0, var type: String = ""
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
@@ -67,13 +67,13 @@ data class ExpenditureOut(
             "amount" -> amount = value.toInt()
             "category" -> category = value.trim()
             "subcategory" -> subcategory = value.trim()
-            "paidby" -> paidby = value.trim()
-            "boughtfor" -> boughtfor = value.trim()
+            "paidby" -> paidby = value.toInt()
+            "boughtfor" -> boughtfor = value.toInt()
             "bfname1split" -> bfname1split = value.toInt()
             "bfname2split" -> bfname2split = value.toInt()
             "note" -> note = value.trim()
             "type" -> type = value.trim()
-            "who" -> {if (paidby == "") paidby = value.trim(); if (boughtfor == "") boughtfor = value.trim() }
+            "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
         }
     }
 }
@@ -121,7 +121,6 @@ class ExpenditureViewModel : ViewModel() {
                 startDate = iBudgetMonth.year.toString() +  "-" + iBudgetMonth.month.toString() + "-00"
                 endDate = iBudgetMonth.year.toString() +  "-" + iBudgetMonth.month.toString() + "-99"
             }
-            Log.d("Alex", "checking $startDate to $endDate size " + singleInstance.expenditures.size)
 
             singleInstance.expenditures.forEach {
                 val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(it.category, it.subcategory)
@@ -148,7 +147,7 @@ class ExpenditureViewModel : ViewModel() {
                     actual = getActualsForPeriod(
                         Category(it.categoryName, it.subcategoryName),
                         iBudgetMonth, iBudgetMonth,
-                        SpenderViewModel.getSpenderName(i)
+                        i
                     )
                     totalActuals += actual
                 }
@@ -157,7 +156,7 @@ class ExpenditureViewModel : ViewModel() {
             return  tList
         }
 
-        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: String, iSubWho: String = ""): Double {
+        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: Int, iSubWho: Int = -1): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
@@ -172,8 +171,8 @@ class ExpenditureViewModel : ViewModel() {
 //                        if (iWho != "" && iWho != "Joint") // ie want a specific person
 //                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
 //                        else
-                    if (iWho == "Joint" && iSubWho != "") {
-                        if (SpenderViewModel.getSpenderName(0) == iSubWho)
+                    if (iWho == 2 && iSubWho != -1) {
+                        if (iSubWho == 0)
                             tTotal += (expenditure.amount.toDouble() / 100 * expenditure.bfname1split /100)
                         else
                             tTotal += (expenditure.amount.toDouble() / 100 * expenditure.bfname2split /100)
@@ -330,7 +329,27 @@ class ExpenditureViewModel : ViewModel() {
                     val tExp = Expenditure()
                     tExp.setValue("key", element.key.toString())
                     for (child in element.children) {
-                        tExp.setValue(child.key.toString(), child.value.toString())
+                        if (child.key.toString() == "paidby" || child.key.toString() == "boughtfor") {
+                            // this block is temporary until everyone has transitioned
+                            val tWho: String = child.value.toString()
+                            var nWho = 0
+                            when (tWho) {
+                                "Alex" -> nWho = 0
+                                "Brent" -> nWho = 1
+                                "Joint" -> nWho = 2
+                                "Beatrice" -> nWho = 0
+                                "Margot" -> nWho = 1
+                                "Rheannon" -> nWho = 0
+                                "Matt" -> nWho = 1
+                                else -> {
+                                    Log.d("Alex", "RT is " + tExp)
+                                    Log.d("Alex", "twho is $tWho")
+                                    nWho = tWho.toInt()
+                                }
+                            }
+                            tExp.setValue(child.key.toString(), nWho.toString())
+                        } else
+                            tExp.setValue(child.key.toString(), child.value.toString())
                     }
                     expenditures.add(tExp)
                 }
@@ -339,6 +358,7 @@ class ExpenditureViewModel : ViewModel() {
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
+                MyApplication.displayToast("User authorization failed 108.")
             }
         }
         expDBRef.addValueEventListener(expListener as ValueEventListener)

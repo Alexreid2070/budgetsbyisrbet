@@ -25,8 +25,8 @@ class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
     var prevSubcategoryFilter = ""
     var prevDiscretionaryFilter = ""
-    var prevPaidbyFilter = ""
-    var prevBoughtForFilter = ""
+    var prevPaidbyFilter = -1
+    var prevBoughtForFilter = -1
     var prevTypeFilter = ""
 }
 
@@ -200,9 +200,9 @@ class TransactionViewAllFragment : Fragment() {
         binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
             val paidbyFilter = if (radioButton.text.toString() == "All")
-                ""
+                -1
             else
-                radioButton.text.toString()
+                SpenderViewModel.getSpenderIndex(radioButton.text.toString())
             binding.totalLayout.visibility = View.VISIBLE
             if (paidbyFilter != filters.prevPaidbyFilter) {
                 val adapter: TransactionRecyclerAdapter =
@@ -217,9 +217,9 @@ class TransactionViewAllFragment : Fragment() {
         binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
             val boughtforFilter = if (radioButton.text.toString() == "All")
-                ""
+                -1
             else
-                radioButton.text.toString()
+                SpenderViewModel.getSpenderIndex(radioButton.text.toString())
             if (boughtforFilter != filters.prevBoughtForFilter) {
                 binding.totalLayout.visibility = View.VISIBLE
                 val adapter: TransactionRecyclerAdapter =
@@ -541,9 +541,9 @@ class TransactionViewAllFragment : Fragment() {
         binding.allDiscRadioButton.isChecked = true
         adapter.setDiscretionaryFilter("")
         binding.allPaidByRadioButton.isChecked = true
-        adapter.setPaidByFilter("")
+        adapter.setPaidByFilter(-1)
         binding.allBoughtForRadioButton.isChecked = true
-        adapter.setBoughtForFilter("")
+        adapter.setBoughtForFilter(-1)
         binding.allTypeRadioButton.isChecked = true
         adapter.setTypeFilter("")
     }

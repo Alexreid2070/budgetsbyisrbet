@@ -36,7 +36,12 @@ class RecurringTransactionFragment : Fragment() {
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as RecurringTransaction
-                val rtdf = RecurringTransactionEditDialogFragment.newInstance(itemValue.name, itemValue.amount, itemValue.period, itemValue.nextdate, itemValue.regularity, itemValue.category, itemValue.subcategory, itemValue.paidby, itemValue.boughtfor, itemValue.split1, itemValue.split2)
+                val rtdf = RecurringTransactionEditDialogFragment.newInstance(itemValue.name,
+                    itemValue.amount, itemValue.period, itemValue.nextdate, itemValue.regularity,
+                    itemValue.category, itemValue.subcategory,
+                    SpenderViewModel.getSpenderName(itemValue.paidby),
+                    SpenderViewModel.getSpenderName(itemValue.boughtfor),
+                    itemValue.split1, itemValue.split2)
                 rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         Log.d("Alex", "in onNewDataSaved")
@@ -97,7 +102,7 @@ class RecurringTransactionFragment : Fragment() {
 
     private fun addRecurringTransaction() {
         val rtdf = RecurringTransactionEditDialogFragment.newInstance("", 0,"Month", "2022-01-01", 1, "", "", DefaultsViewModel.getDefault(
-            cDEFAULT_SPENDER), DefaultsViewModel.getDefault(cDEFAULT_SPENDER), 100, 0)
+            cDEFAULT_SPENDER), SpenderViewModel.getDefaultSpender(), 100, 0)
         rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getCopyOfRecurringTransactions())

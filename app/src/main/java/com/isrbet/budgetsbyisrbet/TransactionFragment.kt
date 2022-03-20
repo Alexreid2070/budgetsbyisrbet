@@ -18,7 +18,6 @@ import android.widget.Spinner
 import androidx.fragment.app.DialogFragment
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.onNavDestinationSelected
@@ -245,6 +244,7 @@ class TransactionFragment : Fragment() {
             binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
             if (!SpenderViewModel.singleUser()) {
                 val selectedId = binding.boughtForRadioGroup.checkedRadioButtonId
+                SpenderViewModel.showMe()
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 Log.d("Alex", "radio.button.text is '" + radioButton.text + "'")
                 when (radioButton.text) {
@@ -531,7 +531,7 @@ class TransactionFragment : Fragment() {
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    if (o.text == thisTransaction.paidby) {
+                    if (o.text == SpenderViewModel.getSpenderName(thisTransaction.paidby)) {
                         o.isChecked = true
                     }
                 }
@@ -540,7 +540,7 @@ class TransactionFragment : Fragment() {
             for (i in 0 until bfRadioGroup.childCount) {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    if (o.text == thisTransaction.boughtfor) {
+                    if (o.text == SpenderViewModel.getSpenderName(thisTransaction.boughtfor)) {
                         o.isChecked = true
                     }
                 }
@@ -552,7 +552,7 @@ class TransactionFragment : Fragment() {
             binding.transactionName1Amount.text = dec.format(thisTransaction.amount/100.0 * thisTransaction.bfname1split / 100.0)
             binding.transactionName2Amount.text = dec.format(thisTransaction.amount/100.0 * thisTransaction.bfname2split / 100.0)
 
-            if ((thisTransaction.boughtfor == "Joint" && binding.slider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
+            if ((thisTransaction.boughtfor == 2 && binding.slider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
                 thisTransaction.paidby != thisTransaction.boughtfor) {
                 inExpandMode = true
                 setExpansionFields(View.VISIBLE)
@@ -693,8 +693,10 @@ class TransactionFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
-                binding.editTextNote.text.toString().trim(), radioButtonPaidBy.text.toString(),
-                radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split
+                binding.editTextNote.text.toString().trim(),
+                SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
+                SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
+                bfName1Split, bfName2Split
             )
             ExpenditureViewModel.addTransaction(expenditure)
             binding.editTextAmount.setText("")
@@ -710,8 +712,10 @@ class TransactionFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, radioButton.text.toString(), subcategorySpinner.selectedItem.toString(),
-                binding.editTextNote.text.toString().trim(), radioButtonPaidBy.text.toString(),
-                radioButtonBoughtFor.text.toString(), bfName1Split, bfName2Split, binding.transactionType.text.toString()
+                binding.editTextNote.text.toString().trim(),
+                SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
+                SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
+                bfName1Split, bfName2Split, binding.transactionType.text.toString()
             )
 
            ExpenditureViewModel.updateTransaction(editingKey, expenditure)
@@ -761,7 +765,7 @@ class TransactionFragment : Fragment() {
         else paidByRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -772,7 +776,7 @@ class TransactionFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             paidByRadioGroup.addView(newRadioButton)
-            if (newTransactionMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+            if (newTransactionMode && spender?.name == SpenderViewModel.getDefaultSpender()) {
                 paidByRadioGroup.check(newRadioButton.id)
             }
         }
@@ -782,7 +786,7 @@ class TransactionFragment : Fragment() {
         else boughtForRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -793,7 +797,7 @@ class TransactionFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             boughtForRadioGroup.addView(newRadioButton)
-            if (newTransactionMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+            if (newTransactionMode && spender?.name == SpenderViewModel.getDefaultSpender()) {
                 boughtForRadioGroup.check(newRadioButton.id)
             }
         }

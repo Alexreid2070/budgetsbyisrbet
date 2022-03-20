@@ -555,9 +555,10 @@
                     android:id="@+id/gridLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="fill_horizontal"
                     android:columnCount="2"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:rowCount="14"/>
 
                 <LinearLayout

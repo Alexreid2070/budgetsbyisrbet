@@ -119,7 +119,7 @@ class ChatViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled")
+                MyApplication.displayToast("User authorization failed 106.")
             }
         }
         MyApplication.database.getReference("Chats").addValueEventListener(

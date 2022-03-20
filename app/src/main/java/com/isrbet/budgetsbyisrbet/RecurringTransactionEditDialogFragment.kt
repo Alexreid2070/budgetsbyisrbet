@@ -19,14 +19,14 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.round
 
-class RecurringTransactionEditDialogFragment() : DialogFragment() {
+class RecurringTransactionEditDialogFragment : DialogFragment() {
     interface RecurringTransactionEditDialogFragmentListener {
 
         fun onNewDataSaved()
     }
     private var listener: RecurringTransactionEditDialogFragmentListener? = null
     private var initialLoad = true
-    var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
+    private var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
 
     companion object {
         private const val KEY_NAME = "KEY_NAME"
@@ -100,7 +100,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRecurringTransactionEditDialogBinding.inflate(inflater, container, false)
         return binding.root
 //        return inflater.inflate(R.layout.fragment_recurring_transaction_edit_dialog, container, false)
@@ -139,7 +139,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         pSpinner.adapter = arrayAdapter
         pSpinner.setSelection(arrayAdapter.getPosition(oldPeriod))
 
-        var categorySpinner:Spinner = binding.editRtNewCategory
+        val categorySpinner:Spinner = binding.editRtNewCategory
         val catArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -151,20 +151,20 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
         else
             categorySpinner.setSelection(catArrayAdapter.getPosition(oldCategory))
 
-        var paidBySpinner:Spinner = binding.editRtNewPaidBy
+        val paidBySpinner:Spinner = binding.editRtNewPaidBy
         val paidByArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
-            SpenderViewModel.getSpenders()
+            SpenderViewModel.getActiveSpenders()
         )
         paidBySpinner.adapter = paidByArrayAdapter
         paidBySpinner.setSelection(paidByArrayAdapter.getPosition(oldPaidBy))
 
-        var boughtForSpinner:Spinner = binding.editRtNewBoughtFor
+        val boughtForSpinner:Spinner = binding.editRtNewBoughtFor
         val boughtForArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
-            SpenderViewModel.getSpenders()
+            SpenderViewModel.getActiveSpenders()
         )
         boughtForSpinner.adapter = boughtForArrayAdapter
         boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(oldBoughtFor))
@@ -285,7 +285,7 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
     }
 
     private fun addSubCategories(iCategory: String) {
-        var subCategorySpinner = binding.editRtNewSubcategory
+        val subCategorySpinner = binding.editRtNewSubcategory
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
         subCategorySpinner.adapter = arrayAdapter
         if (oldSubcatgory == "")
@@ -321,19 +321,19 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                 .show()
         }
 
-        binding.rtDialogButtonCancel.setOnClickListener() {
+        binding.rtDialogButtonCancel.setOnClickListener {
             dismiss()
         }
     }
 
-    fun onSaveButtonClicked() {
+    private fun onSaveButtonClicked() {
         val rtSpinner:Spinner = binding.editRtNewPeriodSpinner
-        var amountInt: Int
+        val amountInt: Int
         var somethingChanged = false
         amountInt = round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt()
 
         if (!textIsSafeForKey(binding.editRtNewName.text.toString())) {
-            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
+            showErrorMessage(parentFragmentManager, "The text contains unsafe characters.  They must be removed.")
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
             return
         }
@@ -385,8 +385,8 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
                     binding.editRtNewRegularity.text.toString().toInt(),
                     binding.editRtNewCategory.selectedItem.toString(),
                     binding.editRtNewSubcategory.selectedItem.toString(),
-                    binding.editRtNewPaidBy.selectedItem.toString(),
-                    binding.editRtNewBoughtFor.selectedItem.toString(),
+                    SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
+                    SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
                     binding.splitSlider.value.toInt(),
                     100-binding.splitSlider.value.toInt()
                 )
@@ -399,8 +399,10 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(),
                 amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(),
                 binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(),
-                binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidBy.selectedItem.toString(),
-                binding.editRtNewBoughtFor.selectedItem.toString(), binding.transactionBoughtForName1Split.text.toString().toInt(),
+                binding.editRtNewSubcategory.selectedItem.toString(),
+                SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
+                SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
+                binding.transactionBoughtForName1Split.text.toString().toInt(),
                 binding.transactionBoughtForName2Split.text.toString().toInt())
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             if (listener != null) {
@@ -412,8 +414,10 @@ class RecurringTransactionEditDialogFragment() : DialogFragment() {
             val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(), amountInt,
                 rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(),
                 binding.editRtNewNextDate.text.toString(), binding.editRtNewCategory.selectedItem.toString(),
-                binding.editRtNewSubcategory.selectedItem.toString(), binding.editRtNewPaidBy.selectedItem.toString(),
-                binding.editRtNewBoughtFor.selectedItem.toString(), binding.transactionBoughtForName1Split.text.toString().toInt(),
+                binding.editRtNewSubcategory.selectedItem.toString(),
+                SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
+                SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
+                binding.transactionBoughtForName1Split.text.toString().toInt(),
                 binding.transactionBoughtForName2Split.text.toString().toInt())
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             RecurringTransactionViewModel.deleteRecurringTransactionFromFirebase(oldName)

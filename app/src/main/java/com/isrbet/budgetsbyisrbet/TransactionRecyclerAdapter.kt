@@ -30,8 +30,8 @@ class TransactionRecyclerAdapter(
     private var categoryFilter = ""
     private var subcategoryFilter = ""
     private var discretionaryFilter = ""
-    private var paidbyFilter = ""
-    private var boughtforFilter = ""
+    private var paidbyFilter = -1
+    private var boughtforFilter = -1
     private var typeFilter = ""
     private var accountingFilter = false
 
@@ -90,8 +90,8 @@ class TransactionRecyclerAdapter(
             "filterTheList prevs are $iConstraint $categoryFilter $subcategoryFilter $discretionaryFilter $paidbyFilter $boughtforFilter $typeFilter"
         )
         if (iConstraint.isEmpty() && categoryFilter == "" && subcategoryFilter == "" &&
-            discretionaryFilter == "" && paidbyFilter == "" &&
-            boughtforFilter == "" && typeFilter == "" && !accountingFilter
+            discretionaryFilter == "" && paidbyFilter == -1 &&
+            boughtforFilter == -1 && typeFilter == "" && !accountingFilter
         ) {
             filteredList = list
         } else {
@@ -112,15 +112,15 @@ class TransactionRecyclerAdapter(
                     }
                     found = if ((categoryFilter == "" || row.category == categoryFilter) &&
                         (subcategoryFilter == "" || row.subcategory == subcategoryFilter) &&
-                        (paidbyFilter == "" || row.paidby == paidbyFilter) &&
-                        (boughtforFilter == "" || row.boughtfor == boughtforFilter) &&
+                        (paidbyFilter == -1 || row.paidby == paidbyFilter) &&
+                        (boughtforFilter == -1 || row.boughtfor == boughtforFilter) &&
                         (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter == "Ordinary")) &&
                         (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator)
                     ) {
                         if (accountingFilter) {
-                            if (row.paidby == row.boughtfor && row.paidby != "Joint")
+                            if (row.paidby == row.boughtfor && row.paidby != 2)
                                 false
-                            else if (row.paidby == "Joint" && row.boughtfor == "Joint" &&
+                            else if (row.paidby == 2 && row.boughtfor == 2 &&
                                 row.bfname1split == SpenderViewModel.getSpenderSplit(0)
                             )
                                 false
@@ -188,10 +188,11 @@ class TransactionRecyclerAdapter(
         holder.vtfcategory.text = data.category
         holder.vtfsubcategory.text = data.subcategory
         if (data.paidby == data.boughtfor)
-            holder.vtfwho.text = data.paidby
+            holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
         else
             holder.vtfwho.text =
-                data.paidby.subSequence(0, 2).toString() + ":" + data.boughtfor.subSequence(0, 2)
+                SpenderViewModel.getSpenderName(data.paidby).subSequence(0, 2).toString() +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).subSequence(0, 2)
                     .toString()
         holder.vtfnote.text = data.note
         if (CategoryViewModel.getDiscretionaryIndicator(
@@ -242,11 +243,11 @@ class TransactionRecyclerAdapter(
         discretionaryFilter = iFilter
     }
 
-    fun setPaidByFilter(iFilter: String) {
+    fun setPaidByFilter(iFilter: Int) {
         paidbyFilter = iFilter
     }
 
-    fun setBoughtForFilter(iFilter: String) {
+    fun setBoughtForFilter(iFilter: Int) {
         boughtforFilter = iFilter
     }
 
@@ -270,14 +271,14 @@ class TransactionRecyclerAdapter(
         for (i in 0 until filteredList.size) {
             // calculating what name 1 owes name 2
             if (filteredList[i].paidby != filteredList[i].boughtfor ||
-                filteredList[i].paidby == "Joint"
+                filteredList[i].paidby == 2
             ) {
                 val name1PortionOfExpense =
                     filteredList[i].amount / 100.0 * filteredList[i].bfname1split / 100.0
                 val name1PortionOfFundsUsed =
                     when (filteredList[i].paidby) {
-                        SpenderViewModel.getSpenderName(0) -> filteredList[i].amount / 100.0
-                        SpenderViewModel.getSpenderName(1) -> 0.0
+                        0 -> filteredList[i].amount / 100.0
+                        1 -> 0.0
                         else // must be Joint
                         -> filteredList[i].amount / 100.0 * SpenderViewModel.getSpenderSplit(0) / 100.0
                     }

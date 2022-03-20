@@ -1,21 +1,23 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.media.MediaPlayer
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
-import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
-import android.widget.ScrollView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
@@ -25,6 +27,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.round
 
 
@@ -65,6 +69,7 @@ class MyApplication : Application() {
         var transactionSearchText: String = ""
         var transactionFirstInList: Int = 0
         var userUID: String = ""
+        var originalUserUID: String = ""
         var userEmail: String = ""
         var userGivenName: String = ""
         var userFamilyName: String = ""
@@ -76,7 +81,12 @@ class MyApplication : Application() {
         var haveLoadedDataForThisUser = false
         var lastReadChatsDate = ""
         var lastReadChatsTime = ""
+        lateinit var myMainActivity: MainActivity
 
+        fun displayToast(iMessage: String) {
+            Log.d("Alex", "displaying toast")
+            Toast.makeText(myMainActivity, iMessage, Toast.LENGTH_SHORT).show()
+        }
         fun getQuote(): String {
             if (quoteForThisSession == "") {
                 val randomIndex = (0 until inspirationalQuotes.size-1).random()
@@ -315,7 +325,7 @@ fun getDaysInMonth(cal: Calendar): Int {
         return 31
 }
 
-open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
+open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     private val gestureDetector: GestureDetector
     companion object {
         private const val SWIPE_THRESHOLD = 100
@@ -378,6 +388,10 @@ fun inDarkMode(context: Context): Boolean {
         Configuration.UI_MODE_NIGHT_UNDEFINED -> { return false }
     }
     return false
+}
+
+fun String.isEmailValid(): Boolean {
+    return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
 }
 
 fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysShowGreen: Boolean): Int {
@@ -446,14 +460,15 @@ fun textIsSafeForKey(iText: String) : Boolean {
 }
 
 fun textIsSafeForValue(iText: String) : Boolean {
-    if (iText.contains("\\"))
-        return false
-    else
-        return true
+    return !iText.contains("\\")
 }
 
 fun getColorInHex(iColor: Int, iOpacity: String): String {
     return java.lang.String.format("#%s%06X", iOpacity, 0xFFFFFF and iColor)
+}
+
+fun iAmPrimaryUser(): Boolean {
+    return (MyApplication.userUID == MyApplication.originalUserUID)
 }
 
 fun thisIsANewUser(): Boolean {
@@ -466,6 +481,21 @@ fun thisIsANewUser(): Boolean {
             DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
             RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
 
+}
+
+fun switchTo(iUID: String) {
+    MyApplication.userUID=iUID
+    DefaultsViewModel.refresh()
+    ExpenditureViewModel.refresh()
+    CategoryViewModel.refresh()
+    SpenderViewModel.refresh()
+    BudgetViewModel.refresh()
+    RecurringTransactionViewModel.refresh()
+}
+
+fun Context.copyToClipboard(clipLabel: String, text: CharSequence){
+    val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java)
+    clipboard?.setPrimaryClip(ClipData.newPlainText(clipLabel, text))
 }
 
 class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
@@ -508,20 +538,20 @@ class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
             val parentWidth = viewParent.width
             val parentHeight = viewParent.height
             var newX = motionEvent.rawX + dX
-            newX = Math.max(
+            newX = max(
                 layoutParams.leftMargin.toFloat(),
                 newX
             ) // Don't allow the FAB past the left hand side of the parent
-            newX = Math.min(
+            newX = min(
                 (parentWidth - viewWidth - layoutParams.rightMargin).toFloat(),
                 newX
             ) // Don't allow the FAB past the right hand side of the parent
             var newY = motionEvent.rawY + dY
-            newY = Math.max(
+            newY = max(
                 layoutParams.topMargin.toFloat(),
                 newY
             ) // Don't allow the FAB past the top of the parent
-            newY = Math.min(
+            newY = min(
                 (parentHeight - viewHeight - layoutParams.bottomMargin).toFloat(),
                 newY
             ) // Don't allow the FAB past the bottom of the parent
@@ -536,7 +566,7 @@ class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
             val upRawY = motionEvent.rawY
             val upDX = upRawX - downRawX
             val upDY = upRawY - downRawY
-            if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
+            if (abs(upDX) < CLICK_DRAG_TOLERANCE && abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
                 performClick()
             } else { // A drag
                 true // Consumed

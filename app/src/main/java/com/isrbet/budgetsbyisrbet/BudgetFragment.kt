@@ -169,7 +169,7 @@ class BudgetFragment : Fragment() {
         prevMonth.decrementMonth()
         val whoSelectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
         val whoRadioButton = requireActivity().findViewById(whoSelectedId) as RadioButton
-        val whoText = whoRadioButton.text.toString()
+        val whoId = SpenderViewModel.getSpenderIndex(whoRadioButton.text.toString())
         val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
         val catText = catRadioButton.text.toString()
@@ -177,13 +177,13 @@ class BudgetFragment : Fragment() {
         val dec = DecimalFormat("#.00")
 
         val toCheckAnnual = BudgetMonth(binding.budgetAddYear.value, 0)
-        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(Category(catText, subCatText),toCheckAnnual, whoText)
+        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(Category(catText, subCatText),toCheckAnnual, whoId)
         if (annualBudget != 0.0) {
             binding.budgetAddPreviousAmount.text = dec.format(annualBudget)
             binding.budgetAddPreviousAmountLabel2.text = " which was set for "
             binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
-            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(Category(catText, subCatText), prevMonth, whoText)
+            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(Category(catText, subCatText), prevMonth, whoId)
             binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
                 binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
@@ -208,9 +208,8 @@ class BudgetFragment : Fragment() {
             startOfPeriod.decrementMonth(1)
             endOfPeriod.decrementMonth(1)
         }
-        Log.d("Alex", "checking periods $whoText $startOfPeriod $endOfPeriod")
         binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(Category(catText, subCatText),
-            startOfPeriod, endOfPeriod, whoText))
+            startOfPeriod, endOfPeriod, whoId))
 
         val annualActuals = ExpenditureViewModel.getActualsForPeriod(Category(catText, subCatText),
             BudgetMonth(
@@ -218,7 +217,7 @@ class BudgetFragment : Fragment() {
                 if (inAnnualMode) 1 else binding.budgetAddMonth.value
             ),
             prevMonth,
-            whoText)
+            whoId)
         binding.budgetAddTotalAmount.text = dec.format(annualActuals)
         binding.budgetAddAverageAmount.text = dec.format(annualActuals/12)
 
@@ -282,7 +281,7 @@ class BudgetFragment : Fragment() {
         else whoRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -348,11 +347,11 @@ class BudgetFragment : Fragment() {
             return
         }
         val selectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
-        val whoText = if (SpenderViewModel.singleUser())
-            SpenderViewModel.getSpenderName(0)
+        val whoId = if (SpenderViewModel.singleUser())
+            0
         else {
             val whoRadioButton = requireActivity().findViewById(selectedId) as RadioButton
-            whoRadioButton.text.toString()
+            SpenderViewModel.getSpenderIndex(whoRadioButton.text.toString())
         }
 
         val occSelectedId = binding.budgetAddOccurenceRadioGroup.checkedRadioButtonId
@@ -374,7 +373,7 @@ class BudgetFragment : Fragment() {
                         binding.budgetAddYear.value,
                         chosenMonth
                     ).toString(),
-                    whoText
+                    whoId
                 )
             ) {
                 showErrorMessage(parentFragmentManager, getString(R.string.budgetOverlap))
@@ -398,7 +397,7 @@ class BudgetFragment : Fragment() {
             "$period-00"
         }
 
-        BudgetViewModel.updateBudget(tempCategory, period, whoText, tempDouble, occurenceText)
+        BudgetViewModel.updateBudget(tempCategory, period, whoId, tempDouble, occurenceText)
 //        binding.budgetAddAmount.setText("")
         binding.budgetAddAmount.requestFocus()
 //        binding.budgetAddPercentage.setText("")

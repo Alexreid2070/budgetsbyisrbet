@@ -332,7 +332,7 @@ class TransferFragment : Fragment() {
             binding.editTextNote.setText(thisTransaction.note)
             binding.splitName1Split.setText(thisTransaction.bfname1split.toString())
             binding.splitName2Split.setText(thisTransaction.bfname2split.toString())
-            if (thisTransaction.boughtfor == "Joint") {
+            if (thisTransaction.boughtfor == 2) {
                 binding.splitLayout.visibility = View.VISIBLE
             } else {
                 binding.splitLayout.visibility = View.GONE
@@ -341,7 +341,7 @@ class TransferFragment : Fragment() {
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    if (o.text == thisTransaction.paidby) {
+                    if (o.text == SpenderViewModel.getSpenderName(thisTransaction.paidby)) {
                         o.isChecked = true
                     }
                 }
@@ -350,7 +350,7 @@ class TransferFragment : Fragment() {
             for (i in 0 until bfRadioGroup.childCount) {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    if (o.text == thisTransaction.boughtfor) {
+                    if (o.text == SpenderViewModel.getSpenderName(thisTransaction.boughtfor)) {
                         o.isChecked = true
                     }
                 }
@@ -412,8 +412,10 @@ class TransferFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
-                binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), binding.splitName1Split.text.toString().toInt(),
+                binding.editTextNote.text.toString().trim(),
+                SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
+                SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
+                binding.splitName1Split.text.toString().toInt(),
                 binding.splitName2Split.text.toString().toInt(), "Transfer"
             )
             ExpenditureViewModel.addTransaction(expenditure)
@@ -427,8 +429,10 @@ class TransferFragment : Fragment() {
             val expenditure = ExpenditureOut(
                 binding.editTextDate.text.toString(),
                 amountInt, "Transfer", "",
-                binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), binding.splitName1Split.text.toString().toInt(),
+                binding.editTextNote.text.toString().trim(),
+                SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
+                SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
+                binding.splitName1Split.text.toString().toInt(),
                 binding.splitName2Split.text.toString().toInt(),"Transfer"
             )
 
@@ -447,7 +451,7 @@ class TransferFragment : Fragment() {
         else fromRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -458,7 +462,7 @@ class TransferFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             fromRadioGroup.addView(newRadioButton)
-            if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+            if (newTransferMode && spender?.name == SpenderViewModel.getDefaultSpender()) {
                 fromRadioGroup.check(newRadioButton.id)
             }
         }
@@ -468,7 +472,7 @@ class TransferFragment : Fragment() {
         else toRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -479,7 +483,7 @@ class TransferFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             toRadioGroup.addView(newRadioButton)
-            if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
+            if (newTransferMode && spender?.name == SpenderViewModel.getDefaultSpender()) {
                 toRadioGroup.check(newRadioButton.id)
             }
         }

@@ -17,8 +17,8 @@ data class RecurringTransaction(
     var nextdate: String = "",
     var category: String = "",
     var subcategory: String = "",
-    var paidby: String = "",
-    var boughtfor: String = "",
+    var paidby: Int = -1,
+    var boughtfor: Int = -1,
     var split1: Int = 100,
     var split2: Int = 0
 ) {
@@ -31,8 +31,8 @@ data class RecurringTransaction(
             "regularity" -> regularity = value.toInt()
             "category" -> category = value.trim()
             "subcategory" -> subcategory = value.trim()
-            "paidby" -> paidby = value.trim()
-            "boughtfor" -> boughtfor = value.trim()
+            "paidby" -> paidby = value.toInt()
+            "boughtfor" -> boughtfor = value.toInt()
             "split1" -> split1 = value.toInt()
             "split2" -> split2 = value.toInt()
             else -> Log.d("Alex", "Unknown Recurring Transaction $key $value")
@@ -89,7 +89,7 @@ class RecurringTransactionViewModel : ViewModel() {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
         fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int,
-                                       iCategory: String, iSubcategory: String, iPaidBy: String, iBoughtFor: String,
+                                       iCategory: String, iSubcategory: String, iPaidBy: Int, iBoughtFor: Int,
                                         iSplit1: Int, iSplit2: Int) {
             val myRT = singleInstance.recurringTransactions.find{ it.name == iName }
             if (myRT != null) {
@@ -161,7 +161,27 @@ class RecurringTransactionViewModel : ViewModel() {
                     val tRecurringTransaction = RecurringTransaction()
                     tRecurringTransaction.setValue("name", element.key.toString())
                     for (child in element.children) {
-                        tRecurringTransaction.setValue(child.key.toString(), child.value.toString())
+                        if (child.key.toString() == "paidby" || child.key.toString() == "boughtfor") {
+                            // this block is temporary until everyone has transitioned
+                            val tWho: String = child.value.toString()
+                            var nWho = 0
+                            when (tWho) {
+                                "Alex" -> nWho = 0
+                                "Brent" -> nWho = 1
+                                "Joint" -> nWho = 2
+                                "Beatrice" -> nWho = 0
+                                "Margot" -> nWho = 1
+                                "Rheannon" -> nWho = 0
+                                "Matt" -> nWho = 1
+                                else -> {
+                                    Log.d("Alex", "RT is " + tRecurringTransaction)
+                                    Log.d("Alex", "twho is $tWho")
+                                    nWho = tWho.toInt()
+                                }
+                            }
+                            tRecurringTransaction.setValue(child.key.toString(), nWho.toString())
+                        } else
+                            tRecurringTransaction.setValue(child.key.toString(), child.value.toString())
                     }
                     recurringTransactions.add(tRecurringTransaction)
                 }
@@ -204,7 +224,7 @@ class RecurringTransactionViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 109.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").addValueEventListener(

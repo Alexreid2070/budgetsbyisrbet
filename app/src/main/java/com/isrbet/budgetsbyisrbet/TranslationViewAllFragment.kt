@@ -15,7 +15,7 @@ class TranslationViewAllFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         setHasOptionsMenu(true)
         _binding = FragmentTranslationViewAllBinding.inflate(inflater, container, false)

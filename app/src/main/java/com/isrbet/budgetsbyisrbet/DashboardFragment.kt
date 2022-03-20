@@ -14,13 +14,12 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
-import kotlin.math.round
+import kotlin.math.abs
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -28,14 +27,6 @@ class DashboardFragment : Fragment() {
     private var mTableLayout: TableLayout? = null
     private var currentBudgetMonth: BudgetMonth = BudgetMonth(0,0)
     private var collapsedCategories: MutableList<String> = ArrayList()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-//        val inflater = TransitionInflater.from(requireContext())
-//        enterTransition = inflater.inflateTransition(R.transition.slide_right)
-//        returnTransition = null
-//        exitTransition = inflater.inflateTransition(R.transition.slide_left)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,8 +59,8 @@ class DashboardFragment : Fragment() {
             else -> binding.allDiscRadioButton.isChecked = true
         }
         when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)) {
-            SpenderViewModel.getSpenderName(0) -> binding.name1RadioButton.isChecked = true
-            SpenderViewModel.getSpenderName(1) -> binding.name2RadioButton.isChecked = true
+            "0" -> binding.name1RadioButton.isChecked = true
+            "1" -> binding.name2RadioButton.isChecked = true
             else -> binding.whoAllRadioButton.isChecked = true
         }
         when (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD)) {
@@ -159,13 +150,13 @@ class DashboardFragment : Fragment() {
         binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
                 R.id.name1RadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(0, true)?.name.toString())
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "0")
                     setActionBarTitle()
                     startLoadData(currentBudgetMonth)
                     // do something when radio button 1 is selected
                 }
                 R.id.name2RadioButton -> {
-                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, SpenderViewModel.getSpender(1, true)?.name.toString())
+                    DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_DASHBOARD, "1")
                     setActionBarTitle()
                     startLoadData(currentBudgetMonth)
                 }
@@ -610,7 +601,7 @@ class DashboardFragment : Fragment() {
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD) != "")
             currentFilterIndicator = " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD).substring(0,5)
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD) != "")
-            currentFilterIndicator = currentFilterIndicator + " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)
+            currentFilterIndicator = currentFilterIndicator + " " + SpenderViewModel.getSpenderName(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt())
         if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "All-Time")
             binding.dashboardTitle.text = "Dashboard (All-Time" + currentFilterIndicator + ")"
         else if (currentBudgetMonth.month == 0)
@@ -684,6 +675,12 @@ class DashboardRows {
         val data: MutableList<DashboardData> = mutableListOf()
         val startDate: String
         val endDate: String
+        var boughtForFlag = 0
+        when (iBoughtForFlag) {
+            "0" -> boughtForFlag = 0
+            "1" -> boughtForFlag = 1
+            else -> boughtForFlag = -1
+        }
         if (iViewPeriod == "All-Time") {
             startDate = "0000-00-00"
             endDate = "9999-99-99"
@@ -720,12 +717,12 @@ class DashboardRows {
                 ) else ""
                 if (expenditure.type != "Transfer") {
                     if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
-                            if (iBoughtForFlag == "" || expenditure.boughtfor == iBoughtForFlag || expenditure.boughtfor == "Joint") {
+                            if (boughtForFlag == -1 || expenditure.boughtfor == boughtForFlag || expenditure.boughtfor == 2) {
                                 // this is a transaction to add to our subtotal
                                 var multiplier = 1.0
-                                if (iBoughtForFlag != "") {
-                                    multiplier = if (expenditure.boughtfor == "Joint" || expenditure.boughtfor == iBoughtForFlag) {
-                                        if (SpenderViewModel.getSpenderName(0) == iBoughtForFlag)
+                                if (boughtForFlag != -1) {
+                                    multiplier = if (expenditure.boughtfor == 2 || expenditure.boughtfor == boughtForFlag) {
+                                        if (boughtForFlag == 0)
                                             expenditure.bfname1split.toDouble() / 100
                                         else
                                             expenditure.bfname2split.toDouble() / 100
@@ -777,10 +774,10 @@ class DashboardRows {
             }
         }
         // add budget amounts
-        var whoToLookup = iBoughtForFlag
-        if (whoToLookup == "") {
+        var whoToLookup = boughtForFlag
+        if (whoToLookup == -1) {
             if (SpenderViewModel.singleUser())
-                whoToLookup = SpenderViewModel.getSpenderName(0)
+                whoToLookup = 0
  //           else
  //               whoToLookup = "Joint"
         }
@@ -862,7 +859,7 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            val horizontalScroll = Math.abs(distanceY) <= Math.abs(distanceX)
+            val horizontalScroll = abs(distanceY) <= abs(distanceX)
             if (horizontalScroll) {
                 Log.d("Alex", "scrolling horizontally $distanceX")
                 if (distanceX > 0)

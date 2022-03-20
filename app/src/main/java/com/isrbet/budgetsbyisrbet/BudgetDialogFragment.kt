@@ -39,20 +39,20 @@ class BudgetDialogFragment : DialogFragment() {
         private const val KEY_OCCURENCE_VALUE = "KEY_OCCURENCE_VALUE"
         private var oldYear: Int = 0
         private var oldMonth: Int = 0
-        private var oldWho: String = ""
+        private var oldWho: Int = -1
         private var oldAmount: Double = 0.0
         private var oldOccurence: Int = -1
 
         fun newInstance(
             fullCategory: Category,
-            year: Int, month: Int, who: String, amount: Double, occurence: Int
+            year: Int, month: Int, who: Int, amount: Double, occurence: Int
         ): BudgetDialogFragment {
             val args = Bundle()
             args.putString(KEY_CATEGORY, fullCategory.categoryName)
             args.putString(KEY_SUBCATEGORY, fullCategory.subcategoryName)
             args.putString(KEY_YEAR_VALUE, year.toString())
             args.putString(KEY_MONTH_VALUE, month.toString())
-            args.putString(KEY_WHO_VALUE, who)
+            args.putString(KEY_WHO_VALUE, who.toString())
             args.putString(KEY_AMOUNT_VALUE, amount.toString())
             args.putString(KEY_OCCURENCE_VALUE, occurence.toString())
             val fragment = BudgetDialogFragment()
@@ -83,7 +83,7 @@ class BudgetDialogFragment : DialogFragment() {
 
         var ctr = 200
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -92,7 +92,7 @@ class BudgetDialogFragment : DialogFragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             binding.budgetDialogNewWhoRadioGroup.addView(newRadioButton)
-            if (spender?.name == oldWho) {
+            if (oldWho == i) {
                 binding.budgetDialogNewWhoRadioGroup.check(newRadioButton.id)
             }
         }
@@ -195,12 +195,12 @@ class BudgetDialogFragment : DialogFragment() {
                 Log.d("Alex", "need to save new values")
                 val tmpDouble1: Double = binding.budgetDialogNewAmount.text.toString().toDouble()
 
-                var newWho = ""
+                var newWho = -1
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
                     val o = binding.budgetDialogNewWhoRadioGroup.getChildAt(i)
                     if (o is RadioButton)
                         if (o.isChecked)
-                            newWho = o.text.toString()
+                            newWho = SpenderViewModel.getSpenderIndex(o.text.toString())
                 }
                 Log.d("Alex", "oldwho is $oldWho and newwho is $newWho")
                 var newOccurence = ""
@@ -313,6 +313,7 @@ class BudgetDialogFragment : DialogFragment() {
                         }
 
                         override fun onCancelled(dataSnapshot: DatabaseError) {
+                            MyApplication.displayToast("User authorization failed 103.")
                         }
                     }
                     val monthToUse: Int = if (binding.budgetDialogMonth.text.toString() == "")
@@ -328,7 +329,7 @@ class BudgetDialogFragment : DialogFragment() {
                                     monthToUse
                                 ).toString()
                             )
-                            .child(newWho)
+                            .child(newWho.toString())
                     dbRef.addListenerForSingleValueEvent(budgetListener)
                 }
             }

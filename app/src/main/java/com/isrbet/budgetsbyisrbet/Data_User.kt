@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -59,8 +60,12 @@ class UserViewModel : ViewModel() {
                         for (child in element.children) {
                             if (child.key.toString() == "Info") {
                                 for ( nChild in child.children) {
-                                    if (nChild.key.toString() == "Email")
-                                        email = nChild.value.toString()
+                                    if (nChild.key.toString().toInt() == SpenderViewModel.myIndex()) {
+                                        for (pChild in nChild.children) {
+                                            if (pChild.key.toString() == "Email")
+                                                email = pChild.value.toString()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -71,7 +76,7 @@ class UserViewModel : ViewModel() {
 
                 override fun onCancelled(databaseError: DatabaseError) {
                     // Getting Post failed, log a message
-                    Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                    MyApplication.displayToast("User authorization failed 101.")
                 }
             }
             MyApplication.database.getReference("Users").addValueEventListener(singleInstance.userListener)

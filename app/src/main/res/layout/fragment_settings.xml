@@ -11,23 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
+        android:layout_alignParentTop="true"
         android:layout_above="@id/expansion_layout">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Primary User: "
-                android:gravity="start"
-                android:layout_gravity="center_vertical"
-                android:paddingTop="5dp"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -38,8 +27,8 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:hint="User name"
+                    android:minWidth="150dp"
+                    android:hint="Primary user name"
                     app:endIconMode="clear_text"
                     tools:ignore="HardcodedText">
                     <com.google.android.material.textfield.TextInputEditText
@@ -48,7 +37,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:text="Alex temp"
                         android:inputType="textCapWords" />
                 </com.google.android.material.textfield.TextInputLayout>
                 <TextView
@@ -60,20 +48,9 @@
                     android:paddingEnd="5dp"
                     android:layout_gravity="center_vertical"/>
             </LinearLayout>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15dp"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:paddingBottom="10dp"/>
-
             <LinearLayout
+                android:id="@+id/switch_second_user_layout"
                 android:layout_width="match_parent"
-                android:paddingTop="5dp"
                 android:layout_height="wrap_content">
                 <TextView
                     android:layout_width="wrap_content"
@@ -81,7 +58,7 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Second User Active?  "
+                    android:text="Authorize second user?  "
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText">
@@ -96,6 +73,50 @@
                     tools:ignore="HardcodedText" />
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/switch_join_other_user_layout"
+                android:layout_width="match_parent"
+                android:paddingTop="5dp"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:text="Join other user?  "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText">
+                </TextView>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_join_other_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textOn="On"
+                    android:textOff="Off"
+                    tools:ignore="HardcodedText" />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/uidLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:minWidth="@dimen/custom_max_width"
+                    android:hint="Enter authorization key"
+                    app:endIconMode="clear_text"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/join_uid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/secondUserLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -106,7 +127,7 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:minWidth="@dimen/custom_med_width"
+                    android:minWidth="150dp"
                     android:hint="Second user name"
                     app:endIconMode="clear_text"
                     tools:ignore="HardcodedText">
@@ -119,19 +140,137 @@
                         android:inputType="textCapWords" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/secondUserEmail"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/secondUserEmailLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="start"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:minWidth="@dimen/custom_med_width"
+                    android:hint="Second user email"
+                    app:endIconMode="clear_text"
+                    tools:ignore="HardcodedText">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/secondUserEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="textEmailAddress" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+            <LinearLayout
+                android:id="@+id/shareUIDLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:orientation="vertical"
+                android:visibility="invisible">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:text="Share this authorization key with second user: "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/authorization_key"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:paddingStart="5dp"
+                        android:layout_weight="1"
+                        android:paddingEnd="5dp"
+                        android:textSize="16sp"
+                        tools:ignore="HardcodedText"/>
+                    <ImageButton
+                        android:id="@+id/copyButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:background="@color/white"
+                        android:layout_gravity="start"
+                        android:src="@drawable/ic_baseline_content_copy_24"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/switch_disconnect_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:text="Disconnect from primary user?  "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText">
+                </TextView>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_disconnect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textOn="On"
+                    android:textOff="Off"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_gravity="center">
+                <Button
+                    android:id="@+id/settings_cancel_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="Cancel"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText" />
+                <Button
+                    android:id="@+id/settings_save_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Save User Changes"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText">
+                </Button>
+            </LinearLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@android:color/darker_gray"
+                android:paddingBottom="10dp"/>
+
             <LinearLayout
                 android:id="@+id/spender_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="5dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -155,15 +294,15 @@
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/split_slider_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="start"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
                     android:text=" Default Split: "
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -238,16 +377,6 @@
                     android:layout_gravity="center_vertical"
                     android:textSize="16sp"/>
             </LinearLayout>
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="10dp"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:paddingBottom="10dp"/>
-
             <LinearLayout
                 android:id="@+id/settings_category_spinner_layout"
                 android:layout_width="wrap_content"
@@ -306,6 +435,7 @@
                 android:paddingBottom="10dp"/>
 
             <LinearLayout
+                android:id="@+id/settings_integration_with_td_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
@@ -345,7 +475,7 @@
                 </TextView>
                 <ImageButton
                     android:id="@+id/button_edit_translations"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="1"
@@ -354,7 +484,9 @@
                     android:gravity="center"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:src="@drawable/ic_baseline_edit_24" />
+                    android:src="@drawable/ic_baseline_edit_24"
+                    android:contentDescription="Edit translations"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
 
             <Space
@@ -367,6 +499,7 @@
                 android:paddingBottom="10dp"/>
 
             <LinearLayout
+                android:id="@+id/settings_sound_effects_layout"
                 android:layout_width="match_parent"
                 android:paddingTop="5dp"
                 android:layout_height="wrap_content">
@@ -392,8 +525,8 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/settings_quote_layout"
                 android:layout_width="match_parent"
-                android:paddingTop="5dp"
                 android:layout_height="wrap_content">
                 <TextView
                     android:layout_width="wrap_content"
@@ -425,6 +558,7 @@
                 android:paddingBottom="10dp"/>
 
             <LinearLayout
+                android:id="@+id/settings_red_percentage_layout"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -476,21 +610,6 @@
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
                     android:paddingBottom="10dp"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:layout_gravity="center">
-                <Button
-                    android:id="@+id/settings_save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Save"
-                    tools:ignore="HardcodedText">
-                </Button>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
