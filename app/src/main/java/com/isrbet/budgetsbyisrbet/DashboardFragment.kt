@@ -2,9 +2,10 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
-import android.graphics.Typeface
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.icu.text.DecimalFormat
+import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
@@ -14,7 +15,6 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -46,12 +46,10 @@ class DashboardFragment : Fragment() {
 
         if (currentBudgetMonth.year == 0) {
             val dateNow = Calendar.getInstance()
-            if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
-                currentBudgetMonth =
-                    BudgetMonth(dateNow.get(Calendar.YEAR), 0)
+            currentBudgetMonth = if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
+                BudgetMonth(dateNow.get(Calendar.YEAR), 0)
             else
-                currentBudgetMonth =
-                    BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+                BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
         }
         when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD)) {
             cDiscTypeDiscretionary -> binding.discRadioButton.isChecked = true
@@ -277,12 +275,10 @@ class DashboardFragment : Fragment() {
             TableRow.LayoutParams.WRAP_CONTENT
         )
         tv1.gravity = if (iRowType == "Detail") Gravity.START else Gravity.END
-        tv1.setPadding(5, 15, 0, 15)
+        tv1.setPadding(10, 15, 0, 15)
         if (iRowType == "Header") {
             tv1.text = ""
-            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             when (iRowType) {
                 "Detail" -> tv1.text = iSubcategory
                 "Sub-total" -> tv1.text = "$iCategory Total"
@@ -306,10 +302,8 @@ class DashboardFragment : Fragment() {
         }
         if (iRowType == "Header") {
             tv2.text = "Disc"
-            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
             tv2.tooltipText = "Indicates whether this budget item is Discretionary (D), or not (ND)."
         } else {
-            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             tv2.text = iDiscFlag
         }
         val tv3 = TextView(requireContext())
@@ -328,9 +322,7 @@ class DashboardFragment : Fragment() {
         tv3.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv3.text = "Budget"
-            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType == "Delta" && iBudgetAmount == 0.0)
                 tv3.text = ""
             else
@@ -352,9 +344,7 @@ class DashboardFragment : Fragment() {
         tv4.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv4.text = "Actual"
-            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType == "Delta" && iActualAmount == 0.0)
                 tv4.text = ""
             else
@@ -376,9 +366,7 @@ class DashboardFragment : Fragment() {
         tv5.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv5.text = "Delta"
-            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnSecondary, Color.BLACK))
         } else {
-            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK))
             if (iRowType != "Delta") {
                 if (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD) == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
@@ -403,14 +391,22 @@ class DashboardFragment : Fragment() {
             TableLayout.LayoutParams.MATCH_PARENT,
             TableLayout.LayoutParams.WRAP_CONTENT
         )
-        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, bottomRowMargin)
-        tr.setPadding(0, 0, 0, 0)
+        if (iRowType == "Sub-total")
+            trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, 20)
+        else
+            trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, bottomRowMargin)
+        tr.setPadding(10, 0, 0, 0)
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
-            tv5.setBackgroundColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, false))
-            val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
-            if (diff.compareTo(BigDecimal(0)) == 0)
-                tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+            tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+            tr.setBackgroundResource(R.drawable.row_left_border)
+            if (Build.VERSION.SDK_INT >= 29) {
+                val cat = DefaultsViewModel.getCategoryDetail(iCategory)
+                if (cat != null)
+                    tr.background.colorFilter =
+                        BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+//                tr.background.colorFilter = BlendModeColorFilter(Color.parseColor("#123456"), BlendMode.SRC_ATOP)
+            }
         }
         else if (iRowType == "Header") {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -418,11 +414,6 @@ class DashboardFragment : Fragment() {
             tv3.setTypeface(null, Typeface.BOLD)
             tv4.setTypeface(null, Typeface.BOLD)
             tv5.setTypeface(null, Typeface.BOLD)
-            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
         }
         else if (iRowType == "Sub-total") {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -431,12 +422,15 @@ class DashboardFragment : Fragment() {
             tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
-            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK), "1F")
-            tv2.setBackgroundColor(Color.parseColor(hexColor))
-            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
-            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorOnPrimary, Color.BLACK))
+            tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+            tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
+            if (Build.VERSION.SDK_INT >= 29) {
+                val cat = DefaultsViewModel.getCategoryDetail(iCategory)
+                if (cat != null)
+                    tr.background.colorFilter =
+                        BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+//                tr.background.colorFilter = BlendModeColorFilter(Color.parseColor("#123456"), BlendMode.SRC_ATOP)
+            }
         }
         else if (iRowType == "Grand total") {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -445,21 +439,14 @@ class DashboardFragment : Fragment() {
             tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
-            tv1.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
-            tv2.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
-            tv3.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
-            tv4.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
-            tv5.setBackgroundColor(MaterialColors.getColor(requireContext(), R.attr.colorSecondaryVariant, Color.BLACK))
+            tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
         } else if (iRowType == "Delta") {
             if (tv3.text != "") {
+                tv3.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
                 tv1.text = "Under Budget"
-                if (inDarkMode(requireContext()))
-                    tv3.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.darkGreen))
-                else
-                    tv3.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
             } else if (tv4.text != "") {
+                tv4.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
                 tv1.text = "Over Budget"
-                tv4.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
             }
         }
         tr.addView(tv0)
@@ -602,16 +589,17 @@ class DashboardFragment : Fragment() {
             currentFilterIndicator = " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD).substring(0,5)
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD) != "")
             currentFilterIndicator = currentFilterIndicator + " " + SpenderViewModel.getSpenderName(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt())
-        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "All-Time")
-            binding.dashboardTitle.text = "Dashboard (All-Time" + currentFilterIndicator + ")"
-        else if (currentBudgetMonth.month == 0)
-            binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
-        else {
-            binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month - 1] +
+        when {
+            DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "All-Time" -> binding.dashboardTitle.text =
+                "Dashboard (All-Time$currentFilterIndicator)"
+            currentBudgetMonth.month == 0 -> binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
+            else -> {
+                binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month - 1] +
                         " " + currentBudgetMonth.year
-            if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "YTD")
-                binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + " YTD"
-            binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + currentFilterIndicator + ")"
+                if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "YTD")
+                    binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + " YTD"
+                binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + currentFilterIndicator + ")"
+            }
         }
     }
 
@@ -657,11 +645,13 @@ class DashboardFragment : Fragment() {
 
 
 class DashboardData {
+    var categoryID = 0
     var category = ""
     var subcategory = ""
     var discIndicator = ""
     var budgetAmount: Double = 0.0
     var actualAmount: Double = 0.0
+    var priority = 0
 }
 
 class DashboardRows {
@@ -675,11 +665,10 @@ class DashboardRows {
         val data: MutableList<DashboardData> = mutableListOf()
         val startDate: String
         val endDate: String
-        var boughtForFlag = 0
-        when (iBoughtForFlag) {
-            "0" -> boughtForFlag = 0
-            "1" -> boughtForFlag = 1
-            else -> boughtForFlag = -1
+        val boughtForFlag = when (iBoughtForFlag) {
+            "0" -> 0
+            "1" -> 1
+            else -> -1
         }
         if (iViewPeriod == "All-Time") {
             startDate = "0000-00-00"
@@ -711,10 +700,7 @@ class DashboardRows {
         for (i in 0 until ExpenditureViewModel.getCount()) {
             val expenditure = ExpenditureViewModel.getExpenditure(i)
             if (expenditure.date > startDate && expenditure.date < endDate) {
-                val expDiscIndicator = if (iDiscFlag != "") CategoryViewModel.getDiscretionaryIndicator(
-                    expenditure.category,
-                    expenditure.subcategory
-                ) else ""
+                val expDiscIndicator = CategoryViewModel.getCategory(expenditure.category)?.discType
                 if (expenditure.type != "Transfer") {
                     if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
                             if (boughtForFlag == -1 || expenditure.boughtfor == boughtForFlag || expenditure.boughtfor == 2) {
@@ -725,16 +711,21 @@ class DashboardRows {
                                         if (boughtForFlag == 0)
                                             expenditure.bfname1split.toDouble() / 100
                                         else
-                                            expenditure.bfname2split.toDouble() / 100
+                                            expenditure.getSplit2().toDouble() / 100
                                     } else
                                         0.0
                                 }
                                 val bdRow: DashboardData? =
-                                    data.find { it.category == expenditure.category && it.subcategory == expenditure.subcategory }
+                                    data.find { it.categoryID == expenditure.category }
                                 if (bdRow == null) {
                                     val row = DashboardData()
-                                    row.category = expenditure.category
-                                    row.subcategory = expenditure.subcategory
+                                    row.categoryID = expenditure.category
+                                    row.category = CategoryViewModel.getCategory(expenditure.category)?.categoryName.toString()
+                                    row.subcategory = CategoryViewModel.getCategory(expenditure.category)?.subcategoryName.toString()
+                                    row.priority = DefaultsViewModel.getCategoryDetail(row.category)?.priority ?: 99
+                                    if (CategoryViewModel.getCategory(expenditure.category) == null) {
+                                        Log.d("Alex", "Found null for exp ${expenditure.mykey}")
+                                    }
                                     row.discIndicator =
                                         if (expDiscIndicator == cDiscTypeDiscretionary) "D" else "ND"
                                     row.actualAmount =
@@ -766,7 +757,7 @@ class DashboardRows {
                 row.subcategory =
                     tBudgetCategories[i].substring(dash + 1, tBudgetCategories[i].length)
                 row.discIndicator =
-                    if (CategoryViewModel.getDiscretionaryIndicator(row.category, row.subcategory)
+                    if (CategoryViewModel.getCategory(row.categoryID)?.discType
                         == cDiscTypeDiscretionary
                     ) "D" else "ND"
                 row.actualAmount = 0.0
@@ -793,7 +784,7 @@ class DashboardRows {
                 for (i in earliestYear until lastAnnualYear+1) {
                     it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
                         BudgetMonth(i, 0),
-                        Category(it.category, it.subcategory),
+                        it.categoryID,
                         whoToLookup
                     )
                 }
@@ -805,7 +796,7 @@ class DashboardRows {
                                 iBudgetMonth.year,
                                 i
                             ),
-                            Category(it.category, it.subcategory),
+                            it.categoryID,
                             whoToLookup
                         )
                     }
@@ -817,18 +808,18 @@ class DashboardRows {
                             iBudgetMonth.year,
                             i
                         ),
-                        Category(it.category, it.subcategory),
+                        it.categoryID,
                         whoToLookup)
                 }
             } else
                 it.budgetAmount = BudgetViewModel.getCalculatedBudgetAmount(
                     iBudgetMonth,
-                    Category(it.category, it.subcategory),
+                    it.categoryID,
                     whoToLookup
                 )
         }
 
-        data.sortWith(compareBy({ it.category }, { it.subcategory }))
+        data.sortWith(compareBy({ it.priority }, { it.category }, { it.subcategory }))
         return data
     }
 }
@@ -840,10 +831,10 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
     private var rightSwipeCallback: DataUpdatedCallback? = null
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         Log.d("Alex", "mGestureDetector is $mGestureDetector")
-        if (!mGestureDetector.onTouchEvent(ev))
-            return super.onInterceptTouchEvent(ev)
+        return if (!mGestureDetector.onTouchEvent(ev))
+            super.onInterceptTouchEvent(ev)
         else
-            return true
+            true
     }
     fun setLeftSwipeCallback(iCallback: DataUpdatedCallback?) {
         leftSwipeCallback = iCallback
@@ -860,15 +851,15 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
             distanceY: Float
         ): Boolean {
             val horizontalScroll = abs(distanceY) <= abs(distanceX)
-            if (horizontalScroll) {
+            return if (horizontalScroll) {
                 Log.d("Alex", "scrolling horizontally $distanceX")
                 if (distanceX > 0)
                     leftSwipeCallback?.onDataUpdate()
                 else
                     rightSwipeCallback?.onDataUpdate()
-                return true
+                true
             } else
-                return false
+                false
         }
     }
 

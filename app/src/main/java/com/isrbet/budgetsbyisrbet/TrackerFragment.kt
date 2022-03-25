@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.RadioButton
@@ -102,10 +101,10 @@ class TrackerFragment : Fragment() {
 //            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
     }
-    fun moveOneMonthBackward() {
+    private fun moveOneMonthBackward() {
 
     }
-    fun moveOneMonthForward() {
+    private fun moveOneMonthForward() {
 
     }
     private fun setActionBarTitle() {
@@ -117,6 +116,7 @@ class TrackerFragment : Fragment() {
                 "Tracker (" + MonthNames[currentBudgetMonth.month-1] + " " + currentBudgetMonth.year  + ")"
     }
 
+    @SuppressLint("SetTextI18n")
     fun setPieGraphNumericStyle(pieChart: PieChart, iStyle: String) {
         val dateNow = android.icu.util.Calendar.getInstance()
         when (iStyle) {
@@ -293,30 +293,29 @@ class TrackerFragment : Fragment() {
         )
         val showRed = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
 
-        if (totalDiscActualsToDate > (totalDiscBudgetToDate * (1 + showRed / 100)))
-            tList.add(
+        when {
+            totalDiscActualsToDate > (totalDiscBudgetToDate * (1 + showRed / 100)) -> tList.add(
                 DataObject(
                     "Actuals",
                     totalDiscActualsToDate,
                     ContextCompat.getColor(requireContext(), R.color.red)
                 )
             )
-        else if (totalDiscActualsToDate > totalDiscBudgetToDate)
-            tList.add(
+            totalDiscActualsToDate > totalDiscBudgetToDate -> tList.add(
                 DataObject(
                     "Actuals",
                     totalDiscActualsToDate,
                     ContextCompat.getColor(requireContext(), R.color.yellow)
                 )
             )
-        else
-            tList.add(
+            else -> tList.add(
                 DataObject(
                     "Actuals",
                     totalDiscActualsToDate,
                     ContextCompat.getColor(requireContext(), R.color.green)
                 )
             )
+        }
         if (totalDiscActualsToDate > totalDiscBudget)
             binding.chartSummaryText.text = "You are over your discretionary budget this month."
         else {
@@ -402,8 +401,8 @@ class TrackerFragment : Fragment() {
         val pieDataSet = PieDataSet(pieEntries, label)
         //providing color list for coloring different entries
         pieDataSet.colors = colors
-        pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
-        pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
+        pieDataSet.xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        pieDataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
         pieDataSet.valueTextColor = Color.BLACK
         return pieDataSet
     }
@@ -433,8 +432,8 @@ class TrackerFragment : Fragment() {
         val pieDataSet = PieDataSet(pieEntries, label)
         //providing color list for coloring different entries
         pieDataSet.colors = colors
-        pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
-        pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
+        pieDataSet.xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        pieDataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
         pieDataSet.valueTextColor = Color.BLACK
         return pieDataSet
     }
@@ -442,16 +441,16 @@ class TrackerFragment : Fragment() {
         //using percentage as values instead of amount
         pieChart.setUsePercentValues(true)
         //remove the description label on the lower left corner, default true if not set
-        pieChart.getDescription().setEnabled(true)
+        pieChart.description.isEnabled = true
         pieChart.description.textSize = 16F
         //enabling the user to rotate the chart, default true
-        pieChart.setRotationEnabled(false)
+        pieChart.isRotationEnabled = false
         //adding friction when rotating the pie chart
-        pieChart.setDragDecelerationFrictionCoef(0.9f)
+        pieChart.dragDecelerationFrictionCoef = 0.9f
         //setting the first entry start from right hand side, default starting from top
-        pieChart.setRotationAngle(0F)
+        pieChart.rotationAngle = 0F
         //highlight the entry when it is tapped, default true if not set
-        pieChart.setHighlightPerTapEnabled(true)
+        pieChart.isHighlightPerTapEnabled = true
         //adding animation so the entries pop up from 0 degree
         pieChart.animateY(1400, Easing.EaseInOutQuad)
         //setting the color of the hole in the middle, default white
@@ -468,7 +467,7 @@ class TrackerFragment : Fragment() {
         //showing the value of the entries, default true if not set
         val pieData = PieData(pieDataSet)
         pieData.setDrawValues(true)
-        pieChart.setData(pieData)
+        pieChart.data = pieData
         pieChart.description.text = ""
 //        pieChart.centerText = iDescription
 //        pieChart.setCenterTextSize(14F)

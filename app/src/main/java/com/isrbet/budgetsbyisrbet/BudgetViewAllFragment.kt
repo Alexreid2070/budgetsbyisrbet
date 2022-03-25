@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
@@ -17,6 +18,7 @@ class BudgetViewAllFragment : Fragment() {
     private var _binding: FragmentBudgetViewAllBinding? = null
     private val binding get() = _binding!!
     private var currentFilter: String = cCONDENSED
+    private val args: BudgetViewAllFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,40 +61,46 @@ class BudgetViewAllFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.AddBudget) {
-            val currentCategory = Category(binding.budgetCategorySpinner.selectedItem.toString())
-            val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
-            action.category = currentCategory.categoryName
-            action.subcategory = currentCategory.subcategoryName
-            findNavController().navigate(action)
+        val currentCategory = Category(0,binding.budgetCategorySpinner.selectedItem.toString())
+        when (item.itemId) {
+            R.id.AddBudget -> {
+                val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
+                action.categoryID = currentCategory.id.toString()
+                findNavController().navigate(action)
 
-//            findNavController().navigate(R.id.action_BudgetViewAllFragment_to_BudgetFragment)
-            return true
-        } else if (item.itemId == R.id.FilterExpanded) {
-            if (currentFilter != cEXPANDED) {
-                item.isChecked = true
-                currentFilter = cEXPANDED
+    //            findNavController().navigate(R.id.action_BudgetViewAllFragment_to_BudgetFragment)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            loadRows(Category(binding.budgetCategorySpinner.selectedItem.toString()))
-            return true
-        } else if (item.itemId == R.id.FilterCondensed) {
-            if (currentFilter != cCONDENSED) {
-                item.isChecked = true
-                currentFilter = cCONDENSED
+            R.id.FilterExpanded -> {
+                if (currentFilter != cEXPANDED) {
+                    item.isChecked = true
+                    currentFilter = cEXPANDED
+                }
+                activity?.invalidateOptionsMenu()
+                loadRows(currentCategory.id)
+                return true
             }
-            activity?.invalidateOptionsMenu()
-            loadRows(Category(binding.budgetCategorySpinner.selectedItem.toString()))
-            return true
-        } else if (item.itemId == R.id.Previous) {
-            moveCategories(-1)
-            return true
-        } else if (item.itemId == R.id.Next) {
-            moveCategories(1)
-            return true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            R.id.FilterCondensed -> {
+                if (currentFilter != cCONDENSED) {
+                    item.isChecked = true
+                    currentFilter = cCONDENSED
+                }
+                activity?.invalidateOptionsMenu()
+                loadRows(currentCategory.id)
+                return true
+            }
+            R.id.Previous -> {
+                moveCategories(-1)
+                return true
+            }
+            R.id.Next -> {
+                moveCategories(1)
+                return true
+            }
+            else -> {
+                val navController = findNavController()
+                return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            }
         }
     }
 
@@ -106,7 +114,13 @@ class BudgetViewAllFragment : Fragment() {
         arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
-
+        if (args.categoryID != "") {
+            categorySpinner.setSelection(
+                arrayAdapter.getPosition(
+                    CategoryViewModel.getCategory(args.categoryID.toInt())?.fullCategoryName()
+                )
+            )
+        }
         categorySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
@@ -114,7 +128,8 @@ class BudgetViewAllFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
                 setCategoryType()
-                loadRows(Category(selection as String))
+                val currentCategory = Category(0,selection as String)
+                loadRows(currentCategory.id)
                 val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
                 Log.d("Alex", "scrolling to " + (listView.adapter.count-1))
                 listView.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
@@ -135,10 +150,9 @@ class BudgetViewAllFragment : Fragment() {
             findNavController().navigate(R.id.RecurringTransactionFragment)
         }
         binding.budgetAddFab.setOnClickListener {
-            val currentCategory = Category(binding.budgetCategorySpinner.selectedItem.toString())
+            val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
             val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
-            action.category = currentCategory.categoryName
-            action.subcategory = currentCategory.subcategoryName
+            action.categoryID = currentCategory.id.toString()
             findNavController().navigate(action)
         }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
@@ -150,13 +164,12 @@ class BudgetViewAllFragment : Fragment() {
     }
 
     fun setCategoryType() {
-        val category = Category(binding.budgetCategorySpinner.selectedItem.toString())
-        binding.categoryType.text = CategoryViewModel.getDiscretionaryIndicator(
-            category.categoryName, category.subcategoryName)
+        val category = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
+        binding.categoryType.text = CategoryViewModel.getCategory(category.id)?.discType
     }
 
-    fun loadRows(iCategory: Category) {
-        val adapter = BudgetAdapter(requireContext(), BudgetViewModel.getBudgetInputRows(iCategory, currentFilter))
+    fun loadRows(iCategoryID: Int) {
+        val adapter = BudgetAdapter(requireContext(), BudgetViewModel.getBudgetInputRows(iCategoryID, currentFilter))
         val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
         listView.adapter = adapter
 
@@ -171,12 +184,14 @@ class BudgetViewAllFragment : Fragment() {
                     var monthToSend: Int = bmDateApplicable.month
                     if (bmDateStarted.isAnnualBudget())
                         monthToSend = 0
-                    val amountToSend = if (monthToSend == 0)
+                    val amountToSend =  itemValue.amount.toDouble()
+/*                        if (monthToSend == 0)
                         itemValue.amount.toDouble() * 12
                     else
-                        itemValue.amount.toDouble()
+                        itemValue.amount.toDouble() */
+                    val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
                     val rtdf = BudgetDialogFragment.newInstance(
-                        Category(binding.budgetCategorySpinner.selectedItem.toString()),
+                        currentCategory.id,
                         bmDateApplicable.year,
                         monthToSend,
                         itemValue.who,
@@ -189,7 +204,7 @@ class BudgetViewAllFragment : Fragment() {
                             Log.d("Alex", "in onNewDataSaved")
                             val tadapter = BudgetAdapter(
                                 requireContext(),
-                                BudgetViewModel.getBudgetInputRows(iCategory, currentFilter)
+                                BudgetViewModel.getBudgetInputRows(iCategoryID, currentFilter)
                             )
                             listView.adapter = tadapter
                             tadapter.notifyDataSetChanged()
@@ -219,7 +234,8 @@ class BudgetViewAllFragment : Fragment() {
         }
         val newCategory = binding.budgetCategorySpinner.getItemAtPosition(newCategoryPosition)
         binding.budgetCategorySpinner.setSelection(newCategoryPosition)
-        loadRows(Category(newCategory.toString()))
+        val currentCategory = Category(0, newCategory.toString())
+        loadRows(currentCategory.id)
     }
 
     override fun onDestroyView() {

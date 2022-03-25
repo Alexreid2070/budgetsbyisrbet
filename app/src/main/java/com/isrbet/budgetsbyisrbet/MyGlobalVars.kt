@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.text.TextUtils
@@ -18,7 +19,9 @@ import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -47,6 +50,7 @@ const val cCONDENSED = "Condensed"
 const val cBUDGET_RECURRING = "Recurring"
 const val cBUDGET_JUST_THIS_MONTH = "Just once"
 const val cFAKING_TD = false
+const val cTRANSFER_CODE = -99
 
 const val january = "Jan"
 const val february = "Feb"
@@ -137,10 +141,10 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         // might get "2022-02-23", or might get "2022-02", or might get "2022-2"
         val dash = period.indexOf("-")
         val dash2 = period.indexOf("-", dash+1)
-        if (dash2 == -1)
-            month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
+        month = if (dash2 == -1)
+            if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
         else {
-            month = if (dash > -1) period.substring(dash + 1, dash2).toInt() else 0
+            if (dash > -1) period.substring(dash + 1, dash2).toInt() else 0
         }
         }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
@@ -208,6 +212,12 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         } else {
             "$year-$month"
         }
+    }
+    fun get2DigitMonth(): String {
+        if (month < 10)
+            return "0$month"
+        else
+            return month.toString()
     }
 }
 
@@ -313,16 +323,16 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
 fun getDaysInMonth(cal: Calendar): Int {
     val month = cal.get(Calendar.MONTH)+1
     val year = cal.get(Calendar.YEAR)
-    if (month == 4 || month == 6 || month == 9 || month == 11) {
-        return 30
+    return if (month == 4 || month == 6 || month == 9 || month == 11) {
+        30
     } else if (month == 2) {
         if (year % 4 == 0)
-            return 29
+            29
         else
-            return 28
+            28
     }
     else
-        return 31
+        31
 }
 
 open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
@@ -398,21 +408,20 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
     val rActual = round(iActual*100)
     val rBudget = round(iBudget*100)
     if (rActual <= rBudget) {
-        val colorToReturn: Int
-        if (iAlwaysShowGreen) {
+        val colorToReturn: Int = if (iAlwaysShowGreen) {
             if (inDarkMode(context))
-                colorToReturn = ContextCompat.getColor(context, R.color.darkGreen)
+                ContextCompat.getColor(context, R.color.darkGreen)
             else
-                colorToReturn = ContextCompat.getColor(context, R.color.green)
+                ContextCompat.getColor(context, R.color.green)
         } else
-            colorToReturn = MaterialColors.getColor(context, R.attr.background, Color.BLACK)
+            MaterialColors.getColor(context, R.attr.background, Color.BLACK)
         return colorToReturn
     } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
         (rBudget == 0.0 && rActual > 0.0)) {
-        if (inDarkMode(context))
-            return ContextCompat.getColor(context, R.color.darkRed)
+        return if (inDarkMode(context))
+            ContextCompat.getColor(context, R.color.darkRed)
         else
-            return ContextCompat.getColor(context, R.color.red)
+            ContextCompat.getColor(context, R.color.red)
     } else {
         return ContextCompat.getColor(context, R.color.orange)  // orange
     }
@@ -440,27 +449,25 @@ fun textIsAlphaOrSpace(string: String): Boolean {
 }
 
 fun textIsSafeForKey(iText: String) : Boolean {
-    if (iText.contains("."))
-        return false
-    else if (iText.contains("#"))
-        return false
-    else if (iText.contains("/"))
-        return false
-    else if (iText.contains("\\"))
-        return false
-    else if (iText.contains("["))
-        return false
-    else if (iText.contains("]"))
-        return false
-    else if (iText.contains("+"))
-        return false
-    else if (iText.contains("$"))
-        return false
-    else return !iText.contains("%")
+    return when {
+        iText.contains(".") -> false
+        iText.contains("#") -> false
+        iText.contains("/") -> false
+        iText.contains("\\") -> false
+        iText.contains("[") -> false
+        iText.contains("]") -> false
+        iText.contains("+") -> false
+        iText.contains("$") -> false
+        else -> !iText.contains("%")
+    }
 }
 
 fun textIsSafeForValue(iText: String) : Boolean {
     return !iText.contains("\\")
+}
+
+fun isNumber(s: String?): Boolean {
+    return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
 }
 
 fun getColorInHex(iColor: Int, iOpacity: String): String {

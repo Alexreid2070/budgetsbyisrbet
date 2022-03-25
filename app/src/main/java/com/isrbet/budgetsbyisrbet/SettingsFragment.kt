@@ -49,7 +49,7 @@ class SettingsFragment : Fragment() {
         if (spenderOne == null)
             binding.settingsFirstUserName.setText(MyApplication.userGivenName)
         else
-            binding.settingsFirstUserName.setText(spenderOne?.name.toString())
+            binding.settingsFirstUserName.setText(spenderOne.name)
         binding.firstUserEmail.text = spenderOne?.email
         if (spenderTwo != null) {
             if (spenderTwo.isActive == 1) {
@@ -59,9 +59,10 @@ class SettingsFragment : Fragment() {
                 binding.secondUserEmail.setText(spenderTwo.email)
                 if (iAmPrimaryUser()) {
                     binding.switchSecondUserLayout.visibility = View.VISIBLE
-                    binding.shareUIDLayout.visibility = View.VISIBLE
-                    binding.authorizationKey.setText(MyApplication.userUID)
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
+                    binding.authorizationKey.text = MyApplication.userUID
+                    if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
+                        binding.shareUIDLayout.visibility = View.VISIBLE
                 } else {
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
                     binding.switchSecondUserLayout.visibility = View.GONE
@@ -115,7 +116,7 @@ class SettingsFragment : Fragment() {
             newRadioButton.text = spender
             newRadioButton.id = ctr++
             spenderRadioGroup.addView(newRadioButton)
-            if (spender == SpenderViewModel.getDefaultSpender()) {
+            if (spender == SpenderViewModel.getDefaultSpenderName()) {
                 spenderRadioGroup.check(newRadioButton.id)
             }
         }
@@ -129,6 +130,7 @@ class SettingsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         if (binding.switchSecondUserActive.isChecked) {
@@ -292,7 +294,7 @@ class SettingsFragment : Fragment() {
                 binding.spenderLayout.visibility = View.GONE
                 binding.switchSecondUserLayout.visibility = View.VISIBLE
                 binding.shareUIDLayout.visibility = View.VISIBLE
-                binding.authorizationKey.setText(MyApplication.userUID)
+                binding.authorizationKey.text = MyApplication.userUID
                 binding.settingsCategorySpinnerLayout.visibility = View.VISIBLE
                 binding.settingsIntegrationWithTdLayout.visibility = View.VISIBLE
                 if (binding.switchIntegrateWithTD.isChecked) {
@@ -361,6 +363,8 @@ class SettingsFragment : Fragment() {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
                 binding.settingsSaveButton.visibility = View.VISIBLE
                 binding.settingsCancelButton.visibility = View.VISIBLE
+                if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
+                    binding.shareUIDLayout.visibility = View.VISIBLE
             }
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun afterTextChanged(arg0: Editable) {}
@@ -377,16 +381,11 @@ class SettingsFragment : Fragment() {
                     Log.d("Alex", "Changed category to $chosenCategory")
 
                     if (binding.settingsCategorySpinner.selectedItem != null) {
-                        val defaultCategory = Category(binding.settingsCategorySpinner.selectedItem.toString())
-                        if (defaultCategory.categoryName != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY) ||
-                            defaultCategory.subcategoryName != DefaultsViewModel.getDefault(cDEFAULT_SUBCATEGORY)) {
+                        val defaultCategory = Category(0, binding.settingsCategorySpinner.selectedItem.toString())
+                        if (defaultCategory.id.toString() != DefaultsViewModel.getDefault(cDEFAULT_CATEGORY_ID)) {
                             DefaultsViewModel.updateDefault(
-                                cDEFAULT_CATEGORY,
-                                defaultCategory.categoryName
-                            )
-                            DefaultsViewModel.updateDefault(
-                                cDEFAULT_SUBCATEGORY,
-                                defaultCategory.subcategoryName
+                                cDEFAULT_CATEGORY_ID,
+                                defaultCategory.id.toString()
                             )
                             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                         }
@@ -399,7 +398,7 @@ class SettingsFragment : Fragment() {
             val selectedId = binding.defaultSpenderRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             val newSpender = radioButton.text.toString()
-            if (newSpender != SpenderViewModel.getDefaultSpender()) {
+            if (newSpender != SpenderViewModel.getDefaultSpenderName()) {
                 DefaultsViewModel.updateDefault(cDEFAULT_SPENDER, SpenderViewModel.getSpenderIndex(newSpender).toString())
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             }

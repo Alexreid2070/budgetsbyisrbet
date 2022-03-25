@@ -71,7 +71,7 @@
             android:layout_gravity="center"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:text="Category Type: "
+            android:text="Type: "
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -116,6 +116,17 @@
             tools:ignore="HardcodedText" />
 
         <TextView
+            android:id="@+id/row_budget_IsAnnualHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Annual?"
+            android:tooltipText="Is this an annual budget (ie the budget amount is the total for the year and can be used anytime during the year)?  (Blank means no it's not.)"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
             android:id="@+id/row_budget_WhoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -131,19 +142,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Once?"
+            android:text="Occ?"
             android:tooltipText="Is this a single-month budget? (1 means it is single-month, blank means it is recurring)"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/row_budget_IsAnnualHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Annual?"
-            android:tooltipText="Is this an annual budget (ie the budget amount is the total for the year and can be used anytime during the year)?  (Blank means no it's not.)"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />

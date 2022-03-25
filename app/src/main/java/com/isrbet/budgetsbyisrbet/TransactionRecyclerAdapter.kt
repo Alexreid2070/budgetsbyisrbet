@@ -27,6 +27,7 @@ class TransactionRecyclerAdapter(
     private var groupList: MutableList<Int> = mutableListOf()
     private var runningTotalList: MutableList<Double> = mutableListOf()
     var currentTotal = 0.0
+    private var categoryIDFilter = 0
     private var categoryFilter = ""
     private var subcategoryFilter = ""
     private var discretionaryFilter = ""
@@ -89,7 +90,8 @@ class TransactionRecyclerAdapter(
             "Alex",
             "filterTheList prevs are $iConstraint $categoryFilter $subcategoryFilter $discretionaryFilter $paidbyFilter $boughtforFilter $typeFilter"
         )
-        if (iConstraint.isEmpty() && categoryFilter == "" && subcategoryFilter == "" &&
+        if (iConstraint.isEmpty() && categoryIDFilter == 0 &&
+            categoryFilter == "" && subcategoryFilter == "" &&
             discretionaryFilter == "" && paidbyFilter == -1 &&
             boughtforFilter == -1 && typeFilter == "" && !accountingFilter
         ) {
@@ -105,13 +107,13 @@ class TransactionRecyclerAdapter(
                 }
                 if (found) { // ie no sense looking further if search term didn't match
                     if (discretionaryFilter != "") {
-                        subcatDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(
-                            row.category,
-                            row.subcategory
-                        )
+                        subcatDiscIndicator = CategoryViewModel.getCategory(row.category)?.discType.toString()
                     }
-                    found = if ((categoryFilter == "" || row.category == categoryFilter) &&
-                        (subcategoryFilter == "" || row.subcategory == subcategoryFilter) &&
+                    found = if ((categoryIDFilter == 0 || row.category == categoryIDFilter) &&
+                        (categoryFilter == "" ||
+                        CategoryViewModel.getCategory(row.category)?.categoryName == categoryFilter) &&
+                        (subcategoryFilter == "" ||
+                        CategoryViewModel.getCategory(row.category)?.subcategoryName == subcategoryFilter) &&
                         (paidbyFilter == -1 || row.paidby == paidbyFilter) &&
                         (boughtforFilter == -1 || row.boughtfor == boughtforFilter) &&
                         (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter == "Ordinary")) &&
@@ -150,8 +152,8 @@ class TransactionRecyclerAdapter(
         val vtfamount: TextView = view.findViewById(R.id.vtf_amount)
         val vtfpercentage1: TextView = view.findViewById(R.id.vtf_percentage1)
         val vtfpercentage2: TextView = view.findViewById(R.id.vtf_percentage2)
+        val vtfCategoryID: TextView = view.findViewById(R.id.vtf_category_id)
         val vtfcategory: TextView = view.findViewById(R.id.vtf_category)
-        val vtfsubcategory: TextView = view.findViewById(R.id.vtf_subcategory)
         val vtfwho: TextView = view.findViewById(R.id.vtf_who)
         val vtfnote: TextView = view.findViewById(R.id.vtf_note)
         val vtfdisc: TextView = view.findViewById(R.id.vtf_disc)
@@ -161,7 +163,7 @@ class TransactionRecyclerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view =
-            LayoutInflater.from(context).inflate(R.layout.row_transaction_view_all, parent, false)
+            LayoutInflater.from(context).inflate(R.layout.row_transaction, parent, false)
         return ViewHolder(view)
     }
 
@@ -185,8 +187,9 @@ class TransactionRecyclerAdapter(
         val percentage2 = formattedAmount - rounded.toDouble()
         holder.vtfpercentage2.text = dec.format(percentage2)
         holder.vtfrunningtotal.text = dec.format(runningTotalList[position])
-        holder.vtfcategory.text = data.category
-        holder.vtfsubcategory.text = data.subcategory
+        holder.vtfCategoryID.text = data.category.toString()
+        holder.vtfcategory.text = CategoryViewModel.getCategory(data.category)?.categoryName +
+                "-" + CategoryViewModel.getCategory(data.category)?.subcategoryName
         if (data.paidby == data.boughtfor)
             holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
         else
@@ -195,11 +198,7 @@ class TransactionRecyclerAdapter(
                         ":" + SpenderViewModel.getSpenderName(data.boughtfor).subSequence(0, 2)
                     .toString()
         holder.vtfnote.text = data.note
-        if (CategoryViewModel.getDiscretionaryIndicator(
-                data.category,
-                data.subcategory
-            ) == cDiscTypeDiscretionary
-        )
+        if (CategoryViewModel.getCategory(data.category)?.discType == cDiscTypeDiscretionary)
             holder.vtfdisc.text = "D"
         else
             holder.vtfdisc.text = "ND"
@@ -213,7 +212,6 @@ class TransactionRecyclerAdapter(
         }
         if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
             holder.vtfcategory.visibility = View.GONE
-            holder.vtfsubcategory.visibility = View.GONE
         }
         if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
             holder.vtfpercentage1.visibility = View.GONE
@@ -231,6 +229,9 @@ class TransactionRecyclerAdapter(
             holder.vtfrunningtotal.visibility = View.GONE
     }
 
+    fun setCategoryIDFilter(iFilter: Int) {
+        categoryIDFilter = iFilter
+    }
     fun setCategoryFilter(iFilter: String) {
         categoryFilter = iFilter
     }

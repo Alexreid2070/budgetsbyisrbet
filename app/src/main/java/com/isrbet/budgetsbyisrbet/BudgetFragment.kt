@@ -166,7 +166,7 @@ class BudgetFragment : Fragment() {
             binding.budgetAddYear.value,
             if (inAnnualMode) 1 else binding.budgetAddMonth.value
         )
-        prevMonth.decrementMonth()
+//        prevMonth.decrementMonth()
         val whoSelectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
         val whoRadioButton = requireActivity().findViewById(whoSelectedId) as RadioButton
         val whoId = SpenderViewModel.getSpenderIndex(whoRadioButton.text.toString())
@@ -177,13 +177,13 @@ class BudgetFragment : Fragment() {
         val dec = DecimalFormat("#.00")
 
         val toCheckAnnual = BudgetMonth(binding.budgetAddYear.value, 0)
-        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(Category(catText, subCatText),toCheckAnnual, whoId)
+        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(CategoryViewModel.getID(catText, subCatText),toCheckAnnual, whoId)
         if (annualBudget != 0.0) {
             binding.budgetAddPreviousAmount.text = dec.format(annualBudget)
             binding.budgetAddPreviousAmountLabel2.text = " which was set for "
             binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
-            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(Category(catText, subCatText), prevMonth, whoId)
+            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(CategoryViewModel.getID(catText, subCatText), prevMonth, whoId)
             binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
                 binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
@@ -208,10 +208,10 @@ class BudgetFragment : Fragment() {
             startOfPeriod.decrementMonth(1)
             endOfPeriod.decrementMonth(1)
         }
-        binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(Category(catText, subCatText),
+        binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             startOfPeriod, endOfPeriod, whoId))
 
-        val annualActuals = ExpenditureViewModel.getActualsForPeriod(Category(catText, subCatText),
+        val annualActuals = ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             BudgetMonth(
                 binding.budgetAddYear.value - 1,
                 if (inAnnualMode) 1 else binding.budgetAddMonth.value
@@ -248,7 +248,7 @@ class BudgetFragment : Fragment() {
         var somethingChecked = false
         for (i in 0 until radioGroup.childCount) {
             val o = radioGroup.getChildAt(i)
-            if (o is RadioButton && o.text == args.category) {
+            if (o is RadioButton && o.text == args.categoryID) {
                 o.isChecked = true
                 somethingChecked = true
                 addSubCategories(o.text.toString())
@@ -269,9 +269,9 @@ class BudgetFragment : Fragment() {
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
         subCategorySpinner.adapter = arrayAdapter
         arrayAdapter.notifyDataSetChanged()
-        Log.d("Alex", "subcategory is " + args.subcategory + " and position is " + arrayAdapter.getPosition(args.subcategory))
-        if (args.subcategory != "")
-            subCategorySpinner.setSelection(arrayAdapter.getPosition(args.subcategory))
+        Log.d("Alex", "subcategory is " + CategoryViewModel.getCategory(args.categoryID.toInt())?.subcategoryName + " and position is " + arrayAdapter.getPosition(CategoryViewModel.getCategory(args.categoryID.toInt())?.subcategoryName))
+        if (args.categoryID != "")
+            subCategorySpinner.setSelection(arrayAdapter.getPosition(CategoryViewModel.getCategory(args.categoryID.toInt())?.subcategoryName))
     }
 
     private fun loadSpenderRadioButtons() {
@@ -360,7 +360,7 @@ class BudgetFragment : Fragment() {
 
         val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
-        val tempCategory = Category(catRadioButton.text.toString(), binding.budgetAddSubCategorySpinner.selectedItem.toString())
+        val tempCategory = CategoryViewModel.getID(catRadioButton.text.toString(), binding.budgetAddSubCategorySpinner.selectedItem.toString())
         val tempBudget = BudgetViewModel.getBudget(tempCategory)
         if (tempBudget != null) {
             var chosenMonth = 0

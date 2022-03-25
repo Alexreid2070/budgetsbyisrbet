@@ -59,20 +59,17 @@
         </TextView>
 
         <TextView
-            android:id="@+id/vtf_category"
+            android:id="@+id/vtf_category_id"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textAlignment="textEnd"
-            android:ellipsize="end"
-            android:singleLine="true">
+            android:visibility="gone">
         </TextView>
 
         <TextView
-            android:id="@+id/vtf_subcategory"
+            android:id="@+id/vtf_category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:textAlignment="textEnd"
             android:ellipsize="end"
             android:singleLine="true">

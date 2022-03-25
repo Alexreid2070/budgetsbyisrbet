@@ -18,7 +18,7 @@
         <RelativeLayout
             android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             tools:layout_editor_absoluteY="56dp">
@@ -30,14 +30,14 @@
 
                 <TextView
                     android:id="@+id/page_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:paddingBottom="20dp"
                     android:text="Add Expense"
-                    android:textSize="24dp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
@@ -150,6 +150,8 @@
                 android:id="@+id/radioGroupScroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary"
                 android:layout_below="@id/inputCategoryLabel">
 
                 <RadioGroup
@@ -555,7 +557,7 @@
                 <Button
                     android:id="@+id/button_load_transaction_from_tdmyspend"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Load Data From TD MySpend (and delete notification)"
@@ -589,7 +591,9 @@
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_arrow_back_24" />
+            android:contentDescription="Go to previous transaction"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/button_next_transaction"
@@ -602,7 +606,9 @@
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_arrow_forward_24" />
+            android:contentDescription="Go to next transaction"
+            android:src="@drawable/ic_baseline_arrow_forward_24"
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/button_edit"
@@ -615,7 +621,9 @@
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_edit_24" />
+            android:contentDescription="Edit transaction"
+            android:src="@drawable/ic_baseline_edit_24"
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/button_delete"
@@ -628,7 +636,9 @@
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_delete_24" />
+            android:contentDescription="Delete transaction"
+            android:src="@drawable/ic_baseline_delete_24"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

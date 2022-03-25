@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +11,7 @@ import androidx.core.content.ContextCompat
 
 class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapter() {
 
-    private var myData: MutableList<Category> = arrayListOf<Category>()
+    private var myData: MutableList<Category> = arrayListOf()
     private val myContext = context
     init {
         myData = data
@@ -31,22 +32,28 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         return pos.toLong()
     }
 
+    // class for holding the cached view
+    class CategoryViewHolder(view: View) {
+        var vhID: TextView = view.findViewById(R.id.row_category_id)
+        var vhCategory: TextView = view.findViewById(R.id.row_category)
+        var vhDiscType: TextView = view.findViewById(R.id.row_disctype)
+    }
+
+    @SuppressLint("SetTextI18n")
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val rowView = inflater.inflate(R.layout.row_category, parent, false)
-
-        val categoryView = rowView.findViewById(R.id.row_category) as TextView
-        val subcategoryView = rowView.findViewById(R.id.row_subcategory) as TextView
-        val discTypeView = rowView.findViewById(R.id.row_disctype) as TextView
-
+        val viewHolder: CategoryViewHolder
         val cData = getItem(pos) as Category
-        categoryView.text = cData.categoryName
-        subcategoryView.text = cData.subcategoryName
-        discTypeView.text = cData.discType
+
+        val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_category, parent, false)
+        viewHolder = CategoryViewHolder(myConvertView)
+
+        viewHolder.vhID.text = cData.id.toString()
+        viewHolder.vhCategory.text = "${cData.categoryName}-${cData.subcategoryName}"
+        viewHolder.vhDiscType.text = cData.discType
         if (cData.discType == cDiscTypeOff) {
-            categoryView.setTextColor(ContextCompat.getColor(myContext, R.color.red))
-            subcategoryView.setTextColor(ContextCompat.getColor(myContext, R.color.red))
-            discTypeView.setTextColor(ContextCompat.getColor(myContext, R.color.red))
+            viewHolder.vhCategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
+            viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         }
-        return rowView
+        return myConvertView
     }
 }

@@ -95,7 +95,7 @@ class AccountingFragment : Fragment() {
                             1 -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
                                 transferTotals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
                             }
                         }
                     }
@@ -105,7 +105,7 @@ class AccountingFragment : Fragment() {
                             1 -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
                                 transferTotals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
                             }
                         }
                     }
@@ -115,7 +115,7 @@ class AccountingFragment : Fragment() {
                             1 -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
                                 transferTotals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2()/100.0))
                             }
                         }
                     }
@@ -128,7 +128,7 @@ class AccountingFragment : Fragment() {
                             1 -> totals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
                                 totals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
+                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
                             }
                         }
                     }
@@ -138,7 +138,7 @@ class AccountingFragment : Fragment() {
                             1 -> totals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
                                 totals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split / 100.0))
+                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
                             }
                         }
                     }
@@ -147,10 +147,10 @@ class AccountingFragment : Fragment() {
                             0 -> {
                                 totals[cJOINT_NAME][cFIRST_NAME] += ((exp.amount / 100.0) * (exp.bfname1split / 100.0))
                             }
-                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
+                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += ((exp.amount/100.0) * (exp.getSplit2()/100.0))
                             2 -> {
                                 totals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.bfname2split/100.0))
+                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2()/100.0))
                             }
                         }
                     }
@@ -249,9 +249,9 @@ class AccountingFragment : Fragment() {
 
         val gridLayout = binding.gridLayout
         var cellIndex = 0
-        gridLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS)
-        gridLayout.setColumnCount(2)
-        gridLayout.setRowCount(14)
+        gridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
+        gridLayout.columnCount = 2
+        gridLayout.rowCount = 14
         var subtotal = 0.0
 
         if (totals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
@@ -379,6 +379,7 @@ class AccountingFragment : Fragment() {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private fun buildGrid(iGridLayout: GridLayout, iName1: String, iName2: String, iAmount: Double, iCellIndex: Int, iTransfer: String = "") {
         val paramsT: GridLayout.LayoutParams = GridLayout.LayoutParams()
         paramsT.rowSpec = GridLayout.spec(iCellIndex / 2, GridLayout.CENTER)
@@ -390,16 +391,17 @@ class AccountingFragment : Fragment() {
 
         val titleText = TextView(context)
         val amountText = TextView(context)
-        if (iTransfer == "Transfer")
-            titleText.text = iName1 + " transferred to " + iName2 + " "
-        else if (iTransfer == "Sub-Total") {
-            paramsT.topMargin = 10
-            paramsT.bottomMargin = 40
-            titleText.setTypeface(null, Typeface.BOLD)
-            amountText.setTypeface(null, Typeface.BOLD)
-            titleText.text = "Total " + iName1 + "'s funds used for " + iName2 + "  "
-        } else
-            titleText.text = iName1 + " paid for " + iName2 + "  "
+        when (iTransfer) {
+            "Transfer" -> titleText.text = "$iName1 transferred to $iName2 "
+            "Sub-Total" -> {
+                paramsT.topMargin = 10
+                paramsT.bottomMargin = 40
+                titleText.setTypeface(null, Typeface.BOLD)
+                amountText.setTypeface(null, Typeface.BOLD)
+                titleText.text = "Total $iName1's funds used for $iName2 "
+            }
+            else -> titleText.text = "$iName1 paid for $iName2 "
+        }
         titleText.layoutParams = paramsT
         iGridLayout.addView(titleText,0)
         if (iTransfer == "Sub-Total")

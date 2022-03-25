@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
 import android.graphics.Typeface
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,48 +34,56 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         return pos.toLong()
     }
 
+    // class for holding the cached view
+    class BudgetViewHolder(view: View) {
+        var vhDateApplicable: TextView = view.findViewById(R.id.row_budget_month_applicable)
+        var vhAmount: TextView = view.findViewById(R.id.row_budget_amount)
+        var vhWho: TextView = view.findViewById(R.id.row_budget_who)
+        var vhOccurence: TextView = view.findViewById(R.id.row_budget_occurence)
+        var vhAnnual: TextView = view.findViewById(R.id.row_budget_annual)
+        var vhDateStarted: TextView = view.findViewById(R.id.row_budget_month_started)
+    }
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val rowView = inflater.inflate(R.layout.row_budget, parent, false)
-
-        val dateApplicableView = rowView.findViewById(R.id.row_budget_month_applicable) as TextView
-        val amountView = rowView.findViewById(R.id.row_budget_amount) as TextView
-        val whoView = rowView.findViewById(R.id.row_budget_who) as TextView
-        val occurenceView = rowView.findViewById(R.id.row_budget_occurence) as TextView
-        val annualView = rowView.findViewById(R.id.row_budget_annual) as TextView
-        val dateStartedView = rowView.findViewById(R.id.row_budget_month_started) as TextView
-
+        val viewHolder: BudgetViewHolder
         val bData = getItem(pos) as BudgetInputRow
 
+        val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_budget, parent, false)
+        viewHolder = BudgetViewHolder(myConvertView)
+
         val dec = DecimalFormat("#.00")
-        dateApplicableView.text = bData.dateApplicable
-        amountView.text = dec.format(bData.amount.toDouble())
-        whoView.text = SpenderViewModel.getSpenderName(bData.who)
-        occurenceView.text = bData.occurence
-        if (bData.occurence != "1")
-            occurenceView.visibility = View.INVISIBLE
-        annualView.text = bData.isAnnual
+        viewHolder.vhDateApplicable.text = bData.dateApplicable
+        Log.d("Alex", "isannual is ${bData.isAnnual}")
+        viewHolder.vhAmount.text = dec.format(bData.amount.toDouble())
+        viewHolder.vhWho.text = SpenderViewModel.getSpenderName(bData.who)
+        viewHolder.vhOccurence.text = bData.occurence
+        if (bData.occurence == "0")
+            viewHolder.vhOccurence.text = "Recurring"
+        else
+            viewHolder.vhOccurence.text = "Once"
+//            viewHolder.vhOccurence.visibility = View.INVISIBLE
+        viewHolder.vhAnnual.text = bData.isAnnual
         val bmDateStarted = BudgetMonth(bData.dateStarted)
         val bmDateApplicable = BudgetMonth(bData.dateApplicable)
 
         when {
-            bData.dateStarted == "9999-12" -> dateStartedView.text = ""
-            bmDateStarted.isAnnualBudget() -> dateStartedView.text = bmDateStarted.year.toString()
-            else -> dateStartedView.text = bData.dateStarted
+            bData.dateStarted == "9999-12" -> viewHolder.vhDateStarted.text = ""
+            bmDateStarted.isAnnualBudget() -> viewHolder.vhDateStarted.text = bmDateStarted.year.toString()
+            else -> viewHolder.vhDateStarted.text = bData.dateStarted
         }
 
         if (bData.dateApplicable == bData.dateStarted ||
             (bmDateApplicable.month == 1 && bmDateStarted.isAnnualBudget())) {
-            dateApplicableView.setTypeface(dateApplicableView.typeface, Typeface.BOLD)
-            amountView.setTypeface(amountView.typeface, Typeface.BOLD)
-            whoView.setTypeface(whoView.typeface, Typeface.BOLD)
-            occurenceView.setTypeface(occurenceView.typeface, Typeface.BOLD)
-            annualView.setTypeface(annualView.typeface, Typeface.BOLD)
-            dateStartedView.setTypeface(dateStartedView.typeface, Typeface.BOLD)
+            viewHolder.vhDateApplicable.setTypeface(viewHolder.vhDateApplicable.typeface, Typeface.BOLD)
+            viewHolder.vhAmount.setTypeface(viewHolder.vhAmount.typeface, Typeface.BOLD)
+            viewHolder.vhWho.setTypeface(viewHolder.vhWho.typeface, Typeface.BOLD)
+            viewHolder.vhOccurence.setTypeface(viewHolder.vhOccurence.typeface, Typeface.BOLD)
+            viewHolder.vhAnnual.setTypeface(viewHolder.vhAnnual.typeface, Typeface.BOLD)
+            viewHolder.vhDateStarted.setTypeface(viewHolder.vhDateStarted.typeface, Typeface.BOLD)
         }
         if (SpenderViewModel.singleUser()) {
-            whoView.visibility = View.GONE
+            viewHolder.vhWho.visibility = View.GONE
         }
 
-        return rowView
+        return myConvertView
     }
 }

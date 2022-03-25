@@ -7,12 +7,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Category(var categoryName: String, var subcategoryName: String, var discType: String = "") {
-    constructor(iFullCategoryName: String) : this(iFullCategoryName, iFullCategoryName) {
+data class Category(var id: Int, var categoryName: String, var subcategoryName: String, var discType: String = "") {
+    var priority = 0
+    constructor(id: Int, iFullCategoryName: String) : this(id, iFullCategoryName, iFullCategoryName) {
         val dash = iFullCategoryName.indexOf("-")
         try {
             categoryName = iFullCategoryName.substring(0, dash)
             subcategoryName = iFullCategoryName.substring(dash + 1, iFullCategoryName.length)
+            this.id = CategoryViewModel.getID(categoryName, subcategoryName)
         }
         catch (exception: Exception) {
             Log.d("Alex", "caught an exception in Category constructor (missing dash) $iFullCategoryName")
@@ -33,7 +35,7 @@ class CategoryViewModel : ViewModel() {
         lateinit var singleInstance: CategoryViewModel // used to track static single instance of self
         fun showMe() {
             singleInstance.categories.forEach {
-                Log.d("Alex", "ShowMe Category is " + it.categoryName + " subcategory is " + it.subcategoryName + " disc type is " + it.discType)
+                Log.d("Alex", "ShowMe Category is ${it.id} " + it.categoryName + " subcategory is " + it.subcategoryName + " disc type is " + it.discType)
             }
         }
 
@@ -48,38 +50,75 @@ class CategoryViewModel : ViewModel() {
                 0
         }
 
-        fun getDiscretionaryIndicator(iCategory: String, iSubcategory: String): String {
+        fun getID(iCategory: String, iSubcategory: String): Int {
+            if (iCategory == "Transfer")
+                return cTRANSFER_CODE
+
+            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+            return cat?.id ?: 0
+        }
+        fun getCategory(id: Int): Category? {
+            if (id == cTRANSFER_CODE)
+                return Category(cTRANSFER_CODE, "Transfer", "", "Discretionary")
+            return singleInstance.categories.find { it.id == id }
+        }
+        fun getDefaultCategory(): Category? {
+            val id = DefaultsViewModel.getDefault(cDEFAULT_CATEGORY_ID).toInt()
+            return singleInstance.categories.find {it.id == id}
+        }
+
+/*        fun getDiscretionaryIndicator(iCategory: String, iSubcategory: String): String {
             val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
             return cat?.discType ?: ""
-        }
+        }*/
 
-        fun updateCategory(iCategory: String, iSubcategory: String, iDisctype: String) {
-            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
-            if (cat == null) {
-                addCategoryAndSubcategory(iCategory, iSubcategory, iDisctype)
-            } else {
-                cat.discType = iDisctype
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
+        private fun getNextID(): Int {
+            var maxID = 1000
+            singleInstance.categories.forEach {
+                if (it.id > maxID)
+                    maxID = it.id
             }
+            return (maxID+1)
         }
-
-        fun deleteCategoryAndSubcategory(iCategory: String, iSubcategory: String) {
-            // this block below ensures that the viewAll view is updated immediately
-            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+        fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String, iLocalOnly: Boolean = false): Category {
+            var cat: Category? = singleInstance.categories.find { it.id == id }
+            if (cat == null) {
+                cat = Category(id, iCategory, iSubcategory, iDisctype)
+                cat.id = getNextID()
+                Log.d("Alex", "Set id for new category to ${cat.id}")
+                singleInstance.categories.add(cat)
+                singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
+            } else {
+                cat.categoryName = iCategory
+                cat.subcategoryName = iSubcategory
+                cat.discType = iDisctype
+            }
+            if (!iLocalOnly) {
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+                    .child(cat.id.toString())
+                    .child("Category")
+                    .setValue(iCategory)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+                    .child(cat.id.toString())
+                    .child("SubCategory")
+                    .setValue(iSubcategory)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+                    .child(cat.id.toString())
+                    .child("Type")
+                    .setValue(iDisctype)
+            }
+            return cat
+        }
+        fun getFullCategoryName(id: Int): String {
+            val cat: Category? = singleInstance.categories.find { it.id == id }
+            return cat?.fullCategoryName() ?: ""
+        }
+        fun deleteCategoryAndSubcategory(id: Int) {
+            val cat: Category? = singleInstance.categories.find { it.id == id }
             val ind = singleInstance.categories.indexOf(cat)
             singleInstance.categories.removeAt(ind)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).removeValue()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(id.toString()).removeValue()
         }
-
-        fun addCategoryAndSubcategory(iCategory: String, iSubcategory: String, iDisctype: String, iLocalOnly: Boolean = false) {
-            // I need to add the new cat to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
-            val cat = Category(iCategory, iSubcategory, iDisctype)
-            singleInstance.categories.add(cat)
-            singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
-            if (!iLocalOnly)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(iCategory).child(iSubcategory).setValue(iDisctype)
-        }
-
         fun getCategories(): MutableList<Category> { // returns only "on" categories
             val tmpList: MutableList<Category> = ArrayList()
             for (category in singleInstance.categories) {
@@ -93,15 +132,20 @@ class CategoryViewModel : ViewModel() {
             val tList: MutableList<Category>  = ArrayList()
 
             singleInstance.categories.forEach {
-                tList.add(Category(it.categoryName, it.subcategoryName, it.discType))
+                tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType))
+                val cat = tList[tList.size-1]
+                cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName)?.priority ?: 99
             }
+            tList.sortWith(compareBy({ it.priority }, { it.categoryName }))
             return tList
         }
 
         fun getCategoryNames(): MutableList<String> {
             val tmpList: MutableList<String> = ArrayList()
             var prevName = ""
-            singleInstance.categories.forEach {
+            val origList = getCategoriesIncludingOff()
+//            singleInstance.categories.forEach {
+            origList.forEach {
                 if (it.categoryName != prevName && it.discType != cDiscTypeOff) {
                     tmpList.add(it.categoryName)
                     prevName = it.categoryName
@@ -112,7 +156,9 @@ class CategoryViewModel : ViewModel() {
 
         fun getCategoryAndSubcategoryList(): MutableList<String> {
             val tmpList: MutableList<String> = ArrayList()
-            singleInstance.categories.forEach {
+            val origList = getCategoriesIncludingOff()
+//            singleInstance.categories.forEach {
+            origList.forEach {
                 if (it.discType != cDiscTypeOff)
                     tmpList.add(it.fullCategoryName())
             }
@@ -121,7 +167,10 @@ class CategoryViewModel : ViewModel() {
 
         fun getCombinedCategoriesForSpinner() : MutableList<String> {
             val list : MutableList<String> = ArrayList()
-            singleInstance.categories.forEach {
+            val origList = getCategoriesIncludingOff()
+//            singleInstance.categories.forEach {
+            origList.forEach {
+//            singleInstance.categories.forEach {
                 if (it.discType != cDiscTypeOff)
                     list.add(it.fullCategoryName())
             }
@@ -134,13 +183,6 @@ class CategoryViewModel : ViewModel() {
                     list.add(it.subcategoryName)
             }
             return list
-        }
-
-        fun setDiscType(iCategory: String, iSubcategory: String, iDisctype: String) {
-            val myCat = singleInstance.categories.find{ it.categoryName == iCategory && it.subcategoryName == iSubcategory }
-            if (myCat != null) {
-                myCat.discType = iDisctype
-            }
         }
 
         fun refresh() {
@@ -187,10 +229,18 @@ class CategoryViewModel : ViewModel() {
                 if (dataSnapshot.exists()) {
                     dataSnapshot.children.forEach()
                     {
-                        val myC: String = it.key.toString()
-                        it.children.forEach {
-                            categories.add(Category(myC, it.key.toString(), it.value.toString()))
+                        val categoryID = it.key.toString().toInt()
+                        var category = ""
+                        var subcategory = ""
+                        var disctype = ""
+                        for (child in it.children) {
+                            when (child.key.toString()) {
+                                "Category" -> category = child.value.toString().trim()
+                                "SubCategory" -> subcategory = child.value.toString().trim()
+                                "Type" -> disctype = child.value.toString().trim()
+                            }
                         }
+                        categories.add(Category(categoryID, category, subcategory, disctype))
                     }
                     // the line below is temporary until all 5 users have the email written
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
@@ -207,6 +257,7 @@ class CategoryViewModel : ViewModel() {
                         .setValue(MyApplication.userEmail)
                 }
                 singleInstance.loaded = true
+                categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -219,3 +270,5 @@ class CategoryViewModel : ViewModel() {
         )
     }
 }
+
+data class CategoryDetail(var name: String, var color: Int, var priority: Int)

@@ -61,7 +61,11 @@ class SpenderViewModel : ViewModel() {
                 else -> 2
             }
         }
-        fun getDefaultSpender() : String {
+        fun getDefaultSpender() : Int {
+            val ind = DefaultsViewModel.getDefault(cDEFAULT_SPENDER).toInt()
+            return ind
+        }
+        fun getDefaultSpenderName() : String {
             val ind = DefaultsViewModel.getDefault(cDEFAULT_SPENDER).toInt()
             return getSpenderName(ind)
         }
@@ -190,12 +194,12 @@ class SpenderViewModel : ViewModel() {
                     var isActive = 1
                     var split = 0
                     var name = ""
-                    it.children.forEach {
-                        when (it.key.toString()) {
-                            "name" -> name = it.value.toString()
-                            "email" -> email = it.value.toString()
-                            "isactive" -> isActive = it.value.toString().toInt()
-                            "split" -> split = it.value.toString().toInt()
+                    for (spenderRow in it.children) {
+                        when (spenderRow.key.toString()) {
+                            "name" -> name = spenderRow.value.toString()
+                            "email" -> email = spenderRow.value.toString()
+                            "isactive" -> isActive = spenderRow.value.toString().toInt()
+                            "split" -> split = spenderRow.value.toString().toInt()
                         }
                     }
                     spenders.add(Spender(name, email, split, isActive))

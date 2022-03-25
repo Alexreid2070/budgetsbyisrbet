@@ -19,20 +19,13 @@ data class BudgetPeriod(var period: BudgetMonth, var who: Int, var amount: Doubl
     }
 }
 
-data class BudgetOut(var amount: Double, var occurence: Int) {
-    constructor(bPeriod: BudgetPeriod?) : this(0.0, 0) {
-        if (bPeriod != null) {
-            amount = bPeriod.amount
-            occurence = bPeriod.occurence
-        }
-    }
-}
+data class BudgetOut(var amount: Double, var occurence: Int)
 
 data class BudgetAmountResponse(var dateApplicable: BudgetMonth, var who: Int, var amount: Double, var dateStarted: BudgetMonth, var occurence: Int) {
     constructor() : this(BudgetMonth(0,0), -1, 0.0, BudgetMonth(0,0), -1)
 }
 
-data class Budget(var category: Category) {
+data class Budget(var categoryID: Int) {
     val budgetPeriodList: MutableList<BudgetPeriod> = ArrayList()
 
     fun addBudgetPeriod(period: String, who: Int, amount: Double, occurence: Int) {
@@ -52,10 +45,10 @@ data class Budget(var category: Category) {
         if (tempNewBudget.isAnnualBudget()) {
             var ti: String
             for (i in 1..12) {
-                if (i < 10)
-                    ti = "0$i"
+                ti = if (i < 10)
+                    "0$i"
                 else
-                    ti = i.toString()
+                    i.toString()
                 budgetPeriodList.forEach {
                     if (it.period.toString() == tempNewBudget.getYear().toString() + "-" + ti && it.who == who)
                         return true
@@ -96,13 +89,22 @@ class BudgetViewModel : ViewModel() {
             else
                 0
         }
+        fun budgetExistsUsingCategory(iCategoryID: Int): Int {
+            var ctr: Int = 0
+            singleInstance.budgets.forEach {
+                if (it.categoryID == iCategoryID) {
+                    ctr++
+                }
+            }
+            return ctr
+        }
 
         fun showMe() {
             Log.d("Alex", "SHOW ME budgets " + singleInstance.budgets.size.toString())
             singleInstance.budgets.forEach {
-                Log.d("Alex", "SM Budget category is '" + it.category + "'")
-                it.budgetPeriodList.forEach {
-                    Log.d("Alex", "  period " + it.period + " who " + it.who + " amount " + it.amount)
+                Log.d("Alex", "SM Budget category is '" + CategoryViewModel.getFullCategoryName(it.categoryID) + "'")
+                for (child in it.budgetPeriodList) {
+                    Log.d("Alex", "  period " + child.period + " who " + child.who + " amount " + child.amount)
                 }
             }
         }
@@ -117,7 +119,7 @@ class BudgetViewModel : ViewModel() {
                     tList.add(DataObject(prevCategory, totalBudget, 0))
                     totalBudget = 0.0
                 }
-                val budget = getTotalCalculatedBudgetForMonthForCategory(Category(it.categoryName, it.subcategoryName), iBudgetMonth, cDiscTypeAll)
+                val budget = getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, cDiscTypeAll)
                 Log.d("Alex", "budget for " + it.categoryName + " " + it.subcategoryName + " is " + budget)
                 totalBudget += budget
                 prevCategory = it.categoryName
@@ -125,7 +127,7 @@ class BudgetViewModel : ViewModel() {
             return  tList
         }
 
-        fun getCalculatedBudgetAmount(iBudgetMonth: BudgetMonth, iCategory: Category, iWhoToLookup: Int): Double {
+        fun getCalculatedBudgetAmount(iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
             // if iWhoToLookup is blank, then will calculate for all Spenders
             // if iWhoToLookup is a specific name, then include the right % of Joint
             var tBudgetAmount = 0.0
@@ -137,7 +139,7 @@ class BudgetViewModel : ViewModel() {
                     if (iWhoToLookup == -1 || iWhoToLookup == i ||
                             SpenderViewModel.getSpenderName(i) == "Joint") {
                         val budgetForPeriod = getOriginalBudgetAmount(
-                            iCategory,
+                            iCategoryID,
                             iBudgetMonth,
                             i
                         )
@@ -160,7 +162,7 @@ class BudgetViewModel : ViewModel() {
                             if (iBudgetMonth.month != 1) {
                                 totalAnnualActualsForEarlierMonths =
                                     ExpenditureViewModel.getActualsForPeriod(
-                                        iCategory,
+                                        iCategoryID,
                                         BudgetMonth(iBudgetMonth.year, 1),
                                         BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
                                         i,
@@ -172,7 +174,7 @@ class BudgetViewModel : ViewModel() {
                             }
                             val accumulatedActualsThisMonthForThisUser =
                                 ExpenditureViewModel.getActualsForPeriod(
-                                    iCategory,
+                                    iCategoryID,
                                     iBudgetMonth,
                                     iBudgetMonth,
                                     i,
@@ -198,7 +200,7 @@ class BudgetViewModel : ViewModel() {
             return tBudgetAmount
         }
 
-        fun getOriginalBudgetAmount(iCategory: Category, iBudgetMonth: BudgetMonth, iWho: Int): BudgetAmountResponse {
+        fun getOriginalBudgetAmount(iCategoryID: Int, iBudgetMonth: BudgetMonth, iWho: Int): BudgetAmountResponse {
             val tResponse = BudgetAmountResponse()
             tResponse.dateApplicable.setValue(iBudgetMonth)
             tResponse.who = iWho
@@ -207,7 +209,7 @@ class BudgetViewModel : ViewModel() {
                 loop@for (i in 1..12) {
                     val tBudgetMonth = BudgetMonth(iBudgetMonth.year, i)
                     tResponse.dateApplicable.setValue(tBudgetMonth)
-                    val  tmpBudget = getOriginalBudgetAmount(iCategory, tBudgetMonth, iWho)
+                    val  tmpBudget = getOriginalBudgetAmount(iCategoryID, tBudgetMonth, iWho)
                     tResponse.amount = tResponse.amount + tmpBudget.amount
                     if (tmpBudget.dateStarted.isAnnualBudget()) { // ie it's an annual amount, so stop counting each month
                         break@loop
@@ -218,66 +220,68 @@ class BudgetViewModel : ViewModel() {
             val tFirstNameBudget = BudgetAmountResponse(BudgetMonth(9999,12), 0, 0.0, BudgetMonth(9999,12), -1)
             val tSecondNameBudget = BudgetAmountResponse(BudgetMonth(9999,12), 1, 0.0, BudgetMonth(9999,12), -1)
             val tJointBudget = BudgetAmountResponse(BudgetMonth(9999,12), 2, 0.0, BudgetMonth(9999,12), -1)
-            val myBudget = singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
-            if (myBudget != null) {
-                myBudget.budgetPeriodList.forEach {
-                    val tBudget = BudgetMonth(it.period)
-                    if (it.who == 0) {
-                        if ((it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||  // occurence of 0 means recurring
-                            (it.occurence == 1 &&  // it's a non-recurring budget
-                                    (tBudget.month == 0 && tBudget.year == iBudgetMonth.year) ||  // it's an annual budget
-                                    (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
-                            )
-                        ) {  // occurence of 1 means single
-                            tFirstNameBudget.amount = it.amount
-                            tFirstNameBudget.dateApplicable.setValue(it.period)
-                            tFirstNameBudget.dateStarted.setValue(it.period)
-                            tFirstNameBudget.occurence = it.occurence
-                        }
+            val myBudget = singleInstance.budgets.find { it.categoryID == iCategoryID }
+            myBudget?.budgetPeriodList?.forEach {
+                val tBudget = BudgetMonth(it.period)
+                if (it.who == 0) {
+                    if ((it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||  // occurence of 0 means recurring
+                        (it.occurence == 1 &&  // it's a non-recurring budget
+                                (tBudget.month == 0 && tBudget.year == iBudgetMonth.year) ||  // it's an annual budget
+                                (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
+                                )
+                    ) {  // occurence of 1 means single
+                        tFirstNameBudget.amount = it.amount
+                        tFirstNameBudget.dateApplicable.setValue(it.period)
+                        tFirstNameBudget.dateStarted.setValue(it.period)
+                        tFirstNameBudget.occurence = it.occurence
                     }
-                    if (it.who == 1) {
-                        if ((it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||  // occurence of 0 means recurring
-                            (it.occurence == 1 &&  // it's a non-recurring budget
-                                    (tBudget.month == 0 && tBudget.year == iBudgetMonth.year) ||  // it's an annual budget
-                                    (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
-                                    )
-                        ) {  // occurence of 1 means single
-                            tSecondNameBudget.amount = it.amount
-                            tSecondNameBudget.dateApplicable.setValue(it.period)
-                            tSecondNameBudget.dateStarted.setValue(it.period)
-                            tSecondNameBudget.occurence = it.occurence
-                        }
+                }
+                if (it.who == 1) {
+                    if ((it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||  // occurence of 0 means recurring
+                        (it.occurence == 1 &&  // it's a non-recurring budget
+                                (tBudget.month == 0 && tBudget.year == iBudgetMonth.year) ||  // it's an annual budget
+                                (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
+                                )
+                    ) {  // occurence of 1 means single
+                        tSecondNameBudget.amount = it.amount
+                        tSecondNameBudget.dateApplicable.setValue(it.period)
+                        tSecondNameBudget.dateStarted.setValue(it.period)
+                        tSecondNameBudget.occurence = it.occurence
                     }
-                    if (it.who == 2) { // ie Joint
-                        if ((it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||  // occurence of 0 means recurring
-                            (it.occurence == 1 &&  // it's a non-recurring budget
-                                    (tBudget.month == 0 && tBudget.year == iBudgetMonth.year) ||  // it's an annual budget
-                                    (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
-                                    )
-                        ) {  // occurence of 1 means single
-                            tJointBudget.amount = it.amount
-                            tJointBudget.dateApplicable.setValue(it.period)
-                            tJointBudget.dateStarted.setValue(it.period)
-                            tJointBudget.occurence = it.occurence
-                        }
+                }
+                if (it.who == 2) { // ie Joint
+                    if ((it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||  // occurence of 0 means recurring
+                        (it.occurence == 1 &&  // it's a non-recurring budget
+                                (tBudget.month == 0 && tBudget.year == iBudgetMonth.year) ||  // it's an annual budget
+                                (tBudget.month != 0 && tBudget.toString() == iBudgetMonth.toString())  // it's a monthly budget
+                                )
+                    ) {  // occurence of 1 means single
+                        tJointBudget.amount = it.amount
+                        tJointBudget.dateApplicable.setValue(it.period)
+                        tJointBudget.dateStarted.setValue(it.period)
+                        tJointBudget.occurence = it.occurence
                     }
                 }
             }
-            if (iWho == 0) {
-                tResponse.amount = tFirstNameBudget.amount
-                tResponse.dateApplicable.setValue(tFirstNameBudget.dateApplicable)
-                tResponse.dateStarted.setValue(tFirstNameBudget.dateStarted)
-                tResponse.occurence = tFirstNameBudget.occurence
-            } else if (iWho == 1) {
-                tResponse.amount = tSecondNameBudget.amount
-                tResponse.dateApplicable.setValue(tSecondNameBudget.dateApplicable)
-                tResponse.dateStarted.setValue(tSecondNameBudget.dateStarted)
-                tResponse.occurence = tSecondNameBudget.occurence
-            } else {
-                tResponse.amount = tJointBudget.amount
-                tResponse.dateApplicable.setValue(tJointBudget.dateApplicable)
-                tResponse.dateStarted.setValue(tJointBudget.dateStarted)
-                tResponse.occurence = tJointBudget.occurence
+            when (iWho) {
+                0 -> {
+                    tResponse.amount = tFirstNameBudget.amount
+                    tResponse.dateApplicable.setValue(tFirstNameBudget.dateApplicable)
+                    tResponse.dateStarted.setValue(tFirstNameBudget.dateStarted)
+                    tResponse.occurence = tFirstNameBudget.occurence
+                }
+                1 -> {
+                    tResponse.amount = tSecondNameBudget.amount
+                    tResponse.dateApplicable.setValue(tSecondNameBudget.dateApplicable)
+                    tResponse.dateStarted.setValue(tSecondNameBudget.dateStarted)
+                    tResponse.occurence = tSecondNameBudget.occurence
+                }
+                else -> {
+                    tResponse.amount = tJointBudget.amount
+                    tResponse.dateApplicable.setValue(tJointBudget.dateApplicable)
+                    tResponse.dateStarted.setValue(tJointBudget.dateStarted)
+                    tResponse.occurence = tJointBudget.occurence
+                }
             }
             if (tResponse.dateApplicable.month == 0)
                 tResponse.dateApplicable.month = 1
@@ -287,20 +291,20 @@ class BudgetViewModel : ViewModel() {
         fun getTotalCalculatedBudgetForMonth(iBudgetMonth: BudgetMonth, iDiscType: String) : Double {
             var tmpTotal = 0.0
             CategoryViewModel.getCategories().forEach {
-                tmpTotal += getTotalCalculatedBudgetForMonthForCategory(Category(it.categoryName, it.subcategoryName), iBudgetMonth, iDiscType)
+                tmpTotal += getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, iDiscType)
             }
             return tmpTotal
         }
 
-        fun getTotalCalculatedBudgetForMonthForCategory(iCategory: Category, iBudgetMonth: BudgetMonth, iDiscType: String) : Double {
+        fun getTotalCalculatedBudgetForMonthForCategory(iCategoryID: Int, iBudgetMonth: BudgetMonth, iDiscType: String) : Double {
             var tmpTotal = 0.0
-            val discIndicator = CategoryViewModel.getDiscretionaryIndicator(iCategory.categoryName, iCategory.subcategoryName)
+            val discIndicator = CategoryViewModel.getCategory(iCategoryID)?.discType ?: ""
             if (discIndicator == iDiscType || iDiscType == cDiscTypeAll) {
                 for (i in 0 until SpenderViewModel.getActiveCount()) {
                     if (SpenderViewModel.getSpenderName(i) != "Joint") {
                         val bpAmt = getCalculatedBudgetAmount( // this includes the right % of Joint with each individual Spender
                             iBudgetMonth,
-                            iCategory,
+                            iCategoryID,
                             i
                         )
                         tmpTotal += bpAmt
@@ -317,37 +321,35 @@ class BudgetViewModel : ViewModel() {
             var tBudgetAmount: Double
             singleInstance.budgets.forEach {
                 tBudgetAmount = 0.0
-                val category = it.category
-                it.budgetPeriodList.forEach {
-                    if (it.period.month == 0 && iBudgetMonth.month != 0) {
+                val categoryID = it.categoryID
+                for (budget in it.budgetPeriodList) {
+                    if (budget.period.month == 0 && iBudgetMonth.month != 0) {
                         tBudgetAmount = 0.0
-                    } else if ((iBudgetMonth.month != 0 && it.occurence == 0 && it.period.toString() <= iBudgetMonth.toString()) ||
-                        (iBudgetMonth.month != 0 && it.occurence == 1 && it.period.toString() == iBudgetMonth.toString()) ||
-                        (iBudgetMonth.month == 0 && it.period.year <= iBudgetMonth.year)
+                    } else if ((iBudgetMonth.month != 0 && budget.occurence == 0 && budget.period.toString() <= iBudgetMonth.toString()) ||
+                        (iBudgetMonth.month != 0 && budget.occurence == 1 && budget.period.toString() == iBudgetMonth.toString()) ||
+                        (iBudgetMonth.month == 0 && budget.period.year <= iBudgetMonth.year)
                     ) {
-                        val catDiscFlag = CategoryViewModel.getDiscretionaryIndicator(
-                            category.categoryName,
-                            category.subcategoryName)
+                        val catDiscFlag = CategoryViewModel.getCategory(categoryID)?.discType ?: ""
                         if (iDiscFlag == "" || catDiscFlag == iDiscFlag) {
-                            tBudgetAmount = it.amount
+                            tBudgetAmount = budget.amount
                         }
                     }
                 }
                 if (tBudgetAmount > 0) {
-                    myList.add(category.fullCategoryName())
+                    myList.add(CategoryViewModel.getFullCategoryName(categoryID))
                 }
             }
             return myList
         }
 
-        fun getBudgetInputRows(iCategory: Category, iFilter: String): MutableList<BudgetInputRow> {
+        fun getBudgetInputRows(iCategoryID: Int, iFilter: String): MutableList<BudgetInputRow> {
             val tList: MutableList<BudgetInputRow> = ArrayList<BudgetInputRow>()
             var isAnnual: String
             CategoryViewModel.getCategories().forEach {
-                if (iCategory.categoryName == it.categoryName && iCategory.subcategoryName == it.subcategoryName) {
+                if (iCategoryID == it.id) {
                     if (it.discType != cDiscTypeOff) {
-                        val firstMonth = getFirstMonthOfBudget(Category(it.categoryName, it.subcategoryName))
-                        val lastMonth = getLastMonthOfBudget(Category(it.categoryName, it.subcategoryName))
+                        val firstMonth = getFirstMonthOfBudget(iCategoryID)
+                        val lastMonth = getLastMonthOfBudget(iCategoryID)
                         if (firstMonth != null) {
                             if (firstMonth.period.month == 0)
                                 firstMonth.period.month = 1
@@ -357,15 +359,16 @@ class BudgetViewModel : ViewModel() {
                             while (monthIterator <= lastMonth.period.toString()) {
                                 for (i in 0 until SpenderViewModel.getActiveCount()) {
                                     val  bAmount = getOriginalBudgetAmount(
-                                        Category(it.categoryName, it.subcategoryName),
+                                        iCategoryID,
                                         BudgetMonth(monthIterator),
                                         i
                                     )
                                     if (bAmount.dateStarted.isAnnualBudget()) {
-                                        Log.d("Alex", "found isannual Y")
+                                        isAnnual = "Y"
+/*                                        Log.d("Alex", "found isannual Y")
                                         val dec = DecimalFormat("#.00")
                                         isAnnual = "Y (" + dec.format(bAmount.amount) + ")"
-                                        bAmount.amount = bAmount.amount / 12.0
+                                        bAmount.amount = bAmount.amount / 12.0 */
                                     } else
                                         isAnnual = ""
 
@@ -396,24 +399,24 @@ class BudgetViewModel : ViewModel() {
             return tList
         }
 
-        fun deleteBudget(iCategory: Category, iPeriod: String, iWho: Int) {
-            val  budget = singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
+        fun deleteBudget(iCategoryID: Int, iPeriod: String, iWho: Int) {
+            val  budget = singleInstance.budgets.find { it.categoryID == iCategoryID }
             if (budget != null) {
                 val  pBudget = budget.budgetPeriodList.find { it.period.toString() == iPeriod && it.who == iWho }
                 val ind = budget.budgetPeriodList.indexOf(pBudget)
                 budget.budgetPeriodList.removeAt(ind)
             }
 
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget")
-                .child(iCategory.fullCategoryName())
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget")
+                .child(iCategoryID.toString())
                 .child(iPeriod)
                 .child(iWho.toString())
                 .removeValue()
         }
-        fun updateBudget(iCategory: Category, iPeriod: String, iWho: Int, iAmount: Double, iOccurence: String, iLocalOnly: Boolean = false) {
-            var budget = singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
+        fun updateBudget(iCategoryID: Int, iPeriod: String, iWho: Int, iAmount: Double, iOccurence: String, iLocalOnly: Boolean = false) {
+            var budget = singleInstance.budgets.find { it.categoryID == iCategoryID }
             if (budget == null) { // first budget being added for this Category
-                budget = Budget(iCategory)
+                budget = Budget(iCategoryID)
                 singleInstance.budgets.add(budget)
             }
                 val pBudget = budget.budgetPeriodList.find { it.period.toString() == iPeriod && it.who == iWho}
@@ -434,53 +437,44 @@ class BudgetViewModel : ViewModel() {
                 }
             val budgetOut = BudgetOut(round(iAmount*100), if (iOccurence == cBUDGET_JUST_THIS_MONTH) 1 else 0)
             if (!iLocalOnly)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget")
-                    .child(iCategory.fullCategoryName())
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget")
+                    .child(iCategoryID.toString())
                     .child(iPeriod)
                     .child(iWho.toString())
                     .setValue(budgetOut)
         }
-        fun getBudget(iCategory: Category): Budget? {
-            return singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
+        fun getBudget(iCategoryID: Int): Budget? {
+            return singleInstance.budgets.find { it.categoryID == iCategoryID }
         }
-        private fun getFirstMonthOfBudget(iCategory: Category): BudgetPeriod? {
+        private fun getFirstMonthOfBudget(iCategoryID: Int): BudgetPeriod? {
             var tMonth = BudgetPeriod(BudgetMonth(9999,0), -1, 0.0,0)
-            val budget = singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
-            if (budget != null) {
-/*                if (budget.budgetPeriodList.size > 0)
-                    return BudgetPeriod(BudgetMonth(budget.budgetPeriodList[0].period), budget.budgetPeriodList[0].who, budget.budgetPeriodList[0].amount)
-                else
-                    return null */
+            val budget = singleInstance.budgets.find { it.categoryID == iCategoryID }
+            return if (budget != null) {
                 budget.budgetPeriodList.forEach {
                     if (it.period.toString() < tMonth.period.toString())
                         tMonth = BudgetPeriod(BudgetMonth(it.period), it.who, it.amount, it.occurence)
                 }
-                return tMonth
-            }
-            else
-                return null
+                tMonth
+            } else
+                null
         }
 
-        private fun getLastMonthOfBudget(iCategory: Category): BudgetPeriod {
+        private fun getLastMonthOfBudget(iCategoryID: Int): BudgetPeriod {
             var tMonth = BudgetPeriod(BudgetMonth(0,0), -1, 0.0 ,0)
-            val budget = singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
-            if (budget != null) {
-                budget.budgetPeriodList.forEach {
-                    if (it.period.toString() > tMonth.period.toString())
-                        tMonth = BudgetPeriod(BudgetMonth(it.period), it.who, it.amount, it.occurence)
-                }
+            val budget = singleInstance.budgets.find { it.categoryID == iCategoryID }
+            budget?.budgetPeriodList?.forEach {
+                if (it.period.toString() > tMonth.period.toString())
+                    tMonth = BudgetPeriod(BudgetMonth(it.period), it.who, it.amount, it.occurence)
             }
             return tMonth
         }
 
-        fun budgetExistsForExactPeriod(iCategory: Category, iBudgetMonth: BudgetMonth, iWho: Int): Double {
-            val myBudget = singleInstance.budgets.find { it.category.fullCategoryName() == iCategory.fullCategoryName() }
-            if (myBudget != null) {
-                myBudget.budgetPeriodList.forEach {
-                    if (it.who == iWho) {
-                        if (it.period.toString() == iBudgetMonth.toString())
-                            return it.amount
-                    }
+        fun budgetExistsForExactPeriod(iCategoryID: Int, iBudgetMonth: BudgetMonth, iWho: Int): Double {
+            val myBudget = singleInstance.budgets.find { it.categoryID == iCategoryID }
+            myBudget?.budgetPeriodList?.forEach {
+                if (it.who == iWho) {
+                    if (it.period.toString() == iBudgetMonth.toString())
+                        return it.amount
                 }
             }
             return 0.0
@@ -492,7 +486,7 @@ class BudgetViewModel : ViewModel() {
 
         fun clear() {
             if (singleInstance.budgetListener != null) {
-                MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
+                MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Budget")
                     .removeEventListener(singleInstance.budgetListener!!)
                 singleInstance.budgetListener = null
             }
@@ -509,7 +503,7 @@ class BudgetViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         if (budgetListener != null) {
-            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Budget")
                 .removeEventListener(budgetListener!!)
             budgetListener = null
         }
@@ -534,49 +528,36 @@ class BudgetViewModel : ViewModel() {
                     var found = false
                     var i = 0
                     while (!found && i < budgets.size) {
-                        if (it.key.toString() == budgets[i].category.fullCategoryName()) {
+                        if (it.key.toString() == budgets[i].categoryID.toString()) {
                             myB = budgets[i]
                             found = true
                         }
                         i++
                     }
                     if (!found) {
-                        myB = Budget(Category(it.key.toString()))
+                        myB = Budget(it.key.toString().toInt())
                         budgets.add(myB)
                     } else
                         Log.d(
                             "Alex",
                             "Not adding budget " + it.key.toString() + " since it is already there"
                         )
-                    it.children.forEach {
-                        val tPeriod: String = it.key.toString()
-                        for (element in it.children.toMutableList()) {
+                    for (budget in it.children) {
+                        val tPeriod: String = budget.key.toString()
+                        for (element in budget.children.toMutableList()) {
                             try {
-                                val tWho: String = element.key.toString()
-                                // this block is temporary until everyone has transitioned
-                                var nWho = 0
-                                when (tWho) {
-                                    "Alex" -> nWho = 0
-                                    "Brent" -> nWho = 1
-                                    "Joint" -> nWho = 2
-                                    "Beatrice" -> nWho = 0
-                                    "Margot" -> nWho = 1
-                                    "Rheannon" -> nWho = 0
-                                    "Matt" -> nWho = 1
-                                    else -> nWho = tWho.toInt()
-                                }
+                                val nWho = element.key.toString().toInt()
 
                                 val tBudgetOut = BudgetOut(0.0, 0)
                                 for (child in element.children) {
-                                    if (child.key == "amount")
-                                        tBudgetOut.amount = child.value.toString().toDouble() / 100.0
-                                    else if (child.key == "occurence")
-                                        tBudgetOut.occurence = child.value.toString().toInt()
-                                    else
-                                        Log.d(
+                                    when (child.key) {
+                                        "amount" -> tBudgetOut.amount = child.value.toString().toDouble() / 100.0
+                                        "occurence" -> tBudgetOut.occurence = child.value.toString().toInt()
+                                        else -> Log.d(
                                             "Alex",
                                             "Unknown budget value???? (" + child.key + " " + child.value + " in budget load..."
                                         )
+                                    }
                                 }
                                 budgets[budgets.indexOf(myB)].addBudgetPeriod(
                                     tPeriod,
@@ -598,7 +579,7 @@ class BudgetViewModel : ViewModel() {
                 MyApplication.displayToast("User authorization failed 104.")
             }
         }
-        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/NewBudget").addValueEventListener(
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget").addValueEventListener(
             budgetListener as ValueEventListener
         )
     }

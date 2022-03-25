@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/CategoryLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:paddingBottom="10dp"
@@ -19,19 +19,9 @@
         <TextView
             android:id="@+id/categoryHeading"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight=".3"
+            android:layout_height="wrap_content"
+            android:layout_weight=".65"
             android:text="Category"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/subCategoryHeading"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight=".35"
-            android:text="Sub-Category"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -39,7 +29,7 @@
         <TextView
             android:id="@+id/discTypeHeading"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight=".35"
             android:text="Type"
             android:textSize="16sp"
@@ -53,18 +43,22 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/expansion_layout"
         app:layout_constraintTop_toBottomOf="@+id/CategoryLinearLayout"/>
-    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
-        android:id="@+id/category_add_fab"
+    <io.github.yavski.fabspeeddial.FabSpeedDial
+        android:id="@+id/category_fab"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="bottom|center"
-        android:background="?attr/colorSecondary"
-        android:tooltipText="Add Category"
+        app:fabGravity="bottom_end"
+        app:fabMenu="@menu/category_menu"
+        android:tooltipText="Category Menu"
+        app:miniFabBackgroundTint="?attr/colorSecondary"
+        app:miniFabDrawableTint="@color/white"
+        app:miniFabTitleTextColor="?attr/colorPrimaryDark"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_fas_plus"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
+
     <LinearLayout
         android:id="@+id/expansion_layout"
         android:layout_width="match_parent"

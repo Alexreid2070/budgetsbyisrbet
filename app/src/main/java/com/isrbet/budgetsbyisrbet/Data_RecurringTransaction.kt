@@ -15,12 +15,10 @@ data class RecurringTransaction(
     var period: String = "",
     var regularity: Int = 1,
     var nextdate: String = "",
-    var category: String = "",
-    var subcategory: String = "",
+    var category: Int = 0,
     var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var split1: Int = 100,
-    var split2: Int = 0
+    var split1: Int = 100
 ) {
     fun setValue(key: String, value: String) {
         when (key) {
@@ -29,14 +27,15 @@ data class RecurringTransaction(
             "nextdate" -> nextdate = value.trim()
             "period" -> period = value.trim()
             "regularity" -> regularity = value.toInt()
-            "category" -> category = value.trim()
-            "subcategory" -> subcategory = value.trim()
+            "category" -> category = value.toInt()
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
             "split1" -> split1 = value.toInt()
-            "split2" -> split2 = value.toInt()
             else -> Log.d("Alex", "Unknown Recurring Transaction $key $value")
         }
+    }
+    fun getSplit2(): Int {
+        return 100 - split1
     }
 }
 
@@ -59,6 +58,20 @@ class RecurringTransactionViewModel : ViewModel() {
                 0
         }
 
+        fun nameExists(iName: String): Boolean {
+            val rt = singleInstance.recurringTransactions.find { it.name == iName }
+            return (rt != null)
+        }
+
+        fun recurringTransactionExistsUsingCategory(iCategoryID: Int): Int {
+            var ctr = 0
+            singleInstance.recurringTransactions.forEach {
+                if (it.category == iCategoryID) {
+                    ctr++
+                }
+            }
+            return ctr
+        }
         fun showMe() {
             singleInstance.recurringTransactions.forEach {
                 Log.d("Alex", "SM Recurring Transaction is " + it.name + " amount " + it.amount + " regularity " + it.regularity + " period " + it.period + " lg " + it.nextdate)
@@ -89,20 +102,18 @@ class RecurringTransactionViewModel : ViewModel() {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(iRecurringTransaction.name).setValue(iRecurringTransaction)
         }
         fun updateRecurringTransaction(iName: String, iAmount: Int, iPeriod: String, iNextDate: String, iRegularity: Int,
-                                       iCategory: String, iSubcategory: String, iPaidBy: Int, iBoughtFor: Int,
-                                        iSplit1: Int, iSplit2: Int) {
+                                       iCategoryID: Int, iPaidBy: Int, iBoughtFor: Int,
+                                        iSplit1: Int) {
             val myRT = singleInstance.recurringTransactions.find{ it.name == iName }
             if (myRT != null) {
                 myRT.amount = iAmount
                 myRT.period = iPeriod
                 myRT.regularity = iRegularity
                 myRT.nextdate = iNextDate
-                myRT.category = iCategory
-                myRT.subcategory = iSubcategory
+                myRT.category = iCategoryID
                 myRT.paidby = iPaidBy
                 myRT.boughtfor = iBoughtFor
                 myRT.split1 = iSplit1
-                myRT.split2  = iSplit2
             }
         }
         fun updateRecurringTransactionStringField(iName: String, iField: String, iValue: String) {
@@ -161,27 +172,7 @@ class RecurringTransactionViewModel : ViewModel() {
                     val tRecurringTransaction = RecurringTransaction()
                     tRecurringTransaction.setValue("name", element.key.toString())
                     for (child in element.children) {
-                        if (child.key.toString() == "paidby" || child.key.toString() == "boughtfor") {
-                            // this block is temporary until everyone has transitioned
-                            val tWho: String = child.value.toString()
-                            var nWho = 0
-                            when (tWho) {
-                                "Alex" -> nWho = 0
-                                "Brent" -> nWho = 1
-                                "Joint" -> nWho = 2
-                                "Beatrice" -> nWho = 0
-                                "Margot" -> nWho = 1
-                                "Rheannon" -> nWho = 0
-                                "Matt" -> nWho = 1
-                                else -> {
-                                    Log.d("Alex", "RT is " + tRecurringTransaction)
-                                    Log.d("Alex", "twho is $tWho")
-                                    nWho = tWho.toInt()
-                                }
-                            }
-                            tRecurringTransaction.setValue(child.key.toString(), nWho.toString())
-                        } else
-                            tRecurringTransaction.setValue(child.key.toString(), child.value.toString())
+                        tRecurringTransaction.setValue(child.key.toString(), child.value.toString())
                     }
                     recurringTransactions.add(tRecurringTransaction)
                 }
@@ -211,10 +202,10 @@ class RecurringTransactionViewModel : ViewModel() {
                         Log.d("Alex", "Adding a transaction")
                         val nextDate = getNextBusinessDate(it.nextdate)
                         ExpenditureViewModel.addTransaction(ExpenditureOut(nextDate, it.amount,
-                            it.category, it.subcategory, it.name, it.paidby, it.boughtfor,
-                            it.split1, it.split2, "Recurring"))
+                            it.category, it.name, it.paidby, it.boughtfor,
+                            it.split1, "Recurring"))
                         if (mainActivity != null)
-                            Toast.makeText(mainActivity, "Recurring transaction was added for : $nextDate " + it.category + " " + it.subcategory + " " + it.name, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(mainActivity, "Recurring transaction was added for : $nextDate " + CategoryViewModel.getFullCategoryName(it.category) + " " + it.name, Toast.LENGTH_SHORT).show()
                     }
                 }
                 sortYourself()

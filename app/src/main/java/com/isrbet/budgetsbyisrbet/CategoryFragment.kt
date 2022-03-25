@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryBinding
+import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter
 
 class CategoryFragment : Fragment() {
     private var _binding: FragmentCategoryBinding? = null
@@ -34,7 +34,7 @@ class CategoryFragment : Fragment() {
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Category
-                val cdf = CategoryEditDialogFragment.newInstance(itemValue.categoryName, itemValue.subcategoryName, itemValue.discType) // what do I pass here? zzz
+                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(), itemValue.categoryName, itemValue.subcategoryName, itemValue.discType) // what do I pass here? zzz
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
@@ -54,15 +54,22 @@ class CategoryFragment : Fragment() {
         binding.expandRecurringTransactions.setOnClickListener {
             findNavController().navigate(R.id.RecurringTransactionFragment)
         }
-        binding.categoryAddFab.setOnClickListener {
-            addCategory()
-        }
-        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
-        val set = ConstraintSet()
-        val constraintLayout = binding.constraintLayout
-        set.clone(constraintLayout)
-        set.clear(R.id.category_add_fab, ConstraintSet.TOP)
-        set.applyTo(constraintLayout)
+
+        binding.categoryFab.setMenuListener(object : SimpleMenuListenerAdapter() {
+            override fun onMenuItemSelected(menuItem: MenuItem?): Boolean {
+                return when (menuItem?.itemId) {
+                    R.id.action_color -> {
+                        findNavController().navigate(R.id.CategoryDetailsFragment)
+                        true
+                    }
+                    R.id.action_add -> {
+                        addCategory()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        })
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -73,17 +80,17 @@ class CategoryFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.AddCategory) {
+        return if (item.itemId == R.id.AddCategory) {
             addCategory()
-            return true
+            true
         } else {
             val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
     }
 
     private fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("", "",cDiscTypeOff)
+        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",cDiscTypeOff)
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())

@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import java.util.ArrayList
 
-const val cDEFAULT_CATEGORY = "Category"
-const val cDEFAULT_SUBCATEGORY = "SubCategory"
+const val cDEFAULT_CATEGORY_ID = "Category"
 const val cDEFAULT_FULLCATEGORYNAME = "FullCategoryName"
 const val cDEFAULT_SPENDER = "Spender"
 const val cDEFAULT_SHOWRED = "ShowRed"
@@ -29,8 +29,8 @@ const val cDEFAULT_DELTA_DASHBOARD = "DeltaDashboard"
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DataUpdatedCallback? = null
-    private var defaultCategory: Category = Category("","")
-    private var defaultSpender: String = "0"
+    private var defaultCategory: Int = 0
+    private var defaultSpender: Int = -1
     private var defaultShowRed: String = "5"
     private var defaultIntegrateWithTDSpend: String = "Off"
     private var defaultSound: String = "On"
@@ -46,6 +46,7 @@ class DefaultsViewModel : ViewModel() {
     private var defaultFilterDiscDashboard: String = ""
     private var defaultFilterWhoDashboard: String = ""
     private var defaultDeltaDashboard: String = "#"
+    private val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
     private var loaded:Boolean = false
 
     companion object {
@@ -53,13 +54,12 @@ class DefaultsViewModel : ViewModel() {
 
         fun isEmpty(): Boolean {
             return (isLoaded() &&
-                    singleInstance.defaultCategory.categoryName == "" &&
-                    singleInstance.defaultCategory.subcategoryName == "" &&
-                    singleInstance.defaultSpender == "")
+                    singleInstance.defaultCategory == 0 &&
+                    singleInstance.defaultSpender == -1)
         }
 
         fun showMe() {
-            Log.d("Alex", "Default Category/Subcategory is " + singleInstance.defaultCategory.fullCategoryName())
+            Log.d("Alex", "Default Category/Subcategory is " + CategoryViewModel.getFullCategoryName(singleInstance.defaultCategory))
             Log.d("Alex", "Default Spender is " + singleInstance.defaultSpender)
             Log.d("Alex", "Default ShowRed is " + singleInstance.defaultShowRed)
             Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
@@ -80,10 +80,9 @@ class DefaultsViewModel : ViewModel() {
 
         fun getDefault(whichOne:String): String {
             when (whichOne) {
-                cDEFAULT_CATEGORY -> return singleInstance.defaultCategory.categoryName
-                cDEFAULT_SUBCATEGORY -> return singleInstance.defaultCategory.subcategoryName
-                cDEFAULT_FULLCATEGORYNAME -> return singleInstance.defaultCategory.fullCategoryName()
-                cDEFAULT_SPENDER -> return singleInstance.defaultSpender
+                cDEFAULT_CATEGORY_ID -> return singleInstance.defaultCategory.toString()
+                cDEFAULT_FULLCATEGORYNAME -> return CategoryViewModel.getFullCategoryName(singleInstance.defaultCategory)
+                cDEFAULT_SPENDER -> return singleInstance.defaultSpender.toString()
                 cDEFAULT_SHOWRED -> return singleInstance.defaultShowRed
                 cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
                 cDEFAULT_SOUND -> return singleInstance.defaultSound
@@ -123,8 +122,8 @@ class DefaultsViewModel : ViewModel() {
             resetToDefaults()
         }
         private fun resetToDefaults() {
-            singleInstance.defaultCategory = Category("","")
-            singleInstance.defaultSpender = "0"
+            singleInstance.defaultCategory = 0
+            singleInstance.defaultSpender = -1
             singleInstance.defaultShowRed = "5"
             singleInstance.defaultIntegrateWithTDSpend = "Off"
             singleInstance.defaultSound = "On"
@@ -140,6 +139,93 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultFilterDiscDashboard = ""
             singleInstance.defaultFilterWhoDashboard = ""
             singleInstance.defaultDeltaDashboard = "#"
+        }
+
+        fun getCategoryDetails(): MutableList<CategoryDetail> {
+            val copy = mutableListOf<CategoryDetail>()
+            copy.addAll(singleInstance.defaultCategoryDetails)
+            return copy
+        }
+        fun reorderCategory(fromPriority: Int, toPriority: Int) {
+            val minP = minOf(fromPriority, toPriority)
+            val maxP = maxOf(fromPriority, toPriority)
+            singleInstance.defaultCategoryDetails.forEach {
+                if (it.priority in minP..maxP) {
+                    when {
+                        it.priority == fromPriority -> {
+                            setPriority(it.name, toPriority, false)
+                        }
+                        fromPriority == maxP -> { // items move down
+                            setPriority(it.name, it.priority + 1, false)
+                        }
+                        else -> {
+                            setPriority(it.name, it.priority - 1, false)
+                        }
+                    }
+                }
+            }
+            singleInstance.defaultCategoryDetails.sortWith(compareBy { it.priority })
+        }
+        private fun giveMeNextAvailablePriority(): Int {
+            var maxPriority = -1
+            singleInstance.defaultCategoryDetails.forEach {
+                if (it.priority >= maxPriority)
+                    maxPriority = it.priority
+            }
+            return maxPriority + 1
+        }
+        fun getCategoryDetail(iCatName: String): CategoryDetail? {
+            return singleInstance.defaultCategoryDetails.find { it.name == iCatName }
+        }
+        fun setColour(iCatName: String, iColour: Int, iUpdateLocalOnly: Boolean) {
+            val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
+            if (cat == null) {
+                singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, iColour, giveMeNextAvailablePriority()))
+            } else {
+                cat.color = iColour
+            }
+            if (!iUpdateLocalOnly) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .child(SpenderViewModel.myIndex().toString())
+                    .child("CategoryDetails")
+                    .child(iCatName)
+                    .child("colour")
+                    .setValue(iColour)
+            }
+        }
+        private fun setPriority(iCatName: String, iPriority: Int, iUpdateLocalOnly: Boolean) {
+            val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
+            if (cat == null) {
+                singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, 0, iPriority))
+            } else {
+                cat.priority = iPriority
+            }
+            if (!iUpdateLocalOnly) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .child(SpenderViewModel.myIndex().toString())
+                    .child("CategoryDetails")
+                    .child(iCatName)
+                    .child("priority")
+                    .setValue(iPriority)
+            }
+        }
+        fun confirmCategoryDetailsListIsComplete() { // ie add any missing ones, should only happen at first transition to this new functionality
+            var catList = CategoryViewModel.getCategoryNames()
+            for (cat in catList) {
+                val cd: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == cat }
+                if (cd == null) {
+                    setPriority(cat,
+                        if (singleInstance.defaultCategoryDetails.size == 0) 99 else giveMeNextAvailablePriority(), // this will force a renumbering and load the priorities in the db
+                        false)
+                    setColour(cat, 0, false)
+                }
+            }
+            singleInstance.defaultCategoryDetails.sortWith(compareBy { it.priority })
+            for (i in 0 until singleInstance.defaultCategoryDetails.size) {
+                if (singleInstance.defaultCategoryDetails[i].priority != i) {
+                    setPriority(singleInstance.defaultCategoryDetails[i].name, i, false)
+                }
+            }
         }
     }
 
@@ -166,14 +252,11 @@ class DefaultsViewModel : ViewModel() {
 
     fun setLocal(whichOne: String, iValue: String) {
         when (whichOne) {
-            cDEFAULT_CATEGORY -> {
-                singleInstance.defaultCategory.categoryName = iValue
-            }
-            cDEFAULT_SUBCATEGORY -> {
-                singleInstance.defaultCategory.subcategoryName = iValue
+            cDEFAULT_CATEGORY_ID -> {
+                singleInstance.defaultCategory = iValue.toInt()
             }
             cDEFAULT_SPENDER -> {
-                singleInstance.defaultSpender = iValue
+                singleInstance.defaultSpender = iValue.toInt()
             }
             cDEFAULT_SHOWRED -> {
                 singleInstance.defaultShowRed = iValue
@@ -221,8 +304,13 @@ class DefaultsViewModel : ViewModel() {
                 singleInstance.defaultDeltaDashboard = iValue
             }
             else -> {
-                Log.d("Alex", "Unknown default " + whichOne + " " + iValue)
+                Log.d("Alex", "Unknown default $whichOne $iValue")
             }
+        }
+    }
+    fun showMeCategoryDetails() {
+        defaultCategoryDetails.forEach {
+            Log.d("Alex", "${it.name} ${it.color} ${it.priority}" )
         }
     }
     fun loadDefaults() {
@@ -232,7 +320,18 @@ class DefaultsViewModel : ViewModel() {
                 // Get Post object and use the values to update the UI
                 dataSnapshot.children.forEach()
                 {
-                    setLocal(it.key.toString(), it.value.toString())
+                    if (it.key.toString() == "CategoryDetails") {
+                        for (cat in it.children.toMutableList()) {
+                            val catName = cat.key.toString()
+                            for (def in cat.children.toMutableList()) {
+                                when (def.key.toString()) {
+                                    "colour" -> setColour(catName, def.value.toString().toInt(), true)
+                                    "priority" -> setPriority(catName, def.value.toString().toInt(), true)
+                                }
+                            }
+                        }
+                    } else
+                        setLocal(it.key.toString(), it.value.toString())
                 }
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()

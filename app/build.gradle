@@ -87,4 +87,6 @@ dependencies {
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     implementation "io.github.l4digital:fastscroll:2.1.0"
+    implementation "com.github.yukuku:ambilwarna:2.0.1"
+    implementation "io.github.yavski:fab-speed-dial:1.0.6"
 }

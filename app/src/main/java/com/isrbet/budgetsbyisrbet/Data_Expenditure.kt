@@ -10,14 +10,12 @@ import java.util.*
 data class Expenditure(
     var date: String = "",
     var amount: Int = 0,
-    var category: String = "",
-    var subcategory: String = "",
+    var category: Int = 0,
     var note: String = "",
     var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var type: String = "",
+    var type: String = "Expense",
     var bfname1split: Int = 0,
-    var bfname2split: Int = 0,
     var mykey: String = ""
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
@@ -26,17 +24,15 @@ data class Expenditure(
             "key" -> mykey = value.trim()
             "date" -> date = value.trim()
             "amount" -> amount = value.toInt()
-            "category" -> category = value.trim()
-            "subcategory" -> subcategory = value.trim()
+            "category" -> category = value.toInt()
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
             "bfname1split" -> bfname1split = value.toInt()
-            "bfname2split" -> bfname2split = value.toInt()
             "note" -> note = value.trim()
             "type" -> type = value.trim()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
             else -> {
-                Log.d("Alex", "Unknown field in Expenditures $key $value " + this.toString())
+                if (key != "bfname2split") Log.d("Alex", "Unknown field in Expenditures $key $value $this")
             }
         }
     }
@@ -44,20 +40,22 @@ data class Expenditure(
     fun contains(iSubString: String): Boolean {
         val lc = iSubString.lowercase()
         return amount.toString().lowercase().contains(lc) ||
-                category.lowercase().contains(lc) ||
-                subcategory.lowercase().contains(lc) ||
+                CategoryViewModel.getFullCategoryName(category).lowercase().contains(lc) ||
                 SpenderViewModel.getSpenderName(paidby).lowercase().contains(lc) ||
                 SpenderViewModel.getSpenderName(boughtfor).lowercase().contains(lc) ||
                 note.lowercase().contains(lc) ||
                 date.contains(lc) ||
                 type.lowercase().contains(lc)
     }
+    fun getSplit2(): Int {
+        return 100 - bfname1split
+    }
 }
 
 data class ExpenditureOut(
-    var date: String = "", var amount: Int = 0, var category: String = "",
-    var subcategory: String = "", var note: String = "", var paidby: Int = -1, var boughtfor: Int = -1,
-    var bfname1split: Int = 0, var bfname2split: Int = 0, var type: String = ""
+    var date: String = "", var amount: Int = 0, var category: Int = 0,
+    var note: String = "", var paidby: Int = -1, var boughtfor: Int = -1,
+    var bfname1split: Int = 0, var type: String = "Expense"
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -65,14 +63,33 @@ data class ExpenditureOut(
         when (key) {
             "date" -> date = value.trim()
             "amount" -> amount = value.toInt()
-            "category" -> category = value.trim()
-            "subcategory" -> subcategory = value.trim()
+            "category" -> category = value.toInt()
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
             "bfname1split" -> bfname1split = value.toInt()
-            "bfname2split" -> bfname2split = value.toInt()
             "note" -> note = value.trim()
             "type" -> type = value.trim()
+            "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
+        }
+    }
+}
+
+data class TransferOut(
+    var date: String = "", var amount: Int = 0,
+    var paidby: Int = -1, var boughtfor: Int = -1,
+    var bfname1split: Int = 0,
+    var category: String = "Transfer", var note: String = "",
+    var type: String = "Transfer"
+) {
+    // amount is stored as original amount * 100 due to floating point issues at Firebase
+    // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
+    fun setValue(key: String, value: String) {
+        when (key) {
+            "date" -> date = value.trim()
+            "amount" -> amount = value.toInt()
+            "paidby" -> paidby = value.toInt()
+            "boughtfor" -> boughtfor = value.toInt()
+            "bfname1split" -> bfname1split = value.toInt()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
         }
     }
@@ -91,6 +108,15 @@ class ExpenditureViewModel : ViewModel() {
             return singleInstance.loaded
         }
 
+        fun expenditureExistsUsingCategory(iCategoryID: Int): Int {
+            var ctr = 0
+            singleInstance.expenditures.forEach {
+                if (it.category == iCategoryID) {
+                    ctr++
+                }
+            }
+            return ctr
+        }
         private fun getExpenditures(): MutableList<Expenditure> {
             return singleInstance.expenditures
         }
@@ -123,7 +149,7 @@ class ExpenditureViewModel : ViewModel() {
             }
 
             singleInstance.expenditures.forEach {
-                val expDiscIndicator = CategoryViewModel.getDiscretionaryIndicator(it.category, it.subcategory)
+                val expDiscIndicator = CategoryViewModel.getCategory(it.category)?.discType
                 if (expDiscIndicator == cDiscTypeDiscretionary && it.date > startDate && it.date < endDate) {
                     tmpTotal += (it.amount / 100.0)
                 }
@@ -144,8 +170,7 @@ class ExpenditureViewModel : ViewModel() {
                 }
                 var actual: Double
                 for (i in 0 until SpenderViewModel.getTotalCount()) {
-                    actual = getActualsForPeriod(
-                        Category(it.categoryName, it.subcategoryName),
+                    actual = getActualsForPeriod(it.id,
                         iBudgetMonth, iBudgetMonth,
                         i
                     )
@@ -156,7 +181,7 @@ class ExpenditureViewModel : ViewModel() {
             return  tList
         }
 
-        fun getActualsForPeriod(iCategory: Category, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: Int, iSubWho: Int = -1): Double {
+        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: Int, iSubWho: Int = -1): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
@@ -164,20 +189,19 @@ class ExpenditureViewModel : ViewModel() {
                 if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
-                        expenditure.category == iCategory.categoryName &&
-                        expenditure.subcategory == iCategory.subcategoryName &&
+                        expenditure.category == iCategoryID &&
                         (expenditure.boughtfor == iWho)) { // || iWho == "Joint")) {
                     // this is a transaction to add to our subtotal
 //                        if (iWho != "" && iWho != "Joint") // ie want a specific person
 //                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
 //                        else
-                    if (iWho == 2 && iSubWho != -1) {
+                    tTotal += if (iWho == 2 && iSubWho != -1) {
                         if (iSubWho == 0)
-                            tTotal += (expenditure.amount.toDouble() / 100 * expenditure.bfname1split /100)
+                            (expenditure.amount.toDouble() / 100 * expenditure.bfname1split /100)
                         else
-                            tTotal += (expenditure.amount.toDouble() / 100 * expenditure.bfname2split /100)
+                            (expenditure.amount.toDouble() / 100 * expenditure.getSplit2() /100)
                     } else {
-                        tTotal += (expenditure.amount.toDouble() / 100)
+                        (expenditure.amount.toDouble() / 100)
                     }
                 }
             }
@@ -186,28 +210,50 @@ class ExpenditureViewModel : ViewModel() {
 
         fun addTransaction(iExpenditure: ExpenditureOut, iLocalOnly: Boolean = false) {
             if (iLocalOnly) {
-                singleInstance.expenditures.add(Expenditure(iExpenditure.date, iExpenditure.amount, iExpenditure.category, iExpenditure.subcategory,
-                    iExpenditure.note, iExpenditure.paidby, iExpenditure.boughtfor, iExpenditure.type, iExpenditure.bfname1split, iExpenditure.bfname2split))
+                singleInstance.expenditures.add(Expenditure(iExpenditure.date, iExpenditure.amount, iExpenditure.category,
+                    iExpenditure.note, iExpenditure.paidby, iExpenditure.boughtfor, iExpenditure.type, iExpenditure.bfname1split))
             } else {
-                val key: String
-                if (iExpenditure.type == "Recurring")
-                    key = iExpenditure.note + iExpenditure.date + "R"
+                val bm = BudgetMonth(iExpenditure.date)
+                val key: String = if (iExpenditure.type == "Recurring")
+                    iExpenditure.note + iExpenditure.date + "R"
                 else
-                    key =
-                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                            .push().key.toString()
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions" +
+                    "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
+                        .push().key.toString()
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                    .child(bm.year.toString())
+                    .child(bm.get2DigitMonth())
                     .child(key)
                     .setValue(iExpenditure)
             }
+            singleInstance.expenditures.sortWith(compareBy({ it.date }, { it.note }))
         }
 
+        fun addTransaction(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
+            if (iLocalOnly) {
+                singleInstance.expenditures.add(Expenditure(iTransfer.date,
+                    iTransfer.amount, cTRANSFER_CODE, "", iTransfer.paidby,
+                    iTransfer.boughtfor, iTransfer.type, iTransfer.bfname1split,
+                    "Transfer"))
+            } else {
+                val bm = BudgetMonth(iTransfer.date)
+                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions" +
+                        "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
+                        .push().key.toString()
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                    .child(bm.year.toString())
+                    .child(bm.get2DigitMonth())
+                    .child(key)
+                    .setValue(iTransfer)
+            }
+            singleInstance.expenditures.sortWith(compareBy({ it.date }, { it.note }))
+        }
         fun refresh() {
             singleInstance.loadExpenditures()
         }
         fun clear() {
             if (singleInstance.expListener != null) {
-                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
+                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
                     .removeEventListener(singleInstance.expListener!!)
                 singleInstance.expListener = null
             }
@@ -258,8 +304,12 @@ class ExpenditureViewModel : ViewModel() {
             return iKey
         }
 
-        fun deleteTransaction(iTransactionID: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID).removeValue()
+        fun deleteTransaction(date: String, iTransactionID: String) {
+            val bm = BudgetMonth(date)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
+                .child(bm.year.toString())
+                .child(bm.get2DigitMonth())
+                .child(iTransactionID).removeValue()
             val expe =
                 getExpenditure(iTransactionID) // this block below ensures that the viewAll view is updated immediately
             val ind = singleInstance.expenditures.indexOf(expe)
@@ -271,22 +321,43 @@ class ExpenditureViewModel : ViewModel() {
         }
 
         fun updateTransaction(iTransactionID: String, iExpenditure: ExpenditureOut) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Expenditures").child(iTransactionID)
+            val bm = BudgetMonth(iExpenditure.date)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
+                .child(bm.year.toString())
+                .child(bm.get2DigitMonth())
+                .child(iTransactionID)
                 .setValue(iExpenditure)
             val expe =
                 getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
             if (expe != null) {
                 expe.date = iExpenditure.date
                 expe.note = iExpenditure.note
-                expe.subcategory = iExpenditure.subcategory
                 expe.category = iExpenditure.category
                 expe.amount = iExpenditure.amount
                 expe.paidby = iExpenditure.paidby
                 expe.boughtfor = iExpenditure.boughtfor
                 expe.bfname1split = iExpenditure.bfname1split
-                expe.bfname2split = iExpenditure.bfname2split
                 expe.type = iExpenditure.type
             }
+            singleInstance.expenditures.sortWith(compareBy({ it.date }, { it.note }))
+        }
+        fun updateTransaction(iTransactionID: String, iTransfer: TransferOut) {
+            val bm = BudgetMonth(iTransfer.date)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
+                .child(bm.year.toString())
+                .child(bm.get2DigitMonth())
+                .child(iTransactionID)
+                .setValue(iTransfer)
+            val expe =
+                getExpenditure(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
+            if (expe != null) {
+                expe.date = iTransfer.date
+                expe.amount = iTransfer.amount
+                expe.paidby = iTransfer.paidby
+                expe.boughtfor = iTransfer.boughtfor
+                expe.bfname1split = iTransfer.bfname1split
+            }
+            singleInstance.expenditures.sortWith(compareBy({ it.date }, { it.note }))
         }
         fun getEarliestYear() : Int {
             // since we know that this table is sorted on date, we simply return the first date
@@ -303,8 +374,7 @@ class ExpenditureViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         if (expListener != null) {
-            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Expenditures")
-                .orderByChild("date")
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Transactions")
                 .removeEventListener(expListener!!)
             expListener = null
         }
@@ -321,40 +391,25 @@ class ExpenditureViewModel : ViewModel() {
 
     fun loadExpenditures() {
         // Do an asynchronous operation to fetch expenditures
-        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Expenditures").orderByChild("date")
+        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
         expListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 expenditures.clear()
                 for (element in dataSnapshot.children.toMutableList()) {
-                    val tExp = Expenditure()
-                    tExp.setValue("key", element.key.toString())
-                    for (child in element.children) {
-                        if (child.key.toString() == "paidby" || child.key.toString() == "boughtfor") {
-                            // this block is temporary until everyone has transitioned
-                            val tWho: String = child.value.toString()
-                            var nWho = 0
-                            when (tWho) {
-                                "Alex" -> nWho = 0
-                                "Brent" -> nWho = 1
-                                "Joint" -> nWho = 2
-                                "Beatrice" -> nWho = 0
-                                "Margot" -> nWho = 1
-                                "Rheannon" -> nWho = 0
-                                "Matt" -> nWho = 1
-                                else -> {
-                                    Log.d("Alex", "RT is " + tExp)
-                                    Log.d("Alex", "twho is $tWho")
-                                    nWho = tWho.toInt()
-                                }
+                    for (year in element.children) {
+                        for (month in year.children) {
+                            val tExp = Expenditure()
+                            tExp.setValue("key", month.key.toString())
+                            for (child in month.children) {
+                                tExp.setValue(child.key.toString(), child.value.toString())
                             }
-                            tExp.setValue(child.key.toString(), nWho.toString())
-                        } else
-                            tExp.setValue(child.key.toString(), child.value.toString())
+                            expenditures.add(tExp)
+                        }
                     }
-                    expenditures.add(tExp)
                 }
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
+                expenditures.sortWith(compareBy({ it.date }, { it.note }))
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {

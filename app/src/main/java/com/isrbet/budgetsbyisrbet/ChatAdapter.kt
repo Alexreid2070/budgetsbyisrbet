@@ -30,7 +30,7 @@ class ChatAdapter (context: Context, data: MutableList<Chat>): BaseAdapter() {
     }
 
     // class for holding the cached view
-    class ViewHolder(view: View) {
+    class ChatViewHolder(view: View) {
         var vhDate: TextView = view.findViewById(R.id.chat_date)
         var vhTime: TextView = view.findViewById(R.id.chat_time)
         var vhUserName: TextView = view.findViewById(R.id.chat_user_name)
@@ -38,11 +38,11 @@ class ChatAdapter (context: Context, data: MutableList<Chat>): BaseAdapter() {
     }
 
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val viewHolder: ViewHolder
+        val viewHolder: ChatViewHolder
         val rtData = getItem(pos) as Chat
 
         val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_chat, parent, false)
-        viewHolder = ViewHolder(myConvertView)
+        viewHolder = ChatViewHolder(myConvertView)
 
         viewHolder.vhDate.text = rtData.date
         viewHolder.vhTime.text = rtData.time

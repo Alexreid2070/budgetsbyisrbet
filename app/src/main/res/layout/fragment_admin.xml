@@ -185,12 +185,12 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/button_reinit"
+                android:id="@+id/button_dosomething"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="Do stuff"
+                android:text="Do something"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

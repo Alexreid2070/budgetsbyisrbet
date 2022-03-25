@@ -28,10 +28,10 @@ class BudgetDialogFragment : DialogFragment() {
     private var _binding: FragmentBudgetEditDialogBinding? = null
     private val binding get() = _binding!!
     private var currentMode = "View"
+    private var monthInt = -1
 
     companion object {
-        private const val KEY_CATEGORY = "KEY_CATEGORY"
-        private const val KEY_SUBCATEGORY = "KEY_SUBCATEGORY"
+        private const val KEY_CATEGORY_ID = "KEY_CATEGORY_ID"
         private const val KEY_YEAR_VALUE = "KEY_YEAR_VALUE"
         private const val KEY_MONTH_VALUE = "KEY_MONTH_VALUE"
         private const val KEY_WHO_VALUE = "KEY_WHO_VALUE"
@@ -44,12 +44,11 @@ class BudgetDialogFragment : DialogFragment() {
         private var oldOccurence: Int = -1
 
         fun newInstance(
-            fullCategory: Category,
+            categoryID: Int,
             year: Int, month: Int, who: Int, amount: Double, occurence: Int
         ): BudgetDialogFragment {
             val args = Bundle()
-            args.putString(KEY_CATEGORY, fullCategory.categoryName)
-            args.putString(KEY_SUBCATEGORY, fullCategory.subcategoryName)
+            args.putString(KEY_CATEGORY_ID, categoryID.toString())
             args.putString(KEY_YEAR_VALUE, year.toString())
             args.putString(KEY_MONTH_VALUE, month.toString())
             args.putString(KEY_WHO_VALUE, who.toString())
@@ -96,6 +95,10 @@ class BudgetDialogFragment : DialogFragment() {
                 binding.budgetDialogNewWhoRadioGroup.check(newRadioButton.id)
             }
         }
+        binding.whoField.text = SpenderViewModel.getSpenderName(oldWho)
+        if (currentMode == "View") {
+            binding.budgetDialogNewWhoRadioGroup.visibility = View.GONE
+        }
         ctr = 300
         var newRadioButton = RadioButton(requireContext())
         newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -104,6 +107,10 @@ class BudgetDialogFragment : DialogFragment() {
         binding.budgetDialogOccurenceRadioGroup.addView(newRadioButton)
         if (oldOccurence == 1)
             binding.budgetDialogOccurenceRadioGroup.check(newRadioButton.id)
+        binding.occurenceField.text = if (oldOccurence == 0) "Recurring" else "Just once"
+        if (currentMode == "View") {
+            binding.budgetDialogOccurenceRadioGroup.visibility = View.GONE
+        }
 
         newRadioButton = RadioButton(requireContext())
         newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -134,23 +141,31 @@ class BudgetDialogFragment : DialogFragment() {
     }
 
     private fun setupView() {
-        binding.budgetDialogCategory.text = arguments?.getString(KEY_CATEGORY)
-        binding.budgetDialogSubcategory.text = arguments?.getString(KEY_SUBCATEGORY)
+        val categoryID = arguments?.getString(KEY_CATEGORY_ID)
+        val cat = CategoryViewModel.getCategory(categoryID.toString().toInt())
+        binding.budgetDialogCategoryID.text = cat?.id.toString()
+        binding.budgetDialogCategory.text = cat?.categoryName
+        binding.budgetDialogSubcategory.text = cat?.subcategoryName
         binding.budgetDialogYear.text = arguments?.getString(KEY_YEAR_VALUE)
         val month = arguments?.getString(KEY_MONTH_VALUE)
-        if (month == "0")
+        monthInt = if (month == "") -1 else month?.toInt()?.minus(1)!!
+        if (monthInt == -1)
             binding.budgetDialogMonth.text = ""
         else
-            binding.budgetDialogMonth.text = month
+            binding.budgetDialogMonth.text = MonthNames[monthInt!!]
         val dec = DecimalFormat("#.00")
         val amtDouble: Double
         val amt = arguments?.getString(KEY_AMOUNT_VALUE)
         amtDouble = amt?.toDouble() ?: 0.0
         binding.budgetDialogNewAmount.setText(dec.format(amtDouble))
+        binding.amountField.text = "$ " + dec.format(amtDouble)
+        if (currentMode == "View") {
+            binding.amountLayout.visibility = View.GONE
+        }
+
         val who = arguments?.getString(KEY_WHO_VALUE)
         Log.d("Alex", "who is $who")
         val occurence = arguments?.getString(KEY_OCCURENCE_VALUE)
-        Log.d("Alex", "occurence is $occurence")
 
         val whoRadioGroup = binding.budgetDialogNewWhoRadioGroup
         for (i in 0 until whoRadioGroup.childCount) {
@@ -168,7 +183,7 @@ class BudgetDialogFragment : DialogFragment() {
         binding.budgetDialogButtonEdit.setOnClickListener {
             if (currentMode == "View") {
                 binding.budgetDialogButtonEdit.text = "Save"
-                binding.budgetDialogButtonDelete.text = "Cancel"
+                binding.budgetDialogButtonDelete.visibility = View.GONE
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
                     (binding.budgetDialogNewWhoRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
                 }
@@ -177,6 +192,12 @@ class BudgetDialogFragment : DialogFragment() {
                 }
                 binding.budgetDialogNewAmount.isEnabled = true
                 currentMode = "Edit"
+                binding.amountLayout.visibility = View.VISIBLE
+                binding.amountField.visibility = View.GONE
+                binding.budgetDialogNewWhoRadioGroup.visibility = View.VISIBLE
+                binding.whoField.visibility = View.GONE
+                binding.budgetDialogOccurenceRadioGroup.visibility = View.VISIBLE
+                binding.occurenceField.visibility = View.GONE
             } else { // it's edit
                 // Make sure there are values set for all fields
                 if (binding.budgetDialogNewAmount.text.toString() == "") {
@@ -210,10 +231,9 @@ class BudgetDialogFragment : DialogFragment() {
                         if (o.isChecked)
                             newOccurence = o.text.toString()
                 }
-                Log.d("Alex", "oldOccurence is $oldOccurence and new is $newOccurence")
                 if (oldWho == newWho) {
                     BudgetViewModel.updateBudget(
-                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),
+                        binding.budgetDialogCategoryID.text.toString().toInt(),
                         BudgetMonth(
                             oldYear, oldMonth
                         ).toString(),
@@ -230,31 +250,34 @@ class BudgetDialogFragment : DialogFragment() {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             if (dataSnapshot.value == null) { // nothing exists at this node so we can add it
                                 Log.d("Alex", "Nothing exists at this node so we can add it ")
-                                val monthToUse: Int = if (binding.budgetDialogMonth.text.toString() == "")
+                                val monthToUse: Int = if (monthInt == -1)
                                     0
                                 else
-                                    binding.budgetDialogMonth.text.toString().toInt()
+                                    monthInt + 1
                                 val prevMonth = BudgetMonth(
                                     binding.budgetDialogYear.text.toString().toInt(),
                                     monthToUse
                                 )
                                 prevMonth.decrementMonth()
                                 val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(
-                                    Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                    prevMonth,
+                                    binding.budgetDialogCategoryID.text.toString().toInt(),
+                                    prevMonth,
                                     newWho
                                 )
                                 Log.d("Alex", "tmpDouble1 is " + tmpDouble1.toString() + " and tmpPrev is " + tmpPrevAmt.amount.toString())
                                 if (tmpDouble1 == tmpPrevAmt.amount) {
                                     // ie new amount is same as previous month, so we can just delete this month's change
                                     BudgetViewModel.deleteBudget(
-                                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                        BudgetMonth(
+                                        binding.budgetDialogCategoryID.text.toString().toInt(),
+                                        BudgetMonth(
                                             oldYear, oldMonth
                                         ).toString(),
                                         newWho
                                     )
                                     // delete oldWho
                                     BudgetViewModel.deleteBudget(
-                                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                                        BudgetMonth(
+                                        binding.budgetDialogCategoryID.text.toString().toInt(),
+                                        BudgetMonth(
                                         oldYear, oldMonth
                                         ).toString(), oldWho
                                     )
@@ -266,13 +289,13 @@ class BudgetDialogFragment : DialogFragment() {
                                         "tmpDouble1 is same as previous month so just deleted the entry '$tmpDouble1'"
                                     )
                                 } else { // new amount is different from previous month, so need to record it
-                                    val  tempBudget = BudgetViewModel.getBudget(Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()))
+                                    val  tempBudget = BudgetViewModel.getBudget(binding.budgetDialogCategoryID.text.toString().toInt())
                                     if (tempBudget != null) {
                                         if (!tempBudget.overlapsWithExistingBudget(
                                                 BudgetMonth(binding.budgetDialogYear.text.toString().toInt(), monthToUse).toString(),
                                                 newWho)) {
                                             BudgetViewModel.updateBudget(
-                                                Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),
+                                                binding.budgetDialogCategoryID.text.toString().toInt(),
                                                 BudgetMonth(
                                                     oldYear, oldMonth
                                                 ).toString(),
@@ -282,7 +305,7 @@ class BudgetDialogFragment : DialogFragment() {
                                             )
                                             // delete oldWho
                                             BudgetViewModel.deleteBudget(
-                                                Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),
+                                                binding.budgetDialogCategoryID.text.toString().toInt(),
                                                 BudgetMonth(
                                                     oldYear, oldMonth
                                                 ).toString(),
@@ -316,12 +339,12 @@ class BudgetDialogFragment : DialogFragment() {
                             MyApplication.displayToast("User authorization failed 103.")
                         }
                     }
-                    val monthToUse: Int = if (binding.budgetDialogMonth.text.toString() == "")
+                    val monthToUse: Int = if (monthInt == -1)
                         0
                     else
-                        binding.budgetDialogMonth.text.toString().toInt()
+                        monthInt + 1
                     val dbRef =
-                        MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/NewBudget")
+                        MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Budget")
                             .child(binding.budgetDialogCategory.text.toString()+"-"+binding.budgetDialogSubcategory.text.toString())
                             .child(
                                 BudgetMonth(
@@ -342,7 +365,8 @@ class BudgetDialogFragment : DialogFragment() {
                     else
                         binding.budgetDialogMonth.text.toString().toInt()
                     BudgetViewModel.deleteBudget(
-                        Category(binding.budgetDialogCategory.text.toString(), binding.budgetDialogSubcategory.text.toString()),                        BudgetMonth(
+                        binding.budgetDialogCategoryID.text.toString().toInt(),
+                        BudgetMonth(
                         binding.budgetDialogYear.text.toString().toInt(),
                         monthToUse
                     ).toString(), oldWho

@@ -31,9 +31,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:gravity="end"
+            android:gravity="center"
             android:layout_weight="1"
-            android:text="Amt"
+            android:text="Amount"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
@@ -42,12 +42,13 @@
             android:id="@+id/percentage1Heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="center"
             android:gravity="end"
             android:layout_weight="1"
             android:text="Amt1"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:tooltipText="The primary user's portion of the total amount."
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/percentage2Heading"
@@ -59,6 +60,7 @@
             android:text="Amt2"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:tooltipText="The secondary user's portion of the total amount."
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/categoryHeading"
@@ -66,24 +68,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:gravity="end"
-            android:layout_weight="1"
-            android:text="Cat"
+            android:layout_weight="1.5"
+            android:text="Category"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="Category"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/subCategoryHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:gravity="end"
-            android:layout_weight="1"
-            android:text="SubCat"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:tooltipText="Sub-Category"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -93,7 +82,7 @@
             android:layout_gravity="end"
             android:gravity="end"
             android:layout_weight="1"
-            android:text="By:For"
+            android:text="Who"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="Who paid for the expense, and who was it bought for.  If name is the same, only one name is shown."
@@ -118,6 +107,8 @@
             android:layout_gravity="end"
             android:layout_weight=".5"
             android:text="D?"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="D = Discretionary, ND = Non-Discretionary"
@@ -132,7 +123,7 @@
             android:text="Typ"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="R = Recurring transaction, T = Transfer, otherwise blank."
+            android:tooltipText="E = Expense, R = Recurring transaction, T = Transfer"
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/runningTotalHeading"
@@ -149,7 +140,7 @@
     </LinearLayout>
 
     <com.l4digital.fastscroll.FastScrollRecyclerView
-        android:id="@+id/recycler_view"
+        android:id="@+id/transaction_view_all_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:bubbleColor="?attr/colorPrimary"
@@ -219,7 +210,7 @@
         android:orientation="horizontal"
         android:paddingTop="5dp"
         app:layout_constraintBottom_toTopOf="@+id/nav_button_linear_layout"
-        app:layout_constraintTop_toBottomOf="@+id/recycler_view">
+        app:layout_constraintTop_toBottomOf="@+id/transaction_view_all_recycler_view">
         <Space
             android:layout_width="5dp"
             android:layout_height="wrap_content"/>
@@ -376,7 +367,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
@@ -401,13 +392,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:layout_weight="1"
-                android:text="Show Category/Subcategory columns?  "
+                android:text="Show Category column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText">
@@ -416,7 +407,7 @@
                 android:id="@+id/show_category_columns"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:textOn="On"
                 android:textOff="Off"
                 android:checked="true"
@@ -426,7 +417,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
@@ -451,7 +442,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
@@ -476,7 +467,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
@@ -501,7 +492,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
@@ -526,7 +517,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"

@@ -37,6 +37,10 @@
             android:name="accountingFlag"
             app:argType="string"
             android:defaultValue='' />
+        <argument
+            android:name="categoryID"
+            app:argType="string"
+            android:defaultValue='' />
         <action
             android:id="@+id/action_TransactionViewAllFragment_to_TransactionFragment"
             app:destination="@id/TransactionFragment" />
@@ -71,7 +75,14 @@
         android:id="@+id/CategoryFragment"
         android:name="com.isrbet.budgetsbyisrbet.CategoryFragment"
         android:label="@string/settings_edit_category_label"
-        tools:layout="@layout/fragment_category" />
+        tools:layout="@layout/fragment_category">
+    <action
+        android:id="@+id/action_CategoryFragment_to_BudgetViewAllFragment"
+        app:destination="@id/BudgetViewAllFragment" />
+        <action
+            android:id="@+id/action_CategoryFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
+    </fragment>
     <fragment
         android:id="@+id/AccountingFragment"
         android:name="com.isrbet.budgetsbyisrbet.AccountingFragment"
@@ -104,11 +115,7 @@
         android:label="fragment_budget"
         tools:layout="@layout/fragment_budget" >
         <argument
-            android:name="category"
-            app:argType="string"
-            android:defaultValue="" />
-        <argument
-            android:name="subcategory"
+            android:name="categoryID"
             app:argType="string"
             android:defaultValue="" />
     </fragment>
@@ -120,15 +127,11 @@
         <action
             android:id="@+id/action_BudgetViewAllFragment_to_BudgetFragment"
             app:destination="@id/BudgetFragment" >
-            <argument
-                android:name="category"
-                app:argType="string"
-                android:defaultValue="" />
-            <argument
-                android:name="subcategory"
-                app:argType="string"
-                android:defaultValue="" />
         </action>
+        <argument
+            android:name="categoryID"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
     <fragment
         android:id="@+id/ChatFragment"
@@ -145,4 +148,10 @@
         android:name="com.isrbet.budgetsbyisrbet.TranslationViewAllFragment"
         android:label="Translations"
         tools:layout="@layout/fragment_translation_view_all" />
+    <fragment
+        android:id="@+id/CategoryDetailsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.CategoryDetailsFragment"
+        android:label="CategoryDetails"
+        tools:layout="@layout/fragment_category_details" />
+
 </navigation>

@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/row_category_id"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:visibility="gone">
-    </TextView>
-    <TextView
-        android:id="@+id/row_category"
+        android:id="@+id/row_category_name"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight=".65"
+        android:layout_weight="1"
         android:layout_gravity="start"
         android:gravity="start"
         android:padding="10dip"
         android:textSize="14sp">
     </TextView>
-    <TextView
-        android:id="@+id/row_disctype"
+    <ImageView
+        android:id="@+id/row_category_color"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight=".35"
+        android:layout_weight=".3"
         android:layout_gravity="start"
-        android:gravity="start"
+        android:gravity="center"
         android:padding="10dip"
-        android:textSize="14sp">
-    </TextView>
+        android:src="@drawable/ic_baseline_format_paint_24"
+        android:contentDescription="Paint the category"
+        android:textSize="14sp"
+        tools:ignore="HardcodedText">
+    </ImageView>
 </LinearLayout>
