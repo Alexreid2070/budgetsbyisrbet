@@ -65,6 +65,9 @@
         <action
             android:id="@+id/action_DashboardFragment_to_TransactionViewAllFragment"
             app:destination="@id/TransactionViewAllFragment" />
+        <action
+            android:id="@+id/action_DashboardFragment_to_BudgetViewAllFragment"
+            app:destination="@id/BudgetViewAllFragment" />
     </fragment>
     <fragment
         android:id="@+id/AdminFragment"
@@ -79,9 +82,12 @@
     <action
         android:id="@+id/action_CategoryFragment_to_BudgetViewAllFragment"
         app:destination="@id/BudgetViewAllFragment" />
-        <action
-            android:id="@+id/action_CategoryFragment_to_TransactionViewAllFragment"
-            app:destination="@id/TransactionViewAllFragment" />
+    <action
+        android:id="@+id/action_CategoryFragment_to_TransactionViewAllFragment"
+        app:destination="@id/TransactionViewAllFragment" />
+    <action
+        android:id="@+id/action_CategoryFragment_to_BudgetFragment"
+        app:destination="@id/BudgetFragment"/>
     </fragment>
     <fragment
         android:id="@+id/AccountingFragment"

@@ -12,8 +12,8 @@
             android:topRightRadius="0dp" />
         <stroke
             android:width="3dp"
-            android:color="#FFFFFF" />
-        <solid android:color="#44FFFFFF" />
+            android:color="#000000" />
+        <solid android:color="#FFFFFF" />
     </shape>
 
 </inset>

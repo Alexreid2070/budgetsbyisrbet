@@ -114,6 +114,5 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         MyApplication.releaseResources()
-        MyApplication.haveLoadedDataForThisUser = false
     }
 }

@@ -70,6 +70,7 @@ class RecurringTransactionFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.rt_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
+        HintViewModel.showHint(requireContext(), binding.rtAddFab, "RecurringTransaction")
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

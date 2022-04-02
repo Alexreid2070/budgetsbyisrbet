@@ -5,7 +5,10 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.res.ColorStateList
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -26,6 +29,7 @@ import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.GestureDetectorCompat
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
@@ -212,6 +216,10 @@ class TransactionFragment : Fragment() {
             val selectedId = binding.categoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString(), "")
+            val cat = DefaultsViewModel.getCategoryDetail(radioButton.text.toString())
+            if (cat.color != 0) {
+                colorCategoryArea(cat.color)
+            }
         }
 
         if (SpenderViewModel.singleUser()) {
@@ -344,8 +352,19 @@ class TransactionFragment : Fragment() {
             false
         }
         binding.editTextAmount.requestFocus()
+        HintViewModel.showHint(requireContext(), binding.editTextAmount, "Transaction")
     }
 
+    private fun colorCategoryArea(iColor:Int) {
+//        binding.inputCategoryLabel.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
+//        binding.categoryRadioGroup.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
+//        binding.inputSpinnerLayout.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
+//        binding.inputSubcategorySpinner.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
+        binding.inputCategoryLabel.setBackgroundColor(iColor)
+        binding.categoryRadioGroup.setBackgroundColor(iColor)
+        binding.inputSpinnerLayout.setBackgroundColor(iColor)
+        binding.inputSubcategorySpinner.setBackgroundColor(iColor)
+    }
     override fun onPause() {
         super.onPause()
         hideKeyboard(requireContext(), requireView())
@@ -487,9 +506,11 @@ class TransactionFragment : Fragment() {
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
             binding.editTextAmount.setText(dec.format(formattedAmount))
             binding.transactionId.text = iTransactionID
+            binding.categoryId.text = thisTransaction.category.toString()
             if (MyApplication.adminMode) {
                 binding.transactionIdLayout.visibility = View.VISIBLE
                 binding.transactionId.visibility = View.VISIBLE
+                binding.categoryId.visibility = View.VISIBLE
                 binding.transactionTypeLayout.visibility = View.VISIBLE
             }
 
@@ -750,6 +771,10 @@ class TransactionFragment : Fragment() {
             radioGroup.addView(newRadioButton)
             if (newTransactionMode && newRadioButton.text.toString() == CategoryViewModel.getDefaultCategory()?.categoryName) {
                 radioGroup.check(newRadioButton.id)
+                val cat = DefaultsViewModel.getCategoryDetail(newRadioButton.text.toString())
+                if (cat.color != 0) {
+                    colorCategoryArea(cat.color)
+                }
             }
         }
         addSubCategories(CategoryViewModel.getDefaultCategory()?.categoryName.toString(),

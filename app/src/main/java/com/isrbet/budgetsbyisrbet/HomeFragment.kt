@@ -52,6 +52,7 @@ class HomeFragment : Fragment() {
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
     private val userModel: UserViewModel by viewModels()
     private val chatModel: ChatViewModel by viewModels()
+    private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
     private var gestureDetector: GestureDetectorCompat? = null
 
@@ -66,6 +67,7 @@ class HomeFragment : Fragment() {
         recurringTransactionModel.clearCallback()
         defaultsModel.clearCallback()
         translationModel.clearCallback()
+        hintModel.clearCallback()
     }
 
     override fun onCreateView(
@@ -288,6 +290,11 @@ class HomeFragment : Fragment() {
                 tryToUpdateChatIcon()
             }
         })
+        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignExpenditureMenuWithDataState()
+            }
+        })
         ExpenditureViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignExpenditureMenuWithDataState()
@@ -487,7 +494,7 @@ class HomeFragment : Fragment() {
                         .child("JoinUser")
                 dbRef.addListenerForSingleValueEvent(joinListener)
 
-                loadEverything()
+       //         loadEverything()
             }
         }
         alignExpenditureMenuWithDataState()
@@ -496,6 +503,7 @@ class HomeFragment : Fragment() {
     private fun loadEverything() {
         Log.d("Alex", "uid is " + MyApplication.userUID)
         getLastReadChatsInfo()
+        hintModel.loadHints()
         defaultsModel.loadDefaults()
         categoryModel.loadCategories()
         spenderModel.loadSpenders()
@@ -529,7 +537,7 @@ class HomeFragment : Fragment() {
         if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
             && RecurringTransactionViewModel.isLoaded()
             && ExpenditureViewModel.isLoaded() && BudgetViewModel.isLoaded() &&
-            DefaultsViewModel.isLoaded()
+            DefaultsViewModel.isLoaded() && HintViewModel.isLoaded()
         ) {
             if (thisIsANewUser()) {
                 Log.d("Alex", "This is a new user")
@@ -555,6 +563,7 @@ class HomeFragment : Fragment() {
                 childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
             trackerFragment.loadBarChart()
             DefaultsViewModel.confirmCategoryDetailsListIsComplete()
+            HintViewModel.showHint(requireContext(), binding.transactionAddFab, "Home")
         } else {
             (activity as MainActivity).setLoggedOutMode(true)
             binding.expandButton.isEnabled = false

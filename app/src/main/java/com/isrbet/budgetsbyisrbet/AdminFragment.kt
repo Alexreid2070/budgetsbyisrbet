@@ -40,16 +40,18 @@ class AdminFragment : Fragment() {
             RecurringTransactionViewModel.clear()
             TranslationViewModel.clear()
 
-            SpenderViewModel.refresh()
-            //convertCategories()
-            CategoryViewModel.refresh()
-            DefaultsViewModel.refresh()
-            //convertBudgets()
-            //convertExpenditures()
-            moveExpendituresToDateFolders()
-            //convertRecurringTransactions()
+            MyApplication.userUID="AgcnEPqB4zbDJUHME3Z29gejcyu1"
 
+            SpenderViewModel.refresh()
+//            convertCategories()
+            CategoryViewModel.refresh()
+            //convertDefaults()
+            DefaultsViewModel.refresh()
+            // convertRecurringTransactions()
 //            RecurringTransactionViewModel.refresh()
+            //convertBudgets()
+            convertExpenditures()
+
 //            BudgetViewModel.refresh()
 //            ExpenditureViewModel.refresh()
 //            ChatViewModel.refresh()
@@ -144,11 +146,12 @@ class AdminFragment : Fragment() {
                                 .child(previousCategoryID.toString())
                                 .child("Type")
                                 .setValue(subcategoryType)
+                            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+                                .child(category)
+                                .child(subcategory)
+                                .removeValue()
                         }
                     }
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
-                        .child(category)
-                        .removeValue()
                 }
             }
 
@@ -189,45 +192,120 @@ class AdminFragment : Fragment() {
     fun convertExpenditures() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                var i = 0
                 dataSnapshot.children.forEach {
+                    i += 1
                     var categoryName = ""
                     var subcategoryName = ""
                     var expID = it.key.toString()
+
+                    var amount = 0
+                    var bfname1split = 0
+                    var boughtfor = 0
+                    var category = 0
+                    var date = ""
+                    var note = ""
+                    var paidby = 0
+                    var type = ""
                     for (child in it.children) {
                         when (child.key.toString()) {
-                            "paidby" -> {
-                                val spenderID = SpenderViewModel.getSpenderIndex(child.value.toString())
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                                    .child(expID)
-                                    .child("paidby")
-                                    .setValue(spenderID)
-                            }
+                            "amount" -> amount = child.value.toString().toInt()
+                            "bfname1split" -> bfname1split = child.value.toString().toInt()
                             "boughtfor" -> {
-                                val spenderID = SpenderViewModel.getSpenderIndex(child.value.toString())
-                                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                                    .child(expID)
-                                    .child("boughtfor")
-                                    .setValue(spenderID)
+                                boughtfor = SpenderViewModel.getSpenderIndex(child.value.toString())
                             }
-                            "category" -> {
-                                categoryName = child.value.toString()
+                            "category" -> categoryName = child.value.toString()
+                            "subcategory" -> subcategoryName = child.value.toString()
+                            "paidby" -> {
+                                paidby = SpenderViewModel.getSpenderIndex(child.value.toString())
                             }
-                            "subcategory" -> {
-                                subcategoryName = child.value.toString()
-                            }
+                            "date" -> date = child.value.toString().trim()
+                            "note" -> note = child.value.toString().trim()
+                            "type" -> type = if (child.value.toString().trim() == "") "Expense" else child.value.toString().trim()
                         }
                     }
-                    val catID = CategoryViewModel.getID(categoryName, subcategoryName)
-                    if (catID == 0)
+
+                    if (type == "Transfer")
+                        category = -99
+                    else
+                        category = CategoryViewModel.getID(categoryName, subcategoryName)
+                    if (category == 0)
                         Log.d("Alex", "Unknown category in convertExpenditures $expID $categoryName $subcategoryName")
-                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                        .child(expID)
-                        .child("category")
-                        .setValue(CategoryViewModel.getID(categoryName, subcategoryName))
-                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
-                        .child(expID)
-                        .child("subcategory")
-                        .removeValue()
+
+                    if (date == "")
+                        Log.d("Alex", "What is this $expID")
+                    val bm = BudgetMonth(date)
+                    if (bm.year == 2022 && bm.month == 3 && date > "2022-03-19") {
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("amount")
+                            .setValue(amount)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("bfname1split")
+                            .setValue(bfname1split)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("boughtfor")
+                            .setValue(boughtfor)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("category")
+                            .setValue(category)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("paidby")
+                            .setValue(paidby)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("date")
+                            .setValue(date)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("note")
+                            .setValue(note)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
+                            .child(bm.year.toString())
+                            .child(bm.get2DigitMonth())
+                            .child(expID)
+                            .child("type")
+                            .setValue(type)
+                        Log.d(
+                            "Alex",
+                            "Completed transaction $i of ${dataSnapshot.children.count()}"
+                        )
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                MyApplication.displayToast("User authorization failed 102.")
+            }
+        }
+        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+            .addListenerForSingleValueEvent(listener)
+    }
+    fun checkExpenditures() {
+        val listener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                var i = 0
+                dataSnapshot.children.forEach {
+                    if (!ExpenditureViewModel.exists(it.key.toString()))
+                        Log.d("Alex", "Can't find " + it.key.toString())
                 }
             }
 
@@ -241,7 +319,9 @@ class AdminFragment : Fragment() {
     fun moveExpendituresToDateFolders() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                var i = 0
                 dataSnapshot.children.forEach {
+                    i += 1
                     var amount = 0
                     var bfname1split = 0
                     var boughtfor = 0
@@ -314,6 +394,7 @@ class AdminFragment : Fragment() {
                         .child(expID)
                         .child("type")
                         .setValue(type)
+                    Log.d("Alex", "Completed transaction $i of ${dataSnapshot.children.count()}")
                 }
             }
 
@@ -321,7 +402,7 @@ class AdminFragment : Fragment() {
                 MyApplication.displayToast("User authorization failed 102.")
             }
         }
-        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
+        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures2")
             .addListenerForSingleValueEvent(listener)
     }
     fun convertRecurringTransactions() {

@@ -240,6 +240,7 @@ class SettingsFragment : Fragment() {
                 binding.settingsCancelButton.visibility = View.VISIBLE
             }
             if (binding.switchSecondUserActive.isChecked) {
+                binding.authorizationKeyLayout.visibility = View.VISIBLE
                 binding.secondUserLayout.visibility = View.VISIBLE
                 binding.shareUIDLayout.visibility = View.VISIBLE
                 binding.splitSliderLayout.visibility = View.VISIBLE

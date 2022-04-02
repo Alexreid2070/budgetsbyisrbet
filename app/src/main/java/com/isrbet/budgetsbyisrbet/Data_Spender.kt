@@ -37,7 +37,7 @@ class SpenderViewModel : ViewModel() {
                 null
         }
         fun getSpenderName(index:Int): String {
-            return if (index  < singleInstance.spenders.size)
+            return if (index >= 0 && index  < singleInstance.spenders.size)
                 singleInstance.spenders[index].name
             else
                 ""

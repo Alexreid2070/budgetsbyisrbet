@@ -25,6 +25,9 @@ const val cDEFAULT_VIEW_PERIOD_DASHBOARD = "ViewPeriodDashboard"
 const val cDEFAULT_FILTER_DISC_DASHBOARD = "FilterDiscDashboard"
 const val cDEFAULT_FILTER_WHO_DASHBOARD = "FilterWhoDashboard"
 const val cDEFAULT_DELTA_DASHBOARD = "DeltaDashboard"
+const val cDEFAULT_ROUND_DASHBOARD = "RoundDashboard"
+const val cDEFAULT_SHOW_DISC_DASHBOARD = "ShowDiscDashboard"
+const val cDEFAULT_BUDGET_VIEW = "BudgetView"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -46,6 +49,9 @@ class DefaultsViewModel : ViewModel() {
     private var defaultFilterDiscDashboard: String = ""
     private var defaultFilterWhoDashboard: String = ""
     private var defaultDeltaDashboard: String = "#"
+    private var defaultRoundDashboard: String = "false"
+    private var defaultShowDiscDashboard: String = "true"
+    private var defaultBudgetView: String = "Date"
     private val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
     private var loaded:Boolean = false
 
@@ -73,6 +79,9 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default filterDiscDashboard is " + singleInstance.defaultFilterDiscDashboard)
             Log.d("Alex", "Default filterWhoDashboard is " + singleInstance.defaultFilterWhoDashboard)
             Log.d("Alex", "Default deltaDashboard is " + singleInstance.defaultDeltaDashboard)
+            Log.d("Alex", "Default roundDashboard is " + singleInstance.defaultRoundDashboard)
+            Log.d("Alex", "Default showDiscDashboard is " + singleInstance.defaultShowDiscDashboard)
+            Log.d("Alex", "Default budgetView is " + singleInstance.defaultBudgetView)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -98,6 +107,9 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_FILTER_DISC_DASHBOARD -> return singleInstance.defaultFilterDiscDashboard
                 cDEFAULT_FILTER_WHO_DASHBOARD -> return singleInstance.defaultFilterWhoDashboard
                 cDEFAULT_DELTA_DASHBOARD -> return singleInstance.defaultDeltaDashboard
+                cDEFAULT_ROUND_DASHBOARD -> return singleInstance.defaultRoundDashboard
+                cDEFAULT_SHOW_DISC_DASHBOARD -> return singleInstance.defaultShowDiscDashboard
+                cDEFAULT_BUDGET_VIEW -> return singleInstance.defaultBudgetView
                 else -> return ""
             }
         }
@@ -174,9 +186,11 @@ class DefaultsViewModel : ViewModel() {
             }
             return maxPriority + 1
         }
-        fun getCategoryDetail(iCatName: String): CategoryDetail? {
+        fun getCategoryDetail(iCatName: String): CategoryDetail {
             return singleInstance.defaultCategoryDetails.find { it.name == iCatName }
+                ?: CategoryDetail(iCatName, 0, 9999)
         }
+
         fun setColour(iCatName: String, iColour: Int, iUpdateLocalOnly: Boolean) {
             val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
             if (cat == null) {
@@ -225,6 +239,11 @@ class DefaultsViewModel : ViewModel() {
                 if (singleInstance.defaultCategoryDetails[i].priority != i) {
                     setPriority(singleInstance.defaultCategoryDetails[i].name, i, false)
                 }
+            }
+        }
+        fun showMeCategoryDetails() {
+            singleInstance.defaultCategoryDetails.forEach {
+                Log.d("Alex", "${it.name} ${it.color} ${it.priority}" )
             }
         }
     }
@@ -303,14 +322,18 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_DELTA_DASHBOARD -> {
                 singleInstance.defaultDeltaDashboard = iValue
             }
+            cDEFAULT_ROUND_DASHBOARD -> {
+                singleInstance.defaultRoundDashboard = iValue
+            }
+            cDEFAULT_SHOW_DISC_DASHBOARD -> {
+                singleInstance.defaultShowDiscDashboard = iValue
+            }
+            cDEFAULT_BUDGET_VIEW -> {
+                singleInstance.defaultBudgetView = iValue
+            }
             else -> {
                 Log.d("Alex", "Unknown default $whichOne $iValue")
             }
-        }
-    }
-    fun showMeCategoryDetails() {
-        defaultCategoryDetails.forEach {
-            Log.d("Alex", "${it.name} ${it.color} ${it.priority}" )
         }
     }
     fun loadDefaults() {
@@ -329,6 +352,7 @@ class DefaultsViewModel : ViewModel() {
                                     "priority" -> setPriority(catName, def.value.toString().toInt(), true)
                                 }
                             }
+
                         }
                     } else
                         setLocal(it.key.toString(), it.value.toString())

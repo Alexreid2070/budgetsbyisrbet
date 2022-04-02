@@ -53,7 +53,11 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         if (cData.discType == cDiscTypeOff) {
             viewHolder.vhCategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
+        } else {
+            viewHolder.vhCategory.setTextColor(ContextCompat.getColor(myContext, R.color.black))
+            viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.black))
         }
+        myConvertView.setBackgroundColor(DefaultsViewModel.getCategoryDetail(cData.categoryName).color)
         return myConvertView
     }
 }

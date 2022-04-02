@@ -96,7 +96,7 @@ class TransactionViewAllFragment : Fragment() {
                     Log.d("Alex", "I clicked item " + item.mykey)
                     MyApplication.transactionFirstInList =
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-
+                    Log.d("Alex", "transactionfirstinlist is now " + MyApplication.transactionFirstInList)
                     if (item.type == "Transfer") {
                         val action =
                             TransactionViewAllFragmentDirections.actionTransactionViewAllFragmentToTransferFragment()
@@ -276,6 +276,13 @@ class TransactionViewAllFragment : Fragment() {
             )
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 getNewPosition,
+                0
+            )
+        }
+
+        binding.buttonToday.setOnClickListener {
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                adapter.getCount() - 1,
                 0
             )
         }
@@ -504,6 +511,7 @@ class TransactionViewAllFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
+        HintViewModel.showHint(requireContext(), binding.transactionAddFab, "TransactionViewAll")
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -590,6 +598,8 @@ class TransactionViewAllFragment : Fragment() {
             searchView.setQuery("", false)
             searchView.clearFocus()
             binding.totalLayout.visibility = View.GONE
+            MyApplication.transactionFirstInList = cLAST_ROW
+            goToCorrectRow()
         }
     }
     private fun updateView() {
@@ -603,7 +613,8 @@ class TransactionViewAllFragment : Fragment() {
     private fun goToCorrectRow() {
         val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        if (MyApplication.transactionFirstInList == 0)
+        Log.d("Alex", "gotoCorrectRow transactionFirstInList is ${MyApplication.transactionFirstInList} and getCount is ${adapter.getCount()}")
+        if (MyApplication.transactionFirstInList == cLAST_ROW)
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getCount() - 1,
                 0

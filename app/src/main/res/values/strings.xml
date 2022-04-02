@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BudgetsByISRBET</string>
+    <string name="app_name">On Budget</string>
     <!-- Strings used for fragments for navigation -->
     <string name="settings_fragment_label">Settings</string>
     <string name="transaction_fragment_label">Expenditures</string>

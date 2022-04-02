@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.Drawable
 import android.icu.text.DecimalFormat
 import android.os.Build
 import android.os.Bundle
@@ -15,11 +14,13 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.round
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -65,6 +66,14 @@ class DashboardFragment : Fragment() {
             "#" -> binding.dollarRadioButton.isChecked = true
             "%" -> binding.percentageRadioButton.isChecked = true
         }
+        when (DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD)) {
+            "true" -> binding.switchRoundToNearestDollar.isChecked = true
+            "false" -> binding.switchRoundToNearestDollar.isChecked = false
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_DASHBOARD)) {
+            "true" -> binding.showDiscColumn.isChecked = true
+            "false" -> binding.showDiscColumn.isChecked = false
+        }
         startLoadData(currentBudgetMonth)
         binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
         binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
@@ -78,7 +87,7 @@ class DashboardFragment : Fragment() {
         binding.buttonViewMonth.setOnClickListener {
             DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "Month")
             val dateNow = Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+            currentBudgetMonth = BudgetMonth(currentBudgetMonth.year, dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
@@ -97,6 +106,8 @@ class DashboardFragment : Fragment() {
         }
         binding.buttonViewAllTime.setOnClickListener {
             DefaultsViewModel.updateDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD, "All-Time")
+            val dateNow = Calendar.getInstance()
+            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
@@ -123,6 +134,24 @@ class DashboardFragment : Fragment() {
                     DefaultsViewModel.updateDefault(cDEFAULT_DELTA_DASHBOARD, "%")
                     startLoadData(currentBudgetMonth)
                 }
+            }
+        }
+        binding.showDiscColumn.setOnCheckedChangeListener { _, _ ->
+            if (binding.showDiscColumn.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_DASHBOARD, "true")
+                startLoadData(currentBudgetMonth)
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_DASHBOARD, "false")
+                startLoadData(currentBudgetMonth)
+            }
+        }
+        binding.switchRoundToNearestDollar.setOnCheckedChangeListener { _, _ ->
+            if (binding.switchRoundToNearestDollar.isChecked) {
+                DefaultsViewModel.updateDefault(cDEFAULT_ROUND_DASHBOARD, "true")
+                startLoadData(currentBudgetMonth)
+            } else {
+                DefaultsViewModel.updateDefault(cDEFAULT_ROUND_DASHBOARD, "false")
+                startLoadData(currentBudgetMonth)
             }
         }
         binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
@@ -191,6 +220,7 @@ class DashboardFragment : Fragment() {
             }
         })
         setActionBarTitle()
+        HintViewModel.showHint(requireContext(), binding.resetFilterButton, "Dashboard")
     }
 
     private fun startLoadData(iBudgetMonth: BudgetMonth) {
@@ -203,6 +233,7 @@ class DashboardFragment : Fragment() {
 
         val rows = data.size
         var textSpacer: TextView?
+        binding.tableHeaderRow.removeAllViews()
         mTableLayout!!.removeAllViews()
         var lastCategory = ""
         var lastCategoryBudgetTotal = 0.0
@@ -213,7 +244,7 @@ class DashboardFragment : Fragment() {
         // -1 means heading row
         var i = -1
         // do header row
-        createViewRow("Header", i++, "", "", "", 0.0, 0.0)
+        createViewRow("Header", i++, 0, "", "", "", 0.0, 0.0)
 
         while (i < rows) {
             var row: DashboardData? = null
@@ -224,7 +255,7 @@ class DashboardFragment : Fragment() {
 
             if (row != null && lastCategory != "" && row.category != lastCategory) {
                 // sub-total row
-                createViewRow("Sub-total", i, lastCategory, "", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
+                createViewRow("Sub-total", i, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
                 grandBudgetTotal += lastCategoryBudgetTotal
                 grandActualTotal += lastCategoryActualTotal
                 lastCategoryBudgetTotal = 0.0
@@ -233,34 +264,60 @@ class DashboardFragment : Fragment() {
 
             if (row != null) {
                 lastCategory = row.category
-                createViewRow("Detail", i, row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
+                createViewRow("Detail", i,
+                    CategoryViewModel.getID(row.category, row.subcategory),
+                    row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
                 lastCategoryBudgetTotal += row.budgetAmount
                 lastCategoryActualTotal += row.actualAmount
             }
             i++
         }
 
-        createViewRow("Sub-total", i++, lastCategory, "", "-", lastCategoryBudgetTotal, lastCategoryActualTotal)
+        createViewRow("Sub-total", i++, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
         grandBudgetTotal += lastCategoryBudgetTotal
         grandActualTotal += lastCategoryActualTotal
-        createViewRow("Grand total", i++, "Grand Total", "", "", grandBudgetTotal, grandActualTotal)
+        createViewRow("Grand total", i++, 0, "Grand Total", "", "", grandBudgetTotal, grandActualTotal)
         // delta row
         if (grandActualTotal > grandBudgetTotal) {
-            createViewRow("Delta", i, "Delta", "", "", 0.0, grandActualTotal-grandBudgetTotal)
+            createViewRow("Delta", i, 0, "Delta", "", "", 0.0, grandActualTotal-grandBudgetTotal)
         }
         else {
-            createViewRow("Delta", i, "Delta", "", "", grandBudgetTotal-grandActualTotal,0.0)
+            createViewRow("Delta", i, 0, "Delta", "", "", grandBudgetTotal-grandActualTotal,0.0)
         }
+        val run = Runnable {
+            val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as TableRow
+            val tableDashboardRow = binding.tableDashboardRows.getChildAt(0) as TableRow
+            for (i in 0 until tableHeaderRow.childCount) {
+                tableHeaderRow.getChildAt(i).layoutParams = TableRow.LayoutParams(
+                    tableDashboardRow.getChildAt(i).measuredWidth,
+                    tableDashboardRow.getChildAt(i).measuredHeight
+                )
+                Log.d(
+                    "Alex",
+                    "set width to " + tableDashboardRow.getChildAt(i).measuredWidth + " and height to " + tableDashboardRow.getChildAt(
+                        i
+                    ).measuredHeight
+                )
+            }
+        }
+        binding.tableDashboardRows.post(run)
     }
 
+    private fun getDecFormat(iDouble: Double): String {
+        return if (DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true") {
+            val dformat = DecimalFormat("###0;(###0)")
+            dformat.format(round(iDouble))
+        } else {
+            val dformat = DecimalFormat("###0.00;(###0.00)")
+            dformat.format(iDouble)
+        }
+    }
     @SuppressLint("SetTextI18n")
-    private fun createViewRow(iRowType: String, iRowNo: Int, iCategory: String, iSubcategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
+    private fun createViewRow(iRowType: String, iRowNo: Int, iCategoryID: Int, iCategory: String, iSubcategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
         val leftRowMargin = 0
         val topRowMargin = 0
         val rightRowMargin = 0
         val bottomRowMargin = 0
-        val decimalFormat = DecimalFormat("0.00")
-        val deltaFormat = DecimalFormat("###0.00;(###0.00)")
 
         val tv0 = TextView(requireContext())
         tv0.layoutParams = TableRow.LayoutParams(
@@ -275,19 +332,23 @@ class DashboardFragment : Fragment() {
             TableRow.LayoutParams.WRAP_CONTENT
         )
         tv1.gravity = if (iRowType == "Detail") Gravity.START else Gravity.END
-        tv1.setPadding(10, 15, 0, 15)
+        tv1.setPadding(15, 15, 0, 15)
         if (iRowType == "Header") {
             tv1.text = ""
         } else {
             when (iRowType) {
                 "Detail" -> tv1.text = iSubcategory
-                "Sub-total" -> tv1.text = "$iCategory Total"
+                "Sub-total" -> {
+                    tv1.text = "$iCategory Total"
+                    tv1.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_baseline_expand_less_24, 0, 0, 0);                }
                 else -> tv1.text = iCategory
             }
             if (tv1.text.length > 15) {
                 tv1.text = tv1.text.substring(0,15) + "..."
             }
         }
+        tv1.tag = "Expanded"
         val tv2 = TextView(requireContext())
         tv2.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.WRAP_CONTENT,
@@ -301,11 +362,13 @@ class DashboardFragment : Fragment() {
             tv2.setPadding(5, 15, 0, 15)
         }
         if (iRowType == "Header") {
-            tv2.text = "Disc"
+            tv2.text = "D?"
             tv2.tooltipText = "Indicates whether this budget item is Discretionary (D), or not (ND)."
         } else {
             tv2.text = iDiscFlag
         }
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_DASHBOARD) == "false")
+            tv2.visibility = View.GONE
         val tv3 = TextView(requireContext())
         if (iRowType == "Header") {
             tv3.layoutParams = TableRow.LayoutParams(
@@ -326,8 +389,9 @@ class DashboardFragment : Fragment() {
             if (iRowType == "Delta" && iBudgetAmount == 0.0)
                 tv3.text = ""
             else
-                tv3.text = decimalFormat.format(iBudgetAmount)
+                tv3.text = getDecFormat(iBudgetAmount)
         }
+        tv3.tag = iCategoryID
         val tv4 = TextView(requireContext())
         if (iRowType == "Header") {
             tv4.layoutParams = TableRow.LayoutParams(
@@ -348,8 +412,9 @@ class DashboardFragment : Fragment() {
             if (iRowType == "Delta" && iActualAmount == 0.0)
                 tv4.text = ""
             else
-                tv4.text = decimalFormat.format(iActualAmount)
+                tv4.text = getDecFormat(iActualAmount)
         }
+        tv4.tag = iCategoryID
         val tv5 = TextView(requireContext())
         if (iRowType == "Header") {
             tv5.layoutParams = TableRow.LayoutParams(
@@ -379,7 +444,7 @@ class DashboardFragment : Fragment() {
                     }
                 } else {
                     val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
-                    tv5.text = deltaFormat.format(diff)
+                    tv5.text = getDecFormat(diff.toDouble())
                 }
             }
         }
@@ -391,20 +456,31 @@ class DashboardFragment : Fragment() {
             TableLayout.LayoutParams.MATCH_PARENT,
             TableLayout.LayoutParams.WRAP_CONTENT
         )
-        if (iRowType == "Sub-total")
-            trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, 20)
-        else
-            trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, bottomRowMargin)
-        tr.setPadding(10, 0, 0, 0)
+        when (iRowType) {
+            "Sub-total" -> {
+                trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, 20)
+                tr.setPadding(5, 0, 0, 0)
+            }
+            "Grand total" -> {
+                trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, 50)
+                tr.setPadding(5, 0, 5, 0)
+            }
+            else -> {
+                trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, bottomRowMargin)
+                tr.setPadding(5, 0, 0, 0)
+            }
+        }
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
-            tr.setBackgroundResource(R.drawable.row_left_border)
+            tr.setBackgroundResource(R.drawable.row_left_border_no_color)
             if (Build.VERSION.SDK_INT >= 29) {
                 val cat = DefaultsViewModel.getCategoryDetail(iCategory)
-                if (cat != null)
+                if (cat.color != 0) {
+                    tr.setBackgroundResource(R.drawable.row_left_border)
                     tr.background.colorFilter =
                         BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+                }
 //                tr.background.colorFilter = BlendModeColorFilter(Color.parseColor("#123456"), BlendMode.SRC_ATOP)
             }
         }
@@ -423,13 +499,14 @@ class DashboardFragment : Fragment() {
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
-            tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
+            tr.setBackgroundResource(R.drawable.row_left_and_bottom_border_no_color)
             if (Build.VERSION.SDK_INT >= 29) {
                 val cat = DefaultsViewModel.getCategoryDetail(iCategory)
-                if (cat != null)
+                if (cat.color != 0) {
+                    tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
                     tr.background.colorFilter =
                         BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
-//                tr.background.colorFilter = BlendModeColorFilter(Color.parseColor("#123456"), BlendMode.SRC_ATOP)
+                }
             }
         }
         else if (iRowType == "Grand total") {
@@ -439,14 +516,29 @@ class DashboardFragment : Fragment() {
             tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
-            tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+            val col = getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true)
+            tv1.setTextColor(col)
+            tv5.setTextColor(col)
+            if (Build.VERSION.SDK_INT >= 29) {
+                tr.setBackgroundResource(R.drawable.row_frame)
+                tr.background.colorFilter =
+                    BlendModeColorFilter(col, BlendMode.SRC_ATOP)
+            } else {
+                tr.setBackgroundResource(R.drawable.row_frame_no_color)
+            }
+            if (iActualAmount > iBudgetAmount)
+                tv1.text = "Over Budget"
+            else
+                tv1.text = "Under Budget"
         } else if (iRowType == "Delta") {
             if (tv3.text != "") {
-                tv3.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+                tv1.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
                 tv1.text = "Under Budget"
+                tv3.visibility = View.GONE
             } else if (tv4.text != "") {
-                tv4.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
+                tv1.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
                 tv1.text = "Over Budget"
+                tv4.visibility = View.GONE
             }
         }
         tr.addView(tv0)
@@ -456,23 +548,33 @@ class DashboardFragment : Fragment() {
         tr.addView(tv4)
         tr.addView(tv5)
         if (isInvisible(iCategory)) {
+            tv1.tag = "Collapsed"
             if (iRowType == "Detail") {
                 tr.visibility = View.GONE
             }  else if (iRowType == "Sub-total") {
-                tv2.text = "+"
+                tv1.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.ic_baseline_expand_more_24, 0, 0, 0)
             }
         } else
             tr.visibility = View.VISIBLE
 
         if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total" && iRowType != "Delta") {
-            tr.setOnClickListener {
-                val tableRow = it as TableRow
-                val catTV = tableRow.getChildAt(0) as TextView
-                val cat = catTV.text.toString()
-                Log.d("Alex", "row " + it.id + " was clicked, category is " + cat)
+            tv3.setOnClickListener {
+                val catID = it.tag.toString()
+                Log.d("Alex", "row " + it.id + " was clicked, category is " + catID)
+                // go to Budget
+                val action =
+                    DashboardFragmentDirections.actionDashboardFragmentToBudgetViewAllFragment()
+                action.categoryID = catID
+                findNavController().navigate(action)
+            }
+
+            tv4.setOnClickListener {
+                val catID = it.tag.toString().toInt()
+                val cat = CategoryViewModel.getCategory(catID)
+                Log.d("Alex", "row " + it.id + " was clicked, category is " + catID)
                 // go to ViewAll with the SubCategory as the search term
-                val textView = tableRow.getChildAt(1) as TextView
-                MyApplication.transactionSearchText = cat + " " + textView.text.toString()
+                MyApplication.transactionSearchText = cat?.categoryName + " " + cat?.subcategoryName
                 if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Month" ||
                     DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "Year")
                     MyApplication.transactionSearchText = MyApplication.transactionSearchText + " " + currentBudgetMonth.year.toString()
@@ -495,18 +597,29 @@ class DashboardFragment : Fragment() {
                 var tmpCat = ttv1.text.toString().replace(" Total","")
                 tmpCat = tmpCat.replace("...","")
                 tmpCat = tmpCat.trim()
-                if (ttv2.text.toString() == "+") {
-                    Log.d("Alex", "Expand")
-                    ttv2.text = "-"
+                if (ttv1.tag.toString() == "Collapsed") {
+                    ttv1.tag = "Expanded"
+                    ttv1.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_baseline_expand_less_24, 0, 0, 0)
                     refreshRows(tmpCat, View.VISIBLE)
                 } else {
-                        Log.d("Alex", "Collapse")
-                    ttv2.text = "+"
+                    ttv1.tag = "Collapsed"
+                    ttv1.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_baseline_expand_more_24, 0, 0, 0)
                     refreshRows(tmpCat, View.GONE)
                 }
             }
         }
-        mTableLayout!!.addView(tr, trParams)
+        if (iRowType == "Grand total")
+            mTableLayout!!.addView(tr,0)
+        else if (iRowType == "Delta")  // I've removed the Delta row, at least for now
+//            mTableLayout!!.addView(tr, 2)
+        else {
+            if (iRowType == "Header")
+                binding.tableHeaderRow.addView(tr)
+            else
+                mTableLayout!!.addView(tr)
+        }
         if (iRowType != "Header") {
             // add separator row
             val trSep = TableRow(requireContext())
@@ -722,7 +835,7 @@ class DashboardRows {
                                     row.categoryID = expenditure.category
                                     row.category = CategoryViewModel.getCategory(expenditure.category)?.categoryName.toString()
                                     row.subcategory = CategoryViewModel.getCategory(expenditure.category)?.subcategoryName.toString()
-                                    row.priority = DefaultsViewModel.getCategoryDetail(row.category)?.priority ?: 99
+                                    row.priority = DefaultsViewModel.getCategoryDetail(row.category).priority
                                     if (CategoryViewModel.getCategory(expenditure.category) == null) {
                                         Log.d("Alex", "Found null for exp ${expenditure.mykey}")
                                     }
@@ -742,25 +855,21 @@ class DashboardRows {
         // need to get budget categories for which there are budgets but no actuals; but, skip annual budgets
         val tBudgetCategories = BudgetViewModel.getBudgetCategories(iBudgetMonth, iDiscFlag)
         for (i in 0 until tBudgetCategories.size) {
-            val dash = tBudgetCategories[i].indexOf("-")
             val dRow: DashboardData? = data.find {
-                it.category == tBudgetCategories[i].substring(0, dash) &&
-                        it.subcategory == tBudgetCategories[i].substring(
-                    dash + 1,
-                    tBudgetCategories[i].length
-                )
+                it.categoryID == tBudgetCategories[i]
             }
             if (dRow == null) {
                 // add the row.  There's a budget for it, but no actuals
                 val row = DashboardData()
-                row.category = tBudgetCategories[i].substring(0, dash)
-                row.subcategory =
-                    tBudgetCategories[i].substring(dash + 1, tBudgetCategories[i].length)
+                row.categoryID = tBudgetCategories[i]
+                row.category = CategoryViewModel.getCategory(tBudgetCategories[i])?.categoryName.toString()
+                row.subcategory = CategoryViewModel.getCategory(tBudgetCategories[i])?.subcategoryName.toString()
                 row.discIndicator =
                     if (CategoryViewModel.getCategory(row.categoryID)?.discType
                         == cDiscTypeDiscretionary
                     ) "D" else "ND"
                 row.actualAmount = 0.0
+                row.priority = DefaultsViewModel.getCategoryDetail(row.category).priority
                 data.add(row)
             }
         }
@@ -772,6 +881,7 @@ class DashboardRows {
  //           else
  //               whoToLookup = "Joint"
         }
+        Log.d("Alex", "who is $whoToLookup")
         data.forEach {
             if (iViewPeriod == "All-Time") {
                 val dateNow = android.icu.util.Calendar.getInstance()
@@ -811,12 +921,13 @@ class DashboardRows {
                         it.categoryID,
                         whoToLookup)
                 }
-            } else
+            } else {
                 it.budgetAmount = BudgetViewModel.getCalculatedBudgetAmount(
                     iBudgetMonth,
                     it.categoryID,
                     whoToLookup
                 )
+            }
         }
 
         data.sortWith(compareBy({ it.priority }, { it.category }, { it.subcategory }))

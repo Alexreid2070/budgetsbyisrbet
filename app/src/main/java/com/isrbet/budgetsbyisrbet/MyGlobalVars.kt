@@ -6,22 +6,20 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.drawable.Drawable
+import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
+import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -34,7 +32,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
-
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
 const val cDiscTypeOff = "Off"
@@ -45,12 +42,13 @@ const val cPeriodMonth = "Month"
 const val cPeriodQuarter = "Quarter"
 const val cPeriodYear = "Year"
 val PeriodValues = listOf(cPeriodWeek, cPeriodMonth, cPeriodQuarter, cPeriodYear)
-const val cEXPANDED = "Expanded"
-const val cCONDENSED = "Condensed"
 const val cBUDGET_RECURRING = "Recurring"
 const val cBUDGET_JUST_THIS_MONTH = "Just once"
 const val cFAKING_TD = false
 const val cTRANSFER_CODE = -99
+const val cLAST_ROW = 9999999
+const val cBudgetDateView = "Date"
+const val cBudgetCategoryView = "Category"
 
 const val january = "Jan"
 const val february = "Feb"
@@ -71,7 +69,7 @@ class MyApplication : Application() {
         lateinit var database: FirebaseDatabase
         lateinit var databaseref: DatabaseReference
         var transactionSearchText: String = ""
-        var transactionFirstInList: Int = 0
+        var transactionFirstInList: Int = cLAST_ROW
         var userUID: String = ""
         var originalUserUID: String = ""
         var userEmail: String = ""
@@ -116,6 +114,9 @@ class MyApplication : Application() {
 
         fun releaseResources() {
             mediaPlayer?.release()
+            transactionFirstInList = cLAST_ROW
+            haveLoadedDataForThisUser = false
+            transactionSearchText = ""
 //            CustomNotificationListenerService.releaseResources()
         }
     }
@@ -423,7 +424,7 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
         else
             ContextCompat.getColor(context, R.color.red)
     } else {
-        return ContextCompat.getColor(context, R.color.orange)  // orange
+        return ContextCompat.getColor(context, R.color.orange)
     }
 }
 

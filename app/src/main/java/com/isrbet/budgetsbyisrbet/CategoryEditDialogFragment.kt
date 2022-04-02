@@ -130,6 +130,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.categoryDialogButtonDelete.visibility = View.GONE
             binding.newNameHeader.text = "Add New Category"
             binding.categoryDialogButtonSave.text = "Save"
+            currentMode = "Add"
         } else { // ie this is an edit
             binding.categoryId.text = oldCategoryID.toString()
             binding.oldCategoryName.text = oldCategory
@@ -171,6 +172,7 @@ class CategoryEditDialogFragment : DialogFragment() {
         }
         dtSpinner.setBackgroundColor(Color.parseColor(hexColor))
         dtSpinner.setPopupBackgroundResource(R.drawable.spinner)
+        binding.categoryDialogOldHeaderLinearLayout.setBackgroundColor(DefaultsViewModel.getCategoryDetail(oldCategory).color)
     }
 
     override fun onStart() {
@@ -184,7 +186,7 @@ class CategoryEditDialogFragment : DialogFragment() {
     private fun setupCategorySpinner(iSelection: String) {
         val categoryList: MutableList<String> = ArrayList()
         categoryList.add(cNEW_CATEGORY)
-        CategoryViewModel.getCategoryNames().forEach {
+        CategoryViewModel.getCategoryNames(true).forEach {
             categoryList.add(it)
         }
         val catArrayAdapter = ArrayAdapter(
@@ -242,26 +244,11 @@ class CategoryEditDialogFragment : DialogFragment() {
                     focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
                     return@setOnClickListener
                 }
-                if (oldCategory == "" && binding.editCategoryBudgetAmount.text.toString() == "") {
-                    binding.editCategoryBudgetAmount.error = "Enter new budget amount."
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryBudgetAmount)
-                    return@setOnClickListener
-                }
                 val chosenCategory =
                     if (binding.editCategoryNewNameSpinner.selectedItem.toString() == cNEW_CATEGORY)
                         binding.editCategoryNewName.text.toString().trim()
                     else
                         binding.editCategoryNewNameSpinner.selectedItem.toString()
-                if (CategoryViewModel.getID(
-                        chosenCategory,
-                        binding.editSubcategoryNewName.text.toString().trim()
-                    ) != 0
-                ) {
-                    binding.editSubcategoryNewName.error =
-                        "Category / Subcategory of this name already exists."
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
-                    return@setOnClickListener
-                }
                 val dtSpinner: Spinner = binding.editCategoryNewDisctypeSpinner
                 if (oldCategory == chosenCategory &&
                     oldSubcategory == binding.editSubcategoryNewName.text.toString() &&
@@ -280,13 +267,26 @@ class CategoryEditDialogFragment : DialogFragment() {
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                     dismiss()
                 } else if (oldCategory == "") { // ie this is an add
+                    if (CategoryViewModel.getID(
+                            chosenCategory,
+                            binding.editSubcategoryNewName.text.toString().trim()
+                        ) != 0
+                    ) {
+                        binding.editSubcategoryNewName.error =
+                            "Category / Subcategory of this name already exists."
+                        focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
+                        return@setOnClickListener
+                    }
                     val cat = CategoryViewModel.updateCategory(
                         0,
                         chosenCategory,
                         binding.editSubcategoryNewName.text.toString().trim(),
                         binding.editCategoryNewDisctypeSpinner.selectedItem.toString()
                     )
-                    val dateNow = Calendar.getInstance()
+                    if (listener != null) {
+                        listener?.onNewDataSaved()
+                    }
+/*                    val dateNow = Calendar.getInstance()
                     val bmNow =
                         BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
                     val newWho = if (SpenderViewModel.getActiveCount() > 1) 2 else 0
@@ -296,13 +296,16 @@ class CategoryEditDialogFragment : DialogFragment() {
                     BudgetViewModel.updateBudget(
                         cat.id,
                         bmNow.toString(), newWho, tempDouble, cBUDGET_RECURRING
-                    )
-                    if (listener != null) {
-                        listener?.onNewDataSaved()
-                    }
+                    )*/
                     setupCategorySpinner(chosenCategory)
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                     dismiss()
+                    if (binding.switchEnterBudget.isChecked) {
+                        val action =
+                            CategoryFragmentDirections.actionCategoryFragmentToBudgetFragment()
+                        action.categoryID = cat.id.toString()
+                        findNavController().navigate(action)
+                    }
                 } else if (oldCategory != chosenCategory ||
                     oldSubcategory != binding.editSubcategoryNewName.text.toString()
                 ) {

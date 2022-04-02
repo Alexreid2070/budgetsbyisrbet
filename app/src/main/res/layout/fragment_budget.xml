@@ -172,11 +172,17 @@
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
 
-                <NumberPicker
+                <it.sephiroth.android.library.numberpicker.NumberPicker
                     android:id="@+id/budgetAddYear"
                     android:layout_width="wrap_content"
-                    android:layout_height="90dp"
-                    android:solidColor="?attr/colorPrimary" />
+                    android:layout_height="wrap_content"
+                    app:picker_orientation="vertical"
+                    app:picker_tracker="linear"
+                    app:picker_stepSize="1"
+                    app:picker_min="2018"
+                    app:picker_max="2040"
+                    style="@style/NumberPicker.Filled"
+                    android:background="?attr/colorSecondaryVariant"/>
 
                 <TextView
                     android:id="@+id/budgetAddMonth_label"
@@ -190,11 +196,17 @@
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
 
-                <NumberPicker
+                <it.sephiroth.android.library.numberpicker.NumberPicker
                     android:id="@+id/budgetAddMonth"
                     android:layout_width="wrap_content"
-                    android:layout_height="90dp"
-                    android:solidColor="?attr/colorPrimary" />
+                    android:layout_height="wrap_content"
+                    app:picker_orientation="vertical"
+                    app:picker_tracker="linear"
+                    app:picker_stepSize="1"
+                    app:picker_min="1"
+                    app:picker_max="12"
+                    style="@style/NumberPicker.Filled"
+                    android:background="?attr/colorSecondaryVariant"/>
             </LinearLayout>
 
             <Space

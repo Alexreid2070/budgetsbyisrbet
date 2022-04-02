@@ -318,9 +318,11 @@ class TransferFragment : Fragment() {
         Log.d("Alex", "viewTransfer key $iTransactionID")
         val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
         binding.transactionId.text = iTransactionID
+        binding.categoryId.text = thisTransaction?.category.toString()
         if (MyApplication.adminMode) {
             binding.transactionIdLayout.visibility = View.VISIBLE
             binding.transactionId.visibility = View.VISIBLE
+            binding.categoryId.visibility = View.VISIBLE
         }
         if (thisTransaction != null) {  //
             editingKey = iTransactionID

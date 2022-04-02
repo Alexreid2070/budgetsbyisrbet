@@ -30,7 +30,7 @@
             android:id="@+id/amountHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="center"
             android:gravity="center"
             android:layout_weight="1"
             android:text="Amount"
@@ -67,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:gravity="end"
+            android:gravity="start"
             android:layout_weight="1.5"
             android:text="Category"
             android:textSize="16sp"
@@ -79,8 +79,9 @@
             android:id="@+id/whoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:gravity="end"
+            android:layout_gravity="start"
+            android:textAlignment="textStart"
+            android:gravity="start"
             android:layout_weight="1"
             android:text="Who"
             android:textSize="16sp"
@@ -93,7 +94,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:gravity="end"
+            android:gravity="start"
             android:layout_weight="1"
             android:text="Note"
             android:textSize="16sp"
@@ -105,6 +106,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:gravity="center"
             android:layout_weight=".5"
             android:text="D?"
             android:paddingLeft="2dp"
@@ -274,7 +276,7 @@
         android:background="?attr/colorSecondaryVariant"
         android:orientation="horizontal"
         android:visibility="gone"
-        android:weightSum="5"
+        android:weightSum="6"
         app:layout_constraintBottom_toTopOf="@+id/view_button_linear_layout"
         app:layout_constraintTop_toBottomOf="@+id/expansion_layout">
 
@@ -309,6 +311,22 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Mo"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_today"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Today"
             tools:ignore="HardcodedText" />
 
         <Space

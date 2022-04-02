@@ -120,18 +120,6 @@
             android:title=" Brent"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/FilterCondensed"
-            android:title=" Condensed View"
-            android:icon="@drawable/ic_fas_square"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/FilterExpanded"
-            android:title=" Expanded View"
-            android:icon="@drawable/ic_fas_expand"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
-        <item
             android:id="@+id/DeltaPercentage"
             android:title="Show Delta as %"
             tools:ignore="HardcodedText" />

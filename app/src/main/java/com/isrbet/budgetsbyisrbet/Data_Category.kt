@@ -21,7 +21,10 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
         }
     }
     fun fullCategoryName() : String {
-        return "$categoryName-$subcategoryName"
+        return if (id == cTRANSFER_CODE)
+            "Transfer"
+        else
+            "$categoryName-$subcategoryName"
     }
 }
 
@@ -54,7 +57,8 @@ class CategoryViewModel : ViewModel() {
             if (iCategory == "Transfer")
                 return cTRANSFER_CODE
 
-            val cat: Category? = singleInstance.categories.find { it.categoryName == iCategory && it.subcategoryName == iSubcategory }
+            val cat: Category? = singleInstance.categories.find { it.categoryName.lowercase().trim() == iCategory.lowercase().trim()
+                    && it.subcategoryName.lowercase().trim() == iSubcategory.lowercase().trim() }
             return cat?.id ?: 0
         }
         fun getCategory(id: Int): Category? {
@@ -110,8 +114,12 @@ class CategoryViewModel : ViewModel() {
             return cat
         }
         fun getFullCategoryName(id: Int): String {
-            val cat: Category? = singleInstance.categories.find { it.id == id }
-            return cat?.fullCategoryName() ?: ""
+            return if (id == cTRANSFER_CODE)
+                "Transfer"
+            else {
+                val cat: Category? = singleInstance.categories.find { it.id == id }
+                cat?.fullCategoryName() ?: ""
+            }
         }
         fun deleteCategoryAndSubcategory(id: Int) {
             val cat: Category? = singleInstance.categories.find { it.id == id }
@@ -134,19 +142,18 @@ class CategoryViewModel : ViewModel() {
             singleInstance.categories.forEach {
                 tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType))
                 val cat = tList[tList.size-1]
-                cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName)?.priority ?: 99
+                cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName).priority
             }
             tList.sortWith(compareBy({ it.priority }, { it.categoryName }))
             return tList
         }
 
-        fun getCategoryNames(): MutableList<String> {
+        fun getCategoryNames(iIncludeOff: Boolean = false): MutableList<String> {
             val tmpList: MutableList<String> = ArrayList()
             var prevName = ""
             val origList = getCategoriesIncludingOff()
-//            singleInstance.categories.forEach {
             origList.forEach {
-                if (it.categoryName != prevName && it.discType != cDiscTypeOff) {
+                if (it.categoryName != prevName && (iIncludeOff || it.discType != cDiscTypeOff)) {
                     tmpList.add(it.categoryName)
                     prevName = it.categoryName
                 }

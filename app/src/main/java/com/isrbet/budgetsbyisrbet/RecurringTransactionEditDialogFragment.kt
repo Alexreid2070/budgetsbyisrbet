@@ -103,9 +103,9 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         binding.editRtOldName.text = oldName
         binding.editRtNewName.setText(oldName)
 
-        if (oldAmount == 0)
+        if (oldAmount == 0) {
             binding.editRtNewAmount.setText("")
-        else {
+        } else {
             val dec = DecimalFormat("#.00")
             val formattedAmount = (oldAmount / 100).toDouble() + (oldAmount % 100).toDouble() / 100
             binding.editRtOldAmount.text = dec.format(formattedAmount)
@@ -167,6 +167,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             oldBoughtFor)))
 
         if (oldName == "") { // ie this is an add, not an edit
+            currentMode = "Add"
             binding.rtDialogLinearLayout1.visibility = View.GONE
             binding.editRtOldAmount.visibility = View.GONE
             binding.editRtOldPeriod.visibility = View.GONE
@@ -380,11 +381,6 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
             return
         }
-        if (RecurringTransactionViewModel.nameExists(binding.editRtNewName.text.toString().trim())) {
-            showErrorMessage(parentFragmentManager, "This name is already in use.")
-            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
-            return
-        }
 
         if (oldName == binding.editRtNewName.text.toString()) {
             if (oldAmount != amountInt) {
@@ -451,6 +447,11 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             }
         } else if (oldName == "") { // ie this is an add
+            if (RecurringTransactionViewModel.nameExists(binding.editRtNewName.text.toString().trim())) {
+                showErrorMessage(parentFragmentManager, "This name is already in use.")
+                focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
+                return
+            }
             val rt = RecurringTransaction(binding.editRtNewName.text.toString().trim(),
                 amountInt, rtSpinner.selectedItem.toString(), binding.editRtNewRegularity.text.toString().toInt(),
                 binding.editRtNewNextDate.text.toString(),

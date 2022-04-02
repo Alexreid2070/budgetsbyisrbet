@@ -70,6 +70,7 @@ class CategoryFragment : Fragment() {
                 }
             }
         })
+        HintViewModel.showHint(requireContext(), binding.categoryFab, "Category")
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

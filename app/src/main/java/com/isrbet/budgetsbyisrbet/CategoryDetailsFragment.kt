@@ -80,7 +80,7 @@ class CategoryDetailsFragment : Fragment() {
 
         // the AmbilWarnaDialog callback needs 3 parameters
         // one is the context, second is default color,
-        DefaultsViewModel.getCategoryDetail(iCategory)?.color?.let {
+        DefaultsViewModel.getCategoryDetail(iCategory).color.let {
             AmbilWarnaDialog(
                 requireContext(), it,
                 object : OnAmbilWarnaListener {

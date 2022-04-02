@@ -188,8 +188,7 @@ class TransactionRecyclerAdapter(
         holder.vtfpercentage2.text = dec.format(percentage2)
         holder.vtfrunningtotal.text = dec.format(runningTotalList[position])
         holder.vtfCategoryID.text = data.category.toString()
-        holder.vtfcategory.text = CategoryViewModel.getCategory(data.category)?.categoryName +
-                "-" + CategoryViewModel.getCategory(data.category)?.subcategoryName
+        holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
         if (data.paidby == data.boughtfor)
             holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
         else

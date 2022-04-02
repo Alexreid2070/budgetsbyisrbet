@@ -345,7 +345,7 @@ class BudgetDialogFragment : DialogFragment() {
                         monthInt + 1
                     val dbRef =
                         MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Budget")
-                            .child(binding.budgetDialogCategory.text.toString()+"-"+binding.budgetDialogSubcategory.text.toString())
+                            .child(binding.budgetDialogCategoryID.text.toString())
                             .child(
                                 BudgetMonth(
                                     binding.budgetDialogYear.text.toString().toInt(),
@@ -362,8 +362,10 @@ class BudgetDialogFragment : DialogFragment() {
                 fun yesClicked() {
                     val monthToUse: Int = if (binding.budgetDialogMonth.text.toString() == "")
                         0
-                    else
-                        binding.budgetDialogMonth.text.toString().toInt()
+                    else {
+                        val m = arguments?.getString(KEY_MONTH_VALUE)
+                        m?.toInt() ?: 0
+                    }
                     BudgetViewModel.deleteBudget(
                         binding.budgetDialogCategoryID.text.toString().toInt(),
                         BudgetMonth(

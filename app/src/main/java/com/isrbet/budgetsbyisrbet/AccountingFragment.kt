@@ -58,6 +58,7 @@ class AccountingFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.transfer_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
+        HintViewModel.showHint(requireContext(), binding.transferAddFab, "Accounting")
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

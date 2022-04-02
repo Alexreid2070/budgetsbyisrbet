@@ -59,7 +59,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
                         try {
                             val dollarSign = notificationText.indexOf("$")
                             val space = notificationText.indexOf(" ", dollarSign)
-                            val textAmount = notificationText.substring(dollarSign+1, space).trim()
+                            var textAmount = notificationText.substring(dollarSign+1, space).trim()
+                            textAmount = textAmount.replace(",","")
                             tAmount = textAmount.toDouble()
                             val credited = notificationText.indexOf("credited")
                             if (credited != -1) {

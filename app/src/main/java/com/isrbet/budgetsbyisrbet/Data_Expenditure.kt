@@ -45,7 +45,8 @@ data class Expenditure(
                 SpenderViewModel.getSpenderName(boughtfor).lowercase().contains(lc) ||
                 note.lowercase().contains(lc) ||
                 date.contains(lc) ||
-                type.lowercase().contains(lc)
+                type.lowercase().contains(lc) ||
+                (MyApplication.adminMode && mykey.lowercase().contains(lc))
     }
     fun getSplit2(): Int {
         return 100 - bfname1split
@@ -261,6 +262,10 @@ class ExpenditureViewModel : ViewModel() {
             singleInstance.loaded = false
         }
 
+        fun exists(iKey: String): Boolean {
+            val exp = singleInstance.expenditures.find { it.mykey == iKey }
+            return exp != null
+        }
         fun getPreviousKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
             var ind = singleInstance.expenditures.indexOf(exp)

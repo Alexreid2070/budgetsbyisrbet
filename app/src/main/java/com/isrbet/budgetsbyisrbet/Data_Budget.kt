@@ -7,7 +7,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.lang.Exception
 import kotlin.math.round
-import java.text.DecimalFormat
 import java.util.ArrayList
 
 data class BudgetPeriod(var period: BudgetMonth, var who: Int, var amount: Double, var occurence: Int) {
@@ -90,7 +89,7 @@ class BudgetViewModel : ViewModel() {
                 0
         }
         fun budgetExistsUsingCategory(iCategoryID: Int): Int {
-            var ctr: Int = 0
+            var ctr = 0
             singleInstance.budgets.forEach {
                 if (it.categoryID == iCategoryID) {
                     ctr++
@@ -316,8 +315,8 @@ class BudgetViewModel : ViewModel() {
 
         // goal of getBudgetCategories is to return list of categories that have budgets for the period indicated;
         // does not include Annuals
-        fun getBudgetCategories(iBudgetMonth: BudgetMonth, iDiscFlag: String): MutableList<String> {
-            val myList: MutableList<String> = ArrayList()
+        fun getBudgetCategories(iBudgetMonth: BudgetMonth, iDiscFlag: String): MutableList<Int> {
+            val myList: MutableList<Int> = ArrayList()
             var tBudgetAmount: Double
             singleInstance.budgets.forEach {
                 tBudgetAmount = 0.0
@@ -336,13 +335,51 @@ class BudgetViewModel : ViewModel() {
                     }
                 }
                 if (tBudgetAmount > 0) {
-                    myList.add(CategoryViewModel.getFullCategoryName(categoryID))
+                    myList.add(categoryID)
                 }
             }
             return myList
         }
 
-        fun getBudgetInputRows(iCategoryID: Int, iFilter: String): MutableList<BudgetInputRow> {
+        fun getBudgetInputRows(iBudgetMonth: BudgetMonth): MutableList<BudgetInputRow> {
+            val myList: MutableList<BudgetInputRow> = ArrayList()
+            singleInstance.budgets.forEach {
+                val categoryID = it.categoryID
+                var bir : Array<BudgetInputRow?> = Array(3) {null}
+                var isAnnual = ""
+                if (CategoryViewModel.getCategory(categoryID)?.discType != cDiscTypeOff) {
+                    for (budget in it.budgetPeriodList) {
+                        if ((budget.occurence == 0 && budget.period.toString() <= iBudgetMonth.toString()) ||
+                            (budget.occurence == 1 && (budget.period.toString() == iBudgetMonth.toString() ||
+                                    budget.period.month == 0 && budget.period.year == iBudgetMonth.year))
+                        ) {
+                            if (budget.period.isAnnualBudget()) {
+                                isAnnual = "Y"
+                            } else
+                                isAnnual = ""
+                            bir[budget.who] = BudgetInputRow(
+                                categoryID,
+                                budget.period.toString(),
+                                budget.amount.toString(),
+                                budget.who,
+                                budget.occurence.toString(),
+                                isAnnual,
+                                budget.period.toString(),
+                                cBudgetDateView)
+                        }
+                    }
+                    for (i in 0 until 3) {
+                        if (bir[i] != null) {
+                            bir[i]?.let { it1 -> myList.add(it1) }
+                        }
+                    }
+                }
+            }
+            myList.sortWith(compareBy({ it.categoryPriority }, { it.subcategory }))
+            return myList
+        }
+
+        fun getBudgetInputRows(iCategoryID: Int): MutableList<BudgetInputRow> {
             val tList: MutableList<BudgetInputRow> = ArrayList<BudgetInputRow>()
             var isAnnual: String
             CategoryViewModel.getCategories().forEach {
@@ -365,24 +402,21 @@ class BudgetViewModel : ViewModel() {
                                     )
                                     if (bAmount.dateStarted.isAnnualBudget()) {
                                         isAnnual = "Y"
-/*                                        Log.d("Alex", "found isannual Y")
-                                        val dec = DecimalFormat("#.00")
-                                        isAnnual = "Y (" + dec.format(bAmount.amount) + ")"
-                                        bAmount.amount = bAmount.amount / 12.0 */
                                     } else
                                         isAnnual = ""
 
                                     val tDateApplicable = BudgetMonth(monthIterator)
-                                    if (iFilter == cEXPANDED ||
-                                        (iFilter == cCONDENSED && tDateApplicable.toString() == bAmount.dateStarted.toString() ||
-                                        (tDateApplicable.month == 1 && bAmount.dateStarted.isAnnualBudget()))) {
+                                    if ( tDateApplicable.toString() == bAmount.dateStarted.toString() ||
+                                        (tDateApplicable.month == 1 && bAmount.dateStarted.isAnnualBudget())) {
                                         val tRow = BudgetInputRow(
+                                            iCategoryID,
                                             monthIterator,
                                             bAmount.amount.toString(),
                                             bAmount.who,
                                             bAmount.occurence.toString(),
                                             isAnnual,
-                                            bAmount.dateStarted.toString()
+                                            bAmount.dateStarted.toString(),
+                                            cBudgetCategoryView
                                         )
                                         tList.add(tRow)
                                     }

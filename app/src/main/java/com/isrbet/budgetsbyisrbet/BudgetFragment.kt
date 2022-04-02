@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
+import it.sephiroth.android.library.numberpicker.doOnProgressChanged
 import java.text.DecimalFormat
 import java.util.*
 
@@ -41,22 +42,23 @@ class BudgetFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("Alex", "onviewcreated category id is " + args.categoryID)
         loadCategoryRadioButtons()
         loadSpenderRadioButtons()
         loadOccurenceRadioButtons()
 
         setupForEdit()
         val cal = android.icu.util.Calendar.getInstance()
-        binding.budgetAddYear.minValue = 2018
+/*        binding.budgetAddYear.minValue = 2018
         binding.budgetAddYear.maxValue = 2040
         binding.budgetAddYear.wrapSelectorWheel = true
-        binding.budgetAddYear.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-        binding.budgetAddYear.value = cal.get(Calendar.YEAR)
-        binding.budgetAddMonth.minValue = 1
+        binding.budgetAddYear.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
+        binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
+/*        binding.budgetAddMonth.minValue = 1
         binding.budgetAddMonth.maxValue = 12
         binding.budgetAddMonth.wrapSelectorWheel = true
-        binding.budgetAddMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-        binding.budgetAddMonth.value = cal.get(Calendar.MONTH)+1
+        binding.budgetAddMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
+        binding.budgetAddMonth.progress = cal.get(Calendar.MONTH)+1
 
         (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, _ ->
@@ -83,9 +85,9 @@ class BudgetFragment : Fragment() {
             updateInformationFields()
         }
 
-        binding.budgetAddYear.setOnValueChangedListener { _, _, _ -> updateInformationFields() }
+        binding.budgetAddYear.doOnProgressChanged { _, _, _ -> updateInformationFields() }
 
-        binding.budgetAddMonth.setOnValueChangedListener { _, _, _ -> updateInformationFields() }
+        binding.budgetAddMonth.doOnProgressChanged { _, _, _ -> updateInformationFields() }
 
         binding.budgetAddPercentage.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
@@ -163,8 +165,8 @@ class BudgetFragment : Fragment() {
     fun updateInformationFields() {
         Log.d("Alex", "In updateInformationFields")
         val prevMonth = BudgetMonth(
-            binding.budgetAddYear.value,
-            if (inAnnualMode) 1 else binding.budgetAddMonth.value
+            binding.budgetAddYear.progress,
+            if (inAnnualMode) 1 else binding.budgetAddMonth.progress
         )
 //        prevMonth.decrementMonth()
         val whoSelectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
@@ -176,7 +178,7 @@ class BudgetFragment : Fragment() {
         val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
         val dec = DecimalFormat("#.00")
 
-        val toCheckAnnual = BudgetMonth(binding.budgetAddYear.value, 0)
+        val toCheckAnnual = BudgetMonth(binding.budgetAddYear.progress, 0)
         val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(CategoryViewModel.getID(catText, subCatText),toCheckAnnual, whoId)
         if (annualBudget != 0.0) {
             binding.budgetAddPreviousAmount.text = dec.format(annualBudget)
@@ -197,8 +199,8 @@ class BudgetFragment : Fragment() {
                     binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.toString()
             }
         }
-        val startOfPeriod = BudgetMonth(binding.budgetAddYear.value, binding.budgetAddMonth.value)
-        val endOfPeriod = BudgetMonth(binding.budgetAddYear.value, binding.budgetAddMonth.value)
+        val startOfPeriod = BudgetMonth(binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
+        val endOfPeriod = BudgetMonth(binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
         if (inAnnualMode) {
             startOfPeriod.year -= 1
             startOfPeriod.month = 1
@@ -213,8 +215,8 @@ class BudgetFragment : Fragment() {
 
         val annualActuals = ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             BudgetMonth(
-                binding.budgetAddYear.value - 1,
-                if (inAnnualMode) 1 else binding.budgetAddMonth.value
+                binding.budgetAddYear.progress - 1,
+                if (inAnnualMode) 1 else binding.budgetAddMonth.progress
             ),
             prevMonth,
             whoId)
@@ -248,7 +250,7 @@ class BudgetFragment : Fragment() {
         var somethingChecked = false
         for (i in 0 until radioGroup.childCount) {
             val o = radioGroup.getChildAt(i)
-            if (o is RadioButton && o.text == args.categoryID) {
+            if (o is RadioButton && o.text == CategoryViewModel.getCategory(args.categoryID.toInt())?.categoryName) {
                 o.isChecked = true
                 somethingChecked = true
                 addSubCategories(o.text.toString())
@@ -365,12 +367,12 @@ class BudgetFragment : Fragment() {
         if (tempBudget != null) {
             var chosenMonth = 0
             if (!inAnnualMode)
-                chosenMonth = binding.budgetAddMonth.value
+                chosenMonth = binding.budgetAddMonth.progress
 
-            Log.d("Alex", "year is '" + binding.budgetAddYear.value + "'")
+            Log.d("Alex", "year is '" + binding.budgetAddYear.progress + "'")
             if (tempBudget.overlapsWithExistingBudget(
                     BudgetMonth(
-                        binding.budgetAddYear.value,
+                        binding.budgetAddYear.progress,
                         chosenMonth
                     ).toString(),
                     whoId
@@ -387,12 +389,12 @@ class BudgetFragment : Fragment() {
         Log.d("Alex", "Category is " + radioButton.text)
 
         val tempDouble : Double = binding.budgetAddAmount.text.toString().toDouble()
-        var period = binding.budgetAddYear.value.toString()
+        var period = binding.budgetAddYear.progress.toString()
         period = if (!inAnnualMode) {
-            if (binding.budgetAddMonth.value < 10)
-                period + "-0" + binding.budgetAddMonth.value
+            if (binding.budgetAddMonth.progress < 10)
+                period + "-0" + binding.budgetAddMonth.progress
             else
-                period + binding.budgetAddMonth.value
+                period + binding.budgetAddMonth.progress
         } else {
             "$period-00"
         }
