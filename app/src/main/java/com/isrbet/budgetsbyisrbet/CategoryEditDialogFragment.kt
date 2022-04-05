@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,8 +12,8 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
@@ -136,6 +135,10 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.oldCategoryName.text = oldCategory
             binding.oldSubcategoryName.text = oldSubcategory
             binding.oldDisctype.text = oldDisctype
+            if (oldDisctype == cDiscTypeOff) {
+                binding.oldDisctype.setTextColor(
+                    ContextCompat.getColor(requireContext(), R.color.red))
+            }
             binding.editSubcategoryNewName.setText(oldSubcategory)
             dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
             binding.categoryDialogLinearLayoutBudget.visibility = View.GONE
@@ -168,6 +171,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.GONE
                 binding.categoryDialogLinearLayout4.visibility = View.GONE
                 binding.categoryDialogLinearLayout5.visibility = View.GONE
+                binding.categoryLayout.visibility = View.GONE
+                binding.subcategoryLayout.visibility = View.GONE
             }
         }
         dtSpinner.setBackgroundColor(Color.parseColor(hexColor))
@@ -202,10 +207,11 @@ class CategoryEditDialogFragment : DialogFragment() {
         catArrayAdapter.notifyDataSetChanged()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         binding.categoryDialogButtonSave.setOnClickListener {
             if (currentMode == "View") { // change to edit
-                binding.editCategoryOldNameHeader.text = "Current Details:"
+//                binding.editCategoryOldNameHeader.text = "Current Details:"
                 binding.categoryDialogButtonSave.text = "Save"
                 binding.categoryDialogOldHeaderLinearLayout.visibility = View.VISIBLE
                 binding.categoryDialogNewHeaderLinearLayout.visibility = View.VISIBLE
@@ -214,6 +220,9 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
                 binding.categoryDialogButtonDelete.visibility = View.GONE
+//                binding.categoryLayout.visibility = View.VISIBLE
+//                binding.subcategoryLayout.visibility = View.VISIBLE
+
                 currentMode = "Edit"
             } else { // already in Edit mode, so Save...
                 if (binding.editCategoryNewName.text.toString().contains("-")) {
@@ -255,7 +264,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                     oldDisctype != dtSpinner.selectedItem.toString()
                 ) {
                     // disc type changed so update it
-                    Log.d("Alex", "categoryID is ${oldCategoryID}")
+                    Log.d("Alex", "categoryID is $oldCategoryID")
                     CategoryViewModel.updateCategory(
                         binding.categoryId.text.toString().toInt(),
                         oldCategory,

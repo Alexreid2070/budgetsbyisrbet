@@ -22,8 +22,8 @@
         android:id="@+id/RecyclerLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:padding="5dp"
+        android:background="@drawable/row_header"
         app:layout_constraintTop_toBottomOf="@+id/transaction_search">
 
         <TextView

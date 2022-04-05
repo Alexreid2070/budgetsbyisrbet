@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -26,64 +27,21 @@ class BudgetViewAllFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetViewAllBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         inflater.inflate(R.layout.fragment_budget_view_all, container, false)
         return binding.root
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            when (menu.getItem(i).itemId) {
-                R.id.AddBudget -> {
-                    menu.getItem(i).isVisible = true
-                }
-                R.id.FilterTitle -> {
-                    menu.getItem(i).isVisible = true
-                }
-                R.id.Previous -> {
-                    menu.getItem(i).isVisible = true
-                }
-                R.id.Next -> {
-                    menu.getItem(i).isVisible = true
-                }
-                else -> menu.getItem(i).isVisible = false
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val currentCategory = Category(0,binding.budgetCategorySpinner.selectedItem.toString())
-        when (item.itemId) {
-            R.id.AddBudget -> {
-                val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
-                action.categoryID = currentCategory.id.toString()
-                findNavController().navigate(action)
-
-    //            findNavController().navigate(R.id.action_BudgetViewAllFragment_to_BudgetFragment)
-                return true
-            }
-            R.id.Previous -> {
-                moveCategories(-1)
-                return true
-            }
-            R.id.Next -> {
-                moveCategories(1)
-                return true
-            }
-            else -> {
-                val navController = findNavController()
-                return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-            }
-        }
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         DefaultsViewModel.showMeCategoryDetails()
-        when (DefaultsViewModel.getDefault(cDEFAULT_BUDGET_VIEW)) {
-            cBudgetDateView -> binding.buttonViewByDate.isChecked = true
-            cBudgetCategoryView -> binding.buttonViewByCategory.isChecked = true
+        Log.d("Alex", "args.categoryID is ${args.categoryID}")
+        if (args.categoryID == "") {
+            when (DefaultsViewModel.getDefault(cDEFAULT_BUDGET_VIEW)) {
+                cBudgetDateView -> binding.buttonViewByDate.isChecked = true
+                cBudgetCategoryView -> binding.buttonViewByCategory.isChecked = true
+            }
+        } else {
+                binding.buttonViewByCategory.isChecked = true
         }
         setupCategorySpinner()
         if (binding.buttonViewByDate.isChecked) {
@@ -94,7 +52,6 @@ class BudgetViewAllFragment : Fragment() {
             binding.rowBudgetDateHeading.text = cBudgetDateView
             setCategoryType()
         }
-//        (activity as AppCompatActivity).supportActionBar?.title = "Budgets"
 
         binding.budgetCategorySpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -213,20 +170,26 @@ class BudgetViewAllFragment : Fragment() {
     fun setCategoryType() {
         val category = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
         binding.categoryType.text = CategoryViewModel.getCategory(category.id)?.discType
+        if (CategoryViewModel.getCategory(category.id)?.discType == cDiscTypeOff) {
+            binding.categoryType.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red))
+        } else {
+            binding.categoryType.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.black))
+        }
     }
 
     fun loadRows(iCategoryID: Int, iYear: Int, iMonth: Int) {
-        val adapter: BudgetAdapter?
-        if (binding.buttonViewByDate.isChecked) {
+        val adapter: BudgetAdapter = if (binding.buttonViewByDate.isChecked) {
             Log.d("Alex", "getting date budget rows")
-            adapter = BudgetAdapter(
+            BudgetAdapter(
                 requireContext(), BudgetViewModel.getBudgetInputRows(
                     BudgetMonth(iYear, iMonth)
                 )
             )
         } else {
             Log.d("Alex", "getting category budget rows")
-            adapter = BudgetAdapter(
+            BudgetAdapter(
                 requireContext(),
                 BudgetViewModel.getBudgetInputRows(iCategoryID)
             )

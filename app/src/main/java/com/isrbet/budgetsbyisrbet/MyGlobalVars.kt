@@ -6,8 +6,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.Rect
-import android.graphics.drawable.BitmapDrawable
 import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.text.TextUtils
@@ -17,7 +15,6 @@ import android.view.*
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
-import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
@@ -27,6 +24,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -63,6 +61,7 @@ const val october = "Oct"
 const val november = "Nov"
 const val december = "Dec"
 val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
+val gDec = DecimalFormat("#.00")
 
 class MyApplication : Application() {
     companion object {
@@ -160,18 +159,6 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
     }
 
     operator fun compareTo(iBM: BudgetMonth): Int {
-/*        var cal1 = android.icu.util.Calendar.getInstance()
-        cal1.set(Calendar.YEAR, year)
-        cal1.set(Calendar.MONTH, month)
-        var cal2 = android.icu.util.Calendar.getInstance()
-        cal2.set(Calendar.YEAR, iBM.year)
-        cal2.set(Calendar.MONTH, iBM.month)
-        if (cal1 == cal2)
-            return 0
-        else if (cal1 < cal2)
-            return -1
-        else
-            return 1 */
         return if (year == iBM.year && month == iBM.month)
             0
         else if (year < iBM.year || (year == iBM.year && month < iBM.month))
@@ -215,10 +202,10 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         }
     }
     fun get2DigitMonth(): String {
-        if (month < 10)
-            return "0$month"
+        return if (month < 10)
+            "0$month"
         else
-            return month.toString()
+            month.toString()
     }
 }
 

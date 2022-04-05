@@ -57,9 +57,8 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         viewHolder = RTViewHolder(myConvertView)
 
         viewHolder.vhName.text = rtData.name
-        val dec = DecimalFormat("#.00")
         val formattedAmount = (rtData.amount/100).toDouble() + (rtData.amount % 100).toDouble()/100
-        viewHolder.vhAmount.text = dec.format(formattedAmount)
+        viewHolder.vhAmount.text = gDec.format(formattedAmount)
         viewHolder.vhNextDate.text = rtData.nextdate
         viewHolder.vhPeriod.text = rtData.period
         viewHolder.vhRegularity.text = rtData.regularity.toString()
@@ -71,7 +70,7 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
             viewHolder.vhPaidby.text = SpenderViewModel.getSpenderName(rtData.paidby)
             viewHolder.vhBoughtfor.text = SpenderViewModel.getSpenderName(rtData.boughtfor)
         }
-        viewHolder.vhDescription.text = rtData.name + " payment of $" + dec.format(formattedAmount) + " occurs "
+        viewHolder.vhDescription.text = rtData.name + " payment of $" + gDec.format(formattedAmount) + " occurs "
         if (rtData.regularity == 1)
             viewHolder.vhDescription.text = viewHolder.vhDescription.text.toString() + rtData.period.lowercase() + "ly"
         else

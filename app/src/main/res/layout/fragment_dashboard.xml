@@ -10,7 +10,9 @@
     <LinearLayout
         android:id="@+id/dashboard_title_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:background="@drawable/row_header">
 
         <TextView
             android:id="@+id/dashboard_title"
@@ -30,6 +32,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
+        android:background="@drawable/row_header"
         android:layout_below="@id/dashboard_title_layout">
         <TableLayout
             android:id="@+id/table_header_row"

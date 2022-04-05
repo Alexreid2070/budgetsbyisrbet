@@ -1,16 +1,17 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.RadioButton
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -42,7 +43,6 @@ class TrackerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        setHasOptionsMenu(true)
         _binding = FragmentTrackerBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -66,7 +66,6 @@ class TrackerFragment : Fragment() {
         } else { // ie on Tracker page
             binding.buttonLayout.visibility = View.VISIBLE
             binding.buttonLayout2.visibility = View.VISIBLE
-            setActionBarTitle()
             binding.buttonBar.setOnClickListener {
                 hidePieChart()
                 loadBarChart()
@@ -92,13 +91,9 @@ class TrackerFragment : Fragment() {
         view.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
             currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
                 android.icu.util.Calendar.MONTH) + 1)
-            setActionBarTitle()
-//            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
         view.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
             currentBudgetMonth.month = 0
-            setActionBarTitle()
-//            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
         }
     }
     private fun moveOneMonthBackward() {
@@ -107,15 +102,6 @@ class TrackerFragment : Fragment() {
     private fun moveOneMonthForward() {
 
     }
-    private fun setActionBarTitle() {
-        if (currentBudgetMonth.month == 0)
-            (activity as AppCompatActivity).supportActionBar?.title =
-                "Tracker (" + currentBudgetMonth.year  + ")"
-        else
-            (activity as AppCompatActivity).supportActionBar?.title =
-                "Tracker (" + MonthNames[currentBudgetMonth.month-1] + " " + currentBudgetMonth.year  + ")"
-    }
-
     @SuppressLint("SetTextI18n")
     fun setPieGraphNumericStyle(pieChart: PieChart, iStyle: String) {
         val dateNow = android.icu.util.Calendar.getInstance()
@@ -138,25 +124,6 @@ class TrackerFragment : Fragment() {
                         MonthNames[dateNow.get(Calendar.MONTH)] + " " +
                         dateNow.get(Calendar.YEAR)
             }
-        }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        if (parentFragment !is HomeFragment) { // ie only do this if displaying as own fragment
-            super.onPrepareOptionsMenu(menu)
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.DashboardFragment
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.DashboardFragment) {
-            view?.findNavController()?.navigate(R.id.DashboardFragment)
-            true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
         }
     }
 

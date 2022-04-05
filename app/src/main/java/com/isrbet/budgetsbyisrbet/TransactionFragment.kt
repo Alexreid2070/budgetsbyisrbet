@@ -58,7 +58,6 @@ class TransactionFragment : Fragment() {
     ): View {
         _binding = FragmentTransactionBinding.inflate(inflater, container, false)
 
-        setHasOptionsMenu(true)
         inflater.inflate(R.layout.fragment_transaction, container, false)
         return binding.root
     }
@@ -138,11 +137,10 @@ class TransactionFragment : Fragment() {
                     binding.transactionName1Amount.text = "0"
                     binding.transactionName2Amount.text = "0"
                 } else {
-                    val dec = DecimalFormat("#.00")
                     val amount1 = binding.editTextAmount.text.toString().toDouble() * binding.slider.value.toInt() / 100.0
-                    binding.transactionName1Amount.text = dec.format(amount1)
+                    binding.transactionName1Amount.text = gDec.format(amount1)
                     binding.transactionName2Amount.text =
-                        dec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
+                        gDec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
                 }
             }
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
@@ -187,11 +185,10 @@ class TransactionFragment : Fragment() {
                 binding.transactionName1Amount.text = "0"
                 binding.transactionName2Amount.text = "0"
             } else {
-                val dec = DecimalFormat("#.00")
                 val amount1 = binding.editTextAmount.text.toString().toDouble() * binding.slider.value.toInt() / 100.0
-                binding.transactionName1Amount.text = dec.format(amount1)
+                binding.transactionName1Amount.text = gDec.format(amount1)
                 binding.transactionName2Amount.text =
-                    dec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
+                    gDec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
             }
         }
         loadCategoryRadioButtons()
@@ -217,9 +214,9 @@ class TransactionFragment : Fragment() {
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString(), "")
             val cat = DefaultsViewModel.getCategoryDetail(radioButton.text.toString())
-            if (cat.color != 0) {
-                colorCategoryArea(cat.color)
-            }
+//            if (cat.color != 0) {
+//                colorCategoryArea(cat.color)
+//            }
         }
 
         if (SpenderViewModel.singleUser()) {
@@ -380,49 +377,6 @@ class TransactionFragment : Fragment() {
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        if (newTransactionMode) {
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.TransactionViewAllFragment
-            }
-        }
-        else { // in view mode
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.Edit || menu.getItem(i).itemId == R.id.Delete
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.Edit -> {
-                if (binding.transactionType.text.toString() == "Transfer") {
-                    val action =
-                        TransactionFragmentDirections.actionTransactionFragmentToTransferFragment()
-                    action.mode = "edit"
-                    action.transactionID = binding.transactionId.text.toString()
-                    findNavController().navigate(action)
-                }
-                else
-                    editTransaction(args.transactionID)
-                true
-            }
-            R.id.Delete -> {
-                deleteTransaction(args.transactionID)
-                true
-            }
-            R.id.TransactionViewAllFragment -> {
-                view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
-                true
-            }
-            else -> {
-                val navController = findNavController()
-                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-            }
-        }
-    }
-
     @SuppressLint("SetTextI18n")
     private fun editTransaction(iTransactionID: String) {
         Log.d("Alex", "editing $iTransactionID")
@@ -502,9 +456,8 @@ class TransactionFragment : Fragment() {
                 binding.inputSpinnerRelativeLayout.visibility = View.VISIBLE
             }
             val iAmount = thisTransaction.amount
-            val dec = DecimalFormat("#.00")
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-            binding.editTextAmount.setText(dec.format(formattedAmount))
+            binding.editTextAmount.setText(gDec.format(formattedAmount))
             binding.transactionId.text = iTransactionID
             binding.categoryId.text = thisTransaction.category.toString()
             if (MyApplication.adminMode) {
@@ -571,8 +524,8 @@ class TransactionFragment : Fragment() {
             binding.slider.value = thisTransaction.bfname1split.toFloat()
             binding.transactionBoughtForName2Split.text = thisTransaction.getSplit2().toString()
 
-            binding.transactionName1Amount.text = dec.format(thisTransaction.amount/100.0 * thisTransaction.bfname1split / 100.0)
-            binding.transactionName2Amount.text = dec.format(thisTransaction.amount/100.0 * thisTransaction.getSplit2() / 100.0)
+            binding.transactionName1Amount.text = gDec.format(thisTransaction.amount/100.0 * thisTransaction.bfname1split / 100.0)
+            binding.transactionName2Amount.text = gDec.format(thisTransaction.amount/100.0 * thisTransaction.getSplit2() / 100.0)
 
             if ((thisTransaction.boughtfor == 2 && binding.slider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
                 thisTransaction.paidby != thisTransaction.boughtfor) {
@@ -772,9 +725,9 @@ class TransactionFragment : Fragment() {
             if (newTransactionMode && newRadioButton.text.toString() == CategoryViewModel.getDefaultCategory()?.categoryName) {
                 radioGroup.check(newRadioButton.id)
                 val cat = DefaultsViewModel.getCategoryDetail(newRadioButton.text.toString())
-                if (cat.color != 0) {
-                    colorCategoryArea(cat.color)
-                }
+//                if (cat.color != 0) {
+//                    colorCategoryArea(cat.color)
+//                }
             }
         }
         addSubCategories(CategoryViewModel.getDefaultCategory()?.categoryName.toString(),

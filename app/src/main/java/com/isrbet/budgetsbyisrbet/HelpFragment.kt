@@ -20,15 +20,8 @@ class HelpFragment : Fragment() {
         _binding = FragmentHelpBinding.inflate(inflater, container, false)
         binding.helpVersionName.text = BuildConfig.VERSION_NAME
         binding.helpVersionCode.text = BuildConfig.VERSION_CODE.toString()
-        setHasOptionsMenu(true)
         inflater.inflate(R.layout.fragment_help, container, false)
         return binding.root
-    }
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
-        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

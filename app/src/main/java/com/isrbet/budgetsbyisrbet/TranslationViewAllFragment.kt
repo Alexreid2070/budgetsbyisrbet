@@ -17,7 +17,6 @@ class TranslationViewAllFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        setHasOptionsMenu(true)
         _binding = FragmentTranslationViewAllBinding.inflate(inflater, container, false)
         inflater.inflate(R.layout.fragment_translation_view_all, container, false)
         return binding.root
@@ -42,18 +41,6 @@ class TranslationViewAllFragment : Fragment() {
                 })
                 cdf.show(parentFragmentManager, "Edit Translation")
             }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController()
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

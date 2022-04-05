@@ -22,7 +22,6 @@ class RecurringTransactionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRecurringTransactionBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -71,33 +70,6 @@ class RecurringTransactionFragment : Fragment() {
         set.clear(R.id.rt_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
         HintViewModel.showHint(requireContext(), binding.rtAddFab, "RecurringTransaction")
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible =
-                (menu.getItem(i).itemId == R.id.AddRecurringTransaction ||
-                 menu.getItem(i).itemId == R.id.ViewRecurringTransactionsFragment)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.AddRecurringTransaction -> {
-                addRecurringTransaction()
-                true
-            }
-            R.id.ViewRecurringTransactionsFragment -> {
-                MyApplication.transactionSearchText = "Recurring"
-                view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
-                true
-            }
-            else -> {
-                val navController = findNavController()
-                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-            }
-        }
     }
 
     override fun onDestroyView() {

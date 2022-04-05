@@ -34,6 +34,7 @@
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/category_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp">
@@ -68,6 +69,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/subcategory_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp">
@@ -136,8 +138,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:drawablePadding="4dp"
-                android:drawableEnd="@drawable/ic_baseline_link_24"
-                app:drawableTint="@color/clickableBlue"/>
+                app:drawableTint="@color/clickableBlue"
+                app:drawableEndCompat="@drawable/ic_baseline_link_24" />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/message_budget_layout"
@@ -153,7 +155,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:drawablePadding="4dp"
                 app:drawableTint="@color/clickableBlue"
-                android:drawableEnd="@drawable/ic_baseline_link_24" />
+                app:drawableEndCompat="@drawable/ic_baseline_link_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -170,8 +172,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:drawablePadding="4dp"
-                android:drawableEnd="@drawable/ic_baseline_link_24"
-                app:drawableTint="@color/clickableBlue"/>
+                app:drawableTint="@color/clickableBlue"
+                app:drawableEndCompat="@drawable/ic_baseline_link_24" />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/message_default_category_layout"
@@ -185,7 +187,8 @@
                 android:layout_gravity="center"
                 android:text="This category is the default for new transactions"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:ignore="HardcodedText" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 

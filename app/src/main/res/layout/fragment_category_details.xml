@@ -20,7 +20,7 @@
             android:gravity="start"
             android:layout_weight="1"
             android:text="Category"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textStyle="bold"
@@ -31,9 +31,19 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:gravity="center"
-            android:layout_weight=".3"
-            android:text="Colour"
-            android:textSize="20sp"
+            android:layout_weight=".2"
+            android:text="Reset"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:gravity="center"
+            android:layout_weight=".2"
+            android:text="Paint"
+            android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
     </LinearLayout>
@@ -47,7 +57,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
-        android:textSize="18sp"
-        android:text="Drag the categories above into the desired order.\n\nClick the rows to change their colour."
-        tools:ignore="HardcodedText"/>
+        android:textSize="14sp"
+        android:padding="5dp"
+        android:text="Drag the categories above to move them into the desired order.  Click the Reset icon to remove colour.  Click the Paint icon to apply a colour to the category."
+        tools:ignore="HardcodedText"
+        android:background="@drawable/hint_drawable"/>
 </LinearLayout>

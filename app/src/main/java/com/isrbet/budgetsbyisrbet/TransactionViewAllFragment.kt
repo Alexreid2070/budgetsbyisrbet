@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.l4digital.fastscroll.FastScrollRecyclerView
-import java.text.DecimalFormat
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -62,7 +61,6 @@ class TransactionViewAllFragment : Fragment() {
     ): View {
         _binding = FragmentTransactionViewAllBinding.inflate(inflater, container, false)
         Log.d("Alex", "onCreateView")
-        setHasOptionsMenu(true)
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_transaction_view_all, container, false)
         return binding.root
@@ -82,8 +80,7 @@ class TransactionViewAllFragment : Fragment() {
                         super.onLayoutCompleted(state)
                         val adapter: TransactionRecyclerAdapter =
                             recyclerView.adapter as TransactionRecyclerAdapter
-                        val dec = DecimalFormat("#.00")
-                        binding.totalAmount.text = dec.format(adapter.currentTotal)
+                        binding.totalAmount.text = gDec.format(adapter.currentTotal)
                     }
                 }
             recyclerView.layoutManager = linearLayoutManager
@@ -382,9 +379,9 @@ class TransactionViewAllFragment : Fragment() {
         if (accountingMode) {
             setViewsToAccounting()
             setFiltersToAccounting()
-        } else if (args.categoryID != "") {
-            setCategoryFilter(args.categoryID.toInt())
         } else {
+            if (args.categoryID != "")
+                setCategoryFilter(args.categoryID.toInt())
             binding.showCategoryColumns.isChecked = DefaultsViewModel.getDefault(
                 cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL
             ) == "true"
@@ -624,13 +621,6 @@ class TransactionViewAllFragment : Fragment() {
                 MyApplication.transactionFirstInList,
                 0
             )
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.Search
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

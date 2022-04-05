@@ -1,24 +1,35 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.fragment.app.Fragment
-import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
-import java.lang.Exception
+import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
+
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
@@ -30,6 +41,7 @@ class SettingsFragment : Fragment() {
     private var authorizeButtonStartingState = false
     private var joinOtherUserButtonStartingState = false
     private var disconnectButtonStartingState = false
+    lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +49,21 @@ class SettingsFragment : Fragment() {
         enterTransition = inflater.inflateTransition(R.transition.slide_top)
         returnTransition = null
 //        exitTransition = inflater.inflateTransition(R.transition.slide_bottom)
+        requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    Log.d("Alex", "Permission is granted")
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                    Log.d("Alex", "Feature won't be available, loser.")
+                }
+            }
     }
 
 
@@ -61,12 +88,12 @@ class SettingsFragment : Fragment() {
                     binding.switchSecondUserLayout.visibility = View.VISIBLE
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
                     binding.authorizationKey.text = MyApplication.userUID
-                    if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
-                        binding.shareUIDLayout.visibility = View.VISIBLE
+//                    if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
+//                        binding.shareUIDLayout.visibility = View.VISIBLE
                 } else {
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
                     binding.switchSecondUserLayout.visibility = View.GONE
-                    binding.shareUIDLayout.visibility = View.GONE
+//                    binding.shareUIDLayout.visibility = View.GONE
                     binding.settingsFirstUserName.isEnabled = false
                     binding.secondUserEmail.isEnabled = false
                     binding.switchDisconnectLayout.visibility = View.VISIBLE
@@ -124,8 +151,6 @@ class SettingsFragment : Fragment() {
         oldFirstUser = spenderOne?.name.toString()
         oldSecondUser = spenderTwo?.name.toString()
 
-        setHasOptionsMenu(true)
-
         inflater.inflate(R.layout.fragment_settings, container, false)
         return binding.root
     }
@@ -159,8 +184,16 @@ class SettingsFragment : Fragment() {
         binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.switchSound.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SOUND) != "Off"
         binding.switchQuote.isChecked = DefaultsViewModel.getDefault(cDEFAULT_QUOTE) != "Off"
-        binding.switchIntegrateWithTD.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) != "Off"
+        if (DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "Off")
+            binding.switchIntegrateWithTD.isChecked = false
+        else {
+            val isGranted = isNotificationServiceEnabled(requireContext())
+            if (!isGranted) {
+                binding.switchIntegrateWithTD.isChecked = false
+                DefaultsViewModel.updateDefault(cDEFAULT_INTEGRATEWITHTDSPEND, "Off")
+            } else
+                binding.switchIntegrateWithTD.isChecked = true
+        }
         if (binding.switchIntegrateWithTD.isChecked)
             binding.manageTranslationsLayout.visibility = View.VISIBLE
         else
@@ -441,6 +474,29 @@ class SettingsFragment : Fragment() {
         binding.switchIntegrateWithTD.setOnCheckedChangeListener { _, _ ->
             if (binding.switchIntegrateWithTD.isChecked) {
                 binding.manageTranslationsLayout.visibility = View.VISIBLE
+                // adding request for permission
+                if (isNotificationServiceEnabled(requireContext())) {
+                        // You can use the API that requires the permission.
+                        Log.d("Alex", "Success")
+                    }
+                else {
+                    // You can directly ask for the permission.
+                    // The registered ActivityResultCallback gets the result of this request.
+                    Log.d("Alex", "In the else")
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Notification permission required")
+                        .setMessage("In order for this On Budget app to access TD MySpend notifications, you must grant permission" +
+                                " to do so in the following screen.  If you decide not to grant permission, this TD MySpend feature" +
+                                "will not work.\n\nTo grant permissions, in the following screen click on On Budget, and then " +
+                                "click Allow Notification Access.")
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                        }
+                        .setNegativeButton(android.R.string.cancel) { _, _ ->
+                        binding.switchIntegrateWithTD.isChecked = false
+                        }
+                        .show()
+                }
             } else {
                 binding.manageTranslationsLayout.visibility = View.GONE
             }
@@ -470,28 +526,27 @@ class SettingsFragment : Fragment() {
 
         binding.settingsFirstUserName.requestFocus()
     }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = (menu.getItem(i).itemId == R.id.ViewTranslationsFragment &&
-                    DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "On")
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.ViewTranslationsFragment -> {
-                view?.findNavController()?.navigate(R.id.ViewTranslationsFragment)
-                true
-            }
-            else -> {
-                val navController = findNavController()
-                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
+    private fun isNotificationServiceEnabled(c: Context): Boolean {
+        val pkgName: String = c.getPackageName()
+        val flat: String = Settings.Secure.getString(
+            c.getContentResolver(),
+            "enabled_notification_listeners"
+        )
+        if (!TextUtils.isEmpty(flat)) {
+            val names = flat.split(":").toTypedArray()
+            for (i in names.indices) {
+                val cn = ComponentName.unflattenFromString(names[i])
+                if (cn != null) {
+                    if (TextUtils.equals(pkgName, cn.packageName)) {
+                        Log.d("Alex", "Notification permissions are granted")
+                        return true
+                    }
+                }
             }
         }
+        Log.d("Alex", "Notification permissions are NOT granted")
+        return false
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

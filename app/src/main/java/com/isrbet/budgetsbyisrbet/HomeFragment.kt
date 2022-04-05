@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.*
 import androidx.activity.result.ActivityResultLauncher
@@ -18,7 +17,6 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -50,7 +48,7 @@ class HomeFragment : Fragment() {
     private val spenderModel: SpenderViewModel by viewModels()
     private val budgetModel: BudgetViewModel by viewModels()
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
-    private val userModel: UserViewModel by viewModels()
+    private val userModel: AppUserViewModel by viewModels()
     private val chatModel: ChatViewModel by viewModels()
     private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
@@ -74,7 +72,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
@@ -146,12 +143,7 @@ class HomeFragment : Fragment() {
         }
         auth = Firebase.auth
 
-        // These 2 lines open up the notification settings app so that the user can give access to notifications permissions
-        // to this app
-//        var intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-//        startActivity(intent);
-        //     MyApplication.myCustomNotificationListenerService = CustomNotificationListenerService()
-
+        /*
         // This next line checks if the app has permission to look at notifications
         if (Settings.Secure.getString(
                 (activity as MainActivity).contentResolver,
@@ -175,7 +167,8 @@ class HomeFragment : Fragment() {
                 Log.d("Alex", "After asking, it's true")
             } else
                 Log.d("Alex", "After asking, it's false")
-        }
+
+        } */
         binding.transactionAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransactionFragment)
         }
@@ -395,6 +388,7 @@ class HomeFragment : Fragment() {
             )
             binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
             binding.expansionAreaLayout.visibility = View.GONE
+            doSomethingIfThereAreUnreadMessages()
         }
     }
 
@@ -471,7 +465,7 @@ class HomeFragment : Fragment() {
             }
             if (account.email == "alexreid2070@gmail.com")
                 setAdminMode(true)
-            requireActivity().invalidateOptionsMenu()
+            doSomethingIfThereAreUnreadMessages()
             Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
                 // check if I should load my own UID, or if I'm a JoinUser
@@ -570,47 +564,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            when (menu.getItem(i).itemId) {
-                R.id.SignOut -> {
-                    menu.getItem(i).isVisible = true
-                    menu.getItem(i).title = "Sign Out (" + MyApplication.userEmail + ")"
-                }
-                R.id.ChatFragment -> {
-                    when (thereAreUnreadMessages()) {
-                        -1 -> {
-                            menu.getItem(i).isVisible = false
-                        }
-                        0 -> {
-                            menu.getItem(i).isVisible = false
-                        }
-                        1 -> {
-                            menu.getItem(i).icon = ContextCompat.getDrawable(
-                                requireContext(),
-                                R.drawable.ic_fas_envelope
-                            )
-                            menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-                            menu.getItem(i).isVisible = true
-                        }
-                    }
-                }
-                else -> menu.getItem(i).isVisible = false
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.SignOut) {
-            signout()
-            true
-        } else {
-            val navController = findNavController()
-            item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-        }
-    }
-
     private fun signout() {
         Log.d("Alex", "sign out attempted")
         BudgetViewModel.clear()
@@ -627,7 +580,7 @@ class HomeFragment : Fragment() {
         MyApplication.userFamilyName = ""
         MyApplication.userPhotoURL = ""
         MyApplication.adminMode = false
-        requireActivity().invalidateOptionsMenu()
+        doSomethingIfThereAreUnreadMessages()
         (activity as MainActivity).setLoggedOutMode(true)
         binding.expandButton.isEnabled = false
         binding.signInButton.visibility = View.VISIBLE
@@ -679,25 +632,24 @@ class HomeFragment : Fragment() {
     fun tryToUpdateChatIcon() {
         // this is called when lastSignedIn date/time are found, and also when chats are loaded.  When both are done then do something
         if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
-            activity?.invalidateOptionsMenu()
+            doSomethingIfThereAreUnreadMessages()
         }
     }
 
-    private fun thereAreUnreadMessages(): Int {
-        return if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
+    private fun doSomethingIfThereAreUnreadMessages() {
+        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
             val tChat = ChatViewModel.getLastChat()
-            Log.d(
-                "Alex",
-                MyApplication.lastReadChatsDate + " " + MyApplication.lastReadChatsTime + " " + tChat.date + " " + tChat.time
-            )
             if (MyApplication.lastReadChatsDate < tChat.date ||
-                (MyApplication.lastReadChatsDate == tChat.date && MyApplication.lastReadChatsTime < tChat.time)
-            )
-                1 // there are unread chats
-            else
-                0 // there are no unread chats
-        } else
-            -1    // don't show icon
+                (MyApplication.lastReadChatsDate == tChat.date && MyApplication.lastReadChatsTime < tChat.time)) {
+                // there are unread chats
+                binding.expandButton.setImageDrawable(ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_fas_envelope))
+                binding.chatImage.setImageDrawable(ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_fas_envelope))
+            }
+        }
     }
 
     override fun onDestroy() {

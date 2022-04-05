@@ -112,7 +112,7 @@ class BudgetViewModel : ViewModel() {
             val tList: ArrayList<DataObject> = ArrayList()
             var prevCategory = ""
             var totalBudget = 0.0
-            CategoryViewModel.getCategories().forEach {
+            CategoryViewModel.getCategories(false).forEach {
                 if (prevCategory != "" && prevCategory != it.categoryName) {
                     // ie not the first row, and this was a change in category
                     tList.add(DataObject(prevCategory, totalBudget, 0))
@@ -289,7 +289,7 @@ class BudgetViewModel : ViewModel() {
 
         fun getTotalCalculatedBudgetForMonth(iBudgetMonth: BudgetMonth, iDiscType: String) : Double {
             var tmpTotal = 0.0
-            CategoryViewModel.getCategories().forEach {
+            CategoryViewModel.getCategories(false).forEach {
                 tmpTotal += getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, iDiscType)
             }
             return tmpTotal
@@ -345,18 +345,18 @@ class BudgetViewModel : ViewModel() {
             val myList: MutableList<BudgetInputRow> = ArrayList()
             singleInstance.budgets.forEach {
                 val categoryID = it.categoryID
-                var bir : Array<BudgetInputRow?> = Array(3) {null}
-                var isAnnual = ""
+                val bir : Array<BudgetInputRow?> = Array(3) {null}
+                var isAnnual: String
                 if (CategoryViewModel.getCategory(categoryID)?.discType != cDiscTypeOff) {
                     for (budget in it.budgetPeriodList) {
                         if ((budget.occurence == 0 && budget.period.toString() <= iBudgetMonth.toString()) ||
                             (budget.occurence == 1 && (budget.period.toString() == iBudgetMonth.toString() ||
                                     budget.period.month == 0 && budget.period.year == iBudgetMonth.year))
                         ) {
-                            if (budget.period.isAnnualBudget()) {
-                                isAnnual = "Y"
+                            isAnnual = if (budget.period.isAnnualBudget()) {
+                                "Y"
                             } else
-                                isAnnual = ""
+                                ""
                             bir[budget.who] = BudgetInputRow(
                                 categoryID,
                                 budget.period.toString(),
@@ -382,11 +382,12 @@ class BudgetViewModel : ViewModel() {
         fun getBudgetInputRows(iCategoryID: Int): MutableList<BudgetInputRow> {
             val tList: MutableList<BudgetInputRow> = ArrayList<BudgetInputRow>()
             var isAnnual: String
-            CategoryViewModel.getCategories().forEach {
+            CategoryViewModel.getCategories(true).forEach {
                 if (iCategoryID == it.id) {
-                    if (it.discType != cDiscTypeOff) {
+//                    if (it.discType != cDiscTypeOff) {
                         val firstMonth = getFirstMonthOfBudget(iCategoryID)
                         val lastMonth = getLastMonthOfBudget(iCategoryID)
+                    Log.d("Alex", "getBudgetInputRows $iCategoryID $firstMonth $lastMonth")
                         if (firstMonth != null) {
                             if (firstMonth.period.month == 0)
                                 firstMonth.period.month = 1
@@ -400,10 +401,10 @@ class BudgetViewModel : ViewModel() {
                                         BudgetMonth(monthIterator),
                                         i
                                     )
-                                    if (bAmount.dateStarted.isAnnualBudget()) {
-                                        isAnnual = "Y"
+                                    isAnnual = if (bAmount.dateStarted.isAnnualBudget()) {
+                                        "Y"
                                     } else
-                                        isAnnual = ""
+                                        ""
 
                                     val tDateApplicable = BudgetMonth(monthIterator)
                                     if ( tDateApplicable.toString() == bAmount.dateStarted.toString() ||
@@ -425,7 +426,7 @@ class BudgetViewModel : ViewModel() {
                                 bm.addMonth(1)
                                 monthIterator = bm.toString()
                             }
-                        }
+//                        }
                     }
                 }
             }

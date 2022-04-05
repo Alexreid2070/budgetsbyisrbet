@@ -42,7 +42,6 @@ class TransferFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransferBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_transfer, container, false)
         return binding.root
@@ -236,42 +235,6 @@ class TransferFragment : Fragment() {
         hideKeyboard(requireContext(), requireView())
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        if (newTransferMode) {
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.ViewTransfersFragment
-            }
-        }
-        else { // in view mode
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible =
-                    menu.getItem(i).itemId == R.id.Edit || menu.getItem(i).itemId == R.id.Delete
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.Edit -> {
-                editTransfer(args.transactionID)
-                true
-            }
-            R.id.Delete -> {
-                deleteTransfer(args.transactionID)
-                true
-            }
-            R.id.ViewTransfersFragment -> {
-                MyApplication.transactionSearchText = "Transfer"
-                view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
-                true
-            }
-            else -> {
-                val navController = findNavController()
-                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-            }
-        }
-    }
     @SuppressLint("SetTextI18n")
     private fun editTransfer(iTransactionID: String) {
         Log.d("Alex", "clicked on $iTransactionID")
@@ -328,9 +291,8 @@ class TransferFragment : Fragment() {
             editingKey = iTransactionID
 
             val iAmount = thisTransaction.amount
-            val dec = DecimalFormat("#.00")
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-            binding.editTextAmount.setText(dec.format(formattedAmount))
+            binding.editTextAmount.setText(gDec.format(formattedAmount))
             binding.editTextDate.setText(thisTransaction.date)
             binding.editTextNote.setText(thisTransaction.note)
             binding.splitName1Split.setText(thisTransaction.bfname1split.toString())

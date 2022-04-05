@@ -178,15 +178,14 @@ class TransactionRecyclerAdapter(
         } else {
             holder.vtfdate.isVisible = false
         }
-        val dec = DecimalFormat("#.00")
         val formattedAmount = (data.amount / 100).toDouble() + (data.amount % 100).toDouble() / 100
-        holder.vtfamount.text = dec.format(formattedAmount)
+        holder.vtfamount.text = gDec.format(formattedAmount)
         val percentage1 = formattedAmount * data.bfname1split / 100
         val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
-        holder.vtfpercentage1.text = dec.format(rounded.toDouble())
+        holder.vtfpercentage1.text = gDec.format(rounded.toDouble())
         val percentage2 = formattedAmount - rounded.toDouble()
-        holder.vtfpercentage2.text = dec.format(percentage2)
-        holder.vtfrunningtotal.text = dec.format(runningTotalList[position])
+        holder.vtfpercentage2.text = gDec.format(percentage2)
+        holder.vtfrunningtotal.text = gDec.format(runningTotalList[position])
         holder.vtfCategoryID.text = data.category.toString()
         holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
         if (data.paidby == data.boughtfor)

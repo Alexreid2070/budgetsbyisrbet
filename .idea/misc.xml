@@ -128,25 +128,35 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/BudgetsByISRBET/app/src/main/res/xml/root_preferences.xml" value="0.15729166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/hint_drawable.xml" value="0.132" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_new_releases_24.xml" value="0.1605" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_fas_envelope.xml" value="0.1605" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_frame.xml" value="0.192" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_frame_no_color.xml" value="0.1685" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_header.xml" value="0.1605" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_left_and_bottom_border.xml" value="0.192" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_left_and_bottom_border_no_color.xml" value="0.1685" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_left_border.xml" value="0.2075" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/row_left_border_no_color.xml" value="0.1685" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/testcorner.xml" value="0.132" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/testrect.xml" value="0.132" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_accounting.xml" value="0.15104166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_budget.xml" value="0.12135416666666667" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_budget_edit_dialog.xml" value="0.15104166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_budget_view_all.xml" value="0.15" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category.xml" value="0.1390625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category_details.xml" value="0.10677083333333333" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category_edit_dialog.xml" value="0.10677083333333333" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_dashboard.xml" value="0.115625" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_home.xml" value="0.15104166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_settings.xml" value="0.12135416666666667" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_transaction.xml" value="0.1644021739130435" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_transaction_view_all.xml" value="0.1644021739130435" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/hint_layout.xml" value="0.264" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/nav_header_main.xml" value="0.1644021739130435" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_budget.xml" value="0.12135416666666667" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_category.xml" value="0.159375" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_category_details.xml" value="0.1390625" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_transaction.xml" value="0.159375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/testrect.xml" value="0.12135416666666667" />
       </map>
     </option>

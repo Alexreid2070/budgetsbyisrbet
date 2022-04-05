@@ -32,7 +32,6 @@ class BudgetFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         BudgetViewModel.showMe()
 
         inflater.inflate(R.layout.fragment_budget, container, false)
@@ -60,7 +59,6 @@ class BudgetFragment : Fragment() {
         binding.budgetAddMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
         binding.budgetAddMonth.progress = cal.get(Calendar.MONTH)+1
 
-        (activity as AppCompatActivity).supportActionBar?.title = "Add Budget"
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -105,13 +103,11 @@ class BudgetFragment : Fragment() {
             tempDouble = binding.budgetAddPreviousAmount.text.toString().toDouble()
         if (binding.budgetAddPercentage.text.toString() != "")
             tempDouble *= (1 + binding.budgetAddPercentage.text.toString().toDouble() / 100)
-        val dec = DecimalFormat("#.00")
-        binding.budgetAddAmount.setText(dec.format(tempDouble))
+        binding.budgetAddAmount.setText(gDec.format(tempDouble))
     }
 
     @SuppressLint("SetTextI18n")
     private fun setupForEdit() {
-        (activity as AppCompatActivity).supportActionBar?.title = "Edit Budget"
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.budgetAddSubCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.budgetAddSubCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
@@ -176,17 +172,16 @@ class BudgetFragment : Fragment() {
         val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
         val catText = catRadioButton.text.toString()
         val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
-        val dec = DecimalFormat("#.00")
 
         val toCheckAnnual = BudgetMonth(binding.budgetAddYear.progress, 0)
         val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(CategoryViewModel.getID(catText, subCatText),toCheckAnnual, whoId)
         if (annualBudget != 0.0) {
-            binding.budgetAddPreviousAmount.text = dec.format(annualBudget)
+            binding.budgetAddPreviousAmount.text = gDec.format(annualBudget)
             binding.budgetAddPreviousAmountLabel2.text = " which was set for "
             binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
             val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(CategoryViewModel.getID(catText, subCatText), prevMonth, whoId)
-            binding.budgetAddPreviousAmount.text = dec.format(tmpPrevAmt.amount)
+            binding.budgetAddPreviousAmount.text = gDec.format(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
                 binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
                 binding.budgetAddPreviousAmountDate.text = ""
@@ -210,7 +205,7 @@ class BudgetFragment : Fragment() {
             startOfPeriod.decrementMonth(1)
             endOfPeriod.decrementMonth(1)
         }
-        binding.budgetAddActualAmount.text = dec.format(ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
+        binding.budgetAddActualAmount.text = gDec.format(ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             startOfPeriod, endOfPeriod, whoId))
 
         val annualActuals = ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
@@ -220,8 +215,8 @@ class BudgetFragment : Fragment() {
             ),
             prevMonth,
             whoId)
-        binding.budgetAddTotalAmount.text = dec.format(annualActuals)
-        binding.budgetAddAverageAmount.text = dec.format(annualActuals/12)
+        binding.budgetAddTotalAmount.text = gDec.format(annualActuals)
+        binding.budgetAddAverageAmount.text = gDec.format(annualActuals/12)
 
         if (binding.budgetAddPercentage.text.toString() != "")
             setAmountBasedOnPercentage()
@@ -324,13 +319,6 @@ class BudgetFragment : Fragment() {
         val o = occurenceRadioGroup.getChildAt(1) // ie check Recurring
         if (o is RadioButton) {
             o.isChecked = true
-        }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
         }
     }
 

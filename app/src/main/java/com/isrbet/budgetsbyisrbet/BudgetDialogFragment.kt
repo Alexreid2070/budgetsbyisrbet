@@ -16,7 +16,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
-import java.text.DecimalFormat
 
 class BudgetDialogFragment : DialogFragment() {
     interface BudgetEditDialogFragmentListener {
@@ -140,6 +139,7 @@ class BudgetDialogFragment : DialogFragment() {
         )
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupView() {
         val categoryID = arguments?.getString(KEY_CATEGORY_ID)
         val cat = CategoryViewModel.getCategory(categoryID.toString().toInt())
@@ -152,20 +152,22 @@ class BudgetDialogFragment : DialogFragment() {
         if (monthInt == -1)
             binding.budgetDialogMonth.text = ""
         else
-            binding.budgetDialogMonth.text = MonthNames[monthInt!!]
-        val dec = DecimalFormat("#.00")
+            binding.budgetDialogMonth.text = MonthNames[monthInt]
         val amtDouble: Double
         val amt = arguments?.getString(KEY_AMOUNT_VALUE)
         amtDouble = amt?.toDouble() ?: 0.0
-        binding.budgetDialogNewAmount.setText(dec.format(amtDouble))
-        binding.amountField.text = "$ " + dec.format(amtDouble)
+        binding.budgetDialogNewAmount.setText(gDec.format(amtDouble))
+        binding.amountField.text = "$ " + gDec.format(amtDouble)
         if (currentMode == "View") {
             binding.amountLayout.visibility = View.GONE
+            val catName = cat?.categoryName.toString()
+            binding.categoryLayout.setBackgroundColor(
+                DefaultsViewModel.getCategoryDetail(catName).color)
         }
 
         val who = arguments?.getString(KEY_WHO_VALUE)
         Log.d("Alex", "who is $who")
-        val occurence = arguments?.getString(KEY_OCCURENCE_VALUE)
+//        val occurence = arguments?.getString(KEY_OCCURENCE_VALUE)
 
         val whoRadioGroup = binding.budgetDialogNewWhoRadioGroup
         for (i in 0 until whoRadioGroup.childCount) {

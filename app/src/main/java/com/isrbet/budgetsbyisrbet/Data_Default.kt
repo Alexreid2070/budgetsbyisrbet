@@ -158,6 +158,20 @@ class DefaultsViewModel : ViewModel() {
             copy.addAll(singleInstance.defaultCategoryDetails)
             return copy
         }
+        fun deleteCategoryDetail(iCatName: String) {
+            val cd: CategoryDetail? =
+                singleInstance.defaultCategoryDetails.find { it.name == iCatName }
+            if (cd != null) {
+                val ind = singleInstance.defaultCategoryDetails.indexOf(cd)
+                singleInstance.defaultCategoryDetails.removeAt(ind)
+
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .child(SpenderViewModel.myIndex().toString())
+                    .child("CategoryDetails")
+                    .child(iCatName)
+                    .removeValue()
+            }
+        }
         fun reorderCategory(fromPriority: Int, toPriority: Int) {
             val minP = minOf(fromPriority, toPriority)
             val maxP = maxOf(fromPriority, toPriority)
@@ -224,7 +238,7 @@ class DefaultsViewModel : ViewModel() {
             }
         }
         fun confirmCategoryDetailsListIsComplete() { // ie add any missing ones, should only happen at first transition to this new functionality
-            var catList = CategoryViewModel.getCategoryNames()
+            val catList = CategoryViewModel.getCategoryNames()
             for (cat in catList) {
                 val cd: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == cat }
                 if (cd == null) {

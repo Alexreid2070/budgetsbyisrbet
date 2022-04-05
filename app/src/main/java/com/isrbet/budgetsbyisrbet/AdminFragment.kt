@@ -21,7 +21,6 @@ class AdminFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentAdminBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
 
         inflater.inflate(R.layout.fragment_settings, container, false)
         return binding.root
@@ -59,8 +58,8 @@ class AdminFragment : Fragment() {
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
             clearData()
-            UserViewModel.loadUsers()
-            UserViewModel.setCallback(object: DataUpdatedCallback {
+            AppUserViewModel.loadUsers()
+            AppUserViewModel.setCallback(object: DataUpdatedCallback {
                 override fun onDataUpdate() {
                     Log.d("Alex", "got a callback that user data was updated")
                     refreshData()
@@ -81,31 +80,25 @@ class AdminFragment : Fragment() {
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
-        }
-    }
     private fun uidClicked(uid: String, email: String) {
         Toast.makeText(activity, "Switching to user $email", Toast.LENGTH_SHORT).show()
         MyApplication.currentUserEmail = email
-        UserViewModel.clearCallback()
+        AppUserViewModel.clearCallback()
         Log.d("Alex", "I clicked uid $uid")
         switchTo(uid)
         activity?.onBackPressed()
     }
 
     fun refreshData() {
-        Log.d("Alex", "in user refresh data count is ${UserViewModel.getCount()}")
-        binding.adminUser1Email.text = UserViewModel.getUserEmail(0)
-        binding.adminUser1Uid.text = UserViewModel.getUserUID(0)
-        binding.adminUser2Email.text = UserViewModel.getUserEmail(1)
-        binding.adminUser2Uid.text = UserViewModel.getUserUID(1)
-        binding.adminUser3Email.text = UserViewModel.getUserEmail(2)
-        binding.adminUser3Uid.text = UserViewModel.getUserUID(2)
-        binding.adminUser4Email.text = UserViewModel.getUserEmail(3)
-        binding.adminUser4Uid.text = UserViewModel.getUserUID(3)
+        Log.d("Alex", "in user refresh data count is ${AppUserViewModel.getCount()}")
+        binding.adminUser1Email.text = AppUserViewModel.getUserEmail(0)
+        binding.adminUser1Uid.text = AppUserViewModel.getUserUID(0)
+        binding.adminUser2Email.text = AppUserViewModel.getUserEmail(1)
+        binding.adminUser2Uid.text = AppUserViewModel.getUserUID(1)
+        binding.adminUser3Email.text = AppUserViewModel.getUserEmail(2)
+        binding.adminUser3Uid.text = AppUserViewModel.getUserUID(2)
+        binding.adminUser4Email.text = AppUserViewModel.getUserEmail(3)
+        binding.adminUser4Uid.text = AppUserViewModel.getUserUID(3)
     }
     private fun clearData() {
         binding.adminUser1Email.text = ""

@@ -17,16 +17,27 @@
         android:textSize="14sp">
     </TextView>
     <ImageView
+        android:id="@+id/row_category_color_reset"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".2"
+        android:layout_gravity="start"
+        android:gravity="center"
+        android:padding="10dip"
+        android:src="@drawable/ic_baseline_format_color_reset_24"
+        android:contentDescription="Reset the category's colour"
+        android:textSize="14sp"
+        tools:ignore="HardcodedText"/>
+    <ImageView
         android:id="@+id/row_category_color"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight=".3"
+        android:layout_weight=".2"
         android:layout_gravity="start"
         android:gravity="center"
         android:padding="10dip"
         android:src="@drawable/ic_baseline_format_paint_24"
         android:contentDescription="Paint the category"
         android:textSize="14sp"
-        tools:ignore="HardcodedText">
-    </ImageView>
+        tools:ignore="HardcodedText"/>
 </LinearLayout>

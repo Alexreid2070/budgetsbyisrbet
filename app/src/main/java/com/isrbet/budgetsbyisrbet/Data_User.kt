@@ -7,15 +7,15 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class User(var email: String, var uid: String)
+data class AppUser(var email: String, var uid: String)
 
-class UserViewModel : ViewModel() {
+class AppUserViewModel : ViewModel() {
     lateinit var userListener: ValueEventListener
-    private val users: MutableList<User> = ArrayList()
+    private val users: MutableList<AppUser> = ArrayList()
     private var dataUpdatedCallback: DataUpdatedCallback? = null
 
     companion object {
-        lateinit var singleInstance: UserViewModel // used to track static single instance of self
+        lateinit var singleInstance: AppUserViewModel // used to track static single instance of self
         fun showMe() {
             singleInstance.users.forEach {
                 Log.d("Alex", "SM User is " + it.email + " " + it.uid)
@@ -68,7 +68,7 @@ class UserViewModel : ViewModel() {
                                 }
                             }
                         }
-                        singleInstance.users.add(User(email, uid))
+                        singleInstance.users.add(AppUser(email, uid))
                     }
                     singleInstance.dataUpdatedCallback?.onDataUpdate()
                 }

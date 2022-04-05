@@ -79,7 +79,7 @@ data class TransferOut(
     var date: String = "", var amount: Int = 0,
     var paidby: Int = -1, var boughtfor: Int = -1,
     var bfname1split: Int = 0,
-    var category: String = "Transfer", var note: String = "",
+    var category: Int = cTRANSFER_CODE, var note: String = "",
     var type: String = "Transfer"
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
@@ -162,7 +162,7 @@ class ExpenditureViewModel : ViewModel() {
             val tList: ArrayList<DataObject> = ArrayList()
             var prevCategory = ""
             var totalActuals = 0.0
-            CategoryViewModel.getCategories().forEach {
+            CategoryViewModel.getCategories(true).forEach {
                 if (prevCategory != "" && prevCategory != it.categoryName) {
                     // ie not the first row, and this was a change in category
                     Log.d("Alex", "change from " + prevCategory + " to " + it.categoryName)

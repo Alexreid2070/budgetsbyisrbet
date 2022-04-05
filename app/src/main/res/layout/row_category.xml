@@ -1,35 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical"
+    android:transitionGroup="true">
 
     <TextView
-        android:id="@+id/row_category_id"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:visibility="gone">
-    </TextView>
-    <TextView
         android:id="@+id/row_category"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight=".65"
-        android:layout_gravity="start"
-        android:gravity="start"
-        android:padding="10dip"
-        android:textSize="14sp">
-    </TextView>
-    <TextView
-        android:id="@+id/row_disctype"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight=".35"
-        android:layout_gravity="start"
-        android:gravity="start"
-        android:padding="10dip"
-        android:textSize="14sp">
-    </TextView>
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="5dp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/row_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="5dp">
+
+        <TextView
+            android:id="@+id/row_category_id"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:visibility="gone"></TextView>
+
+        <TextView
+            android:id="@+id/row_subcategory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_weight=".65"
+            android:gravity="start"
+            android:textSize="14sp"></TextView>
+
+        <TextView
+            android:id="@+id/row_disctype"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_weight=".35"
+            android:gravity="start"
+            android:textSize="14sp"></TextView>
+    </LinearLayout>
 </LinearLayout>

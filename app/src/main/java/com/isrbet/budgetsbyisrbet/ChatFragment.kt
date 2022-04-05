@@ -19,7 +19,6 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChatBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_chat, container, false)
         return binding.root
@@ -41,13 +40,6 @@ class ChatFragment : Fragment() {
                 EditorInfo.IME_ACTION_DONE -> { sendChat(); true}
                 else -> false
             }
-        }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
         }
     }
 
@@ -79,6 +71,9 @@ class ChatFragment : Fragment() {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.chatInput.error="The text contains unsafe characters!"
             focusAndOpenSoftKeyboard(requireContext(), binding.chatInput)
+            return
+        }
+        if (binding.chatInput.text.toString() == "") {
             return
         }
         val dateNow = Calendar.getInstance()

@@ -41,11 +41,13 @@ class CategoryDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val adapter =
-            CategoryDetailsAdapter(requireContext(), DefaultsViewModel.getCategoryDetails()) { item ->
+            CategoryDetailsAdapter(requireContext(), DefaultsViewModel.getCategoryDetails(), { item ->
                 // this is called when a row is clicked
                 Log.d("Alex", "I clicked ${item.name}")
-                openColorPickerDialogue(item.name)
-            }
+                openColorPickerDialogue(item.name) },
+                { item ->
+                    resetColor(item.name) }
+            )
 
         val listView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
         listView.adapter = adapter
@@ -76,6 +78,13 @@ class CategoryDetailsFragment : Fragment() {
         val touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(binding.recyclerView)
     }
+
+    private fun resetColor(iCategory: String) {
+        DefaultsViewModel.setColour(iCategory, 0, false)
+        val ladapter: CategoryDetailsAdapter =
+            binding.recyclerView.adapter as CategoryDetailsAdapter
+        ladapter.refresh()
+    }
     private fun openColorPickerDialogue(iCategory: String) {
 
         // the AmbilWarnaDialog callback needs 3 parameters
@@ -104,7 +113,8 @@ class CategoryDetailsFragment : Fragment() {
 }
 
 class CategoryDetailsAdapter (private val context: Context, private var data: MutableList<CategoryDetail>,
-                              private val listener: (CategoryDetail) -> Unit = {}):
+                              private val colorListener: (CategoryDetail) -> Unit = {},
+                              private val resetListener: (CategoryDetail) -> Unit = {}):
     RecyclerView.Adapter<CategoryDetailsAdapter.CategoryDetailViewHolder>() {
 
     override fun getItemId(pos: Int): Long {
@@ -125,6 +135,7 @@ class CategoryDetailsAdapter (private val context: Context, private var data: Mu
     class CategoryDetailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var vhName: TextView = view.findViewById(R.id.row_category_name)
         var vhColor: ImageView = view.findViewById(R.id.row_category_color)
+        var vhReset: ImageView = view.findViewById(R.id.row_category_color_reset)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryDetailViewHolder {
@@ -139,8 +150,10 @@ class CategoryDetailsAdapter (private val context: Context, private var data: Mu
         holder.vhName.text = cData.name
         holder.vhName.setBackgroundColor(cData.color)
         holder.vhColor.setBackgroundColor(cData.color)
-        holder.itemView.setOnClickListener { listener(cData) }
-        holder.vhColor.setOnClickListener { listener(cData) } // otherwise clicking image won't launch color picker
+        holder.vhReset.setBackgroundColor(cData.color)
+//        holder.itemView.setOnClickListener { colorListener(cData) }
+        holder.vhColor.setOnClickListener { colorListener(cData) }
+        holder.vhReset.setOnClickListener { resetListener(cData) }
     }
 
     override fun getItemCount(): Int {

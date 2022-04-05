@@ -123,26 +123,28 @@ class CategoryViewModel : ViewModel() {
         }
         fun deleteCategoryAndSubcategory(id: Int) {
             val cat: Category? = singleInstance.categories.find { it.id == id }
-            val ind = singleInstance.categories.indexOf(cat)
-            singleInstance.categories.removeAt(ind)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").child(id.toString()).removeValue()
-        }
-        fun getCategories(): MutableList<Category> { // returns only "on" categories
-            val tmpList: MutableList<Category> = ArrayList()
-            for (category in singleInstance.categories) {
-                if (category.discType != cDiscTypeOff)
-                    tmpList.add(category)
+            if (cat != null) {
+                val ind = singleInstance.categories.indexOf(cat)
+                singleInstance.categories.removeAt(ind)
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Category")
+                    .child(id.toString()).removeValue()
+                val anyMoreCats: Category? = singleInstance.categories.find { it.categoryName == cat.categoryName }
+                if (anyMoreCats == null) {
+                    Log.d("Alex", "Just deleted the last category so clean up CategoryDetails too")
+                    DefaultsViewModel.deleteCategoryDetail(cat.categoryName)
+                }
             }
-            return tmpList
         }
 
-        fun getCategoriesIncludingOff(): MutableList<Category> {
+        fun getCategories(includingOff: Boolean): MutableList<Category> {
             val tList: MutableList<Category>  = ArrayList()
 
             singleInstance.categories.forEach {
-                tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType))
-                val cat = tList[tList.size-1]
-                cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName).priority
+                if (it.discType != cDiscTypeOff || includingOff) {
+                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType))
+                    val cat = tList[tList.size - 1]
+                    cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName).priority
+                }
             }
             tList.sortWith(compareBy({ it.priority }, { it.categoryName }))
             return tList
@@ -151,7 +153,7 @@ class CategoryViewModel : ViewModel() {
         fun getCategoryNames(iIncludeOff: Boolean = false): MutableList<String> {
             val tmpList: MutableList<String> = ArrayList()
             var prevName = ""
-            val origList = getCategoriesIncludingOff()
+            val origList = getCategories(true)
             origList.forEach {
                 if (it.categoryName != prevName && (iIncludeOff || it.discType != cDiscTypeOff)) {
                     tmpList.add(it.categoryName)
@@ -163,7 +165,7 @@ class CategoryViewModel : ViewModel() {
 
         fun getCategoryAndSubcategoryList(): MutableList<String> {
             val tmpList: MutableList<String> = ArrayList()
-            val origList = getCategoriesIncludingOff()
+            val origList = getCategories(true)
 //            singleInstance.categories.forEach {
             origList.forEach {
                 if (it.discType != cDiscTypeOff)
@@ -174,11 +176,11 @@ class CategoryViewModel : ViewModel() {
 
         fun getCombinedCategoriesForSpinner() : MutableList<String> {
             val list : MutableList<String> = ArrayList()
-            val origList = getCategoriesIncludingOff()
+            val origList = getCategories(true)
 //            singleInstance.categories.forEach {
             origList.forEach {
 //            singleInstance.categories.forEach {
-                if (it.discType != cDiscTypeOff)
+//                if (it.discType != cDiscTypeOff)
                     list.add(it.fullCategoryName())
             }
             return list

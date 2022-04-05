@@ -14,7 +14,6 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRecurringTransactionEditDialogBinding
-import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -98,6 +97,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
 //        return inflater.inflate(R.layout.fragment_recurring_transaction_edit_dialog, container, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.editRtOldName.text = oldName
@@ -106,10 +106,9 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         if (oldAmount == 0) {
             binding.editRtNewAmount.setText("")
         } else {
-            val dec = DecimalFormat("#.00")
             val formattedAmount = (oldAmount / 100).toDouble() + (oldAmount % 100).toDouble() / 100
-            binding.editRtOldAmount.text = dec.format(formattedAmount)
-            binding.editRtNewAmount.setText(dec.format(formattedAmount))
+            binding.editRtOldAmount.text = gDec.format(formattedAmount)
+            binding.editRtNewAmount.setText(gDec.format(formattedAmount))
         }
         binding.editRtOldPeriod.text = oldPeriod
         binding.editRtOldRegularity.text = oldRegularity.toString()
@@ -348,7 +347,34 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun onSaveButtonClicked() {
+        if (!textIsSafeForKey(binding.editRtNewName.text.toString())) {
+            showErrorMessage(parentFragmentManager, "The text contains unsafe characters.  They must be removed.")
+            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
+            return
+        }
+        if (binding.editRtNewName.text.toString() == "") {
+            showErrorMessage(parentFragmentManager, "Name of this new recurring transaction cannot be blank.")
+            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
+            return
+        }
+        if (binding.editRtNewAmount.text.toString() == "") {
+            showErrorMessage(parentFragmentManager, "Amount of this new recurring transaction cannot be zero.")
+            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
+            return
+        }
+        if (binding.editRtNewAmount.text.toString().toDouble() == 0.0) {
+            showErrorMessage(parentFragmentManager, "Amount of this new recurring transaction cannot be zero.")
+            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
+            return
+        }
+        if (binding.editRtNewRegularity.text.toString() == "") {
+            showErrorMessage(parentFragmentManager, "Regularity must be set to a non-zero value.")
+            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
+            return
+        }
+
         val rtSpinner:Spinner = binding.editRtNewPeriodSpinner
         var somethingChanged = false
         val amountInt: Int = round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt()
@@ -374,13 +400,6 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             currentMode = "Edit"
             return
         }  // else, continue below already in edit, so save...
-
-
-        if (!textIsSafeForKey(binding.editRtNewName.text.toString())) {
-            showErrorMessage(parentFragmentManager, "The text contains unsafe characters.  They must be removed.")
-            focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
-            return
-        }
 
         if (oldName == binding.editRtNewName.text.toString()) {
             if (oldAmount != amountInt) {
