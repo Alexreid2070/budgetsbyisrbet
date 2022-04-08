@@ -38,6 +38,15 @@
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/privacyHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".2"
+            android:text="Private?"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <ListView
@@ -53,6 +62,7 @@
         android:layout_gravity="bottom|center"
         app:fabGravity="bottom_end"
         app:fabMenu="@menu/category_menu"
+        app:fabDrawable="@drawable/ic_baseline_edit_24"
         android:tooltipText="Category Menu"
         app:miniFabBackgroundTint="?attr/colorSecondary"
         app:miniFabDrawableTint="@color/white"

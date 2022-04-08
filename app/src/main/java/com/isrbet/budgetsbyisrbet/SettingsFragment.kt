@@ -1,12 +1,10 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -19,12 +17,9 @@ import android.view.*
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
@@ -41,7 +36,7 @@ class SettingsFragment : Fragment() {
     private var authorizeButtonStartingState = false
     private var joinOtherUserButtonStartingState = false
     private var disconnectButtonStartingState = false
-    lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,6 +114,7 @@ class SettingsFragment : Fragment() {
         val spenderRadioGroup = binding.defaultSpenderRadioGroup
         spenderRadioGroup.removeAllViews()
 
+        val defSpenderName = SpenderViewModel.getDefaultSpenderName()
         for (i in 0..2) { // always do this twice, so we will setup a possible new second user
             var spender: String
             if (i == 0)
@@ -143,7 +139,7 @@ class SettingsFragment : Fragment() {
             newRadioButton.text = spender
             newRadioButton.id = ctr++
             spenderRadioGroup.addView(newRadioButton)
-            if (spender == SpenderViewModel.getDefaultSpenderName()) {
+            if (spender == defSpenderName || defSpenderName == "") {
                 spenderRadioGroup.check(newRadioButton.id)
             }
         }
@@ -527,9 +523,9 @@ class SettingsFragment : Fragment() {
         binding.settingsFirstUserName.requestFocus()
     }
     private fun isNotificationServiceEnabled(c: Context): Boolean {
-        val pkgName: String = c.getPackageName()
+        val pkgName: String = c.packageName
         val flat: String = Settings.Secure.getString(
-            c.getContentResolver(),
+            c.contentResolver,
             "enabled_notification_listeners"
         )
         if (!TextUtils.isEmpty(flat)) {

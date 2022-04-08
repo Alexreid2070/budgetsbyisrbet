@@ -108,7 +108,7 @@ class BudgetViewModel : ViewModel() {
             }
         }
 
-        fun getCategoryBudgets(iBudgetMonth: BudgetMonth) : ArrayList<DataObject> {
+        fun getCategoryBudgets(iBudgetMonth: BudgetMonth, iWho: Int) : ArrayList<DataObject> {
             val tList: ArrayList<DataObject> = ArrayList()
             var prevCategory = ""
             var totalBudget = 0.0
@@ -118,7 +118,7 @@ class BudgetViewModel : ViewModel() {
                     tList.add(DataObject(prevCategory, totalBudget, 0))
                     totalBudget = 0.0
                 }
-                val budget = getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, cDiscTypeAll)
+                val budget = getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, cDiscTypeAll, iWho)
                 Log.d("Alex", "budget for " + it.categoryName + " " + it.subcategoryName + " is " + budget)
                 totalBudget += budget
                 prevCategory = it.categoryName
@@ -287,20 +287,20 @@ class BudgetViewModel : ViewModel() {
             return tResponse
         }
 
-        fun getTotalCalculatedBudgetForMonth(iBudgetMonth: BudgetMonth, iDiscType: String) : Double {
+        fun getTotalCalculatedBudgetForMonth(iBudgetMonth: BudgetMonth, iDiscType: String, iWho: Int) : Double {
             var tmpTotal = 0.0
             CategoryViewModel.getCategories(false).forEach {
-                tmpTotal += getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, iDiscType)
+                tmpTotal += getTotalCalculatedBudgetForMonthForCategory(it.id, iBudgetMonth, iDiscType, iWho)
             }
             return tmpTotal
         }
 
-        fun getTotalCalculatedBudgetForMonthForCategory(iCategoryID: Int, iBudgetMonth: BudgetMonth, iDiscType: String) : Double {
+        fun getTotalCalculatedBudgetForMonthForCategory(iCategoryID: Int, iBudgetMonth: BudgetMonth, iDiscType: String, iWho: Int) : Double {
             var tmpTotal = 0.0
-            val discIndicator = CategoryViewModel.getCategory(iCategoryID)?.discType ?: ""
+            val discIndicator = CategoryViewModel.getCategory(iCategoryID)?.discType ?: cDiscTypeAll
             if (discIndicator == iDiscType || iDiscType == cDiscTypeAll) {
-                for (i in 0 until SpenderViewModel.getActiveCount()) {
-                    if (SpenderViewModel.getSpenderName(i) != "Joint") {
+                for (i in 0 until 2) { // don't loop on Joint, since the individual spender calcs include their portion of Joint
+                    if (i == iWho || iWho == 2) {
                         val bpAmt = getCalculatedBudgetAmount( // this includes the right % of Joint with each individual Spender
                             iBudgetMonth,
                             iCategoryID,
@@ -328,8 +328,9 @@ class BudgetViewModel : ViewModel() {
                         (iBudgetMonth.month != 0 && budget.occurence == 1 && budget.period.toString() == iBudgetMonth.toString()) ||
                         (iBudgetMonth.month == 0 && budget.period.year <= iBudgetMonth.year)
                     ) {
-                        val catDiscFlag = CategoryViewModel.getCategory(categoryID)?.discType ?: ""
-                        if (iDiscFlag == "" || catDiscFlag == iDiscFlag) {
+                        val cat = CategoryViewModel.getCategory(categoryID)
+                        if ((iDiscFlag == "" || cat?.discType == iDiscFlag)
+                            && cat?.iAmAllowedToSeeThisCategory() == true) {
                             tBudgetAmount = budget.amount
                         }
                     }
@@ -347,7 +348,9 @@ class BudgetViewModel : ViewModel() {
                 val categoryID = it.categoryID
                 val bir : Array<BudgetInputRow?> = Array(3) {null}
                 var isAnnual: String
-                if (CategoryViewModel.getCategory(categoryID)?.discType != cDiscTypeOff) {
+                val cat = CategoryViewModel.getCategory(categoryID)
+                if ((cat?.discType != cDiscTypeOff) &&
+                   cat?.iAmAllowedToSeeThisCategory() == true) {
                     for (budget in it.budgetPeriodList) {
                         if ((budget.occurence == 0 && budget.period.toString() <= iBudgetMonth.toString()) ||
                             (budget.occurence == 1 && (budget.period.toString() == iBudgetMonth.toString() ||

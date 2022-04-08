@@ -118,10 +118,6 @@ class ExpenditureViewModel : ViewModel() {
             }
             return ctr
         }
-        private fun getExpenditures(): MutableList<Expenditure> {
-            return singleInstance.expenditures
-        }
-
         fun getExpenditure(i:Int): Expenditure {
             return singleInstance.expenditures[i]
         }
@@ -134,13 +130,24 @@ class ExpenditureViewModel : ViewModel() {
 
         fun getCopyOfExpenditures(): MutableList<Expenditure> {
             val copy = mutableListOf<Expenditure>()
-            copy.addAll(getExpenditures())
+            copy.addAll(singleInstance.expenditures)
+
+            if (CategoryViewModel.isThereAtLeastOneCategoryThatIAmNotAllowedToSee()) {
+                for (i in copy.indices.reversed()) {
+                    val cat = CategoryViewModel.getCategory(copy[i].category)
+                    if (cat?.iAmAllowedToSeeThisCategory() != true) {
+                        copy.removeAt(i)
+                    }
+                }
+            }
             return copy
         }
-        fun getTotalDiscretionaryActualsToDate(iBudgetMonth: BudgetMonth) : Double {
+
+        fun getTotalActualsToDate(iBudgetMonth: BudgetMonth, iDiscType: String, iWho: Int) : Double {
             var tmpTotal = 0.0
             val startDate: String
             val endDate: String
+            Log.d("Alex", "in getTotalActualsToDate iDiscType is $iDiscType and iWho is $iWho")
             if (iBudgetMonth.month < 10) {
                 startDate = iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-00"
                 endDate = iBudgetMonth.year.toString() +  "-0" + iBudgetMonth.month.toString() + "-99"
@@ -150,9 +157,16 @@ class ExpenditureViewModel : ViewModel() {
             }
 
             singleInstance.expenditures.forEach {
-                val expDiscIndicator = CategoryViewModel.getCategory(it.category)?.discType
-                if (expDiscIndicator == cDiscTypeDiscretionary && it.date > startDate && it.date < endDate) {
-                    tmpTotal += (it.amount / 100.0)
+                val cat = CategoryViewModel.getCategory(it.category)
+                if (it.type != "Transfer" && it.date > startDate && it.date < endDate &&
+                    (cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
+                    (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2) &&
+                        cat?.iAmAllowedToSeeThisCategory() == true) {
+                        when (iWho) {
+                            0 -> tmpTotal += (it.amount / 100.0 * it.bfname1split/100.0)
+                            1 -> tmpTotal += (it.amount / 100.0 * (100-it.bfname1split)/100.0)
+                            2 -> tmpTotal += (it.amount / 100.0)
+                        }
                 }
             }
             return tmpTotal
@@ -163,21 +177,24 @@ class ExpenditureViewModel : ViewModel() {
             var prevCategory = ""
             var totalActuals = 0.0
             CategoryViewModel.getCategories(true).forEach {
-                if (prevCategory != "" && prevCategory != it.categoryName) {
-                    // ie not the first row, and this was a change in category
-                    Log.d("Alex", "change from " + prevCategory + " to " + it.categoryName)
-                    tList.add(DataObject(prevCategory, totalActuals, 0))
-                    totalActuals = 0.0
+                if (it.iAmAllowedToSeeThisCategory()) {
+                    if (prevCategory != "" && prevCategory != it.categoryName) {
+                        // ie not the first row, and this was a change in category
+                        Log.d("Alex", "change from " + prevCategory + " to " + it.categoryName)
+                        tList.add(DataObject(prevCategory, totalActuals, 0))
+                        totalActuals = 0.0
+                    }
+                    var actual: Double
+                    for (i in 0 until SpenderViewModel.getTotalCount()) {
+                        actual = getActualsForPeriod(
+                            it.id,
+                            iBudgetMonth, iBudgetMonth,
+                            i
+                        )
+                        totalActuals += actual
+                    }
+                    prevCategory = it.categoryName
                 }
-                var actual: Double
-                for (i in 0 until SpenderViewModel.getTotalCount()) {
-                    actual = getActualsForPeriod(it.id,
-                        iBudgetMonth, iBudgetMonth,
-                        i
-                    )
-                    totalActuals += actual
-                }
-                prevCategory = it.categoryName
             }
             return  tList
         }
@@ -187,22 +204,26 @@ class ExpenditureViewModel : ViewModel() {
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
             loop@ for (expenditure in singleInstance.expenditures) {
-                if (expenditure.type != "Transfer" &&
+                val cat = CategoryViewModel.getCategory(expenditure.category)
+                if (cat?.iAmAllowedToSeeThisCategory() == true) {
+                    if (expenditure.type != "Transfer" &&
                         expenditure.date >= firstDay &&
                         expenditure.date <= lastDay &&
                         expenditure.category == iCategoryID &&
-                        (expenditure.boughtfor == iWho)) { // || iWho == "Joint")) {
-                    // this is a transaction to add to our subtotal
-//                        if (iWho != "" && iWho != "Joint") // ie want a specific person
-//                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
-//                        else
-                    tTotal += if (iWho == 2 && iSubWho != -1) {
-                        if (iSubWho == 0)
-                            (expenditure.amount.toDouble() / 100 * expenditure.bfname1split /100)
-                        else
-                            (expenditure.amount.toDouble() / 100 * expenditure.getSplit2() /100)
-                    } else {
-                        (expenditure.amount.toDouble() / 100)
+                        (expenditure.boughtfor == iWho)
+                    ) { // || iWho == "Joint")) {
+                        // this is a transaction to add to our subtotal
+                        //                        if (iWho != "" && iWho != "Joint") // ie want a specific person
+                        //                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
+                        //                        else
+                        tTotal += if (iWho == 2 && iSubWho != -1) {
+                            if (iSubWho == 0)
+                                (expenditure.amount.toDouble() / 100 * expenditure.bfname1split / 100)
+                            else
+                                (expenditure.amount.toDouble() / 100 * expenditure.getSplit2() / 100)
+                        } else {
+                            (expenditure.amount.toDouble() / 100)
+                        }
                     }
                 }
             }
@@ -269,20 +290,32 @@ class ExpenditureViewModel : ViewModel() {
         fun getPreviousKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
             var ind = singleInstance.expenditures.indexOf(exp)
-            Log.d("Alex", "iKey is " + iKey + " and ind is " + ind + " and exp is " + exp.toString())
-            if (ind == 0)
-                ind = singleInstance.expenditures.size
-            Log.d("Alex", "ind is " + ind + " and prev is " + (ind-1))
-            return singleInstance.expenditures[ind-1].mykey
+            val startingInd = ind
+            var found = false
+            while (!found) {
+                if (ind == 0)
+                    ind = singleInstance.expenditures.size
+                ind -=1
+                val cat = CategoryViewModel.getCategory(singleInstance.expenditures[ind].category)
+                if (ind == startingInd || cat?.iAmAllowedToSeeThisCategory() == true)
+                    found = true
+            }
+            return singleInstance.expenditures[ind].mykey
         }
         fun getNextKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }
             var ind = singleInstance.expenditures.indexOf(exp)
-            Log.d("Alex", "iKey is " + iKey + " and ind is " + ind + " and exp is " + exp.toString())
-            if (ind == singleInstance.expenditures.size-1)
-                ind = -1
-            Log.d("Alex", "ind is " + ind + " and next is " + (ind+1))
-            return singleInstance.expenditures[ind+1].mykey
+            val startingInd = ind
+            var found = false
+            while (!found) {
+                if (ind == singleInstance.expenditures.size-1)
+                    ind = -1
+                ind +=1
+                val cat = CategoryViewModel.getCategory(singleInstance.expenditures[ind].category)
+                if (ind == startingInd || cat?.iAmAllowedToSeeThisCategory() == true)
+                    found = true
+            }
+            return singleInstance.expenditures[ind].mykey
         }
         fun getPreviousTransferKey(iKey: String): String {
             val exp = singleInstance.expenditures.find { it.mykey == iKey }

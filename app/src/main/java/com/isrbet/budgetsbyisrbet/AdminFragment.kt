@@ -30,7 +30,7 @@ class AdminFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
         view?.findViewById<Button>(R.id.button_dosomething)?.setOnClickListener { _: View ->
-            SpenderViewModel.clear()
+/*            SpenderViewModel.clear()
             CategoryViewModel.clear()
             DefaultsViewModel.clear()
             BudgetViewModel.clear()
@@ -39,22 +39,22 @@ class AdminFragment : Fragment() {
             RecurringTransactionViewModel.clear()
             TranslationViewModel.clear()
 
-            MyApplication.userUID="AgcnEPqB4zbDJUHME3Z29gejcyu1"
+//            MyApplication.userUID="3yvcaxXaASQLQu9pc6EQWp6h57q2"
 
-            SpenderViewModel.refresh()
+//            SpenderViewModel.refresh()
+//            convertDefaults()
+//            DefaultsViewModel.refresh()
 //            convertCategories()
-            CategoryViewModel.refresh()
-            //convertDefaults()
-            DefaultsViewModel.refresh()
+//            CategoryViewModel.refresh()
             // convertRecurringTransactions()
 //            RecurringTransactionViewModel.refresh()
-            //convertBudgets()
-            convertExpenditures()
+//            convertBudgets()
+//            convertExpenditures()
 
 //            BudgetViewModel.refresh()
 //            ExpenditureViewModel.refresh()
 //            ChatViewModel.refresh()
-//            TranslationViewModel.refresh()
+//            TranslationViewModel.refresh() */
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
             clearData()
@@ -121,10 +121,10 @@ class AdminFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var previousCategoryID = 1000
                 dataSnapshot.children.forEach {
-                    previousCategoryID += 1
                     val category = it.key.toString()
                     if (!isNumber(category)) {
                         for (subcategoryC in it.children) {
+                            previousCategoryID += 1
                             val subcategory = subcategoryC.key.toString()
                             val subcategoryType = subcategoryC.value.toString()
                             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
@@ -139,10 +139,10 @@ class AdminFragment : Fragment() {
                                 .child(previousCategoryID.toString())
                                 .child("Type")
                                 .setValue(subcategoryType)
-                            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+/*                            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
                                 .child(category)
                                 .child(subcategory)
-                                .removeValue()
+                                .removeValue() */
                         }
                     }
                 }
@@ -186,11 +186,12 @@ class AdminFragment : Fragment() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var i = 0
+                Log.d("Alex", "There are ${dataSnapshot.children.count()} expenditures to convert")
                 dataSnapshot.children.forEach {
                     i += 1
                     var categoryName = ""
                     var subcategoryName = ""
-                    var expID = it.key.toString()
+                    val expID = it.key.toString()
 
                     var amount = 0
                     var bfname1split = 0
@@ -228,7 +229,6 @@ class AdminFragment : Fragment() {
                     if (date == "")
                         Log.d("Alex", "What is this $expID")
                     val bm = BudgetMonth(date)
-                    if (bm.year == 2022 && bm.month == 3 && date > "2022-03-19") {
                         MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
                             .child(bm.year.toString())
                             .child(bm.get2DigitMonth())
@@ -281,7 +281,6 @@ class AdminFragment : Fragment() {
                             "Alex",
                             "Completed transaction $i of ${dataSnapshot.children.count()}"
                         )
-                    }
                 }
             }
 
@@ -292,10 +291,81 @@ class AdminFragment : Fragment() {
         MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Expenditures")
             .addListenerForSingleValueEvent(listener)
     }
-    fun checkExpenditures() {
+    fun whatsBeasProblem() {
+        val listener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                var total = 0
+                dataSnapshot.children.forEach {
+                    var paidby = ""
+                    var boughtfor = ""
+                    var amount = 0
+                    val key = it.key.toString()
+                    for (element in it.children) {
+                        when (element.key.toString()) {
+                            "paidby" -> paidby = element.value.toString()
+                            "boughtfor" -> boughtfor = element.value.toString()
+                            "amount" -> amount = element.value.toString().toInt()
+                        }
+                    }
+                    if (paidby == "Beatrice" && boughtfor == "Beatrice") {
+                        Log.d("Alex", "Exp amount for $key is $amount")
+                        total += amount
+                    }
+                }
+                Log.d("Alex", "Total is $total")
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                MyApplication.displayToast("User authorization failed 102.")
+            }
+        }
+        MyApplication.database.getReference("Users/RecZvLAdKGalU9OAtP2GHDGFr0r1/Expenditures")
+            .addListenerForSingleValueEvent(listener)
+    }
+
+    fun fixRheannon() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var i = 0
+                dataSnapshot.children.forEach {
+                    val y = it.key.toString()
+                    for (month in it.children) {
+                        val m = month.key.toString()
+                        for (exp in month.children) {
+                            i += 1
+                            var bfname1split = 0
+                            val key = exp.key.toString()
+                            for (element in exp.children) {
+                                when (element.key.toString()) {
+                                    "bfname1split" -> bfname1split =
+                                        element.value.toString().toInt()
+                                }
+                            }
+                            Log.d(
+                                "Alex",
+                                "($i) Prev split was $bfname1split and new is " + (100 - bfname1split) + " $y $m $key"
+                            )
+                            MyApplication.database.getReference("Users/3yvcaxXaASQLQu9pc6EQWp6h57q2/Transactions")
+                                .child(y)
+                                .child(m)
+                                .child(key)
+                                .child("bfname1split")
+                                .setValue(100-bfname1split)
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                MyApplication.displayToast("User authorization failed 102.")
+            }
+        }
+        MyApplication.database.getReference("Users/3yvcaxXaASQLQu9pc6EQWp6h57q2/Transactions")
+            .addListenerForSingleValueEvent(listener)
+    }
+    fun checkExpenditures() {
+        val listener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach {
                     if (!ExpenditureViewModel.exists(it.key.toString()))
                         Log.d("Alex", "Can't find " + it.key.toString())
@@ -323,7 +393,7 @@ class AdminFragment : Fragment() {
                     var note = ""
                     var paidby = 0
                     var type = ""
-                    var expID = it.key.toString()
+                    val expID = it.key.toString()
                     for (child in it.children) {
                         when (child.key.toString()) {
                             "amount" -> amount = child.value.toString().toInt()
@@ -404,7 +474,7 @@ class AdminFragment : Fragment() {
                 dataSnapshot.children.forEach {
                     var categoryName = ""
                     var subcategoryName = ""
-                    var expID = it.key.toString()
+                    val expID = it.key.toString()
                     for (child in it.children) {
                         when (child.key.toString()) {
                             "paidby" -> {
@@ -440,7 +510,6 @@ class AdminFragment : Fragment() {
                         }
                     }
                     if (!isNumber(categoryName)) {
-                        val id = CategoryViewModel.getID(categoryName, subcategoryName)
                         MyApplication.database.getReference("Users/" + MyApplication.userUID + "/RecurringTransactions")
                             .child(expID)
                             .child("category")
@@ -464,18 +533,18 @@ class AdminFragment : Fragment() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach {
-                    var budgetName = it.key.toString()
+                    val budgetName = it.key.toString()
                     if (!isNumber(budgetName)) {
                         for (budget in it.children) {
-                            var budgetDate = budget.key.toString()
+                            val budgetDate = budget.key.toString()
                             for (spenderBudget in budget.children) {
                                 var spenderName = spenderBudget.key.toString()
                                 if (!isNumber(spenderName))
                                     spenderName =
                                         SpenderViewModel.getSpenderIndex(spenderName).toString()
                                 for (row in spenderBudget.children) {
-                                    var cat = Category(0, budgetName)
-                                    var catID = CategoryViewModel.getID(
+                                    val cat = Category(0, budgetName)
+                                    val catID = CategoryViewModel.getID(
                                         cat.categoryName,
                                         cat.subcategoryName
                                     )

@@ -10,14 +10,12 @@ import android.util.Log
 import android.view.*
 import android.view.View.*
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
 import it.sephiroth.android.library.numberpicker.doOnProgressChanged
-import java.text.DecimalFormat
 import java.util.*
 
 class BudgetFragment : Fragment() {
@@ -32,7 +30,6 @@ class BudgetFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetBinding.inflate(inflater, container, false)
-        BudgetViewModel.showMe()
 
         inflater.inflate(R.layout.fragment_budget, container, false)
         return binding.root

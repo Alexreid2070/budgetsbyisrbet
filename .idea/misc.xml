@@ -145,10 +145,11 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_budget_view_all.xml" value="0.15" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category.xml" value="0.1390625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category_details.xml" value="0.10677083333333333" />
-        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category_edit_dialog.xml" value="0.10677083333333333" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_category_edit_dialog.xml" value="0.16" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_dashboard.xml" value="0.115625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_home.xml" value="0.15104166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_settings.xml" value="0.12135416666666667" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_tracker.xml" value="0.15104166666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_transaction.xml" value="0.1644021739130435" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_transaction_view_all.xml" value="0.1644021739130435" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/hint_layout.xml" value="0.264" />

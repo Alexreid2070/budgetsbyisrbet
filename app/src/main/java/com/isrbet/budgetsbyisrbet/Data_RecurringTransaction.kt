@@ -31,7 +31,6 @@ data class RecurringTransaction(
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
             "split1" -> split1 = value.toInt()
-            else -> Log.d("Alex", "Unknown Recurring Transaction $key $value")
         }
     }
     fun getSplit2(): Int {

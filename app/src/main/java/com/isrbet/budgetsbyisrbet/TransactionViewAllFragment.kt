@@ -380,45 +380,9 @@ class TransactionViewAllFragment : Fragment() {
             setViewsToAccounting()
             setFiltersToAccounting()
         } else {
+            setViewsToDefault()
             if (args.categoryID != "")
                 setCategoryFilter(args.categoryID.toInt())
-            binding.showCategoryColumns.isChecked = DefaultsViewModel.getDefault(
-                cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL
-            ) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
-                binding.categoryHeading.visibility = View.GONE
-            }
-            binding.showIndividualAmountsColumns.isChecked =
-                DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
-                binding.percentage1Heading.visibility = View.GONE
-                binding.percentage2Heading.visibility = View.GONE
-            }
-            binding.showWhoColumn.isChecked =
-                DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true") {
-                binding.whoHeading.visibility = View.GONE
-            }
-            binding.showNoteColumn.isChecked =
-                DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true") {
-                binding.noteHeading.visibility = View.GONE
-            }
-            binding.showDiscColumn.isChecked =
-                DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true") {
-                binding.discHeading.visibility = View.GONE
-            }
-            binding.showTypeColumn.isChecked =
-                DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true") {
-                binding.typeHeading.visibility = View.GONE
-            }
-            binding.showRunningTotalColumn.isChecked =
-                DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) == "true"
-            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) != "true") {
-                binding.runningTotalHeading.visibility = View.GONE
-            }
         }
         binding.showIndividualAmountsColumns.setOnCheckedChangeListener { _, _ ->
             if (binding.showIndividualAmountsColumns.isChecked) {
@@ -494,10 +458,14 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.resetFilterButton.setOnClickListener {
             resetFilters()
+            accountingMode = false
             onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
             binding.totalLayout.visibility = View.GONE
+            adapter.setAccountingFilter(accountingMode)
             adapter.filterTheList(transactionSearchText)
             adapter.notifyDataSetChanged()
+            setViewsToDefault()
+            goToCorrectRow()
         }
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
@@ -511,12 +479,51 @@ class TransactionViewAllFragment : Fragment() {
         HintViewModel.showHint(requireContext(), binding.transactionAddFab, "TransactionViewAll")
     }
 
+    private fun setViewsToDefault() {
+        binding.showCategoryColumns.isChecked = DefaultsViewModel.getDefault(
+            cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL
+        ) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
+            binding.categoryHeading.visibility = View.GONE
+        }
+        binding.showIndividualAmountsColumns.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
+            binding.percentage1Heading.visibility = View.GONE
+            binding.percentage2Heading.visibility = View.GONE
+        }
+        binding.showWhoColumn.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true") {
+            binding.whoHeading.visibility = View.GONE
+        }
+        binding.showNoteColumn.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true") {
+            binding.noteHeading.visibility = View.GONE
+        }
+        binding.showDiscColumn.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true") {
+            binding.discHeading.visibility = View.GONE
+        }
+        binding.showTypeColumn.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true") {
+            binding.typeHeading.visibility = View.GONE
+        }
+        binding.showRunningTotalColumn.isChecked =
+            DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) == "true"
+        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) != "true") {
+            binding.runningTotalHeading.visibility = View.GONE
+        }
+    }
     @SuppressLint("NotifyDataSetChanged")
     private fun setFiltersToAccounting() {
         resetFilters()
         val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        adapter.setAccountingFilter(true)
+        adapter.setAccountingFilter(accountingMode)
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
         goToCorrectRow()

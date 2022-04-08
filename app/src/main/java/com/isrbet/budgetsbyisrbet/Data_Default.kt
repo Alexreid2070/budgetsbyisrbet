@@ -28,6 +28,10 @@ const val cDEFAULT_DELTA_DASHBOARD = "DeltaDashboard"
 const val cDEFAULT_ROUND_DASHBOARD = "RoundDashboard"
 const val cDEFAULT_SHOW_DISC_DASHBOARD = "ShowDiscDashboard"
 const val cDEFAULT_BUDGET_VIEW = "BudgetView"
+const val cDEFAULT_FILTER_DISC_TRACKER = "FilterDiscTracker"
+const val cDEFAULT_FILTER_WHO_TRACKER = "FilterWhoTracker"
+const val cDEFAULT_VIEW_BY_TRACKER = "ViewByTracker"
+const val cDEFAULT_SHOW_TOTALS_TRACKER = "ShowTotalsTracker"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -53,6 +57,10 @@ class DefaultsViewModel : ViewModel() {
     private var defaultShowDiscDashboard: String = "true"
     private var defaultBudgetView: String = "Date"
     private val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
+    private var defaultFilterDiscTracker = cDiscTypeAll
+    private var defaultFilterWhoTracker = "2"
+    private var defaultViewByTracker = "Month"
+    private var defaultShowTotalsTracker: String = "#"
     private var loaded:Boolean = false
 
     companion object {
@@ -82,6 +90,10 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default roundDashboard is " + singleInstance.defaultRoundDashboard)
             Log.d("Alex", "Default showDiscDashboard is " + singleInstance.defaultShowDiscDashboard)
             Log.d("Alex", "Default budgetView is " + singleInstance.defaultBudgetView)
+            Log.d("Alex", "Default filterDiscTracker is " + singleInstance.defaultFilterDiscTracker)
+            Log.d("Alex", "Default filterWhoTracker is " + singleInstance.defaultFilterWhoTracker)
+            Log.d("Alex", "Default viewByTracker is " + singleInstance.defaultViewByTracker)
+            Log.d("Alex", "Default showTotalsTracker is " + singleInstance.defaultShowTotalsTracker)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -110,6 +122,10 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_ROUND_DASHBOARD -> return singleInstance.defaultRoundDashboard
                 cDEFAULT_SHOW_DISC_DASHBOARD -> return singleInstance.defaultShowDiscDashboard
                 cDEFAULT_BUDGET_VIEW -> return singleInstance.defaultBudgetView
+                cDEFAULT_FILTER_DISC_TRACKER -> return singleInstance.defaultFilterDiscTracker
+                cDEFAULT_FILTER_WHO_TRACKER -> return singleInstance.defaultFilterWhoTracker
+                cDEFAULT_VIEW_BY_TRACKER -> return singleInstance.defaultViewByTracker
+                cDEFAULT_SHOW_TOTALS_TRACKER -> return singleInstance.defaultShowTotalsTracker
                 else -> return ""
             }
         }
@@ -151,6 +167,14 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultFilterDiscDashboard = ""
             singleInstance.defaultFilterWhoDashboard = ""
             singleInstance.defaultDeltaDashboard = "#"
+            singleInstance.defaultRoundDashboard = "false"
+            singleInstance.defaultShowDiscDashboard = "true"
+            singleInstance.defaultBudgetView = "Date"
+            singleInstance.defaultCategoryDetails.clear()
+            singleInstance.defaultFilterDiscTracker = cDiscTypeAll
+            singleInstance.defaultFilterWhoTracker = "2"
+            singleInstance.defaultViewByTracker = "Month"
+            singleInstance.defaultShowTotalsTracker = "#"
         }
 
         fun getCategoryDetails(): MutableList<CategoryDetail> {
@@ -286,7 +310,8 @@ class DefaultsViewModel : ViewModel() {
     fun setLocal(whichOne: String, iValue: String) {
         when (whichOne) {
             cDEFAULT_CATEGORY_ID -> {
-                singleInstance.defaultCategory = iValue.toInt()
+                if (isNumber(iValue))
+                    singleInstance.defaultCategory = iValue.toInt()
             }
             cDEFAULT_SPENDER -> {
                 singleInstance.defaultSpender = iValue.toInt()
@@ -345,6 +370,19 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_BUDGET_VIEW -> {
                 singleInstance.defaultBudgetView = iValue
             }
+
+            cDEFAULT_FILTER_DISC_TRACKER -> {
+                singleInstance.defaultFilterDiscTracker = iValue
+            }
+            cDEFAULT_FILTER_WHO_TRACKER -> {
+                singleInstance.defaultFilterWhoTracker = iValue
+            }
+            cDEFAULT_VIEW_BY_TRACKER -> {
+                singleInstance.defaultViewByTracker = iValue
+            }
+            cDEFAULT_SHOW_TOTALS_TRACKER -> {
+                singleInstance.defaultShowTotalsTracker = iValue
+            }
             else -> {
                 Log.d("Alex", "Unknown default $whichOne $iValue")
             }
@@ -366,7 +404,6 @@ class DefaultsViewModel : ViewModel() {
                                     "priority" -> setPriority(catName, def.value.toString().toInt(), true)
                                 }
                             }
-
                         }
                     } else
                         setLocal(it.key.toString(), it.value.toString())

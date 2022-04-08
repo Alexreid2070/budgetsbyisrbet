@@ -24,8 +24,9 @@ class CustomNotificationListenerService : NotificationListenerService() {
             return if (activeNotnCount > 0) {
                 for (count in 0 until activeNotnCount) {
                     val sbn = singleInstance.activeNotifications[count]
-                    if (sbn.packageName == "com.td.myspend")
+                    if (sbn.packageName == "com.td.myspend") {
                         tCount++
+                    }
                 }
                 tCount
             } else {
@@ -124,11 +125,18 @@ class CustomNotificationListenerService : NotificationListenerService() {
         val activeNotnCount = this@CustomNotificationListenerService.activeNotifications.size
 
         if (activeNotnCount > 0) {
-            /*
-            for (count in 0..activeNotnCount-1) {
-                val sbn = this@CustomNotificationListenerService.activeNotifications[count]
-                val notification = sbn.notification
-            } */
+            Log.d("Alex", "$activeNotnCount active notifications found")
+            for (count in 0 until singleInstance.activeNotifications.size) {
+                val sbn = singleInstance.activeNotifications[count]
+                if (sbn.packageName == "com.td.myspend") {
+                    val notification = sbn.notification
+                    val notificationText =
+                        notification.extras.getCharSequence("android.text").toString()
+                    if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
+                        Log.d("Alex", "package name ${sbn.packageName} notification text: $notificationText")
+                    }
+                }
+            }
         } else {
             Log.d("Alex", "No active Notn found")
         }

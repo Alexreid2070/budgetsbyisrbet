@@ -5,10 +5,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.res.ColorStateList
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -23,15 +20,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
-import java.text.DecimalFormat
 import kotlin.math.round
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.ColorUtils
 import androidx.core.view.GestureDetectorCompat
-import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 
 class TransactionFragment : Fragment() {
@@ -213,7 +206,7 @@ class TransactionFragment : Fragment() {
             val selectedId = binding.categoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             addSubCategories(radioButton.text.toString(), "")
-            val cat = DefaultsViewModel.getCategoryDetail(radioButton.text.toString())
+//            val cat = DefaultsViewModel.getCategoryDetail(radioButton.text.toString())
 //            if (cat.color != 0) {
 //                colorCategoryArea(cat.color)
 //            }
@@ -249,9 +242,7 @@ class TransactionFragment : Fragment() {
             binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
             if (!SpenderViewModel.singleUser()) {
                 val selectedId = binding.boughtForRadioGroup.checkedRadioButtonId
-                SpenderViewModel.showMe()
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-                Log.d("Alex", "radio.button.text is '" + radioButton.text + "'")
                 when (radioButton.text) {
                     "Joint" -> {
                         binding.transactionBoughtForName1Split.text =
@@ -352,7 +343,7 @@ class TransactionFragment : Fragment() {
         HintViewModel.showHint(requireContext(), binding.editTextAmount, "Transaction")
     }
 
-    private fun colorCategoryArea(iColor:Int) {
+/*    private fun colorCategoryArea(iColor:Int) {
 //        binding.inputCategoryLabel.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
 //        binding.categoryRadioGroup.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
 //        binding.inputSpinnerLayout.setBackgroundColor(ColorUtils.setAlphaComponent(iColor, 20))
@@ -361,7 +352,7 @@ class TransactionFragment : Fragment() {
         binding.categoryRadioGroup.setBackgroundColor(iColor)
         binding.inputSpinnerLayout.setBackgroundColor(iColor)
         binding.inputSubcategorySpinner.setBackgroundColor(iColor)
-    }
+    } */
     override fun onPause() {
         super.onPause()
         hideKeyboard(requireContext(), requireView())
@@ -651,6 +642,19 @@ class TransactionFragment : Fragment() {
         val radioButtonBoughtForChecked = radioGroupBoughtFor.checkedRadioButtonId
         val radioButtonBoughtFor = requireActivity().findViewById(radioButtonBoughtForChecked) as RadioButton
 
+        val chosenCatID = CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString())
+        val chosenCat = CategoryViewModel.getCategory(chosenCatID)
+        val paidByID = SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString())
+        val boughtForID = SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString())
+
+        if (chosenCat?.private != 2 &&
+            (paidByID != MyApplication.userIndex) &&
+            (boughtForID != MyApplication.userIndex)) {
+            binding.editTextAmount.error = "You are attempting to add to your private category, so transaction must be in your name."
+            focusAndOpenSoftKeyboard(requireContext(), binding.editTextAmount)
+            return
+        }
+
         val amountInt: Int
         val tempDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = tempDouble.toInt()
@@ -724,7 +728,7 @@ class TransactionFragment : Fragment() {
             radioGroup.addView(newRadioButton)
             if (newTransactionMode && newRadioButton.text.toString() == CategoryViewModel.getDefaultCategory()?.categoryName) {
                 radioGroup.check(newRadioButton.id)
-                val cat = DefaultsViewModel.getCategoryDetail(newRadioButton.text.toString())
+//                val cat = DefaultsViewModel.getCategoryDetail(newRadioButton.text.toString())
 //                if (cat.color != 0) {
 //                    colorCategoryArea(cat.color)
 //                }
@@ -747,6 +751,7 @@ class TransactionFragment : Fragment() {
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
+            Log.d("Alex", "looking at paid by ${spender?.name} ($newTransactionMode ${SpenderViewModel.getDefaultSpenderName()}")
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -759,6 +764,7 @@ class TransactionFragment : Fragment() {
             paidByRadioGroup.addView(newRadioButton)
             if (newTransactionMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 paidByRadioGroup.check(newRadioButton.id)
+                Log.d("Alex", "paid by ${spender.name}")
             }
         }
         ctr = 200
@@ -768,6 +774,7 @@ class TransactionFragment : Fragment() {
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
+            Log.d("Alex", "looking at bought for ${spender?.name}")
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -780,6 +787,7 @@ class TransactionFragment : Fragment() {
             boughtForRadioGroup.addView(newRadioButton)
             if (newTransactionMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 boughtForRadioGroup.check(newRadioButton.id)
+                Log.d("Alex", "bought for ${spender.name}")
             }
         }
     }

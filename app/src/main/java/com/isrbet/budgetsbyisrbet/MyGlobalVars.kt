@@ -70,6 +70,7 @@ class MyApplication : Application() {
         var transactionSearchText: String = ""
         var transactionFirstInList: Int = cLAST_ROW
         var userUID: String = ""
+        var userIndex: Int = 0
         var originalUserUID: String = ""
         var userEmail: String = ""
         var userGivenName: String = ""
@@ -311,6 +312,12 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
 fun getDaysInMonth(cal: Calendar): Int {
     val month = cal.get(Calendar.MONTH)+1
     val year = cal.get(Calendar.YEAR)
+    return getDaysInMonth(year, month+1)
+}
+fun getDaysInMonth(bm: BudgetMonth): Int {
+    return getDaysInMonth(bm.year, bm.month)
+}
+fun getDaysInMonth(year: Int, month: Int): Int { // month is 1..12
     return if (month == 4 || month == 6 || month == 9 || month == 11) {
         30
     } else if (month == 2) {
@@ -480,10 +487,10 @@ fun thisIsANewUser(): Boolean {
 
 fun switchTo(iUID: String) {
     MyApplication.userUID=iUID
+    SpenderViewModel.refresh()
     DefaultsViewModel.refresh()
     ExpenditureViewModel.refresh()
     CategoryViewModel.refresh()
-    SpenderViewModel.refresh()
     BudgetViewModel.refresh()
     RecurringTransactionViewModel.refresh()
 }

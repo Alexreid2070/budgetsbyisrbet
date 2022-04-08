@@ -59,7 +59,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Period: "
+            android:text="Start date: "
             android:textSize="16sp"
             tools:ignore="HardcodedText" />
 

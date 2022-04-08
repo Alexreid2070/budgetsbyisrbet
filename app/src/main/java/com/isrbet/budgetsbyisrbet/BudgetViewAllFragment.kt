@@ -33,8 +33,6 @@ class BudgetViewAllFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        DefaultsViewModel.showMeCategoryDetails()
-        Log.d("Alex", "args.categoryID is ${args.categoryID}")
         if (args.categoryID == "") {
             when (DefaultsViewModel.getDefault(cDEFAULT_BUDGET_VIEW)) {
                 cBudgetDateView -> binding.buttonViewByDate.isChecked = true

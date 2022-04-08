@@ -287,15 +287,15 @@ class DashboardFragment : Fragment() {
         val run = Runnable {
             val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as TableRow
             val tableDashboardRow = binding.tableDashboardRows.getChildAt(0) as TableRow
-            for (i in 0 until tableHeaderRow.childCount) {
-                tableHeaderRow.getChildAt(i).layoutParams = TableRow.LayoutParams(
-                    tableDashboardRow.getChildAt(i).measuredWidth,
-                    tableDashboardRow.getChildAt(i).measuredHeight
+            for (ind in 0 until tableHeaderRow.childCount) {
+                tableHeaderRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
+                    tableDashboardRow.getChildAt(ind).measuredWidth,
+                    tableDashboardRow.getChildAt(ind).measuredHeight
                 )
                 Log.d(
                     "Alex",
-                    "set width to " + tableDashboardRow.getChildAt(i).measuredWidth + " and height to " + tableDashboardRow.getChildAt(
-                        i
+                    "set width to " + tableDashboardRow.getChildAt(ind).measuredWidth + " and height to " + tableDashboardRow.getChildAt(
+                        ind
                     ).measuredHeight
                 )
             }

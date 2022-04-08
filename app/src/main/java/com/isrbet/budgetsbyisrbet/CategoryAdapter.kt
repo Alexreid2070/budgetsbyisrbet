@@ -45,6 +45,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         var vhCategory: TextView = view.findViewById(R.id.row_category)
         var vhSubcategory: TextView = view.findViewById(R.id.row_subcategory)
         var vhDiscType: TextView = view.findViewById(R.id.row_disctype)
+        var vhPrivacy: TextView = view.findViewById(R.id.row_private)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
 
@@ -66,6 +67,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         viewHolder.vhID.text = cData.id.toString()
         viewHolder.vhSubcategory.text = cData.subcategoryName
         viewHolder.vhDiscType.text = cData.discType
+        viewHolder.vhPrivacy.text = if (cData.private != 2) "PRIVATE" else "no"
         if (cData.discType == cDiscTypeOff) {
             viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))

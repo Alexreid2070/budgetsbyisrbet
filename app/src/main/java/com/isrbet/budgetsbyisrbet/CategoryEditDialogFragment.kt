@@ -39,15 +39,18 @@ class CategoryEditDialogFragment : DialogFragment() {
         private const val KEY_CATEGORY = "KEY_CATEGORY"
         private const val KEY_SUBCATEGORY = "KEY_SUBCATEGORY"
         private const val KEY_DISCTYPE = "KEY_DISCTYPE"
+        private const val KEY_PRIVACY = "KEY_PRIVACY"
         private var oldCategoryID: Int = 0
         private var oldCategory: String = ""
         private var oldSubcategory: String = ""
         private var oldDisctype: String = ""
+        private var oldPrivacy: Boolean = false
         fun newInstance(
             categoryID: String,
             category: String,
             subcategory: String,
-            disctype: String
+            disctype: String,
+            privacyText: String
         ): CategoryEditDialogFragment {
             val args = Bundle()
 
@@ -55,12 +58,15 @@ class CategoryEditDialogFragment : DialogFragment() {
             args.putString(KEY_CATEGORY, category)
             args.putString(KEY_SUBCATEGORY, subcategory)
             args.putString(KEY_DISCTYPE, disctype)
+            args.putString(KEY_PRIVACY, privacyText)
             val fragment = CategoryEditDialogFragment()
             fragment.arguments = args
             oldCategoryID = categoryID.toInt()
             oldCategory = category
             oldSubcategory = subcategory
             oldDisctype = disctype
+            oldPrivacy = (privacyText == "true")
+            Log.d("Alex", "$privacyText $oldPrivacy")
             return fragment
         }
     }
@@ -79,10 +85,10 @@ class CategoryEditDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("Alex", "OnViewCreated oldCategory is '$oldCategory'")
         setupClickListeners()
 
         setupCategorySpinner(if (oldCategory == "") "first" else oldCategory)
+        binding.privacySwitch.isChecked = oldPrivacy
 
         val hexColor = getColorInHex(
             MaterialColors.getColor(
@@ -135,6 +141,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.oldCategoryName.text = oldCategory
             binding.oldSubcategoryName.text = oldSubcategory
             binding.oldDisctype.text = oldDisctype
+            binding.oldPrivacy.text = if (oldPrivacy) "PRIVATE" else "Not private"
             if (oldDisctype == cDiscTypeOff) {
                 binding.oldDisctype.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.red))
@@ -171,6 +178,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.GONE
                 binding.categoryDialogLinearLayout4.visibility = View.GONE
                 binding.categoryDialogLinearLayout5.visibility = View.GONE
+                binding.categoryDialogLinearLayout6.visibility = View.GONE
                 binding.categoryLayout.visibility = View.GONE
                 binding.subcategoryLayout.visibility = View.GONE
             }
@@ -219,6 +227,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
+                binding.categoryDialogLinearLayout6.visibility = View.VISIBLE
                 binding.categoryDialogButtonDelete.visibility = View.GONE
 //                binding.categoryLayout.visibility = View.VISIBLE
 //                binding.subcategoryLayout.visibility = View.VISIBLE
@@ -261,15 +270,17 @@ class CategoryEditDialogFragment : DialogFragment() {
                 val dtSpinner: Spinner = binding.editCategoryNewDisctypeSpinner
                 if (oldCategory == chosenCategory &&
                     oldSubcategory == binding.editSubcategoryNewName.text.toString() &&
-                    oldDisctype != dtSpinner.selectedItem.toString()
+                    (oldDisctype != dtSpinner.selectedItem.toString() ||
+                            oldPrivacy != binding.privacySwitch.isChecked)
                 ) {
-                    // disc type changed so update it
+                    // disc type or privacy changed so update it/them
                     Log.d("Alex", "categoryID is $oldCategoryID")
                     CategoryViewModel.updateCategory(
                         binding.categoryId.text.toString().toInt(),
                         oldCategory,
                         oldSubcategory,
-                        dtSpinner.selectedItem.toString()
+                        dtSpinner.selectedItem.toString(),
+                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2
                     )
                     if (listener != null)
                         listener?.onNewDataSaved()
@@ -290,7 +301,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                         0,
                         chosenCategory,
                         binding.editSubcategoryNewName.text.toString().trim(),
-                        binding.editCategoryNewDisctypeSpinner.selectedItem.toString()
+                        binding.editCategoryNewDisctypeSpinner.selectedItem.toString(),
+                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2
                     )
                     if (listener != null) {
                         listener?.onNewDataSaved()
@@ -322,7 +334,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                         binding.categoryId.text.toString().toInt(),
                         chosenCategory,
                         binding.editSubcategoryNewName.text.toString().trim(),
-                        dtSpinner.selectedItem.toString()
+                        dtSpinner.selectedItem.toString(),
+                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2
                     )
                     if (listener != null)
                         listener?.onNewDataSaved()

@@ -6,7 +6,6 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryBinding
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter
 
@@ -33,7 +32,8 @@ class CategoryFragment : Fragment() {
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Category
-                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(), itemValue.categoryName, itemValue.subcategoryName, itemValue.discType) // what do I pass here? zzz
+                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(), itemValue.categoryName, itemValue.subcategoryName, itemValue.discType,
+                    if (itemValue.private != 2) "true" else "false") // what do I pass here? zzz
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
@@ -73,7 +73,7 @@ class CategoryFragment : Fragment() {
     }
 
     private fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",cDiscTypeOff)
+        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",cDiscTypeOff, "false")
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
