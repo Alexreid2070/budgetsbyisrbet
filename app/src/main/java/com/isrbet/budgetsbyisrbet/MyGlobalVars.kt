@@ -63,6 +63,15 @@ const val december = "Dec"
 val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
 val gDec = DecimalFormat("#.00")
 
+enum class LoanPaymentRegularity(val code: Int) {
+    WEEKLY(1),
+    BIWEEKLY(2),
+    MONTHLY(3);
+    companion object {
+        fun getByValue(value: Int) = values().firstOrNull { it.code == value }
+    }
+}
+
 class MyApplication : Application() {
     companion object {
         lateinit var database: FirebaseDatabase

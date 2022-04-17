@@ -69,6 +69,8 @@ class CategoryFragment : Fragment() {
                 }
             }
         })
+        if (SpenderViewModel.singleUser())
+            binding.privacyHeading.visibility = View.GONE
         HintViewModel.showHint(requireContext(), binding.categoryFab, "Category")
     }
 

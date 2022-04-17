@@ -655,5 +655,6 @@ class SettingsFragment : Fragment() {
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
         Toast.makeText(activity, "Changes saved", Toast.LENGTH_SHORT).show()
         activity?.onBackPressed()
+        (activity as MainActivity).singleUserMode(!binding.switchSecondUserActive.isChecked)
     }
 }

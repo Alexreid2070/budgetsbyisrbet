@@ -266,19 +266,11 @@ class CategoryViewModel : ViewModel() {
                                 "Type" -> disctype = child.value.toString().trim()
                                 "Private" -> {
                                     private = child.value.toString().toInt()
-                                    Log.d("Alex", "found a private on category load ${child.value.toString()} $private")
                                 }
                             }
                         }
                         categories.add(Category(categoryID, category, subcategory, disctype, private))
                     }
-                    // the line below is temporary until all 5 users have the email written
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID)
-                        .child("Info")
-                        .child(SpenderViewModel.myIndex().toString())
-                        .child("Email")
-                        .setValue(MyApplication.userEmail)
-                    dataUpdatedCallback?.onDataUpdate()
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
                         .child("Info")
@@ -287,6 +279,7 @@ class CategoryViewModel : ViewModel() {
                         .setValue(MyApplication.userEmail)
                 }
                 singleInstance.loaded = true
+                dataUpdatedCallback?.onDataUpdate()
                 categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
             }
 

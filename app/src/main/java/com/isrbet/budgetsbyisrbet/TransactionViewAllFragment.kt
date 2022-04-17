@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.l4digital.fastscroll.FastScrollRecyclerView
+import kotlin.math.pow
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -110,7 +111,11 @@ class TransactionViewAllFragment : Fragment() {
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
 
         loadCategoryRadioButtons()
-        Log.d("Alex", "onViewCreated after loadCategory")
+        if (SpenderViewModel.singleUser()) {
+            binding.showSplitsLayout.visibility = View.GONE
+            binding.showWhoLayout.visibility = View.GONE
+            binding.showRunningTotalLayout.visibility = View.GONE
+        }
 
         binding.transactionAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransactionFragment)
@@ -379,6 +384,14 @@ class TransactionViewAllFragment : Fragment() {
         if (accountingMode) {
             setViewsToAccounting()
             setFiltersToAccounting()
+            binding.percentage1Heading.text = SpenderViewModel.getSpenderName(0)
+            binding.percentage2Heading.text = SpenderViewModel.getSpenderName(1)
+            binding.runningTotalHeading.tooltipText = "The amount that ${SpenderViewModel.getSpenderName(0)} owes ${SpenderViewModel.getSpenderName(1)}"
+            if (SpenderViewModel.getSpenderName(0).substring(0,1) == SpenderViewModel.getSpenderName(1).substring(0,1))
+                binding.runningTotalHeading.text = "1->2"
+            else
+                binding.runningTotalHeading.text =
+                    SpenderViewModel.getSpenderName(0).substring(0,1) + "->" + SpenderViewModel.getSpenderName(1).substring(0,1)
         } else {
             setViewsToDefault()
             if (args.categoryID != "")

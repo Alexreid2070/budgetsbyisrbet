@@ -3,4 +3,5 @@
     <dimen name="custom_min_width">44dp</dimen>
     <dimen name="custom_med_width">180dp</dimen>
     <dimen name="custom_max_width">240dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 </resources>

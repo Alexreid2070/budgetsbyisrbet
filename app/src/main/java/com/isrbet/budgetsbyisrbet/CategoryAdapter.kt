@@ -67,7 +67,10 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         viewHolder.vhID.text = cData.id.toString()
         viewHolder.vhSubcategory.text = cData.subcategoryName
         viewHolder.vhDiscType.text = cData.discType
-        viewHolder.vhPrivacy.text = if (cData.private != 2) "PRIVATE" else "no"
+        if (SpenderViewModel.singleUser()) {
+            viewHolder.vhPrivacy.visibility = View.GONE
+        } else
+            viewHolder.vhPrivacy.text = if (cData.private != 2) "PRIVATE" else "no"
         if (cData.discType == cDiscTypeOff) {
             viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
@@ -78,11 +81,13 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         val cat = DefaultsViewModel.getCategoryDetail(cData.categoryName)
         if (cat.color != 0) {
             viewHolder.vhCategory.setBackgroundColor(cat.color)
-            viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border_no_color)
             if (Build.VERSION.SDK_INT >= 29) {
                 viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border)
                 viewHolder.vhDetail.background.colorFilter =
                     BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+            } else {
+                viewHolder.vhDetail.setBackgroundColor(cat.color)
+                viewHolder.vhDetail.background.alpha = 44
             }
             viewHolder.vhDetail.setPadding(30, 5, 5, 5)
 

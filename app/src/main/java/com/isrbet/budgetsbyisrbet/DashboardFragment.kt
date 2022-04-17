@@ -44,6 +44,8 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         mTableLayout = binding.tableDashboardRows
         binding.tableDashboardRows.isStretchAllColumns = true
+        if (SpenderViewModel.singleUser())
+            binding.filterWhoLayout.visibility = View.GONE
 
         if (currentBudgetMonth.year == 0) {
             val dateNow = Calendar.getInstance()
@@ -276,14 +278,7 @@ class DashboardFragment : Fragment() {
         createViewRow("Sub-total", i++, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
         grandBudgetTotal += lastCategoryBudgetTotal
         grandActualTotal += lastCategoryActualTotal
-        createViewRow("Grand total", i++, 0, "Grand Total", "", "", grandBudgetTotal, grandActualTotal)
-        // delta row
-        if (grandActualTotal > grandBudgetTotal) {
-            createViewRow("Delta", i, 0, "Delta", "", "", 0.0, grandActualTotal-grandBudgetTotal)
-        }
-        else {
-            createViewRow("Delta", i, 0, "Delta", "", "", grandBudgetTotal-grandActualTotal,0.0)
-        }
+        createViewRow("Grand total", i, 0, "Grand Total", "", "", grandBudgetTotal, grandActualTotal)
         val run = Runnable {
             val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as TableRow
             val tableDashboardRow = binding.tableDashboardRows.getChildAt(0) as TableRow
@@ -291,12 +286,6 @@ class DashboardFragment : Fragment() {
                 tableHeaderRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
                     tableDashboardRow.getChildAt(ind).measuredWidth,
                     tableDashboardRow.getChildAt(ind).measuredHeight
-                )
-                Log.d(
-                    "Alex",
-                    "set width to " + tableDashboardRow.getChildAt(ind).measuredWidth + " and height to " + tableDashboardRow.getChildAt(
-                        ind
-                    ).measuredHeight
                 )
             }
         }
@@ -386,10 +375,7 @@ class DashboardFragment : Fragment() {
         if (iRowType == "Header") {
             tv3.text = "Budget"
         } else {
-            if (iRowType == "Delta" && iBudgetAmount == 0.0)
-                tv3.text = ""
-            else
-                tv3.text = getDecFormat(iBudgetAmount)
+            tv3.text = getDecFormat(iBudgetAmount)
         }
         tv3.tag = iCategoryID
         val tv4 = TextView(requireContext())
@@ -409,9 +395,6 @@ class DashboardFragment : Fragment() {
         if (iRowType == "Header") {
             tv4.text = "Actual"
         } else {
-            if (iRowType == "Delta" && iActualAmount == 0.0)
-                tv4.text = ""
-            else
                 tv4.text = getDecFormat(iActualAmount)
         }
         tv4.tag = iCategoryID
@@ -432,7 +415,6 @@ class DashboardFragment : Fragment() {
         if (iRowType == "Header") {
             tv5.text = "Delta"
         } else {
-            if (iRowType != "Delta") {
                 if (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD) == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
                     when {
@@ -444,9 +426,12 @@ class DashboardFragment : Fragment() {
                     }
                 } else {
                     val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
-                    tv5.text = getDecFormat(diff.toDouble())
+                    val tiny = BigDecimal(0.01)
+                    if (diff < tiny)
+                        tv5.text = getDecFormat(0.0)
+                    else
+                        tv5.text = getDecFormat(diff.toDouble())
                 }
-            }
         }
         // add table row
         val tr = TableRow(requireContext())
@@ -473,15 +458,17 @@ class DashboardFragment : Fragment() {
         tr.layoutParams = trParams
         if (iRowType == "Detail") {
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
-            tr.setBackgroundResource(R.drawable.row_left_border_no_color)
-            if (Build.VERSION.SDK_INT >= 29) {
-                val cat = DefaultsViewModel.getCategoryDetail(iCategory)
-                if (cat.color != 0) {
+
+            val cat = DefaultsViewModel.getCategoryDetail(iCategory)
+            if (cat.color != 0) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     tr.setBackgroundResource(R.drawable.row_left_border)
                     tr.background.colorFilter =
                         BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+                } else {
+                    tr.setBackgroundColor(cat.color)
+                    tr.background.alpha = 44
                 }
-//                tr.background.colorFilter = BlendModeColorFilter(Color.parseColor("#123456"), BlendMode.SRC_ATOP)
             }
         }
         else if (iRowType == "Header") {
@@ -499,13 +486,16 @@ class DashboardFragment : Fragment() {
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
-            tr.setBackgroundResource(R.drawable.row_left_and_bottom_border_no_color)
-            if (Build.VERSION.SDK_INT >= 29) {
-                val cat = DefaultsViewModel.getCategoryDetail(iCategory)
-                if (cat.color != 0) {
+
+            val cat = DefaultsViewModel.getCategoryDetail(iCategory)
+            if (cat.color != 0) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
                     tr.background.colorFilter =
                         BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+                } else {
+                    tr.setBackgroundColor(cat.color)
+//                    tr.background.alpha = 44
                 }
             }
         }
@@ -524,22 +514,14 @@ class DashboardFragment : Fragment() {
                 tr.background.colorFilter =
                     BlendModeColorFilter(col, BlendMode.SRC_ATOP)
             } else {
-                tr.setBackgroundResource(R.drawable.row_frame_no_color)
+                tr.setBackgroundColor(col)
+                tr.background.alpha = 44
             }
+
             if (iActualAmount > iBudgetAmount)
                 tv1.text = "Over Budget"
             else
                 tv1.text = "Under Budget"
-        } else if (iRowType == "Delta") {
-            if (tv3.text != "") {
-                tv1.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
-                tv1.text = "Under Budget"
-                tv3.visibility = View.GONE
-            } else if (tv4.text != "") {
-                tv1.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
-                tv1.text = "Over Budget"
-                tv4.visibility = View.GONE
-            }
         }
         tr.addView(tv0)
         tr.addView(tv1)
@@ -558,7 +540,7 @@ class DashboardFragment : Fragment() {
         } else
             tr.visibility = View.VISIBLE
 
-        if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total" && iRowType != "Delta") {
+        if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total") {
             tv3.setOnClickListener {
                 val catID = it.tag.toString()
                 Log.d("Alex", "row " + it.id + " was clicked, category is " + catID)
@@ -612,8 +594,6 @@ class DashboardFragment : Fragment() {
         }
         if (iRowType == "Grand total")
             mTableLayout!!.addView(tr,0)
-        else if (iRowType == "Delta")  // I've removed the Delta row, at least for now
-//            mTableLayout!!.addView(tr, 2)
         else {
             if (iRowType == "Header")
                 binding.tableHeaderRow.addView(tr)

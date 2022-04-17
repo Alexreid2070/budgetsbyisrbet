@@ -1,123 +1,66 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
     tools:context="com.isrbet.budgetsbyisrbet.HelpFragment">
 
-    <ScrollView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="false">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14dp"
-                    android:textStyle="bold"
-                    android:text="Version Name: " />
-                <TextView
-                    android:id="@+id/help_version_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14dp"
-                    android:textStyle="bold"
-                    android:text="   Version Code: " />
-                <TextView
-                    android:id="@+id/help_version_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="\nSetting up app the first time:" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Welcome to On Budget!  If this is the first time you've logged into the app, it will take
-    you just a few minutes to set up.\n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="1. Enter a few defaults to the app.  Choose Settings from the menu.  Enter 1 or 2 names of people that
-                will be using the app with this login.   Enter the percentages of the family budget that they're each responsible for,
-                and choose a default to be used when entering new transactions.\n  Skip the remaining sections for the moment and click
-                Save.  For more information on Defaults see the relevant section below.\n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="2. Add a few categories and subcategories that you'll use to classify your expenses.  Add categories and subcategories by clicking the menu in
-    top left corner or by swiping from the left.  Choose Settings from the menu and then click Edit Category List.  Click the 3 dots
-    in the top right corner and choose Add Category / SubCategory.\n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="3. That's it!  You can start to use the app.  You should also add Budget and Recurring
-                Transaction information to maximize your value.\n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="Settings:" />
-            <TextView
-                android:id="@+id/help_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Note that family member using the same 'family data' must login using the same login info.
-                For each person entered, enter the % of the family budget that that person is responsible for.  (A typical family may have
-                both people responsible for 50% of the budget.  In this case, enter '50' for each.  If only one person is using the app,
-                enter 100.)  Finally, click the person that should be default when entering a new transaction.  This can always be changed,
-                and is just a time-saving convenience. \n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="Categories:" />
-            <TextView
-                android:id="@+id/help_categories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Recommended categories
-    include 'Housing', 'Transportation', 'Life', 'Travel'.  Recommended subcategories under Housing include 'Mortgage', 'Property taxes', etc.
-    Recommended subcategories under Life include 'Groceries', 'Internet', etc.\nEvery category/subcategory pair must have a type of Discretionary,
-    Non-Discretionary, or Off. \n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="Budgets:" />
-            <TextView
-                android:id="@+id/help_budgets"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Budgets to follow \n" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="Recurring Transactions:" />
-            <TextView
-                android:id="@+id/help_recurring_transactions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Recurring Transactions to follow \n" />
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="OnBudget!"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
-        </LinearLayout>
-    </ScrollView>
-</FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Version Name: "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/help_version_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="   Version Code: "
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/help_version_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingTop="20dp"
+        android:text="OnBudget! help is located at the link below."/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:text="https://isrbet-consulting.webnode.page/onbudget-help/" />
+</LinearLayout>

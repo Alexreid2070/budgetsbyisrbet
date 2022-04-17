@@ -22,7 +22,11 @@
         android:id="@+id/RecurringTransactionFragment"
         android:name="com.isrbet.budgetsbyisrbet.RecurringTransactionFragment"
         android:label="@string/recurring_transaction_fragment_label"
-        tools:layout="@layout/fragment_recurring_transaction" />
+        tools:layout="@layout/fragment_recurring_transaction">
+        <action
+            android:id="@+id/action_RecurringTransactionFragment_to_LoanFragment"
+            app:destination="@id/LoanFragment" />
+    </fragment>
     <fragment
         android:id="@+id/SettingsFragment"
         android:name="com.isrbet.budgetsbyisrbet.SettingsFragment"
@@ -159,5 +163,15 @@
         android:name="com.isrbet.budgetsbyisrbet.CategoryDetailsFragment"
         android:label="CategoryDetails"
         tools:layout="@layout/fragment_category_details" />
+    <fragment
+        android:id="@+id/LoanFragment"
+        android:name="com.isrbet.budgetsbyisrbet.LoanFragment"
+        android:label="loans"
+        tools:layout="@layout/fragment_loan" >
+        <argument
+            android:name="loanID"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
 </navigation>

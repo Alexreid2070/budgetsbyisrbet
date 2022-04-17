@@ -79,9 +79,7 @@
             android:id="@+id/whoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:textAlignment="textStart"
-            android:gravity="start"
+            android:textAlignment="center"
             android:layout_weight="1"
             android:text="Who"
             android:textSize="16sp"
@@ -382,6 +380,7 @@
             android:layout_weight="1" />
 
         <LinearLayout
+            android:id="@+id/show_splits_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
@@ -432,6 +431,7 @@
                 tools:ignore="HardcodedText" />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/show_who_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
@@ -532,6 +532,7 @@
                 tools:ignore="HardcodedText" />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/show_running_total_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView

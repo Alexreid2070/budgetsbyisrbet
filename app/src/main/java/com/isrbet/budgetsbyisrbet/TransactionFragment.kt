@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.color.MaterialColors
+import kotlin.math.roundToInt
 
 class TransactionFragment : Fragment() {
     private var _binding: FragmentTransactionBinding? = null
@@ -126,14 +127,16 @@ class TransactionFragment : Fragment() {
         }
         binding.editTextAmount.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
-                if (binding.editTextAmount.text.toString() == "") {
-                    binding.transactionName1Amount.text = "0"
-                    binding.transactionName2Amount.text = "0"
-                } else {
-                    val amount1 = binding.editTextAmount.text.toString().toDouble() * binding.slider.value.toInt() / 100.0
+                try {
+                    var amount1 = binding.editTextAmount.text.toString().toDouble() * binding.slider.value.toInt() / 100.0
+                    amount1 = (amount1 * 100.0).roundToInt() / 100.0
                     binding.transactionName1Amount.text = gDec.format(amount1)
                     binding.transactionName2Amount.text =
                         gDec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
+                }
+                catch (exception: Exception) {
+                    binding.transactionName1Amount.text = "0"
+                    binding.transactionName2Amount.text = "0"
                 }
             }
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
@@ -751,7 +754,6 @@ class TransactionFragment : Fragment() {
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
-            Log.d("Alex", "looking at paid by ${spender?.name} ($newTransactionMode ${SpenderViewModel.getDefaultSpenderName()}")
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -764,7 +766,6 @@ class TransactionFragment : Fragment() {
             paidByRadioGroup.addView(newRadioButton)
             if (newTransactionMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 paidByRadioGroup.check(newRadioButton.id)
-                Log.d("Alex", "paid by ${spender.name}")
             }
         }
         ctr = 200
@@ -774,7 +775,6 @@ class TransactionFragment : Fragment() {
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
-            Log.d("Alex", "looking at bought for ${spender?.name}")
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -787,7 +787,6 @@ class TransactionFragment : Fragment() {
             boughtForRadioGroup.addView(newRadioButton)
             if (newTransactionMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 boughtForRadioGroup.check(newRadioButton.id)
-                Log.d("Alex", "bought for ${spender.name}")
             }
         }
     }

@@ -58,7 +58,6 @@ class HintViewModel : ViewModel() {
         }
         @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "InflateParams")
         fun showHint(iContext: Context, iView: View, iFragment: String) {
-            Log.d("Alex", "Showing $iFragment hint")
             var hls = singleInstance.hintsLastShown.find {it.fragment == iFragment}
             if (hls == null)
                 hls = HintLastShown(iFragment, -1, "1999-01-01")

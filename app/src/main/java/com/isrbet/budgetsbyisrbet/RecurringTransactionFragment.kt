@@ -3,13 +3,11 @@ package com.isrbet.budgetsbyisrbet
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.fragment.app.Fragment
 import android.widget.AdapterView
 import android.widget.ListView
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.navigation.findNavController
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRecurringTransactionBinding
 
 class RecurringTransactionFragment : Fragment() {
@@ -40,7 +38,15 @@ class RecurringTransactionFragment : Fragment() {
                     itemValue.category,
                     itemValue.paidby,
                     itemValue.boughtfor,
-                    itemValue.split1)
+                    itemValue.split1,
+                    if (itemValue.activeLoan) "true" else "false",
+                    itemValue.loanFirstPaymentDate,
+                    itemValue.loanAmount,
+                    itemValue.loanAmortization,
+                    itemValue.loanInterestRate,
+                    itemValue.loanPaymentRegularity,
+                    itemValue.loanAcceleratedPaymentAmount
+                )
                 rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         Log.d("Alex", "in onNewDataSaved")
@@ -78,16 +84,15 @@ class RecurringTransactionFragment : Fragment() {
     }
 
     private fun addRecurringTransaction() {
-        var split1: Int
-        when {
+        val split1 = when {
             SpenderViewModel.getDefaultSpender() == 0 -> {
-                split1 = 100
+                100
             }
             SpenderViewModel.getDefaultSpender() == 1 -> {
-                split1 = 0
+                0
             }
             else -> {
-                split1 = SpenderViewModel.getSpenderSplit(0)
+                SpenderViewModel.getSpenderSplit(0)
             }
         }
 
@@ -95,7 +100,8 @@ class RecurringTransactionFragment : Fragment() {
             "Month", "2022-01-01", 1, 0,
             SpenderViewModel.getDefaultSpender(),
             SpenderViewModel.getDefaultSpender(),
-            split1)
+            split1,
+        "false", "", 0, 0, 0, LoanPaymentRegularity.BIWEEKLY, 0)
         rtdf.setDialogFragmentListener(object: RecurringTransactionEditDialogFragment.RecurringTransactionEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getCopyOfRecurringTransactions())

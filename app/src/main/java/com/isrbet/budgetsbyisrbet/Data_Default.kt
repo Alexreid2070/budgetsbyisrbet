@@ -245,7 +245,7 @@ class DefaultsViewModel : ViewModel() {
                     .setValue(iColour)
             }
         }
-        private fun setPriority(iCatName: String, iPriority: Int, iUpdateLocalOnly: Boolean) {
+        fun setPriority(iCatName: String, iPriority: Int, iUpdateLocalOnly: Boolean) {
             val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
             if (cat == null) {
                 singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, 0, iPriority))

@@ -77,10 +77,17 @@ class ChatFragment : Fragment() {
             return
         }
         val dateNow = Calendar.getInstance()
+        val nameToUse =
+            if (SpenderViewModel.singleUser())
+                SpenderViewModel.getSpenderName(0)
+            else if (SpenderViewModel.sharingEmail())
+                MyApplication.userGivenName
+            else
+                SpenderViewModel.myName()
         val tChat = Chat(
             giveMeMyDateFormat(dateNow),
             giveMeMyTimeFormat(dateNow),
-            MyApplication.userGivenName,
+            nameToUse,
             binding.chatInput.text.toString())
         ChatViewModel.addChat(tChat)
         val adapter = ChatAdapter(requireContext(), ChatViewModel.getCopyOfChats())

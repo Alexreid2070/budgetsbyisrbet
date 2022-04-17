@@ -54,6 +54,18 @@ class SpenderViewModel : ViewModel() {
             else
                 1
         }
+        fun myName(): String {
+            return if (iAmPrimaryUser())
+                singleInstance.spenders[0].name
+            else
+                singleInstance.spenders[1].name
+        }
+        fun sharingEmail(): Boolean {
+            if (singleUser())
+                return false
+            else
+                return singleInstance.spenders[0].email == singleInstance.spenders[1].email
+        }
         fun getSpenderIndex(iName:String): Int {
             return when (iName) {
                 singleInstance.spenders[0].name -> 0

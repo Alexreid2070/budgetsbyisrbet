@@ -6,6 +6,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.*
+import kotlin.math.roundToInt
 
 data class Expenditure(
     var date: String = "",
@@ -147,7 +148,6 @@ class ExpenditureViewModel : ViewModel() {
             var tmpTotal = 0.0
             val startDate: String
             val endDate: String
-            Log.d("Alex", "in getTotalActualsToDate iDiscType is $iDiscType and iWho is $iWho")
             if (iBudgetMonth.month < 10) {
                 startDate = iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-00"
                 endDate = iBudgetMonth.year.toString() +  "-0" + iBudgetMonth.month.toString() + "-99"
@@ -162,9 +162,12 @@ class ExpenditureViewModel : ViewModel() {
                     (cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
                     (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2) &&
                         cat?.iAmAllowedToSeeThisCategory() == true) {
+                            var por1 = (it.amount / 100.0 * it.bfname1split/100.0)
+                            por1 = (por1 * 100.0).roundToInt() / 100.0
+
                         when (iWho) {
-                            0 -> tmpTotal += (it.amount / 100.0 * it.bfname1split/100.0)
-                            1 -> tmpTotal += (it.amount / 100.0 * (100-it.bfname1split)/100.0)
+                            0 -> tmpTotal += por1
+                            1 -> tmpTotal += (it.amount / 100.0 - por1)
                             2 -> tmpTotal += (it.amount / 100.0)
                         }
                 }
@@ -217,10 +220,13 @@ class ExpenditureViewModel : ViewModel() {
                         //                            tTotal += ((expenditure.amount.toDouble() * SpenderViewModel.getSpenderSplit(iWho))/ 100)
                         //                        else
                         tTotal += if (iWho == 2 && iSubWho != -1) {
+                            var por1 = (expenditure.amount.toDouble() / 100.0 * expenditure.bfname1split/100.0)
+                            por1 = (por1 * 100.0).roundToInt() / 100.0
+
                             if (iSubWho == 0)
-                                (expenditure.amount.toDouble() / 100 * expenditure.bfname1split / 100)
+                                por1
                             else
-                                (expenditure.amount.toDouble() / 100 * expenditure.getSplit2() / 100)
+                                (expenditure.amount.toDouble() / 100 - por1)
                         } else {
                             (expenditure.amount.toDouble() / 100)
                         }

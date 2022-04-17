@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRecurringTransactionEditDialogBinding
 import java.time.LocalDate
@@ -27,6 +28,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
     private var listener: RecurringTransactionEditDialogFragmentListener? = null
     private var initialLoad = true
     private var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
+    private var lCal = android.icu.util.Calendar.getInstance()
     private var currentMode = "View"
 
     companion object {
@@ -39,6 +41,13 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         private const val KEY_PAIDBY = "KEY_PAIDBY"
         private const val KEY_BOUGHTFOR = "KEY_BOUGHTFOR"
         private const val KEY_SPLIT1 = "KEY_SPLIT1"
+        private const val KEY_ACTIVE_LOAN = "KEY_ACTIVE_LOAN"
+        private const val KEY_LOAN_START_DATE = "KEY_LOAN_START_DATE"
+        private const val KEY_LOAN_AMOUNT = "KEY_LOAN_AMOUNT"
+        private const val KEY_LOAN_AMORTIZATION = "KEY_LOAN_AMORTIZATION"
+        private const val KEY_LOAN_INTEREST_RATE = "KEY_LOAN_INTEREST_RATE"
+        private const val KEY_LOAN_FREQUENCY = "KEY_LOAN_FREQUENCY"
+        private const val KEY_ACCELERATED_PAYMENT_AMOUNT = "KEY_ACCELERATED_PAYMENT_AMOUNT"
         private var oldName: String = ""
         private var oldPeriod: String = ""
         private var oldAmount: Int = 0
@@ -48,6 +57,13 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         private var oldPaidBy: Int = 0
         private var oldBoughtFor: Int = 0
         private var oldSplit1: Int = 0
+        private var oldActiveLoan: Boolean = false
+        private var oldLoanStartDate: String = ""
+        private var oldLoanAmount: Int = 0
+        private var oldLoanAmortization: Int = 0
+        private var oldLoanInterestRate: Int = 0
+        private var oldLoanFrequency: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
+        private var oldLoanAcceleratedPaymentAmount: Int = 0
         fun newInstance(
             name: String,
             amount: Int,
@@ -57,7 +73,14 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             categoryID: Int,
             paidby: Int,
             boughtfor: Int,
-            split1: Int
+            split1: Int,
+            activeLoan: String,
+            loanStartDate: String?,
+            loanAmount: Int?,
+            loanAmortization: Int?,
+            loanInterestRate: Int?,
+            loanFrequency: LoanPaymentRegularity?,
+            loanAcceleratedPaymentAmount: Int?
         ): RecurringTransactionEditDialogFragment {
             val args = Bundle()
             args.putString(KEY_NAME, name)
@@ -69,6 +92,13 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             args.putString(KEY_PAIDBY, paidby.toString())
             args.putString(KEY_BOUGHTFOR, boughtfor.toString())
             args.putString(KEY_SPLIT1, split1.toString())
+            args.putString(KEY_ACTIVE_LOAN, activeLoan)
+            args.putString(KEY_LOAN_START_DATE, loanStartDate)
+            args.putString(KEY_LOAN_AMOUNT, loanAmount.toString())
+            args.putString(KEY_LOAN_AMORTIZATION, loanAmortization.toString())
+            args.putString(KEY_LOAN_INTEREST_RATE, loanInterestRate.toString())
+            args.putString(KEY_LOAN_FREQUENCY, loanFrequency.toString())
+            args.putString(KEY_ACCELERATED_PAYMENT_AMOUNT, loanAcceleratedPaymentAmount.toString())
             val fragment = RecurringTransactionEditDialogFragment()
             fragment.arguments = args
             oldName = name
@@ -80,6 +110,25 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             oldPaidBy = paidby
             oldBoughtFor = boughtfor
             oldSplit1 = split1
+            oldActiveLoan = activeLoan == "true"
+            if (loanStartDate != null) {
+                oldLoanStartDate = loanStartDate
+            }
+            if (loanAmount != null) {
+                oldLoanAmount = loanAmount
+            }
+            if (loanAmortization != null) {
+                oldLoanAmortization = loanAmortization
+            }
+            if (loanInterestRate != null) {
+                oldLoanInterestRate = loanInterestRate
+            }
+            if (loanFrequency != null) {
+                oldLoanFrequency = loanFrequency
+            }
+            if (loanAcceleratedPaymentAmount != null) {
+                oldLoanAcceleratedPaymentAmount = loanAcceleratedPaymentAmount
+            }
             return fragment
         }
     }
@@ -182,6 +231,47 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             cal.set(Calendar.YEAR, tOldDate.year)
             cal.set(Calendar.MONTH, tOldDate.monthValue-1)
             cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
+            if (oldActiveLoan) {
+                val tOldLoanDate = LocalDate.parse(oldLoanStartDate, DateTimeFormatter.ISO_DATE)
+                lCal.set(Calendar.YEAR, tOldLoanDate.year)
+                lCal.set(Calendar.MONTH, tOldLoanDate.monthValue - 1)
+                lCal.set(Calendar.DAY_OF_MONTH, tOldLoanDate.dayOfMonth)
+                binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
+                var formattedAmount =
+                    (oldLoanAmount / 100).toDouble() + (oldLoanAmount % 100).toDouble() / 100
+                binding.loanAmount.setText(gDec.format(formattedAmount))
+                formattedAmount =
+                    (oldLoanAmortization / 100).toDouble() + (oldLoanAmortization % 100).toDouble() / 100
+                binding.amortizationPeriod.setText(gDec.format(formattedAmount))
+                formattedAmount =
+                    (oldLoanInterestRate / 100).toDouble() + (oldLoanInterestRate % 100).toDouble() / 100
+                binding.interestRate.setText(gDec.format(formattedAmount))
+                when (oldLoanFrequency) {
+                    LoanPaymentRegularity.WEEKLY -> binding.buttonWeekly.isChecked = true
+                    LoanPaymentRegularity.BIWEEKLY -> binding.buttonBiweekly.isChecked = true
+                    LoanPaymentRegularity.MONTHLY -> binding.buttonMonthly.isChecked = true
+                }
+                formattedAmount =
+                    (oldLoanAcceleratedPaymentAmount / 100).toDouble() + (oldLoanAcceleratedPaymentAmount % 100).toDouble() / 100
+                binding.acceleratedPaymentAmount.setText(gDec.format(formattedAmount))
+                binding.loanLink.visibility = View.VISIBLE
+            }
+            binding.rtLoanSwitch.isChecked = (oldActiveLoan)
+            binding.rtLoanSwitch.isEnabled = false
+            if (!binding.rtLoanSwitch.isChecked)
+                binding.loanLink.visibility = View.INVISIBLE
+            if (oldActiveLoan) {
+                binding.loanDetailsLayout.visibility = View.VISIBLE
+                binding.loanStartDate.isEnabled = false
+                binding.loanAmount.isEnabled = false
+                binding.amortizationPeriod.isEnabled = false
+                binding.interestRate.isEnabled = false
+                binding.acceleratedPaymentAmount.isEnabled = false
+                binding.buttonWeekly.isEnabled = false
+                binding.buttonBiweekly.isEnabled = false
+                binding.buttonMonthly.isEnabled = false
+            } else
+                binding.loanDetailsLayout.visibility = View.GONE
         }
         binding.editRtNewNextDate.setText(giveMeMyDateFormat(cal))
 
@@ -202,6 +292,13 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             ).show()
         }
 
+        binding.loanLink.setOnClickListener {
+            val action =
+                RecurringTransactionFragmentDirections.actionRecurringTransactionFragmentToLoanFragment()
+            action.loanID = binding.editRtOldName.text.toString()
+            findNavController().navigate(action)
+            dismiss()
+        }
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.editRtNewPeriodSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewPeriodSpinner.setPopupBackgroundResource(R.drawable.spinner)
@@ -294,6 +391,25 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             binding.transactionBoughtForName1Split.text = oldSplit1.toString()
             binding.transactionBoughtForName2Split.text = (100 - oldSplit1).toString()
         }
+
+        binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
+        val loanDateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                lCal.set(Calendar.YEAR, year)
+                lCal.set(Calendar.MONTH, monthOfYear)
+                lCal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
+            }
+
+        binding.loanStartDate.setOnClickListener {
+            DatePickerDialog(
+                requireContext(), loanDateSetListener,
+                lCal.get(Calendar.YEAR),
+                lCal.get(Calendar.MONTH),
+                lCal.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
     }
 
     override fun onStart() {
@@ -322,6 +438,12 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             onSaveButtonClicked()
         }
 
+        binding.rtLoanSwitch.setOnClickListener {
+            if (binding.rtLoanSwitch.isChecked)
+                binding.loanDetailsLayout.visibility = View.VISIBLE
+            else
+                binding.loanDetailsLayout.visibility = View.GONE
+        }
         binding.rtDialogButtonDelete.setOnClickListener {
             fun yesClicked() {
                 RecurringTransactionViewModel.deleteRecurringTransactionFromFirebase(binding.editRtOldName.text.toString())
@@ -375,9 +497,26 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             return
         }
 
+        if (binding.rtLoanSwitch.isChecked) {
+            if (binding.loanAmount.text.toString() == "") {
+                binding.loanAmount.error = getString(R.string.missingAmountError)
+                focusAndOpenSoftKeyboard(requireContext(), binding.loanAmount)
+                return
+            }
+            if (binding.amortizationPeriod.text.toString() == "") {
+                binding.amortizationPeriod.error = "Amortization period (in years) is missing."
+                focusAndOpenSoftKeyboard(requireContext(), binding.amortizationPeriod)
+                return
+            }
+            if (binding.interestRate.text.toString() == "") {
+                binding.interestRate.error = "Interest rate is missing."
+                focusAndOpenSoftKeyboard(requireContext(), binding.interestRate)
+                return
+            }
+        }
         val rtSpinner:Spinner = binding.editRtNewPeriodSpinner
         var somethingChanged = false
-        val amountInt: Int = round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt()
+        var amountInt: Int = round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt()
 
         if (currentMode == "View") { // change to "edit"
             binding.viewHeader.visibility = View.GONE
@@ -397,10 +536,24 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             binding.splitSlider.visibility = View.VISIBLE
             binding.rtDialogButtonSave.text = "Save"
             binding.rtDialogButtonDelete.visibility = View.GONE
+            binding.rtLoanSwitch.isEnabled = true
+            binding.loanStartDate.isEnabled = true
+            binding.loanAmount.isEnabled = true
+            binding.amortizationPeriod.isEnabled = true
+            binding.interestRate.isEnabled = true
+            binding.acceleratedPaymentAmount.isEnabled = true
+            binding.buttonWeekly.isEnabled = true
+            binding.buttonBiweekly.isEnabled = true
+            binding.buttonMonthly.isEnabled = true
             currentMode = "Edit"
             return
         }  // else, continue below already in edit, so save...
 
+        val freq = when {
+            binding.buttonWeekly.isChecked -> LoanPaymentRegularity.WEEKLY
+            binding.buttonBiweekly.isChecked -> LoanPaymentRegularity.BIWEEKLY
+            else -> LoanPaymentRegularity.MONTHLY
+        }
         if (oldName == binding.editRtNewName.text.toString()) {
             if (oldAmount != amountInt) {
                 RecurringTransactionViewModel.updateRecurringTransactionIntField(oldName, "amount", amountInt)
@@ -447,10 +600,70 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 RecurringTransactionViewModel.updateRecurringTransactionIntField(oldName, "split2", 100-binding.splitSlider.value.toInt())
                 somethingChanged = true
             }
+            if (oldActiveLoan != binding.rtLoanSwitch.isChecked) {
+                    RecurringTransactionViewModel.updateRecurringTransactionStringField(oldName, "activeLoan",
+                        if (binding.rtLoanSwitch.isChecked) "true" else "false")
+                somethingChanged = true
+            }
+            if (binding.rtLoanSwitch.isChecked) {
+                if (oldLoanStartDate != binding.loanStartDate.text.toString()) {
+                    RecurringTransactionViewModel.updateRecurringTransactionStringField(
+                        oldName,
+                        "loanFirstPaymentDate",
+                        binding.loanStartDate.text.toString()
+                    )
+                    somethingChanged = true
+                }
+                amountInt = round(binding.loanAmount.text.toString().toDouble() * 100).toInt()
+                if (oldLoanAmount != amountInt) {
+                    RecurringTransactionViewModel.updateRecurringTransactionIntField(
+                        oldName,
+                        "loanAmount",
+                        amountInt
+                    )
+                    somethingChanged = true
+                }
+                amountInt =
+                    round(binding.amortizationPeriod.text.toString().toDouble() * 100).toInt()
+                if (oldLoanAmortization != amountInt) {
+                    RecurringTransactionViewModel.updateRecurringTransactionIntField(
+                        oldName,
+                        "loanAmortization",
+                        amountInt
+                    )
+                    somethingChanged = true
+                }
+                amountInt = round(binding.interestRate.text.toString().toDouble() * 100).toInt()
+                if (oldLoanInterestRate != amountInt) {
+                    RecurringTransactionViewModel.updateRecurringTransactionIntField(
+                        oldName,
+                        "loanInterestRate",
+                        amountInt
+                    )
+                    somethingChanged = true
+                }
+                if (oldLoanFrequency != freq) {
+                    RecurringTransactionViewModel.updateRecurringTransactionStringField(
+                        oldName, "loanPaymentRegularity",
+                        freq.name
+                    )
+                    somethingChanged = true
+                }
+                amountInt = if (binding.acceleratedPaymentAmount.text.toString() == "") 0
+                else round(binding.acceleratedPaymentAmount.text.toString().toDouble() * 100).toInt()
+                if (oldLoanAcceleratedPaymentAmount != amountInt) {
+                    RecurringTransactionViewModel.updateRecurringTransactionIntField(
+                        oldName,
+                        "loanAcceleratedPaymentAmount",
+                        amountInt
+                    )
+                    somethingChanged = true
+                }
+            }
             if (somethingChanged) {
                 RecurringTransactionViewModel.updateRecurringTransaction(
                     oldName,
-                    amountInt,
+                    round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt(),
                     rtSpinner.selectedItem.toString(),
                     binding.editRtNewNextDate.text.toString(),
                     binding.editRtNewRegularity.text.toString().toInt(),
@@ -458,7 +671,14 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     binding.editRtNewSubcategory.selectedItem.toString()),
                     SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
                     SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
-                    binding.splitSlider.value.toInt()
+                    binding.splitSlider.value.toInt(),
+                    binding.rtLoanSwitch.isChecked,
+                    if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
+                    if (binding.rtLoanSwitch.isChecked) (binding.loanAmount.text.toString().toDouble()*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (binding.amortizationPeriod.text.toString().toDouble()*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (binding.interestRate.text.toString().toDouble()*100).toInt() else 0,
+                    freq,
+                    if (binding.acceleratedPaymentAmount.text.toString() != "") (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt() else 0,
                 )
                 if (listener != null)
                     listener?.onNewDataSaved()
@@ -478,7 +698,15 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 binding.editRtNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
-                binding.transactionBoughtForName1Split.text.toString().toInt())
+                binding.transactionBoughtForName1Split.text.toString().toInt(),
+                binding.rtLoanSwitch.isChecked,
+                binding.loanStartDate.text.toString(),
+                (binding.loanAmount.text.toString().toDouble()*100).toInt(),
+                (binding.amortizationPeriod.text.toString().toDouble()*100).toInt(),
+                (binding.interestRate.text.toString().toDouble()*100).toInt(),
+                freq,
+                if (binding.acceleratedPaymentAmount.text.toString() == "") 0 else (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt()
+                )
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             if (listener != null) {
                 listener?.onNewDataSaved()
@@ -493,7 +721,15 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 binding.editRtNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
-                binding.transactionBoughtForName1Split.text.toString().toInt())
+                binding.transactionBoughtForName1Split.text.toString().toInt(),
+                binding.rtLoanSwitch.isChecked,
+                binding.loanStartDate.text.toString(),
+                (binding.loanAmount.text.toString().toDouble()*100).toInt(),
+                (binding.amortizationPeriod.text.toString().toDouble()*100).toInt(),
+                (binding.interestRate.text.toString().toDouble()*100).toInt(),
+                freq,
+                (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt()
+                )
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             RecurringTransactionViewModel.deleteRecurringTransactionFromFirebase(oldName)
             if (listener != null) {

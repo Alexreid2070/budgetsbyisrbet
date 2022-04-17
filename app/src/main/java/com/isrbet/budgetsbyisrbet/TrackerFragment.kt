@@ -403,8 +403,8 @@ class TrackerFragment : Fragment() {
         val whoFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt()
         val totalDiscBudget = BudgetViewModel.getTotalCalculatedBudgetForMonth(currentBudgetMonth, discFilter, whoFilter)
         val dateNow = android.icu.util.Calendar.getInstance()
-        var totalDiscBudgetToDate = 0.0
-        var daysInMonth = 31
+        val totalDiscBudgetToDate: Double
+        val daysInMonth: Int
         if (currentBudgetMonth.year == dateNow.get(Calendar.YEAR) &&
                 currentBudgetMonth.month == dateNow.get(Calendar.MONTH)+1) {
             daysInMonth = getDaysInMonth(dateNow)
@@ -457,15 +457,26 @@ class TrackerFragment : Fragment() {
                 )
             )
         }
+        val lab = when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)) {
+            cDiscTypeDiscretionary -> "discretionary"
+            cDiscTypeNondiscretionary -> "non-discretionary"
+            else -> ""
+        }
+        val lab2 = when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)) {
+            cDiscTypeDiscretionary -> "your discretionary"
+            cDiscTypeNondiscretionary -> "your non-discretionary"
+            else -> "your overall"
+        }
         if (totalDiscActualsToDate > totalDiscBudget)
-            binding.chartSummaryText.text = "You are over your discretionary budget this month."
+            binding.chartSummaryText.text = "You are over your $lab budget this month."
         else {
             val remainingBudget = totalDiscBudget - totalDiscActualsToDate
             val daysRemaining = daysInMonth - dateNow.get(Calendar.DATE) + 1
             val dollarFormat = DecimalFormat("$###.00")
 
+
             binding.chartSummaryText.text =
-                "Keeping discretionary expenses below " + dollarFormat.format(remainingBudget / daysRemaining) + " per day will keep you within budget this month."
+                "Keeping $lab expenses below " + dollarFormat.format(remainingBudget / daysRemaining) + " per day will keep you within $lab2 budget this month."
         }
         return tList
     }

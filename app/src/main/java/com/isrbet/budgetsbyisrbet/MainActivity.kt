@@ -89,13 +89,14 @@ class MainActivity : AppCompatActivity() {
  */
     }
 
-    fun singleUserMode() {
-/*        val navigationView: NavigationView = findViewById(R.id.nav_view)
+    fun singleUserMode(iFlag: Boolean) {
+        val navigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         val navMenu: Menu = navigationView.menu
-        navMenu.findItem(R.id.TransferFragment).isVisible = false
-        navMenu.findItem(R.id.AccountingFragment).isVisible = false
-
- */
+        navMenu.forEach {
+            if (it.title == "Accounting") {
+                it.isVisible = !iFlag
+            }
+        }
     }
 
     fun setLoggedOutMode(loggedOut: Boolean) {

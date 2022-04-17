@@ -97,6 +97,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 Color.BLACK
             ), "1F"
         )
+        if (SpenderViewModel.singleUser())
+            binding.privacyLayout.visibility = View.GONE
         binding.editCategoryNewNameSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.editCategoryNewNameSpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.editSubcategoryNewName.requestFocus()
@@ -227,7 +229,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
-                binding.categoryDialogLinearLayout6.visibility = View.VISIBLE
+                if (!SpenderViewModel.singleUser())
+                    binding.categoryDialogLinearLayout6.visibility = View.VISIBLE
                 binding.categoryDialogButtonDelete.visibility = View.GONE
 //                binding.categoryLayout.visibility = View.VISIBLE
 //                binding.subcategoryLayout.visibility = View.VISIBLE
