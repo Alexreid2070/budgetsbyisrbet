@@ -20,7 +20,7 @@
     <string name="category4">Travel</string>
     <string name="ok">OK</string>
     <string name="missingAmountError">Amount is missing.</string>
-    <string name="missingNoteError">The note is missing.  Transaction not added.</string>
+    <string name="missingWhereError">The field is missing.  Transaction not added.</string>
     <string name="state_on">On</string>
     <string name="state_off">Off</string>
 
@@ -66,4 +66,5 @@
     <string name="budgetExistsAtThatNode">Budget already exists for that name, can\'t add.</string>
     <string name="toFromCantBeSame">To and From values can\'t be the same</string>
     <string name="chat_fragment_label">Chats</string>
+    <string name="inputWhereLabel">Where:</string>
 </resources>

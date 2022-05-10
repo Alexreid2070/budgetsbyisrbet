@@ -144,6 +144,31 @@
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/state_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="In Use? "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/old_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:textSize="16sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
@@ -156,7 +181,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 tools:ignore="HardcodedText" />
             <TextView
-                android:id="@+id/message_expenditure"
+                android:id="@+id/message_transaction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -403,7 +428,7 @@
         </RelativeLayout>
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/category_dialog_linear_layout6"
+        android:id="@+id/new_privacy_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="10dp"
@@ -430,10 +455,36 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/category_dialog_linear_layout7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_privacy_layout">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="In use? "
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="Marking a category as Not in Use will not change the visibility of any existing data in that category.  Rather, you will no longer have the option to add new transactions or budgets to this category."
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/state_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textOn="On"
+            android:textOff="Off"
+            android:checked="false"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+    <LinearLayout
         android:id="@+id/category_dialog_linear_layout_budget"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout6"
+        app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout7"
         android:paddingBottom="10dp">
 
         <TextView

@@ -700,10 +700,10 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
                 binding.transactionBoughtForName1Split.text.toString().toInt(),
                 binding.rtLoanSwitch.isChecked,
-                binding.loanStartDate.text.toString(),
-                (binding.loanAmount.text.toString().toDouble()*100).toInt(),
-                (binding.amortizationPeriod.text.toString().toDouble()*100).toInt(),
-                (binding.interestRate.text.toString().toDouble()*100).toInt(),
+                if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
+                if (binding.rtLoanSwitch.isChecked) (binding.loanAmount.text.toString().toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (binding.amortizationPeriod.text.toString().toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (binding.interestRate.text.toString().toDouble()*100).toInt() else 0,
                 freq,
                 if (binding.acceleratedPaymentAmount.text.toString() == "") 0 else (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt()
                 )
@@ -723,10 +723,10 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
                 binding.transactionBoughtForName1Split.text.toString().toInt(),
                 binding.rtLoanSwitch.isChecked,
-                binding.loanStartDate.text.toString(),
-                (binding.loanAmount.text.toString().toDouble()*100).toInt(),
-                (binding.amortizationPeriod.text.toString().toDouble()*100).toInt(),
-                (binding.interestRate.text.toString().toDouble()*100).toInt(),
+                if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
+                if (binding.rtLoanSwitch.isChecked) (binding.loanAmount.text.toString().toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (binding.amortizationPeriod.text.toString().toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (binding.interestRate.text.toString().toDouble()*100).toInt() else 0,
                 freq,
                 (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt()
                 )

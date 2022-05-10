@@ -229,7 +229,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:contentDescription="ISRBET"
-                    android:src="@drawable/ic_launcher_foreground"
+                    android:src="@drawable/ic_fas_child"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -294,7 +294,7 @@
                     android:id="@+id/home_tracker_fragment"
                     android:name="com.isrbet.budgetsbyisrbet.TrackerFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp" />
+                    android:layout_height="240dp" />
             </FrameLayout>
             <Space
                 android:layout_width="match_parent"

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
+import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import android.widget.TableLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.google.android.material.color.MaterialColors
 
 class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapter() {
     private var groupList: MutableList<Int> = mutableListOf()
@@ -45,6 +47,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         var vhCategory: TextView = view.findViewById(R.id.row_category)
         var vhSubcategory: TextView = view.findViewById(R.id.row_subcategory)
         var vhDiscType: TextView = view.findViewById(R.id.row_disctype)
+        var vhState: TextView = view.findViewById(R.id.row_state)
         var vhPrivacy: TextView = view.findViewById(R.id.row_private)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
@@ -63,20 +66,32 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         } else {
             viewHolder.vhCategory.isVisible = false
         }
+        if (SpenderViewModel.twoDistinctUsers())
+            viewHolder.vhPrivacy.visibility = View.VISIBLE
+        else
+            viewHolder.vhPrivacy.visibility = View.GONE
 
         viewHolder.vhID.text = cData.id.toString()
         viewHolder.vhSubcategory.text = cData.subcategoryName
         viewHolder.vhDiscType.text = cData.discType
-        if (SpenderViewModel.singleUser()) {
-            viewHolder.vhPrivacy.visibility = View.GONE
-        } else
+        viewHolder.vhState.text = cData.state
+        if (SpenderViewModel.twoDistinctUsers()) {
             viewHolder.vhPrivacy.text = if (cData.private != 2) "PRIVATE" else "no"
-        if (cData.discType == cDiscTypeOff) {
+        } else
+            viewHolder.vhPrivacy.visibility = View.GONE
+        if (cData.state == cOFF) {
             viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
+            viewHolder.vhPrivacy.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         } else {
-            viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.black))
-            viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.black))
+            val col = MaterialColors.getColor(
+                myContext,
+                R.attr.textOnBackground,
+                Color.BLACK
+            )
+            viewHolder.vhSubcategory.setTextColor(col)
+            viewHolder.vhDiscType.setTextColor(col)
+            viewHolder.vhPrivacy.setTextColor(col)
         }
         val cat = DefaultsViewModel.getCategoryDetail(cData.categoryName)
         if (cat.color != 0) {

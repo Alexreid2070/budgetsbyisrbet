@@ -166,7 +166,6 @@ class BudgetDialogFragment : DialogFragment() {
         }
 
         val who = arguments?.getString(KEY_WHO_VALUE)
-        Log.d("Alex", "who is $who")
 //        val occurence = arguments?.getString(KEY_OCCURENCE_VALUE)
 
         val whoRadioGroup = binding.budgetDialogNewWhoRadioGroup

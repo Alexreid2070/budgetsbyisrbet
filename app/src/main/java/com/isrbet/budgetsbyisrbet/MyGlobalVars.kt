@@ -8,7 +8,10 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.media.MediaPlayer
+import android.text.SpannableString
 import android.text.TextUtils
+import android.text.style.AbsoluteSizeSpan
+import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
@@ -32,9 +35,8 @@ import kotlin.math.round
 
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
-const val cDiscTypeOff = "Off"
 const val cDiscTypeAll = "All"
-val DiscTypeValues = listOf(cDiscTypeDiscretionary, cDiscTypeNondiscretionary, cDiscTypeOff)
+val DiscTypeValues = listOf(cDiscTypeDiscretionary, cDiscTypeNondiscretionary)
 const val cPeriodWeek = "Week"
 const val cPeriodMonth = "Month"
 const val cPeriodQuarter = "Quarter"
@@ -47,6 +49,8 @@ const val cTRANSFER_CODE = -99
 const val cLAST_ROW = 9999999
 const val cBudgetDateView = "Date"
 const val cBudgetCategoryView = "Category"
+const val cON = "On"
+const val cOFF = "Off"
 
 const val january = "Jan"
 const val february = "Feb"
@@ -62,6 +66,7 @@ const val november = "Nov"
 const val december = "Dec"
 val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
 val gDec = DecimalFormat("#.00")
+var goToPie = false
 
 enum class LoanPaymentRegularity(val code: Int) {
     WEEKLY(1),
@@ -70,6 +75,12 @@ enum class LoanPaymentRegularity(val code: Int) {
     companion object {
         fun getByValue(value: Int) = values().firstOrNull { it.code == value }
     }
+}
+enum class DateRange(val code: Int) {
+    MONTH(1),
+    YTD(2),
+    YEAR(3),
+    ALLTIME(4)
 }
 
 class MyApplication : Application() {
@@ -144,7 +155,7 @@ class MyApplication : Application() {
     }
 }
 
-data class DataObject(var label: String, var value: Double, var color: Int)
+data class DataObject(var id: Int, var label: String, var value: Double, var priority: String, var color: Int)
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
@@ -321,7 +332,7 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
 fun getDaysInMonth(cal: Calendar): Int {
     val month = cal.get(Calendar.MONTH)+1
     val year = cal.get(Calendar.YEAR)
-    return getDaysInMonth(year, month+1)
+    return getDaysInMonth(year, month)
 }
 fun getDaysInMonth(bm: BudgetMonth): Int {
     return getDaysInMonth(bm.year, bm.month)
@@ -474,12 +485,31 @@ fun isNumber(s: String?): Boolean {
     return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
 }
 
+fun String.setFontSizeForPath(ind: Int, fontSizeInPixel: Int, colorCode: Int = Color.BLACK): SpannableString {
+    val spannable = SpannableString(this)
+    val startIndexOfPath = if (ind < spannable.length) ind else 0
+    spannable.setSpan(
+        AbsoluteSizeSpan(fontSizeInPixel),
+        startIndexOfPath,
+        spannable.length,
+        0
+    )
+    spannable.setSpan(
+        ForegroundColorSpan(colorCode),
+        startIndexOfPath,
+        spannable.length,
+        0
+    )
+
+    return spannable
+}
+
 fun getColorInHex(iColor: Int, iOpacity: String): String {
     return java.lang.String.format("#%s%06X", iOpacity, 0xFFFFFF and iColor)
 }
 
 fun iAmPrimaryUser(): Boolean {
-    return (MyApplication.userUID == MyApplication.originalUserUID)
+    return (MyApplication.adminMode || MyApplication.userUID == MyApplication.originalUserUID)
 }
 
 fun thisIsANewUser(): Boolean {
@@ -487,7 +517,7 @@ fun thisIsANewUser(): Boolean {
     return MyApplication.userUID != "" &&
             CategoryViewModel.isLoaded() && CategoryViewModel.getCount() == 0 &&
             SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
-            ExpenditureViewModel.isLoaded() && ExpenditureViewModel.getCount() == 0 &&
+            TransactionViewModel.isLoaded() && TransactionViewModel.getCount() == 0 &&
             BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
             DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
             RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
@@ -498,7 +528,7 @@ fun switchTo(iUID: String) {
     MyApplication.userUID=iUID
     SpenderViewModel.refresh()
     DefaultsViewModel.refresh()
-    ExpenditureViewModel.refresh()
+    TransactionViewModel.refresh()
     CategoryViewModel.refresh()
     BudgetViewModel.refresh()
     RecurringTransactionViewModel.refresh()

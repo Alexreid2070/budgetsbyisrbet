@@ -85,7 +85,7 @@ class TransactionViewAllFragment : Fragment() {
                     }
                 }
             recyclerView.layoutManager = linearLayoutManager
-            val expList = ExpenditureViewModel.getCopyOfExpenditures()
+            val expList = TransactionViewModel.getCopyOfTransactions()
             expList.sortBy { it.date }
 
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
@@ -205,7 +205,6 @@ class TransactionViewAllFragment : Fragment() {
             val discretionaryFilter: String = when (radioButton.text.toString()) {
                 "Disc" -> cDiscTypeDiscretionary
                 "Non-Disc" -> cDiscTypeNondiscretionary
-                "Off" -> cDiscTypeOff
                 else -> ""
             }
             binding.totalLayout.visibility = View.VISIBLE
@@ -630,7 +629,6 @@ class TransactionViewAllFragment : Fragment() {
     private fun goToCorrectRow() {
         val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        Log.d("Alex", "gotoCorrectRow transactionFirstInList is ${MyApplication.transactionFirstInList} and getCount is ${adapter.getCount()}")
         if (MyApplication.transactionFirstInList == cLAST_ROW)
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getCount() - 1,

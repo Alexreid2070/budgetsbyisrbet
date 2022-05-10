@@ -215,10 +215,10 @@ class TransferFragment : Fragment() {
             }
         }
         binding.buttonPrevTransfer.setOnClickListener {
-            viewTransfer(ExpenditureViewModel.getPreviousTransferKey(binding.transactionId.text.toString()))
+            viewTransfer(TransactionViewModel.getPreviousTransferKey(binding.transactionId.text.toString()))
         }
         binding.buttonNextTransfer.setOnClickListener {
-            viewTransfer(ExpenditureViewModel.getNextTransferKey(binding.transactionId.text.toString()))
+            viewTransfer(TransactionViewModel.getNextTransferKey(binding.transactionId.text.toString()))
         }
         binding.buttonEdit.setOnClickListener {
             editTransfer(args.transactionID)
@@ -261,7 +261,7 @@ class TransferFragment : Fragment() {
 
     private fun deleteTransfer(iTransactionID: String) {
         fun yesClicked() {
-            ExpenditureViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
+            TransactionViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
             Toast.makeText(activity, "Transfer deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -279,7 +279,7 @@ class TransferFragment : Fragment() {
 
     private fun viewTransfer(iTransactionID: String) {
         Log.d("Alex", "viewTransfer key $iTransactionID")
-        val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
+        val thisTransaction = TransactionViewModel.getTransaction(iTransactionID)
         binding.transactionId.text = iTransactionID
         binding.categoryId.text = thisTransaction?.category.toString()
         if (MyApplication.adminMode) {
@@ -344,7 +344,7 @@ class TransferFragment : Fragment() {
         }
         if (binding.editTextNote.text.toString() == "") {
 //            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
-            binding.editTextNote.error = getString(R.string.missingNoteError)
+            binding.editTextNote.error = getString(R.string.missingWhereError)
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
@@ -381,7 +381,7 @@ class TransferFragment : Fragment() {
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
                 binding.splitName1Split.text.toString().toInt()
             )
-            ExpenditureViewModel.addTransaction(transfer)
+            TransactionViewModel.addTransaction(transfer)
             binding.editTextAmount.setText("")
             binding.editTextAmount.requestFocus()
             binding.editTextNote.setText("")
@@ -397,7 +397,7 @@ class TransferFragment : Fragment() {
                 binding.splitName1Split.text.toString().toInt()
             )
 
-            ExpenditureViewModel.updateTransaction(editingKey, transfer)
+            TransactionViewModel.updateTransaction(editingKey, transfer)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transfer updated", Toast.LENGTH_SHORT).show()
         }

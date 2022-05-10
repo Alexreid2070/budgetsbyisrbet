@@ -94,7 +94,7 @@
             android:layout_gravity="end"
             android:gravity="start"
             android:layout_weight="1"
-            android:text="Note"
+            android:text="Where"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />

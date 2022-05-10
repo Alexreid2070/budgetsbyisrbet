@@ -15,8 +15,19 @@
         android:layout_gravity="center"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:paddingBottom="5dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/barChart"/>
+    <TextView
+        android:id="@+id/chartSubTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingBottom="10dp"
+        android:textColor="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/chartTitle"
         app:layout_constraintBottom_toTopOf="@id/barChart"/>
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:id="@+id/barChart"
@@ -24,7 +35,7 @@
         android:layout_height="0dp"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        app:layout_constraintTop_toBottomOf="@id/chartTitle"
+        app:layout_constraintTop_toBottomOf="@id/chartSubTitle"
         app:layout_constraintBottom_toTopOf="@id/budgetPieChart"/>
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/budgetPieChart"
@@ -32,6 +43,7 @@
         android:layout_height="0dp"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
+        android:paddingBottom="5dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/barChart"
         app:layout_constraintBottom_toTopOf="@id/actualPieChart"/>

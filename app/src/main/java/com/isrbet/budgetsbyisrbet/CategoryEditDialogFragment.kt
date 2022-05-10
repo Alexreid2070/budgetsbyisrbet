@@ -40,17 +40,20 @@ class CategoryEditDialogFragment : DialogFragment() {
         private const val KEY_SUBCATEGORY = "KEY_SUBCATEGORY"
         private const val KEY_DISCTYPE = "KEY_DISCTYPE"
         private const val KEY_PRIVACY = "KEY_PRIVACY"
+        private const val KEY_STATE = "KEY_STATE"
         private var oldCategoryID: Int = 0
         private var oldCategory: String = ""
         private var oldSubcategory: String = ""
         private var oldDisctype: String = ""
         private var oldPrivacy: Boolean = false
+        private var oldState: String = ""
         fun newInstance(
             categoryID: String,
             category: String,
             subcategory: String,
             disctype: String,
-            privacyText: String
+            privacyText: String,
+            state: String
         ): CategoryEditDialogFragment {
             val args = Bundle()
 
@@ -59,6 +62,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             args.putString(KEY_SUBCATEGORY, subcategory)
             args.putString(KEY_DISCTYPE, disctype)
             args.putString(KEY_PRIVACY, privacyText)
+            args.putString(KEY_STATE, state)
             val fragment = CategoryEditDialogFragment()
             fragment.arguments = args
             oldCategoryID = categoryID.toInt()
@@ -66,7 +70,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             oldSubcategory = subcategory
             oldDisctype = disctype
             oldPrivacy = (privacyText == "true")
-            Log.d("Alex", "$privacyText $oldPrivacy")
+            oldState = state
             return fragment
         }
     }
@@ -89,6 +93,7 @@ class CategoryEditDialogFragment : DialogFragment() {
 
         setupCategorySpinner(if (oldCategory == "") "first" else oldCategory)
         binding.privacySwitch.isChecked = oldPrivacy
+        binding.stateSwitch.isChecked = oldState == cON
 
         val hexColor = getColorInHex(
             MaterialColors.getColor(
@@ -97,7 +102,9 @@ class CategoryEditDialogFragment : DialogFragment() {
                 Color.BLACK
             ), "1F"
         )
-        if (SpenderViewModel.singleUser())
+        if (SpenderViewModel.twoDistinctUsers())
+            binding.privacyLayout.visibility = View.VISIBLE
+        else
             binding.privacyLayout.visibility = View.GONE
         binding.editCategoryNewNameSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.editCategoryNewNameSpinner.setPopupBackgroundResource(R.drawable.spinner)
@@ -138,30 +145,35 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.newNameHeader.text = "Add New Category"
             binding.categoryDialogButtonSave.text = "Save"
             currentMode = "Add"
+            if (SpenderViewModel.twoDistinctUsers())
+                binding.newPrivacyLayout.visibility = View.VISIBLE
+            else
+                binding.newPrivacyLayout.visibility = View.GONE
         } else { // ie this is an edit
             binding.categoryId.text = oldCategoryID.toString()
             binding.oldCategoryName.text = oldCategory
             binding.oldSubcategoryName.text = oldSubcategory
             binding.oldDisctype.text = oldDisctype
             binding.oldPrivacy.text = if (oldPrivacy) "PRIVATE" else "Not private"
-            if (oldDisctype == cDiscTypeOff) {
-                binding.oldDisctype.setTextColor(
+            binding.oldState.text = if (oldState == cON) "Yes" else "NOT IN USE"
+            if (oldState == cOFF) {
+                binding.oldState.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.red))
             }
             binding.editSubcategoryNewName.setText(oldSubcategory)
             dtSpinner.setSelection(arrayAdapter.getPosition(oldDisctype))
             binding.categoryDialogLinearLayoutBudget.visibility = View.GONE
             budgetCtr = BudgetViewModel.budgetExistsUsingCategory(oldCategoryID)
-            expenseCtr = ExpenditureViewModel.expenditureExistsUsingCategory(oldCategoryID)
+            expenseCtr = TransactionViewModel.transactionExistsUsingCategory(oldCategoryID)
             rtCtr = RecurringTransactionViewModel.recurringTransactionExistsUsingCategory(
                 oldCategoryID
             )
             if (budgetCtr + rtCtr + expenseCtr == 0)
                 binding.messageCounter.text = "This category is not used."
             if (expenseCtr == 0)
-                binding.messageExpenditure.visibility = View.GONE
+                binding.messageTransaction.visibility = View.GONE
             else
-                binding.messageExpenditure.text = "$expenseCtr transaction(s)"
+                binding.messageTransaction.text = "$expenseCtr transaction(s)"
             if (budgetCtr == 0)
                 binding.messageBudgetLayout.visibility = View.GONE
             else
@@ -180,7 +192,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.GONE
                 binding.categoryDialogLinearLayout4.visibility = View.GONE
                 binding.categoryDialogLinearLayout5.visibility = View.GONE
-                binding.categoryDialogLinearLayout6.visibility = View.GONE
+                binding.newPrivacyLayout.visibility = View.GONE
+                binding.categoryDialogLinearLayout7.visibility = View.GONE
                 binding.categoryLayout.visibility = View.GONE
                 binding.subcategoryLayout.visibility = View.GONE
             }
@@ -229,11 +242,12 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
-                if (!SpenderViewModel.singleUser())
-                    binding.categoryDialogLinearLayout6.visibility = View.VISIBLE
+                if (SpenderViewModel.twoDistinctUsers())
+                    binding.newPrivacyLayout.visibility = View.VISIBLE
+                else
+                    binding.newPrivacyLayout.visibility = View.GONE
+                binding.categoryDialogLinearLayout7.visibility = View.VISIBLE
                 binding.categoryDialogButtonDelete.visibility = View.GONE
-//                binding.categoryLayout.visibility = View.VISIBLE
-//                binding.subcategoryLayout.visibility = View.VISIBLE
 
                 currentMode = "Edit"
             } else { // already in Edit mode, so Save...
@@ -274,7 +288,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 if (oldCategory == chosenCategory &&
                     oldSubcategory == binding.editSubcategoryNewName.text.toString() &&
                     (oldDisctype != dtSpinner.selectedItem.toString() ||
-                            oldPrivacy != binding.privacySwitch.isChecked)
+                            oldPrivacy != binding.privacySwitch.isChecked) ||
+                    (oldState == cON) != binding.stateSwitch.isChecked
                 ) {
                     // disc type or privacy changed so update it/them
                     Log.d("Alex", "categoryID is $oldCategoryID")
@@ -283,7 +298,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                         oldCategory,
                         oldSubcategory,
                         dtSpinner.selectedItem.toString(),
-                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2
+                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
+                        if (binding.stateSwitch.isChecked) cON else cOFF
                     )
                     if (listener != null)
                         listener?.onNewDataSaved()
@@ -305,7 +321,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                         chosenCategory,
                         binding.editSubcategoryNewName.text.toString().trim(),
                         binding.editCategoryNewDisctypeSpinner.selectedItem.toString(),
-                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2
+                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
+                        if (binding.stateSwitch.isChecked) cON else cOFF
                     )
                     if (listener != null) {
                         listener?.onNewDataSaved()
@@ -338,7 +355,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                         chosenCategory,
                         binding.editSubcategoryNewName.text.toString().trim(),
                         dtSpinner.selectedItem.toString(),
-                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2
+                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
+                        if (binding.stateSwitch.isChecked) cON else cOFF
                     )
                     if (listener != null)
                         listener?.onNewDataSaved()
@@ -358,7 +376,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
             if (expenseCtr > 0) {
-                tellUserCantDelete("Expenditures")
+                tellUserCantDelete("Transactions")
                 return@setOnClickListener
             }
 
@@ -397,7 +415,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             dismiss()
             findNavController().navigate(action)
         }
-        binding.messageExpenditure.setOnClickListener {
+        binding.messageTransaction.setOnClickListener {
             val action =
                 CategoryFragmentDirections.actionCategoryFragmentToTransactionViewAllFragment()
             action.categoryID = oldCategoryID.toString()

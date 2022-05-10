@@ -86,8 +86,8 @@ class AccountingFragment : Fragment() {
         binding.accountingTToj1RowName.text = "Jt-$firstName"
         binding.accountingTToj2RowName.text = "Jt-$secondName"
 
-        for (i in 0 until ExpenditureViewModel.getCount()) {
-            val exp = ExpenditureViewModel.getExpenditure(i)
+        for (i in 0 until TransactionViewModel.getCount()) {
+            val exp = TransactionViewModel.getTransaction(i)
             if (exp.type == "Transfer") {
                 when (exp.paidby) {
                     0 -> {
@@ -95,8 +95,8 @@ class AccountingFragment : Fragment() {
                             0 -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
                             1 -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
-                                transferTotals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
+                                transferTotals[cFIRST_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
+                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
                             }
                         }
                     }
@@ -105,8 +105,8 @@ class AccountingFragment : Fragment() {
                             0 -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
                             1 -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
-                                transferTotals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
+                                transferTotals[cSECOND_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
+                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
                             }
                         }
                     }
@@ -115,8 +115,8 @@ class AccountingFragment : Fragment() {
                             0 -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (exp.amount/100.0)
                             1 -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
-                                transferTotals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2()/100.0))
+                                transferTotals[cJOINT_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
+                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
                             }
                         }
                     }
@@ -128,8 +128,8 @@ class AccountingFragment : Fragment() {
                             0 -> totals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
                             1 -> totals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
-                                totals[cFIRST_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                totals[cFIRST_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
+                                totals[cFIRST_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
+                                totals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
                             }
                         }
                     }
@@ -138,20 +138,20 @@ class AccountingFragment : Fragment() {
                             0 -> totals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
                             1 -> totals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
                             2 -> {
-                                totals[cSECOND_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                totals[cSECOND_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2() / 100.0))
+                                totals[cSECOND_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
+                                totals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
                             }
                         }
                     }
                     2 -> {
                         when (exp.boughtfor) {
                             0 -> {
-                                totals[cJOINT_NAME][cFIRST_NAME] += ((exp.amount / 100.0) * (exp.bfname1split / 100.0))
+                                totals[cJOINT_NAME][cFIRST_NAME] += exp.getAmount(0, NOT_ROUNDED)
                             }
-                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += ((exp.amount/100.0) * (exp.getSplit2()/100.0))
+                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += exp.getAmount(1, NOT_ROUNDED)
                             2 -> {
-                                totals[cJOINT_NAME][cJOINT_NAME] += ((exp.amount/100.0) * (exp.bfname1split / 100.0))
-                                totals[cJOINT_NAME][cJOINT_NAME+1] += ((exp.amount/100.0) * (exp.getSplit2()/100.0))
+                                totals[cJOINT_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
+                                totals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
                             }
                         }
                     }

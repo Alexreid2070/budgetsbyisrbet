@@ -28,12 +28,19 @@ class CategoryFragment : Fragment() {
 
         val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
         listView.adapter = adapter
+        if (SpenderViewModel.twoDistinctUsers())
+            binding.privacyHeading.visibility = View.VISIBLE
+        else
+            binding.privacyHeading.visibility = View.GONE
+
 
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Category
-                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(), itemValue.categoryName, itemValue.subcategoryName, itemValue.discType,
-                    if (itemValue.private != 2) "true" else "false") // what do I pass here? zzz
+                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(),
+                    itemValue.categoryName, itemValue.subcategoryName, itemValue.discType,
+                    if (itemValue.private != 2) "true" else "false",
+                    itemValue.state)
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
@@ -69,13 +76,16 @@ class CategoryFragment : Fragment() {
                 }
             }
         })
-        if (SpenderViewModel.singleUser())
+        if (SpenderViewModel.twoDistinctUsers())
+            binding.privacyHeading.visibility = View.VISIBLE
+        else
             binding.privacyHeading.visibility = View.GONE
         HintViewModel.showHint(requireContext(), binding.categoryFab, "Category")
     }
 
     private fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",cDiscTypeOff, "false")
+        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",
+            cDiscTypeDiscretionary, "false", cON)
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))

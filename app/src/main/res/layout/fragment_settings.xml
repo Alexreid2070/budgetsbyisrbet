@@ -445,7 +445,7 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Integration with TD Spend?  "
+                    android:text="Integration with TD MySpend?  "
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText">

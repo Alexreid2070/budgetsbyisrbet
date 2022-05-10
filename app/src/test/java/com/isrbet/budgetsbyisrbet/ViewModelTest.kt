@@ -12,7 +12,7 @@ class ViewModelTest {
         catModel.clearCallback()
         val budgetModel = BudgetViewModel()
         budgetModel.clearCallback()
-        val expModel = ExpenditureViewModel()
+        val expModel = TransactionViewModel()
         expModel.clearCallback()
 
         SpenderViewModel.addLocalSpender(Spender("User1", "alexreid2070@gmail.com", 50, 1))

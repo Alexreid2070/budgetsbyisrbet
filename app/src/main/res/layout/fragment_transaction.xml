@@ -72,11 +72,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="5dp"
-                android:layout_below="@id/dateHeadingLayout">
+                android:layout_below="@id/dateHeadingLayout"
+                android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dateLayout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="Date:"
                     android:layout_gravity="start"
@@ -206,10 +207,58 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/transaction_note_layout"
+                android:id="@+id/transaction_where_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/input_spinner_layout"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/inputWhereLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/inputWhereLabel"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/whereLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Vendor name"
+                    android:minWidth="@dimen/custom_max_width"
+                    app:endIconMode="clear_text"
+                    tools:ignore="HardcodedText">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextWhere"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="textCapSentences" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/translatedWhereMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/transaction_where_layout"
+                android:layout_gravity="center"
+                android:gravity="end"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/transaction_note_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/translatedWhereMessage"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
 
@@ -227,7 +276,7 @@
                     android:id="@+id/noteLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Note"
+                    android:hint="Note (optional)"
                     android:minWidth="@dimen/custom_max_width"
                     app:endIconMode="clear_text"
                     tools:ignore="HardcodedText">
@@ -242,22 +291,11 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/translatedNoteMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/transaction_note_layout"
-                android:layout_gravity="center"
-                android:gravity="end"
-                android:textSize="14sp"
-                android:textStyle="italic"
-                android:visibility="gone" />
-
             <LinearLayout
                 android:id="@+id/transaction_paid_by_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/translatedNoteMessage"
+                android:layout_below="@id/transaction_note_layout"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
 

@@ -5,7 +5,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 
-data class TransactionDataFromTD(var amount: Double, var note: String, var category: String)
+data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
 
 class CustomNotificationListenerService : NotificationListenerService() {
 
@@ -24,8 +24,10 @@ class CustomNotificationListenerService : NotificationListenerService() {
             return if (activeNotnCount > 0) {
                 for (count in 0 until activeNotnCount) {
                     val sbn = singleInstance.activeNotifications[count]
+                    Log.d("Alex", "Package name is ${sbn.packageName}")
                     if (sbn.packageName == "com.td.myspend") {
                         tCount++
+                        Log.d("Alex", "tcount is now $tCount")
                     }
                 }
                 tCount

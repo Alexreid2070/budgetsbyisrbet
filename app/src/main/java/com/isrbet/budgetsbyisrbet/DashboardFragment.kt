@@ -21,6 +21,7 @@ import java.math.RoundingMode
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -226,12 +227,19 @@ class DashboardFragment : Fragment() {
     }
 
     private fun startLoadData(iBudgetMonth: BudgetMonth) {
-        Log.d("Alex", "startLoadData filters for $iBudgetMonth")
         val dashboardRows = DashboardRows()
+        val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD)) {
+            "All-Time" -> DateRange.ALLTIME
+            "YTD" -> DateRange.YTD
+            "Year" -> DateRange.YEAR
+            else -> DateRange.MONTH
+        }
+        val defWho = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt() else -1
         val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth,
             DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD),
-            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD),
-            DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD))
+            defWho,
+            viewPeriod)
 
         val rows = data.size
         var textSpacer: TextView?
@@ -254,25 +262,26 @@ class DashboardFragment : Fragment() {
                 textSpacer = TextView(requireContext())
                 textSpacer.text = ""
             }
-
-            if (row != null && lastCategory != "" && row.category != lastCategory) {
-                // sub-total row
-                createViewRow("Sub-total", i, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
-                grandBudgetTotal += lastCategoryBudgetTotal
-                grandActualTotal += lastCategoryActualTotal
-                lastCategoryBudgetTotal = 0.0
-                lastCategoryActualTotal = 0.0
-            }
-
             if (row != null) {
-                lastCategory = row.category
-                createViewRow("Detail", i,
-                    CategoryViewModel.getID(row.category, row.subcategory),
-                    row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
-                lastCategoryBudgetTotal += row.budgetAmount
-                lastCategoryActualTotal += row.actualAmount
+                    if (row != null && lastCategory != "" && row.category != lastCategory) {
+                        // sub-total row
+                        createViewRow("Sub-total", i, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
+                        grandBudgetTotal += lastCategoryBudgetTotal
+                        grandActualTotal += lastCategoryActualTotal
+                        lastCategoryBudgetTotal = 0.0
+                        lastCategoryActualTotal = 0.0
+                    }
+
+                    if (row != null) {
+                        lastCategory = row.category
+                        createViewRow("Detail", i,
+                            CategoryViewModel.getID(row.category, row.subcategory),
+                            row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
+                        lastCategoryBudgetTotal += row.budgetAmount
+                        lastCategoryActualTotal += row.actualAmount
+                    }
+                            i++
             }
-            i++
         }
 
         createViewRow("Sub-total", i++, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
@@ -298,7 +307,8 @@ class DashboardFragment : Fragment() {
             dformat.format(round(iDouble))
         } else {
             val dformat = DecimalFormat("###0.00;(###0.00)")
-            dformat.format(iDouble)
+            val t = (iDouble * 100.0).roundToInt() / 100.0
+            dformat.format(t)
         }
     }
     @SuppressLint("SetTextI18n")
@@ -358,6 +368,7 @@ class DashboardFragment : Fragment() {
         }
         if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_DASHBOARD) == "false")
             tv2.visibility = View.GONE
+
         val tv3 = TextView(requireContext())
         if (iRowType == "Header") {
             tv3.layoutParams = TableRow.LayoutParams(
@@ -373,11 +384,12 @@ class DashboardFragment : Fragment() {
         tv3.gravity = Gravity.END
         tv3.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
-            tv3.text = "Budget"
+            tv3.text = "Actual"
         } else {
-            tv3.text = getDecFormat(iBudgetAmount)
+                tv3.text = getDecFormat(iActualAmount)
         }
         tv3.tag = iCategoryID
+
         val tv4 = TextView(requireContext())
         if (iRowType == "Header") {
             tv4.layoutParams = TableRow.LayoutParams(
@@ -393,11 +405,12 @@ class DashboardFragment : Fragment() {
         tv4.gravity = Gravity.END
         tv4.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
-            tv4.text = "Actual"
+            tv4.text = "Budget"
         } else {
-                tv4.text = getDecFormat(iActualAmount)
+            tv4.text = getDecFormat(iBudgetAmount)
         }
         tv4.tag = iCategoryID
+
         val tv5 = TextView(requireContext())
         if (iRowType == "Header") {
             tv5.layoutParams = TableRow.LayoutParams(
@@ -427,9 +440,10 @@ class DashboardFragment : Fragment() {
                 } else {
                     val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
                     val tiny = BigDecimal(0.01)
-                    if (diff < tiny)
+                    Log.d("Alex", "Diff is $diff")
+                    if (diff.abs() < tiny) {
                         tv5.text = getDecFormat(0.0)
-                    else
+                    } else
                         tv5.text = getDecFormat(diff.toDouble())
                 }
         }
@@ -541,7 +555,7 @@ class DashboardFragment : Fragment() {
             tr.visibility = View.VISIBLE
 
         if (iRowType != "Header" && iRowType != "Sub-total" && iRowType != "Grand total") {
-            tv3.setOnClickListener {
+            tv4.setOnClickListener {
                 val catID = it.tag.toString()
                 Log.d("Alex", "row " + it.id + " was clicked, category is " + catID)
                 // go to Budget
@@ -551,7 +565,7 @@ class DashboardFragment : Fragment() {
                 findNavController().navigate(action)
             }
 
-            tv4.setOnClickListener {
+            tv3.setOnClickListener {
                 val catID = it.tag.toString().toInt()
                 val cat = CategoryViewModel.getCategory(catID)
                 Log.d("Alex", "row " + it.id + " was clicked, category is " + catID)
@@ -653,7 +667,6 @@ class DashboardFragment : Fragment() {
     }
 
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {
-        Log.d("Alex", "onExpandClicked")
         if (layout.visibility == View.GONE) { // ie expand the section
             // first hide all other possible expansions
             resetLayout(binding.expandNav, binding.navButtonLinearLayout)
@@ -677,22 +690,25 @@ class DashboardFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setActionBarTitle() {
+        binding.dashboardTitle.text =
+                when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD)) {
+                    "All-Time" -> "Dashboard - All-Time"
+                    "YTD" -> "Dashboard - YTD"
+                    "Year" -> "Dashboard - ${currentBudgetMonth.year}"
+                    else -> "Dashboard - " + MonthNames[currentBudgetMonth.month - 1] + " " + currentBudgetMonth.year
+                }
         var currentFilterIndicator = ""
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD) != "")
-            currentFilterIndicator = " " + DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD).substring(0,5)
+            currentFilterIndicator = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD)
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD) != "")
-            currentFilterIndicator = currentFilterIndicator + " " + SpenderViewModel.getSpenderName(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt())
-        when {
-            DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "All-Time" -> binding.dashboardTitle.text =
-                "Dashboard (All-Time$currentFilterIndicator)"
-            currentBudgetMonth.month == 0 -> binding.dashboardTitle.text = "Dashboard (" + currentBudgetMonth.year  + currentFilterIndicator + ")"
-            else -> {
-                binding.dashboardTitle.text = "Dashboard (" + MonthNames[currentBudgetMonth.month - 1] +
-                        " " + currentBudgetMonth.year
-                if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD) == "YTD")
-                    binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + " YTD"
-                binding.dashboardTitle.text = binding.dashboardTitle.text.toString() + currentFilterIndicator + ")"
-            }
+            currentFilterIndicator = currentFilterIndicator +
+                    (if (currentFilterIndicator == "") "" else " ") +
+                    SpenderViewModel.getSpenderName(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt())
+        if (currentFilterIndicator == "")
+            binding.dashboardSubtitle.visibility = View.GONE
+        else {
+            binding.dashboardSubtitle.visibility = View.VISIBLE
+            binding.dashboardSubtitle.text = "($currentFilterIndicator)"
         }
     }
 
@@ -751,162 +767,47 @@ class DashboardRows {
     fun getRows(
         iBudgetMonth: BudgetMonth,
         iDiscFlag: String = "",
-        iBoughtForFlag: String = "",
-        iViewPeriod: String = "Month"
+        iBoughtForFlag: Int = -1,
+        iViewPeriod: DateRange = DateRange.MONTH
     ): MutableList<DashboardData> {
-        Log.d("Alex", "iviewperiod is $iViewPeriod")
         val data: MutableList<DashboardData> = mutableListOf()
-        val startDate: String
-        val endDate: String
-        val boughtForFlag = when (iBoughtForFlag) {
-            "0" -> 0
-            "1" -> 1
-            else -> -1
-        }
-        if (iViewPeriod == "All-Time") {
-            startDate = "0000-00-00"
-            endDate = "9999-99-99"
-        } else if (iViewPeriod == "YTD") {
-            startDate = iBudgetMonth.year.toString() + "-00-00"
-            endDate = if (iBudgetMonth.month < 10) {
-                iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-99"
-            } else {
-                iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
-            }
-        } else if (iViewPeriod == "Year") { //(iBudgetMonth.month == 0) {
-            startDate = iBudgetMonth.year.toString() + "-00-00"
-            endDate = iBudgetMonth.year.toString() + "-99-99"
-            Log.d("Alex", "start date is $startDate and enddate is $endDate")
-        } else {
-            if (iBudgetMonth.month < 10) {
-                startDate =
-                    iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-00"
-                endDate =
-                    iBudgetMonth.year.toString() + "-0" + iBudgetMonth.month.toString() + "-99"
-            } else {
-                startDate =
-                    iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-00"
-                endDate = iBudgetMonth.year.toString() + "-" + iBudgetMonth.month.toString() + "-99"
-            }
+        val actualTotals = TransactionViewModel.getCategoryActuals(iBudgetMonth, iViewPeriod, iDiscFlag, iBoughtForFlag)
+        var i = 1
+        actualTotals.forEach {
+            i += 1
+            val row = DashboardData()
+            val catID = it.id
+            row.categoryID = catID
+            row.category = CategoryViewModel.getCategory(catID)?.categoryName.toString()
+            row.subcategory = CategoryViewModel.getCategory(catID)?.subcategoryName.toString()
+            row.priority = DefaultsViewModel.getCategoryDetail(row.category).priority
+            val expDiscIndicator = CategoryViewModel.getCategory(catID)?.discType
+            row.discIndicator =
+                if (expDiscIndicator == cDiscTypeDiscretionary) "D" else "ND"
+            row.actualAmount = it.value
+            data.add(row)
         }
 
-        for (i in 0 until ExpenditureViewModel.getCount()) {
-            val expenditure = ExpenditureViewModel.getExpenditure(i)
-            if (expenditure.date > startDate && expenditure.date < endDate) {
-                val expDiscIndicator = CategoryViewModel.getCategory(expenditure.category)?.discType
-                if (expenditure.type != "Transfer") {
-                    if (iDiscFlag == "" || iDiscFlag == expDiscIndicator) {
-                            if (boughtForFlag == -1 || expenditure.boughtfor == boughtForFlag || expenditure.boughtfor == 2) {
-                                // this is a transaction to add to our subtotal
-                                var multiplier = 1.0
-                                if (boughtForFlag != -1) {
-                                    multiplier = if (expenditure.boughtfor == 2 || expenditure.boughtfor == boughtForFlag) {
-                                        if (boughtForFlag == 0)
-                                            expenditure.bfname1split.toDouble() / 100
-                                        else
-                                            expenditure.getSplit2().toDouble() / 100
-                                    } else
-                                        0.0
-                                }
-                                val bdRow: DashboardData? =
-                                    data.find { it.categoryID == expenditure.category }
-                                if (bdRow == null) {
-                                    val row = DashboardData()
-                                    row.categoryID = expenditure.category
-                                    row.category = CategoryViewModel.getCategory(expenditure.category)?.categoryName.toString()
-                                    row.subcategory = CategoryViewModel.getCategory(expenditure.category)?.subcategoryName.toString()
-                                    row.priority = DefaultsViewModel.getCategoryDetail(row.category).priority
-                                    if (CategoryViewModel.getCategory(expenditure.category) == null) {
-                                        Log.d("Alex", "Found null for exp ${expenditure.mykey}")
-                                    }
-                                    row.discIndicator =
-                                        if (expDiscIndicator == cDiscTypeDiscretionary) "D" else "ND"
-                                    row.actualAmount =
-                                        expenditure.amount.toDouble() / 100 * multiplier
-                                    data.add(row)
-                                } else {
-                                    bdRow.actualAmount += (expenditure.amount.toDouble() / 100 * multiplier)
-                                }
-                        }
-                    }
-                }
-            }
-        }
         // need to get budget categories for which there are budgets but no actuals; but, skip annual budgets
-        val tBudgetCategories = BudgetViewModel.getBudgetCategories(iBudgetMonth, iDiscFlag)
-        for (i in 0 until tBudgetCategories.size) {
-            val dRow: DashboardData? = data.find {
-                it.categoryID == tBudgetCategories[i]
-            }
+        val catBudgets = BudgetViewModel.getCategoryBudgets(iViewPeriod, iBudgetMonth, iDiscFlag, iBoughtForFlag, "", true)
+        for (budget in catBudgets) {
+            val dRow: DashboardData? = data.find { it.categoryID == budget.id }
             if (dRow == null) {
-                // add the row.  There's a budget for it, but no actuals
                 val row = DashboardData()
-                row.categoryID = tBudgetCategories[i]
-                row.category = CategoryViewModel.getCategory(tBudgetCategories[i])?.categoryName.toString()
-                row.subcategory = CategoryViewModel.getCategory(tBudgetCategories[i])?.subcategoryName.toString()
+                row.categoryID = budget.id
+                row.category = CategoryViewModel.getCategory(budget.id)?.categoryName.toString()
+                row.subcategory = CategoryViewModel.getCategory(budget.id)?.subcategoryName.toString()
                 row.discIndicator =
                     if (CategoryViewModel.getCategory(row.categoryID)?.discType
                         == cDiscTypeDiscretionary
                     ) "D" else "ND"
                 row.actualAmount = 0.0
+                row.budgetAmount = budget.value
                 row.priority = DefaultsViewModel.getCategoryDetail(row.category).priority
+                Log.d("Alex", "adding ${row.categoryID} ${row.actualAmount} ${row.budgetAmount} ${row.category} ${row.subcategory}")
                 data.add(row)
-            }
-        }
-        // add budget amounts
-        var whoToLookup = boughtForFlag
-        if (whoToLookup == -1) {
-            if (SpenderViewModel.singleUser())
-                whoToLookup = 0
- //           else
- //               whoToLookup = "Joint"
-        }
-        Log.d("Alex", "who is $whoToLookup")
-        data.forEach {
-            if (iViewPeriod == "All-Time") {
-                val dateNow = android.icu.util.Calendar.getInstance()
-                val lastAnnualYear = if (dateNow.get(Calendar.MONTH) == 11) // ie Dec
-                    dateNow.get(Calendar.YEAR)
-                else
-                    dateNow.get(Calendar.YEAR)-1
-                // add annual budgets for previous years, and current year if it is Dec
-                val earliestYear = ExpenditureViewModel.getEarliestYear()
-                for (i in earliestYear until lastAnnualYear+1) {
-                    it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
-                        BudgetMonth(i, 0),
-                        it.categoryID,
-                        whoToLookup
-                    )
-                }
-                // then add YTD for current year (if it's not Dec)
-                if (dateNow.get(Calendar.MONTH) != 11) {
-                    for (i in 1 until iBudgetMonth.month + 1) {
-                        it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
-                            BudgetMonth(
-                                iBudgetMonth.year,
-                                i
-                            ),
-                            it.categoryID,
-                            whoToLookup
-                        )
-                    }
-                }
-            } else if (iViewPeriod == "YTD") {
-                for (i in 1 until iBudgetMonth.month + 1) {
-                    it.budgetAmount += BudgetViewModel.getCalculatedBudgetAmount(
-                        BudgetMonth(
-                            iBudgetMonth.year,
-                            i
-                        ),
-                        it.categoryID,
-                        whoToLookup)
-                }
             } else {
-                it.budgetAmount = BudgetViewModel.getCalculatedBudgetAmount(
-                    iBudgetMonth,
-                    it.categoryID,
-                    whoToLookup
-                )
+                dRow.budgetAmount = budget.value
             }
         }
 
@@ -921,7 +822,6 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
     private var leftSwipeCallback: DataUpdatedCallback? = null
     private var rightSwipeCallback: DataUpdatedCallback? = null
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        Log.d("Alex", "mGestureDetector is $mGestureDetector")
         return if (!mGestureDetector.onTouchEvent(ev))
             super.onInterceptTouchEvent(ev)
         else
@@ -943,7 +843,6 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
         ): Boolean {
             val horizontalScroll = abs(distanceY) <= abs(distanceX)
             return if (horizontalScroll) {
-                Log.d("Alex", "scrolling horizontally $distanceX")
                 if (distanceX > 0)
                     leftSwipeCallback?.onDataUpdate()
                 else

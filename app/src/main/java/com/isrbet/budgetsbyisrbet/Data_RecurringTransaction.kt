@@ -186,7 +186,7 @@ class RecurringTransactionViewModel : ViewModel() {
             singleInstance.loaded = false
         }
         fun generateTransactions(mainActivity: MainActivity) {
-            // now that recurring transaction settings are loaded, we need to review them to determine if any Expenditures are needed
+            // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
             val dateNow = giveMeMyDateFormat(Calendar.getInstance())
             singleInstance.recurringTransactions.forEach {
                 if (it.nextdate <= dateNow) {
@@ -211,8 +211,8 @@ class RecurringTransactionViewModel : ViewModel() {
                     // add transaction
                     Log.d("Alex", "Adding a transaction")
                     val nextDate = getNextBusinessDate(it.nextdate)
-                    ExpenditureViewModel.addTransaction(ExpenditureOut(nextDate, it.amount,
-                        it.category, it.name, it.paidby, it.boughtfor,
+                    TransactionViewModel.addTransaction(TransactionOut(nextDate, it.amount,
+                        it.category, it.name, "", it.paidby, it.boughtfor,
                         it.split1, "Recurring"))
                     if (mainActivity != null)
                         Toast.makeText(mainActivity, "Recurring transaction was added for ${it.name} $ ${gDec.format(it.amount/100.0)} " + CategoryViewModel.getFullCategoryName(it.category) + " $nextDate", Toast.LENGTH_SHORT).show()

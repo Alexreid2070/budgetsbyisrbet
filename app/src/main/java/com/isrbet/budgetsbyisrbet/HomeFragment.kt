@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
     private val defaultsModel: DefaultsViewModel by viewModels()
-    private val expenditureModel: ExpenditureViewModel by viewModels()
+    private val transactionModel: TransactionViewModel by viewModels()
     private val categoryModel: CategoryViewModel by viewModels()
     private val spenderModel: SpenderViewModel by viewModels()
     private val budgetModel: BudgetViewModel by viewModels()
@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         spenderModel.clearCallback() // ditto, see above
         userModel.clearCallback() // ditto, see above
         chatModel.clearCallback() // ditto, see above
-        expenditureModel.clearCallback()
+        transactionModel.clearCallback()
         budgetModel.clearCallback()
         recurringTransactionModel.clearCallback()
         defaultsModel.clearCallback()
@@ -188,46 +188,7 @@ class HomeFragment : Fragment() {
                 return false
             }
         })
-
-        CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignExpenditureMenuWithDataState("CategoryViewModel")
-            }
-        })
-        SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignExpenditureMenuWithDataState("SpenderViewModel")
-                if (SpenderViewModel.singleUser()) {
-                    (activity as MainActivity).singleUserMode(true)
-                }
-            }
-        })
-        ChatViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                tryToUpdateChatIcon()
-            }
-        })
-        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignExpenditureMenuWithDataState("HintViewModel")
-            }
-        })
-        ExpenditureViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignExpenditureMenuWithDataState("ExpenditureViewModel")
-            }
-        })
-        BudgetViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignExpenditureMenuWithDataState("BudgetViewModel")
-            }
-        })
-        RecurringTransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignExpenditureMenuWithDataState("RTViewModel")
-                RecurringTransactionViewModel.generateTransactions(activity as MainActivity)
-            }
-        })
+        setupDataCallbacks()
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
@@ -288,6 +249,48 @@ class HomeFragment : Fragment() {
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
                 .show()
         }
+    }
+
+    private fun setupDataCallbacks() {
+        CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("CategoryViewModel")
+            }
+        })
+        SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("SpenderViewModel")
+                if (SpenderViewModel.singleUser()) {
+                    (activity as MainActivity).singleUserMode(true)
+                }
+            }
+        })
+        ChatViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                tryToUpdateChatIcon()
+            }
+        })
+        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("HintViewModel")
+            }
+        })
+        TransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("TransactionViewModel")
+            }
+        })
+        BudgetViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("BudgetViewModel")
+            }
+        })
+        RecurringTransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("RTViewModel")
+                RecurringTransactionViewModel.generateTransactions(activity as MainActivity)
+            }
+        })
     }
 
     private fun onExpandClicked() {
@@ -411,11 +414,12 @@ class HomeFragment : Fragment() {
                 dbRef.addListenerForSingleValueEvent(joinListener)
             }
         }
-        alignExpenditureMenuWithDataState("end of OVC")
+        alignPageWithDataState("end of OVC")
     }
 
     private fun loadEverything() {
         Log.d("Alex", "uid is " + MyApplication.userUID)
+        setupDataCallbacks()
         getLastReadChatsInfo()
         hintModel.loadHints()
         defaultsModel.loadDefaults()
@@ -423,7 +427,7 @@ class HomeFragment : Fragment() {
         spenderModel.loadSpenders()
         budgetModel.loadBudgets()
         recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
-        expenditureModel.loadExpenditures()
+        transactionModel.loadTransactions()
         chatModel.loadChats()
         translationModel.loadTranslations()
         MyApplication.haveLoadedDataForThisUser = true
@@ -442,8 +446,8 @@ class HomeFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun alignExpenditureMenuWithDataState(iTag: String)  {
-        Log.d("Alex", "tag is $iTag")
+    private fun alignPageWithDataState(iTag: String)  {
+        Log.d("Alex", "alignPage $iTag")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -451,7 +455,7 @@ class HomeFragment : Fragment() {
 
         if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
             && RecurringTransactionViewModel.isLoaded()
-            && ExpenditureViewModel.isLoaded() && BudgetViewModel.isLoaded() &&
+            && TransactionViewModel.isLoaded() && BudgetViewModel.isLoaded() &&
             DefaultsViewModel.isLoaded() && HintViewModel.isLoaded()
         ) {
             if (thisIsANewUser()) {
@@ -473,14 +477,14 @@ class HomeFragment : Fragment() {
                 binding.homeScreenMessage.visibility = View.GONE
                 val trackerFragment: TrackerFragment =
                     childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-                Log.d("Alex", "loading bar chart")
-                trackerFragment.loadBarChart()
+                trackerFragment.initCurrentBudgetMonth()
+                trackerFragment.loadBarChart(4)
                 DefaultsViewModel.confirmCategoryDetailsListIsComplete()
                 HintViewModel.showHint(requireContext(), binding.transactionAddFab, "Home")
                 CategoryViewModel.singleInstance.clearCallback()
                 SpenderViewModel.singleInstance.clearCallback()
                 ChatViewModel.singleInstance.clearCallback()
-                ExpenditureViewModel.singleInstance.clearCallback()
+                TransactionViewModel.singleInstance.clearCallback()
                 BudgetViewModel.singleInstance.clearCallback()
                 RecurringTransactionViewModel.singleInstance.clearCallback()
                 TranslationViewModel.singleInstance.clearCallback()
@@ -493,30 +497,30 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupNewUser() {
-        CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Mortgage", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Property Taxes", cDiscTypeNondiscretionary, 2, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Rent", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Car Payment", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Insurance", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeNondiscretionary,2, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeNondiscretionary,2, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, cON, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Mortgage", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Property Taxes", cDiscTypeNondiscretionary, 2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Rent", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Car Payment", cDiscTypeNondiscretionary,2, cON, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Insurance", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeNondiscretionary,2, cON,false)
         DefaultsViewModel.setColour("Housing", -12400683, false)
         DefaultsViewModel.setColour("Life", -1072612, false)
         DefaultsViewModel.setColour("Transportation", -3751917, false)
@@ -535,7 +539,7 @@ class HomeFragment : Fragment() {
         CategoryViewModel.clear()
         ChatViewModel.clear()
         DefaultsViewModel.clear()
-        ExpenditureViewModel.clear()
+        TransactionViewModel.clear()
         RecurringTransactionViewModel.clear()
         TranslationViewModel.clear()
         SpenderViewModel.clear()
@@ -623,7 +627,7 @@ class HomeFragment : Fragment() {
         CategoryViewModel.singleInstance.clearCallback()
         SpenderViewModel.singleInstance.clearCallback()
         ChatViewModel.singleInstance.clearCallback()
-        ExpenditureViewModel.singleInstance.clearCallback()
+        TransactionViewModel.singleInstance.clearCallback()
         BudgetViewModel.singleInstance.clearCallback()
         RecurringTransactionViewModel.singleInstance.clearCallback()
         TranslationViewModel.singleInstance.clearCallback()

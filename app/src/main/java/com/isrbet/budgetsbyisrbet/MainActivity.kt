@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setOnItemSelectedListener {
             MyApplication.transactionSearchText = ""
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
-                Log.d("Alex", "popping")
                 navHostFragment.childFragmentManager.popBackStack()
             }
             when(it.itemId){

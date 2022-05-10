@@ -45,15 +45,7 @@ class BudgetFragment : Fragment() {
 
         setupForEdit()
         val cal = android.icu.util.Calendar.getInstance()
-/*        binding.budgetAddYear.minValue = 2018
-        binding.budgetAddYear.maxValue = 2040
-        binding.budgetAddYear.wrapSelectorWheel = true
-        binding.budgetAddYear.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
         binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
-/*        binding.budgetAddMonth.minValue = 1
-        binding.budgetAddMonth.maxValue = 12
-        binding.budgetAddMonth.wrapSelectorWheel = true
-        binding.budgetAddMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
         binding.budgetAddMonth.progress = cal.get(Calendar.MONTH)+1
 
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, _ ->
@@ -73,6 +65,7 @@ class BudgetFragment : Fragment() {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 updateInformationFields()
+                setOrPercentageLayout()
             }
         }
 
@@ -91,7 +84,19 @@ class BudgetFragment : Fragment() {
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun afterTextChanged(arg0: Editable) {}
         })
-        //        updateInformationFields()
+        setOrPercentageLayout()
+    }
+
+    private fun setOrPercentageLayout() {
+        val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
+        val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
+        val catText = catRadioButton.text.toString()
+        val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
+
+        if (BudgetViewModel.budgetExistsUsingCategory(CategoryViewModel.getID(catText, subCatText)) == 0)
+            binding.budgetAddPercentageLayout.visibility = GONE
+        else
+            binding.budgetAddPercentageLayout.visibility = VISIBLE
     }
 
     fun setAmountBasedOnPercentage() {
@@ -202,10 +207,10 @@ class BudgetFragment : Fragment() {
             startOfPeriod.decrementMonth(1)
             endOfPeriod.decrementMonth(1)
         }
-        binding.budgetAddActualAmount.text = gDec.format(ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
+        binding.budgetAddActualAmount.text = gDec.format(TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             startOfPeriod, endOfPeriod, whoId))
 
-        val annualActuals = ExpenditureViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
+        val annualActuals = TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             BudgetMonth(
                 binding.budgetAddYear.progress - 1,
                 if (inAnnualMode) 1 else binding.budgetAddMonth.progress

@@ -61,7 +61,6 @@ class BudgetViewAllFragment : Fragment() {
                 val currentCategory = Category(0,selection as String)
                 loadRows(currentCategory.id, 0, 0)
                 val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
-                Log.d("Alex", "scrolling to " + (listView.adapter.count-1))
                 listView.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
                 listView.setSelection(listView.adapter.count - 1)
             }
@@ -149,16 +148,13 @@ class BudgetViewAllFragment : Fragment() {
         binding.categoryTypeLayout.visibility = View.GONE
         binding.yearLayout.visibility = View.VISIBLE
         val cal = android.icu.util.Calendar.getInstance()
-/*        binding.budgetAddYear.minValue = 2018
-        binding.budgetAddYear.maxValue = 2040
-        binding.budgetAddYear.wrapSelectorWheel = true
-        binding.budgetAddYear.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
-        binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
-/*        binding.budgetAddMonth.minValue = 1
-        binding.budgetAddMonth.maxValue = 12
-        binding.budgetAddMonth.wrapSelectorWheel = true
-        binding.budgetAddMonth.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS */
-        binding.budgetAddMonth.progress = cal.get(Calendar.MONTH)+1
+        if (args.year == "") {
+            binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
+            binding.budgetAddMonth.progress = cal.get(Calendar.MONTH) + 1
+        } else {
+            binding.budgetAddYear.progress = args.year.toInt()
+            binding.budgetAddMonth.progress = args.month.toInt()
+        }
         binding.rowBudgetIsSingleHeading.visibility = View.GONE
         val param = binding.rowBudgetDateHeading.layoutParams as LinearLayout.LayoutParams
         param.weight = 3f
@@ -168,7 +164,7 @@ class BudgetViewAllFragment : Fragment() {
     fun setCategoryType() {
         val category = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
         binding.categoryType.text = CategoryViewModel.getCategory(category.id)?.discType
-        if (CategoryViewModel.getCategory(category.id)?.discType == cDiscTypeOff) {
+        if (CategoryViewModel.getCategory(category.id)?.state == cOFF) {
             binding.categoryType.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.red))
         } else {
@@ -186,7 +182,6 @@ class BudgetViewAllFragment : Fragment() {
                 )
             )
         } else {
-            Log.d("Alex", "getting category budget rows")
             BudgetAdapter(
                 requireContext(),
                 BudgetViewModel.getBudgetInputRows(iCategoryID)

@@ -60,6 +60,7 @@
         android:textSize="14sp"
         android:padding="5dp"
         android:text="Drag the categories above to move them into the desired order.  Click the Reset icon to remove colour.  Click the Paint icon to apply a colour to the category."
+        android:textColor="?attr/textOnBackground"
         tools:ignore="HardcodedText"
         android:background="@drawable/hint_drawable"/>
 </LinearLayout>

@@ -35,7 +35,7 @@ class AdminFragment : Fragment() {
             DefaultsViewModel.clear()
             BudgetViewModel.clear()
             ChatViewModel.clear()
-            ExpenditureViewModel.clear()
+            TransactionViewModel.clear()
             RecurringTransactionViewModel.clear()
             TranslationViewModel.clear()
 
@@ -52,7 +52,7 @@ class AdminFragment : Fragment() {
 //            convertExpenditures()
 
 //            BudgetViewModel.refresh()
-//            ExpenditureViewModel.refresh()
+//            TransactionViewModel.refresh()
 //            ChatViewModel.refresh()
 //            TranslationViewModel.refresh() */
         }
@@ -367,7 +367,7 @@ class AdminFragment : Fragment() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.children.forEach {
-                    if (!ExpenditureViewModel.exists(it.key.toString()))
+                    if (!TransactionViewModel.exists(it.key.toString()))
                         Log.d("Alex", "Can't find " + it.key.toString())
                 }
             }

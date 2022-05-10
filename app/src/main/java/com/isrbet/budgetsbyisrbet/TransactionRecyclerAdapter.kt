@@ -17,13 +17,13 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 
 class TransactionRecyclerAdapter(
-    private val context: Context, private val list: MutableList<Expenditure>,
+    private val context: Context, private val list: MutableList<Transaction>,
     filters: PreviousFilters,
-    private val listener: (Expenditure) -> Unit = {}
+    private val listener: (Transaction) -> Unit = {}
 ) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
     Filterable, FastScroller.SectionIndexer {
 
-    var filteredList: MutableList<Expenditure> = mutableListOf()
+    var filteredList: MutableList<Transaction> = mutableListOf()
     private var groupList: MutableList<Int> = mutableListOf()
     private var runningTotalList: MutableList<Double> = mutableListOf()
     var currentTotal = 0.0
@@ -56,11 +56,9 @@ class TransactionRecyclerAdapter(
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                Log.d("Alex", "performFiltering")
                 filterTheList(charSearch)
                 val filterResults = FilterResults()
                 filterResults.values = filteredList
-                Log.d("Alex", "performFiltering filteredList size is " + filteredList.size)
                 currentTotal = getTotal()
                 return filterResults
             }
@@ -68,7 +66,7 @@ class TransactionRecyclerAdapter(
             @SuppressLint("NotifyDataSetChanged")
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredList = results?.values as MutableList<Expenditure>
+                filteredList = results?.values as MutableList<Transaction>
                 notifyDataSetChanged()
                 Log.d("Alex", "publishResults filteredList size is " + filteredList.size)
             }
@@ -86,10 +84,6 @@ class TransactionRecyclerAdapter(
 
     // this version is used by search
     fun filterTheList(iConstraint: String) {
-        Log.d(
-            "Alex",
-            "filterTheList prevs are $iConstraint $categoryFilter $subcategoryFilter $discretionaryFilter $paidbyFilter $boughtforFilter $typeFilter"
-        )
         if (iConstraint.isEmpty() && categoryIDFilter == 0 &&
             categoryFilter == "" && subcategoryFilter == "" &&
             discretionaryFilter == "" && paidbyFilter == -1 &&
@@ -97,7 +91,7 @@ class TransactionRecyclerAdapter(
         ) {
             filteredList = list
         } else {
-            val resultList: MutableList<Expenditure> = mutableListOf()
+            val resultList: MutableList<Transaction> = mutableListOf()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
             var subcatDiscIndicator = ""
             for (row in list) {

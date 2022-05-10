@@ -122,6 +122,12 @@ class SpenderViewModel : ViewModel() {
             return getActiveCount() == 1
         }
 
+        fun twoDistinctUsers(): Boolean {
+            if (!singleUser())
+                return (getSpender(0)?.email != getSpender(1)?.email)
+            return false
+        }
+
         fun addLocalSpender(spender: Spender) {
             singleInstance.spenders.add(spender)
         }

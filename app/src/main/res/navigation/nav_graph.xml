@@ -142,6 +142,14 @@
             android:name="categoryID"
             app:argType="string"
             android:defaultValue="" />
+        <argument
+            android:name="year"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="month"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
     <fragment
         android:id="@+id/ChatFragment"
@@ -152,7 +160,14 @@
         android:id="@+id/TrackerFragment"
         android:name="com.isrbet.budgetsbyisrbet.TrackerFragment"
         android:label="Tracker"
-        tools:layout="@layout/fragment_tracker" />
+        tools:layout="@layout/fragment_tracker">
+        <action
+            android:id="@+id/action_TrackerFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
+        <action
+            android:id="@+id/action_TrackerFragment_to_BudgetViewAllFragment"
+            app:destination="@id/BudgetViewAllFragment" />
+    </fragment>
     <fragment
         android:id="@+id/ViewTranslationsFragment"
         android:name="com.isrbet.budgetsbyisrbet.TranslationViewAllFragment"

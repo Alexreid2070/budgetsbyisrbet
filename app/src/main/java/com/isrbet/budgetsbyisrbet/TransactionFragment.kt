@@ -37,7 +37,7 @@ class TransactionFragment : Fragment() {
     private var editingKey: String = ""
     private var inExpandMode = false
     private var cal = android.icu.util.Calendar.getInstance()
-    private var startingTransactionNote = ""
+    private var startingTransactionWhere = ""
     private var gestureDetector: GestureDetectorCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,10 +144,10 @@ class TransactionFragment : Fragment() {
         })
 
         binding.buttonPrevTransaction.setOnClickListener {
-            viewTransaction(ExpenditureViewModel.getPreviousKey(binding.transactionId.text.toString()))
+            viewTransaction(TransactionViewModel.getPreviousKey(binding.transactionId.text.toString()))
         }
         binding.buttonNextTransaction.setOnClickListener {
-            viewTransaction(ExpenditureViewModel.getNextKey(binding.transactionId.text.toString()))
+            viewTransaction(TransactionViewModel.getNextKey(binding.transactionId.text.toString()))
         }
         binding.buttonEdit.setOnClickListener {
             if (binding.transactionType.text.toString() == "Transfer") {
@@ -281,6 +281,7 @@ class TransactionFragment : Fragment() {
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
             binding.editTextDate.isEnabled = false
             binding.editTextAmount.isEnabled = false
+            binding.editTextWhere.isEnabled = false
             binding.editTextNote.isEnabled = false
             binding.recurringTransactionLabel.isEnabled = false
             binding.transactionTypeLayout.isEnabled = false
@@ -300,6 +301,7 @@ class TransactionFragment : Fragment() {
             viewTransaction(args.transactionID)
             binding.editTextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.editTextAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+            binding.editTextWhere.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.editTextNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.categoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
             binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
@@ -383,6 +385,7 @@ class TransactionFragment : Fragment() {
         binding.expansionLayout.visibility = View.GONE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
+        binding.editTextWhere.isEnabled = true
         binding.editTextNote.isEnabled = true
         binding.inputSubcategorySpinner.isEnabled = true
         for (i in 0 until binding.categoryRadioGroup.childCount) {
@@ -414,7 +417,7 @@ class TransactionFragment : Fragment() {
 
     private fun deleteTransaction(iTransactionID: String) {
         fun yesClicked() {
-            ExpenditureViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
+            TransactionViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
             Toast.makeText(activity, "Transaction deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -432,7 +435,7 @@ class TransactionFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun viewTransaction(iTransactionID: String) {
-        val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
+        val thisTransaction = TransactionViewModel.getTransaction(iTransactionID)
         if (thisTransaction != null) {  //
             editingKey = iTransactionID
 
@@ -485,7 +488,8 @@ class TransactionFragment : Fragment() {
                 CategoryViewModel.getCategory(thisTransaction.category)?.subcategoryName))
 
             binding.editTextDate.setText(thisTransaction.date)
-            binding.editTextNote.setText(thisTransaction.note)
+            binding.editTextWhere.setText(thisTransaction.note)
+            binding.editTextNote.setText(thisTransaction.note2)
             binding.recurringTransactionLabel.visibility = View.VISIBLE
             binding.transactionTypeLayout.visibility = View.VISIBLE
             binding.transactionType.setText(thisTransaction.type)
@@ -518,8 +522,8 @@ class TransactionFragment : Fragment() {
             binding.slider.value = thisTransaction.bfname1split.toFloat()
             binding.transactionBoughtForName2Split.text = thisTransaction.getSplit2().toString()
 
-            binding.transactionName1Amount.text = gDec.format(thisTransaction.amount/100.0 * thisTransaction.bfname1split / 100.0)
-            binding.transactionName2Amount.text = gDec.format(thisTransaction.amount/100.0 * thisTransaction.getSplit2() / 100.0)
+            binding.transactionName1Amount.text = gDec.format(thisTransaction.getAmount(0, ROUNDED))
+            binding.transactionName2Amount.text = gDec.format(thisTransaction.getAmount(1, ROUNDED))
 
             if ((thisTransaction.boughtfor == 2 && binding.slider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
                 thisTransaction.paidby != thisTransaction.boughtfor) {
@@ -585,20 +589,20 @@ class TransactionFragment : Fragment() {
             return
         }
         binding.editTextAmount.setText(notification.amount.toString())
-        val iNote = notification.note.lowercase()
-        startingTransactionNote = iNote
-        val translatedNote = TranslationViewModel.getTranslation(iNote)
-        if (iNote == translatedNote) {
-            val words = iNote.split(" ")
+        val iWhere = notification.where.lowercase()
+        startingTransactionWhere = iWhere
+        val translatedWhere = TranslationViewModel.getTranslation(iWhere)
+        if (iWhere == translatedWhere) {
+            val words = iWhere.split(" ")
             var newStr = ""
             words.forEach { s ->
                 newStr += s.replaceFirstChar { it.uppercase() } + " "
             }
-            binding.editTextNote.setText(newStr)
+            binding.editTextWhere.setText(newStr)
         } else {
-            binding.translatedNoteMessage.visibility = View.VISIBLE
-            binding.translatedNoteMessage.text = "Translated from: $startingTransactionNote"
-            binding.editTextNote.setText(translatedNote)
+            binding.translatedWhereMessage.visibility = View.VISIBLE
+            binding.translatedWhereMessage.text = "Translated from: $startingTransactionWhere"
+            binding.editTextWhere.setText(translatedWhere)
         }
         if (CustomNotificationListenerService.getExpenseNotificationCount() == 0) {
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
@@ -609,8 +613,12 @@ class TransactionFragment : Fragment() {
     }
 
     private fun onSaveTransactionButtonClicked () {
+        if (!textIsSafeForValue(binding.editTextWhere.text.toString())) {
+            binding.editTextWhere.error="The text contains unsafe characters!"
+            focusAndOpenSoftKeyboard(requireContext(), binding.editTextWhere)
+            return
+        }
         if (!textIsSafeForValue(binding.editTextNote.text.toString())) {
-//            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
             binding.editTextNote.error="The text contains unsafe characters!"
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
@@ -622,10 +630,9 @@ class TransactionFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextAmount)
             return
         }
-        if (binding.editTextNote.text.toString() == "") {
-//            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
-            binding.editTextNote.error=getString(R.string.missingNoteError)
-            focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
+        if (binding.editTextWhere.text.toString() == "") {
+            binding.editTextWhere.error=getString(R.string.missingWhereError)
+            focusAndOpenSoftKeyboard(requireContext(), binding.editTextWhere)
             return
         }
         val radioGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
@@ -634,8 +641,6 @@ class TransactionFragment : Fragment() {
         Log.d("Alex", "Category is " + radioButton.text)
 
         val subcategorySpinner = requireActivity().findViewById(R.id.inputSubcategorySpinner) as Spinner
-        Log.d("Alex", "Sub-category is " + subcategorySpinner.selectedItem.toString())
-        Log.d("Alex", "Note is " + binding.editTextNote.text)
 
         val radioGroupPaidBy = requireActivity().findViewById(R.id.paidByRadioGroup) as RadioGroup
         val radioButtonPaidByChecked = radioGroupPaidBy.checkedRadioButtonId
@@ -663,27 +668,29 @@ class TransactionFragment : Fragment() {
         amountInt = tempDouble.toInt()
         val bfName1Split = binding.transactionBoughtForName1Split.text.toString().toInt()
 
-        if (startingTransactionNote != "" && startingTransactionNote != binding.editTextNote.text.toString().trim()) {
-            // ie the user loaded the transaction from a TD MySpend, and then edited the Note.  We
+        if (startingTransactionWhere != "" && startingTransactionWhere != binding.editTextWhere.text.toString().trim()) {
+            // ie the user loaded the transaction from a TD MySpend, and then edited the Where.  We
             // want to keep track of this 'translation' and use it going forward
-            if (!TranslationViewModel.exists(startingTransactionNote))
-                TranslationViewModel.addTranslation(startingTransactionNote, binding.editTextNote.text.toString().trim())
+            if (!TranslationViewModel.exists(startingTransactionWhere))
+                TranslationViewModel.addTranslation(startingTransactionWhere, binding.editTextWhere.text.toString().trim())
         }
-        startingTransactionNote = ""
-        binding.translatedNoteMessage.visibility = View.GONE
-        binding.translatedNoteMessage.text = ""
+        startingTransactionWhere = ""
+        binding.translatedWhereMessage.visibility = View.GONE
+        binding.translatedWhereMessage.text = ""
         if (newTransactionMode) {
-            val expenditure = ExpenditureOut(
+            val transactionOut = TransactionOut(
                 binding.editTextDate.text.toString(),
                 amountInt, CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString()),
+                binding.editTextWhere.text.toString().trim(),
                 binding.editTextNote.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 bfName1Split
             )
-            ExpenditureViewModel.addTransaction(expenditure)
+            TransactionViewModel.addTransaction(transactionOut)
             binding.editTextAmount.setText("")
             binding.editTextAmount.requestFocus()
+            binding.editTextWhere.setText("")
             binding.editTextNote.setText("")
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transaction added", Toast.LENGTH_SHORT).show()
@@ -692,17 +699,18 @@ class TransactionFragment : Fragment() {
                 binding.buttonLoadTransactionFromTdmyspend.isEnabled = true
             }
         } else {
-            val expenditure = ExpenditureOut(
+            val transactionOut = TransactionOut(
                 binding.editTextDate.text.toString(),
                 amountInt,
                 CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString()),
+                binding.editTextWhere.text.toString().trim(),
                 binding.editTextNote.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 bfName1Split, binding.transactionType.text.toString()
             )
 
-           ExpenditureViewModel.updateTransaction(editingKey, expenditure)
+           TransactionViewModel.updateTransaction(editingKey, transactionOut)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transaction updated", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()

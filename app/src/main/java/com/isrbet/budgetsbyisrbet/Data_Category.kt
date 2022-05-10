@@ -7,8 +7,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class Category(var id: Int, var categoryName: String, var subcategoryName: String, var discType: String = "",
-    var private: Int = 2) {
+data class Category(var id: Int, var categoryName: String, var subcategoryName: String,
+                    var discType: String = "", var private: Int = 2,
+                    var state: String = cON) {
     var priority = 0
     constructor(id: Int, iFullCategoryName: String) : this(id, iFullCategoryName, iFullCategoryName) {
         val dash = iFullCategoryName.indexOf("-")
@@ -68,8 +69,18 @@ class CategoryViewModel : ViewModel() {
         }
         fun getCategory(id: Int): Category? {
             if (id == cTRANSFER_CODE)
-                return Category(cTRANSFER_CODE, "Transfer", "", "Discretionary", 2)
+                return Category(cTRANSFER_CODE, "Transfer", "", "Discretionary", 2, cON)
             return singleInstance.categories.find { it.id == id }
+        }
+        fun getCategoryPriority(id: Int): Int {
+            val cat = singleInstance.categories.find { it.id == id }
+            val cd = cat?.categoryName?.let { DefaultsViewModel.getCategoryDetail(it) }
+            return cd?.priority ?: 99
+        }
+        fun getCategoryColour(id: Int): Int {
+            val cat = singleInstance.categories.find { it.id == id }
+            val cd = cat?.categoryName?.let { DefaultsViewModel.getCategoryDetail(it) }
+            return cd?.color ?: 0
         }
         fun getDefaultCategory(): Category? {
             val id = DefaultsViewModel.getDefault(cDEFAULT_CATEGORY_ID).toInt()
@@ -94,10 +105,11 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
-                           iPrivate: Int, iLocalOnly: Boolean = false): Category {
+                           iPrivate: Int, iState: String, iLocalOnly: Boolean = false): Category {
+            Log.d("Alex", "setting category to $iDisctype $iPrivate $iState")
             var cat: Category? = singleInstance.categories.find { it.id == id }
             if (cat == null) {
-                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate)
+                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iState)
                 cat.id = getNextID()
                 singleInstance.categories.add(cat)
                 singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
@@ -106,6 +118,7 @@ class CategoryViewModel : ViewModel() {
                 cat.subcategoryName = iSubcategory
                 cat.discType = iDisctype
                 cat.private = iPrivate
+                cat.state = iState
             }
             if (!iLocalOnly) {
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
@@ -124,6 +137,10 @@ class CategoryViewModel : ViewModel() {
                     .child(cat.id.toString())
                     .child("Private")
                     .setValue(iPrivate)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+                    .child(cat.id.toString())
+                    .child("State")
+                    .setValue(iState)
             }
             return cat
         }
@@ -154,9 +171,9 @@ class CategoryViewModel : ViewModel() {
             val tList: MutableList<Category>  = ArrayList()
 
             singleInstance.categories.forEach {
-                if ((it.discType != cDiscTypeOff || includingOff) &&
+                if ((it.state != cOFF || includingOff) &&
                     it.iAmAllowedToSeeThisCategory()) {
-                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType, it.private))
+                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType, it.private, it.state))
                     val cat = tList[tList.size - 1]
                     cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName).priority
                 }
@@ -170,7 +187,7 @@ class CategoryViewModel : ViewModel() {
             var prevName = ""
             val origList = getCategories(true)
             origList.forEach {
-                if (it.categoryName != prevName && (iIncludeOff || it.discType != cDiscTypeOff)) {
+                if (it.categoryName != prevName && (iIncludeOff || it.state != cOFF)) {
                     tmpList.add(it.categoryName)
                     prevName = it.categoryName
                 }
@@ -183,7 +200,7 @@ class CategoryViewModel : ViewModel() {
             val origList = getCategories(true)
 //            singleInstance.categories.forEach {
             origList.forEach {
-                if (it.discType != cDiscTypeOff)
+                if (it.state != cOFF)
                     tmpList.add(it.fullCategoryName())
             }
             return tmpList
@@ -203,7 +220,7 @@ class CategoryViewModel : ViewModel() {
         fun getSubcategoriesForSpinner(iCategory: String) : MutableList<String> {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
-                if ((it.categoryName == iCategory && it.discType != cDiscTypeOff) &&
+                if ((it.categoryName == iCategory && it.state != cOFF) &&
                         it.iAmAllowedToSeeThisCategory())
                     list.add(it.subcategoryName)
             }
@@ -259,17 +276,25 @@ class CategoryViewModel : ViewModel() {
                         var subcategory = ""
                         var disctype = ""
                         var private = 2
+                        var state = ""
                         for (child in it.children) {
                             when (child.key.toString()) {
                                 "Category" -> category = child.value.toString().trim()
                                 "SubCategory" -> subcategory = child.value.toString().trim()
                                 "Type" -> disctype = child.value.toString().trim()
+                                "State" -> state = child.value.toString().trim()
                                 "Private" -> {
                                     private = child.value.toString().toInt()
                                 }
                             }
                         }
-                        categories.add(Category(categoryID, category, subcategory, disctype, private))
+/*                        if (disctype == "Off") {
+                            state = cOFF
+                            disctype = cDiscTypeDiscretionary
+                        } */
+                        if (state == "")
+                            state = cON
+                        categories.add(Category(categoryID, category, subcategory, disctype, private, state))
                     }
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
