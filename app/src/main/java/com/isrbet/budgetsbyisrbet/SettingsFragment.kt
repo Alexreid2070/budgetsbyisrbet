@@ -25,7 +25,6 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
 
-
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
@@ -83,12 +82,12 @@ class SettingsFragment : Fragment() {
                     binding.switchSecondUserLayout.visibility = View.VISIBLE
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
                     binding.authorizationKey.text = MyApplication.userUID
-//                    if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
-//                        binding.shareUIDLayout.visibility = View.VISIBLE
+                    if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
+                        binding.shareUIDLayout.visibility = View.VISIBLE
                 } else {
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
                     binding.switchSecondUserLayout.visibility = View.GONE
-//                    binding.shareUIDLayout.visibility = View.GONE
+                    binding.shareUIDLayout.visibility = View.GONE
                     binding.settingsFirstUserName.isEnabled = false
                     binding.secondUserEmail.isEnabled = false
                     binding.switchDisconnectLayout.visibility = View.VISIBLE
@@ -271,12 +270,13 @@ class SettingsFragment : Fragment() {
             if (binding.switchSecondUserActive.isChecked) {
                 binding.authorizationKeyLayout.visibility = View.VISIBLE
                 binding.secondUserLayout.visibility = View.VISIBLE
-                binding.shareUIDLayout.visibility = View.VISIBLE
                 binding.splitSliderLayout.visibility = View.VISIBLE
                 binding.splitLayout.visibility = View.VISIBLE
                 binding.spenderLayout.visibility = View.VISIBLE
                 binding.splitSlider.value = 50.0F
                 binding.switchJoinOtherUserLayout.visibility = View.GONE
+//                if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
+//                    binding.shareUIDLayout.visibility = View.VISIBLE
             } else {
                 binding.secondUserLayout.visibility = View.GONE
                 binding.shareUIDLayout.visibility = View.GONE
@@ -323,7 +323,7 @@ class SettingsFragment : Fragment() {
                 binding.splitLayout.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
                 binding.switchSecondUserLayout.visibility = View.VISIBLE
-                binding.shareUIDLayout.visibility = View.VISIBLE
+//                binding.shareUIDLayout.visibility = View.VISIBLE
                 binding.authorizationKey.text = MyApplication.userUID
                 binding.settingsCategorySpinnerLayout.visibility = View.VISIBLE
                 binding.settingsIntegrationWithTdLayout.visibility = View.VISIBLE
@@ -393,8 +393,6 @@ class SettingsFragment : Fragment() {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
                 binding.settingsSaveButton.visibility = View.VISIBLE
                 binding.settingsCancelButton.visibility = View.VISIBLE
-                if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString())
-                    binding.shareUIDLayout.visibility = View.VISIBLE
             }
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun afterTextChanged(arg0: Editable) {}
@@ -628,6 +626,8 @@ class SettingsFragment : Fragment() {
                 // single mode, so if previous other users were there, turn them off
                 SpenderViewModel.updateSpender(1, Spender("Other", "", 0, 0))
                 SpenderViewModel.getSpender(2)?.isActive = 0
+                binding.settingsSecondUserName.setText("")
+                binding.secondUserEmail.setText("")
             }
         } else if (binding.switchSecondUserActive.isChecked) {
             SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), splitSliderValue, 1))
@@ -643,6 +643,11 @@ class SettingsFragment : Fragment() {
                 SpenderViewModel.removeSecondAllowedUser()
             else
                 SpenderViewModel.saveAsSecondAllowedUser(binding.secondUserEmail.text.toString())
+
+            if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString()) {
+                binding.authorizationKey.text = MyApplication.userUID
+                binding.shareUIDLayout.visibility = View.VISIBLE
+            }
         } else { // binding.switchJoinUser isChecked
             MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                 .child("Info")
@@ -654,7 +659,9 @@ class SettingsFragment : Fragment() {
 
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
         Toast.makeText(activity, "Changes saved", Toast.LENGTH_SHORT).show()
-        activity?.onBackPressed()
-        (activity as MainActivity).singleUserMode(!binding.switchSecondUserActive.isChecked)
+//        activity?.onBackPressed()
+//        (activity as MainActivity).singleUserMode(!binding.switchSecondUserActive.isChecked)
+        binding.settingsCancelButton.visibility = View.GONE
+        binding.settingsSaveButton.visibility = View.GONE
     }
 }
