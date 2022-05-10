@@ -260,9 +260,7 @@ class HomeFragment : Fragment() {
         SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("SpenderViewModel")
-                if (SpenderViewModel.singleUser()) {
-                    (activity as MainActivity).singleUserMode(true)
-                }
+                (activity as MainActivity).singleUserMode(SpenderViewModel.singleUser())
             }
         })
         ChatViewModel.singleInstance.setCallback(object : DataUpdatedCallback {

@@ -202,7 +202,9 @@
                         android:paddingEnd="10dp"
                         android:background="@color/white"
                         android:layout_gravity="start"
-                        android:src="@drawable/ic_baseline_content_copy_24"/>
+                        android:src="@drawable/ic_baseline_content_copy_24"
+                        android:contentDescription="Copy authorization key"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
@@ -247,7 +249,7 @@
                     android:layout_margin="5dp"
                     android:text="Cancel"
                     android:visibility="gone"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="ButtonStyle,HardcodedText" />
                 <Button
                     android:id="@+id/settings_save_button"
                     android:layout_width="wrap_content"
@@ -255,7 +257,7 @@
                     android:layout_gravity="center"
                     android:text="Save User Changes"
                     android:visibility="gone"
-                    tools:ignore="HardcodedText">
+                    tools:ignore="ButtonStyle,HardcodedText">
                 </Button>
             </LinearLayout>
             <Space
@@ -610,7 +612,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
-                    android:paddingBottom="10dp"/>
+                    android:paddingBottom="10dp"
+                    tools:ignore="TooManyViews" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

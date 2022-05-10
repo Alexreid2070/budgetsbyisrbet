@@ -28,7 +28,6 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTrackerBinding
 import java.text.DecimalFormat
@@ -108,11 +107,13 @@ class TrackerFragment : Fragment() {
         binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
         binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
 
-        if (TransactionViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1) {
+        if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
             if ((parentFragment !is HomeFragment) && goToPie) {
+                Log.d("Alex", "showing pie")
                 hideBarChart()
                 loadPieChart(currentCategory)
             } else {
+                Log.d("Alex", "showing bar")
                 hidePieChart()
                 loadBarChart(1)
                 goToPie = false
@@ -265,7 +266,7 @@ class TrackerFragment : Fragment() {
             startLoadData()
         }
     }
-    fun startLoadData() {
+    private fun startLoadData() {
         if (binding.barChart.visibility == View.VISIBLE)
             loadBarChart(3)
         else
@@ -325,6 +326,7 @@ class TrackerFragment : Fragment() {
         binding.chartSummaryText.visibility = View.GONE
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadPieChart(iSpecificCategory: String = "") {
         binding.chartTitle.visibility = View.VISIBLE
         binding.actualPieChart.visibility = View.VISIBLE
@@ -745,7 +747,7 @@ class TrackerFragment : Fragment() {
         Log.d("Alex", "iSpecificCategory is '$iSpecificCategory'")
         for (i in 0 until catActuals.size) {
             if (iSpecificCategory == "" || catActuals[i].label == iSpecificCategory) {
-                var toCompare = if (iSpecificCategory == "") catActuals[i].label else CategoryViewModel.getCategory(catActuals[i].id)?.subcategoryName
+                val toCompare = if (iSpecificCategory == "") catActuals[i].label else CategoryViewModel.getCategory(catActuals[i].id)?.subcategoryName
                 if ( lastCategory != toCompare && groupActual > 0.0) {
                     Log.d("Alex", "Here2")
                     pieEntries.add(PieEntry(groupActual.toFloat(), lastCategory))
