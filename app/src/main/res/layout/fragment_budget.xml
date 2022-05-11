@@ -124,19 +124,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Monthly or Annual budget? "
+                    android:text="Period: "
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText"/>
 
                 <RadioGroup
-                    android:id="@+id/regularityRadioGroup"
+                    android:id="@+id/periodRadioGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkedButton="@+id/monthlyRadioButton"
                     android:gravity="center"
                     android:orientation="horizontal">
 
+                    <RadioButton
+                        android:id="@+id/weeklyRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weekly"
+                        tools:ignore="HardcodedText" />
                     <RadioButton
                         android:id="@+id/monthlyRadioButton"
                         android:layout_width="wrap_content"
@@ -145,6 +151,7 @@
                         tools:ignore="HardcodedText" />
 
                     <RadioButton
+                        android:id="@+id/annualRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Annual"
@@ -153,10 +160,50 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/budgetAddYear_layout"
+                android:id="@+id/budgetAddRegularity_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/annualIndicator"
+                android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/budgetAddRegularity_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="Regularity: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <it.sephiroth.android.library.numberpicker.NumberPicker
+                android:id="@+id/budgetAddRegularity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:picker_orientation="vertical"
+                app:picker_tracker="linear"
+                app:picker_stepSize="1"
+                app:picker_min="1"
+                app:picker_max="13"
+                style="@style/NumberPicker.Filled"
+                android:background="?attr/colorSecondaryVariant"/>
+                <TextView
+                    android:id="@+id/budgetAddRegularityText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:paddingTop="10dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/budgetAddYear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/budgetAddRegularity_layout"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
 
@@ -183,7 +230,6 @@
                     app:picker_max="2040"
                     style="@style/NumberPicker.Filled"
                     android:background="?attr/colorSecondaryVariant"/>
-
                 <TextView
                     android:id="@+id/budgetAddMonth_label"
                     android:layout_width="wrap_content"
@@ -284,7 +330,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:text="Enter new budget amount "
+                    android:text="Amount "
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
@@ -417,7 +463,7 @@
                     android:layout_margin="5dp"
                     android:text="Cancel"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="ButtonStyle,HardcodedText" />
 
                 <Button
                     android:id="@+id/budgetAdd_button_save"
@@ -426,7 +472,7 @@
                     android:layout_margin="5dp"
                     android:text="Save"
                     app:layout_constraintEnd_toEndOf="parent"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="ButtonStyle,HardcodedText" />
             </LinearLayout>
 
             <Space

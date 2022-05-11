@@ -47,6 +47,8 @@ class BudgetFragment : Fragment() {
         val cal = android.icu.util.Calendar.getInstance()
         binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
         binding.budgetAddMonth.progress = cal.get(Calendar.MONTH)+1
+        binding.budgetAddRegularity.progress = 1
+        binding.budgetAddRegularityText.text = "(every 1 month)"
 
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
@@ -114,7 +116,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddSubCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.budgetAddSubCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
 
-        binding.regularityRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+        binding.periodRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
             when {
                 radioButton.text.toString() == "Annual" -> {
@@ -156,7 +158,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddPreviousAmountLayout.visibility = VISIBLE
         binding.budgetAddActualAmountLayout.visibility = VISIBLE
         binding.budgetAddAverageAmountLayout.visibility = VISIBLE
-        binding.budgetAddAmountLabel.text = "Enter new budget amount: "
+        binding.budgetAddAmountLabel.text = "Amount: "
     }
 
     @SuppressLint("SetTextI18n")
