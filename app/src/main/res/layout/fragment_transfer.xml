@@ -11,372 +11,374 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-                <LinearLayout
-                    android:id="@+id/page_title_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/page_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="24dp"
-                        android:textStyle="bold"
-                        android:text="Add Transfer"
-                        android:paddingBottom="20dp"
-                        tools:ignore="HardcodedText" />
-                </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/linearlayoutDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="10dp">
 
-                    <TextView
-                        android:id="@+id/inputDateLabel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_weight="1"
-                        android:gravity="start"
-                        android:layout_gravity="center"
-                        android:text="@string/inputDateLabel"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/dateLayout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="@dimen/custom_med_width"
-                        android:hint="Enter date"
-                        app:endIconMode="clear_text"
-                        tools:ignore="HardcodedText">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:gravity="start"
-                            android:clickable="false"
-                            android:cursorVisible="false"
-                            android:focusable="false"
-                            android:focusableInTouchMode="false"
-                            android:longClickable="false"
-                            android:inputType="date" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/linearlayoutAmount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/linearlayoutDate"
-                    android:paddingTop="10dp">
-
-                    <TextView
-                        android:id="@+id/inputAmountLabel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:layout_weight="1"
-                        android:gravity="start"
-                        android:layout_gravity="center"
-                        android:text="@string/inputAmountLabel"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:id="@+id/entire_input_amount_area"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingRight="5dp"
-                        android:paddingLeft="5dp">
-
-                        <TextView
-                            android:id="@+id/textView2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="$  "
-                            android:textColor="@color/black"
-                            android:textStyle="bold"
-                            tools:ignore="HardcodedText" />
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/amountLayout"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="@dimen/custom_med_width"
-                            app:endIconMode="clear_text"
-                            android:hint="Enter amount"
-                            tools:ignore="HardcodedText">
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/editTextAmount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="end"
-                                android:gravity="start"
-                                android:inputType="numberDecimal" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/transfer_from_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/linearlayoutAmount"
-                    android:paddingTop="10dp">
-                    <TextView
-                        android:id="@+id/inputFromLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="From:"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:ignore="HardcodedText" />
-
-                    <RadioGroup
-                        android:id="@+id/fromRadioGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:checkedButton="@+id/radio_person3"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="1dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/transfer_to_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/transfer_from_layout"
-                    android:paddingTop="10dp">
-                    <TextView
-                        android:id="@+id/inputToLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="To:"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:ignore="HardcodedText" />
-
-                    <RadioGroup
-                        android:id="@+id/toRadioGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:checkedButton="@+id/radio_person3"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="1dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/split_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/transfer_to_layout"
-                    android:orientation="horizontal"
-                    android:paddingTop="10dp">
-
-                    <TextView
-                        android:id="@+id/split_name1_preamble"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="Split is "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
-                    <EditText
-                        android:id="@+id/split_name1_split"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="@dimen/custom_min_width"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center"
-                        android:inputType="numberDecimal"
-                        tools:ignore="Autofill,LabelFor" />
-                    <TextView
-                        android:id="@+id/split_name1_suffix"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text=" % for  "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
-                    <TextView
-                        android:id="@+id/split_name1_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="Name1"
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
-                    <TextView
-                        android:id="@+id/split_name2_preamble"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text=" and "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
-                    <EditText
-                        android:id="@+id/split_name2_split"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="@dimen/custom_min_width"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center"
-                        android:inputType="numberDecimal"
-                        tools:ignore="Autofill,LabelFor" />
-                    <TextView
-                        android:id="@+id/split_name2_suffix"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text=" % for  "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
-                    <TextView
-                        android:id="@+id/split_name2_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="Name2"
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/transfer_note_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/split_layout"
-                    android:orientation="horizontal"
-                    android:paddingTop="10dp">
-
-                    <TextView
-                        android:id="@+id/inputNoteLabel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:layout_weight="1"
-                        android:paddingTop="10dp"
-                        android:text="@string/inputNoteLabel"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/noteLayout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="@dimen/custom_max_width"
-                        android:hint="Enter note"
-                        app:endIconMode="clear_text"
-                        tools:ignore="HardcodedText">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextNote"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:gravity="start"
-                            android:inputType="text" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <Space
-                    android:id="@+id/transfer_space1"
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"
-                    android:layout_below="@id/transfer_note_layout"
-                    />
-
-                <LinearLayout
-                    android:id="@+id/transaction_id_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/transfer_space1"
-                    android:visibility="gone"
-                    android:gravity="center">
-                    <TextView
-                        android:id="@+id/category_id"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-                    <Space
-                        android:layout_width="20dp"
-                        android:layout_height="wrap_content"/>
-                    <TextView
-                        android:id="@+id/transaction_id"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-                </LinearLayout>
             <LinearLayout
+                android:id="@+id/page_title_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/page_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingBottom="20dp"
+                    android:text="Add Transfer"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearlayoutDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_below="@id/transaction_id_layout">
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/inputDateLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/inputDateLabel"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/dateLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter date"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text"
+                    tools:ignore="HardcodedText">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:gravity="start"
+                        android:inputType="date"
+                        android:longClickable="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearlayoutAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/inputAmountLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/inputAmountLabel"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
-                    android:id="@+id/button_linear_layout"
+                    android:id="@+id/entire_input_amount_area"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp">
+
+                    <TextView
+                        android:id="@+id/currencySymbol"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textStyle="bold"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/amountLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter amount"
+                        android:minWidth="@dimen/custom_med_width"
+                        app:endIconMode="clear_text"
+                        tools:ignore="HardcodedText">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editTextAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/transfer_from_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/inputFromLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="From:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <RadioGroup
+                    android:id="@+id/fromRadioGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_gravity="center"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:checkedButton="@+id/radio_person3"
                     android:gravity="center"
-                    android:orientation="horizontal">
-                    <Button
-                        android:id="@+id/button_cancel_transfer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:text="Cancel"
-                        app:layout_constraintStart_toStartOf="parent"
-                        tools:ignore="HardcodedText" />
+                    android:orientation="horizontal"
+                    android:padding="1dp" />
+            </LinearLayout>
 
-                    <Button
-                        android:id="@+id/button_save_transfer"
+            <LinearLayout
+                android:id="@+id/transfer_to_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/inputToLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="To:"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <RadioGroup
+                    android:id="@+id/toRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/radio_person3"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:padding="1dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/split_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/split_name1_preamble"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Split is "
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+                <EditText
+                    android:id="@+id/split_name1_split"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:minWidth="@dimen/custom_min_width"
+                    tools:ignore="Autofill,LabelFor" />
+
+                <TextView
+                    android:id="@+id/split_name1_suffix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=" % for  "
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/split_name1_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Name1"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/split_name2_preamble"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=" and "
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+                <EditText
+                    android:id="@+id/split_name2_split"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:minWidth="@dimen/custom_min_width"
+                    tools:ignore="Autofill,LabelFor" />
+
+                <TextView
+                    android:id="@+id/split_name2_suffix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text=" % for  "
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/split_name2_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Name2"
+                    android:textSize="16sp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/transfer_note_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/inputNoteLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:paddingTop="10dp"
+                    android:text="@string/inputNoteLabel"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/noteLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter note"
+                    android:minWidth="@dimen/custom_max_width"
+                    app:endIconMode="clear_text"
+                    tools:ignore="HardcodedText">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextNote"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="Save"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_gravity="center"
-                        app:layout_constraintStart_toStartOf="parent"
-                        tools:ignore="HardcodedText" />
-                </LinearLayout>
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <Space
+                android:id="@+id/transfer_space1"
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+            <LinearLayout
+                android:id="@+id/transaction_id_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/category_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/transaction_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/button_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <Button
+                    android:id="@+id/button_cancel_transfer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="Cancel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="ButtonStyle,HardcodedText" />
+
+                <Button
+                    android:id="@+id/button_save_transfer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Save"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="ButtonStyle,HardcodedText" />
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
+
     <LinearLayout
         android:id="@+id/expansion_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
         android:background="?attr/colorSecondaryVariant"
+        android:orientation="horizontal"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -388,11 +390,13 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@color/white"
-            android:tooltipText="Previous transfer"
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_arrow_back_24" />
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            android:tooltipText="Previous transfer"
+            android:contentDescription="See previous transfer"
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/button_next_transfer"
@@ -401,11 +405,13 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@color/white"
-            android:tooltipText="Next transfer"
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_arrow_forward_24" />
+            android:src="@drawable/ic_baseline_arrow_forward_24"
+            android:tooltipText="Next transfer"
+            android:contentDescription="See next transfer"
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/button_edit"
@@ -414,11 +420,13 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@color/white"
-            android:tooltipText="Edit transaction"
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_edit_24" />
+            android:src="@drawable/ic_baseline_edit_24"
+            android:tooltipText="Edit transaction"
+            android:contentDescription="Edit"
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:id="@+id/button_delete"
@@ -427,10 +435,12 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@color/white"
-            android:tooltipText="Delete transaction"
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_baseline_delete_24" />
+            android:src="@drawable/ic_baseline_delete_24"
+            android:tooltipText="Delete transaction"
+            android:contentDescription="Delete"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -47,7 +47,8 @@
                 android:layout_marginBottom="5dp"
                 android:text="@string/inputCategoryLabel"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:tooltipText="@string/toolTipBudgetCategory"/>
 
             <HorizontalScrollView
                 android:id="@+id/radioGroupScroll"
@@ -78,7 +79,8 @@
                     android:layout_gravity="start"
                     android:text="@string/inputSubcategoryLabel"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:tooltipText="@string/toolTipBudgetCategory"/>
 
                 <RelativeLayout
                     android:id="@+id/budgetAddSubCategory_relativeLayout"
@@ -124,10 +126,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Monthly or Annual budget? "
+                    android:text="Budget period: "
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"/>
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipBudgetPeriod"/>
 
                 <RadioGroup
                     android:id="@+id/regularityRadioGroup"
@@ -230,7 +233,8 @@
                     android:text="Budget for: "
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipBudgetWho"/>
 
                 <RadioGroup
                     android:id="@+id/budgetAdd_whoRadioGroup"
@@ -258,7 +262,8 @@
                     android:text="Occurs: "
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipBudgetOccurence"/>
 
                 <RadioGroup
                     android:id="@+id/budgetAdd_occurenceRadioGroup"
@@ -287,7 +292,8 @@
                     android:text="Enter new budget amount "
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="Budget amount for the indicated period."/>
 
                 <LinearLayout
                     android:id="@+id/budgetAdd_entire_input_amount_area"
@@ -298,14 +304,11 @@
                     android:paddingEnd="5dp">
 
                     <TextView
-                        android:id="@+id/budgetAdd_textView"
+                        android:id="@+id/currencySymbol"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="$  "
-                        android:textColor="@color/black"
-                        android:textStyle="bold"
-                        tools:ignore="HardcodedText" />
+                        android:textStyle="bold"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/amountLayout"
@@ -343,7 +346,8 @@
                     android:text="** OR **"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="If there is a previous budget amount, you can increase it by a specified %."/>
 
                 <TextView
                     android:id="@+id/budgetAddPercentage_label"
@@ -417,7 +421,7 @@
                     android:layout_margin="5dp"
                     android:text="Cancel"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="ButtonStyle,HardcodedText" />
 
                 <Button
                     android:id="@+id/budgetAdd_button_save"
@@ -426,7 +430,7 @@
                     android:layout_margin="5dp"
                     android:text="Save"
                     app:layout_constraintEnd_toEndOf="parent"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="ButtonStyle,HardcodedText" />
             </LinearLayout>
 
             <Space

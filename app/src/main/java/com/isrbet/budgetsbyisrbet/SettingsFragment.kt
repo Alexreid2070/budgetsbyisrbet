@@ -179,6 +179,8 @@ class SettingsFragment : Fragment() {
         binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.switchSound.isChecked = DefaultsViewModel.getDefault(cDEFAULT_SOUND) != "Off"
         binding.switchQuote.isChecked = DefaultsViewModel.getDefault(cDEFAULT_QUOTE) != "Off"
+        binding.switchCurrency.isChecked = DefaultsViewModel.getDefault(
+            cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true"
         if (DefaultsViewModel.getDefault(cDEFAULT_INTEGRATEWITHTDSPEND) == "Off")
             binding.switchIntegrateWithTD.isChecked = false
         else {
@@ -517,8 +519,17 @@ class SettingsFragment : Fragment() {
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             }
         }
+        binding.switchCurrency.setOnCheckedChangeListener { _, _ ->
+            val currencyField = if (binding.switchCurrency.isChecked) "true" else "false"
+            if (currencyField != DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL)) {
+                Log.d("Alex", "currency is now $currencyField")
+                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL, currencyField)
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            }
+        }
 
         binding.settingsFirstUserName.requestFocus()
+        HintViewModel.showHint(parentFragmentManager, "Preferences")
     }
     private fun isNotificationServiceEnabled(c: Context): Boolean {
         val pkgName: String = c.packageName
@@ -616,6 +627,7 @@ class SettingsFragment : Fragment() {
             MyApplication.userUID = MyApplication.originalUserUID
             MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                 .child("Info")
+                .child("0")
                 .child("JoinUser").removeValue()
             switchTo(MyApplication.userUID)
             Toast.makeText(activity, "Leaving other user.", Toast.LENGTH_SHORT).show()
@@ -651,6 +663,7 @@ class SettingsFragment : Fragment() {
         } else { // binding.switchJoinUser isChecked
             MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                 .child("Info")
+                .child("0")
                 .child("JoinUser").setValue(binding.joinUid.text.toString())
             Toast.makeText(activity, "Joining user.", Toast.LENGTH_SHORT).show()
             switchTo(binding.joinUid.text.toString())

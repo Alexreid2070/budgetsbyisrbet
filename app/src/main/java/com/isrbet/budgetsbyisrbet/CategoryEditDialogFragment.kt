@@ -368,7 +368,7 @@ class CategoryEditDialogFragment : DialogFragment() {
         }
         binding.categoryDialogButtonDelete.setOnClickListener {
             if (rtCtr > 0) {
-                tellUserCantDelete("Recurring Transactions")
+                tellUserCantDelete("Scheduled Payments")
                 return@setOnClickListener
             }
             if (budgetCtr > 0) {

@@ -59,6 +59,7 @@ class TransactionFragment : Fragment() {
     @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
 
         val dateSetListener =
@@ -130,9 +131,9 @@ class TransactionFragment : Fragment() {
                 try {
                     var amount1 = binding.editTextAmount.text.toString().toDouble() * binding.slider.value.toInt() / 100.0
                     amount1 = (amount1 * 100.0).roundToInt() / 100.0
-                    binding.transactionName1Amount.text = gDec.format(amount1)
+                    binding.transactionName1Amount.text = gDecWithCurrency(amount1)
                     binding.transactionName2Amount.text =
-                        gDec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
+                        gDecWithCurrency(binding.editTextAmount.text.toString().toDouble() - amount1)
                 }
                 catch (exception: Exception) {
                     binding.transactionName1Amount.text = "0"
@@ -182,9 +183,9 @@ class TransactionFragment : Fragment() {
                 binding.transactionName2Amount.text = "0"
             } else {
                 val amount1 = binding.editTextAmount.text.toString().toDouble() * binding.slider.value.toInt() / 100.0
-                binding.transactionName1Amount.text = gDec.format(amount1)
+                binding.transactionName1Amount.text = gDecWithCurrency(amount1)
                 binding.transactionName2Amount.text =
-                    gDec.format(binding.editTextAmount.text.toString().toDouble() - amount1)
+                    gDecWithCurrency(binding.editTextAmount.text.toString().toDouble() - amount1)
             }
         }
         loadCategoryRadioButtons()
@@ -224,7 +225,7 @@ class TransactionFragment : Fragment() {
         if (SpenderViewModel.singleUser() || newTransactionMode) {
             setExpansionFields(View.GONE)
         }
-        if (!SpenderViewModel.singleUser()) {
+        if (SpenderViewModel.multipleUsers()) {
             binding.transactionBoughtForName1Label.text = SpenderViewModel.getSpenderName(0)
             binding.transactionBoughtForName2Label.text = SpenderViewModel.getSpenderName(1)
         }
@@ -243,7 +244,7 @@ class TransactionFragment : Fragment() {
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
             binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
-            if (!SpenderViewModel.singleUser()) {
+            if (SpenderViewModel.multipleUsers()) {
                 val selectedId = binding.boughtForRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 when (radioButton.text) {
@@ -345,7 +346,7 @@ class TransactionFragment : Fragment() {
             false
         }
         binding.editTextAmount.requestFocus()
-        HintViewModel.showHint(requireContext(), binding.editTextAmount, "Transaction")
+        HintViewModel.showHint(parentFragmentManager, "Transaction")
     }
 
 /*    private fun colorCategoryArea(iColor:Int) {
@@ -494,7 +495,7 @@ class TransactionFragment : Fragment() {
             binding.transactionTypeLayout.visibility = View.VISIBLE
             binding.transactionType.setText(thisTransaction.type)
             if (thisTransaction.type == "Recurring") {
-                binding.recurringTransactionLabel.text = "This recurring transaction was automatically generated."
+                binding.recurringTransactionLabel.text = "This expense was automatically generated as a scheduled payment."
                 binding.recurringTransactionLabel.visibility = View.VISIBLE
             } else {
                 binding.recurringTransactionLabel.visibility = View.INVISIBLE
@@ -522,8 +523,8 @@ class TransactionFragment : Fragment() {
             binding.slider.value = thisTransaction.bfname1split.toFloat()
             binding.transactionBoughtForName2Split.text = thisTransaction.getSplit2().toString()
 
-            binding.transactionName1Amount.text = gDec.format(thisTransaction.getAmount(0, ROUNDED))
-            binding.transactionName2Amount.text = gDec.format(thisTransaction.getAmount(1, ROUNDED))
+            binding.transactionName1Amount.text = gDecWithCurrency(thisTransaction.getAmount(0, ROUNDED))
+            binding.transactionName2Amount.text = gDecWithCurrency(thisTransaction.getAmount(1, ROUNDED))
 
             if ((thisTransaction.boughtfor == 2 && binding.slider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
                 thisTransaction.paidby != thisTransaction.boughtfor) {
@@ -551,9 +552,11 @@ class TransactionFragment : Fragment() {
         if (iView == View.GONE) {
             binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
             binding.inputPaidByLabel.text = "Who:"
+            binding.inputPaidByLabel.tooltipText = getString(R.string.toolTipWhoInput)
         } else {
             binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
             binding.inputPaidByLabel.text = "Paid by:"
+            binding.inputPaidByLabel.tooltipText = getString(R.string.toolTipPaidBy)
         }
         binding.inputBoughtForLabel.visibility = iView
         binding.boughtForRadioGroup.visibility = iView

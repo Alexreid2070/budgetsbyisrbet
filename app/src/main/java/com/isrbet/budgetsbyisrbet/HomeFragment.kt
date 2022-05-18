@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.widget.NestedScrollView
@@ -34,7 +35,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
-import java.lang.Exception
 
 
 class HomeFragment : Fragment() {
@@ -108,6 +108,10 @@ class HomeFragment : Fragment() {
         val mainActivityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
+                    Log.d(
+                        "Alex",
+                        "in registerforactivityresult, result is OK"  + result.resultCode
+                    )
                     val data = result.data
                     val task = GoogleSignIn.getSignedInAccountFromIntent(data)
                     try {
@@ -173,6 +177,7 @@ class HomeFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("Alex", "area expanded is $homePageExpansionAreaExpanded")
         val scrollView = view.findViewById<NestedScrollView>(R.id.scroll_view)
         scrollView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
@@ -188,7 +193,7 @@ class HomeFragment : Fragment() {
                 return false
             }
         })
-        setupDataCallbacks()
+//        setupDataCallbacks()
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
@@ -216,8 +221,7 @@ class HomeFragment : Fragment() {
                     binding.quoteField.text = getQuote()
             }
         }
-        Log.d("Alex", "aa5 useruid is '" + MyApplication.userUID + "'")
-        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
+        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
         MyApplication.userGivenName = account?.givenName.toString()
         MyApplication.userFamilyName = account?.familyName.toString()
         if (account != null) {
@@ -249,6 +253,15 @@ class HomeFragment : Fragment() {
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
                 .show()
         }
+        if (homePageExpansionAreaExpanded)
+            expandTop()
+        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
+        val set = ConstraintSet()
+        val constraintLayout = binding.constraintLayout
+        set.clone(constraintLayout)
+        set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
+        set.applyTo(constraintLayout)
+
     }
 
     private fun setupDataCallbacks() {
@@ -259,8 +272,8 @@ class HomeFragment : Fragment() {
         })
         SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
+                (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
                 alignPageWithDataState("SpenderViewModel")
-                (activity as MainActivity).singleUserMode(SpenderViewModel.singleUser())
             }
         })
         ChatViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
@@ -293,27 +306,37 @@ class HomeFragment : Fragment() {
 
     private fun onExpandClicked() {
         if (binding.expansionAreaLayout.visibility == View.GONE) { // ie expand the section
-            binding.expandButtonLayout.setBackgroundColor(
-                MaterialColors.getColor(
-                    requireContext(),
-                    R.attr.colorPrimary,
-                    Color.BLACK
-                )
-            )
-            binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
-            binding.expansionAreaLayout.visibility = View.VISIBLE
+            expandTop()
         } else { // ie retract the section
-            binding.expandButtonLayout.setBackgroundColor(
-                MaterialColors.getColor(
-                    requireContext(),
-                    R.attr.colorSecondary,
-                    Color.BLACK
-                )
-            )
-            binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
-            binding.expansionAreaLayout.visibility = View.GONE
-            doSomethingIfThereAreUnreadMessages()
+            retractTop()
         }
+    }
+
+    private fun expandTop() {
+        binding.expandButtonLayout.setBackgroundColor(
+            MaterialColors.getColor(
+                requireContext(),
+                R.attr.colorPrimary,
+                Color.BLACK
+            )
+        )
+        binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
+        binding.expansionAreaLayout.visibility = View.VISIBLE
+        homePageExpansionAreaExpanded = true
+    }
+
+    private fun retractTop() {
+        binding.expandButtonLayout.setBackgroundColor(
+            MaterialColors.getColor(
+                requireContext(),
+                R.attr.colorSecondary,
+                Color.BLACK
+            )
+        )
+        binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
+        binding.expansionAreaLayout.visibility = View.GONE
+        homePageExpansionAreaExpanded = false
+        doSomethingIfThereAreUnreadMessages()
     }
 
     private fun getQuote(): String {
@@ -399,7 +422,7 @@ class HomeFragment : Fragment() {
                             MyApplication.userUID = dataSnapshot.value.toString()
                         }
                         loadEverything()
-                    }
+                  }
 
                     override fun onCancelled(dataSnapshot: DatabaseError) {
                         MyApplication.displayToast("User authorization failed 112.")
@@ -408,6 +431,7 @@ class HomeFragment : Fragment() {
                 val dbRef =
                     MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                         .child("Info")
+                        .child("0")
                         .child("JoinUser")
                 dbRef.addListenerForSingleValueEvent(joinListener)
             }
@@ -424,7 +448,7 @@ class HomeFragment : Fragment() {
         categoryModel.loadCategories()
         spenderModel.loadSpenders()
         budgetModel.loadBudgets()
-        recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
+        recurringTransactionModel.loadRecurringTransactions()
         transactionModel.loadTransactions()
         chatModel.loadChats()
         translationModel.loadTranslations()
@@ -478,7 +502,7 @@ class HomeFragment : Fragment() {
                 trackerFragment.initCurrentBudgetMonth()
                 trackerFragment.loadBarChart(4)
                 DefaultsViewModel.confirmCategoryDetailsListIsComplete()
-                HintViewModel.showHint(requireContext(), binding.transactionAddFab, "Home")
+                HintViewModel.showHint(parentFragmentManager, "Home")
                 CategoryViewModel.singleInstance.clearCallback()
                 SpenderViewModel.singleInstance.clearCallback()
                 ChatViewModel.singleInstance.clearCallback()
@@ -495,30 +519,31 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupNewUser() {
+        Log.d("Alex", "Setting up new user")
         CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, cON,false)
         CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, cON, false)
         CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeDiscretionary,2, cON,false)
         CategoryViewModel.updateCategory(0, "Housing", "Mortgage", cDiscTypeNondiscretionary,2, cON,false)
         CategoryViewModel.updateCategory(0, "Housing", "Property Taxes", cDiscTypeNondiscretionary, 2, cON,false)
         CategoryViewModel.updateCategory(0, "Housing", "Rent", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeDiscretionary,2, cON,false)
         CategoryViewModel.updateCategory(0, "Transportation", "Car Payment", cDiscTypeNondiscretionary,2, cON, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeDiscretionary,2, cON,false)
         CategoryViewModel.updateCategory(0, "Transportation", "Insurance", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeNondiscretionary,2, cON,false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeDiscretionary,2, cON,false)
         DefaultsViewModel.setColour("Housing", -12400683, false)
         DefaultsViewModel.setColour("Life", -1072612, false)
         DefaultsViewModel.setColour("Transportation", -3751917, false)
@@ -528,6 +553,7 @@ class HomeFragment : Fragment() {
         val cat = CategoryViewModel.getID("Life", "Groceries")
         DefaultsViewModel.updateDefault("Category", cat.toString())
         DefaultsViewModel.updateDefault("Spender", "0")
+        SpenderViewModel.addLocalSpender(Spender(MyApplication.userGivenName, MyApplication.userEmail, 100,1))
         SpenderViewModel.addSpender(0, Spender(MyApplication.userGivenName, MyApplication.userEmail, 100,1))
     }
 
@@ -541,6 +567,7 @@ class HomeFragment : Fragment() {
         RecurringTransactionViewModel.clear()
         TranslationViewModel.clear()
         SpenderViewModel.clear()
+        HintViewModel.clear()
         Firebase.auth.signOut()
         mGoogleSignInClient.signOut()
         MyApplication.userUID = ""
@@ -613,9 +640,9 @@ class HomeFragment : Fragment() {
                 binding.expandButton.setImageDrawable(ContextCompat.getDrawable(
                     requireContext(),
                     R.drawable.ic_fas_envelope))
-                binding.chatImage.setImageDrawable(ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_fas_envelope))
+                val drawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fas_envelope)
+                drawable?.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+                binding.chatButton.setCompoundDrawables(null, drawable, null, null)
             }
         }
     }

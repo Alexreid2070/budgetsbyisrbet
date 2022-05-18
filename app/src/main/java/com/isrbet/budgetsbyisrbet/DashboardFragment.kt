@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.icu.text.DecimalFormat
 import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
@@ -20,8 +19,6 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.round
-import kotlin.math.roundToInt
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -43,6 +40,7 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+        binding.dollarRadioButton.text = getLocalCurrencySymbol()
         mTableLayout = binding.tableDashboardRows
         binding.tableDashboardRows.isStretchAllColumns = true
         if (SpenderViewModel.singleUser())
@@ -223,7 +221,7 @@ class DashboardFragment : Fragment() {
             }
         })
         setActionBarTitle()
-        HintViewModel.showHint(requireContext(), binding.resetFilterButton, "Dashboard")
+        HintViewModel.showHint(parentFragmentManager, "Dashboard")
     }
 
     private fun startLoadData(iBudgetMonth: BudgetMonth) {
@@ -263,7 +261,7 @@ class DashboardFragment : Fragment() {
                 textSpacer.text = ""
             }
             if (row != null) {
-                    if (row != null && lastCategory != "" && row.category != lastCategory) {
+                    if (lastCategory != "" && row.category != lastCategory) {
                         // sub-total row
                         createViewRow("Sub-total", i, 0, lastCategory, "", "", lastCategoryBudgetTotal, lastCategoryActualTotal)
                         grandBudgetTotal += lastCategoryBudgetTotal
@@ -272,15 +270,13 @@ class DashboardFragment : Fragment() {
                         lastCategoryActualTotal = 0.0
                     }
 
-                    if (row != null) {
-                        lastCategory = row.category
-                        createViewRow("Detail", i,
-                            CategoryViewModel.getID(row.category, row.subcategory),
-                            row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
-                        lastCategoryBudgetTotal += row.budgetAmount
-                        lastCategoryActualTotal += row.actualAmount
-                    }
-                            i++
+                    lastCategory = row.category
+                    createViewRow("Detail", i,
+                        CategoryViewModel.getID(row.category, row.subcategory),
+                        row.category, row.subcategory, row.discIndicator, row.budgetAmount, row.actualAmount)
+                    lastCategoryBudgetTotal += row.budgetAmount
+                    lastCategoryActualTotal += row.actualAmount
+                    i++
             }
         }
 
@@ -301,16 +297,6 @@ class DashboardFragment : Fragment() {
         binding.tableDashboardRows.post(run)
     }
 
-    private fun getDecFormat(iDouble: Double): String {
-        return if (DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true") {
-            val dformat = DecimalFormat("###0;(###0)")
-            dformat.format(round(iDouble))
-        } else {
-            val dformat = DecimalFormat("###0.00;(###0.00)")
-            val t = (iDouble * 100.0).roundToInt() / 100.0
-            dformat.format(t)
-        }
-    }
     @SuppressLint("SetTextI18n")
     private fun createViewRow(iRowType: String, iRowNo: Int, iCategoryID: Int, iCategory: String, iSubcategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
         val leftRowMargin = 0
@@ -385,8 +371,9 @@ class DashboardFragment : Fragment() {
         tv3.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv3.text = "Actual"
+            tv3.tooltipText = "Total actual amount spent for this category."
         } else {
-                tv3.text = getDecFormat(iActualAmount)
+                tv3.text = gDecWithCurrency(iActualAmount, DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
         }
         tv3.tag = iCategoryID
 
@@ -406,8 +393,9 @@ class DashboardFragment : Fragment() {
         tv4.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv4.text = "Budget"
+            tv4.tooltipText = "Total budgeted amount spent for this category."
         } else {
-            tv4.text = getDecFormat(iBudgetAmount)
+            tv4.text = gDecWithCurrency(iBudgetAmount, DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
         }
         tv4.tag = iCategoryID
 
@@ -427,6 +415,7 @@ class DashboardFragment : Fragment() {
         tv5.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv5.text = "Delta"
+            tv5.tooltipText = "Difference between actual amount spent and budgeted amount for this category."
         } else {
                 if (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD) == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
@@ -442,9 +431,9 @@ class DashboardFragment : Fragment() {
                     val tiny = BigDecimal(0.01)
                     Log.d("Alex", "Diff is $diff")
                     if (diff.abs() < tiny) {
-                        tv5.text = getDecFormat(0.0)
+                        tv5.text = gDecWithCurrency(0.0, DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
                     } else
-                        tv5.text = getDecFormat(diff.toDouble())
+                        tv5.text = gDecWithCurrency(diff.toDouble(), DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
                 }
         }
         // add table row

@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.icu.text.NumberFormat
 import android.icu.util.Calendar
 import android.media.MediaPlayer
 import android.text.SpannableString
@@ -28,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.text.DecimalFormat
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -65,8 +67,26 @@ const val october = "Oct"
 const val november = "Nov"
 const val december = "Dec"
 val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
-val gDec = DecimalFormat("#.00")
+val gDec = DecimalFormat("###0.00;(###0.00)")
+val gDecRound = DecimalFormat("###0;(###0)")
+//val gDecWithCurrency = DecimalFormat("${getLocalCurrencySymbol()} 0.00")
 var goToPie = false
+var homePageExpansionAreaExpanded = false
+
+fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
+    val s = getLocalCurrencySymbol()
+    if (iRound) {
+        return if (s == "")
+            gDecRound.format(round(iDouble))
+        else
+            s + " " + gDecRound.format(round(iDouble))
+    } else {
+        return if (s == "")
+            gDec.format(iDouble)
+        else
+            s + " " + gDec.format(iDouble)
+    }
+}
 
 enum class LoanPaymentRegularity(val code: Int) {
     WEEKLY(1),
@@ -442,6 +462,20 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
     }
 }
 
+fun getLocalCurrencySymbol() : String {
+    Log.d("Alex", "get local currency is " + DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) )
+    if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true") {
+        val locale = Locale.getDefault()
+        val numberFormat = NumberFormat.getCurrencyInstance(locale)
+        return if (numberFormat.currency == null)
+            ""
+        else
+            numberFormat.currency?.symbol.toString()
+    } else {
+        return ""
+    }
+}
+
 fun getNextBusinessDate(iDate: String) : String {
     val year = iDate.substring(0,4).toInt()
     val month = iDate.substring(5,7).toInt()
@@ -519,7 +553,6 @@ fun thisIsANewUser(): Boolean {
             SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
             TransactionViewModel.isLoaded() && TransactionViewModel.getCount() == 0 &&
             BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
-            DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
             RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
 
 }

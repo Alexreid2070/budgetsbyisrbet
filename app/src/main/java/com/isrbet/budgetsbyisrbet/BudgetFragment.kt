@@ -35,8 +35,10 @@ class BudgetFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
 
         Log.d("Alex", "onviewcreated category id is " + args.categoryID)
         loadCategoryRadioButtons()
@@ -178,12 +180,12 @@ class BudgetFragment : Fragment() {
         val toCheckAnnual = BudgetMonth(binding.budgetAddYear.progress, 0)
         val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(CategoryViewModel.getID(catText, subCatText),toCheckAnnual, whoId)
         if (annualBudget != 0.0) {
-            binding.budgetAddPreviousAmount.text = gDec.format(annualBudget)
+            binding.budgetAddPreviousAmount.text = gDecWithCurrency(annualBudget)
             binding.budgetAddPreviousAmountLabel2.text = " which was set for "
             binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
         } else {
             val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(CategoryViewModel.getID(catText, subCatText), prevMonth, whoId)
-            binding.budgetAddPreviousAmount.text = gDec.format(tmpPrevAmt.amount)
+            binding.budgetAddPreviousAmount.text = gDecWithCurrency(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
                 binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
                 binding.budgetAddPreviousAmountDate.text = ""
@@ -207,7 +209,7 @@ class BudgetFragment : Fragment() {
             startOfPeriod.decrementMonth(1)
             endOfPeriod.decrementMonth(1)
         }
-        binding.budgetAddActualAmount.text = gDec.format(TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
+        binding.budgetAddActualAmount.text = gDecWithCurrency(TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             startOfPeriod, endOfPeriod, whoId))
 
         val annualActuals = TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
@@ -217,8 +219,8 @@ class BudgetFragment : Fragment() {
             ),
             prevMonth,
             whoId)
-        binding.budgetAddTotalAmount.text = gDec.format(annualActuals)
-        binding.budgetAddAverageAmount.text = gDec.format(annualActuals/12)
+        binding.budgetAddTotalAmount.text = gDecWithCurrency(annualActuals)
+        binding.budgetAddAverageAmount.text = gDecWithCurrency(annualActuals/12)
 
         if (binding.budgetAddPercentage.text.toString() != "")
             setAmountBasedOnPercentage()

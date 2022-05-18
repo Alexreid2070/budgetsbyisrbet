@@ -13,7 +13,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
         lateinit var singleInstance: CustomNotificationListenerService // used to track static single instance of self
 
         fun getExpenseNotificationCount(): Int {
-            Log.d("Alex", "getting expense count")
             if (cFAKING_TD)
                 return 1
             if (!::singleInstance.isInitialized)

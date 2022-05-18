@@ -67,4 +67,29 @@
     <string name="toFromCantBeSame">To and From values can\'t be the same</string>
     <string name="chat_fragment_label">Chats</string>
     <string name="inputWhereLabel">Where:</string>
+    <string name="toolTipDate">The date that the transaction occurred.</string>
+    <string name="toolTipAmount">The amount of the transaction.</string>
+    <string name="toolTipCategory">The major category to which this transaction should be filed.</string>
+    <string name="toolTipSubCategory">The sub-category to which this transaction should be filed.</string>
+    <string name="toolTipWhere">Where did this transaction occur, e.g. the vendor name.</string>
+    <string name="toolTipNote">An optional note about this transaction. Enter anything that is meaningful to you.</string>
+    <string name="toolTipPaidBy">Who paid for this item?</string>
+    <string name="toolTipBoughtFor">Who was this item purchased for?</string>
+    <string name="toolTipSplit">In a multi-user setup, how will this expense be split across the 2 users?</string>
+    <string name="toolTipPrevious">Go to previous item</string>
+    <string name="toolTipNext">Go to next item</string>
+    <string name="toolTipAmt1">The primary user\'s portion of the total amount.</string>
+    <string name="toolTipAmt2">The secondary user\'s portion of the total amount.</string>
+    <string name="toolTipCategorySubCategory">The category-subCategory within which the transaction is filed.</string>
+    <string name="toolTipWhoInput">Who paid for the purchase, and who it is for.  (Expand if paid-by name is different from bought-for.)</string>
+    <string name="toolTipWhoView">Who paid for the expense, and who was it bought for. If name is the same, only one name is shown.</string>
+    <string name="toolTipDisc">Indicates whether the Category is Discretionary or not. D = Discretionary, ND = Non-Discretionary</string>
+    <string name="toolTipType">Transaction type. E = manually entered expense, S = generated scheduled payment, T = manually entered transfer</string>
+    <string name="toolTipRunningTotal">A running total of the amount that primary user owes secondary user. (Negative means secondary owes primary.)</string>
+    <string name="toolTipPrivacy">Is this category marked as private? (Private categories are not visible to other user.)</string>
+    <string name="toolTipCatState">Indicates whether category is still used for new transactions.</string>
+    <string name="toolTipBudgetCategory">The category/sub-category to which this budget applies.</string>
+    <string name="toolTipBudgetPeriod">Indicates if budget applies to a single month or entire year.</string>
+    <string name="toolTipBudgetWho">The user to which this budget applies. (Used when users manage sometimes separate finances.)</string>
+    <string name="toolTipBudgetOccurence">Indicates if budget occurs monthly/annually, or applies only to a single month/year</string>
 </resources>

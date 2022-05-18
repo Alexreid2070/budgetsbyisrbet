@@ -1,14 +1,8 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.PopupWindow
-import android.widget.TextView
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -32,6 +26,7 @@ data class Hint(
 data class HintLastShown(val fragment: String, var id: Int, var date: String)
 
 class HintViewModel : ViewModel() {
+    private var hintListener: ValueEventListener? = null
     private val hints: MutableList<Hint> = ArrayList()
     private val hintsLastShown: MutableList<HintLastShown> = ArrayList()
     private var dataUpdatedCallback: DataUpdatedCallback? = null
@@ -53,67 +48,95 @@ class HintViewModel : ViewModel() {
             singleInstance.loadHints()
         }
         fun clear() {
+            if (singleInstance.hintListener != null) {
+                MyApplication.databaseref.child("Hints")
+                    .removeEventListener(singleInstance.hintListener!!)
+                singleInstance.hintListener = null
+            }
             singleInstance.hints.clear()
             singleInstance.loaded = false
         }
         @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "InflateParams")
-        fun showHint(iContext: Context, iView: View, iFragment: String) {
+        fun showHint(iParentFragmentManager: FragmentManager, iFragment: String) {
+            Log.d("Alex", "Showing hint for $iFragment")
+                val hdf = HintDialogFragment.newInstance(iFragment)
+                hdf.show(iParentFragmentManager, "Show Hint")
+        }
+
+        fun getNextHint(iFragment: String, iStartPosition: Int = -1) : Hint? {
             var hls = singleInstance.hintsLastShown.find {it.fragment == iFragment}
             if (hls == null)
                 hls = HintLastShown(iFragment, -1, "1999-01-01")
-            val tHint = getNextHint(hls)
-            if (tHint != null) {
-/*                AlertDialog.Builder(iContext)
-                    .setTitle("Hint!")
-                    .setMessage(tHint.text)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                    .show() */
+            val startPosition = if (iStartPosition == -1) hls.id else iStartPosition
+            Log.d("Alex", "Last shown is $hls")
 
-                val inflater = LayoutInflater.from(iContext)
-                val popupView = inflater?.inflate(R.layout.hint_layout, null)
-                val tv = popupView?.findViewById(R.id.tooltip_text) as TextView
-                tv.text = tHint.text
-                val width = LinearLayout.LayoutParams.WRAP_CONTENT
-                val height = LinearLayout.LayoutParams.WRAP_CONTENT
-                val focusable = true // lets taps outside the popup also dismiss it
-                val popupWindow = PopupWindow(popupView, width, height, focusable)
-
-                // show the popup window
-                // which view you pass in doesn't matter, it is only used for the window token
-                popupWindow.showAtLocation(iView, Gravity.CENTER, 0, 0)
-
-                // dismiss the popup window when touched
-                popupView.setOnTouchListener { _, _ ->
-                    popupWindow.dismiss()
-                    true
-                }
-                MyApplication.databaseref.child("Users/" + MyApplication.userUID)
-                    .child("Info")
-                    .child(SpenderViewModel.myIndex().toString())
-                    .child("Hints")
-                    .child(iFragment)
-                    .child("LastShownID")
-                    .setValue(tHint.id)
-                hls.id = tHint.id
-                val dateNow = android.icu.util.Calendar.getInstance()
-                MyApplication.databaseref.child("Users/" + MyApplication.userUID)
-                    .child("Info")
-                    .child(SpenderViewModel.myIndex().toString())
-                    .child("Hints")
-                    .child(iFragment)
-                    .child("LastShownDate")
-                    .setValue(giveMeMyDateFormat(dateNow))
-                hls.date = giveMeMyDateFormat(dateNow)
-            }
-        }
-        private fun getNextHint(iHintLastShown: HintLastShown) : Hint? {
             singleInstance.hints.forEach {
-                if (it.fragment == iHintLastShown.fragment &&
-                        it.id > iHintLastShown.id) {
+                if (it.fragment == iFragment &&
+                    it.id > startPosition) {
+                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                        .child("Info")
+                        .child(SpenderViewModel.myIndex().toString())
+                        .child("Hints")
+                        .child(iFragment)
+                        .child("LastShownID")
+                        .setValue(it.id)
+                    val dateNow = android.icu.util.Calendar.getInstance()
+                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                        .child("Info")
+                        .child(SpenderViewModel.myIndex().toString())
+                        .child("Hints")
+                        .child(iFragment)
+                        .child("LastShownDate")
+                        .setValue(giveMeMyDateFormat(dateNow))
+                    hls.id = it.id
+                    hls.date = giveMeMyDateFormat(dateNow)
+                    singleInstance.hintsLastShown.add(hls)
                     return it
                 }
             }
             return null
+        }
+        fun getPreviousHint(iFragment: String, iStartPosition: Int = 99999) : Hint? {
+            var hls = singleInstance.hintsLastShown.find {it.fragment == iFragment}
+            if (hls == null)
+                hls = HintLastShown(iFragment, 99999, "1999-01-01")
+            val startPosition = if (iStartPosition == 99999) hls.id else iStartPosition
+            Log.d("Alex", "Looking from $iStartPosition, startPosition is $startPosition hls.id is ${hls.id}")
+
+            singleInstance.hints.asReversed().forEach {
+                if (it.fragment == iFragment &&
+                    it.id < startPosition) {
+                    Log.d("Alex", "returning ${it.id}")
+                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                        .child("Info")
+                        .child(SpenderViewModel.myIndex().toString())
+                        .child("Hints")
+                        .child(iFragment)
+                        .child("LastShownID")
+                        .setValue(it.id)
+                    val dateNow = android.icu.util.Calendar.getInstance()
+                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                        .child("Info")
+                        .child(SpenderViewModel.myIndex().toString())
+                        .child("Hints")
+                        .child(iFragment)
+                        .child("LastShownDate")
+                        .setValue(giveMeMyDateFormat(dateNow))
+                    hls.id = it.id
+                    hls.date = giveMeMyDateFormat(dateNow)
+                    singleInstance.hintsLastShown.add(hls)
+                    return it
+                }
+            }
+            return null
+        }
+        fun restartHints() {
+            singleInstance.hintsLastShown.clear()
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                .child("Info")
+                .child(SpenderViewModel.myIndex().toString())
+                .child("Hints")
+                .removeValue()
         }
     }
 
@@ -131,13 +154,14 @@ class HintViewModel : ViewModel() {
 
     fun loadHints() {
         // Do an asynchronous operation to fetch chats
-        val listener = object : ValueEventListener {
+        hintListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 hints.clear()
                 for (element in dataSnapshot.children.toMutableList()) { // for each fragment
                     val tFragmentName = element.key.toString()
                     for (child in element.children) {
                         hints.add(Hint(tFragmentName, child.key.toString().toInt(), child.value.toString()))
+                        Log.d("Alex", "Adding hint: $tFragmentName ${child.key} ${child.value}")
                     }
                 }
                 sortYourself()
@@ -150,13 +174,14 @@ class HintViewModel : ViewModel() {
                 MyApplication.displayToast("User authorization failed 120.")
             }
         }
-        MyApplication.databaseref.child("Hints")
-                .addListenerForSingleValueEvent(listener)
+        MyApplication.database.getReference("Hints").addValueEventListener(
+            hintListener as ValueEventListener
+        )
         loadUserHintInfo()
     }
 
     private fun loadUserHintInfo() {
-        val hintListener = object : ValueEventListener {
+        val userHintListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (element in dataSnapshot.children.toMutableList()) { // for each fragment hint grouping
                     val tFragmentName = element.key.toString()
@@ -180,7 +205,7 @@ class HintViewModel : ViewModel() {
             .child("Info")
             .child(SpenderViewModel.myIndex().toString())
             .child("Hints")
-            .addListenerForSingleValueEvent(hintListener)
+            .addListenerForSingleValueEvent(userHintListener)
     }
 
     fun sortYourself() {

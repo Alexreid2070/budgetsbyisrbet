@@ -64,7 +64,7 @@ class AccountingFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.transfer_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(requireContext(), binding.transferAddFab, "Accounting")
+        HintViewModel.showHint(parentFragmentManager, "Accounting")
     }
 
     @SuppressLint("SetTextI18n")
@@ -158,81 +158,81 @@ class AccountingFragment : Fragment() {
                 }
             }
         }
-        binding.accountingFf.text = "$ " + gDec.format(totals[cFIRST_NAME][cFIRST_NAME])
+        binding.accountingFf.text = gDecWithCurrency(totals[cFIRST_NAME][cFIRST_NAME])
 //        if (totals[cFIRST_NAME][cFIRST_NAME] == 0.0)
             binding.accountingFf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingSf.text = "$ " + gDec.format(totals[cFIRST_NAME][cSECOND_NAME])
+        binding.accountingSf.text = gDecWithCurrency(totals[cFIRST_NAME][cSECOND_NAME])
         if (totals[cFIRST_NAME][cSECOND_NAME] == 0.0)
             binding.accountingSf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJff.text = "$ " + gDec.format(totals[cFIRST_NAME][cJOINT_NAME])
+        binding.accountingJff.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT_NAME])
 //        if (totals[cFIRST_NAME][cJOINT_NAME] == 0.0)
             binding.accountingJff.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJsf.text = "$ " + gDec.format(totals[cFIRST_NAME][cJOINT_NAME+1])
+        binding.accountingJsf.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT_NAME+1])
         if (totals[cFIRST_NAME][cJOINT_NAME+1] == 0.0)
             binding.accountingJsf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingFs.text = "$ " + gDec.format(totals[cSECOND_NAME][cFIRST_NAME])
+        binding.accountingFs.text = gDecWithCurrency(totals[cSECOND_NAME][cFIRST_NAME])
         if (totals[cSECOND_NAME][cFIRST_NAME] == 0.0)
             binding.accountingFs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingSs.text = "$ " + gDec.format(totals[cSECOND_NAME][cSECOND_NAME])
+        binding.accountingSs.text = gDecWithCurrency(totals[cSECOND_NAME][cSECOND_NAME])
 //        if (totals[cSECOND_NAME][cSECOND_NAME] == 0.0)
             binding.accountingSs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJfs.text = "$ " + gDec.format(totals[cSECOND_NAME][cJOINT_NAME])
+        binding.accountingJfs.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT_NAME])
         if (totals[cSECOND_NAME][cJOINT_NAME] == 0.0)
             binding.accountingJfs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJss.text = "$ " + gDec.format(totals[cSECOND_NAME][cJOINT_NAME+1])
+        binding.accountingJss.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT_NAME+1])
 //        if (totals[cSECOND_NAME][cJOINT_NAME+1] == 0.0)
             binding.accountingJss.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingFj.text = "$ " + gDec.format(totals[cJOINT_NAME][cFIRST_NAME])
+        binding.accountingFj.text = gDecWithCurrency(totals[cJOINT_NAME][cFIRST_NAME])
         if (totals[cJOINT_NAME][cFIRST_NAME] == 0.0)
             binding.accountingFj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingSj.text = "$ " + gDec.format(totals[cJOINT_NAME][cSECOND_NAME])
+        binding.accountingSj.text = gDecWithCurrency(totals[cJOINT_NAME][cSECOND_NAME])
         if (totals[cJOINT_NAME][cSECOND_NAME] == 0.0)
             binding.accountingSj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJfj.text = "$ " + gDec.format(totals[cJOINT_NAME][cJOINT_NAME])
+        binding.accountingJfj.text = gDecWithCurrency(totals[cJOINT_NAME][cJOINT_NAME])
 
         val jointIsAsExpected = totals[cJOINT_NAME][cJOINT_NAME] == ((totals[cJOINT_NAME][cJOINT_NAME] +
                 totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(0) / 100.0)
         Log.d("Alex", "joint is as expected is $jointIsAsExpected")
         if (totals[cJOINT_NAME][cJOINT_NAME] == 0.0 || jointIsAsExpected)
             binding.accountingJfj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJsj.text = "$ " + gDec.format(totals[cJOINT_NAME][cJOINT_NAME+1])
+        binding.accountingJsj.text = gDecWithCurrency(totals[cJOINT_NAME][cJOINT_NAME+1])
         if (totals[cJOINT_NAME][cJOINT_NAME+1] == 0.0 || jointIsAsExpected)
             binding.accountingJsj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
 
-        binding.accountingTFf.text = "$ " + gDec.format(transferTotals[cFIRST_NAME][cFIRST_NAME])
+        binding.accountingTFf.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cFIRST_NAME])
         if (transferTotals[cFIRST_NAME][cFIRST_NAME] == 0.0)
             binding.accountingTFf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTFs.text = "$ " + gDec.format(transferTotals[cFIRST_NAME][cSECOND_NAME])
+        binding.accountingTFs.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cSECOND_NAME])
         if (transferTotals[cFIRST_NAME][cSECOND_NAME] == 0.0)
             binding.accountingTFs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTFj1.text = "$ " + gDec.format(transferTotals[cFIRST_NAME][cJOINT_NAME])
+        binding.accountingTFj1.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cJOINT_NAME])
         if (transferTotals[cFIRST_NAME][cJOINT_NAME] == 0.0)
             binding.accountingTFj1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTFj2.text = "$ " + gDec.format(transferTotals[cFIRST_NAME][cJOINT_NAME+1])
+        binding.accountingTFj2.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cJOINT_NAME+1])
         if (transferTotals[cFIRST_NAME][cJOINT_NAME+1] == 0.0)
             binding.accountingTFj2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSf.text = "$ " + gDec.format(transferTotals[cSECOND_NAME][cFIRST_NAME])
+        binding.accountingTSf.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cFIRST_NAME])
         if (transferTotals[cSECOND_NAME][cFIRST_NAME] == 0.0)
             binding.accountingTSf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSs.text = "$ " + gDec.format(transferTotals[cSECOND_NAME][cSECOND_NAME])
+        binding.accountingTSs.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cSECOND_NAME])
         if (transferTotals[cSECOND_NAME][cSECOND_NAME] == 0.0)
             binding.accountingTSs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSj1.text = "$ " + gDec.format(transferTotals[cSECOND_NAME][cJOINT_NAME])
+        binding.accountingTSj1.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cJOINT_NAME])
         if (transferTotals[cSECOND_NAME][cJOINT_NAME] == 0.0)
             binding.accountingTSj1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSj2.text = "$ " + gDec.format(transferTotals[cSECOND_NAME][cJOINT_NAME+1])
+        binding.accountingTSj2.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cJOINT_NAME+1])
         if (transferTotals[cSECOND_NAME][cJOINT_NAME+1] == 0.0)
             binding.accountingTSj2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJf.text = "$ " + gDec.format(transferTotals[cJOINT_NAME][cFIRST_NAME])
+        binding.accountingTJf.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cFIRST_NAME])
         if (transferTotals[cJOINT_NAME][cFIRST_NAME] == 0.0)
             binding.accountingTJf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJs.text = "$ " + gDec.format(transferTotals[cJOINT_NAME][cSECOND_NAME])
+        binding.accountingTJs.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cSECOND_NAME])
         if (transferTotals[cJOINT_NAME][cSECOND_NAME] == 0.0)
             binding.accountingTJs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJj1.text = "$ " + gDec.format(transferTotals[cJOINT_NAME][cJOINT_NAME])
+        binding.accountingTJj1.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cJOINT_NAME])
         if (transferTotals[cJOINT_NAME][cJOINT_NAME] == 0.0)
             binding.accountingTJj1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJj2.text = "$ " + gDec.format(transferTotals[cJOINT_NAME][cJOINT_NAME+1])
+        binding.accountingTJj2.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cJOINT_NAME+1])
         if (transferTotals[cJOINT_NAME][cJOINT_NAME+1] == 0.0)
             binding.accountingTJj2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
 
@@ -372,12 +372,12 @@ class AccountingFragment : Fragment() {
         when {
             oneOwesTwo == 0.0 -> binding.accountingSummary.text = "Nobody owes anyone!"
             oneOwesTwo > 0 -> {
-                binding.accountingSummary.text = firstName + " owes " + secondName + " $ " + gDec.format(oneOwesTwo)
-                binding.accountingSummary2.text = " (" + gDec.format(subtotal2) + " - " + gDec.format(subtotal) + ")"
+                binding.accountingSummary.text = firstName + " owes " + secondName +  " " + gDecWithCurrency(oneOwesTwo)
+                binding.accountingSummary2.text = " (" + gDecWithCurrency(subtotal2) + " - " + gDecWithCurrency(subtotal) + ")"
             }
             else -> {
-                binding.accountingSummary.text = secondName + " owes " + firstName + " $ " + gDec.format(oneOwesTwo*-1)
-                binding.accountingSummary2.text = " (" + gDec.format(subtotal) + " - " + gDec.format(subtotal2) + ")"
+                binding.accountingSummary.text = secondName + " owes " + firstName + " " + gDecWithCurrency(oneOwesTwo*-1)
+                binding.accountingSummary2.text = " (" + gDecWithCurrency(subtotal) + " - " + gDecWithCurrency(subtotal2) + ")"
             }
         }
 
@@ -408,9 +408,9 @@ class AccountingFragment : Fragment() {
         titleText.layoutParams = paramsT
         iGridLayout.addView(titleText,0)
         if (iTransfer == "Sub-Total")
-            amountText.text = "$ " + gDec.format(iAmount)
+            amountText.text = gDecWithCurrency(iAmount)
         else
-            amountText.text = gDec.format(iAmount)
+            amountText.text = gDecWithCurrency(iAmount)
         amountText.layoutParams = paramsA
         iGridLayout.addView(amountText,1)
     }

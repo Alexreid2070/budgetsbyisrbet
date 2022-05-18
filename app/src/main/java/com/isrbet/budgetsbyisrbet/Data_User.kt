@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -21,6 +22,10 @@ class AppUserViewModel : ViewModel() {
                 Log.d("Alex", "SM User is " + it.email + " " + it.uid)
             }
         }
+        fun getUsers(): MutableList<AppUser> {
+            return singleInstance.users
+        }
+
         fun getUserEmail(pos:Int): String {
             return if (pos  < singleInstance.users.size)
                 singleInstance.users[pos].email
@@ -59,6 +64,8 @@ class AppUserViewModel : ViewModel() {
                         for (child in element.children) {
                             if (child.key.toString() == "Info") {
                                 for ( nChild in child.children) {
+                                    if (!nChild.key.toString().isDigitsOnly())
+                                        Log.d("Alex", "not numeric ${nChild.key.toString()} ${nChild.value.toString()}")
                                     if (nChild.key.toString().toInt() == SpenderViewModel.myIndex()) {
                                         for (pChild in nChild.children) {
                                             if (pChild.key.toString() == "Email")

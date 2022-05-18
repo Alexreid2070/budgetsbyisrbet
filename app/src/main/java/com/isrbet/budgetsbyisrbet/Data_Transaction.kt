@@ -185,7 +185,7 @@ class TransactionViewModel : ViewModel() {
                 val cat = CategoryViewModel.getCategory(it.category)
                 if (it.type != "Transfer" && it.date > iStartMonth && it.date < iEndMonth &&
                     (cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
-                    (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2) &&
+                    (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2 || iWho == -1) &&
                         cat?.iAmAllowedToSeeThisCategory() == true) {
 //                            var por1 = (it.amount / 100.0 * it.bfname1split/100.0)
 //                            por1 = (por1 * 100.0).roundToInt() / 100.0
@@ -477,9 +477,10 @@ class TransactionViewModel : ViewModel() {
         }
         fun getEarliestYear() : Int {
             // since we know that this table is sorted on date, we simply return the first date
-            return if (singleInstance.transactions.size == 0)
-                0
-            else singleInstance.transactions[0].date.substring(0,4).toInt()
+            return if (singleInstance.transactions.size == 0) {
+                val dateNow = Calendar.getInstance()
+                dateNow.get(Calendar.YEAR)
+            } else singleInstance.transactions[0].date.substring(0,4).toInt()
         }
     }
 

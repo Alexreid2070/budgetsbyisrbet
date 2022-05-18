@@ -36,7 +36,8 @@
             android:text="Amount"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipAmount"/>
 
         <TextView
             android:id="@+id/percentage1Heading"
@@ -48,7 +49,7 @@
             android:text="Amt1"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="The primary user's portion of the total amount."
+            android:tooltipText="@string/toolTipAmt1"
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/percentage2Heading"
@@ -60,7 +61,7 @@
             android:text="Amt2"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="The secondary user's portion of the total amount."
+            android:tooltipText="@string/toolTipAmt2"
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/categoryHeading"
@@ -72,7 +73,7 @@
             android:text="Category"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="Category"
+            android:tooltipText="@string/toolTipCategorySubCategory"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -84,7 +85,7 @@
             android:text="Who"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="Who paid for the expense, and who was it bought for.  If name is the same, only one name is shown."
+            android:tooltipText="@string/toolTipWhoView"
             tools:ignore="HardcodedText" />
 
         <TextView
@@ -97,7 +98,8 @@
             android:text="Where"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipWhere"/>
 
         <TextView
             android:id="@+id/discHeading"
@@ -111,7 +113,7 @@
             android:paddingRight="2dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="D = Discretionary, ND = Non-Discretionary"
+            android:tooltipText="@string/toolTipDisc"
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/typeHeading"
@@ -123,7 +125,7 @@
             android:text="Typ"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="E = Expense, R = Recurring transaction, T = Transfer"
+            android:tooltipText="@string/toolTipType"
             tools:ignore="HardcodedText" />
         <TextView
             android:id="@+id/runningTotalHeading"
@@ -135,7 +137,7 @@
             android:text="Owes"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:tooltipText="Amount that primary user owes secondary user"
+            android:tooltipText="@string/toolTipRunningTotal"
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
@@ -153,6 +155,19 @@
         app:layout_constraintBottom_toTopOf="@id/total_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout"/>
+
+    <TextView
+        android:id="@+id/noInformationText"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="?attr/colorSecondary"
+        android:padding="20dp"
+        android:paddingTop="30dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout"
+        app:layout_constraintBottom_toTopOf="@id/total_layout"/>
 
     <LinearLayout
         android:id="@+id/total_layout"
@@ -466,7 +481,7 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Note column?  "
+                android:text="Show Where column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText">
@@ -696,7 +711,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Disc"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText,TooManyViews" />
                 <RadioButton
                     android:id="@+id/nonDiscRadioButton"
                     android:layout_width="wrap_content"
@@ -838,13 +853,13 @@
                     android:id="@+id/manuallyEnteredTypeRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ordinary"
+                    android:text="Expense"
                     tools:ignore="HardcodedText" />
                 <RadioButton
                     android:id="@+id/rtTypeRadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Recurring"
+                    android:text="Scheduled"
                     tools:ignore="HardcodedText" />
                 <RadioButton
                     android:id="@+id/transferTypeRadioButton"

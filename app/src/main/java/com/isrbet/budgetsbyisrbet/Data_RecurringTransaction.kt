@@ -44,13 +44,13 @@ data class RecurringTransaction(
             "loanAmortization" -> loanAmortization = value.toInt()
             "loanInterestRate" -> loanInterestRate = value.toInt()
             "loanPaymentRegularity" ->
-                if (isNumber(value))
-                    loanPaymentRegularity = LoanPaymentRegularity.getByValue(value.toInt())!!
+                loanPaymentRegularity = if (isNumber(value))
+                    LoanPaymentRegularity.getByValue(value.toInt())!!
                 else {
                     try {
-                        loanPaymentRegularity = LoanPaymentRegularity.valueOf(value)
+                        LoanPaymentRegularity.valueOf(value)
                     } catch (e: IllegalArgumentException) {
-                        loanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
+                        LoanPaymentRegularity.BIWEEKLY
                     }
                 }
             "loanAcceleratedPaymentAmount" -> loanAcceleratedPaymentAmount = value.toInt()
@@ -109,6 +109,7 @@ class RecurringTransactionViewModel : ViewModel() {
         fun getCopyOfRecurringTransactions(): MutableList<RecurringTransaction> {
             val copy = mutableListOf<RecurringTransaction>()
             copy.addAll(getRecurringTransactions())
+            singleInstance.recurringTransactions.sortWith(compareBy { it.nextdate })
             return copy
         }
 
@@ -189,7 +190,7 @@ class RecurringTransactionViewModel : ViewModel() {
             // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
             val dateNow = giveMeMyDateFormat(Calendar.getInstance())
             singleInstance.recurringTransactions.forEach {
-                if (it.nextdate <= dateNow) {
+                while (it.nextdate <= dateNow) {
                     val newNextDate = Calendar.getInstance()
                     newNextDate.set(it.nextdate.substring(0,4).toInt(), it.nextdate.substring(5,7).toInt()-1, it.nextdate.substring(8,10).toInt())
                     // Reset nextDate
@@ -207,15 +208,16 @@ class RecurringTransactionViewModel : ViewModel() {
                             newNextDate.add(Calendar.YEAR, it.regularity)
                         }
                     }
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions").child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
+                        .child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                     // add transaction
                     Log.d("Alex", "Adding a transaction")
                     val nextDate = getNextBusinessDate(it.nextdate)
+                    it.nextdate = giveMeMyDateFormat(newNextDate)
                     TransactionViewModel.addTransaction(TransactionOut(nextDate, it.amount,
                         it.category, it.name, "", it.paidby, it.boughtfor,
                         it.split1, "Recurring"))
-                    if (mainActivity != null)
-                        Toast.makeText(mainActivity, "Recurring transaction was added for ${it.name} $ ${gDec.format(it.amount/100.0)} " + CategoryViewModel.getFullCategoryName(it.category) + " $nextDate", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(mainActivity, "Scheduled payment was added for ${it.name} ${gDecWithCurrency(it.amount/100.0)} " + CategoryViewModel.getFullCategoryName(it.category) + " $nextDate", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -242,7 +244,7 @@ class RecurringTransactionViewModel : ViewModel() {
         dataUpdatedCallback = null
     }
 
-    fun loadRecurringTransactions(mainActivity: MainActivity? = null) {
+    fun loadRecurringTransactions() {
         // Do an asynchronous operation to fetch recurring transactions
         recurringTransactionListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {

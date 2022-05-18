@@ -32,6 +32,7 @@ const val cDEFAULT_FILTER_DISC_TRACKER = "FilterDiscTracker"
 const val cDEFAULT_FILTER_WHO_TRACKER = "FilterWhoTracker"
 const val cDEFAULT_VIEW_BY_TRACKER = "ViewByTracker"
 const val cDEFAULT_SHOW_TOTALS_TRACKER = "ShowTotalsTracker"
+const val cDEFAULT_SHOW_CURRENCY_SYMBOL = "ShowCurrencySymbol"
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -58,9 +59,10 @@ class DefaultsViewModel : ViewModel() {
     private var defaultBudgetView: String = "Date"
     private val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
     private var defaultFilterDiscTracker = cDiscTypeAll
-    private var defaultFilterWhoTracker = "2"
+    private var defaultFilterWhoTracker = ""
     private var defaultViewByTracker = "Month"
     private var defaultShowTotalsTracker: String = "#"
+    private var defaultShowCurrencySymbol: String = "true"
     private var loaded:Boolean = false
 
     companion object {
@@ -94,6 +96,7 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default filterWhoTracker is " + singleInstance.defaultFilterWhoTracker)
             Log.d("Alex", "Default viewByTracker is " + singleInstance.defaultViewByTracker)
             Log.d("Alex", "Default showTotalsTracker is " + singleInstance.defaultShowTotalsTracker)
+            Log.d("Alex", "Default showCurrencySymbol is " + singleInstance.defaultShowCurrencySymbol)
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -126,6 +129,7 @@ class DefaultsViewModel : ViewModel() {
                 cDEFAULT_FILTER_WHO_TRACKER -> return singleInstance.defaultFilterWhoTracker
                 cDEFAULT_VIEW_BY_TRACKER -> return singleInstance.defaultViewByTracker
                 cDEFAULT_SHOW_TOTALS_TRACKER -> return singleInstance.defaultShowTotalsTracker
+                cDEFAULT_SHOW_CURRENCY_SYMBOL -> return singleInstance.defaultShowCurrencySymbol
                 else -> return ""
             }
         }
@@ -172,9 +176,10 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultBudgetView = "Date"
             singleInstance.defaultCategoryDetails.clear()
             singleInstance.defaultFilterDiscTracker = cDiscTypeAll
-            singleInstance.defaultFilterWhoTracker = "2"
+            singleInstance.defaultFilterWhoTracker = ""
             singleInstance.defaultViewByTracker = "Month"
             singleInstance.defaultShowTotalsTracker = "#"
+            singleInstance.defaultShowCurrencySymbol = "true"
         }
 
         fun getCategoryDetails(): MutableList<CategoryDetail> {
@@ -382,6 +387,10 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_SHOW_TOTALS_TRACKER -> {
                 singleInstance.defaultShowTotalsTracker = iValue
+            }
+            cDEFAULT_SHOW_CURRENCY_SYMBOL -> {
+                singleInstance.defaultShowCurrencySymbol = iValue
+                Log.d("Alex", "setting local currency to $iValue")
             }
             else -> {
                 Log.d("Alex", "Unknown default $whichOne $iValue")

@@ -3,10 +3,11 @@ package com.isrbet.budgetsbyisrbet
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Button
+import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.database.DataSnapshot
@@ -30,54 +31,31 @@ class AdminFragment : Fragment() {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
         view?.findViewById<Button>(R.id.button_dosomething)?.setOnClickListener { _: View ->
-/*            SpenderViewModel.clear()
-            CategoryViewModel.clear()
-            DefaultsViewModel.clear()
-            BudgetViewModel.clear()
-            ChatViewModel.clear()
-            TransactionViewModel.clear()
-            RecurringTransactionViewModel.clear()
-            TranslationViewModel.clear()
-
-//            MyApplication.userUID="3yvcaxXaASQLQu9pc6EQWp6h57q2"
-
-//            SpenderViewModel.refresh()
-//            convertDefaults()
-//            DefaultsViewModel.refresh()
-//            convertCategories()
-//            CategoryViewModel.refresh()
-            // convertRecurringTransactions()
-//            RecurringTransactionViewModel.refresh()
-//            convertBudgets()
-//            convertExpenditures()
-
-//            BudgetViewModel.refresh()
-//            TransactionViewModel.refresh()
-//            ChatViewModel.refresh()
-//            TranslationViewModel.refresh() */
+            // doSomething()
         }
         view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
-            clearData()
             AppUserViewModel.loadUsers()
             AppUserViewModel.setCallback(object: DataUpdatedCallback {
                 override fun onDataUpdate() {
                     Log.d("Alex", "got a callback that user data was updated")
-                    refreshData()
+                    addUsersToList()
                 }
             })
         }
-        binding.adminUser1Uid.setOnClickListener {
-            uidClicked(binding.adminUser1Uid.text.toString(), binding.adminUser1Email.text.toString())
-        }
-        binding.adminUser2Uid.setOnClickListener {
-            uidClicked(binding.adminUser2Uid.text.toString(), binding.adminUser2Email.text.toString())
-        }
-        binding.adminUser3Uid.setOnClickListener {
-            uidClicked(binding.adminUser3Uid.text.toString(), binding.adminUser3Email.text.toString())
-        }
-        binding.adminUser4Uid.setOnClickListener {
-            uidClicked(binding.adminUser4Uid.text.toString(), binding.adminUser4Email.text.toString())
-        }
+        addUsersToList()
+    }
+
+    private fun addUsersToList() {
+        val adapter = UserAdapter(requireContext(), AppUserViewModel.getUsers())
+
+        val listView: ListView = requireActivity().findViewById(R.id.user_list)
+        listView.adapter = adapter
+
+        listView.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
+                val itemValue = listView.getItemAtPosition(position) as AppUser
+                uidClicked(itemValue.uid, itemValue.email)
+            }
     }
 
     private fun uidClicked(uid: String, email: String) {
@@ -87,28 +65,6 @@ class AdminFragment : Fragment() {
         Log.d("Alex", "I clicked uid $uid")
         switchTo(uid)
         activity?.onBackPressed()
-    }
-
-    fun refreshData() {
-        Log.d("Alex", "in user refresh data count is ${AppUserViewModel.getCount()}")
-        binding.adminUser1Email.text = AppUserViewModel.getUserEmail(0)
-        binding.adminUser1Uid.text = AppUserViewModel.getUserUID(0)
-        binding.adminUser2Email.text = AppUserViewModel.getUserEmail(1)
-        binding.adminUser2Uid.text = AppUserViewModel.getUserUID(1)
-        binding.adminUser3Email.text = AppUserViewModel.getUserEmail(2)
-        binding.adminUser3Uid.text = AppUserViewModel.getUserUID(2)
-        binding.adminUser4Email.text = AppUserViewModel.getUserEmail(3)
-        binding.adminUser4Uid.text = AppUserViewModel.getUserUID(3)
-    }
-    private fun clearData() {
-        binding.adminUser1Email.text = ""
-        binding.adminUser1Uid.text = ""
-        binding.adminUser2Email.text = ""
-        binding.adminUser2Uid.text = ""
-        binding.adminUser3Email.text = ""
-        binding.adminUser3Uid.text = ""
-        binding.adminUser4Email.text = ""
-        binding.adminUser4Uid.text = ""
     }
 
     override fun onDestroyView() {

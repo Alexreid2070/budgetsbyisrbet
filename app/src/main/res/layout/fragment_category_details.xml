@@ -24,7 +24,8 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipCategory"/>
 
         <TextView
             android:layout_width="0dp"
@@ -35,7 +36,8 @@
             android:text="Reset"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="Reset category colour to white."/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -45,7 +47,8 @@
             android:text="Paint"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="Open category colouring tool."/>
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

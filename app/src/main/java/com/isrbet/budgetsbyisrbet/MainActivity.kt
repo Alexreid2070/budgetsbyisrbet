@@ -9,6 +9,8 @@ import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -39,7 +41,14 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
+            Log.d("Alex", "back stack size is ${navHostFragment.childFragmentManager.backStackEntryCount}")
+            // don't redraw page if we're already there
+            if (navHostFragment.childFragmentManager.backStackEntryCount > 0 &&
+                it.itemId == navController.currentDestination?.id)
+                return@setOnItemSelectedListener true
+
             MyApplication.transactionSearchText = ""
+            homePageExpansionAreaExpanded = false
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
                 navHostFragment.childFragmentManager.popBackStack()
             }
@@ -47,9 +56,15 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment -> { // no navigation needed since we've popped our way back...
                     binding.bottomNavigationView.menu.findItem(it.itemId).isChecked = true
                 }
-                R.id.TransactionViewAllFragment-> navController.navigate(R.id.TransactionViewAllFragment)
-                R.id.DashboardFragment-> navController.navigate(R.id.DashboardFragment)
-                R.id.AccountingFragment-> navController.navigate(R.id.AccountingFragment)
+                R.id.TransactionViewAllFragment-> {
+                    navController.navigate(R.id.TransactionViewAllFragment)
+                }
+                R.id.DashboardFragment-> {
+                    navController.navigate(R.id.DashboardFragment)
+                }
+                R.id.AccountingFragment-> {
+                    navController.navigate(R.id.AccountingFragment)
+                }
             }
             true
         }
@@ -88,12 +103,13 @@ class MainActivity : AppCompatActivity() {
  */
     }
 
-    fun singleUserMode(iFlag: Boolean) {
+    fun multipleUserMode(iFlag: Boolean) {
+        Log.d("Alex", "setting multipleUserMode to $iFlag")
         val navigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         val navMenu: Menu = navigationView.menu
         navMenu.forEach {
             if (it.title == "Accounting") {
-                it.isVisible = !iFlag
+                it.isVisible = iFlag
             }
         }
     }

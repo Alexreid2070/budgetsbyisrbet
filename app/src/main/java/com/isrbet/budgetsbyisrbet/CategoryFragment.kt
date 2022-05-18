@@ -80,7 +80,7 @@ class CategoryFragment : Fragment() {
             binding.privacyHeading.visibility = View.VISIBLE
         else
             binding.privacyHeading.visibility = View.GONE
-        HintViewModel.showHint(requireContext(), binding.categoryFab, "Category")
+        HintViewModel.showHint(parentFragmentManager, "Category")
     }
 
     private fun addCategory() {

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.l4digital.fastscroll.FastScroller
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DecimalFormat
 
 class TransactionRecyclerAdapter(
     private val context: Context, private val list: MutableList<Transaction>,
@@ -110,7 +109,7 @@ class TransactionRecyclerAdapter(
                         CategoryViewModel.getCategory(row.category)?.subcategoryName == subcategoryFilter) &&
                         (paidbyFilter == -1 || row.paidby == paidbyFilter) &&
                         (boughtforFilter == -1 || row.boughtfor == boughtforFilter) &&
-                        (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter == "Ordinary")) &&
+                        (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter == "Expense")) &&
                         (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator)
                     ) {
                         if (accountingFilter) {
@@ -173,13 +172,13 @@ class TransactionRecyclerAdapter(
             holder.vtfdate.isVisible = false
         }
         val formattedAmount = (data.amount / 100).toDouble() + (data.amount % 100).toDouble() / 100
-        holder.vtfamount.text = gDec.format(formattedAmount)
+        holder.vtfamount.text = gDecWithCurrency(formattedAmount)
         val percentage1 = formattedAmount * data.bfname1split / 100
         val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
-        holder.vtfpercentage1.text = gDec.format(rounded.toDouble())
+        holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
         val percentage2 = formattedAmount - rounded.toDouble()
-        holder.vtfpercentage2.text = gDec.format(percentage2)
-        holder.vtfrunningtotal.text = gDec.format(runningTotalList[position])
+        holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
+        holder.vtfrunningtotal.text = gDecWithCurrency(runningTotalList[position])
         holder.vtfCategoryID.text = data.category.toString()
         holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
         if (data.paidby == data.boughtfor)
@@ -198,6 +197,7 @@ class TransactionRecyclerAdapter(
             holder.vtftype.text = data.type.substring(0, 1)
         else
             holder.vtftype.text = ""
+        if (holder.vtftype.text == "R") holder.vtftype.text = "S"  // now called Scheduled payment rather than Recurring transaction
         holder.itemView.setOnClickListener { listener(data) }
         if (SpenderViewModel.singleUser()) {
             holder.vtfwho.visibility = View.GONE
@@ -393,6 +393,9 @@ class TransactionRecyclerAdapter(
     }
 
     override fun getSectionText(position: Int): CharSequence {
-        return filteredList[position].date
+        return if (position >= 0)
+            filteredList[position].date
+        else
+            ""
     }
 }

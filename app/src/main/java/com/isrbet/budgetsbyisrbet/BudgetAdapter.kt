@@ -83,14 +83,12 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
             viewHolder.vhOccurence.text = "Recurring"
         else
             viewHolder.vhOccurence.text = "Once"
-//            viewHolder.vhOccurence.visibility = View.INVISIBLE
         if (bData.isAnnual == "") {
-            viewHolder.vhAmount.text = gDec.format(bData.amount.toDouble())
+            viewHolder.vhAmount.text = gDecWithCurrency(bData.amount.toDouble())
             viewHolder.vhAnnual.text = ""
         } else {
-//            viewHolder.vhAmount.text = gDec.format(bData.amount.toDouble()/12)
             viewHolder.vhAmount.text = ""
-            viewHolder.vhAnnual.text = gDec.format(bData.amount.toDouble())
+            viewHolder.vhAnnual.text = gDecWithCurrency(bData.amount.toDouble())
             if (bData.label == cBudgetCategoryView)
                 viewHolder.vhLabel.text = bData.dateApplicable.substring(0,4)
         }

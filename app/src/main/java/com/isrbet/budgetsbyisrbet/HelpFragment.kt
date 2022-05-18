@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHelpBinding
@@ -22,6 +21,13 @@ class HelpFragment : Fragment() {
         binding.helpVersionCode.text = BuildConfig.VERSION_CODE.toString()
         inflater.inflate(R.layout.fragment_help, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.restartHintButton.setOnClickListener {
+            HintViewModel.restartHints()
+        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

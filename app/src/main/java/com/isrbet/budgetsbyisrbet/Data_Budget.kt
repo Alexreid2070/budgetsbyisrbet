@@ -409,7 +409,6 @@ class BudgetViewModel : ViewModel() {
 //                    if (it.discType != cDiscTypeOff) {
                         val firstMonth = getFirstMonthOfBudget(iCategoryID)
                         val lastMonth = getLastMonthOfBudget(iCategoryID)
-                    Log.d("Alex", "getBudgetInputRows $iCategoryID $firstMonth $lastMonth")
                         if (firstMonth != null) {
                             if (firstMonth.period.month == 0)
                                 firstMonth.period.month = 1

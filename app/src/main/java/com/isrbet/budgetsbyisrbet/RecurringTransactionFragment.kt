@@ -25,7 +25,8 @@ class RecurringTransactionFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        val adapter = RecurringTransactionAdapter(requireContext(), RecurringTransactionViewModel.getCopyOfRecurringTransactions())
+        val rows = RecurringTransactionViewModel.getCopyOfRecurringTransactions()
+        val adapter = RecurringTransactionAdapter(requireContext(), rows)
 
         val listView: ListView = requireActivity().findViewById(R.id.recurring_transaction_list_view)
         listView.adapter = adapter
@@ -57,6 +58,12 @@ class RecurringTransactionFragment : Fragment() {
                 })
                 rtdf.show(parentFragmentManager, "Edit Recurring Transaction")
             }
+        if (rows.size == 0) {
+            binding.noInformationText.visibility = View.VISIBLE
+            binding.noInformationText.text = "You have not yet entered any recurring transactions.  \n\nClick on the Add button below to add a recurring transaction."
+        } else {
+            binding.noInformationText.visibility = View.GONE
+        }
         binding.expandSettings.setOnClickListener {
             findNavController().navigate(R.id.SettingsFragment)
         }
@@ -75,7 +82,7 @@ class RecurringTransactionFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.rt_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(requireContext(), binding.rtAddFab, "RecurringTransaction")
+        HintViewModel.showHint(parentFragmentManager, "RecurringTransaction")
     }
 
     override fun onDestroyView() {

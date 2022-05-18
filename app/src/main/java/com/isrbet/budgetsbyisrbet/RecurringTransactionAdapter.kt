@@ -58,7 +58,7 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
 
         viewHolder.vhName.text = rtData.name
         val formattedAmount = (rtData.amount/100).toDouble() + (rtData.amount % 100).toDouble()/100
-        viewHolder.vhAmount.text = gDec.format(formattedAmount)
+        viewHolder.vhAmount.text = gDecWithCurrency(formattedAmount)
         viewHolder.vhNextDate.text = rtData.nextdate
         viewHolder.vhPeriod.text = rtData.period
         viewHolder.vhRegularity.text = rtData.regularity.toString()
@@ -66,11 +66,11 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         viewHolder.vhSubcategory.text = CategoryViewModel.getCategory(rtData.category)?.subcategoryName
         viewHolder.vhSplit1.text = rtData.split1.toString()
         viewHolder.vhSplit2.text = rtData.getSplit2().toString()
-        if (!SpenderViewModel.singleUser()) {
+        if (SpenderViewModel.multipleUsers()) {
             viewHolder.vhPaidby.text = SpenderViewModel.getSpenderName(rtData.paidby)
             viewHolder.vhBoughtfor.text = SpenderViewModel.getSpenderName(rtData.boughtfor)
         }
-        viewHolder.vhDescription.text = rtData.name + " payment of $" + gDec.format(formattedAmount) + " occurs "
+        viewHolder.vhDescription.text = rtData.name + " payment of " + gDecWithCurrency(formattedAmount) + " occurs "
         if (rtData.regularity == 1)
             viewHolder.vhDescription.text = viewHolder.vhDescription.text.toString() + rtData.period.lowercase() + "ly"
         else

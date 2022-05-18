@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSecondary"
@@ -12,7 +13,7 @@
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/fab_layout">
+        app:layout_constraintBottom_toTopOf="@+id/transaction_add_fab">
         <LinearLayout
             android:id="@+id/layout1"
             android:layout_width="match_parent"
@@ -76,129 +77,73 @@
                         android:layout_height="0dp"
                         android:layout_weight=".5" />
 
-                    <LinearLayout
+                    <TextView
                         android:id="@+id/settingsButton"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="top"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_settings_24"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:text="Settings"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
-                    <LinearLayout
-                        android:id="@+id/loanButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="top"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_calculate_24"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:text="Loan\nCalc."
-                            android:tooltipText="Loan Calculator"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
-                    <LinearLayout
-                        android:id="@+id/helpButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="top"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_help_24"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:text="Help"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
-                    <LinearLayout
-                        android:id="@+id/chatButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="top"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:id="@+id/chat_image"
-                            android:layout_width="80dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_chat_24"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:text="Support"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
-                    <LinearLayout
-                        android:id="@+id/adminButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_gravity="center"
-                        android:orientation="vertical">
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_baseline_admin_panel_settings_24"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:text="Admin"
-                            tools:ignore="HardcodedText" />
-                    </LinearLayout>
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Settings"
+                        tools:ignore="HardcodedText"
+                        app:drawableTopCompat="@drawable/ic_baseline_settings_24" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight=".5" />
+                    <TextView
+                        android:id="@+id/loanButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Loan\nCalc."
+                        android:tooltipText="Loan Calculator"
+                        tools:ignore="HardcodedText"
+                        app:drawableTopCompat="@drawable/ic_baseline_calculate_24" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight=".5" />
+                    <TextView
+                        android:id="@+id/helpButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Help"
+                        tools:ignore="HardcodedText"
+                        app:drawableTopCompat="@drawable/ic_baseline_help_24" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight=".5" />
+                    <TextView
+                        android:id="@+id/chatButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Support"
+                        tools:ignore="HardcodedText"
+                        app:drawableTopCompat="@drawable/ic_baseline_chat_24" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight=".5" />
+                    <TextView
+                        android:id="@+id/adminButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Admin"
+                        tools:ignore="HardcodedText"
+                        android:src="@drawable/ic_baseline_admin_panel_settings_24"/>
                 </LinearLayout>
                 <Space
                     android:layout_width="match_parent"
@@ -303,27 +248,24 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <LinearLayout
-        android:id="@+id/fab_layout"
+    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+        android:id="@+id/transaction_add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom|center"
+        android:background="?attr/colorSecondary"
+        android:tooltipText="Add Expense"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/ic_fas_plus"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <Space
+        android:id="@+id/bottom_space"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:orientation="vertical">
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/transaction_add_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:tooltipText="Add Expense"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_fas_plus"
-            app:layout_anchor="@id/bottom"/>
-        <Space
-            android:id="@+id/space1"
-            android:layout_width="match_parent"
-            android:layout_height="10dp"/>
-    </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

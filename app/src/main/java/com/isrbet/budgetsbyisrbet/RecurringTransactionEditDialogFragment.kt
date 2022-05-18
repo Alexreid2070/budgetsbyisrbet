@@ -149,6 +149,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
         binding.editRtOldName.text = oldName
         binding.editRtNewName.setText(oldName)
 
@@ -320,11 +321,11 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             }
         }
         if (SpenderViewModel.singleUser()) {
-            binding.rtDialogLinearLayoutPaidby.visibility = View.INVISIBLE
-            binding.rtDialogLinearLayoutBoughtfor.visibility = View.INVISIBLE
-            binding.splitSlider.visibility = View.INVISIBLE
-            binding.rtDialogLinearLayoutSplit.visibility = View.INVISIBLE
-            binding.rtDialogLinearLayoutSplitSlider.visibility = View.INVISIBLE
+            binding.rtDialogLinearLayoutPaidby.visibility = View.GONE
+            binding.rtDialogLinearLayoutBoughtfor.visibility = View.GONE
+            binding.splitSlider.visibility = View.GONE
+            binding.rtDialogLinearLayoutSplit.visibility = View.GONE
+            binding.rtDialogLinearLayoutSplitSlider.visibility = View.GONE
         }
         binding.transactionBoughtForName1Label.text = SpenderViewModel.getSpenderName(0)
         binding.transactionBoughtForName2Label.text = SpenderViewModel.getSpenderName(1)
@@ -738,6 +739,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         }
+        RecurringTransactionViewModel.generateTransactions(activity as MainActivity)
     }
 
     fun setDialogFragmentListener(listener: RecurringTransactionEditDialogFragmentListener) {

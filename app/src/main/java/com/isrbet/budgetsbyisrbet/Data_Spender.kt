@@ -118,12 +118,15 @@ class SpenderViewModel : ViewModel() {
                 0
         }
 
+        fun multipleUsers(): Boolean {
+            return (getActiveCount() > 1)
+        }
         fun singleUser(): Boolean {
             return getActiveCount() == 1
         }
 
         fun twoDistinctUsers(): Boolean {
-            if (!singleUser())
+            if (multipleUsers())
                 return (getSpender(0)?.email != getSpender(1)?.email)
             return false
         }
@@ -132,6 +135,8 @@ class SpenderViewModel : ViewModel() {
             singleInstance.spenders.add(spender)
         }
         fun addSpender(index: Int, spender: Spender) {
+            Log.d("Alex", "Adding spender $index to $spender")
+            Log.d("Alex", "count is " + singleInstance.spenders.count())
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
                 .child(index.toString()).child("name").setValue(spender.name)
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
@@ -142,6 +147,8 @@ class SpenderViewModel : ViewModel() {
                 .child(index.toString()).child("split").setValue(spender.split)
     }
         fun updateSpender(index: Int, spender: Spender) {
+            Log.d("Alex", "Updating spender $index to $spender")
+            Log.d("Alex", "count is " + singleInstance.spenders.count() + " and 0 is " + singleInstance.spenders[0].name)
             if (spender.name != singleInstance.spenders[index].name) {
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
                     .child(index.toString()).child("name").setValue(spender.name)
@@ -172,10 +179,12 @@ class SpenderViewModel : ViewModel() {
             singleInstance.loaded = false
         }
         fun removeSecondAllowedUser() {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Info").child("SecondUser").removeValue()
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Info")
+                .child("0").child("SecondUser").removeValue()
         }
         fun saveAsSecondAllowedUser(iEmail: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Info").child("SecondUser").setValue(iEmail)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Info")
+                .child("0").child("SecondUser").setValue(iEmail)
         }
     }
 
@@ -205,6 +214,7 @@ class SpenderViewModel : ViewModel() {
         spenderListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 spenders.clear()
+                Log.d("Alex", "Spender callback children count: " + dataSnapshot.children.count())
                 dataSnapshot.children.forEach()
                 {
                     var email = ""
@@ -219,6 +229,7 @@ class SpenderViewModel : ViewModel() {
                             "split" -> split = spenderRow.value.toString().toInt()
                         }
                     }
+                    Log.d("Alex", "Adding spender $name $isActive")
                     spenders.add(Spender(name, email, split, isActive))
                 }
                 if (getActiveCount() > 1)

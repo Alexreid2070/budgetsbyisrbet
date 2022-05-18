@@ -48,7 +48,8 @@
                 android:text="Category: "
                 tools:ignore="HardcodedText"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                android:tooltipText="@string/toolTipCategory"/>
 
             <TextView
                 android:id="@+id/category_id"
@@ -83,7 +84,8 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                android:tooltipText="@string/toolTipSubCategory"/>
             <TextView
                 android:id="@+id/old_subcategory_name"
                 android:layout_width="wrap_content"
@@ -108,7 +110,8 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                android:tooltipText="@string/toolTipDisc"/>
             <TextView
                 android:id="@+id/old_disctype"
                 android:layout_width="wrap_content"
@@ -133,7 +136,8 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                android:tooltipText="@string/toolTipPrivacy"/>
             <TextView
                 android:id="@+id/old_privacy"
                 android:layout_width="wrap_content"
@@ -158,7 +162,8 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                android:tooltipText="@string/toolTipCatState"/>
             <TextView
                 android:id="@+id/old_state"
                 android:layout_width="wrap_content"
@@ -494,7 +499,8 @@
             android:text="Enter budget for this new category? "
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="On = go to Add New Budget page after hitting save.  Off = do not..."/>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_enter_budget"

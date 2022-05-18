@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
 import it.sephiroth.android.library.numberpicker.doOnProgressChanged
@@ -117,7 +116,7 @@ class BudgetViewAllFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(requireContext(), binding.budgetAddFab, "Budget")
+        HintViewModel.showHint(parentFragmentManager, "Budget")
     }
 
     private fun setupCategorySpinner() {
@@ -174,34 +173,31 @@ class BudgetViewAllFragment : Fragment() {
     }
 
     fun loadRows(iCategoryID: Int, iYear: Int, iMonth: Int) {
-        val adapter: BudgetAdapter = if (binding.buttonViewByDate.isChecked) {
-            Log.d("Alex", "getting date budget rows")
-            BudgetAdapter(
-                requireContext(), BudgetViewModel.getBudgetInputRows(
-                    BudgetMonth(iYear, iMonth)
-                )
-            )
+        var noDataText: String
+        val rows = if (binding.buttonViewByDate.isChecked) {
+            noDataText = "You have not yet entered any budgets for ${MonthNames[iMonth-1]} $iYear.  \n\nClick on the Add button below to add a budget."
+            BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
         } else {
-            BudgetAdapter(
-                requireContext(),
-                BudgetViewModel.getBudgetInputRows(iCategoryID)
-            )
+            val cat = CategoryViewModel.getCategory(iCategoryID)
+            noDataText = "You have not yet entered any budgets for ${cat?.categoryName}-${cat?.subcategoryName}.  \n\nClick on the Add button below to add a budget."
+            BudgetViewModel.getBudgetInputRows(iCategoryID)
         }
+        val adapter = BudgetAdapter(requireContext(), rows)
         val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
         listView.adapter = adapter
-
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 val itemValue = listView.getItemAtPosition(position) as BudgetInputRow
                 val bmDateApplicable = BudgetMonth(itemValue.dateApplicable)
                 val bmDateStart = BudgetMonth(itemValue.dateStarted)
                 if (itemValue.dateApplicable == itemValue.dateStarted ||
-                    (bmDateApplicable.month == 1 && bmDateStart.month == 0)) {// ie only allow edits on "real" entries
+                    (bmDateApplicable.month == 1 && bmDateStart.month == 0)
+                ) {// ie only allow edits on "real" entries
                     val bmDateStarted = BudgetMonth(itemValue.dateStarted)
                     var monthToSend: Int = bmDateApplicable.month
                     if (bmDateStarted.isAnnualBudget())
                         monthToSend = 0
-                    val amountToSend =  itemValue.amount.toDouble()
+                    val amountToSend = itemValue.amount.toDouble()
                     val rtdf = BudgetDialogFragment.newInstance(
                         itemValue.categoryID,
                         bmDateApplicable.year,
@@ -214,19 +210,38 @@ class BudgetViewAllFragment : Fragment() {
                         BudgetDialogFragment.BudgetEditDialogFragmentListener {
                         override fun onNewDataSaved() {
                             Log.d("Alex", "in onNewDataSaved")
-                            val tadapter = BudgetAdapter(
-                                requireContext(),
+
+                            val trows = if (binding.buttonViewByDate.isChecked) {
+                                noDataText = "You have not yet entered any budgets for ${MonthNames[iMonth-1]} $iYear.  \n\nClick on the Add button below to add a budget."
+                                BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
+                            } else {
+                                val cat = CategoryViewModel.getCategory(iCategoryID)
+                                noDataText = "You have not yet entered any budgets for ${cat?.categoryName}-${cat?.subcategoryName}.  \n\nClick on the Add button below to add a budget."
                                 BudgetViewModel.getBudgetInputRows(iCategoryID)
-                            )
+                            }
+                            val tadapter = BudgetAdapter(requireContext(), trows)
+
                             listView.adapter = tadapter
                             tadapter.notifyDataSetChanged()
                         }
                     })
                     rtdf.show(parentFragmentManager, "Edit Budget")
                 } else {
-                    Toast.makeText(requireActivity(), "Only actual budget entries (in bold) are clickable.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireActivity(),
+                        "Only actual budget entries (in bold) are clickable.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        if (rows.size == 0) {
+            binding.noInformationText.visibility = View.VISIBLE
+            binding.noInformationText.text = noDataText
+//            binding.budgetListView.visibility = View.GONE
+        } else {
+            binding.noInformationText.visibility = View.GONE
+//            binding.budgetListView.visibility = View.VISIBLE
+        }
     }
 
     private fun moveDates(iDirection: Int) {

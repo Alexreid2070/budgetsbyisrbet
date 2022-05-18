@@ -40,7 +40,6 @@ class TransactionViewAllFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         accountingMode = args.accountingFlag == "Accounting"
-        Log.d("Alex", "accounting mode is $accountingMode")
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d("Alex", "onBackPressed")
@@ -81,12 +80,19 @@ class TransactionViewAllFragment : Fragment() {
                         super.onLayoutCompleted(state)
                         val adapter: TransactionRecyclerAdapter =
                             recyclerView.adapter as TransactionRecyclerAdapter
-                        binding.totalAmount.text = gDec.format(adapter.currentTotal)
+                        binding.totalAmount.text = gDecWithCurrency(adapter.currentTotal)
                     }
                 }
             recyclerView.layoutManager = linearLayoutManager
             val expList = TransactionViewModel.getCopyOfTransactions()
             expList.sortBy { it.date }
+            if (expList.size == 0) {
+                binding.noInformationText.visibility = View.VISIBLE
+                binding.noInformationText.text = "You have not yet entered any transactions.  \n\nClick on the Add button below to add a transaction."
+            } else {
+                binding.noInformationText.visibility = View.GONE
+            }
+
 
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
             recyclerView.adapter =
@@ -94,7 +100,6 @@ class TransactionViewAllFragment : Fragment() {
                     Log.d("Alex", "I clicked item " + item.mykey)
                     MyApplication.transactionFirstInList =
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                    Log.d("Alex", "transactionfirstinlist is now " + MyApplication.transactionFirstInList)
                     if (item.type == "Transfer") {
                         val action =
                             TransactionViewAllFragmentDirections.actionTransactionViewAllFragmentToTransferFragment()
@@ -109,7 +114,7 @@ class TransactionViewAllFragment : Fragment() {
                 }
         }
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-
+        Log.d("Alex", "adapter1 is ${adapter.toString()}")
         loadCategoryRadioButtons()
         if (SpenderViewModel.singleUser()) {
             binding.showSplitsLayout.visibility = View.GONE
@@ -160,13 +165,16 @@ class TransactionViewAllFragment : Fragment() {
                     if (categoryFilter != filters.prevCategoryFilter) {
                         val ladapter: TransactionRecyclerAdapter =
                             recyclerView.adapter as TransactionRecyclerAdapter
+                        Log.d("Alex", "adapter2 is $ladapter")
                         ladapter.setCategoryFilter(categoryFilter)
                         ladapter.filterTheList(transactionSearchText)
                         ladapter.notifyDataSetChanged()
                         filters.prevCategoryFilter = categoryFilter
                         goToCorrectRow()
-                        Log.d("Alex", "onItemSelected Category")
                     }
+                    val ladapter: TransactionRecyclerAdapter =
+                        recyclerView.adapter as TransactionRecyclerAdapter
+                    Log.d("Alex", "adapter8 is $ladapter")
                 }
             }
         binding.subcategorySpinner.onItemSelectedListener =
@@ -358,8 +366,14 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.expandFilter.setOnClickListener {
             onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+            if (SpenderViewModel.singleUser()) {
+                binding.transferTypeRadioButton.visibility = View.GONE
+            }
         }
         binding.search.setOnClickListener {
+            val recyclerView: FastScrollRecyclerView =
+                requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
+            Log.d("Alex", "adapter10 is ${recyclerView.adapter}")
             if (binding.transactionSearch.visibility == View.GONE) {
                 resetLayout(binding.expandNav, binding.navButtonLinearLayout)
                 resetLayout(binding.expandView, binding.viewButtonLinearLayout)
@@ -488,7 +502,12 @@ class TransactionViewAllFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(requireContext(), binding.transactionAddFab, "TransactionViewAll")
+        HintViewModel.showHint(parentFragmentManager, "TransactionViewAll")
+        Log.d("Alex", "Here")
+        Log.d("Alex", "adapter3 is ${adapter.toString()}")
+        val rv: FastScrollRecyclerView =
+            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
+        Log.d("Alex", "recyclerView.adapter4 is ${rv.adapter}")
     }
 
     private fun setViewsToDefault() {
@@ -584,6 +603,7 @@ class TransactionViewAllFragment : Fragment() {
     private fun resetFilters() {
         val recyclerView: FastScrollRecyclerView =
             requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
+        Log.d("Alex", "adapter5 is ${recyclerView.adapter}")
         val adapter: TransactionRecyclerAdapter =
             recyclerView.adapter as TransactionRecyclerAdapter
         adapter.setCategoryIDFilter(0)
@@ -621,9 +641,11 @@ class TransactionViewAllFragment : Fragment() {
     private fun updateView() {
         val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        Log.d("Alex", "UPDATE VIEW start adapter6 is ${adapter}")
         recyclerView.adapter = null
         recyclerView.adapter = adapter
         goToCorrectRow()
+        Log.d("Alex", "UPDATE VIEW END adapter7 is ${adapter}")
     }
 
     private fun goToCorrectRow() {
@@ -690,6 +712,9 @@ class TransactionViewAllFragment : Fragment() {
     }
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
         Log.d("Alex", "addSubCategories 1")
+        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
+        var adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        Log.d("Alex", "UPDATE VIEW start adapter9a is ${adapter}")
         val subcategoryList = CategoryViewModel.getSubcategoriesForSpinner(iCategory)
         subcategoryList.add(0,"All")
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subcategoryList)
@@ -699,7 +724,8 @@ class TransactionViewAllFragment : Fragment() {
         else {
             binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
         }
-        arrayAdapter.notifyDataSetChanged()
+        adapter = recyclerView.adapter as TransactionRecyclerAdapter
+        Log.d("Alex", "UPDATE VIEW start adapter9b is ${adapter}")
     }
 
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {

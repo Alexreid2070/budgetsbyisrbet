@@ -97,7 +97,7 @@ class LoanFragment : Fragment() {
             hideKeyboard(requireContext(), requireView())
             reset()
         }
-        HintViewModel.showHint(requireContext(), binding.loanSpinnerLabel, "Loan")
+        HintViewModel.showHint(parentFragmentManager, "Loan")
     }
 
     private fun reset() {
@@ -185,7 +185,7 @@ class LoanFragment : Fragment() {
 
         val calcPayment =  iPrincipal * (iInterestRate / iPaymentsPerYear) * (1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear * iAmortizationYears) /
                 ((1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear*iAmortizationYears) - 1)
-        binding.calculatedPaymentAmount.text = gDec.format(calcPayment)
+        binding.calculatedPaymentAmount.text = gDecWithCurrency(calcPayment)
         Log.d("Alex", "payment is $calcPayment")
         var owingAtEndOfPeriod = iPrincipal
         val extraPayment = if (iAcceleratedPayment == 0.0) 0.0 else iAcceleratedPayment - calcPayment

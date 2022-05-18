@@ -50,10 +50,10 @@ class LoanAdapter (context: Context, data: MutableList<LoanPayment>): BaseAdapte
         viewHolder = LoanViewHolder(myConvertView)
 
         viewHolder.vhDate.text = giveMeMyDateFormat(bData.paymentDate)
-        viewHolder.vhAmount.text = gDec.format(bData.paymentAmount)
-        viewHolder.vhInterestAmount.text = gDec.format(bData.interestAmount)
-        viewHolder.vhPrincipalAmount.text = gDec.format(bData.principalAmount)
-        viewHolder.vhRemainingPrincipal.text = gDec.format(bData.loanPrincipalRemaining)
+        viewHolder.vhAmount.text = gDecWithCurrency(bData.paymentAmount)
+        viewHolder.vhInterestAmount.text = gDecWithCurrency(bData.interestAmount)
+        viewHolder.vhPrincipalAmount.text = gDecWithCurrency(bData.principalAmount)
+        viewHolder.vhRemainingPrincipal.text = gDecWithCurrency(bData.loanPrincipalRemaining)
         return myConvertView
     }
 }

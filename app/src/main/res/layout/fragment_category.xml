@@ -27,7 +27,8 @@
             android:text="Category"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipCategory"/>
 
         <TextView
             android:id="@+id/discTypeHeading"
@@ -37,7 +38,8 @@
             android:text="Type"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipDisc"/>
         <TextView
             android:id="@+id/privacyHeading"
             android:layout_width="0dp"
@@ -46,7 +48,8 @@
             android:text="Private?"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipPrivacy"/>
         <TextView
             android:id="@+id/stateHeading"
             android:layout_width="0dp"
@@ -56,7 +59,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:visibility="gone"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipCatState"/>
     </LinearLayout>
 
     <ListView
@@ -137,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Recurring"
+            android:text="Scheduled Payments"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"

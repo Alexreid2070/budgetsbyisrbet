@@ -74,8 +74,10 @@ class BudgetDialogFragment : DialogFragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
         setupView()
         setupClickListeners()
 
@@ -107,6 +109,7 @@ class BudgetDialogFragment : DialogFragment() {
         if (oldOccurence == 1)
             binding.budgetDialogOccurenceRadioGroup.check(newRadioButton.id)
         binding.occurenceField.text = if (oldOccurence == 0) "Recurring" else "Just once"
+        binding.periodField.text = if (oldMonth == 0) "Annual" else "Monthly"
         if (currentMode == "View") {
             binding.budgetDialogOccurenceRadioGroup.visibility = View.GONE
         }
@@ -126,7 +129,7 @@ class BudgetDialogFragment : DialogFragment() {
             (binding.budgetDialogOccurenceRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
         }
         if (SpenderViewModel.singleUser()) {
-            binding.budgetDialogWhoHeading.visibility = View.GONE
+            binding.whoLayout.visibility = View.GONE
             binding.budgetDialogNewWhoRadioGroup.visibility = View.GONE
         }
     }
@@ -157,7 +160,7 @@ class BudgetDialogFragment : DialogFragment() {
         val amt = arguments?.getString(KEY_AMOUNT_VALUE)
         amtDouble = amt?.toDouble() ?: 0.0
         binding.budgetDialogNewAmount.setText(gDec.format(amtDouble))
-        binding.amountField.text = "$ " + gDec.format(amtDouble)
+        binding.amountField.text = gDec.format(amtDouble)
         if (currentMode == "View") {
             binding.amountLayout.visibility = View.GONE
             val catName = cat?.categoryName.toString()
@@ -181,6 +184,8 @@ class BudgetDialogFragment : DialogFragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
+        var budgetListenerLocation = ""
+        lateinit var budgetListener: ValueEventListener
         binding.budgetDialogButtonEdit.setOnClickListener {
             if (currentMode == "View") {
                 binding.budgetDialogButtonEdit.text = "Save"
@@ -247,7 +252,7 @@ class BudgetDialogFragment : DialogFragment() {
                     dismiss()
                 } else {
                     // check to see if there is already an entry for the new who.
-                    val budgetListener = object : ValueEventListener {
+                    budgetListener = object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             if (dataSnapshot.value == null) { // nothing exists at this node so we can add it
                                 Log.d("Alex", "Nothing exists at this node so we can add it ")
@@ -334,6 +339,10 @@ class BudgetDialogFragment : DialogFragment() {
                                 )
                                 return
                             }
+
+                            // remove the listener, as we only wanted the value once
+                            MyApplication.databaseref.child(budgetListenerLocation)
+                                .removeEventListener(budgetListener)
                         }
 
                         override fun onCancelled(dataSnapshot: DatabaseError) {
@@ -344,7 +353,7 @@ class BudgetDialogFragment : DialogFragment() {
                         0
                     else
                         monthInt + 1
-                    val dbRef =
+/*                    val dbRef =
                         MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Budget")
                             .child(binding.budgetDialogCategoryID.text.toString())
                             .child(
@@ -354,7 +363,20 @@ class BudgetDialogFragment : DialogFragment() {
                                 ).toString()
                             )
                             .child(newWho.toString())
-                    dbRef.addListenerForSingleValueEvent(budgetListener)
+                    dbRef.addListenerForSingleValueEvent(budgetListener) */
+                    budgetListenerLocation = "Users/"+MyApplication.userUID+"/Budget/" +
+                        binding.budgetDialogCategoryID.text.toString() + "/" +
+                        BudgetMonth(binding.budgetDialogYear.text.toString().toInt(),monthToUse).toString() + "/" +
+                        newWho.toString()
+                    Log.d("Alex", "budgetListenerLocation is '$budgetListenerLocation'")
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Budget")
+                        .child(binding.budgetDialogCategoryID.text.toString())
+                        .child(BudgetMonth(
+                                binding.budgetDialogYear.text.toString().toInt(),
+                                monthToUse
+                            ).toString())
+                        .child(newWho.toString())
+                        .addValueEventListener(budgetListener)
                 }
             }
         }

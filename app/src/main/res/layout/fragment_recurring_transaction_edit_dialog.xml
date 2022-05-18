@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="Add Recurring Transaction"
+                android:text="Add Payment Schedule"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent"
@@ -84,10 +84,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:text="Name:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="Label/name of this scheduled payment (e.g. use the vendor name that you pay...)"/>
 
                 <TextView
                     android:id="@+id/edit_rt_old_name"
@@ -131,40 +133,52 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:text="Amount:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="Amount of the regular scheduled payment."/>
 
-                <TextView
-                    android:id="@+id/edit_rt_old_amount"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="14sp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/amountLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="Amount"
-                    android:minWidth="@dimen/custom_med_width"
-                    app:endIconMode="clear_text"
-                    tools:ignore="HardcodedText">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_rt_new_amount"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/currencySymbol"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:clickable="true"
-                        android:cursorVisible="true"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:gravity="start"
-                        android:inputType="numberDecimal"
-                        android:longClickable="false" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_gravity="center"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/edit_rt_old_amount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/amountLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Amount"
+                        android:minWidth="@dimen/custom_med_width"
+                        app:endIconMode="clear_text"
+                        tools:ignore="HardcodedText">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_rt_new_amount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:clickable="true"
+                            android:cursorVisible="true"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:gravity="start"
+                            android:inputType="numberDecimal"
+                            android:longClickable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -178,10 +192,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Next Date:"
+                    android:layout_gravity="center"
+                    android:text="Next Payment Date:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="Date of the next scheduled payment."/>
 
                 <TextView
                     android:id="@+id/edit_rt_old_next_date"
@@ -225,10 +241,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:text="Regularity:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="Indicates if payment is every period (1), every second period (2), etc."/>
 
                 <TextView
                     android:id="@+id/edit_rt_old_regularity"
@@ -330,7 +348,8 @@
                     android:text="Category:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipCategorySubCategory"/>
 
                 <TextView
                     android:id="@+id/edit_rt_old_category"
@@ -385,7 +404,8 @@
                     android:text="Subcategory:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipCategorySubCategory" />
 
                 <TextView
                     android:id="@+id/edit_rt_old_subcategory"
@@ -440,7 +460,8 @@
                     android:text="Paid by:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipPaidBy"/>
 
                 <TextView
                     android:id="@+id/edit_rt_old_paid_by"
@@ -495,7 +516,8 @@
                     android:text="Bought for:"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipBoughtFor"/>
 
                 <TextView
                     android:id="@+id/edit_rt_old_bought_for"
@@ -551,7 +573,8 @@
                     android:text="Split: "
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="@string/toolTipSplit"/>
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/splitSlider"
@@ -653,7 +676,8 @@
                     android:layout_gravity="center_vertical"
                     android:text="Is this a loan?"
                     android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    android:tooltipText="If this payment is for a loan, enter loan details to enable loan calculator."/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/rt_loan_switch"
@@ -704,7 +728,7 @@
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"
                         app:endIconMode="clear_text"
-                        tools:ignore="HardcodedText">
+                        tools:ignore="HardcodedText,TooManyViews">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/loan_amount"

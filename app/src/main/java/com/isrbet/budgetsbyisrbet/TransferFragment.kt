@@ -13,13 +13,9 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.round
 
@@ -51,6 +47,7 @@ class TransferFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
+        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
@@ -92,14 +89,14 @@ class TransferFragment : Fragment() {
             }
         })
 
-        if (!SpenderViewModel.singleUser()) {
+        if (SpenderViewModel.multipleUsers()) {
             binding.splitName1Label.text = SpenderViewModel.getSpenderName(0)
             binding.splitName2Label.text = SpenderViewModel.getSpenderName(1)
         }
         if (newTransferMode) {
             binding.pageTitle.text = "Add Transfer"
             binding.expansionLayout.visibility = View.GONE
-            if (!SpenderViewModel.singleUser()) {
+            if (SpenderViewModel.multipleUsers()) {
                 var button = binding.fromRadioGroup.getChildAt(0) as RadioButton
                 button.isChecked = true
                 button = binding.toRadioGroup.getChildAt(1) as RadioButton

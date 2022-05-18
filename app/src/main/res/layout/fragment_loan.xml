@@ -25,7 +25,8 @@
             android:textStyle="bold"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="If you have set up a scheduled payment and indicated that it is a loan, you can select it here."/>
         <RelativeLayout
             android:id="@+id/loan_spinner_relative_layout"
             android:layout_width="wrap_content"
@@ -81,7 +82,8 @@
                 android:layout_gravity="start"
                 android:minWidth="@dimen/custom_med_width"
                 app:endIconMode="clear_text"
-                tools:ignore="HardcodedText">
+                tools:ignore="HardcodedText"
+                android:tooltipText="The loan amount that was borrowed.">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/loan_amount"
@@ -100,7 +102,8 @@
                 android:layout_weight="1"
                 android:minWidth="@dimen/custom_med_width"
                 app:endIconMode="clear_text"
-                tools:ignore="HardcodedText">
+                tools:ignore="HardcodedText"
+                android:tooltipText="The date of the first loan payment (could be in the past).">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/loan_start_date"
                     android:layout_width="wrap_content"
@@ -131,7 +134,8 @@
                 android:layout_gravity="start"
                 android:minWidth="@dimen/custom_med_width"
                 app:endIconMode="clear_text"
-                tools:ignore="HardcodedText">
+                tools:ignore="HardcodedText"
+                android:tooltipText="Amortization period of the current loan.">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amortization_period"
                     android:layout_width="wrap_content"
@@ -149,7 +153,8 @@
                 android:layout_weight="1"
                 android:minWidth="@dimen/custom_med_width"
                 app:endIconMode="clear_text"
-                tools:ignore="HardcodedText">
+                tools:ignore="HardcodedText"
+                android:tooltipText="Interest rate of the current loan.">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/interest_rate"
                     android:layout_width="wrap_content"
@@ -173,7 +178,8 @@
                 android:text="Payment Frequency:"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:tooltipText="How often do you make loan payments?"/>
             <RadioGroup
                 android:id="@+id/paymentFrequencyGroup"
                 android:layout_width="wrap_content"
@@ -218,7 +224,8 @@
                 android:gravity="center"
                 android:minWidth="@dimen/custom_max_width"
                 app:endIconMode="clear_text"
-                tools:ignore="HardcodedText">
+                tools:ignore="HardcodedText"
+                android:tooltipText="What is the actual loan payment amount that you regularly make?">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/accelerated_payment_amount"
                     android:layout_width="wrap_content"
@@ -270,7 +277,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:text="Calculated Payment:  $ "
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="This is the minimum loan payment amount based on the parameters you've entered."/>
         <TextView
             android:id="@+id/calculated_payment_amount"
             android:layout_width="wrap_content"
@@ -334,7 +342,7 @@
             android:layout_weight="1"
             android:gravity="end"
             android:text="Loan Bal."
-            android:tooltipText="Remaining loan balance."
+            android:tooltipText="Remaining loan balance after this payment."
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />

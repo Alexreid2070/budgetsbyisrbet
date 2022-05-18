@@ -65,10 +65,8 @@ class TrackerFragment : Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("Alex", "OnViewCreated gotopie is $goToPie")
         val dateNow = android.icu.util.Calendar.getInstance()
         if (currentBudgetMonth.year == 0) {
-            Log.d("Alex", "year is 0 so setting currentBudgetMonth")
             currentBudgetMonth = BudgetMonth(
                 dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
                     android.icu.util.Calendar.MONTH
@@ -90,6 +88,9 @@ class TrackerFragment : Fragment() {
             "0" -> binding.name1RadioButton.isChecked = true
             "1" -> binding.name2RadioButton.isChecked = true
             else -> binding.whoAllRadioButton.isChecked = true
+        }
+        if (SpenderViewModel.singleUser()) {
+            binding.whoLayout.visibility = View.GONE
         }
         when (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TOTALS_TRACKER)) {
             "#" -> binding.showDollarRadioButton.isChecked = true
@@ -175,7 +176,7 @@ class TrackerFragment : Fragment() {
                 currentCategory = ""
                 DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_TRACKER, cDiscTypeAll)
                 binding.allDiscRadioButton.isChecked = true
-                DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "2")
+                DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "-1")
                 binding.whoAllRadioButton.isChecked = true
                 onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
             }
@@ -237,12 +238,12 @@ class TrackerFragment : Fragment() {
                         startLoadData()
                     }
                     R.id.whoAllRadioButton -> {
-                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "2")
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "-1")
                         startLoadData()
                     }
                 }
             }
-        HintViewModel.showHint(requireContext(), binding.resetFilterButton, "Tracker")
+        HintViewModel.showHint(parentFragmentManager, "Tracker")
         }
     }
     private fun moveOneMonthBackward() {
@@ -317,6 +318,10 @@ class TrackerFragment : Fragment() {
         binding.chartSummaryText.visibility = View.VISIBLE
         initializeBarChart()
         createBarChart(getBarChartData())
+        if (hackActualTotal <= 0.0) {
+            Log.d("Alex", "Actuals <= 0 so hiding bar chart")
+            hideBarChart()
+        }
     }
 
     fun hideBarChart() {
@@ -379,13 +384,13 @@ class TrackerFragment : Fragment() {
         binding.barChart.legend.isEnabled = false
         binding.barChart.setTouchEnabled(true)
         binding.barChart.isDoubleTapToZoomEnabled = false
+        binding.barChart.axisLeft.isEnabled = false
         binding.barChart.xAxis.isEnabled = true
         binding.barChart.xAxis.position = XAxis.XAxisPosition.BOTTOM_INSIDE
         binding.barChart.xAxis.xOffset = 250F
         binding.barChart.axisLeft.axisMinimum = 0F
         binding.barChart.xAxis.textSize = 13f
         binding.barChart.axisLeft.valueFormatter = (MyYAxisValueFormatter())
-
         binding.barChart.setDrawValueAboveBar(true)
 
         binding.barChart.setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
@@ -487,7 +492,9 @@ class TrackerFragment : Fragment() {
         val tList = ArrayList<DataObject>()
 
         val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
-        val whoFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt()
+        val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else -1
+
         val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
             "All-Time" -> DateRange.ALLTIME
             "YTD" -> DateRange.YTD
@@ -576,13 +583,15 @@ class TrackerFragment : Fragment() {
             }
         }
 
-        val totalDiscActualsToDate =
+        val totalActualsToDate =
             TransactionViewModel.getTotalActualsForRange(startDate, endDate,
             discFilter, whoFilter)
+        hackActualTotal = totalActualsToDate
 
+        Log.d("Alex", "Getting bar chart labels currency '" + getLocalCurrencySymbol() + "'")
         tList.add(
             DataObject(
-                0, "Budget this period $ " + gDec.format(totalBudget),
+                0, "Budget this period " + gDecWithCurrency(totalBudget),
                 totalBudget, "",
                 ContextCompat.getColor(requireContext(), R.color.dark_gray)
             )
@@ -590,7 +599,7 @@ class TrackerFragment : Fragment() {
         if (viewPeriod != DateRange.ALLTIME) {
             tList.add(
                 DataObject(
-                    0, "Budget to date $ " + gDec.format(totalBudgetToDate),
+                    0, "Budget to date " + gDecWithCurrency(totalBudgetToDate),
                     totalBudgetToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.medium_gray)
                 )
@@ -599,24 +608,24 @@ class TrackerFragment : Fragment() {
         val showRed = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
 
         when {
-            totalDiscActualsToDate > (totalBudgetToDate * (1 + showRed / 100)) -> tList.add(
+            totalActualsToDate > (totalBudgetToDate * (1 + showRed / 100)) -> tList.add(
                 DataObject(
-                    0, "Actuals $ " + gDec.format(totalDiscActualsToDate),
-                    totalDiscActualsToDate, "",
+                    0, "Actuals " + gDecWithCurrency(totalActualsToDate),
+                    totalActualsToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.red)
                 )
             )
-            totalDiscActualsToDate > totalBudgetToDate -> tList.add(
+            totalActualsToDate > totalBudgetToDate -> tList.add(
                 DataObject(
-                    0, "Actuals $ " + gDec.format(totalDiscActualsToDate),
-                    totalDiscActualsToDate, "",
+                    0, "Actuals " + gDecWithCurrency(totalActualsToDate),
+                    totalActualsToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.yellow)
                 )
             )
             else -> tList.add(
                 DataObject(
-                    0, "Actuals $ " + gDec.format(totalDiscActualsToDate),
-                    totalDiscActualsToDate, "",
+                    0, "Actuals " + gDecWithCurrency(totalActualsToDate),
+                    totalActualsToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.green)
                 )
             )
@@ -631,16 +640,14 @@ class TrackerFragment : Fragment() {
             cDiscTypeNondiscretionary -> "your non-discretionary"
             else -> "your overall"
         }
-        if (totalDiscActualsToDate > totalBudget)
+        if (totalActualsToDate > totalBudget)
             binding.chartSummaryText.text = "You are over your $lab budget this period."
         else {
-            val remainingBudget = totalBudget - totalDiscActualsToDate
+            val remainingBudget = totalBudget - totalActualsToDate
             val daysRemaining = daysInMonth - dateNow.get(Calendar.DATE) + 1
-            val dollarFormat = DecimalFormat("$###.00")
-
 
             binding.chartSummaryText.text =
-                "Keeping $lab expenses below " + dollarFormat.format(remainingBudget / daysRemaining) + " per day will keep you within $lab2 budget this month."
+                "Keeping $lab expenses below " + gDecWithCurrency(remainingBudget / daysRemaining) + " per day will keep you within $lab2 budget this month."
         }
         return tList
     }
@@ -666,11 +673,11 @@ class TrackerFragment : Fragment() {
             R.attr.textOnBackground,
             Color.BLACK
         )
-        binding.barChart.axisLeft.textColor = MaterialColors.getColor(
+/*        binding.barChart.axisLeft.textColor = MaterialColors.getColor(
             requireContext(),
             R.attr.textOnBackground,
             Color.BLACK
-        )
+        ) */
 
         val xAxis: XAxis = binding.barChart.xAxis
         xAxis.granularity = 1f
@@ -708,12 +715,12 @@ class TrackerFragment : Fragment() {
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER) != cDiscTypeAll)
             currentFilterIndicator = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER) != "" && DefaultsViewModel.getDefault(
-                cDEFAULT_FILTER_WHO_TRACKER) != "2")
+                cDEFAULT_FILTER_WHO_TRACKER) != "-1")
             currentFilterIndicator = currentFilterIndicator +
                     (if (currentFilterIndicator == "") "" else " ") +
                     SpenderViewModel.getSpenderName(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt())
         if (currentFilterIndicator == "") {
-            binding.chartSubTitle.visibility = View.INVISIBLE
+            binding.chartSubTitle.visibility = View.GONE
             binding.chartSubTitle.text = ""
         } else {
             binding.chartSubTitle.visibility = View.VISIBLE
@@ -724,7 +731,8 @@ class TrackerFragment : Fragment() {
     private fun getActualPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
         Log.d("Alex", "DiscFilter is $discFilter")
-        val whoFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt()
+        val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else -1
 
         val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
             "Month" -> DateRange.MONTH
@@ -796,7 +804,8 @@ class TrackerFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun getBudgetPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
-        val whoFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt()
+        val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else -1
         val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
             "All-Time" -> DateRange.ALLTIME
             "YTD" -> DateRange.YTD
@@ -875,7 +884,6 @@ class TrackerFragment : Fragment() {
                         loadPieChart(currentCategory)
                     } else { // ie clicking into subcategory
                         MyApplication.transactionSearchText = "$currentCategory $catName"
-                        Log.d("Alex", "gotopie is $goToPie")
                         view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
                     }
                 }
@@ -922,13 +930,13 @@ class TrackerFragment : Fragment() {
 //        pieChart.centerText = iDescription
 //        pieChart.setCenterTextSize(14F)
         val s = if (iDescription == budgetLabel)
-            ("$iDescription\n" + gDec.format(hackBudgetTotal)).setFontSizeForPath(iDescription.length, 35)
+            ("$iDescription\n" + gDecWithCurrency(hackBudgetTotal)).setFontSizeForPath(iDescription.length, 35)
         else {
                 val col = if (hackActualTotal > hackBudgetTotal)
                     ContextCompat.getColor(requireContext(), R.color.red)
                 else
                     ContextCompat.getColor(requireContext(), R.color.green)
-            ("$iDescription\n" + gDec.format(hackActualTotal)).setFontSizeForPath(
+            ("$iDescription\n" + gDecWithCurrency(hackActualTotal)).setFontSizeForPath(
                 iDescription.length,
                 35,
                 col
