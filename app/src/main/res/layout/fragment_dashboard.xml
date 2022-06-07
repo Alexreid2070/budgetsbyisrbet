@@ -104,7 +104,8 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/expand_view"
@@ -116,7 +117,8 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/expand_filter"
@@ -128,7 +130,8 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/expand_options"
@@ -140,7 +143,8 @@
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
 
             <Space
                 android:layout_width="5dp"
@@ -213,40 +217,46 @@
                     android:paddingEnd="5dp"
                     tools:ignore="HardcodedText" />
 
-                <RadioGroup
-                    android:id="@+id/viewRadioGroup"
-                    android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/allDiscRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/viewRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/allDiscRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/button_view_month"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Month"
-                        tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/button_view_month"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Month"
+                            tools:ignore="HardcodedText" />
 
-                    <RadioButton
-                        android:id="@+id/button_view_ytd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="YTD"
-                        tools:ignore="HardcodedText" />
-                    <RadioButton
-                        android:id="@+id/button_view_year"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Year"
-                        tools:ignore="HardcodedText" />
-                    <RadioButton
-                        android:id="@+id/button_view_all_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="All-Time"
-                        tools:ignore="HardcodedText" />
-                </RadioGroup>
+                        <RadioButton
+                            android:id="@+id/button_view_ytd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="YTD"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/button_view_year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Year"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/button_view_all_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All-Time"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -302,35 +312,39 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
-                <RadioGroup
-                    android:id="@+id/filterDiscRadioGroup"
-                    android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/allDiscRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/filterDiscRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/allDiscRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/allDiscRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/discRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Discretionary"
+                            tools:ignore="HardcodedText" />
 
-                    <RadioButton
-                        android:id="@+id/discRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Discretionary"
-                        tools:ignore="HardcodedText" />
-
-                    <RadioButton
-                        android:id="@+id/nonDiscRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Non-Discretionary"
-                        tools:ignore="HardcodedText" />
-                    <RadioButton
-                        android:id="@+id/allDiscRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="All"
-                        tools:ignore="HardcodedText" />
-                </RadioGroup>
+                        <RadioButton
+                            android:id="@+id/nonDiscRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Non-Discretionary"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
             </LinearLayout>
 
             <LinearLayout
@@ -345,35 +359,38 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
-                <RadioGroup
-                    android:id="@+id/filterWhoRadioGroup"
-                    android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/whoAllRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/name1RadioButton"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/filterWhoRadioGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Al"
-                        tools:ignore="HardcodedText" />
-
-                    <RadioButton
-                        android:id="@+id/name2RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Br"
-                        tools:ignore="HardcodedText" />
-                    <RadioButton
-                        android:id="@+id/whoAllRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="All"
-                        tools:ignore="HardcodedText" />
-                </RadioGroup>
+                        android:checkedButton="@+id/whoAllRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/whoAllRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/name1RadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Al"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/name2RadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Br"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
             </LinearLayout>
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/resetFilterButton"
@@ -418,27 +435,32 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
-                <RadioGroup
-                    android:id="@+id/showDeltaRadioGroup"
-                    android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/dollarRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/dollarRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-
-                    <RadioButton
-                        android:id="@+id/percentageRadioButton"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/showDeltaRadioGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="%"
-                        tools:ignore="HardcodedText" />
-                </RadioGroup>
+                        android:checkedButton="@+id/dollarRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/dollarRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <RadioButton
+                            android:id="@+id/percentageRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="%"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/show_rounded_to_nearest_dollar_layout"

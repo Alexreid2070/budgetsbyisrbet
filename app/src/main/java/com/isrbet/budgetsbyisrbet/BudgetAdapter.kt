@@ -53,7 +53,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         var vhAmount: TextView = view.findViewById(R.id.row_budget_amount)
         var vhWho: TextView = view.findViewById(R.id.row_budget_who)
         var vhOccurence: TextView = view.findViewById(R.id.row_budget_occurence)
-        var vhAnnual: TextView = view.findViewById(R.id.row_budget_annual)
+        var vhAnnualIndicator: TextView = view.findViewById(R.id.row_budget_annual_indicator)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
     @SuppressLint("SetTextI18n")
@@ -83,12 +83,11 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
             viewHolder.vhOccurence.text = "Recurring"
         else
             viewHolder.vhOccurence.text = "Once"
+        viewHolder.vhAmount.text = gDecWithCurrency(bData.amount.toDouble())
         if (bData.isAnnual == "") {
-            viewHolder.vhAmount.text = gDecWithCurrency(bData.amount.toDouble())
-            viewHolder.vhAnnual.text = ""
+            viewHolder.vhAnnualIndicator.text = ""
         } else {
-            viewHolder.vhAmount.text = ""
-            viewHolder.vhAnnual.text = gDecWithCurrency(bData.amount.toDouble())
+            viewHolder.vhAnnualIndicator.text = "A"
             if (bData.label == cBudgetCategoryView)
                 viewHolder.vhLabel.text = bData.dateApplicable.substring(0,4)
         }
@@ -101,7 +100,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
 
         if (bData.label == cBudgetDateView) {
             val param = viewHolder.vhLabel.layoutParams as LinearLayout.LayoutParams
-            param.weight = 3f
+            param.weight = 2.5f
             viewHolder.vhLabel.layoutParams = param
             viewHolder.vhOccurence.visibility = View.GONE
             val cat = DefaultsViewModel.getCategoryDetail(bData.category.toString())

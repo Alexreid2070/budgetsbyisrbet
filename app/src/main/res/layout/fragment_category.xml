@@ -28,7 +28,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText"
-            android:tooltipText="@string/toolTipCategory"/>
+            android:tooltipText="@string/toolTipCategory"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/discTypeHeading"
@@ -39,7 +40,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText"
-            android:tooltipText="@string/toolTipDisc"/>
+            android:tooltipText="@string/toolTipDisc"
+            android:maxLines="1"/>
         <TextView
             android:id="@+id/privacyHeading"
             android:layout_width="0dp"
@@ -49,7 +51,9 @@
             android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText"
-            android:tooltipText="@string/toolTipPrivacy"/>
+            android:visibility="gone"
+            android:tooltipText="@string/toolTipPrivacy"
+            android:maxLines="1"/>
         <TextView
             android:id="@+id/stateHeading"
             android:layout_width="0dp"
@@ -60,7 +64,8 @@
             android:textStyle="bold"
             android:visibility="gone"
             tools:ignore="HardcodedText"
-            android:tooltipText="@string/toolTipCatState"/>
+            android:tooltipText="@string/toolTipCatState"
+            android:maxLines="1"/>
     </LinearLayout>
 
     <ListView
@@ -68,7 +73,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/expansion_layout"
-        app:layout_constraintTop_toBottomOf="@+id/CategoryLinearLayout"/>
+        app:layout_constraintTop_toBottomOf="@+id/CategoryLinearLayout"
+        android:fadeScrollbars="false"/>
     <io.github.yavski.fabspeeddial.FabSpeedDial
         android:id="@+id/category_fab"
         android:layout_width="wrap_content"
@@ -108,7 +114,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_categories"
@@ -121,7 +129,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
             android:background="@drawable/rounded_top_corners"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_budgets"
@@ -133,7 +143,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_recurring_transactions"
@@ -145,7 +157,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="2"/>
         <Space
             android:layout_width="5dp"
             android:layout_height="wrap_content"/>

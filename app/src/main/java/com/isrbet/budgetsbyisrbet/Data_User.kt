@@ -1,14 +1,13 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class AppUser(var email: String, var uid: String)
+data class AppUser(var email: String, var uid: String, var primary: String, var secondary: String)
 
 class AppUserViewModel : ViewModel() {
     lateinit var userListener: ValueEventListener
@@ -61,22 +60,18 @@ class AppUserViewModel : ViewModel() {
                     for (element in dataSnapshot.children.toMutableList()) {
                         val uid = element.key.toString()
                         var email = ""
+                        var primary = ""
+                        var secondary = ""
                         for (child in element.children) {
-                            if (child.key.toString() == "Info") {
-                                for ( nChild in child.children) {
-                                    if (!nChild.key.toString().isDigitsOnly())
-                                        Log.d("Alex", "not numeric ${nChild.key.toString()} ${nChild.value.toString()}")
-                                    if (nChild.key.toString().toInt() == SpenderViewModel.myIndex()) {
-                                        for (pChild in nChild.children) {
-                                            if (pChild.key.toString() == "Email")
-                                                email = pChild.value.toString()
-                                        }
-                                    }
-                                }
+                            when (child.key.toString()) {
+                                "Email" -> email = child.value.toString()
+                                "Primary" -> primary = child.value.toString()
+                                "Secondary" -> secondary = child.value.toString()
                             }
                         }
-                        singleInstance.users.add(AppUser(email, uid))
+                        singleInstance.users.add(AppUser(email, uid, primary, secondary))
                     }
+                    singleInstance.users.sortBy { it.email }
                     singleInstance.dataUpdatedCallback?.onDataUpdate()
                 }
 
@@ -85,7 +80,36 @@ class AppUserViewModel : ViewModel() {
                     MyApplication.displayToast("User authorization failed 101.")
                 }
             }
-            MyApplication.database.getReference("Users").addValueEventListener(singleInstance.userListener)
+            MyApplication.database.getReference("Userkeys").addValueEventListener(singleInstance.userListener)
+        }
+
+        fun addUserKey() {
+            MyApplication.database.getReference("Userkeys")
+                .child(MyApplication.originalUserUID)
+                .child("Email").setValue(MyApplication.userEmail)
+        }
+        fun addPrimary(iEmail: String) {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Primary").setValue(iEmail)
+        }
+        fun addSecondary(iEmail: String) {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Secondary").setValue(iEmail)
+        }
+        fun removePrimary() {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Primary").removeValue()
+        }
+        fun removeSecondary() {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Secondary").removeValue()
+        }
+        fun getPrimaryEmail(iUID: String) : String {
+            singleInstance.users.forEach {
+                if (it.uid == iUID)
+                    return it.email
+            }
+            return ""
         }
     }
 
@@ -96,7 +120,7 @@ class AppUserViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         if (::userListener.isInitialized)
-            MyApplication.databaseref.child("Users")
+            MyApplication.databaseref.child("Userkeys")
                 .removeEventListener(userListener)
     }
     fun clearCallback() {

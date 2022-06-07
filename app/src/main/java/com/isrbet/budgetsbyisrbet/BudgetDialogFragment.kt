@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -189,6 +190,7 @@ class BudgetDialogFragment : DialogFragment() {
         binding.budgetDialogButtonEdit.setOnClickListener {
             if (currentMode == "View") {
                 binding.budgetDialogButtonEdit.text = "Save"
+                binding.budgetDialogButtonEdit.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
                 binding.budgetDialogButtonDelete.visibility = View.GONE
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
                     (binding.budgetDialogNewWhoRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
@@ -212,7 +214,7 @@ class BudgetDialogFragment : DialogFragment() {
                     focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
                     return@setOnClickListener
                 }
-                if (binding.budgetDialogNewAmount.text.toString().toDouble() == 0.0) {
+                if (getDoubleValue(binding.budgetDialogNewAmount.text.toString()) == 0.0) {
 //                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
                     binding.budgetDialogNewAmount.error=getString(R.string.missingAmountError)
                     focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
@@ -220,7 +222,7 @@ class BudgetDialogFragment : DialogFragment() {
                 }
 
                 Log.d("Alex", "need to save new values")
-                val tmpDouble1: Double = binding.budgetDialogNewAmount.text.toString().toDouble()
+                val tmpDouble1: Double = getDoubleValue(binding.budgetDialogNewAmount.text.toString())
 
                 var newWho = -1
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {

@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
-            Log.d("Alex", "back stack size is ${navHostFragment.childFragmentManager.backStackEntryCount}")
             // don't redraw page if we're already there
             if (navHostFragment.childFragmentManager.backStackEntryCount > 0 &&
                 it.itemId == navController.currentDestination?.id)

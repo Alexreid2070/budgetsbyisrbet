@@ -229,7 +229,6 @@ class SpenderViewModel : ViewModel() {
                             "split" -> split = spenderRow.value.toString().toInt()
                         }
                     }
-                    Log.d("Alex", "Adding spender $name $isActive")
                     spenders.add(Spender(name, email, split, isActive))
                 }
                 if (getActiveCount() > 1)

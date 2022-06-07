@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
@@ -144,6 +145,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.categoryDialogButtonDelete.visibility = View.GONE
             binding.newNameHeader.text = "Add New Category"
             binding.categoryDialogButtonSave.text = "Save"
+            binding.categoryDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
             currentMode = "Add"
             if (SpenderViewModel.twoDistinctUsers())
                 binding.newPrivacyLayout.visibility = View.VISIBLE
@@ -233,9 +235,11 @@ class CategoryEditDialogFragment : DialogFragment() {
     @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         binding.categoryDialogButtonSave.setOnClickListener {
+            Log.d("Alex", "Clicked save $currentMode")
             if (currentMode == "View") { // change to edit
 //                binding.editCategoryOldNameHeader.text = "Current Details:"
                 binding.categoryDialogButtonSave.text = "Save"
+                binding.categoryDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
                 binding.categoryDialogOldHeaderLinearLayout.visibility = View.VISIBLE
                 binding.categoryDialogNewHeaderLinearLayout.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout2.visibility = View.VISIBLE
@@ -306,6 +310,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                     dismiss()
                 } else if (oldCategory == "") { // ie this is an add
+                    Log.d("Alex", "It's an add")
                     if (CategoryViewModel.getID(
                             chosenCategory,
                             binding.editSubcategoryNewName.text.toString().trim()
@@ -350,6 +355,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 } else if (oldCategory != chosenCategory ||
                     oldSubcategory != binding.editSubcategoryNewName.text.toString()
                 ) {
+                    Log.d("Alex", "changed category name")
                     CategoryViewModel.updateCategory(
                         binding.categoryId.text.toString().toInt(),
                         chosenCategory,
@@ -362,6 +368,9 @@ class CategoryEditDialogFragment : DialogFragment() {
                         listener?.onNewDataSaved()
                     setupCategorySpinner(chosenCategory)
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                    dismiss()
+                } else {
+                    Toast.makeText(activity, "No changes made.", Toast.LENGTH_SHORT).show()
                     dismiss()
                 }
             }

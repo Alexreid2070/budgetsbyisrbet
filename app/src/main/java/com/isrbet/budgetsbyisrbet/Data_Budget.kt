@@ -21,7 +21,7 @@ data class BudgetPeriod(var period: BudgetMonth, var who: Int, var amount: Doubl
 data class BudgetOut(var amount: Double, var occurence: Int)
 
 data class BudgetAmountResponse(var dateApplicable: BudgetMonth, var who: Int, var amount: Double, var dateStarted: BudgetMonth, var occurence: Int) {
-    constructor() : this(BudgetMonth(0,0), -1, 0.0, BudgetMonth(0,0), -1)
+    constructor() : this(BudgetMonth(-1,-1), -1, 0.0, BudgetMonth(-1,-1), -1)
 }
 
 data class Budget(var categoryID: Int) {
@@ -117,7 +117,7 @@ class BudgetViewModel : ViewModel() {
             CategoryViewModel.getCategories(true).forEach {
                 if (iSpecificCategory == "" ||
                     (it.categoryName == iSpecificCategory)) {
-                    if (it.discType == iDiscType || iDiscType == "" || iDiscType == "All") {
+                    if (it.discType == iDiscType || iDiscType == "" || iDiscType == cDiscTypeAll) {
                         val budget = getCalculatedBudgetAmount(
                             iPeriod,
                             iBudgetMonth,
@@ -178,7 +178,6 @@ class BudgetViewModel : ViewModel() {
                         )
                     }
                 }
-                Log.d("Alex", "adding $tBudgetAmount for ${cat?.subcategoryName}")
             } else if (iPeriod == DateRange.YTD) {
                 for (i in 1 until iBudgetMonth.month + 1) {
                     tBudgetAmount += getCalculatedBudgetAmount(
@@ -202,69 +201,188 @@ class BudgetViewModel : ViewModel() {
         fun getCalculatedBudgetAmount(iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
             // if iWhoToLookup is blank, then will calculate for all Spenders
             // if iWhoToLookup is a specific name, then include the right % of Joint
+            val cat = CategoryViewModel.getCategory(iCategoryID)
+            var tBudgetAmount = 0.0
+
+            // get original budgets for all 3 possible users
+            val budgetForPeriodUser0 = getOriginalBudgetAmount(iCategoryID, iBudgetMonth, 0)
+            val budgetForPeriodUser1 = if (SpenderViewModel.getActiveCount() > 1)
+                getOriginalBudgetAmount(iCategoryID, iBudgetMonth, 1)
+            else
+                BudgetAmountResponse()
+            val budgetForPeriodUser2 = if (SpenderViewModel.getActiveCount() > 1)
+                getOriginalBudgetAmount(iCategoryID, iBudgetMonth, 2)
+            else
+                BudgetAmountResponse()
+
+            val actualsForUser0PriorMonths = if (iBudgetMonth.month != 1 &&
+                    iBudgetMonth.month != 0 &&
+                    (budgetForPeriodUser0.dateStarted.month == 0  ||
+                        budgetForPeriodUser2.dateStarted.month == 0))  // ie not an annual view, and is an annual budget
+                TransactionViewModel.getActualsForPeriod(
+                    iCategoryID,
+                    BudgetMonth(iBudgetMonth.year, 1),
+                    BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                    0,
+                    true )
+                else
+                    0.0 // ie not relevant
+
+            val actualsForUser0ThisMonth = if (iBudgetMonth.month != 0 &&
+                (budgetForPeriodUser0.dateStarted.month == 0 ||
+                        budgetForPeriodUser2.dateStarted.month == 0))  // ie not an annual view, and is an annual budget
+                TransactionViewModel.getActualsForPeriod(
+                    iCategoryID,
+                    iBudgetMonth,
+                    iBudgetMonth,
+                    0,
+                    true )
+            else
+                0.0 // ie not relevant
+            val actualsForUser1PriorMonths = if (iBudgetMonth.month != 1 &&
+                iBudgetMonth.month != 0 &&
+                (budgetForPeriodUser1.dateStarted.month == 0 ||
+                    budgetForPeriodUser2.dateStarted.month == 0))  // ie not an annual view, and is an annual budget
+                TransactionViewModel.getActualsForPeriod(
+                    iCategoryID,
+                    BudgetMonth(iBudgetMonth.year, 1),
+                    BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                    1,
+                    true )
+            else
+                0.0 // ie not relevant
+
+            val actualsForUser1ThisMonth = if (iBudgetMonth.month != 0 &&
+                (budgetForPeriodUser1.dateStarted.month == 0  ||
+                        budgetForPeriodUser2.dateStarted.month == 0))  // ie not an annual view, and is an annual budget
+                TransactionViewModel.getActualsForPeriod(
+                    iCategoryID,
+                    iBudgetMonth,
+                    iBudgetMonth,
+                    1,
+                    true )
+            else
+                0.0 // ie not relevant
+
+            if (iWhoToLookup == 0 || iWhoToLookup == 2) {
+                var budgetRemaining = 0.0
+                var totalAnnualBudget = 0.0
+                if (iBudgetMonth.month != 0 && budgetForPeriodUser0.dateStarted.month == 0) { // ie not an annual view, and is an annual budget
+                    // handle user 0's annual budget
+                    totalAnnualBudget = budgetForPeriodUser0.amount
+                } else { // else just add user 0's non-annual budget
+                    tBudgetAmount += budgetForPeriodUser0.amount
+                }
+                if (iBudgetMonth.month != 0 && budgetForPeriodUser2.dateStarted.month == 0) { // ie not an annual view, and is an annual budget
+                    // handle user 2's annual budget
+                    totalAnnualBudget += budgetForPeriodUser2.amount * SpenderViewModel.getSpenderSplit(0) / 100.0
+                } else { // else just add user 2's non-annual budget
+                    tBudgetAmount += budgetForPeriodUser2.amount * SpenderViewModel.getSpenderSplit(0) / 100.0
+                }
+                if (totalAnnualBudget > 0.0) {
+                    if (totalAnnualBudget - actualsForUser0PriorMonths > 0.0)
+                        budgetRemaining = totalAnnualBudget - actualsForUser0PriorMonths
+                    tBudgetAmount +=
+                        if (actualsForUser0ThisMonth < budgetRemaining) actualsForUser0ThisMonth else budgetRemaining
+                }
+            }
+            if (iWhoToLookup == 1  || iWhoToLookup == 2) {
+                var budgetRemaining = 0.0
+                var totalAnnualBudget = 0.0
+                if (iBudgetMonth.month != 0 && budgetForPeriodUser1.dateStarted.month == 0) { // ie not an annual view, and is an annual budget
+                    // handle user 0's annual budget
+                    totalAnnualBudget = budgetForPeriodUser1.amount
+                } else { // else just add user 0's non-annual budget
+                    tBudgetAmount += budgetForPeriodUser1.amount
+                }
+                if (iBudgetMonth.month != 0 && budgetForPeriodUser2.dateStarted.month == 0) { // ie not an annual view, and is an annual budget
+                    // handle user 2's annual budget
+                    totalAnnualBudget += budgetForPeriodUser2.amount * SpenderViewModel.getSpenderSplit(1) / 100.0
+                } else { // else just add user 2's non-annual budget
+                    tBudgetAmount += budgetForPeriodUser2.amount * SpenderViewModel.getSpenderSplit(1) / 100.0
+                }
+                if (totalAnnualBudget > 0.0) {
+                    if (totalAnnualBudget - actualsForUser1PriorMonths > 0.0)
+                        budgetRemaining = totalAnnualBudget - actualsForUser1PriorMonths
+                    tBudgetAmount +=
+                        if (actualsForUser1ThisMonth < budgetRemaining) actualsForUser1ThisMonth else budgetRemaining
+                }
+            }
+
+            return tBudgetAmount
+        }
+
+/* the original        fun getCalculatedBudgetAmount(iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
+            // if iWhoToLookup is blank, then will calculate for all Spenders
+            // if iWhoToLookup is a specific name, then include the right % of Joint
+            val cat = CategoryViewModel.getCategory(iCategoryID)
             var tBudgetAmount = 0.0
             var accumulatedBudgetRemaining = 0.0
             var accumulatedActualsThisMonth = 0.0
             var handlingAnnualBudget = false
             val splitToUse = SpenderViewModel.getSpenderSplit(iWhoToLookup)
 
+//            Log.d("Alex", "cat ${cat?.categoryName} ${cat?.subcategoryName} bm $iBudgetMonth $iWhoToLookup")
             for (i in 0 until SpenderViewModel.getActiveCount()) {
-                    if (iWhoToLookup == -1 || iWhoToLookup == i ||
-                            SpenderViewModel.getSpenderName(i) == "Joint") {
-                        val budgetForPeriod = getOriginalBudgetAmount(
-                            iCategoryID,
-                            iBudgetMonth,
-                            i
-                        )
+                if (iWhoToLookup == -1 || iWhoToLookup == i ||
+                    iWhoToLookup == 2 ||
+                    i == 2) {
+                    val budgetForPeriod = getOriginalBudgetAmount(
+                        iCategoryID,
+                        iBudgetMonth,
+                        i
+                    )
+//                        Log.d("Alex", "Original budget amount $budgetForPeriod")
 
-                        if (iBudgetMonth.month == 0 || budgetForPeriod.dateStarted.month != 0) { // ie an annual view, or not an annual budget
-                            if (iWhoToLookup == -1 || iWhoToLookup == i) { // ie want the entire amounts
-                                tBudgetAmount += budgetForPeriod.amount
-                            } else {
-                                if (iWhoToLookup != -1 && i == 2) { // ie want a specific person, so also need his/her share of the Joint budget
-                                    tBudgetAmount += budgetForPeriod.amount * splitToUse / 100.0
-                                }
-                            }
+                    if (iBudgetMonth.month == 0 || budgetForPeriod.dateStarted.month != 0) { // ie an annual view, or not an annual budget
+                        if (iWhoToLookup == -1 || iWhoToLookup == i || iWhoToLookup == 2) { // ie want the entire amounts
+                            tBudgetAmount += budgetForPeriod.amount
                         } else {
-                            handlingAnnualBudget = true
-                            var totalAnnualBudget = budgetForPeriod.amount // get total annual budget
-                            if (iWhoToLookup != -1 && i == 2){ // ie want a specific person, so also need his/her share of the Joint budget
-                                totalAnnualBudget *= splitToUse/100.0
+                            if (iWhoToLookup != -1 && i == 2) { // ie want a specific person, so also need his/her share of the Joint budget
+                                tBudgetAmount += budgetForPeriod.amount * splitToUse / 100.0
                             }
-                            var totalAnnualActualsForEarlierMonths = 0.0
-                            if (iBudgetMonth.month != 1) {
-                                totalAnnualActualsForEarlierMonths =
-                                    TransactionViewModel.getActualsForPeriod(
-                                        iCategoryID,
-                                        BudgetMonth(iBudgetMonth.year, 1),
-                                        BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
-                                        i,
-                                        iWhoToLookup
-                                    )
+                        }
+                    } else {
+                        handlingAnnualBudget = true
+                        var totalAnnualBudget = budgetForPeriod.amount // get total annual budget
+                        if (iWhoToLookup != -1 && i == 2){ // ie want a specific person, so also need his/her share of the Joint budget
+                            totalAnnualBudget *= splitToUse/100.0
+                        }
+                        var totalAnnualActualsForEarlierMonths = 0.0
+                        if (iBudgetMonth.month != 1) {
+                            totalAnnualActualsForEarlierMonths =
+                                TransactionViewModel.getActualsForPeriod(
+                                    iCategoryID,
+                                    BudgetMonth(iBudgetMonth.year, 1),
+                                    BudgetMonth(iBudgetMonth.year, iBudgetMonth.month - 1),
+                                    i,
+                                    true
+                                )
 /*                                if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
                                     totalAnnualActualsForEarlierMonths *= splitToUse/100.0
                                 } */
-                            }
-                            val accumulatedActualsThisMonthForThisUser =
-                                TransactionViewModel.getActualsForPeriod(
-                                    iCategoryID,
-                                    iBudgetMonth,
-                                    iBudgetMonth,
-                                    i,
-                                    iWhoToLookup
-                                )
+                        }
+                        val accumulatedActualsThisMonthForThisUser =
+                            TransactionViewModel.getActualsForPeriod(
+                                iCategoryID,
+                                iBudgetMonth,
+                                iBudgetMonth,
+                                i,
+                                true
+                            )
 /*                            if (iWhoToLookup != "" && SpenderViewModel.getSpenderName(i) == "Joint"){ // ie want a specific person, so also need his/her share of the Joint budget
                                 accumulatedActualsThisMonthForThisUser *= splitToUse/100.0
                             } */
-                            accumulatedActualsThisMonth += accumulatedActualsThisMonthForThisUser
-                            val budgetRemaining =
-                                if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0)
-                                    totalAnnualBudget - totalAnnualActualsForEarlierMonths
-                                else
-                                    0.0
-                            accumulatedBudgetRemaining += budgetRemaining
-                        }
+//                            Log.d("Alex", "$totalAnnualBudget $accumulatedActualsThisMonth $accumulatedActualsThisMonthForThisUser")
+                        accumulatedActualsThisMonth += accumulatedActualsThisMonthForThisUser
+                        val budgetRemaining =
+                            if (totalAnnualBudget - totalAnnualActualsForEarlierMonths > 0.0)
+                                totalAnnualBudget - totalAnnualActualsForEarlierMonths
+                            else
+                                0.0
+                        accumulatedBudgetRemaining += budgetRemaining
                     }
+                }
             }
             if (handlingAnnualBudget) {
                 tBudgetAmount =
@@ -272,8 +390,7 @@ class BudgetViewModel : ViewModel() {
             }
             return tBudgetAmount
         }
-
-        fun getOriginalBudgetAmount(iCategoryID: Int, iBudgetMonth: BudgetMonth, iWho: Int): BudgetAmountResponse {
+*/        fun getOriginalBudgetAmount(iCategoryID: Int, iBudgetMonth: BudgetMonth, iWho: Int): BudgetAmountResponse {
             val tResponse = BudgetAmountResponse()
             tResponse.dateApplicable.setValue(iBudgetMonth)
             tResponse.who = iWho
@@ -592,11 +709,7 @@ class BudgetViewModel : ViewModel() {
                     if (!found) {
                         myB = Budget(it.key.toString().toInt())
                         budgets.add(myB)
-                    } else
-                        Log.d(
-                            "Alex",
-                            "Not adding budget " + it.key.toString() + " since it is already there"
-                        )
+                    }
                     for (budget in it.children) {
                         val tPeriod: String = budget.key.toString()
                         for (element in budget.children.toMutableList()) {

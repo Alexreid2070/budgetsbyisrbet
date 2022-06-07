@@ -318,10 +318,11 @@ class TrackerFragment : Fragment() {
         binding.chartSummaryText.visibility = View.VISIBLE
         initializeBarChart()
         createBarChart(getBarChartData())
-        if (hackActualTotal <= 0.0) {
-            Log.d("Alex", "Actuals <= 0 so hiding bar chart")
+        if (hackActualTotal == 0.0 && hackBudgetTotal == 0.0) {
+            Log.d("Alex", "Actuals and budgets == 0 so hiding bar chart $hackActualTotal $hackBudgetTotal")
             hideBarChart()
-        }
+        } else
+            Log.d("Alex", "Actuals and budgets != 0 $hackActualTotal $hackBudgetTotal")
     }
 
     fun hideBarChart() {
@@ -493,7 +494,7 @@ class TrackerFragment : Fragment() {
 
         val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
         val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
-            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else -1
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else 2
 
         val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
             "All-Time" -> DateRange.ALLTIME
@@ -588,7 +589,6 @@ class TrackerFragment : Fragment() {
             discFilter, whoFilter)
         hackActualTotal = totalActualsToDate
 
-        Log.d("Alex", "Getting bar chart labels currency '" + getLocalCurrencySymbol() + "'")
         tList.add(
             DataObject(
                 0, "Budget this period " + gDecWithCurrency(totalBudget),
@@ -599,7 +599,7 @@ class TrackerFragment : Fragment() {
         if (viewPeriod != DateRange.ALLTIME) {
             tList.add(
                 DataObject(
-                    0, "Budget to date " + gDecWithCurrency(totalBudgetToDate),
+                    0, "Budget to date (" + dateNow.get(Calendar.DATE) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
                     totalBudgetToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.medium_gray)
                 )
@@ -929,8 +929,13 @@ class TrackerFragment : Fragment() {
         pieChart.description.text = ""
 //        pieChart.centerText = iDescription
 //        pieChart.setCenterTextSize(14F)
+        val dm = activity?.resources?.displayMetrics
+        val valFontSize = if (dm?.widthPixels!! <= 600)
+            18
+        else
+            35
         val s = if (iDescription == budgetLabel)
-            ("$iDescription\n" + gDecWithCurrency(hackBudgetTotal)).setFontSizeForPath(iDescription.length, 35)
+            ("$iDescription\n" + gDecWithCurrency(hackBudgetTotal)).setFontSizeForPath(iDescription.length, valFontSize)
         else {
                 val col = if (hackActualTotal > hackBudgetTotal)
                     ContextCompat.getColor(requireContext(), R.color.red)
@@ -938,11 +943,14 @@ class TrackerFragment : Fragment() {
                     ContextCompat.getColor(requireContext(), R.color.green)
             ("$iDescription\n" + gDecWithCurrency(hackActualTotal)).setFontSizeForPath(
                 iDescription.length,
-                35,
+                valFontSize,
                 col
             )
         }
-        s.setSpan(RelativeSizeSpan(1.3f), 0, s.length, 0)
+        if (dm?.widthPixels!! <= 600)
+            s.setSpan(RelativeSizeSpan(1f), 0, s.length, 0)
+        else
+            s.setSpan(RelativeSizeSpan(1.3f), 0, s.length, 0)
         s.setSpan(StyleSpan(Typeface.BOLD), 0, s.length, 0)
         pieChart.centerText = s
 

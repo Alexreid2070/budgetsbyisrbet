@@ -47,7 +47,6 @@ class HintDialogFragment : DialogFragment() {
 
         val tHint = HintViewModel.getNextHint(myFragment)
         if (tHint == null) { // no hint to show
-            Log.d("Alex", "No hint, dismiss")
             dismiss()
         } else {
             currentHintID = tHint.id

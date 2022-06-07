@@ -113,7 +113,8 @@ data class TransferOut(
     var date: String = "", var amount: Int = 0,
     var paidby: Int = -1, var boughtfor: Int = -1,
     var bfname1split: Int = 0,
-    var category: Int = cTRANSFER_CODE, var note: String = "", var note2: String = "",
+    var note: String = "", var note2: String = "",
+    var category: Int = cTRANSFER_CODE,
     var type: String = "Transfer"
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
@@ -241,7 +242,7 @@ class TransactionViewModel : ViewModel() {
                                 val expDiscIndicator =
                                     CategoryViewModel.getCategory(transaction.category)?.discType
                                 if (iDiscFlag == "" || iDiscFlag == "All" || iDiscFlag == expDiscIndicator) {
-                                    if (iWhoFlag == -1 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
+                                    if (iWhoFlag == 2 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
                                         // this is a transaction to add to our subtotal
                                         val amountToAdd = transaction.getAmount(iWhoFlag, NOT_ROUNDED)
                                         val dobj: DataObject? = tList.find { it.id == cat.id }
@@ -275,10 +276,11 @@ class TransactionViewModel : ViewModel() {
             return tList
         }
 
-        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: Int, iSubWho: Int = -1): Double {
+        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: Int, includeRelated: Boolean): Double {
             var tTotal = 0.0
             val firstDay = "$iStartPeriod-01"
             val  lastDay = "$iEndPeriod-31"
+//            Log.d("Alex","getActualsForPeriod $iStartPeriod $iEndPeriod $iWho $includeRelated")
             loop@ for (transaction in singleInstance.transactions) {
                 val cat = CategoryViewModel.getCategory(transaction.category)
                 if (cat?.iAmAllowedToSeeThisCategory() == true) {
@@ -286,15 +288,14 @@ class TransactionViewModel : ViewModel() {
                         transaction.date >= firstDay &&
                         transaction.date <= lastDay &&
                         transaction.category == iCategoryID &&
-                        (transaction.boughtfor == iWho)
+                        (transaction.boughtfor == iWho ||
+                                (iWho == 2 && includeRelated) ||  // this picks up that we're looking for all Joint expenses and for a specific individual
+                                (transaction.boughtfor == 2 && includeRelated))  // this picks up that we want all joint expenses regardless of who they're bought for
                     ) {
-                        tTotal += if (iWho == 2 && iSubWho != -1) {
-                            if (iSubWho == 0)
-                                transaction.getAmount(0, NOT_ROUNDED)
-                            else
-                                transaction.getAmount(1, NOT_ROUNDED)
-                        } else {
-                            transaction.getAmount(2, NOT_ROUNDED)
+                        tTotal += when (iWho) {
+                            0 -> transaction.getAmount(0, NOT_ROUNDED)
+                            1 -> transaction.getAmount(1, NOT_ROUNDED)
+                            else -> transaction.getAmount(2, NOT_ROUNDED)
                         }
                     }
                 }
@@ -458,6 +459,7 @@ class TransactionViewModel : ViewModel() {
             singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
         }
         fun updateTransaction(iTransactionID: String, iTransfer: TransferOut) {
+            Log.d("Alex", "updateTransaction note is ${iTransfer.note2}")
             val bm = BudgetMonth(iTransfer.date)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
                 .child(bm.year.toString())
@@ -472,6 +474,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.paidby = iTransfer.paidby
                 transaction.boughtfor = iTransfer.boughtfor
                 transaction.bfname1split = iTransfer.bfname1split
+                transaction.note2 = iTransfer.note2
             }
             singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
         }

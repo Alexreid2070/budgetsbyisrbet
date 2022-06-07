@@ -15,7 +15,9 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.util.Log
-import android.view.*
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
@@ -68,7 +70,9 @@ const val november = "Nov"
 const val december = "Dec"
 val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
 val gDec = DecimalFormat("###0.00;(###0.00)")
+val gDecM = DecimalFormat("###0.00;-###0.00")
 val gDecRound = DecimalFormat("###0;(###0)")
+val gDecRoundM = DecimalFormat("###0;-###0")
 //val gDecWithCurrency = DecimalFormat("${getLocalCurrencySymbol()} 0.00")
 var goToPie = false
 var homePageExpansionAreaExpanded = false
@@ -88,6 +92,20 @@ fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
     }
 }
 
+fun gDecWithCurrencyM(iDouble: Double, iRound: Boolean = false) : String{
+    val s = getLocalCurrencySymbol()
+    if (iRound) {
+        return if (s == "")
+            gDecRoundM.format(round(iDouble))
+        else
+            s + " " + gDecRoundM.format(round(iDouble))
+    } else {
+        return if (s == "")
+            gDecM.format(iDouble)
+        else
+            s + " " + gDecM.format(iDouble)
+    }
+}
 enum class LoanPaymentRegularity(val code: Int) {
     WEEKLY(1),
     BIWEEKLY(2),
@@ -121,8 +139,6 @@ class MyApplication : Application() {
         var mediaPlayer: MediaPlayer? = null
         var adminMode: Boolean = false
         var haveLoadedDataForThisUser = false
-        var lastReadChatsDate = ""
-        var lastReadChatsTime = ""
         lateinit var myMainActivity: MainActivity
 
         fun displayToast(iMessage: String) {
@@ -463,7 +479,6 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
 }
 
 fun getLocalCurrencySymbol() : String {
-    Log.d("Alex", "get local currency is " + DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) )
     if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true") {
         val locale = Locale.getDefault()
         val numberFormat = NumberFormat.getCurrencyInstance(locale)
@@ -565,6 +580,17 @@ fun switchTo(iUID: String) {
     CategoryViewModel.refresh()
     BudgetViewModel.refresh()
     RecurringTransactionViewModel.refresh()
+}
+
+fun getDoubleValue(numberToParse: String): Double {
+    var numberToParse = numberToParse
+    return if (numberToParse.contains("(")) {
+        numberToParse = numberToParse.replace("[(),]".toRegex(), "")
+        numberToParse.toDouble() * -1
+    } else {
+        numberToParse = numberToParse.replace("[,]".toRegex(), "")
+        numberToParse.toDouble()
+    }
 }
 
 fun Context.copyToClipboard(clipLabel: String, text: CharSequence){

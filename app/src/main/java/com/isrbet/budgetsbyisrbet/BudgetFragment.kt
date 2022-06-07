@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.icu.lang.UCharacter
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -31,6 +32,11 @@ class BudgetFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentBudgetBinding.inflate(inflater, container, false)
 
+        val dm = activity?.resources?.displayMetrics
+        Log.d("Alex", "width is ${dm?.widthPixels}")
+        if (dm?.widthPixels!! <= 600) {
+            binding.budgetAddYearLayout.orientation = LinearLayout.VERTICAL
+        }
         inflater.inflate(R.layout.fragment_budget, container, false)
         return binding.root
     }
@@ -104,9 +110,9 @@ class BudgetFragment : Fragment() {
     fun setAmountBasedOnPercentage() {
         var tempDouble = 0.0
         if (binding.budgetAddPreviousAmount.text.toString() != "")
-            tempDouble = binding.budgetAddPreviousAmount.text.toString().toDouble()
+            tempDouble = getDoubleValue(binding.budgetAddPreviousAmount.text.toString())
         if (binding.budgetAddPercentage.text.toString() != "")
-            tempDouble *= (1 + binding.budgetAddPercentage.text.toString().toDouble() / 100)
+            tempDouble *= (1 + getDoubleValue(binding.budgetAddPercentage.text.toString()) / 100)
         binding.budgetAddAmount.setText(gDec.format(tempDouble))
     }
 
@@ -134,7 +140,6 @@ class BudgetFragment : Fragment() {
             }
         }
 
-        binding.budgetAddButtonSave.visibility = VISIBLE
         binding.budgetAddButtonSave.setOnClickListener {
             onSaveButtonClicked()
         }
@@ -155,9 +160,9 @@ class BudgetFragment : Fragment() {
         binding.budgetAddAmount.isEnabled = true
         binding.budgetAddOrLabel.visibility = VISIBLE
         binding.budgetAddPercentageLayout.visibility = VISIBLE
-        binding.budgetAddPreviousAmountLayout.visibility = VISIBLE
-        binding.budgetAddActualAmountLayout.visibility = VISIBLE
-        binding.budgetAddAverageAmountLayout.visibility = VISIBLE
+        binding.budgetAddPreviousAmount.visibility = VISIBLE
+        binding.budgetAddActualAmount.visibility = VISIBLE
+        binding.budgetAddAverageAmount.visibility = VISIBLE
         binding.budgetAddAmountLabel.text = "Enter new budget amount: "
     }
 
@@ -180,22 +185,19 @@ class BudgetFragment : Fragment() {
         val toCheckAnnual = BudgetMonth(binding.budgetAddYear.progress, 0)
         val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(CategoryViewModel.getID(catText, subCatText),toCheckAnnual, whoId)
         if (annualBudget != 0.0) {
-            binding.budgetAddPreviousAmount.text = gDecWithCurrency(annualBudget)
-            binding.budgetAddPreviousAmountLabel2.text = " which was set for "
-            binding.budgetAddPreviousAmountDate.text = toCheckAnnual.year.toString() + " (A)"
+            binding.budgetAddPreviousAmount.text = "Current budget amount is ${gDecWithCurrency(annualBudget)} which was set for ${toCheckAnnual.year} (A)."
         } else {
             val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(CategoryViewModel.getID(catText, subCatText), prevMonth, whoId)
             binding.budgetAddPreviousAmount.text = gDecWithCurrency(tmpPrevAmt.amount)
             if (tmpPrevAmt.dateStarted.year == 9999) { // never explicitly set
-                binding.budgetAddPreviousAmountLabel2.text = ".  (No amount explicitly set.)"
-                binding.budgetAddPreviousAmountDate.text = ""
+                binding.budgetAddPreviousAmount.text = "There is no budget amount that you have explicitly set."
             } else {
-                binding.budgetAddPreviousAmountLabel2.text = " which was set "
+                binding.budgetAddPreviousAmount.text = "Current budget amount is ${gDecWithCurrency(tmpPrevAmt.amount)} which was set "
                 if (tmpPrevAmt.dateStarted.isAnnualBudget()) // is an annual amount
-                    binding.budgetAddPreviousAmountDate.text =
-                        tmpPrevAmt.dateStarted.year.toString() + " (A)"
+                    binding.budgetAddPreviousAmount.text = binding.budgetAddPreviousAmount.text.toString() +
+                        tmpPrevAmt.dateStarted.year.toString() + " (A)."
                 else
-                    binding.budgetAddPreviousAmountDate.text = tmpPrevAmt.dateStarted.toString()
+                    binding.budgetAddPreviousAmount.text = binding.budgetAddPreviousAmount.text.toString() + tmpPrevAmt.dateStarted.toString() + "."
             }
         }
         val startOfPeriod = BudgetMonth(binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
@@ -209,8 +211,8 @@ class BudgetFragment : Fragment() {
             startOfPeriod.decrementMonth(1)
             endOfPeriod.decrementMonth(1)
         }
-        binding.budgetAddActualAmount.text = gDecWithCurrency(TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
-            startOfPeriod, endOfPeriod, whoId))
+        binding.budgetAddActualAmount.text = "Actual amount spent in previous period is ${gDecWithCurrency(TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
+            startOfPeriod, endOfPeriod, whoId, false))}."
 
         val annualActuals = TransactionViewModel.getActualsForPeriod(CategoryViewModel.getID(catText, subCatText),
             BudgetMonth(
@@ -218,9 +220,10 @@ class BudgetFragment : Fragment() {
                 if (inAnnualMode) 1 else binding.budgetAddMonth.progress
             ),
             prevMonth,
-            whoId)
+            whoId, false)
         binding.budgetAddTotalAmount.text = gDecWithCurrency(annualActuals)
-        binding.budgetAddAverageAmount.text = gDecWithCurrency(annualActuals/12)
+        binding.budgetAddTotalAmount.text = "Total spent in previous 12 months is ${gDecWithCurrency(annualActuals)}."
+        binding.budgetAddAverageAmount.text = "Average spent in previous 12 months is ${gDecWithCurrency(annualActuals/12)}."
 
         if (binding.budgetAddPercentage.text.toString() != "")
             setAmountBasedOnPercentage()
@@ -334,7 +337,7 @@ class BudgetFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddAmount)
             return
         }
-        if (binding.budgetAddAmount.text.toString().toDouble() == 0.0) {
+        if (getDoubleValue(binding.budgetAddAmount.text.toString()) == 0.0) {
 //            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
             binding.budgetAddAmount.error = getString(R.string.missingAmountError)
             focusAndOpenSoftKeyboard(requireContext(), binding.budgetAddAmount)
@@ -380,7 +383,7 @@ class BudgetFragment : Fragment() {
         val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
         Log.d("Alex", "Category is " + radioButton.text)
 
-        val tempDouble : Double = binding.budgetAddAmount.text.toString().toDouble()
+        val tempDouble : Double = getDoubleValue(binding.budgetAddAmount.text.toString())
         var period = binding.budgetAddYear.progress.toString()
         period = if (!inAnnualMode) {
             if (binding.budgetAddMonth.progress < 10)

@@ -211,13 +211,16 @@ class RecurringTransactionViewModel : ViewModel() {
                     MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
                         .child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
                     // add transaction
-                    Log.d("Alex", "Adding a transaction")
                     val nextDate = getNextBusinessDate(it.nextdate)
+                    val nextDayIsBusinessDay = it.nextdate == nextDate
                     it.nextdate = giveMeMyDateFormat(newNextDate)
                     TransactionViewModel.addTransaction(TransactionOut(nextDate, it.amount,
                         it.category, it.name, "", it.paidby, it.boughtfor,
                         it.split1, "Recurring"))
-                    Toast.makeText(mainActivity, "Scheduled payment was added for ${it.name} ${gDecWithCurrency(it.amount/100.0)} " + CategoryViewModel.getFullCategoryName(it.category) + " $nextDate", Toast.LENGTH_SHORT).show()
+                    if (nextDayIsBusinessDay)
+                        Toast.makeText(mainActivity, "Scheduled payment was added for ${it.name} ${gDecWithCurrency(it.amount/100.0)} " + CategoryViewModel.getFullCategoryName(it.category) + " $nextDate", Toast.LENGTH_SHORT).show()
+                    else
+                        Toast.makeText(mainActivity, "Scheduled payment was added for ${it.name} ${gDecWithCurrency(it.amount/100.0)} " + CategoryViewModel.getFullCategoryName(it.category) + " on next business day $nextDate", Toast.LENGTH_SHORT).show()
                 }
             }
         }

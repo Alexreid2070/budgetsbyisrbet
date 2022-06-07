@@ -66,10 +66,10 @@ class TransferFragment : Fragment() {
             ).show()
         }
 
-        binding.buttonSaveTransfer.setOnClickListener {
+        binding.buttonSave.setOnClickListener {
             onSaveButtonClicked()
         }
-        binding.buttonCancelTransfer.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             activity?.onBackPressed()
         }
 
@@ -127,8 +127,8 @@ class TransferFragment : Fragment() {
             }
         } else {
             binding.pageTitle.text = "View Transfer"
-            binding.buttonSaveTransfer.visibility = View.GONE
-            binding.buttonCancelTransfer.visibility = View.GONE
+            binding.buttonSave.visibility = View.GONE
+            binding.buttonCancel.visibility = View.GONE
             binding.editTextDate.isEnabled = false
             binding.editTextAmount.isEnabled = false
             binding.editTextNote.isEnabled = false
@@ -234,11 +234,12 @@ class TransferFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun editTransfer(iTransactionID: String) {
-        Log.d("Alex", "clicked on $iTransactionID")
         binding.pageTitle.text = "Edit Transfer"
         binding.expansionLayout.visibility = View.GONE
         binding.buttonEdit.visibility = View.GONE
         binding.buttonDelete.visibility = View.GONE
+        binding.buttonCancel.visibility = View.VISIBLE
+        binding.buttonSave.visibility = View.VISIBLE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
@@ -275,7 +276,6 @@ class TransferFragment : Fragment() {
     }
 
     private fun viewTransfer(iTransactionID: String) {
-        Log.d("Alex", "viewTransfer key $iTransactionID")
         val thisTransaction = TransactionViewModel.getTransaction(iTransactionID)
         binding.transactionId.text = iTransactionID
         binding.categoryId.text = thisTransaction?.category.toString()
@@ -291,7 +291,7 @@ class TransferFragment : Fragment() {
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
             binding.editTextAmount.setText(gDec.format(formattedAmount))
             binding.editTextDate.setText(thisTransaction.date)
-            binding.editTextNote.setText(thisTransaction.note)
+            binding.editTextNote.setText(thisTransaction.note2)
             binding.splitName1Split.setText(thisTransaction.bfname1split.toString())
             binding.splitName2Split.setText(thisTransaction.getSplit2().toString())
             if (thisTransaction.boughtfor == 2) {
@@ -368,7 +368,6 @@ class TransferFragment : Fragment() {
         val amountInt: Int
         val amountDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = amountDouble.toInt()
-        Log.d("Alex", "text is " + binding.editTextAmount.text + " and double is " + amountDouble.toString() + " and int is " + amountInt.toString())
 
         if (newTransferMode) {
             val transfer = TransferOut(
@@ -376,7 +375,9 @@ class TransferFragment : Fragment() {
                 amountInt,
                 SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
-                binding.splitName1Split.text.toString().toInt()
+                binding.splitName1Split.text.toString().toInt(),
+                "",
+                binding.editTextNote.text.toString()
             )
             TransactionViewModel.addTransaction(transfer)
             binding.editTextAmount.setText("")
@@ -391,7 +392,9 @@ class TransferFragment : Fragment() {
                 amountInt,
                 SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
-                binding.splitName1Split.text.toString().toInt()
+                binding.splitName1Split.text.toString().toInt(),
+                "",
+                binding.editTextNote.text.toString()
             )
 
             TransactionViewModel.updateTransaction(editingKey, transfer)

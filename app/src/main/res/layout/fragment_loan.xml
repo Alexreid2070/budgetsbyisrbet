@@ -71,13 +71,20 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:baselineAligned="false">
+            <TextView
+                android:id="@+id/currencySymbol1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:paddingStart="10dp"
+                android:textStyle="bold"
+                tools:ignore="RtlSymmetry" />
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:layout_weight="1"
                 android:hint="Loan Amount"
                 android:layout_gravity="start"
                 android:minWidth="@dimen/custom_med_width"
@@ -99,7 +106,6 @@
                 android:layout_height="wrap_content"
                 android:hint="First Payment Date"
                 android:layout_gravity="end"
-                android:layout_weight="1"
                 android:minWidth="@dimen/custom_med_width"
                 app:endIconMode="clear_text"
                 tools:ignore="HardcodedText"
@@ -180,35 +186,40 @@
                 android:textStyle="bold"
                 tools:ignore="HardcodedText"
                 android:tooltipText="How often do you make loan payments?"/>
-            <RadioGroup
-                android:id="@+id/paymentFrequencyGroup"
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:checkedButton="@+id/button_biweekly"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/button_weekly"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                <RadioGroup
+                    android:id="@+id/paymentFrequencyGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Weekly"
-                    tools:ignore="HardcodedText" />
+                    android:checkedButton="@+id/button_biweekly"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <RadioButton
-                    android:id="@+id/button_biweekly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Biweekly"
-                    tools:ignore="HardcodedText" />
-                <RadioButton
-                    android:id="@+id/button_monthly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Monthly"
-                    tools:ignore="HardcodedText" />
-            </RadioGroup>
+                    <RadioButton
+                        android:id="@+id/button_weekly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weekly"
+                        tools:ignore="HardcodedText" />
 
+                    <RadioButton
+                        android:id="@+id/button_biweekly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Biweekly"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/button_monthly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Monthly"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </HorizontalScrollView>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -216,6 +227,13 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:baselineAligned="false">
+            <TextView
+                android:id="@+id/currencySymbol2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="end"
+                android:textStyle="bold"/>
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -242,23 +260,46 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@+id/loan_details_header">
-        <Button
+        <TextView
             android:id="@+id/button_reset"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="Reset"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             android:text="Reset"
-            android:layout_margin="5dp"
-            tools:ignore="ButtonStyle,HardcodedText" />
-        <Button
-            android:id="@+id/button_calculate_loan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:tooltipText="Reset"
+            android:textSize="16sp"
             android:layout_gravity="center"
             android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="HardcodedText"
+            app:drawableTopCompat="@drawable/ic_baseline_delete_sweep_24" />
+        <TextView
+            android:id="@+id/button_calculate_loan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:contentDescription="Calculate"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             android:text="Calculate"
-            tools:ignore="ButtonStyle,HardcodedText" />
+            android:tooltipText="Calculate loan based on input parameters"
+            android:textSize="16sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="HardcodedText"
+            app:drawableTopCompat="@drawable/ic_baseline_calculate_24" />
     </LinearLayout>
     <Space
         android:id="@+id/space2"
@@ -270,19 +311,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@+id/space2">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:text="Calculated Payment:  $ "
+            android:text="Calculated Payment: "
             tools:ignore="HardcodedText"
             android:tooltipText="This is the minimum loan payment amount based on the parameters you've entered."/>
         <TextView
             android:id="@+id/calculated_payment_amount"
             android:layout_width="wrap_content"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:layout_height="wrap_content"/>
     </LinearLayout>
@@ -353,5 +395,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/LoanLinearLayout"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:fadeScrollbars="false"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

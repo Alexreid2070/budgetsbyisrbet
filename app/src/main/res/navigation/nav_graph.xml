@@ -152,11 +152,6 @@
             android:defaultValue="" />
     </fragment>
     <fragment
-        android:id="@+id/ChatFragment"
-        android:name="com.isrbet.budgetsbyisrbet.ChatFragment"
-        android:label="Chats"
-        tools:layout="@layout/fragment_chat" />
-    <fragment
         android:id="@+id/TrackerFragment"
         android:name="com.isrbet.budgetsbyisrbet.TrackerFragment"
         android:label="Tracker"

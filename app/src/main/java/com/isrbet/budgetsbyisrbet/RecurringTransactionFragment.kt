@@ -56,11 +56,11 @@ class RecurringTransactionFragment : Fragment() {
                         myAdapter.notifyDataSetChanged()
                     }
                 })
-                rtdf.show(parentFragmentManager, "Edit Recurring Transaction")
+                rtdf.show(parentFragmentManager, "Edit Scheduled Payment")
             }
         if (rows.size == 0) {
             binding.noInformationText.visibility = View.VISIBLE
-            binding.noInformationText.text = "You have not yet entered any recurring transactions.  \n\nClick on the Add button below to add a recurring transaction."
+            binding.noInformationText.text = "You have not yet entered any scheduled payments.  \n\nClick on the Add button below to add a scheduled payment."
         } else {
             binding.noInformationText.visibility = View.GONE
         }
@@ -117,6 +117,6 @@ class RecurringTransactionFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         })
-        rtdf.show(parentFragmentManager, "Edit Recurring Transaction")
+        rtdf.show(parentFragmentManager, "Edit Scheduled Payment")
     }
 }

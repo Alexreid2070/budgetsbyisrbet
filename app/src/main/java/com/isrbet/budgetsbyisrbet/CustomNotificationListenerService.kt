@@ -62,8 +62,9 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val dollarSign = notificationText.indexOf("$")
                             val space = notificationText.indexOf(" ", dollarSign)
                             var textAmount = notificationText.substring(dollarSign+1, space).trim()
-                            textAmount = textAmount.replace(",","")
-                            tAmount = textAmount.toDouble()
+
+//                            textAmount = textAmount.replace(",","")
+                            tAmount = getDoubleValue(textAmount)
                             val credited = notificationText.indexOf("credited")
                             if (credited != -1) {
                                 Log.d("Alex", "it's a credit!")
@@ -81,8 +82,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val rbracket = notificationText.indexOf("]", lbracket + 1)
                             tCategory = notificationText.substring(lbracket+1, rbracket).trim()
                             singleInstance.cancelNotification(sbn.key)
-                            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TDMySpend_Success")
-                                .child(key).setValue(notificationText)
                             return TransactionDataFromTD(tAmount, tNote, tCategory)
                         }
                         catch (exception: Exception) {

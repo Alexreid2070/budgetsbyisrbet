@@ -76,7 +76,6 @@ class TranslationViewModel : ViewModel() {
         }
         fun addTranslation(iBefore: String, iAfter: String) {
             val trans = TranslationOut(iBefore, iAfter)
-            Log.d("Alex", "Adding translation $iBefore $iAfter")
             val key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").push().key.toString()
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(key).setValue(trans)
         }

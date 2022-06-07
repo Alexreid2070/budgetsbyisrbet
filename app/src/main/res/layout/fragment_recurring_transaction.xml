@@ -13,7 +13,8 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/expansion_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:fadeScrollbars="false"/>
 
     <TextView
         android:id="@+id/noInformationText"
@@ -33,10 +34,9 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="bottom|center"
-        android:background="?attr/colorSecondary"
         android:contentDescription="@string/app_name"
         android:src="@drawable/ic_fas_plus"
-        android:tooltipText="Add Recurring Transaction"
+        android:tooltipText="Add Scheduled Payment"
         app:layout_constraintBottom_toTopOf="@id/expansion_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -64,7 +64,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_categories"
@@ -76,7 +78,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_budgets"
@@ -88,7 +92,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_recurring_transactions"
@@ -101,7 +107,9 @@
             android:text="Scheduled Payments"
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="2"/>
 
         <Space
             android:layout_width="5dp"

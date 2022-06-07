@@ -49,7 +49,6 @@ class HomeFragment : Fragment() {
     private val budgetModel: BudgetViewModel by viewModels()
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
     private val userModel: AppUserViewModel by viewModels()
-    private val chatModel: ChatViewModel by viewModels()
     private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
     private var gestureDetector: GestureDetectorCompat? = null
@@ -59,7 +58,6 @@ class HomeFragment : Fragment() {
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
         userModel.clearCallback() // ditto, see above
-        chatModel.clearCallback() // ditto, see above
         transactionModel.clearCallback()
         budgetModel.clearCallback()
         recurringTransactionModel.clearCallback()
@@ -165,9 +163,6 @@ class HomeFragment : Fragment() {
         binding.helpButton.setOnClickListener {
             findNavController().navigate(R.id.HelpFragment)
         }
-        binding.chatButton.setOnClickListener {
-            findNavController().navigate(R.id.ChatFragment)
-        }
         binding.adminButton.setOnClickListener {
             findNavController().navigate(R.id.AdminFragment)
         }
@@ -199,11 +194,14 @@ class HomeFragment : Fragment() {
         // the GoogleSignInAccount will be non-null.
         val account = GoogleSignIn.getLastSignedInAccount(requireContext())
         if (account?.email == null) {
+            // user is logged out
             (activity as MainActivity).setLoggedOutMode(true)
             binding.expandButton.isEnabled = false
             binding.signInButton.visibility = View.VISIBLE
             binding.quoteField.text = ""
             binding.quoteLabel.visibility = View.GONE
+            binding.transactionAddFab.visibility = View.GONE
+            binding.expandButton.visibility = View.GONE
             binding.homeScreenMessage.visibility = View.VISIBLE
             binding.homeScreenMessage.text =
                 "You must sign in using your Google account to proceed.  Click below to continue."
@@ -276,11 +274,6 @@ class HomeFragment : Fragment() {
                 alignPageWithDataState("SpenderViewModel")
             }
         })
-        ChatViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                tryToUpdateChatIcon()
-            }
-        })
         HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("HintViewModel")
@@ -336,7 +329,6 @@ class HomeFragment : Fragment() {
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
         binding.expansionAreaLayout.visibility = View.GONE
         homePageExpansionAreaExpanded = false
-        doSomethingIfThereAreUnreadMessages()
     }
 
     private fun getQuote(): String {
@@ -394,12 +386,16 @@ class HomeFragment : Fragment() {
             binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
         }
         if (account == null) {
+            binding.transactionAddFab.visibility = View.GONE
+            binding.expandButton.visibility = View.GONE
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
             binding.homeScreenMessage.visibility = View.VISIBLE
             binding.homeScreenMessage.text =
                 "You must sign in using your Google account to proceed.  Click below to continue."
         } else {
+            binding.transactionAddFab.visibility = View.VISIBLE
+            binding.expandButton.visibility = View.VISIBLE
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -411,7 +407,6 @@ class HomeFragment : Fragment() {
             }
             if (account.email == "alexreid2070@gmail.com")
                 setAdminMode(true)
-            doSomethingIfThereAreUnreadMessages()
             Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
                 // check if I should load my own UID, or if I'm a JoinUser
@@ -442,7 +437,6 @@ class HomeFragment : Fragment() {
     private fun loadEverything() {
         Log.d("Alex", "uid is " + MyApplication.userUID)
         setupDataCallbacks()
-        getLastReadChatsInfo()
         hintModel.loadHints()
         defaultsModel.loadDefaults()
         categoryModel.loadCategories()
@@ -450,7 +444,6 @@ class HomeFragment : Fragment() {
         budgetModel.loadBudgets()
         recurringTransactionModel.loadRecurringTransactions()
         transactionModel.loadTransactions()
-        chatModel.loadChats()
         translationModel.loadTranslations()
         MyApplication.haveLoadedDataForThisUser = true
         val dateNow = Calendar.getInstance()
@@ -505,7 +498,6 @@ class HomeFragment : Fragment() {
                 HintViewModel.showHint(parentFragmentManager, "Home")
                 CategoryViewModel.singleInstance.clearCallback()
                 SpenderViewModel.singleInstance.clearCallback()
-                ChatViewModel.singleInstance.clearCallback()
                 TransactionViewModel.singleInstance.clearCallback()
                 BudgetViewModel.singleInstance.clearCallback()
                 RecurringTransactionViewModel.singleInstance.clearCallback()
@@ -520,6 +512,7 @@ class HomeFragment : Fragment() {
 
     private fun setupNewUser() {
         Log.d("Alex", "Setting up new user")
+        AppUserViewModel.addUserKey()
         CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, cON,false)
         CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, cON, false)
         CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, cON,false)
@@ -561,7 +554,6 @@ class HomeFragment : Fragment() {
         Log.d("Alex", "sign out attempted")
         BudgetViewModel.clear()
         CategoryViewModel.clear()
-        ChatViewModel.clear()
         DefaultsViewModel.clear()
         TransactionViewModel.clear()
         RecurringTransactionViewModel.clear()
@@ -575,9 +567,10 @@ class HomeFragment : Fragment() {
         MyApplication.userFamilyName = ""
         MyApplication.userPhotoURL = ""
         MyApplication.adminMode = false
-        doSomethingIfThereAreUnreadMessages()
         (activity as MainActivity).setLoggedOutMode(true)
         binding.expandButton.isEnabled = false
+        binding.transactionAddFab.visibility = View.GONE
+        binding.expandButton.visibility = View.GONE
         binding.signInButton.visibility = View.VISIBLE
         binding.signInButton.setSize(SignInButton.SIZE_WIDE)
         binding.quoteField.text = ""
@@ -598,60 +591,10 @@ class HomeFragment : Fragment() {
         MyApplication.adminMode = inAdminMode
     }
 
-    private fun getLastReadChatsInfo() {
-        val infoListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.value != null) { // nothing exists at this node so we can add it
-                    dataSnapshot.children.forEach {
-                        when (it.key) {
-                            "date" -> MyApplication.lastReadChatsDate = it.value.toString()
-                            "time" -> MyApplication.lastReadChatsTime = it.value.toString()
-                        }
-                    }
-                    tryToUpdateChatIcon()
-                }
-            }
-
-            override fun onCancelled(dataSnapshot: DatabaseError) {
-                MyApplication.displayToast("User authorization failed 113.")
-            }
-        }
-        val dbRef =
-            MyApplication.databaseref.child("Users/" + MyApplication.userUID)
-                .child("Info")
-                .child(SpenderViewModel.myIndex().toString())
-                .child("LastReadChats")
-        dbRef.addListenerForSingleValueEvent(infoListener)
-    }
-
-    fun tryToUpdateChatIcon() {
-        // this is called when lastSignedIn date/time are found, and also when chats are loaded.  When both are done then do something
-        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
-            doSomethingIfThereAreUnreadMessages()
-        }
-    }
-
-    private fun doSomethingIfThereAreUnreadMessages() {
-        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
-            val tChat = ChatViewModel.getLastChat()
-            if (MyApplication.lastReadChatsDate < tChat.date ||
-                (MyApplication.lastReadChatsDate == tChat.date && MyApplication.lastReadChatsTime < tChat.time)) {
-                // there are unread chats
-                binding.expandButton.setImageDrawable(ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_fas_envelope))
-                val drawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fas_envelope)
-                drawable?.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-                binding.chatButton.setCompoundDrawables(null, drawable, null, null)
-            }
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         CategoryViewModel.singleInstance.clearCallback()
         SpenderViewModel.singleInstance.clearCallback()
-        ChatViewModel.singleInstance.clearCallback()
         TransactionViewModel.singleInstance.clearCallback()
         BudgetViewModel.singleInstance.clearCallback()
         RecurringTransactionViewModel.singleInstance.clearCallback()

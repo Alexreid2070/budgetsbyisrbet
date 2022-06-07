@@ -233,7 +233,7 @@ class DashboardFragment : Fragment() {
             else -> DateRange.MONTH
         }
         val defWho = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD)))
-            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt() else -1
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_DASHBOARD).toInt() else 2
         val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth,
             DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD),
             defWho,
@@ -348,7 +348,7 @@ class DashboardFragment : Fragment() {
         }
         if (iRowType == "Header") {
             tv2.text = "D?"
-            tv2.tooltipText = "Indicates whether this budget item is Discretionary (D), or not (ND)."
+            tv2.tooltipText = getString(R.string.toolTipDisc)
         } else {
             tv2.text = iDiscFlag
         }
@@ -371,7 +371,7 @@ class DashboardFragment : Fragment() {
         tv3.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv3.text = "Actual"
-            tv3.tooltipText = "Total actual amount spent for this category."
+            tv3.tooltipText = getString(R.string.toolTipActual)
         } else {
                 tv3.text = gDecWithCurrency(iActualAmount, DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
         }
@@ -393,7 +393,7 @@ class DashboardFragment : Fragment() {
         tv4.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv4.text = "Budget"
-            tv4.tooltipText = "Total budgeted amount spent for this category."
+            tv4.tooltipText = getString(R.string.toolTipBudgeted)
         } else {
             tv4.text = gDecWithCurrency(iBudgetAmount, DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
         }
@@ -415,7 +415,7 @@ class DashboardFragment : Fragment() {
         tv5.setPadding(5, 15, 0, 15)
         if (iRowType == "Header") {
             tv5.text = "Delta"
-            tv5.tooltipText = "Difference between actual amount spent and budgeted amount for this category."
+            tv5.tooltipText = getString(R.string.toolTipDelta)
         } else {
                 if (DefaultsViewModel.getDefault(cDEFAULT_DELTA_DASHBOARD) == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
@@ -429,7 +429,6 @@ class DashboardFragment : Fragment() {
                 } else {
                     val diff = BigDecimal(iBudgetAmount - iActualAmount).setScale(2, RoundingMode.HALF_EVEN)
                     val tiny = BigDecimal(0.01)
-                    Log.d("Alex", "Diff is $diff")
                     if (diff.abs() < tiny) {
                         tv5.text = gDecWithCurrency(0.0, DefaultsViewModel.getDefault(cDEFAULT_ROUND_DASHBOARD) == "true")
                     } else
@@ -756,7 +755,7 @@ class DashboardRows {
     fun getRows(
         iBudgetMonth: BudgetMonth,
         iDiscFlag: String = "",
-        iBoughtForFlag: Int = -1,
+        iBoughtForFlag: Int = 2,
         iViewPeriod: DateRange = DateRange.MONTH
     ): MutableList<DashboardData> {
         val data: MutableList<DashboardData> = mutableListOf()
@@ -793,7 +792,6 @@ class DashboardRows {
                 row.actualAmount = 0.0
                 row.budgetAmount = budget.value
                 row.priority = DefaultsViewModel.getCategoryDetail(row.category).priority
-                Log.d("Alex", "adding ${row.categoryID} ${row.actualAmount} ${row.budgetAmount} ${row.category} ${row.subcategory}")
                 data.add(row)
             } else {
                 dRow.budgetAmount = budget.value

@@ -28,11 +28,11 @@ class CategoryFragment : Fragment() {
 
         val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
         listView.adapter = adapter
-        if (SpenderViewModel.twoDistinctUsers())
+/*        if (SpenderViewModel.twoDistinctUsers())
             binding.privacyHeading.visibility = View.VISIBLE
         else
             binding.privacyHeading.visibility = View.GONE
-
+*/
 
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
@@ -51,7 +51,6 @@ class CategoryFragment : Fragment() {
                 cdf.show(parentFragmentManager, "Edit Category")
             }
         binding.expandSettings.setOnClickListener {
-            Log.d("Alex", "clicked on Settings")
             findNavController().navigate(R.id.SettingsFragment)
         }
         binding.expandBudgets.setOnClickListener {
@@ -76,10 +75,10 @@ class CategoryFragment : Fragment() {
                 }
             }
         })
-        if (SpenderViewModel.twoDistinctUsers())
+/*        if (SpenderViewModel.twoDistinctUsers())
             binding.privacyHeading.visibility = View.VISIBLE
         else
-            binding.privacyHeading.visibility = View.GONE
+            binding.privacyHeading.visibility = View.GONE */
         HintViewModel.showHint(parentFragmentManager, "Category")
     }
 

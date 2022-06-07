@@ -101,15 +101,17 @@ class BudgetViewAllFragment : Fragment() {
             setCategoryType()
         }
         binding.buttonViewByDate.setOnClickListener {
+            Log.d("Alex", "Here1")
             DefaultsViewModel.updateDefault(cDEFAULT_BUDGET_VIEW, cBudgetDateView)
+            Log.d("Alex", "Here2")
             binding.rowBudgetDateHeading.text = cBudgetCategoryView
+            Log.d("Alex", "Here3")
             setupDateSelectors()
+            Log.d("Alex", "Here4")
             loadRows(0, binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
+            Log.d("Alex", "Here5")
         }
 //        binding.budgetAddYear.setOnValueChangedListener { _, _, _ -> loadRows(0, binding.budgetAddYear.value, binding.budgetAddMonth.value) }
-        binding.budgetAddYear.doOnProgressChanged { np, _, _ -> loadRows(0, np.progress, binding.budgetAddMonth.progress) }
-
-        binding.budgetAddMonth.doOnProgressChanged { np, _, _ -> loadRows(0, binding.budgetAddYear.progress, np.progress) }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
         val constraintLayout = binding.constraintLayout
@@ -147,6 +149,7 @@ class BudgetViewAllFragment : Fragment() {
         binding.categoryTypeLayout.visibility = View.GONE
         binding.yearLayout.visibility = View.VISIBLE
         val cal = android.icu.util.Calendar.getInstance()
+        Log.d("Alex", "Year is ${cal.get(Calendar.YEAR)} and month is ${cal.get(Calendar.MONTH)}")
         if (args.year == "") {
             binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
             binding.budgetAddMonth.progress = cal.get(Calendar.MONTH) + 1
@@ -154,10 +157,13 @@ class BudgetViewAllFragment : Fragment() {
             binding.budgetAddYear.progress = args.year.toInt()
             binding.budgetAddMonth.progress = args.month.toInt()
         }
+        Log.d("Alex", "budgetaddmonth is now ${binding.budgetAddMonth.progress}")
         binding.rowBudgetIsSingleHeading.visibility = View.GONE
         val param = binding.rowBudgetDateHeading.layoutParams as LinearLayout.LayoutParams
         param.weight = 3f
         binding.rowBudgetDateHeading.layoutParams = param
+        binding.budgetAddYear.doOnProgressChanged { np, _, _ -> loadRows(0, np.progress, binding.budgetAddMonth.progress) }
+        binding.budgetAddMonth.doOnProgressChanged { np, _, _ -> loadRows(0, binding.budgetAddYear.progress, np.progress) }
     }
 
     fun setCategoryType() {
@@ -174,6 +180,7 @@ class BudgetViewAllFragment : Fragment() {
 
     fun loadRows(iCategoryID: Int, iYear: Int, iMonth: Int) {
         var noDataText: String
+        Log.d("Alex", "Incoming $iCategoryID $iYear $iMonth")
         val rows = if (binding.buttonViewByDate.isChecked) {
             noDataText = "You have not yet entered any budgets for ${MonthNames[iMonth-1]} $iYear.  \n\nClick on the Add button below to add a budget."
             BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))

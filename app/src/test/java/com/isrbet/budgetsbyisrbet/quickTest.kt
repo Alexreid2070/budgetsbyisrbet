@@ -21,5 +21,15 @@ class QuickTest {
         bm = BudgetMonth("2022-2-23")
         assertEquals(2022, bm.year)
         assertEquals(2, bm.month)
+        var d = getDoubleValue("(5.00)")
+        assertEquals(d, -5.00, 0.00)
+        d = getDoubleValue("-5.00")
+        assertEquals(d, -5.00, 0.00)
+        d = getDoubleValue("5.00")
+        assertEquals(d, 5.00, 0.00)
+        d = getDoubleValue("-5")
+        assertEquals(d, -5.00, 0.00)
+        d = getDoubleValue("5")
+        assertEquals(d, 5.00, 0.00)
     }
 }

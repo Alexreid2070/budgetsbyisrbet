@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHelpBinding
 
 class HelpFragment : Fragment() {
@@ -27,6 +28,7 @@ class HelpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.restartHintButton.setOnClickListener {
             HintViewModel.restartHints()
+            Toast.makeText(activity, "Hints have been restarted.", Toast.LENGTH_SHORT).show()
         }
     }
     override fun onDestroyView() {

@@ -31,7 +31,8 @@ class LoanFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        Log.d("Alex", "Came to Loan fragment with arg ${args.loanID}")
+        binding.currencySymbol1.text = getLocalCurrencySymbol() + " "
+        binding.currencySymbol2.text = getLocalCurrencySymbol() + " "
         if (args.loanID != "") {
             setupLoanSpinner(args.loanID)
             val rt = RecurringTransactionViewModel.getRecurringTransaction(args.loanID)
@@ -76,10 +77,10 @@ class LoanFragment : Fragment() {
                     if (rt != null) {
                         binding.loanStartDate.setText(rt.loanFirstPaymentDate)
                         cal.set(rt.loanFirstPaymentDate.substring(0,4).toInt(), rt.loanFirstPaymentDate.substring(5,7).toInt()-1, rt.loanFirstPaymentDate.substring(8,10).toInt())
-                        binding.loanAmount.setText((rt.loanAmount / 100.0).toString())
+                        binding.loanAmount.setText(gDec.format(rt.loanAmount / 100.0))
                         binding.amortizationPeriod.setText((rt.loanAmortization / 100.0).toString())
                         binding.interestRate.setText((rt.loanInterestRate / 100.0).toString())
-                        binding.acceleratedPaymentAmount.setText((rt.loanAcceleratedPaymentAmount / 100.0).toString())
+                        binding.acceleratedPaymentAmount.setText(gDec.format(rt.loanAcceleratedPaymentAmount / 100.0))
                         when (rt.loanPaymentRegularity) {
                             LoanPaymentRegularity.WEEKLY -> binding.buttonWeekly.isChecked = true
                             LoanPaymentRegularity.BIWEEKLY -> binding.buttonBiweekly.isChecked = true
@@ -162,12 +163,12 @@ class LoanFragment : Fragment() {
         cal.set(dt.substring(0,4).toInt(), dt.substring(5,7).toInt()-1, dt.substring(8,10).toInt())
 
         val accPayment =
-            if (binding.acceleratedPaymentAmount.text.toString() == "") 0.0 else binding.acceleratedPaymentAmount.text.toString().toDouble()
+            if (binding.acceleratedPaymentAmount.text.toString() == "") 0.0 else getDoubleValue(binding.acceleratedPaymentAmount.text.toString())
         loadRows(cal,
-            binding.amortizationPeriod.text.toString().toDouble(),
+            getDoubleValue(binding.amortizationPeriod.text.toString()),
             freq,
-            binding.interestRate.text.toString().toDouble()/100.0,
-            binding.loanAmount.text.toString().toDouble(),
+            getDoubleValue(binding.interestRate.text.toString())/100.0,
+            getDoubleValue(binding.loanAmount.text.toString()),
             accPayment)
     }
 
@@ -183,7 +184,10 @@ class LoanFragment : Fragment() {
             LoanPaymentRegularity.MONTHLY -> 12
         }
 
-        val calcPayment =  iPrincipal * (iInterestRate / iPaymentsPerYear) * (1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear * iAmortizationYears) /
+        val calcPayment =  if (iInterestRate == 0.0)
+            iPrincipal / iAmortizationYears / iPaymentsPerYear
+        else
+            iPrincipal * (iInterestRate / iPaymentsPerYear) * (1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear * iAmortizationYears) /
                 ((1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear*iAmortizationYears) - 1)
         binding.calculatedPaymentAmount.text = gDecWithCurrency(calcPayment)
         Log.d("Alex", "payment is $calcPayment")
@@ -192,7 +196,10 @@ class LoanFragment : Fragment() {
         Log.d("Alex", "Extra payment is $extraPayment")
         for (i in 1..(round(iAmortizationYears * iPaymentsPerYear).toInt())) {
             val interestOwingForThisPeriod = owingAtEndOfPeriod * iInterestRate / iPaymentsPerYear
-            owingAtEndOfPeriod = (1 + iInterestRate/iPaymentsPerYear).pow(i)*iPrincipal - (((1+iInterestRate/iPaymentsPerYear).pow(i) - 1)/(iInterestRate/iPaymentsPerYear)*calcPayment) - (extraPayment*i)
+            owingAtEndOfPeriod = if (iInterestRate == 0.0)
+                owingAtEndOfPeriod - calcPayment
+            else
+                (1 + iInterestRate/iPaymentsPerYear).pow(i)*iPrincipal - (((1+iInterestRate/iPaymentsPerYear).pow(i) - 1)/(iInterestRate/iPaymentsPerYear)*calcPayment) - (extraPayment*i)
             if (iAcceleratedPayment > owingAtEndOfPeriod) { // ie last payment
                 myList.add(
                     LoanPayment(

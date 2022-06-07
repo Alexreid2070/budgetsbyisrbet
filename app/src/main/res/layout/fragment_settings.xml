@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="10dp"
         android:layout_alignParentTop="true"
+        android:fadeScrollbars="false"
         android:layout_above="@id/expansion_layout">
         <LinearLayout
             android:layout_width="match_parent"
@@ -172,6 +173,7 @@
                 android:orientation="vertical"
                 android:visibility="gone">
                 <TextView
+                    android:id="@+id/shareKeyText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -244,35 +246,59 @@
                 android:layout_height="10dp"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:layout_gravity="center">
-                <Button
+                <TextView
                     android:id="@+id/settings_cancel_button"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:contentDescription="Cancel"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
                     android:text="Cancel"
-                    android:visibility="gone"
-                    tools:ignore="ButtonStyle,HardcodedText"
-                    android:tooltipText="Cancel any changes made."/>
-                <Button
-                    android:id="@+id/settings_save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:tooltipText="Cancel"
                     android:layout_gravity="center"
-                    android:text="Save User Changes"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
                     android:visibility="gone"
-                    tools:ignore="ButtonStyle,HardcodedText"
-                    android:tooltipText="Save changes made.">
-                </Button>
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="HardcodedText"
+                    app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
+                <TextView
+                    android:id="@+id/settings_save_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:contentDescription="Save"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="Save"
+                    android:tooltipText="Save"
+                    android:textSize="16sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="HardcodedText"
+                    app:drawableTopCompat="@drawable/ic_baseline_save_24" />
             </LinearLayout>
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
             <View
+                android:id="@+id/line1"
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:background="@android:color/darker_gray"
@@ -283,34 +309,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    android:text="Default Spender: "
+                    android:layout_gravity="start"
+                    android:text="Default User: "
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText"
                     android:tooltipText="Default user when adding a new transaction.  Can be changed before saving."/>
 
-                <RadioGroup
-                    android:id="@+id/defaultSpenderRadioGroup"
+                <HorizontalScrollView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal"/>
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/defaultSpenderRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:layout_gravity="start"
+                        android:orientation="horizontal"/>
+                </HorizontalScrollView>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/split_slider_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp">
+                android:layout_height="wrap_content">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -330,67 +360,73 @@
                     android:stepSize="1"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/split_layout"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                <LinearLayout
+                    android:id="@+id/split_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
+                    android:layout_gravity="center_horizontal"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Split is "
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/split_name1_pct"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="% for  "
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/split_name1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="16sp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text=" and "
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/split_name2_pct"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="% for  "
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/split_name2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="16sp"/>
-            </LinearLayout>
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="Split is "
+                        android:textSize="16sp"
+                        tools:ignore="HardcodedText" />
+                    <TextView
+                        android:id="@+id/split_name1_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="% "
+                        android:textSize="16sp"
+                        tools:ignore="HardcodedText" />
+                    <TextView
+                        android:id="@+id/split_name1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text=" and "
+                        android:textSize="16sp"
+                        tools:ignore="HardcodedText" />
+                    <TextView
+                        android:id="@+id/split_name2_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="% "
+                        android:textSize="16sp"
+                        tools:ignore="HardcodedText" />
+                    <TextView
+                        android:id="@+id/split_name2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+            </HorizontalScrollView>
             <LinearLayout
                 android:id="@+id/settings_category_spinner_layout"
                 android:layout_width="wrap_content"
@@ -444,6 +480,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
             <View
+                android:id="@+id/line2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
@@ -510,6 +547,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp"/>
             <View
+                android:id="@+id/line3"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
@@ -596,6 +634,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="5dp"/>
             <View
+                android:id="@+id/line4"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
@@ -650,6 +689,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="5dp"/>
                 <View
+                    android:id="@+id/line5"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
@@ -681,7 +721,9 @@
             android:text="Preferences"
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_categories"
@@ -693,7 +735,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_budgets"
@@ -705,7 +749,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_recurring_transactions"
@@ -717,7 +763,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="2"/>
 
         <Space
             android:layout_width="5dp"

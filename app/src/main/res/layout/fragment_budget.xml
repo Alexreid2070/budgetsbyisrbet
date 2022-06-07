@@ -27,6 +27,7 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fadeScrollbars="false"
         android:layout_alignParentTop="true"
         android:paddingBottom="?android:attr/actionBarSize"
         app:layout_constraintTop_toBottomOf="@+id/budget_header_layout">
@@ -54,6 +55,7 @@
                 android:id="@+id/radioGroupScroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
                 android:layout_below="@id/budgetAddCategoryLabel">
 
                 <RadioGroup
@@ -96,7 +98,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_marginStart="5dp"
                         android:background="@android:color/transparent"
                         android:gravity="end"
                         android:spinnerMode="dropdown" />
@@ -236,15 +237,18 @@
                     tools:ignore="HardcodedText"
                     android:tooltipText="@string/toolTipBudgetWho"/>
 
-                <RadioGroup
-                    android:id="@+id/budgetAdd_whoRadioGroup"
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:checkedButton="@+id/radio_person3"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="1dp" />
+                    android:fadeScrollbars="false">
+                    <RadioGroup
+                        android:id="@+id/budgetAdd_whoRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/radio_person3"
+                        android:gravity="center"
+                        android:orientation="horizontal"/>
+                </HorizontalScrollView>
             </LinearLayout>
 
             <LinearLayout
@@ -414,23 +418,46 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <Button
+                <TextView
                     android:id="@+id/budgetAdd_button_cancel"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:contentDescription="Cancel"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
                     android:text="Cancel"
+                    android:tooltipText="Cancel"
+                    android:textSize="16sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="ButtonStyle,HardcodedText" />
-
-                <Button
+                    tools:ignore="HardcodedText"
+                    app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
+                <TextView
                     android:id="@+id/budgetAdd_button_save"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:contentDescription="Save"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
                     android:text="Save"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:ignore="ButtonStyle,HardcodedText" />
+                    android:tooltipText="Save"
+                    android:textSize="16sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="HardcodedText"
+                    app:drawableTopCompat="@drawable/ic_baseline_save_24" />
             </LinearLayout>
 
             <Space
@@ -447,142 +474,30 @@
                 android:background="@android:color/darker_gray"
                 android:paddingBottom="10dp" />
 
-            <LinearLayout
-                android:id="@+id/budgetAddPreviousAmount_layout"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/budgetAddPreviousAmount"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/budgetAdd_view2"
-                android:orientation="horizontal"
-                android:paddingTop="10dp">
-
-                <TextView
-                    android:id="@+id/budgetAddPreviousAmount_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="Current budget amount is $"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:id="@+id/budgetAddPreviousAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start" />
-
-                <TextView
-                    android:id="@+id/budgetAddPreviousAmount_label2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text=" which was set "
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:id="@+id/budgetAddPreviousAmountDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:text="."
-                    tools:ignore="HardcodedText" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/budgetAddActualAmount_layout"
-                android:layout_width="match_parent"
+                android:gravity="start" />
+            <TextView
+                android:id="@+id/budgetAddActualAmount"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddPreviousAmount_layout"
-                android:orientation="horizontal"
-                android:paddingTop="10dp">
-
-                <TextView
-                    android:id="@+id/budgetAddActualAmount_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="Actual amount spent in previous period is $"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:id="@+id/budgetAddActualAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start" />
-
-                <TextView
-                    android:id="@+id/budgetAddActualAmount_label2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="."
-                    tools:ignore="HardcodedText" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/budgetAddTotalAmount_layout"
-                android:layout_width="match_parent"
+                android:layout_below="@id/budgetAddPreviousAmount"
+                android:gravity="start" />
+            <TextView
+                android:id="@+id/budgetAddTotalAmount"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddActualAmount_layout"
-                android:orientation="horizontal"
-                android:paddingTop="10dp">
-
-                <TextView
-                    android:id="@+id/budgetAddTotalAmount_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="Total spent in previous 12 months is $"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:id="@+id/budgetAddTotalAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start" />
-
-                <TextView
-                    android:id="@+id/budgetAddTotalAmount_label2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="."
-                    tools:ignore="HardcodedText" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/budgetAddAverageAmount_layout"
-                android:layout_width="match_parent"
+                android:layout_below="@id/budgetAddActualAmount"
+                android:gravity="start" />
+            <TextView
+                android:id="@+id/budgetAddAverageAmount"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddTotalAmount_layout"
-                android:orientation="horizontal"
-                android:paddingTop="10dp">
-
-                <TextView
-                    android:id="@+id/budgetAddAverageAmount_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="Average spent in previous 12 months is $"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:id="@+id/budgetAddAverageAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start" />
-
-                <TextView
-                    android:id="@+id/budgetAddAverageAmount_label2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text="."
-                    tools:ignore="HardcodedText" />
-            </LinearLayout>
+                android:layout_below="@id/budgetAddTotalAmount"
+                android:gravity="start" />
         </RelativeLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

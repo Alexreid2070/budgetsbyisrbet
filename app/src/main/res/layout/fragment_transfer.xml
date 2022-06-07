@@ -4,11 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingStart="5dp"
+    android:paddingEnd="5dp"
     tools:context=".TransferFragment">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -146,15 +149,21 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
-                <RadioGroup
-                    android:id="@+id/fromRadioGroup"
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/radio_person3"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="1dp" />
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/fromRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/radio_person3"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="1dp" />
+                </HorizontalScrollView>
             </LinearLayout>
 
             <LinearLayout
@@ -172,15 +181,21 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
-                <RadioGroup
-                    android:id="@+id/toRadioGroup"
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/radio_person3"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="1dp" />
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/toRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/radio_person3"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="1dp" />
+                </HorizontalScrollView>
             </LinearLayout>
 
             <LinearLayout
@@ -345,25 +360,46 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
 
-                <Button
-                    android:id="@+id/button_cancel_transfer"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/button_cancel"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:contentDescription="Cancel"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
                     android:text="Cancel"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="ButtonStyle,HardcodedText" />
-
-                <Button
-                    android:id="@+id/button_save_transfer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:tooltipText="Cancel"
+                    android:textSize="16sp"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="Save"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="ButtonStyle,HardcodedText" />
+                    tools:ignore="HardcodedText"
+                    app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
+                <TextView
+                    android:id="@+id/button_save"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@color/white"
+                    android:contentDescription="Save"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="Save"
+                    android:tooltipText="Save"
+                    android:textSize="16sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="HardcodedText"
+                    app:drawableTopCompat="@drawable/ic_baseline_save_24" />
             </LinearLayout>
 
         </LinearLayout>

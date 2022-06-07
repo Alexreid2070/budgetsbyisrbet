@@ -21,13 +21,13 @@ class AccountingFragment : Fragment() {
     private var _binding: FragmentAccountingBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
 //        val inflater = TransitionInflater.from(requireContext())
 //        enterTransition = inflater.inflateTransition(R.transition.slide_right)
 //        returnTransition = null
 //        exitTransition = inflater.inflateTransition(R.transition.slide_left)
-    }
+//    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -391,19 +391,18 @@ class AccountingFragment : Fragment() {
         val paramsA: GridLayout.LayoutParams = GridLayout.LayoutParams()
         paramsA.rowSpec = GridLayout.spec(iCellIndex / 2, GridLayout.CENTER)
         paramsA.columnSpec = GridLayout.spec(iCellIndex % 2 + 1, GridLayout.RIGHT)
-
         val titleText = TextView(context)
         val amountText = TextView(context)
         when (iTransfer) {
-            "Transfer" -> titleText.text = "$iName1 transferred to $iName2 "
+            "Transfer" -> titleText.text = "$iName1 transferred to $iName2:  "
             "Sub-Total" -> {
                 paramsT.topMargin = 10
                 paramsT.bottomMargin = 40
                 titleText.setTypeface(null, Typeface.BOLD)
                 amountText.setTypeface(null, Typeface.BOLD)
-                titleText.text = "Total $iName1's funds used for $iName2 "
+                titleText.text = "Total $iName1's funds used for $iName2:  "
             }
-            else -> titleText.text = "$iName1 paid for $iName2 "
+            else -> titleText.text = "$iName1 paid for $iName2:  "
         }
         titleText.layoutParams = paramsT
         iGridLayout.addView(titleText,0)

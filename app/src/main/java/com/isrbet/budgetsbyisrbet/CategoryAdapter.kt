@@ -9,10 +9,7 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.LinearLayout
-import android.widget.TableLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.google.android.material.color.MaterialColors
@@ -48,7 +45,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         var vhSubcategory: TextView = view.findViewById(R.id.row_subcategory)
         var vhDiscType: TextView = view.findViewById(R.id.row_disctype)
         var vhState: TextView = view.findViewById(R.id.row_state)
-        var vhPrivacy: TextView = view.findViewById(R.id.row_private)
+        var vhPrivacy: ImageView = view.findViewById(R.id.row_private)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
 
@@ -76,13 +73,12 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         viewHolder.vhDiscType.text = cData.discType
         viewHolder.vhState.text = cData.state
         if (SpenderViewModel.twoDistinctUsers()) {
-            viewHolder.vhPrivacy.text = if (cData.private != 2) "PRIVATE" else "no"
+            viewHolder.vhPrivacy.visibility = if (cData.private != 2) View.VISIBLE else View.INVISIBLE
         } else
-            viewHolder.vhPrivacy.visibility = View.GONE
+            viewHolder.vhPrivacy.visibility = View.INVISIBLE
         if (cData.state == cOFF) {
             viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
-            viewHolder.vhPrivacy.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         } else {
             val col = MaterialColors.getColor(
                 myContext,
@@ -91,7 +87,6 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
             )
             viewHolder.vhSubcategory.setTextColor(col)
             viewHolder.vhDiscType.setTextColor(col)
-            viewHolder.vhPrivacy.setTextColor(col)
         }
         val cat = DefaultsViewModel.getCategoryDetail(cData.categoryName)
         if (cat.color != 0) {

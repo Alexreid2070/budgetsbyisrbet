@@ -11,6 +11,7 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -33,10 +34,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="Summary"
-                    android:textSize="24sp"
+                    android:text="Accounting Summary"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"
+                    android:paddingBottom="10dp"
                     tools:ignore="HardcodedText" />
                 <TextView
                     android:id="@+id/accounting_summary"
@@ -45,7 +46,7 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:text="text"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     android:tooltipText="Click for list of transactions that contribute to this total."
                     tools:ignore="HardcodedText"
@@ -77,15 +78,20 @@
                     android:paddingTop="20dp"
                     android:textColor="?attr/colorPrimary"
                     tools:ignore="HardcodedText" />
-                <GridLayout
-                    android:id="@+id/gridLayout"
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="fill_horizontal"
-                    android:columnCount="2"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    android:rowCount="14"/>
+                    android:fadeScrollbars="false">
+                    <GridLayout
+                        android:id="@+id/gridLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="fill_horizontal"
+                        android:columnCount="2"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:rowCount="14"/>
+                </HorizontalScrollView>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/details_section"
@@ -593,7 +599,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:background="?attr/colorSecondary"
         android:tooltipText="Add Transfer"
         android:contentDescription="@string/app_name"
         android:paddingBottom="10dp"

@@ -36,6 +36,8 @@ class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() 
     class UserViewHolder(view: View) {
         var vhEmail: TextView = view.findViewById(R.id.userEmail)
         var vhUID: TextView = view.findViewById(R.id.userUID)
+        var vhPrimary: TextView = view.findViewById(R.id.userPrimary)
+        var vhSecondary: TextView = view.findViewById(R.id.userSecondary)
     }
 
     @SuppressLint("SetTextI18n")
@@ -48,7 +50,20 @@ class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() 
 
         viewHolder.vhEmail.text = rtData.email
         viewHolder.vhUID.text = rtData.uid
-
+        if (rtData.primary == "" && rtData.secondary == "") {
+            viewHolder.vhPrimary.visibility = View.GONE
+            viewHolder.vhSecondary.visibility = View.GONE
+        } else {
+            viewHolder.vhPrimary.visibility = View.VISIBLE
+            viewHolder.vhSecondary.visibility = View.VISIBLE
+            if (rtData.primary == "") { // this user is the primary
+                viewHolder.vhPrimary.text = "Secondary: "
+                viewHolder.vhSecondary.text = rtData.secondary
+            } else {  // this user is the seconary
+                viewHolder.vhPrimary.text = "Primary: "
+                viewHolder.vhSecondary.text = AppUserViewModel.getPrimaryEmail(rtData.primary)
+            }
+        }
         return myConvertView
     }
 }

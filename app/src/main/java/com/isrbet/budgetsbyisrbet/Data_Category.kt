@@ -106,7 +106,6 @@ class CategoryViewModel : ViewModel() {
 
         fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
                            iPrivate: Int, iState: String, iLocalOnly: Boolean = false): Category {
-            Log.d("Alex", "setting category to $iDisctype $iPrivate $iState")
             var cat: Category? = singleInstance.categories.find { it.id == id }
             if (cat == null) {
                 cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iState)

@@ -76,7 +76,7 @@ class TranslationEditDialogFragment : DialogFragment() {
     }
 
     private fun setupClickListeners() {
-        binding.dialogButtonSave.setOnClickListener {
+        binding.buttonSave.setOnClickListener {
             TranslationViewModel.updateTranslation(myTranslation.key, binding.afterField.text.toString())
             if (listener != null)
                 listener?.onNewDataSaved()
@@ -84,7 +84,7 @@ class TranslationEditDialogFragment : DialogFragment() {
             dismiss()
         }
 
-        binding.dialogButtonDelete.setOnClickListener {
+        binding.buttonDelete.setOnClickListener {
             fun yesClicked() {
                 TranslationViewModel.deleteTranslation(myTranslation.key)
                 if (listener != null) {
@@ -104,7 +104,7 @@ class TranslationEditDialogFragment : DialogFragment() {
                 .show()
         }
 
-        binding.dialogButtonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
     }

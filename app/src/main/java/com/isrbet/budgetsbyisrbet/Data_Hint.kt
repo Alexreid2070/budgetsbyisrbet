@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -58,7 +59,6 @@ class HintViewModel : ViewModel() {
         }
         @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "InflateParams")
         fun showHint(iParentFragmentManager: FragmentManager, iFragment: String) {
-            Log.d("Alex", "Showing hint for $iFragment")
                 val hdf = HintDialogFragment.newInstance(iFragment)
                 hdf.show(iParentFragmentManager, "Show Hint")
         }
@@ -68,7 +68,6 @@ class HintViewModel : ViewModel() {
             if (hls == null)
                 hls = HintLastShown(iFragment, -1, "1999-01-01")
             val startPosition = if (iStartPosition == -1) hls.id else iStartPosition
-            Log.d("Alex", "Last shown is $hls")
 
             singleInstance.hints.forEach {
                 if (it.fragment == iFragment &&
@@ -153,7 +152,7 @@ class HintViewModel : ViewModel() {
     }
 
     fun loadHints() {
-        // Do an asynchronous operation to fetch chats
+        // Do an asynchronous operation to fetch hints
         hintListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 hints.clear()
@@ -161,7 +160,6 @@ class HintViewModel : ViewModel() {
                     val tFragmentName = element.key.toString()
                     for (child in element.children) {
                         hints.add(Hint(tFragmentName, child.key.toString().toInt(), child.value.toString()))
-                        Log.d("Alex", "Adding hint: $tFragmentName ${child.key} ${child.value}")
                     }
                 }
                 sortYourself()

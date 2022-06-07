@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.l4digital.fastscroll.FastScrollRecyclerView
-import kotlin.math.pow
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -60,16 +59,15 @@ class TransactionViewAllFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionViewAllBinding.inflate(inflater, container, false)
-        Log.d("Alex", "onCreateView")
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_transaction_view_all, container, false)
         return binding.root
     }
 
-    @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged")
+    @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged", "SetTextI18n")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        Log.d("Alex", "onViewCreated")
+
         val recyclerView: FastScrollRecyclerView =
             requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         recyclerView.apply {
@@ -114,7 +112,6 @@ class TransactionViewAllFragment : Fragment() {
                 }
         }
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        Log.d("Alex", "adapter1 is ${adapter.toString()}")
         loadCategoryRadioButtons()
         if (SpenderViewModel.singleUser()) {
             binding.showSplitsLayout.visibility = View.GONE
@@ -371,8 +368,6 @@ class TransactionViewAllFragment : Fragment() {
             }
         }
         binding.search.setOnClickListener {
-            val recyclerView: FastScrollRecyclerView =
-                requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
             Log.d("Alex", "adapter10 is ${recyclerView.adapter}")
             if (binding.transactionSearch.visibility == View.GONE) {
                 resetLayout(binding.expandNav, binding.navButtonLinearLayout)
@@ -503,11 +498,6 @@ class TransactionViewAllFragment : Fragment() {
         set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
         HintViewModel.showHint(parentFragmentManager, "TransactionViewAll")
-        Log.d("Alex", "Here")
-        Log.d("Alex", "adapter3 is ${adapter.toString()}")
-        val rv: FastScrollRecyclerView =
-            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
-        Log.d("Alex", "recyclerView.adapter4 is ${rv.adapter}")
     }
 
     private fun setViewsToDefault() {
@@ -560,6 +550,7 @@ class TransactionViewAllFragment : Fragment() {
         goToCorrectRow()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun setCategoryFilter(iCategoryID: Int) {
         val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
@@ -641,11 +632,9 @@ class TransactionViewAllFragment : Fragment() {
     private fun updateView() {
         val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        Log.d("Alex", "UPDATE VIEW start adapter6 is ${adapter}")
         recyclerView.adapter = null
         recyclerView.adapter = adapter
         goToCorrectRow()
-        Log.d("Alex", "UPDATE VIEW END adapter7 is ${adapter}")
     }
 
     private fun goToCorrectRow() {
@@ -711,10 +700,6 @@ class TransactionViewAllFragment : Fragment() {
         addSubCategories("All", filters.prevSubcategoryFilter)
     }
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
-        Log.d("Alex", "addSubCategories 1")
-        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
-        var adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        Log.d("Alex", "UPDATE VIEW start adapter9a is ${adapter}")
         val subcategoryList = CategoryViewModel.getSubcategoriesForSpinner(iCategory)
         subcategoryList.add(0,"All")
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subcategoryList)
@@ -724,8 +709,6 @@ class TransactionViewAllFragment : Fragment() {
         else {
             binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
         }
-        adapter = recyclerView.adapter as TransactionRecyclerAdapter
-        Log.d("Alex", "UPDATE VIEW start adapter9b is ${adapter}")
     }
 
     private fun onExpandClicked(button: TextView, layout: LinearLayout) {
@@ -753,7 +736,6 @@ class TransactionViewAllFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         hideKeyboard(requireContext(), requireView())
-        Log.d("Alex", "onPause resetting search text")
 //        transactionSearchText = ""
     }
 

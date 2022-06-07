@@ -156,6 +156,7 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:layout_weight="1"
+        android:textSize="14sp"
         android:background="@drawable/row_header"
         app:layout_constraintTop_toBottomOf="@+id/space1">
 
@@ -168,29 +169,26 @@
             android:paddingEnd="5dp"
             android:text="Date"
             android:tooltipText="This is the month that the budget amount applies to."
-            android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/row_budget_AmountHeading_Monthly"
+            android:id="@+id/row_budget_AmountHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Amt(M)"
-            android:tooltipText="Monthly budget amount."
-            android:textSize="16sp"
+            android:layout_weight="1.1"
+            android:text="Amt"
+            android:tooltipText="Budget amount."
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/row_budget_AmountHeading_Annual"
+            android:id="@+id/row_budget_AnnualIndicatorHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Amt(A)"
-            android:tooltipText="Annual budget amount, ie the budget total for the year that can be used anytime during the year."
-            android:textSize="16sp"
+            android:layout_weight=".5"
+            android:text="A?"
+            android:tooltipText="Annual budget indicator, it shows 'A' if the budget amount is for the entire year."
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -201,7 +199,6 @@
             android:layout_weight="1"
             android:text="Who"
             android:tooltipText="@string/toolTipBudgetWho"
-            android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -212,7 +209,6 @@
             android:layout_weight="1"
             android:text="Occ?"
             android:tooltipText="@string/toolTipBudgetOccurence"
-            android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
     </LinearLayout>
@@ -222,7 +218,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/BudgetLinearLayout"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        android:fadeScrollbars="false"/>
 
     <TextView
         android:id="@+id/noInformationText"
@@ -242,7 +239,6 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="bottom|center"
-        android:background="?attr/colorSecondary"
         android:tooltipText="Add Budget"
         android:contentDescription="@string/app_name"
         android:src="@drawable/ic_fas_plus"
@@ -271,7 +267,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_categories"
@@ -283,7 +281,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_budgets"
@@ -296,7 +296,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
             android:background="@drawable/rounded_top_corners"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/expand_recurring_transactions"
@@ -308,7 +310,9 @@
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="2"/>
         <Space
             android:layout_width="5dp"
             android:layout_height="wrap_content"/>
@@ -375,32 +379,37 @@
             android:textColor="?attr/colorPrimary"
             android:text="View by: "
             tools:ignore="HardcodedText" />
-
-        <RadioGroup
-            android:id="@+id/viewRadioGroup"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checkedButton="@+id/button_view_by_date"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/button_view_by_category"
+            android:fadeScrollbars="false"
+            android:scrollbarThumbHorizontal="?attr/colorSecondary">
+            <RadioGroup
+                android:id="@+id/viewRadioGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Category"
-                android:textColor="?attr/colorPrimary"
-                tools:ignore="HardcodedText" />
+                android:checkedButton="@+id/button_view_by_date"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/button_view_by_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date"
-                android:textColor="?attr/colorPrimary"
-                android:checked="true"
-                tools:ignore="HardcodedText" />
-        </RadioGroup>
+                <RadioButton
+                    android:id="@+id/button_view_by_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category"
+                    android:textColor="?attr/colorPrimary"
+                    tools:ignore="HardcodedText" />
+
+                <RadioButton
+                    android:id="@+id/button_view_by_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textColor="?attr/colorPrimary"
+                    android:checked="true"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </HorizontalScrollView>
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"

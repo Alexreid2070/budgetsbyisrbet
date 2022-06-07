@@ -42,7 +42,6 @@ class TransactionRecyclerAdapter(
         paidbyFilter = filters.prevPaidbyFilter
         boughtforFilter = filters.prevBoughtForFilter
         typeFilter = filters.prevTypeFilter
-        Log.d("Alex", "init search text is " + MyApplication.transactionSearchText)
         filterTheList(MyApplication.transactionSearchText)
         currentTotal = getTotal()
     }
@@ -67,7 +66,6 @@ class TransactionRecyclerAdapter(
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 filteredList = results?.values as MutableList<Transaction>
                 notifyDataSetChanged()
-                Log.d("Alex", "publishResults filteredList size is " + filteredList.size)
             }
         }
     }
@@ -133,10 +131,6 @@ class TransactionRecyclerAdapter(
             filteredList = resultList
         }
         setGroupList()
-        Log.d(
-            "Alex",
-            "filteredList size is " + filteredList.size + " and groupList size is " + groupList.size
-        )
         currentTotal = getTotal()
     }
 
@@ -172,7 +166,7 @@ class TransactionRecyclerAdapter(
             holder.vtfdate.isVisible = false
         }
         val formattedAmount = (data.amount / 100).toDouble() + (data.amount % 100).toDouble() / 100
-        holder.vtfamount.text = gDecWithCurrency(formattedAmount)
+        holder.vtfamount.text = gDecWithCurrencyM(formattedAmount)
         val percentage1 = formattedAmount * data.bfname1split / 100
         val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
         holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())

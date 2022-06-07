@@ -3,7 +3,7 @@
     <!-- Strings used for fragments for navigation -->
     <string name="settings_fragment_label">Settings</string>
     <string name="transaction_fragment_label">Expenditures</string>
-    <string name="recurring_transaction_fragment_label">Recurring Transactions</string>
+    <string name="recurring_transaction_fragment_label">Scheduled Payments</string>
     <string name="previous">Previous</string>
     <string name="inputDateLabel">Date:</string>
     <string name="inputAmountLabel">Amount:</string>
@@ -65,7 +65,6 @@
     <string name="invalidMonth">Invalid month (valid values are 1 to 12)</string>
     <string name="budgetExistsAtThatNode">Budget already exists for that name, can\'t add.</string>
     <string name="toFromCantBeSame">To and From values can\'t be the same</string>
-    <string name="chat_fragment_label">Chats</string>
     <string name="inputWhereLabel">Where:</string>
     <string name="toolTipDate">The date that the transaction occurred.</string>
     <string name="toolTipAmount">The amount of the transaction.</string>
@@ -92,4 +91,7 @@
     <string name="toolTipBudgetPeriod">Indicates if budget applies to a single month or entire year.</string>
     <string name="toolTipBudgetWho">The user to which this budget applies. (Used when users manage sometimes separate finances.)</string>
     <string name="toolTipBudgetOccurence">Indicates if budget occurs monthly/annually, or applies only to a single month/year</string>
+    <string name="toolTipActual">Total actual amount spent for this category.</string>
+    <string name="toolTipBudgeted">Total budgeted amount spent for this category.</string>
+    <string name="toolTipDelta">Difference between actual amount spent and budgeted amount for this category.</string>
 </resources>

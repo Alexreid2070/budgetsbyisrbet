@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
@@ -153,10 +154,12 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         binding.editRtOldName.text = oldName
         binding.editRtNewName.setText(oldName)
 
+        Log.d("Alex", "old amount is $oldAmount ${oldAmount == 0}")
         if (oldAmount == 0) {
             binding.editRtNewAmount.setText("")
         } else {
             val formattedAmount = (oldAmount / 100).toDouble() + (oldAmount % 100).toDouble() / 100
+            Log.d("Alex", "formattedAmount is $formattedAmount and gdec is " + gDec.format(formattedAmount))
             binding.editRtOldAmount.text = gDec.format(formattedAmount)
             binding.editRtNewAmount.setText(gDec.format(formattedAmount))
         }
@@ -216,6 +219,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             oldBoughtFor)))
 
         if (oldName == "") { // ie this is an add, not an edit
+            Log.d("Alex", "old name is blank")
             currentMode = "Add"
             binding.rtDialogLinearLayout1.visibility = View.GONE
             binding.editRtOldAmount.visibility = View.GONE
@@ -300,6 +304,10 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             findNavController().navigate(action)
             dismiss()
         }
+        binding.expandButton.setOnClickListener {
+            onExpandClicked()
+        }
+
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
         binding.editRtNewPeriodSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.editRtNewPeriodSpinner.setPopupBackgroundResource(R.drawable.spinner)
@@ -324,11 +332,12 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             binding.rtDialogLinearLayoutPaidby.visibility = View.GONE
             binding.rtDialogLinearLayoutBoughtfor.visibility = View.GONE
             binding.splitSlider.visibility = View.GONE
-            binding.rtDialogLinearLayoutSplit.visibility = View.GONE
+            binding.rtDialogSplit.visibility = View.GONE
             binding.rtDialogLinearLayoutSplitSlider.visibility = View.GONE
+            binding.expandButton.visibility = View.GONE
+            setExpansionFields(View.GONE)
         }
-        binding.transactionBoughtForName1Label.text = SpenderViewModel.getSpenderName(0)
-        binding.transactionBoughtForName2Label.text = SpenderViewModel.getSpenderName(1)
+        binding.rtDialogSplit.text = "Split is ${SpenderViewModel.getSpenderSplit(0)}% for ${SpenderViewModel.getSpenderName(0)} and ${(100 - SpenderViewModel.getSpenderSplit(1))}% for ${SpenderViewModel.getSpenderName(1)}."
         binding.editRtNewBoughtFor.onItemSelectedListener = object:
             AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -339,26 +348,17 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 val boughtFor = binding.editRtNewBoughtFor.selectedItem.toString()
                 when (boughtFor) {
                     "Joint" -> {
-                        binding.transactionBoughtForName1Split.text =
-                            SpenderViewModel.getSpenderSplit(0).toString()
-                        binding.transactionBoughtForName2Split.text =
-                            SpenderViewModel.getSpenderSplit(1).toString()
-                        Log.d("Alex", "initialLoad is $initialLoad")
                         if (!initialLoad)
                            binding.splitSlider.value = SpenderViewModel.getSpenderSplit(0).toFloat()
-                        binding.transactionBoughtForName1Split.text = binding.splitSlider.value.toInt().toString()
-                        binding.transactionBoughtForName2Split.text =
-                            (100 - binding.transactionBoughtForName1Split.text.toString().toInt()).toString()
                         binding.splitSlider.isEnabled = true
+                        binding.rtDialogSplit.text = "Split is ${binding.splitSlider.value.toInt()}% for ${SpenderViewModel.getSpenderName(0)} and ${(100 - binding.splitSlider.value.toInt())}% for ${SpenderViewModel.getSpenderName(1)}."
                     }
                     SpenderViewModel.getSpenderName(0) -> {
-                        binding.transactionBoughtForName1Split.text = "100"
-                        binding.transactionBoughtForName2Split.text = "0"
+                        binding.rtDialogSplit.text = "Split is 100% for ${SpenderViewModel.getSpenderName(0)} and 0% for ${SpenderViewModel.getSpenderName(1)}."
                         binding.splitSlider.value = 100.0F
                     }
                     else -> {
-                        binding.transactionBoughtForName1Split.text = "0"
-                        binding.transactionBoughtForName2Split.text = "100"
+                        binding.rtDialogSplit.text = "Split is 0% for ${SpenderViewModel.getSpenderName(0)} and 100% for ${SpenderViewModel.getSpenderName(1)}."
                         binding.splitSlider.value = 0.0F
                     }
                 }
@@ -367,13 +367,20 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             }
         }
         binding.splitSlider.addOnChangeListener { _, _, _ ->
-            binding.transactionBoughtForName1Split.text = binding.splitSlider.value.toInt().toString()
-            binding.transactionBoughtForName2Split.text = (100-binding.splitSlider.value.toInt()).toString()
+            binding.rtDialogSplit.text = "Split is ${binding.splitSlider.value.toInt()}% for ${SpenderViewModel.getSpenderName(0)} and ${(100 - binding.splitSlider.value.toInt())}% for ${SpenderViewModel.getSpenderName(1)}."
         }
         binding.splitSlider.value = oldSplit1.toFloat()
 
+        if ((oldBoughtFor == 2 && binding.splitSlider.value.toInt() != SpenderViewModel.getSpenderSplit(0)) ||
+            oldPaidBy != oldBoughtFor) {
+            setExpansionFields(View.VISIBLE)
+        }
+        else {
+            setExpansionFields(View.GONE)
+        }
         if (oldName != "" && currentMode == "View") {
             binding.rtDialogButtonSave.text = "Edit"
+            binding.rtDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_edit_24), null, null)
             binding.viewHeader.text = oldName
             binding.rtCurrentValueHeader.visibility = View.GONE
             binding.headerPrefix.visibility = View.GONE
@@ -389,8 +396,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             binding.rtPaidBySpinnerRelativeLayout.visibility = View.GONE
             binding.rtBoughtForSpinnerRelativeLayout.visibility = View.GONE
             binding.splitSlider.visibility = View.GONE
-            binding.transactionBoughtForName1Split.text = oldSplit1.toString()
-            binding.transactionBoughtForName2Split.text = (100 - oldSplit1).toString()
+            binding.rtDialogSplit.text = "Split is $oldSplit1% for ${SpenderViewModel.getSpenderName(0)} and ${(100 - oldSplit1)}% for ${SpenderViewModel.getSpenderName(1)}."
         }
 
         binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
@@ -419,6 +425,31 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT
         )
+    }
+
+    private fun onExpandClicked() {
+        if (binding.boughtForLabel.visibility == View.GONE) { // ie expand the section
+            setExpansionFields(View.VISIBLE)
+        } else { // ie retract the section
+            setExpansionFields(View.GONE)
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setExpansionFields(iView: Int) {
+        if (iView == View.GONE) {
+            binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
+            binding.paidByLabel.text = "Who:"
+            binding.paidByLabel.tooltipText = getString(R.string.toolTipWhoInput)
+        } else {
+            binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
+            binding.paidByLabel.text = "Paid by:"
+            binding.paidByLabel.tooltipText = getString(R.string.toolTipPaidBy)
+        }
+        binding.boughtForLabel.visibility = iView
+        binding.rtDialogLinearLayoutBoughtfor.visibility = iView
+        binding.rtDialogLinearLayoutSplitSlider.visibility = iView
+        binding.rtDialogSplit.visibility = iView
     }
 
     private fun addSubCategories(iCategory: String) {
@@ -459,7 +490,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Are you sure?")
-                .setMessage("Are you sure that you want to delete this recurring transaction(" + binding.editRtOldName.text.toString() + ")?")
+                .setMessage("Are you sure that you want to delete this scheduled payment (" + binding.editRtOldName.text.toString() + ")?")
                 .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()
@@ -478,17 +509,17 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             return
         }
         if (binding.editRtNewName.text.toString() == "") {
-            showErrorMessage(parentFragmentManager, "Name of this new recurring transaction cannot be blank.")
+            showErrorMessage(parentFragmentManager, "Name of this new scheduled payment cannot be blank.")
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewName)
             return
         }
         if (binding.editRtNewAmount.text.toString() == "") {
-            showErrorMessage(parentFragmentManager, "Amount of this new recurring transaction cannot be zero.")
+            showErrorMessage(parentFragmentManager, "Amount of this new scheduled payment cannot be zero.")
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
             return
         }
-        if (binding.editRtNewAmount.text.toString().toDouble() == 0.0) {
-            showErrorMessage(parentFragmentManager, "Amount of this new recurring transaction cannot be zero.")
+        if (getDoubleValue(binding.editRtNewAmount.text.toString()) == 0.0) {
+            showErrorMessage(parentFragmentManager, "Amount of this new scheduled payment cannot be zero.")
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
             return
         }
@@ -517,7 +548,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         }
         val rtSpinner:Spinner = binding.editRtNewPeriodSpinner
         var somethingChanged = false
-        var amountInt: Int = round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt()
+        var amountInt: Int = round(getDoubleValue(binding.editRtNewAmount.text.toString())*100).toInt()
 
         if (currentMode == "View") { // change to "edit"
             binding.viewHeader.visibility = View.GONE
@@ -536,6 +567,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             binding.rtBoughtForSpinnerRelativeLayout.visibility = View.VISIBLE
             binding.splitSlider.visibility = View.VISIBLE
             binding.rtDialogButtonSave.text = "Save"
+            binding.rtDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
             binding.rtDialogButtonDelete.visibility = View.GONE
             binding.rtLoanSwitch.isEnabled = true
             binding.loanStartDate.isEnabled = true
@@ -615,7 +647,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountInt = round(binding.loanAmount.text.toString().toDouble() * 100).toInt()
+                amountInt = round(getDoubleValue(binding.loanAmount.text.toString()) * 100).toInt()
                 if (oldLoanAmount != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -625,7 +657,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     somethingChanged = true
                 }
                 amountInt =
-                    round(binding.amortizationPeriod.text.toString().toDouble() * 100).toInt()
+                    round(getDoubleValue(binding.amortizationPeriod.text.toString()) * 100).toInt()
                 if (oldLoanAmortization != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -634,7 +666,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountInt = round(binding.interestRate.text.toString().toDouble() * 100).toInt()
+                amountInt = round(getDoubleValue(binding.interestRate.text.toString()) * 100).toInt()
                 if (oldLoanInterestRate != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -651,7 +683,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     somethingChanged = true
                 }
                 amountInt = if (binding.acceleratedPaymentAmount.text.toString() == "") 0
-                else round(binding.acceleratedPaymentAmount.text.toString().toDouble() * 100).toInt()
+                else round(getDoubleValue(binding.acceleratedPaymentAmount.text.toString()) * 100).toInt()
                 if (oldLoanAcceleratedPaymentAmount != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -664,7 +696,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             if (somethingChanged) {
                 RecurringTransactionViewModel.updateRecurringTransaction(
                     oldName,
-                    round(binding.editRtNewAmount.text.toString().toDouble()*100).toInt(),
+                    round(getDoubleValue(binding.editRtNewAmount.text.toString())*100).toInt(),
                     rtSpinner.selectedItem.toString(),
                     binding.editRtNewNextDate.text.toString(),
                     binding.editRtNewRegularity.text.toString().toInt(),
@@ -675,11 +707,11 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     binding.splitSlider.value.toInt(),
                     binding.rtLoanSwitch.isChecked,
                     if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                    if (binding.rtLoanSwitch.isChecked) (binding.loanAmount.text.toString().toDouble()*100).toInt() else 0,
-                    if (binding.rtLoanSwitch.isChecked) (binding.amortizationPeriod.text.toString().toDouble()*100).toInt() else 0,
-                    if (binding.rtLoanSwitch.isChecked) (binding.interestRate.text.toString().toDouble()*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.loanAmount.text.toString())*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.amortizationPeriod.text.toString())*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.interestRate.text.toString())*100).toInt() else 0,
                     freq,
-                    if (binding.acceleratedPaymentAmount.text.toString() != "") (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt() else 0,
+                    if (binding.acceleratedPaymentAmount.text.toString() != "") (getDoubleValue(binding.acceleratedPaymentAmount.text.toString())*100).toInt() else 0,
                 )
                 if (listener != null)
                     listener?.onNewDataSaved()
@@ -699,14 +731,14 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 binding.editRtNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
-                binding.transactionBoughtForName1Split.text.toString().toInt(),
+                binding.splitSlider.value.toInt(),
                 binding.rtLoanSwitch.isChecked,
                 if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                if (binding.rtLoanSwitch.isChecked) (binding.loanAmount.text.toString().toDouble()*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (binding.amortizationPeriod.text.toString().toDouble()*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (binding.interestRate.text.toString().toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.loanAmount.text.toString())*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.amortizationPeriod.text.toString())*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.interestRate.text.toString())*100).toInt() else 0,
                 freq,
-                if (binding.acceleratedPaymentAmount.text.toString() == "") 0 else (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt()
+                if (binding.acceleratedPaymentAmount.text.toString() == "") 0 else (getDoubleValue(binding.acceleratedPaymentAmount.text.toString()) * 100).toInt()
                 )
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             if (listener != null) {
@@ -722,14 +754,14 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 binding.editRtNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewPaidBy.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editRtNewBoughtFor.selectedItem.toString()),
-                binding.transactionBoughtForName1Split.text.toString().toInt(),
+                binding.splitSlider.value.toInt(),
                 binding.rtLoanSwitch.isChecked,
                 if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                if (binding.rtLoanSwitch.isChecked) (binding.loanAmount.text.toString().toDouble()*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (binding.amortizationPeriod.text.toString().toDouble()*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (binding.interestRate.text.toString().toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.loanAmount.text.toString())*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.amortizationPeriod.text.toString())*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.interestRate.text.toString())*100).toInt() else 0,
                 freq,
-                (binding.acceleratedPaymentAmount.text.toString().toDouble()*100).toInt()
+                (getDoubleValue(binding.acceleratedPaymentAmount.text.toString())*100).toInt()
                 )
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             RecurringTransactionViewModel.deleteRecurringTransactionFromFirebase(oldName)
