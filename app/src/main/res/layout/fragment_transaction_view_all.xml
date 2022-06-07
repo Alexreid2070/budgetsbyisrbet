@@ -431,7 +431,7 @@
                 android:text="Show Split Amount columns?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_individual_amounts_columns"
@@ -458,7 +458,7 @@
                 android:text="Show Category column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_category_columns"
@@ -486,7 +486,7 @@
                 android:text="Show Who column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_who_column"
@@ -513,7 +513,7 @@
                 android:text="Show Where column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_note_column"
@@ -540,7 +540,7 @@
                 android:text="Show Discretionary indicator column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_disc_column"
@@ -567,7 +567,7 @@
                 android:text="Show Type column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_type_column"
@@ -595,7 +595,7 @@
                 android:text="Show Running Total column?  "
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:ignore="HardcodedText"></TextView>
+                tools:ignore="HardcodedText"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_running_total_column"
@@ -750,7 +750,8 @@
                     android:layout_height="wrap_content"
                     android:checkedButton="@+id/allDiscRadioButton"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    tools:ignore="TooManyViews">
                     <RadioButton
                         android:id="@+id/allDiscRadioButton"
                         android:layout_width="wrap_content"

@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -63,6 +64,7 @@ class HintDialogFragment : DialogFragment() {
         )
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         binding.doneButton.setOnClickListener {
             dismiss()
@@ -71,7 +73,7 @@ class HintDialogFragment : DialogFragment() {
             Log.d("Alex", "on hint $currentHintID")
             val tHint = HintViewModel.getPreviousHint(myFragment, currentHintID)
             if (tHint == null) { // no hint to show
-                binding.hintText.text = currentHintText + "\n\nThere are no previous hints to show."
+                binding.hintText.text = "$currentHintText\n\nThere are no previous hints to show."
             } else {
                 currentHintID = tHint.id
                 currentHintText = tHint.text
@@ -82,7 +84,7 @@ class HintDialogFragment : DialogFragment() {
         binding.nextButton.setOnClickListener {
             val tHint = HintViewModel.getNextHint(myFragment, currentHintID)
             if (tHint == null) { // no hint to show
-                binding.hintText.text = currentHintText + "\n\nThere are no next hints to show."
+                binding.hintText.text = "$currentHintText\n\nThere are no next hints to show."
             } else {
                 currentHintID = tHint.id
                 currentHintText = tHint.text

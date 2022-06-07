@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -29,6 +30,7 @@ class LoanFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         binding.currencySymbol1.text = getLocalCurrencySymbol() + " "

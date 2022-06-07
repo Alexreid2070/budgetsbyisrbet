@@ -149,7 +149,6 @@ class BudgetViewModel : ViewModel() {
 
         private fun getCalculatedBudgetAmount(iPeriod: DateRange, iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
             var tBudgetAmount = 0.0
-            val cat = CategoryViewModel.getCategory(iCategoryID)
             if (iPeriod == DateRange.ALLTIME) {
                 val dateNow = android.icu.util.Calendar.getInstance()
                 val lastAnnualYear = if (dateNow.get(Calendar.MONTH) == 11) // ie Dec
@@ -201,7 +200,6 @@ class BudgetViewModel : ViewModel() {
         fun getCalculatedBudgetAmount(iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
             // if iWhoToLookup is blank, then will calculate for all Spenders
             // if iWhoToLookup is a specific name, then include the right % of Joint
-            val cat = CategoryViewModel.getCategory(iCategoryID)
             var tBudgetAmount = 0.0
 
             // get original budgets for all 3 possible users

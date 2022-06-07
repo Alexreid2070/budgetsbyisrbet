@@ -947,7 +947,7 @@ class TrackerFragment : Fragment() {
                 col
             )
         }
-        if (dm?.widthPixels!! <= 600)
+        if (dm.widthPixels <= 600)
             s.setSpan(RelativeSizeSpan(1f), 0, s.length, 0)
         else
             s.setSpan(RelativeSizeSpan(1.3f), 0, s.length, 0)

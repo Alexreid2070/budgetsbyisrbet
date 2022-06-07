@@ -571,6 +571,7 @@ class SettingsFragment : Fragment() {
         _binding = null
     }
 
+    @SuppressLint("SetTextI18n")
     private fun onSaveButtonClicked () {
         if (!textIsAlphaOrSpace(binding.settingsFirstUserName.text.toString())) {
             binding.settingsFirstUserName.error = "The text contains non-alphabetic characters."

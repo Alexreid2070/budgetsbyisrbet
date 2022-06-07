@@ -61,7 +61,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
                         try {
                             val dollarSign = notificationText.indexOf("$")
                             val space = notificationText.indexOf(" ", dollarSign)
-                            var textAmount = notificationText.substring(dollarSign+1, space).trim()
+                            val textAmount = notificationText.substring(dollarSign+1, space).trim()
 
 //                            textAmount = textAmount.replace(",","")
                             tAmount = getDoubleValue(textAmount)

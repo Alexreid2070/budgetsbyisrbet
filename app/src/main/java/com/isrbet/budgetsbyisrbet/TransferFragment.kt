@@ -218,13 +218,13 @@ class TransferFragment : Fragment() {
             viewTransfer(TransactionViewModel.getNextTransferKey(binding.transactionId.text.toString()))
         }
         binding.buttonEdit.setOnClickListener {
-            editTransfer(args.transactionID)
+            editTransfer()
         }
         binding.buttonDelete.setOnClickListener {
             deleteTransfer(args.transactionID)
         }
         if (args.mode == "edit")
-            editTransfer(args.transactionID)
+            editTransfer()
     }
 
     override fun onPause() {
@@ -233,7 +233,7 @@ class TransferFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun editTransfer(iTransactionID: String) {
+    private fun editTransfer() {
         binding.pageTitle.text = "Edit Transfer"
         binding.expansionLayout.visibility = View.GONE
         binding.buttonEdit.visibility = View.GONE

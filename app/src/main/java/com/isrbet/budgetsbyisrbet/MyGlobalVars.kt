@@ -79,13 +79,13 @@ var homePageExpansionAreaExpanded = false
 
 fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
     val s = getLocalCurrencySymbol()
-    if (iRound) {
-        return if (s == "")
+    return if (iRound) {
+        if (s == "")
             gDecRound.format(round(iDouble))
         else
             s + " " + gDecRound.format(round(iDouble))
     } else {
-        return if (s == "")
+        if (s == "")
             gDec.format(iDouble)
         else
             s + " " + gDec.format(iDouble)
@@ -94,13 +94,13 @@ fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
 
 fun gDecWithCurrencyM(iDouble: Double, iRound: Boolean = false) : String{
     val s = getLocalCurrencySymbol()
-    if (iRound) {
-        return if (s == "")
+    return if (iRound) {
+        if (s == "")
             gDecRoundM.format(round(iDouble))
         else
             s + " " + gDecRoundM.format(round(iDouble))
     } else {
-        return if (s == "")
+        if (s == "")
             gDecM.format(iDouble)
         else
             s + " " + gDecM.format(iDouble)
@@ -479,15 +479,15 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
 }
 
 fun getLocalCurrencySymbol() : String {
-    if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true") {
+    return if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true") {
         val locale = Locale.getDefault()
         val numberFormat = NumberFormat.getCurrencyInstance(locale)
-        return if (numberFormat.currency == null)
+        if (numberFormat.currency == null)
             ""
         else
             numberFormat.currency?.symbol.toString()
     } else {
-        return ""
+        ""
     }
 }
 
@@ -582,8 +582,8 @@ fun switchTo(iUID: String) {
     RecurringTransactionViewModel.refresh()
 }
 
-fun getDoubleValue(numberToParse: String): Double {
-    var numberToParse = numberToParse
+fun getDoubleValue(iNumberToParse: String): Double {
+    var numberToParse = iNumberToParse
     return if (numberToParse.contains("(")) {
         numberToParse = numberToParse.replace("[(),]".toRegex(), "")
         numberToParse.toDouble() * -1

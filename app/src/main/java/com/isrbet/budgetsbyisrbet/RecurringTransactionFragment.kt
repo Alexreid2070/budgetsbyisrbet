@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -23,6 +24,7 @@ class RecurringTransactionFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         val rows = RecurringTransactionViewModel.getCopyOfRecurringTransactions()
