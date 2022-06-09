@@ -1,40 +1,60 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
-import android.icu.util.Calendar
-import android.util.Log
-import android.view.View
-import android.view.inputmethod.InputMethodManager
-import com.google.firebase.database.*
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import android.graphics.Color
+import android.icu.text.NumberFormat
+import android.icu.util.Calendar
 import android.media.MediaPlayer
-import androidx.fragment.app.FragmentManager
+import android.text.SpannableString
+import android.text.TextUtils
+import android.text.style.AbsoluteSizeSpan
+import android.text.style.ForegroundColorSpan
+import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
+import android.view.View.OnTouchListener
+import android.view.ViewGroup.MarginLayoutParams
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import java.text.DecimalFormat
+import java.util.*
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.round
 
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
-const val cDiscTypeOff = "Off"
 const val cDiscTypeAll = "All"
-val DiscTypeValues = listOf(cDiscTypeDiscretionary, cDiscTypeNondiscretionary, cDiscTypeOff)
+val DiscTypeValues = listOf(cDiscTypeDiscretionary, cDiscTypeNondiscretionary)
 const val cPeriodWeek = "Week"
 const val cPeriodMonth = "Month"
 const val cPeriodQuarter = "Quarter"
 const val cPeriodYear = "Year"
 val PeriodValues = listOf(cPeriodWeek, cPeriodMonth, cPeriodQuarter, cPeriodYear)
-const val cEXPANDED = "Expanded"
-const val cCONDENSED = "Condensed"
 const val cBUDGET_RECURRING = "Recurring"
 const val cBUDGET_JUST_THIS_MONTH = "Just once"
 const val cFAKING_TD = false
+const val cTRANSFER_CODE = -99
+const val cLAST_ROW = 9999999
+const val cBudgetDateView = "Date"
+const val cBudgetCategoryView = "Category"
+const val cON = "On"
+const val cOFF = "Off"
 
 const val january = "Jan"
 const val february = "Feb"
@@ -49,24 +69,82 @@ const val october = "Oct"
 const val november = "Nov"
 const val december = "Dec"
 val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
+val gDec = DecimalFormat("###0.00;(###0.00)")
+val gDecM = DecimalFormat("###0.00;-###0.00")
+val gDecRound = DecimalFormat("###0;(###0)")
+val gDecRoundM = DecimalFormat("###0;-###0")
+//val gDecWithCurrency = DecimalFormat("${getLocalCurrencySymbol()} 0.00")
+var goToPie = false
+var homePageExpansionAreaExpanded = false
+
+fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
+    val s = getLocalCurrencySymbol()
+    return if (iRound) {
+        if (s == "")
+            gDecRound.format(round(iDouble))
+        else
+            s + " " + gDecRound.format(round(iDouble))
+    } else {
+        if (s == "")
+            gDec.format(iDouble)
+        else
+            s + " " + gDec.format(iDouble)
+    }
+}
+
+fun gDecWithCurrencyM(iDouble: Double, iRound: Boolean = false) : String{
+    val s = getLocalCurrencySymbol()
+    return if (iRound) {
+        if (s == "")
+            gDecRoundM.format(round(iDouble))
+        else
+            s + " " + gDecRoundM.format(round(iDouble))
+    } else {
+        if (s == "")
+            gDecM.format(iDouble)
+        else
+            s + " " + gDecM.format(iDouble)
+    }
+}
+enum class LoanPaymentRegularity(val code: Int) {
+    WEEKLY(1),
+    BIWEEKLY(2),
+    MONTHLY(3);
+    companion object {
+        fun getByValue(value: Int) = values().firstOrNull { it.code == value }
+    }
+}
+enum class DateRange(val code: Int) {
+    MONTH(1),
+    YTD(2),
+    YEAR(3),
+    ALLTIME(4)
+}
 
 class MyApplication : Application() {
     companion object {
         lateinit var database: FirebaseDatabase
         lateinit var databaseref: DatabaseReference
         var transactionSearchText: String = ""
-        var transactionFirstInList: Int = 0
+        var transactionFirstInList: Int = cLAST_ROW
         var userUID: String = ""
+        var userIndex: Int = 0
+        var originalUserUID: String = ""
         var userEmail: String = ""
         var userGivenName: String = ""
+        var userFamilyName: String = ""
+        var userPhotoURL: String = ""
         private var quoteForThisSession: String = ""
         var currentUserEmail: String = ""
         var mediaPlayer: MediaPlayer? = null
         var adminMode: Boolean = false
         var haveLoadedDataForThisUser = false
-        var lastReadChatsDate = ""
-        var lastReadChatsTime = ""
+        lateinit var myMainActivity: MainActivity
 
+        fun displayToast(iMessage: String) {
+            Log.d("Alex", "displaying toast")
+            Toast.makeText(myMainActivity, iMessage, Toast.LENGTH_SHORT).show()
+        }
         fun getQuote(): String {
             if (quoteForThisSession == "") {
                 val randomIndex = (0 until inspirationalQuotes.size-1).random()
@@ -92,6 +170,9 @@ class MyApplication : Application() {
 
         fun releaseResources() {
             mediaPlayer?.release()
+            transactionFirstInList = cLAST_ROW
+            haveLoadedDataForThisUser = false
+            transactionSearchText = ""
 //            CustomNotificationListenerService.releaseResources()
         }
     }
@@ -110,12 +191,18 @@ class MyApplication : Application() {
     }
 }
 
-data class DataObject(var label: String, var value: Double, var color: Int)
+data class DataObject(var id: Int, var label: String, var value: Double, var priority: String, var color: Int)
 
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
+        // might get "2022-02-23", or might get "2022-02", or might get "2022-2"
         val dash = period.indexOf("-")
-        month = if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
+        val dash2 = period.indexOf("-", dash+1)
+        month = if (dash2 == -1)
+            if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
+        else {
+            if (dash > -1) period.substring(dash + 1, dash2).toInt() else 0
+        }
         }
     constructor(bm: BudgetMonth) : this(bm.year, bm.month)
 
@@ -129,18 +216,6 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
     }
 
     operator fun compareTo(iBM: BudgetMonth): Int {
-/*        var cal1 = android.icu.util.Calendar.getInstance()
-        cal1.set(Calendar.YEAR, year)
-        cal1.set(Calendar.MONTH, month)
-        var cal2 = android.icu.util.Calendar.getInstance()
-        cal2.set(Calendar.YEAR, iBM.year)
-        cal2.set(Calendar.MONTH, iBM.month)
-        if (cal1 == cal2)
-            return 0
-        else if (cal1 < cal2)
-            return -1
-        else
-            return 1 */
         return if (year == iBM.year && month == iBM.month)
             0
         else if (year < iBM.year || (year == iBM.year && month < iBM.month))
@@ -182,6 +257,12 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         } else {
             "$year-$month"
         }
+    }
+    fun get2DigitMonth(): String {
+        return if (month < 10)
+            "0$month"
+        else
+            month.toString()
     }
 }
 
@@ -287,19 +368,25 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
 fun getDaysInMonth(cal: Calendar): Int {
     val month = cal.get(Calendar.MONTH)+1
     val year = cal.get(Calendar.YEAR)
-    if (month == 4 || month == 6 || month == 9 || month == 11) {
-        return 30
+    return getDaysInMonth(year, month)
+}
+fun getDaysInMonth(bm: BudgetMonth): Int {
+    return getDaysInMonth(bm.year, bm.month)
+}
+fun getDaysInMonth(year: Int, month: Int): Int { // month is 1..12
+    return if (month == 4 || month == 6 || month == 9 || month == 11) {
+        30
     } else if (month == 2) {
         if (year % 4 == 0)
-            return 29
+            29
         else
-            return 28
+            28
     }
     else
-        return 31
+        31
 }
 
-open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
+open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     private val gestureDetector: GestureDetector
     companion object {
         private const val SWIPE_THRESHOLD = 100
@@ -364,28 +451,43 @@ fun inDarkMode(context: Context): Boolean {
     return false
 }
 
+fun String.isEmailValid(): Boolean {
+    return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+}
+
 fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysShowGreen: Boolean): Int {
     val rActual = round(iActual*100)
     val rBudget = round(iBudget*100)
     if (rActual <= rBudget) {
-        val colorToReturn: Int
-        if (iAlwaysShowGreen) {
+        val colorToReturn: Int = if (iAlwaysShowGreen) {
             if (inDarkMode(context))
-                colorToReturn = ContextCompat.getColor(context, R.color.darkGreen)
+                ContextCompat.getColor(context, R.color.darkGreen)
             else
-                colorToReturn = ContextCompat.getColor(context, R.color.green)
+                ContextCompat.getColor(context, R.color.green)
         } else
-            colorToReturn = MaterialColors.getColor(context, R.attr.background, Color.BLACK)
+            MaterialColors.getColor(context, R.attr.background, Color.BLACK)
         return colorToReturn
     } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
         (rBudget == 0.0 && rActual > 0.0)) {
-            Log.d("Alex", "iActual " + iActual.toString() + " iBudget " + iBudget.toString() + " dsRed " + DefaultsViewModel.getDefault(cDEFAULT_SHOWRED) + " c1 " + (1.0 +(DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0)).toString())
-        if (inDarkMode(context))
-            return ContextCompat.getColor(context, R.color.darkRed)
+        return if (inDarkMode(context))
+            ContextCompat.getColor(context, R.color.darkRed)
         else
-            return ContextCompat.getColor(context, R.color.red)
+            ContextCompat.getColor(context, R.color.red)
     } else {
-        return ContextCompat.getColor(context, R.color.orange)  // orange
+        return ContextCompat.getColor(context, R.color.orange)
+    }
+}
+
+fun getLocalCurrencySymbol() : String {
+    return if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true") {
+        val locale = Locale.getDefault()
+        val numberFormat = NumberFormat.getCurrencyInstance(locale)
+        if (numberFormat.currency == null)
+            ""
+        else
+            numberFormat.currency?.symbol.toString()
+    } else {
+        ""
     }
 }
 
@@ -411,52 +513,173 @@ fun textIsAlphaOrSpace(string: String): Boolean {
 }
 
 fun textIsSafeForKey(iText: String) : Boolean {
-    if (iText.contains("."))
-        return false
-    else if (iText.contains("#"))
-        return false
-    else if (iText.contains("/"))
-        return false
-    else if (iText.contains("\\"))
-        return false
-    else if (iText.contains("["))
-        return false
-    else if (iText.contains("]"))
-        return false
-    else if (iText.contains("+"))
-        return false
-    else if (iText.contains("$"))
-        return false
-    else return !iText.contains("%")
+    return when {
+        iText.contains(".") -> false
+        iText.contains("#") -> false
+        iText.contains("/") -> false
+        iText.contains("\\") -> false
+        iText.contains("[") -> false
+        iText.contains("]") -> false
+        iText.contains("+") -> false
+        iText.contains("$") -> false
+        else -> !iText.contains("%")
+    }
 }
 
 fun textIsSafeForValue(iText: String) : Boolean {
-    if (iText.contains("\\"))
-        return false
-    else
-        return true
+    return !iText.contains("\\")
+}
+
+fun isNumber(s: String?): Boolean {
+    return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
+}
+
+fun String.setFontSizeForPath(ind: Int, fontSizeInPixel: Int, colorCode: Int = Color.BLACK): SpannableString {
+    val spannable = SpannableString(this)
+    val startIndexOfPath = if (ind < spannable.length) ind else 0
+    spannable.setSpan(
+        AbsoluteSizeSpan(fontSizeInPixel),
+        startIndexOfPath,
+        spannable.length,
+        0
+    )
+    spannable.setSpan(
+        ForegroundColorSpan(colorCode),
+        startIndexOfPath,
+        spannable.length,
+        0
+    )
+
+    return spannable
 }
 
 fun getColorInHex(iColor: Int, iOpacity: String): String {
     return java.lang.String.format("#%s%06X", iOpacity, 0xFFFFFF and iColor)
 }
 
+fun iAmPrimaryUser(): Boolean {
+    return (MyApplication.adminMode || MyApplication.userUID == MyApplication.originalUserUID)
+}
+
 fun thisIsANewUser(): Boolean {
     // this function is only valid once all Data models have been loaded.
-    Log.d("Alex","Values: " + CategoryViewModel.isLoaded() + CategoryViewModel.getCount() +
-            SpenderViewModel.isLoaded() + SpenderViewModel.getTotalCount() +
-            ExpenditureViewModel.isLoaded() + ExpenditureViewModel.getCount() +
-            BudgetViewModel.isLoaded() + BudgetViewModel.getCount() +
-            DefaultsViewModel.isLoaded() + DefaultsViewModel.isEmpty() +
-            RecurringTransactionViewModel.isLoaded() + RecurringTransactionViewModel.getCount())
     return MyApplication.userUID != "" &&
             CategoryViewModel.isLoaded() && CategoryViewModel.getCount() == 0 &&
             SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
-            ExpenditureViewModel.isLoaded() && ExpenditureViewModel.getCount() == 0 &&
+            TransactionViewModel.isLoaded() && TransactionViewModel.getCount() == 0 &&
             BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
-            DefaultsViewModel.isLoaded() && DefaultsViewModel.isEmpty() &&
             RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
 
+}
+
+fun switchTo(iUID: String) {
+    MyApplication.userUID=iUID
+    SpenderViewModel.refresh()
+    DefaultsViewModel.refresh()
+    TransactionViewModel.refresh()
+    CategoryViewModel.refresh()
+    BudgetViewModel.refresh()
+    RecurringTransactionViewModel.refresh()
+}
+
+fun getDoubleValue(iNumberToParse: String): Double {
+    var numberToParse = iNumberToParse
+    return if (numberToParse.contains("(")) {
+        numberToParse = numberToParse.replace("[(),]".toRegex(), "")
+        numberToParse.toDouble() * -1
+    } else {
+        numberToParse = numberToParse.replace("[,]".toRegex(), "")
+        numberToParse.toDouble()
+    }
+}
+
+fun Context.copyToClipboard(clipLabel: String, text: CharSequence){
+    val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java)
+    clipboard?.setPrimaryClip(ClipData.newPlainText(clipLabel, text))
+}
+
+class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
+    private var downRawX = 0f
+    private var downRawY = 0f
+    private var dX = 0f
+    private var dY = 0f
+
+    constructor(context: Context?) : super(context!!) {
+        init()
+    }
+
+    constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs) {
+        init()
+    }
+
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context!!, attrs, defStyleAttr
+    ) {
+        init()
+    }
+
+    private fun init() {
+        setOnTouchListener(this)
+    }
+
+    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
+        val layoutParams = view.layoutParams as MarginLayoutParams
+        val action = motionEvent.action
+        return if (action == MotionEvent.ACTION_DOWN) {
+            downRawX = motionEvent.rawX
+            downRawY = motionEvent.rawY
+            dX = view.x - downRawX
+            dY = view.y - downRawY
+            true // Consumed
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            val viewWidth = view.width
+            val viewHeight = view.height
+            val viewParent = view.parent as View
+            val parentWidth = viewParent.width
+            val parentHeight = viewParent.height
+            var newX = motionEvent.rawX + dX
+            newX = max(
+                layoutParams.leftMargin.toFloat(),
+                newX
+            ) // Don't allow the FAB past the left hand side of the parent
+            newX = min(
+                (parentWidth - viewWidth - layoutParams.rightMargin).toFloat(),
+                newX
+            ) // Don't allow the FAB past the right hand side of the parent
+            var newY = motionEvent.rawY + dY
+            newY = max(
+                layoutParams.topMargin.toFloat(),
+                newY
+            ) // Don't allow the FAB past the top of the parent
+            newY = min(
+                (parentHeight - viewHeight - layoutParams.bottomMargin).toFloat(),
+                newY
+            ) // Don't allow the FAB past the bottom of the parent
+            view.animate()
+                .x(newX)
+                .y(newY)
+                .setDuration(0)
+                .start()
+            true // Consumed
+        } else if (action == MotionEvent.ACTION_UP) {
+            val upRawX = motionEvent.rawX
+            val upRawY = motionEvent.rawY
+            val upDX = upRawX - downRawX
+            val upDY = upRawY - downRawY
+            if (abs(upDX) < CLICK_DRAG_TOLERANCE && abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
+                performClick()
+            } else { // A drag
+                true // Consumed
+            }
+        } else {
+            super.onTouchEvent(motionEvent)
+        }
+    }
+
+    companion object {
+        private const val CLICK_DRAG_TOLERANCE =
+            10f // Often, there will be a slight, unintentional, drag when the user taps the FAB, so we need to account for this.
+    }
 }
 
     val inspirationalQuotes = listOf(

@@ -1,21 +1,34 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Typeface
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.LinearLayout
+import android.widget.TableLayout
 import android.widget.TextView
-import java.text.DecimalFormat
+import androidx.core.view.isVisible
 
-data class BudgetInputRow(var dateApplicable: String, var amount: String, var who: String, var occurence: String, var isAnnual: String, var dateStarted: String)
+data class BudgetInputRow(var categoryID: Int, var dateApplicable: String, var amount: String,
+                          var who: Int, var occurence: String, var isAnnual: String,
+                          var dateStarted: String, var label: String) {
+    var category = CategoryViewModel.getCategory(categoryID)?.categoryName
+    var subcategory = CategoryViewModel.getCategory(categoryID)?.subcategoryName
+    var categoryPriority = category?.let { DefaultsViewModel.getCategoryDetail(it).priority }
+}
 
 class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseAdapter() {
-
+    private var groupList: MutableList<Int> = mutableListOf()
     private var myData: MutableList<BudgetInputRow> = mutableListOf()
     init {
         myData = data
+        setGroupList()
     }
 
     private val inflater: LayoutInflater =
@@ -33,48 +46,112 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         return pos.toLong()
     }
 
+    // class for holding the cached view
+    class BudgetViewHolder(view: View) {
+        var vhCategory: TextView = view.findViewById(R.id.row_category)
+        var vhLabel: TextView = view.findViewById(R.id.row_label)
+        var vhAmount: TextView = view.findViewById(R.id.row_budget_amount)
+        var vhWho: TextView = view.findViewById(R.id.row_budget_who)
+        var vhOccurence: TextView = view.findViewById(R.id.row_budget_occurence)
+        var vhAnnualIndicator: TextView = view.findViewById(R.id.row_budget_annual_indicator)
+        var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
+    }
+    @SuppressLint("SetTextI18n")
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val rowView = inflater.inflate(R.layout.row_budget, parent, false)
-
-        val dateApplicableView = rowView.findViewById(R.id.row_budget_month_applicable) as TextView
-        val amountView = rowView.findViewById(R.id.row_budget_amount) as TextView
-        val whoView = rowView.findViewById(R.id.row_budget_who) as TextView
-        val occurenceView = rowView.findViewById(R.id.row_budget_occurence) as TextView
-        val annualView = rowView.findViewById(R.id.row_budget_annual) as TextView
-        val dateStartedView = rowView.findViewById(R.id.row_budget_month_started) as TextView
-
+        val viewHolder: BudgetViewHolder
         val bData = getItem(pos) as BudgetInputRow
 
-        val dec = DecimalFormat("#.00")
-        dateApplicableView.text = bData.dateApplicable
-        amountView.text = dec.format(bData.amount.toDouble())
-        whoView.text = bData.who
-        occurenceView.text = bData.occurence
-        if (bData.occurence != "1")
-            occurenceView.visibility = View.INVISIBLE
-        annualView.text = bData.isAnnual
-        val bmDateStarted = BudgetMonth(bData.dateStarted)
-        val bmDateApplicable = BudgetMonth(bData.dateApplicable)
+        val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_budget, parent, false)
+        viewHolder = BudgetViewHolder(myConvertView)
 
-        when {
-            bData.dateStarted == "9999-12" -> dateStartedView.text = ""
-            bmDateStarted.isAnnualBudget() -> dateStartedView.text = bmDateStarted.year.toString()
-            else -> dateStartedView.text = bData.dateStarted
+        if (bData.label == cBudgetDateView) {
+            if (groupList[pos] == 0) { // ie first row of this category
+                viewHolder.vhCategory.isVisible = true
+                viewHolder.vhCategory.text = bData.category
+            } else {
+                viewHolder.vhCategory.isVisible = false
+            }
+            viewHolder.vhLabel.text =
+                CategoryViewModel.getCategory(bData.categoryID)?.subcategoryName ?: ""
+        } else {
+            viewHolder.vhLabel.text = bData.dateStarted
+            viewHolder.vhCategory.isVisible = false
         }
-
-        if (bData.dateApplicable == bData.dateStarted ||
-            (bmDateApplicable.month == 1 && bmDateStarted.isAnnualBudget())) {
-            dateApplicableView.setTypeface(dateApplicableView.typeface, Typeface.BOLD)
-            amountView.setTypeface(amountView.typeface, Typeface.BOLD)
-            whoView.setTypeface(whoView.typeface, Typeface.BOLD)
-            occurenceView.setTypeface(occurenceView.typeface, Typeface.BOLD)
-            annualView.setTypeface(annualView.typeface, Typeface.BOLD)
-            dateStartedView.setTypeface(dateStartedView.typeface, Typeface.BOLD)
+        viewHolder.vhWho.text = SpenderViewModel.getSpenderName(bData.who)
+        viewHolder.vhOccurence.text = bData.occurence
+        if (bData.occurence == "0")
+            viewHolder.vhOccurence.text = "Recurring"
+        else
+            viewHolder.vhOccurence.text = "Once"
+        viewHolder.vhAmount.text = gDecWithCurrency(bData.amount.toDouble())
+        if (bData.isAnnual == "") {
+            viewHolder.vhAnnualIndicator.text = ""
+        } else {
+            viewHolder.vhAnnualIndicator.text = "A"
+            if (bData.label == cBudgetCategoryView)
+                viewHolder.vhLabel.text = bData.dateApplicable.substring(0,4)
+        }
+        if (bData.dateApplicable == bData.dateStarted ) {
+            viewHolder.vhLabel.setTypeface(viewHolder.vhLabel.typeface, Typeface.BOLD)
         }
         if (SpenderViewModel.singleUser()) {
-            whoView.visibility = View.GONE
+            viewHolder.vhWho.visibility = View.GONE
         }
 
-        return rowView
+        if (bData.label == cBudgetDateView) {
+            val param = viewHolder.vhLabel.layoutParams as LinearLayout.LayoutParams
+            param.weight = 2.5f
+            viewHolder.vhLabel.layoutParams = param
+            viewHolder.vhOccurence.visibility = View.GONE
+            val cat = DefaultsViewModel.getCategoryDetail(bData.category.toString())
+            if (cat.color != 0) {
+                viewHolder.vhCategory.setBackgroundColor(cat.color)
+                if (Build.VERSION.SDK_INT >= 29) {
+                    viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border)
+                    viewHolder.vhDetail.background.colorFilter =
+                        BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+                } else {
+                    viewHolder.vhDetail.setBackgroundColor(cat.color)
+                    viewHolder.vhDetail.background.alpha = 44
+                }
+                viewHolder.vhDetail.setPadding(30, 5, 5, 5)
+
+                val trParams = TableLayout.LayoutParams(
+                    TableLayout.LayoutParams.MATCH_PARENT,
+                    TableLayout.LayoutParams.WRAP_CONTENT
+                )
+                trParams.setMargins(15, 0, 10, 0)
+                viewHolder.vhCategory.layoutParams = trParams
+                viewHolder.vhDetail.layoutParams = trParams
+            }
+        }
+
+        return myConvertView
+    }
+    private fun setGroupList() {
+        val tgroupList: MutableList<Int> = mutableListOf()
+        tgroupList.clear()
+        var c = 0 // row counter
+        var j = 0 // number of transaction within specific date
+
+        for (i in 0 until myData.size) {
+            if (tgroupList.size == 0) {
+                tgroupList.add(c, j)
+                c++
+                j++
+            } else {
+                if (myData[i].category == myData[i - 1].category) {
+                    tgroupList.add(c, j)
+                    c++
+                    j++
+                } else {
+                    j = 0
+                    tgroupList.add(c, j)
+                    c++
+                    j++
+                }
+            }
+        }
+        groupList = tgroupList
     }
 }

@@ -9,10 +9,10 @@
             android:title="@string/settings_fragment_label" />
         <item
             android:id="@+id/RecurringTransactionFragment"
-            android:title="Recurring Transactions"
+            android:title="Scheduled Payments"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/ViewTransactionsFragment"
+            android:id="@+id/TransactionViewAllFragment"
             android:title="View all"
             android:icon="@drawable/ic_fas_binoculars"
             app:showAsAction="ifRoom"
@@ -29,7 +29,7 @@
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/ViewRecurringTransactionsFragment"
-            android:title="View recurring transactions"
+            android:title="View scheduled payments"
             android:icon="@drawable/ic_fas_binoculars"
             app:showAsAction="ifRoom"
             tools:ignore="HardcodedText" />
@@ -120,18 +120,6 @@
             android:title=" Brent"
             tools:ignore="HardcodedText" />
         <item
-            android:id="@+id/FilterCondensed"
-            android:title=" Condensed View"
-            android:icon="@drawable/ic_fas_square"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/FilterExpanded"
-            android:title=" Expanded View"
-            android:icon="@drawable/ic_fas_expand"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
-        <item
             android:id="@+id/DeltaPercentage"
             android:title="Show Delta as %"
             tools:ignore="HardcodedText" />
@@ -154,12 +142,6 @@
     <group
         android:id="@+id/groupx">
         <item
-            android:id="@+id/ChatFragment"
-            android:title="Chats"
-            android:icon="@drawable/ic_fas_envelope"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
-        <item
             android:id="@+id/SignOut"
             android:title="Sign Out"
             tools:ignore="HardcodedText" />
@@ -171,7 +153,7 @@
             tools:ignore="HardcodedText" />
         <item
             android:id="@+id/AddRecurringTransaction"
-            android:title="Add Recurring Transaction"
+            android:title="Add Scheduled Payment"
             android:icon="@drawable/ic_fas_plus"
             app:showAsAction="ifRoom"
             tools:ignore="HardcodedText" />

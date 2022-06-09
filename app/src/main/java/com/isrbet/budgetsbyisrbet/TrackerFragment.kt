@@ -4,19 +4,17 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.util.Log
 import android.view.*
-import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.RadioButton
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -25,37 +23,113 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTrackerBinding
 import java.text.DecimalFormat
 import java.util.*
 
+const val budgetLabel = "Budget"
+const val actualsLabel = "Actuals"
 
 class TrackerFragment : Fragment() {
     private var _binding: FragmentTrackerBinding? = null
     private val binding get() = _binding!!
     private var currentBudgetMonth: BudgetMonth = BudgetMonth(0,0)
+    private var hackBudgetTotal = 0.0
+    private var hackActualTotal = 0.0
+    private var currentCategory = ""
+    private var subcategoryColours: MutableList<SubCategoryColour> = ArrayList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        setHasOptionsMenu(true)
         _binding = FragmentTrackerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+    fun initCurrentBudgetMonth() {
+        val dateNow = android.icu.util.Calendar.getInstance()
+        currentBudgetMonth = BudgetMonth(
+            dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                android.icu.util.Calendar.MONTH) + 1)
+        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER) == "Year") {
+            currentBudgetMonth.month = 0
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val dateNow = android.icu.util.Calendar.getInstance()
-        currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
-            android.icu.util.Calendar.MONTH) + 1)
-        hidePieChart()
-        if (ExpenditureViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1)
-            loadBarChart()
+        if (currentBudgetMonth.year == 0) {
+            currentBudgetMonth = BudgetMonth(
+                dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                    android.icu.util.Calendar.MONTH
+                ) + 1
+            )
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)) {
+            cDiscTypeDiscretionary -> {
+                binding.discRadioButton.isChecked = true
+            }
+            cDiscTypeNondiscretionary -> {
+                binding.nonDiscRadioButton.isChecked = true
+            }
+            else -> {
+                binding.allDiscRadioButton.isChecked = true
+            }
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)) {
+            "0" -> binding.name1RadioButton.isChecked = true
+            "1" -> binding.name2RadioButton.isChecked = true
+            else -> binding.whoAllRadioButton.isChecked = true
+        }
+        if (SpenderViewModel.singleUser()) {
+            binding.whoLayout.visibility = View.GONE
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TOTALS_TRACKER)) {
+            "#" -> binding.showDollarRadioButton.isChecked = true
+            "%" -> binding.showPercentageRadioButton.isChecked = true
+        }
+        when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+            "Month" -> binding.buttonViewMonth.isChecked = true
+            "Year" -> {
+                binding.buttonViewYear.isChecked = true
+                currentBudgetMonth.month = 0
+            }
+            "YTD" -> binding.buttonViewYtd.isChecked = true
+            else -> binding.buttonViewAllTime.isChecked = true
+        }
+        binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
+        binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
+
+        if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
+            if ((parentFragment !is HomeFragment) && goToPie) {
+                Log.d("Alex", "showing pie")
+                hideBarChart()
+                loadPieChart(currentCategory)
+            } else {
+                Log.d("Alex", "showing bar")
+                hidePieChart()
+                loadBarChart(1)
+                goToPie = false
+            }
+        }
+/*        if (TransactionViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1) {
+            if (!(parentFragment is HomeFragment) && goToPie) {
+                hideBarChart()
+                loadPieChart(currentCategory)
+            } else {
+                hidePieChart()
+                loadBarChart(1)
+                goToPie = false
+            }
+        } */
         if (parentFragment is HomeFragment) { // ie on home page
             // remove top padding
             binding.constraintLayout.setPadding(
@@ -66,134 +140,227 @@ class TrackerFragment : Fragment() {
             )
         } else { // ie on Tracker page
             binding.buttonLayout.visibility = View.VISIBLE
-            binding.buttonLayout2.visibility = View.VISIBLE
-            setActionBarTitle()
+            binding.chartButtonLayout.visibility = View.VISIBLE
             binding.buttonBar.setOnClickListener {
+                goToPie = false
                 hidePieChart()
-                loadBarChart()
+                loadBarChart(2)
             }
             binding.buttonPie.setOnClickListener {
+                goToPie = true
                 hideBarChart()
                 loadPieChart()
             }
-        }
-        binding.numericTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            setPieGraphNumericStyle(binding.actualPieChart, radioButton.text.toString())
-            setPieGraphNumericStyle(binding.budgetPieChart, radioButton.text.toString())
-            binding.actualPieChart.invalidate()
-            binding.budgetPieChart.invalidate()
-        }
-        view?.findViewById<Button>(R.id.button_backward)?.setOnClickListener {
-            moveOneMonthBackward()
-        }
-        view?.findViewById<Button>(R.id.button_forward)?.setOnClickListener {
-            moveOneMonthForward()
-        }
-        view?.findViewById<Button>(R.id.button_by_month)?.setOnClickListener {
-            val dateNow = android.icu.util.Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
-                android.icu.util.Calendar.MONTH) + 1)
-            setActionBarTitle()
-//            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
-        }
-        view?.findViewById<Button>(R.id.button_by_year)?.setOnClickListener {
-            currentBudgetMonth.month = 0
-            setActionBarTitle()
-//            startLoadData(currentBudgetMonth, currentRecFilter, currentDiscFilter, currentPaidByFilter, currentBoughtForFilter)
+            binding.numericTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+                val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+                setPieGraphNumericStyle(binding.actualPieChart, radioButton.text.toString())
+                setPieGraphNumericStyle(binding.budgetPieChart, radioButton.text.toString())
+                binding.actualPieChart.invalidate()
+                binding.budgetPieChart.invalidate()
+            }
+            binding.expandNav.setOnClickListener {
+                onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
+            }
+            binding.expandOptions.setOnClickListener {
+                onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
+            }
+            binding.expandView.setOnClickListener {
+                onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
+            }
+            binding.expandFilter.setOnClickListener {
+                onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+            }
+            binding.resetFilterButton.setOnClickListener {
+                Log.d("Alex", "clicked resetFilter")
+                binding.chartSubTitle.text = ""
+                currentCategory = ""
+                DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_TRACKER, cDiscTypeAll)
+                binding.allDiscRadioButton.isChecked = true
+                DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "-1")
+                binding.whoAllRadioButton.isChecked = true
+                onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+            }
+            binding.buttonBackward.setOnClickListener {
+                moveOneMonthBackward()
+            }
+            binding.buttonForward.setOnClickListener {
+                moveOneMonthForward()
+            }
+            binding.buttonViewMonth.setOnClickListener {
+                DefaultsViewModel.updateDefault(cDEFAULT_VIEW_BY_TRACKER, "Month")
+                currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                    android.icu.util.Calendar.MONTH) + 1)
+                startLoadData()
+            }
+            binding.buttonViewYear.setOnClickListener {
+                DefaultsViewModel.updateDefault(cDEFAULT_VIEW_BY_TRACKER, "Year")
+                currentBudgetMonth.month = 0
+                startLoadData()
+            }
+            binding.buttonViewYtd.setOnClickListener {
+                DefaultsViewModel.updateDefault(cDEFAULT_VIEW_BY_TRACKER, "YTD")
+                currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                    android.icu.util.Calendar.MONTH) + 1)
+                startLoadData()
+            }
+            binding.buttonViewAllTime.setOnClickListener {
+                DefaultsViewModel.updateDefault(cDEFAULT_VIEW_BY_TRACKER, "All-Time")
+                currentBudgetMonth = BudgetMonth(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                    android.icu.util.Calendar.MONTH) + 1)
+                startLoadData()
+            }
+            binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
+                when (optionId) {
+                    R.id.discRadioButton -> {
+                        Log.d("Alex", "Clicked Disc in DiscRadioGroup")
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_TRACKER, cDiscTypeDiscretionary)
+                        startLoadData()
+                    }
+                    R.id.nonDiscRadioButton -> {
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_TRACKER, cDiscTypeNondiscretionary)
+                        startLoadData()
+                    }
+                    R.id.allDiscRadioButton -> {
+                        Log.d("Alex", "Clicked All in DiscRadioGroup")
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_DISC_TRACKER, cDiscTypeAll)
+                        startLoadData()
+                    }
+                }
+            }
+            binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
+                when (optionId) {
+                    R.id.name1RadioButton -> {
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "0")
+                        startLoadData()
+                    }
+                    R.id.name2RadioButton -> {
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "1")
+                        startLoadData()
+                    }
+                    R.id.whoAllRadioButton -> {
+                        DefaultsViewModel.updateDefault(cDEFAULT_FILTER_WHO_TRACKER, "-1")
+                        startLoadData()
+                    }
+                }
+            }
+        HintViewModel.showHint(parentFragmentManager, "Tracker")
         }
     }
-    fun moveOneMonthBackward() {
-
+    private fun moveOneMonthBackward() {
+        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER) != "YTD" &&
+            DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER) != "All-Time") {
+            if (currentBudgetMonth.month == 0)
+                currentBudgetMonth.year--
+            else
+                currentBudgetMonth.decrementMonth()
+            Log.d("Alex", "In backward, loading $currentBudgetMonth")
+            startLoadData()
+        }
     }
-    fun moveOneMonthForward() {
-
+    private fun moveOneMonthForward() {
+        if (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER) != "YTD" &&
+            DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER) != "All-Time") {
+            if (currentBudgetMonth.month == 0)
+                currentBudgetMonth.year++
+            else
+                currentBudgetMonth.addMonth()
+            startLoadData()
+        }
     }
-    private fun setActionBarTitle() {
-        if (currentBudgetMonth.month == 0)
-            (activity as AppCompatActivity).supportActionBar?.title =
-                "Tracker (" + currentBudgetMonth.year  + ")"
+    private fun startLoadData() {
+        if (binding.barChart.visibility == View.VISIBLE)
+            loadBarChart(3)
         else
-            (activity as AppCompatActivity).supportActionBar?.title =
-                "Tracker (" + MonthNames[currentBudgetMonth.month-1] + " " + currentBudgetMonth.year  + ")"
+            loadPieChart(currentCategory)
+    }
+    private fun onExpandClicked(button: TextView, layout: LinearLayout) {
+        if (layout.visibility == View.GONE) { // ie expand the section
+            // first hide all other possible expansions
+            resetLayout(binding.expandNav, binding.navButtonLinearLayout)
+            resetLayout(binding.expandView, binding.viewButtonLinearLayout)
+            resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
+            resetLayout(binding.expandOptions, binding.optionsButtonLinearLayout)
+            button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
+            button.textSize = 16F
+            button.setBackgroundResource(R.drawable.rounded_top_corners)
+            layout.visibility = View.VISIBLE
+        } else { // ie retract the section
+            resetLayout(button, layout)
+        }
+    }
+    private fun resetLayout(button: TextView, layout: LinearLayout) {
+        button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
+        button.textSize = 14F
+        button.setBackgroundResource(android.R.color.transparent)
+        layout.visibility = View.GONE
     }
 
+    @SuppressLint("SetTextI18n")
     fun setPieGraphNumericStyle(pieChart: PieChart, iStyle: String) {
-        val dateNow = android.icu.util.Calendar.getInstance()
         when (iStyle) {
             "%" -> {
                 pieChart.setUsePercentValues(true)
-                pieChart.setUsePercentValues(true)
                 pieChart.data.setValueFormatter(PercentFormatter(pieChart))
-                pieChart.data.setValueFormatter(PercentFormatter(pieChart))
-                binding.chartTitle.text = "Allocation (%) of Budget and Actuals - " +
-                        MonthNames[dateNow.get(Calendar.MONTH)] + " " +
-                        dateNow.get(Calendar.YEAR)
+                setChartTitle()
             }
             "#" -> {
                 pieChart.setUsePercentValues(false)
-                pieChart.setUsePercentValues(false)
                 pieChart.data.setValueFormatter(MyYAxisValueFormatter())
-                pieChart.data.setValueFormatter(MyYAxisValueFormatter())
-                binding.chartTitle.text = "Allocation ($) of Budget and Actuals - " +
-                        MonthNames[dateNow.get(Calendar.MONTH)] + " " +
-                        dateNow.get(Calendar.YEAR)
+                setChartTitle()
             }
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        if (parentFragment !is HomeFragment) { // ie only do this if displaying as own fragment
-            super.onPrepareOptionsMenu(menu)
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.DashboardFragment
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.DashboardFragment) {
-            view?.findNavController()?.navigate(R.id.DashboardFragment)
-            true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-        }
-    }
-
-    fun loadBarChart() {
+    fun loadBarChart(iTag: Int) {
+        Log.d("Alex", "Loading bar chart $iTag")
         binding.chartTitle.visibility = View.VISIBLE
         binding.barChart.visibility = View.VISIBLE
         binding.chartSummaryText.visibility = View.VISIBLE
         initializeBarChart()
         createBarChart(getBarChartData())
+        if (hackActualTotal == 0.0 && hackBudgetTotal == 0.0) {
+            Log.d("Alex", "Actuals and budgets == 0 so hiding bar chart $hackActualTotal $hackBudgetTotal")
+            hideBarChart()
+        } else
+            Log.d("Alex", "Actuals and budgets != 0 $hackActualTotal $hackBudgetTotal")
     }
 
     fun hideBarChart() {
         binding.chartTitle.visibility = View.GONE
+        binding.chartSubTitle.visibility = View.GONE
         binding.barChart.visibility = View.GONE
         binding.chartSummaryText.visibility = View.GONE
     }
 
-    private fun loadPieChart() {
+    @SuppressLint("SetTextI18n")
+    private fun loadPieChart(iSpecificCategory: String = "") {
         binding.chartTitle.visibility = View.VISIBLE
         binding.actualPieChart.visibility = View.VISIBLE
         binding.budgetPieChart.visibility = View.VISIBLE
         binding.numericTypeRadioGroup.visibility = View.VISIBLE
-        binding.numericText.visibility = View.VISIBLE
         binding.chartSummaryText.visibility = View.VISIBLE
-        initializePieChart(binding.actualPieChart)
-        initializePieChart(binding.budgetPieChart)
-        createPieChart(binding.actualPieChart, getActualPieChartData(), "Actuals")
-        createPieChart(binding.budgetPieChart, getBudgetPieChartData(), "Budget")
+        binding.expandOptions.visibility = View.VISIBLE
+        initializePieChart("Actual", binding.actualPieChart)
+        initializePieChart("Budget", binding.budgetPieChart)
+        // budget pie must be created first so that totals comparisons work
+        createPieChart(binding.budgetPieChart, getBudgetPieChartData(iSpecificCategory), budgetLabel)
+        createPieChart(binding.actualPieChart, getActualPieChartData(iSpecificCategory), actualsLabel)
+        if (iSpecificCategory != "") {
+            binding.chartSubTitle.visibility = View.VISIBLE
+            if (binding.chartSubTitle.text == "")
+                binding.chartSubTitle.text = "($iSpecificCategory)"
+            else
+                binding.chartSubTitle.text =
+                    binding.chartSubTitle.text.toString().substring(0,binding.chartSubTitle.text.toString().length-1) +
+                            " " + iSpecificCategory + ")"
+        }
     }
 
     private fun hidePieChart() {
         binding.chartTitle.visibility = View.GONE
         binding.actualPieChart.visibility = View.GONE
         binding.budgetPieChart.visibility = View.GONE
-        binding.numericTypeRadioGroup.visibility = View.GONE
-        binding.numericText.visibility = View.GONE
+        binding.expandOptions.visibility = View.GONE
         binding.chartSummaryText.visibility = View.GONE
     }
 
@@ -214,16 +381,69 @@ class TrackerFragment : Fragment() {
         binding.barChart.axisLeft.isEnabled = true
         binding.barChart.xAxis.setDrawGridLines(false)
         // add a nice and smooth animation
-        binding.barChart.animateY(1500)
+        binding.barChart.animateY(1000)
         binding.barChart.legend.isEnabled = false
         binding.barChart.setTouchEnabled(true)
         binding.barChart.isDoubleTapToZoomEnabled = false
+        binding.barChart.axisLeft.isEnabled = false
         binding.barChart.xAxis.isEnabled = true
-        binding.barChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+        binding.barChart.xAxis.position = XAxis.XAxisPosition.BOTTOM_INSIDE
+        binding.barChart.xAxis.xOffset = 250F
         binding.barChart.axisLeft.axisMinimum = 0F
+        binding.barChart.xAxis.textSize = 13f
         binding.barChart.axisLeft.valueFormatter = (MyYAxisValueFormatter())
-
         binding.barChart.setDrawValueAboveBar(true)
+
+        binding.barChart.setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
+            override fun onNothingSelected() {
+                Log.d("Alex", "user unselected one of the bars")
+            }
+
+            override fun onValueSelected(e: Entry?, h: Highlight?) {
+                Log.d("Alex", "currentBudgetMonth ${currentBudgetMonth.year} ${currentBudgetMonth.month}")
+                if (parentFragment is HomeFragment) {
+                    view?.findNavController()?.navigate(R.id.TrackerFragment)
+                    return
+                }
+                when (e?.x) {
+                    0F -> {
+                        // Budget this month
+                        val action =
+                            TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
+                        action.year = currentBudgetMonth.year.toString()
+                        if (currentBudgetMonth.month != 0)
+                            action.month = currentBudgetMonth.month.toString()
+                        findNavController().navigate(action)
+                    }
+                    1F -> {
+                        // Budget to date
+                        val action =
+                            TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
+                        action.year = currentBudgetMonth.year.toString()
+                        if (currentBudgetMonth.month != 0)
+                            action.month = currentBudgetMonth.month.toString()
+                        else {
+                            val dateNow = android.icu.util.Calendar.getInstance()
+                            action.month = (dateNow.get(Calendar.MONTH)+1).toString()
+                        }
+                        findNavController().navigate(action)
+                    }
+                    2F -> {
+                        // Actuals
+                        MyApplication.transactionSearchText = currentBudgetMonth.year.toString()
+                        if (currentBudgetMonth.month != 0) {
+                            if (currentBudgetMonth.month < 10)
+                                MyApplication.transactionSearchText =
+                                    MyApplication.transactionSearchText + "-0" + currentBudgetMonth.month
+                            else
+                                MyApplication.transactionSearchText =
+                                    MyApplication.transactionSearchText + "-" + currentBudgetMonth.month
+                        }
+                        view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
+                    }
+                }
+            }
+        })
 
         binding.barChart.onChartGestureListener = object : OnChartGestureListener {
             override fun onChartGestureStart(
@@ -271,66 +491,163 @@ class TrackerFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun getBarChartData(): ArrayList<DataObject> {
         val tList = ArrayList<DataObject>()
+
+        val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
+        val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else 2
+
+        val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+            "All-Time" -> DateRange.ALLTIME
+            "YTD" -> DateRange.YTD
+            "Year" -> DateRange.YEAR
+            else -> DateRange.MONTH
+        }
+//        val totalBudget = BudgetViewModel.getTotalCalculatedBudgetForMonth(currentBudgetMonth, discFilter, whoFilter)
+        val catBudgets = BudgetViewModel.getCategoryBudgets(viewPeriod, currentBudgetMonth, discFilter, whoFilter, "")
+        var totalBudget = 0.0
+        for (budget in catBudgets) {
+            totalBudget += budget.value.toFloat()
+        }
+
         val dateNow = android.icu.util.Calendar.getInstance()
-        val daysInMonth = getDaysInMonth(dateNow)
-        val totalDiscBudget = BudgetViewModel.getTotalCalculatedBudgetForMonth(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1), cDiscTypeDiscretionary)
-        val totalDiscBudgetToDate =
-            totalDiscBudget * dateNow.get(Calendar.DATE) / daysInMonth
-        val totalDiscActualsToDate =
-            ExpenditureViewModel.getTotalDiscretionaryActualsToDate(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
-        Log.d(
-            "Alex",
-            "amounts are $totalDiscBudget and $totalDiscBudgetToDate and $totalDiscActualsToDate"
-        )
+        var totalBudgetToDate = 0.0
+        var daysInMonth = 1
+
+        if (viewPeriod == DateRange.MONTH) {
+            if (currentBudgetMonth.year == dateNow.get(Calendar.YEAR) &&
+                currentBudgetMonth.month == dateNow.get(Calendar.MONTH)+1) {
+                daysInMonth = getDaysInMonth(dateNow)
+                totalBudgetToDate =
+                    totalBudget * dateNow.get(Calendar.DATE) / daysInMonth
+            } else if (currentBudgetMonth.year > dateNow.get(Calendar.YEAR) ||
+                    (currentBudgetMonth.year == dateNow.get(Calendar.YEAR) &&
+                            currentBudgetMonth.month > dateNow.get(Calendar.MONTH)+1)) {
+                // looking at a future month
+                totalBudgetToDate = 0.0
+            } else { // looking at a past month
+                totalBudgetToDate = totalBudget
+            }
+        } else if (viewPeriod == DateRange.YTD) {
+            val currentCatBudgets = BudgetViewModel.getCategoryBudgets(DateRange.MONTH, currentBudgetMonth, discFilter, whoFilter, "")
+            var totalCurrentBudget = 0.0
+            for (budget in currentCatBudgets) {
+                totalCurrentBudget += budget.value.toFloat()
+            }
+
+            daysInMonth = getDaysInMonth(dateNow)
+            val thisMonthBudget =
+                totalCurrentBudget * dateNow.get(Calendar.DATE) / daysInMonth
+            totalBudgetToDate = totalBudget - totalCurrentBudget + thisMonthBudget
+        } else if (viewPeriod == DateRange.YEAR) {
+            val thisMonth = BudgetMonth(currentBudgetMonth.year, dateNow.get(Calendar.MONTH)+1)
+            val ytdBudgets = BudgetViewModel.getCategoryBudgets(DateRange.YTD, thisMonth, discFilter, whoFilter, "")
+            var totalYTDBudget = 0.0
+            for (budget in ytdBudgets) {
+                totalYTDBudget += budget.value.toFloat()
+            }
+
+            val currentCatBudgets = BudgetViewModel.getCategoryBudgets(DateRange.MONTH, thisMonth, discFilter, whoFilter, "")
+            var totalCurrentBudget = 0.0
+            for (budget in currentCatBudgets) {
+                totalCurrentBudget += budget.value.toFloat()
+            }
+
+            daysInMonth = getDaysInMonth(dateNow)
+            val thisMonthBudget =
+                totalCurrentBudget * dateNow.get(Calendar.DATE) / daysInMonth
+            totalBudgetToDate = totalYTDBudget - totalCurrentBudget + thisMonthBudget
+            Log.d("Alex", "numbers are $totalYTDBudget $totalCurrentBudget $thisMonthBudget")
+        } else { // all-time, don't show this row
+
+        }
+
+        val startDate = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+            "All-Time" -> "0000-00-00"
+            "YTD" -> "${currentBudgetMonth.year}-00-00"
+            "Year" -> "${currentBudgetMonth.year}-00-00"
+            else -> {
+                if (currentBudgetMonth.month < 10)
+                    "${currentBudgetMonth.year}-0${currentBudgetMonth.month}-00"
+                else
+                    "${currentBudgetMonth.year}-${currentBudgetMonth.month}-00"
+            }
+        }
+
+        val endDate = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+            "All-Time" -> "9999-99-99"
+            "Year" -> "${currentBudgetMonth.year}-99-99"
+            else -> {
+                if (currentBudgetMonth.month < 10)
+                    "${currentBudgetMonth.year}-0${currentBudgetMonth.month}-99"
+                else
+                    "${currentBudgetMonth.year}-${currentBudgetMonth.month}-99"
+            }
+        }
+
+        val totalActualsToDate =
+            TransactionViewModel.getTotalActualsForRange(startDate, endDate,
+            discFilter, whoFilter)
+        hackActualTotal = totalActualsToDate
+
         tList.add(
             DataObject(
-                "Budget this month",
-                totalDiscBudget,
+                0, "Budget this period " + gDecWithCurrency(totalBudget),
+                totalBudget, "",
                 ContextCompat.getColor(requireContext(), R.color.dark_gray)
             )
         )
-        tList.add(
-            DataObject(
-                "Budget to date",
-                totalDiscBudgetToDate,
-                ContextCompat.getColor(requireContext(), R.color.medium_gray)
-            )
-        )
-        val showRed = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
-
-        if (totalDiscActualsToDate > (totalDiscBudgetToDate * (1 + showRed / 100)))
+        if (viewPeriod != DateRange.ALLTIME) {
             tList.add(
                 DataObject(
-                    "Actuals",
-                    totalDiscActualsToDate,
+                    0, "Budget to date (" + dateNow.get(Calendar.DATE) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
+                    totalBudgetToDate, "",
+                    ContextCompat.getColor(requireContext(), R.color.medium_gray)
+                )
+            )
+        }
+        val showRed = DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toFloat()
+
+        when {
+            totalActualsToDate > (totalBudgetToDate * (1 + showRed / 100)) -> tList.add(
+                DataObject(
+                    0, "Actuals " + gDecWithCurrency(totalActualsToDate),
+                    totalActualsToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.red)
                 )
             )
-        else if (totalDiscActualsToDate > totalDiscBudgetToDate)
-            tList.add(
+            totalActualsToDate > totalBudgetToDate -> tList.add(
                 DataObject(
-                    "Actuals",
-                    totalDiscActualsToDate,
+                    0, "Actuals " + gDecWithCurrency(totalActualsToDate),
+                    totalActualsToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.yellow)
                 )
             )
-        else
-            tList.add(
+            else -> tList.add(
                 DataObject(
-                    "Actuals",
-                    totalDiscActualsToDate,
+                    0, "Actuals " + gDecWithCurrency(totalActualsToDate),
+                    totalActualsToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.green)
                 )
             )
-        if (totalDiscActualsToDate > totalDiscBudget)
-            binding.chartSummaryText.text = "You are over your discretionary budget this month."
+        }
+        val lab = when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)) {
+            cDiscTypeDiscretionary -> "discretionary"
+            cDiscTypeNondiscretionary -> "non-discretionary"
+            else -> ""
+        }
+        val lab2 = when (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)) {
+            cDiscTypeDiscretionary -> "your discretionary"
+            cDiscTypeNondiscretionary -> "your non-discretionary"
+            else -> "your overall"
+        }
+        if (totalActualsToDate > totalBudget)
+            binding.chartSummaryText.text = "You are over your $lab budget this period."
         else {
-            val remainingBudget = totalDiscBudget - totalDiscActualsToDate
+            val remainingBudget = totalBudget - totalActualsToDate
             val daysRemaining = daysInMonth - dateNow.get(Calendar.DATE) + 1
-            val dollarFormat = DecimalFormat("$###.00")
 
             binding.chartSummaryText.text =
-                "Keeping discretionary expenses below " + dollarFormat.format(remainingBudget / daysRemaining) + " per day will keep you within budget this month."
+                "Keeping $lab expenses below " + gDecWithCurrency(remainingBudget / daysRemaining) + " per day will keep you within $lab2 budget this month."
         }
         return tList
     }
@@ -347,23 +664,21 @@ class TrackerFragment : Fragment() {
             ds.setDrawValues(true)
             dataSets.add(ds)
         }
-//        val set1: BarDataSet
-//        if (binding.barChart.data != null &&
-//            binding.barChart.data.dataSetCount > 0) {
-        // code comes here after the first time, ie hits the else below the first time the chart is drawn
-//            set1 = binding.barChart.data.getDataSetByIndex(0) as BarDataSet
-//            set1.values = values
-//            binding.barChart.data.notifyDataChanged()
-//            binding.barChart.notifyDataSetChanged()
-//        } else {
-//            set1 = BarDataSet(values, "Data Set")
-//            set1.setColors(SessionManagement.MATERIAL_COLORS)
-//            set1.setDrawValues(true)
-//            dataSets.add(set1)
         val data = BarData(dataSets)
         binding.barChart.data = data
         binding.barChart.setVisibleXRange(1.0F, iData.size.toFloat())
         binding.barChart.setFitBars(true)
+        binding.barChart.xAxis.textColor = MaterialColors.getColor(
+            requireContext(),
+            R.attr.textOnBackground,
+            Color.BLACK
+        )
+/*        binding.barChart.axisLeft.textColor = MaterialColors.getColor(
+            requireContext(),
+            R.attr.textOnBackground,
+            Color.BLACK
+        ) */
+
         val xAxis: XAxis = binding.barChart.xAxis
         xAxis.granularity = 1f
         xAxis.isGranularityEnabled = true
@@ -376,93 +691,230 @@ class TrackerFragment : Fragment() {
             .dataSets) set.setDrawValues(!set.isDrawValuesEnabled)
         binding.barChart.data.notifyDataChanged()
         binding.barChart.notifyDataSetChanged()
-        val dateNow = android.icu.util.Calendar.getInstance()
-        binding.chartTitle.text = "Discretionary Expense Tracker - " +
-                MonthNames[dateNow.get(Calendar.MONTH)] + " " +
-                dateNow.get(Calendar.YEAR)
+        setChartTitle()
     }
 
     @SuppressLint("SetTextI18n")
-    private fun getActualPieChartData(): PieDataSet {
-        val dateNow = android.icu.util.Calendar.getInstance()
-        val catActuals = ExpenditureViewModel.getCategoryActuals(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
+    private fun setChartTitle() {
+        if (binding.barChart.visibility == View.VISIBLE) {
+            binding.chartTitle.text = "Expense Tracker"
+        } else {
+            if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TOTALS_TRACKER) == "%")
+                binding.chartTitle.text = "Allocation (%) of Budget and Actuals"
+            else
+                binding.chartTitle.text = "Allocation ($) of Budget and Actuals"
+        }
+        binding.chartTitle.text = binding.chartTitle.text.toString() +
+            when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+                "All-Time" -> " - All-Time"
+                "YTD" -> " - YTD"
+                "Year" -> " - ${currentBudgetMonth.year}"
+                else -> " - " + MonthNames[currentBudgetMonth.month - 1] + " " + currentBudgetMonth.year
+            }
+        var currentFilterIndicator = ""
+        if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER) != cDiscTypeAll)
+            currentFilterIndicator = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
+        if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER) != "" && DefaultsViewModel.getDefault(
+                cDEFAULT_FILTER_WHO_TRACKER) != "-1")
+            currentFilterIndicator = currentFilterIndicator +
+                    (if (currentFilterIndicator == "") "" else " ") +
+                    SpenderViewModel.getSpenderName(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt())
+        if (currentFilterIndicator == "") {
+            binding.chartSubTitle.visibility = View.GONE
+            binding.chartSubTitle.text = ""
+        } else {
+            binding.chartSubTitle.visibility = View.VISIBLE
+            binding.chartSubTitle.text = "($currentFilterIndicator)"
+        }
+    }
+    @SuppressLint("SetTextI18n")
+    private fun getActualPieChartData(iSpecificCategory: String): PieDataSet {
+        val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
+        Log.d("Alex", "DiscFilter is $discFilter")
+        val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else -1
+
+        val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+            "Month" -> DateRange.MONTH
+            "Year" -> DateRange.YEAR
+            "YTD" -> DateRange.YTD
+            else -> DateRange.ALLTIME
+        }
+
+        val catActuals = TransactionViewModel.getCategoryActuals(currentBudgetMonth, viewPeriod, discFilter, whoFilter)
         val pieEntries: ArrayList<PieEntry> = ArrayList()
 
         //initializing colors for the entries
         val colors: ArrayList<Int> = ArrayList()
-        colors.add(Color.parseColor("#304567"))
-        colors.add(Color.parseColor("#309967"))
-        colors.add(Color.parseColor("#476567"))
-        colors.add(Color.parseColor("#890567"))
-        colors.add(Color.parseColor("#a35567"))
-        colors.add(Color.parseColor("#ff5f67"))
-        colors.add(Color.parseColor("#3ca567"))
 
         //input data and fit data into pie chart entry
-        for (actual in catActuals) {
-            pieEntries.add(PieEntry(actual.value.toFloat(), actual.label))
+        hackActualTotal = 0.0
+        var lastCategory = "Zebra"
+        var lastColor = 0
+        var groupActual = 0.0
+        Log.d("Alex", "iSpecificCategory is '$iSpecificCategory'")
+        for (i in 0 until catActuals.size) {
+            if (iSpecificCategory == "" || catActuals[i].label == iSpecificCategory) {
+                val toCompare = if (iSpecificCategory == "") catActuals[i].label else CategoryViewModel.getCategory(catActuals[i].id)?.subcategoryName
+                if ( lastCategory != toCompare && groupActual > 0.0) {
+                    Log.d("Alex", "Here2")
+                    pieEntries.add(PieEntry(groupActual.toFloat(), lastCategory))
+                    colors.add(lastColor)
+                    hackActualTotal += groupActual.toFloat()
+                    groupActual = 0.0
+                }
+                groupActual += catActuals[i].value
+                if (iSpecificCategory == "") {
+                    lastCategory = catActuals[i].label
+                    lastColor = catActuals[i].color
+                } else {
+                    lastCategory = CategoryViewModel.getCategory(catActuals[i].id)?.subcategoryName.toString()
+                    lastColor = getSubcategoryColour(CategoryViewModel.getCategory(catActuals[i].id)?.subcategoryName.toString())
+                }
+            }
+        }
+        if (catActuals.size > 0 && groupActual > 0.0) {
+            pieEntries.add(PieEntry(groupActual.toFloat(), lastCategory))
+            colors.add(lastColor)
+/*            if (iSpecificCategory == "")
+                colors.add(catActuals[catActuals.size-1].color)
+            else {
+                CategoryViewModel.getCategory(catActuals[catActuals.size-1].id)
+                    ?.let { getSubcategoryColour(it.subcategoryName) }?.let { colors.add(it) }
+            } */
+            hackActualTotal += groupActual.toFloat()
         }
         //collecting the entries with label name
         val label = ""
         val pieDataSet = PieDataSet(pieEntries, label)
         //providing color list for coloring different entries
         pieDataSet.colors = colors
-        pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
-        pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
-        pieDataSet.valueTextColor = Color.BLACK
+        pieDataSet.xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        pieDataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        val col = MaterialColors.getColor(
+            requireContext(),
+            R.attr.textOnBackground,
+            Color.BLACK
+        )
+        pieDataSet.valueTextColor = col
+        pieDataSet.valueLineColor =  col
         return pieDataSet
     }
 
     @SuppressLint("SetTextI18n")
-    private fun getBudgetPieChartData(): PieDataSet {
-        val dateNow = android.icu.util.Calendar.getInstance()
-        val catBudgets = BudgetViewModel.getCategoryBudgets(BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH)+1))
-        val label = "Category"
+    private fun getBudgetPieChartData(iSpecificCategory: String): PieDataSet {
+        val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
+        val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
+            DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER).toInt() else -1
+        val viewPeriod = when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_BY_TRACKER)) {
+            "All-Time" -> DateRange.ALLTIME
+            "YTD" -> DateRange.YTD
+            "Year" -> DateRange.YEAR
+            else -> DateRange.MONTH
+        }
+        val catBudgets = BudgetViewModel.getCategoryBudgets(viewPeriod, currentBudgetMonth, discFilter, whoFilter, iSpecificCategory)
+        val label = "" // "Category"
         val pieEntries: ArrayList<PieEntry> = ArrayList()
 
         //initializing colors for the entries
         val colors: ArrayList<Int> = ArrayList()
-        colors.add(Color.parseColor("#304567"))
-        colors.add(Color.parseColor("#309967"))
-        colors.add(Color.parseColor("#476567"))
-        colors.add(Color.parseColor("#890567"))
-        colors.add(Color.parseColor("#a35567"))
-        colors.add(Color.parseColor("#ff5f67"))
-        colors.add(Color.parseColor("#3ca567"))
-
         //input data and fit data into pie chart entry
+        hackBudgetTotal = 0.0
         for (budget in catBudgets) {
+            hackBudgetTotal += budget.value.toFloat()
             pieEntries.add(PieEntry(budget.value.toFloat(), budget.label))
+            if (iSpecificCategory == "")
+                colors.add(DefaultsViewModel.getCategoryDetail(budget.label).color)
+            else {
+                colors.add(getSubcategoryColour(budget.label))
+            }
         }
         //collecting the entries with label name
         val pieDataSet = PieDataSet(pieEntries, label)
         //providing color list for coloring different entries
         pieDataSet.colors = colors
-        pieDataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
-        pieDataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE)
-        pieDataSet.valueTextColor = Color.BLACK
+        pieDataSet.xValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        pieDataSet.yValuePosition = PieDataSet.ValuePosition.OUTSIDE_SLICE
+        val col = MaterialColors.getColor(
+            requireContext(),
+            R.attr.textOnBackground,
+            Color.BLACK
+        )
+        pieDataSet.valueTextColor = col
+        pieDataSet.valueLineColor =  col
         return pieDataSet
     }
-    private fun initializePieChart(pieChart: PieChart) {
+    private fun initializePieChart(iLabel: String, pieChart: PieChart) {
         //using percentage as values instead of amount
         pieChart.setUsePercentValues(true)
         //remove the description label on the lower left corner, default true if not set
-        pieChart.getDescription().setEnabled(true)
+        pieChart.description.isEnabled = true
         pieChart.description.textSize = 16F
         //enabling the user to rotate the chart, default true
-        pieChart.setRotationEnabled(false)
+        pieChart.isRotationEnabled = false
         //adding friction when rotating the pie chart
-        pieChart.setDragDecelerationFrictionCoef(0.9f)
+        pieChart.dragDecelerationFrictionCoef = 0.9f
         //setting the first entry start from right hand side, default starting from top
-        pieChart.setRotationAngle(0F)
+        pieChart.rotationAngle = 0F
         //highlight the entry when it is tapped, default true if not set
-        pieChart.setHighlightPerTapEnabled(true)
+        pieChart.isHighlightPerTapEnabled = true
         //adding animation so the entries pop up from 0 degree
         pieChart.animateY(1400, Easing.EaseInOutQuad)
         //setting the color of the hole in the middle, default white
         pieChart.setHoleColor(Color.parseColor("#FFFFFF"))
         pieChart.setEntryLabelColor(Color.BLACK)
+        pieChart.legend.isEnabled = false
         pieChart.legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+
+        if (iLabel == "Actual") {
+            binding.actualPieChart.setOnChartValueSelectedListener(object :
+                OnChartValueSelectedListener {
+                override fun onNothingSelected() {
+                    Log.d("Alex", "user unselected one of the pies")
+                }
+
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    Log.d("Alex", "clicked cat ${h?.x}")
+                    val catName = h?.x?.toInt()
+                        ?.let { pieChart.data.dataSet.getEntryForIndex(it).label }
+                    Log.d("Alex", "cat name is $catName")
+
+                    if (currentCategory == "") { // ie clicking into category
+                        currentCategory = catName.toString()
+                        loadPieChart(currentCategory)
+                    } else { // ie clicking into subcategory
+                        MyApplication.transactionSearchText = "$currentCategory $catName"
+                        view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
+                    }
+                }
+            })
+        } else {
+            binding.budgetPieChart.setOnChartValueSelectedListener(object :
+                OnChartValueSelectedListener {
+                override fun onNothingSelected() {
+                    Log.d("Alex", "user unselected one of the pies")
+                }
+
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    Log.d("Alex", "clicked cat ${h?.x}")
+                    val catName = h?.x?.toInt()
+                        ?.let { pieChart.data.dataSet.getEntryForIndex(it).label }
+                    Log.d("Alex", "cat name is $catName")
+
+                    if (currentCategory == "") { // ie clicking into category
+                        currentCategory = catName.toString()
+                        loadPieChart(currentCategory)
+                    } else { // ie clicking into subcategory
+                        val catID = catName?.let { CategoryViewModel.getID(currentCategory, it) }
+                        val action =
+                            TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
+                        action.categoryID = catID.toString()
+                        findNavController().navigate(action)
+                    }
+                }
+            })
+        }
+        pieChart.highlightValues(null) // makes sure no pie slice is showing as selected
     }
 
     @SuppressLint("SetTextI18n")
@@ -473,12 +925,32 @@ class TrackerFragment : Fragment() {
         //showing the value of the entries, default true if not set
         val pieData = PieData(pieDataSet)
         pieData.setDrawValues(true)
-        pieChart.setData(pieData)
+        pieChart.data = pieData
         pieChart.description.text = ""
 //        pieChart.centerText = iDescription
 //        pieChart.setCenterTextSize(14F)
-        val s = SpannableString(iDescription)
-        s.setSpan(RelativeSizeSpan(2f), 0, s.length, 0)
+        val dm = activity?.resources?.displayMetrics
+        val valFontSize = if (dm?.widthPixels!! <= 600)
+            18
+        else
+            35
+        val s = if (iDescription == budgetLabel)
+            ("$iDescription\n" + gDecWithCurrency(hackBudgetTotal)).setFontSizeForPath(iDescription.length, valFontSize)
+        else {
+                val col = if (hackActualTotal > hackBudgetTotal)
+                    ContextCompat.getColor(requireContext(), R.color.red)
+                else
+                    ContextCompat.getColor(requireContext(), R.color.green)
+            ("$iDescription\n" + gDecWithCurrency(hackActualTotal)).setFontSizeForPath(
+                iDescription.length,
+                valFontSize,
+                col
+            )
+        }
+        if (dm.widthPixels <= 600)
+            s.setSpan(RelativeSizeSpan(1f), 0, s.length, 0)
+        else
+            s.setSpan(RelativeSizeSpan(1.3f), 0, s.length, 0)
         s.setSpan(StyleSpan(Typeface.BOLD), 0, s.length, 0)
         pieChart.centerText = s
 
@@ -493,10 +965,23 @@ class TrackerFragment : Fragment() {
         super.onDestroy()
         _binding = null
     }
+
+    private fun getSubcategoryColour(iLabel: String) : Int {
+        subcategoryColours.forEach {
+            if (it.label == iLabel) {
+                Log.d("Alex", "colour for $iLabel is ${it.colour}")
+                return it.colour
+            }
+        }
+        val newColour = Color.argb(255, Random().nextInt(256), Random().nextInt(256), Random().nextInt(256))
+        subcategoryColours.add(SubCategoryColour(iLabel, newColour))
+        Log.d("Alex", "new colour for $iLabel is $newColour")
+        return newColour
+    }
 }
 
 class MyYAxisValueFormatter : ValueFormatter() {
-    private val mFormat: DecimalFormat = DecimalFormat("$ ###,###,##0")
+    private val mFormat: DecimalFormat = DecimalFormat("$ ###,###,##0.00")
     override fun getFormattedValue(value: Float): String {
         //write your logic here
         //access the YAxis object to get more information
@@ -504,4 +989,6 @@ class MyYAxisValueFormatter : ValueFormatter() {
     }
 
 }
+
+data class SubCategoryColour (val label: String, val colour: Int)
 

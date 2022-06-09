@@ -29,15 +29,21 @@ class TranslationAdapter (context: Context, data: MutableList<Translation>): Bas
         return pos.toLong()
     }
 
+    // class for holding the cached view
+    class TViewHolder(view: View) {
+        var vhBefore: TextView = view.findViewById(R.id.row_before)
+        var vhAfter: TextView = view.findViewById(R.id.row_after)
+    }
+
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val rowView = inflater.inflate(R.layout.row_translation, parent, false)
-
-        val beforeView = rowView.findViewById(R.id.row_before) as TextView
-        val afterView = rowView.findViewById(R.id.row_after) as TextView
-
+        val viewHolder: TViewHolder
         val cData = getItem(pos) as Translation
-        beforeView.text = cData.before
-        afterView.text = cData.after
-        return rowView
+
+        val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_translation, parent, false)
+        viewHolder = TViewHolder(myConvertView)
+
+        viewHolder.vhBefore.text = cData.before
+        viewHolder.vhAfter.text = cData.after
+        return myConvertView
     }
 }

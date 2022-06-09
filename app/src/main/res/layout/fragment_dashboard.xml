@@ -1,134 +1,499 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?android:attr/actionBarSize"
     tools:context=".DashboardFragment">
 
+    <LinearLayout
+        android:id="@+id/dashboard_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:background="@drawable/row_header"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/dashboard_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Dashboard"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"/>
+        <TextView
+            android:id="@+id/dashboard_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/table_header_row_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:background="@drawable/row_header"
+        android:layout_below="@id/dashboard_title_layout">
+        <TableLayout
+            android:id="@+id/table_header_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/dashboard_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="horizontal"
         android:paddingStart="5dp"
-        android:paddingTop="?android:attr/actionBarSize"
         android:paddingEnd="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/button_linear_layout2">
+        android:layout_below="@id/table_header_row_layout"
+        android:layout_above="@id/button_layout">
 
-        <ScrollView
+        <com.isrbet.budgetsbyisrbet.DashboardScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="UselessParent">
+
             <TableLayout
                 android:id="@+id/table_dashboard_rows"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:padding="0dp"
-                android:stretchColumns="*"/>
-        </ScrollView>
+                android:stretchColumns="*" />
+        </com.isrbet.budgetsbyisrbet.DashboardScrollView>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/button_linear_layout2"
+        android:id="@id/button_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="5"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/button_backward"
-            android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center">
+        <LinearLayout
+            android:id="@+id/expansion_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:background="@android:color/white"
-            android:contentDescription="Previous"
-            android:tooltipText="Previous period"
-            android:src="@drawable/ic_baseline_arrow_back_24"
-            tools:ignore="HardcodedText" />
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingTop="5dp">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
 
-        <ImageButton
-            android:id="@+id/button_forward"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/expand_nav"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="Navigate"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
+
+            <TextView
+                android:id="@+id/expand_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="View"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
+
+            <TextView
+                android:id="@+id/expand_filter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="Filter"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
+
+            <TextView
+                android:id="@+id/expand_options"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="Options"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                tools:ignore="HardcodedText"
+                android:maxLines="1"/>
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_button_linear_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:background="@android:color/white"
-            android:contentDescription="Next"
-            android:tooltipText="Next period"
-            android:src="@drawable/ic_baseline_arrow_forward_24"
-            tools:ignore="HardcodedText" />
+            android:background="?attr/colorSecondaryVariant"
+            android:orientation="horizontal"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:visibility="gone">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-        <Button
-            android:id="@+id/button_by_month"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/button_backward"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="50dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                app:drawableStartCompat="@drawable/ic_baseline_arrow_back_24"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/button_forward"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="50dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                app:drawableStartCompat="@drawable/ic_baseline_arrow_forward_24"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_button_linear_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Mo"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText" />
+            android:layout_gravity="center"
+            android:background="?attr/colorSecondaryVariant"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="View by: "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    tools:ignore="HardcodedText" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-        <Button
-            android:id="@+id/button_ytd"
-            android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/viewRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/allDiscRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/button_view_month"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Month"
+                            tools:ignore="HardcodedText" />
+
+                        <RadioButton
+                            android:id="@+id/button_view_ytd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="YTD"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/button_view_year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Year"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/button_view_all_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All-Time"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:text="Show Discretionary indicator column?  "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText">
+                </TextView>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/show_disc_column"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textOn="On"
+                    android:textOff="Off"
+                    android:checked="true"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="These settings are sticky."
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/filter_button_linear_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="YTD"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
+            android:background="?attr/colorSecondaryVariant"
+            android:orientation="vertical"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:visibility="gone">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Type: "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/filterDiscRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/allDiscRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/allDiscRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/discRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Discretionary"
+                            tools:ignore="HardcodedText" />
 
-        <Button
-            android:id="@+id/button_by_year"
-            android:layout_width="wrap_content"
+                        <RadioButton
+                            android:id="@+id/nonDiscRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Non-Discretionary"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/filter_who_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Who: "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/filterWhoRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/whoAllRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/whoAllRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="All"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/name1RadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Al"
+                            tools:ignore="HardcodedText" />
+                        <RadioButton
+                            android:id="@+id/name2RadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Br"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/resetFilterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_gravity="center"
+                android:text="Reset all filters"
+                android:minWidth="50dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="These settings are sticky."
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/options_button_linear_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Yr"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
+            android:background="?attr/colorSecondaryVariant"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <LinearLayout
+                android:id="@+id/show_delta_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Show Delta as "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/showDeltaRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/dollarRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/dollarRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <RadioButton
+                            android:id="@+id/percentageRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="%"
+                            tools:ignore="HardcodedText" />
+                    </RadioGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/show_rounded_to_nearest_dollar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Round to nearest dollar? "
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_round_to_nearest_dollar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textOn="On"
+                    android:textOff="Off"
+                    android:checked="false"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="These settings are sticky."
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

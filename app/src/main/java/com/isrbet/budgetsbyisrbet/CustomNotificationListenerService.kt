@@ -5,7 +5,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 
-data class TransactionDataFromTD(var amount: Double, var note: String, var category: String)
+data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
 
 class CustomNotificationListenerService : NotificationListenerService() {
 
@@ -13,7 +13,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
         lateinit var singleInstance: CustomNotificationListenerService // used to track static single instance of self
 
         fun getExpenseNotificationCount(): Int {
-            Log.d("Alex", "getting expense count")
             if (cFAKING_TD)
                 return 1
             if (!::singleInstance.isInitialized)
@@ -24,8 +23,11 @@ class CustomNotificationListenerService : NotificationListenerService() {
             return if (activeNotnCount > 0) {
                 for (count in 0 until activeNotnCount) {
                     val sbn = singleInstance.activeNotifications[count]
-                    if (sbn.packageName == "com.td.myspend")
+                    Log.d("Alex", "Package name is ${sbn.packageName}")
+                    if (sbn.packageName == "com.td.myspend") {
                         tCount++
+                        Log.d("Alex", "tcount is now $tCount")
+                    }
                 }
                 tCount
             } else {
@@ -60,7 +62,9 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val dollarSign = notificationText.indexOf("$")
                             val space = notificationText.indexOf(" ", dollarSign)
                             val textAmount = notificationText.substring(dollarSign+1, space).trim()
-                            tAmount = textAmount.toDouble()
+
+//                            textAmount = textAmount.replace(",","")
+                            tAmount = getDoubleValue(textAmount)
                             val credited = notificationText.indexOf("credited")
                             if (credited != -1) {
                                 Log.d("Alex", "it's a credit!")
@@ -78,8 +82,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val rbracket = notificationText.indexOf("]", lbracket + 1)
                             tCategory = notificationText.substring(lbracket+1, rbracket).trim()
                             singleInstance.cancelNotification(sbn.key)
-                            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TDMySpend_Success")
-                                .child(key).setValue(notificationText)
                             return TransactionDataFromTD(tAmount, tNote, tCategory)
                         }
                         catch (exception: Exception) {
@@ -111,8 +113,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
     // this is called when a new notification is created
     override fun onNotificationPosted(newNotification: StatusBarNotification) {
-        Log.i("Alex", "-------- onNotificationPosted(): " + "ID :" + newNotification.id + "\t" + newNotification.notification.tickerText + "\t" + newNotification.packageName)
-        Log.d("Alex", "onNotificationPosted :" + newNotification.packageName + "\n")
+//        Log.i("Alex", "-------- onNotificationPosted(): " + "ID :" + newNotification.id + "\t" + newNotification.notification.tickerText + "\t" + newNotification.packageName)
+//        Log.d("Alex", "onNotificationPosted :" + newNotification.packageName + "\n")
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
@@ -121,14 +123,20 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
      private fun fetchCurrentNotifications() {
         val activeNotnCount = this@CustomNotificationListenerService.activeNotifications.size
-        Log.d("Alex", "fetchCurrentNotifications: activeNotnCount is $activeNotnCount")
 
         if (activeNotnCount > 0) {
-            /*
-            for (count in 0..activeNotnCount-1) {
-                val sbn = this@CustomNotificationListenerService.activeNotifications[count]
-                val notification = sbn.notification
-            } */
+            Log.d("Alex", "$activeNotnCount active notifications found")
+            for (count in 0 until singleInstance.activeNotifications.size) {
+                val sbn = singleInstance.activeNotifications[count]
+                if (sbn.packageName == "com.td.myspend") {
+                    val notification = sbn.notification
+                    val notificationText =
+                        notification.extras.getCharSequence("android.text").toString()
+                    if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
+                        Log.d("Alex", "package name ${sbn.packageName} notification text: $notificationText")
+                    }
+                }
+            }
         } else {
             Log.d("Alex", "No active Notn found")
         }

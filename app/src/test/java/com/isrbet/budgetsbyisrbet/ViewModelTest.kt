@@ -12,7 +12,7 @@ class ViewModelTest {
         catModel.clearCallback()
         val budgetModel = BudgetViewModel()
         budgetModel.clearCallback()
-        val expModel = ExpenditureViewModel()
+        val expModel = TransactionViewModel()
         expModel.clearCallback()
 
         SpenderViewModel.addLocalSpender(Spender("User1", "alexreid2070@gmail.com", 50, 1))
@@ -20,7 +20,7 @@ class ViewModelTest {
         SpenderViewModel.addLocalSpender(Spender("Joint", "test.com", 100, 0))
         Assert.assertEquals(1, SpenderViewModel.getActiveCount())
         Assert.assertEquals(true, SpenderViewModel.singleUser())
-        var c = Category("Life-Groceries")
+        var c = Category(0, "Life-Groceries")
         Assert.assertEquals("Life", c.categoryName)
         Assert.assertEquals("Groceries", c.subcategoryName)
     }

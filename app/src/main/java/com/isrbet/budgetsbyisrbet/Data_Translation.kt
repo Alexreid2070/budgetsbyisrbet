@@ -7,9 +7,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
 data class Translation(var before: String, var after: String, var key: String)
-data class TranslationOut(var before: String, var after: String) {
-    constructor(t: Translation) : this(t.before, t.after)
-}
+data class TranslationOut(var before: String, var after: String)
 
 class TranslationViewModel : ViewModel() {
     private var transListener: ValueEventListener? = null
@@ -24,7 +22,7 @@ class TranslationViewModel : ViewModel() {
 
         fun getTranslations():MutableList<Translation> {
             val copy = mutableListOf<Translation>()
-            copy.addAll(Companion.singleInstance.translations)
+            copy.addAll(singleInstance.translations)
             return copy
         }
 
@@ -78,7 +76,6 @@ class TranslationViewModel : ViewModel() {
         }
         fun addTranslation(iBefore: String, iAfter: String) {
             val trans = TranslationOut(iBefore, iAfter)
-            Log.d("Alex", "Adding translation $iBefore $iAfter")
             val key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").push().key.toString()
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(key).setValue(trans)
         }
@@ -100,6 +97,9 @@ class TranslationViewModel : ViewModel() {
         singleInstance = this
     }
 
+    fun clearCallback() {
+        loaded = false
+    }
     override fun onCleared() {
         super.onCleared()
         if (transListener != null) {
@@ -131,8 +131,7 @@ class TranslationViewModel : ViewModel() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-                Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                MyApplication.displayToast("User authorization failed 111.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").addValueEventListener(

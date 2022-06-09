@@ -2,27 +2,30 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.icu.util.Calendar
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.*
-import android.widget.Button
-import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -40,52 +43,92 @@ class HomeFragment : Fragment() {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
     private val defaultsModel: DefaultsViewModel by viewModels()
-    private val expenditureModel: ExpenditureViewModel by viewModels()
+    private val transactionModel: TransactionViewModel by viewModels()
     private val categoryModel: CategoryViewModel by viewModels()
     private val spenderModel: SpenderViewModel by viewModels()
     private val budgetModel: BudgetViewModel by viewModels()
     private val recurringTransactionModel: RecurringTransactionViewModel by viewModels()
-    private val userModel: UserViewModel by viewModels()
-    private val chatModel: ChatViewModel by viewModels()
+    private val userModel: AppUserViewModel by viewModels()
+    private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
+    private var gestureDetector: GestureDetectorCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
         spenderModel.clearCallback() // ditto, see above
         userModel.clearCallback() // ditto, see above
-        chatModel.clearCallback() // ditto, see above
-        expenditureModel.clearCallback()
+        transactionModel.clearCallback()
         budgetModel.clearCallback()
         recurringTransactionModel.clearCallback()
         defaultsModel.clearCallback()
+        translationModel.clearCallback()
+        hintModel.clearCallback()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
 
-        val mainActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-            if(result.resultCode == Activity.RESULT_OK){
-                val data = result.data
-                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                try {
-                    // Google Sign In was successful, authenticate with Firebase
-                    val account = task.getResult(ApiException::class.java)!!
-                    Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
-                    firebaseAuthWithGoogle(account.idToken!!)
-                } catch (e: ApiException) {
-                    // Google Sign In failed, update UI appropriately
-                    Log.w("Alex", "Google sign in failed", e)
+        gestureDetector = GestureDetectorCompat(requireActivity(), object :
+            GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                event1: MotionEvent,
+                event2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (event2.y > event1.y) {
+                    // negative for up, positive for down
+                    Log.d("Alex", "swiped down " + binding.scrollView.canScrollVertically(-1))
+                    if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
+                        if (binding.expansionAreaLayout.visibility == View.GONE)
+                            onExpandClicked()
+                        else // already expanded and user swiped down, so open Settings
+                            findNavController().navigate(R.id.SettingsFragment)
+                    }
+                } else if (event2.y < event1.y) {
+                    Log.d("Alex", "swiped up " + binding.scrollView.canScrollVertically(1))
+                    if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
+                        if (binding.expansionAreaLayout.visibility == View.VISIBLE)
+                            onExpandClicked()
+                    }
                 }
-            } else
-                Log.d("Alex", "in registerforactivityresult, result was not OK")
-        }
+//                }
+                return true
+            }
+        })
+
+        val mainActivityResultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    Log.d(
+                        "Alex",
+                        "in registerforactivityresult, result is OK"  + result.resultCode
+                    )
+                    val data = result.data
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+                    try {
+                        // Google Sign In was successful, authenticate with Firebase
+                        val account = task.getResult(ApiException::class.java)!!
+                        Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
+                        MyApplication.userGivenName = account.givenName.toString()
+                        MyApplication.userFamilyName = account.familyName.toString()
+                        firebaseAuthWithGoogle(account.idToken!!)
+                    } catch (e: ApiException) {
+                        // Google Sign In failed, update UI appropriately
+                        Log.w("Alex", "Google sign in failed", e)
+                    }
+                } else
+                    Log.d(
+                        "Alex",
+                        "in registerforactivityresult, result was not OK " + result.resultCode
+                    )
+            }
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -101,28 +144,27 @@ class HomeFragment : Fragment() {
         }
         auth = Firebase.auth
 
-        // These 2 lines open up the notification settings app so that the user can give access to notifications permissions
-        // to this app
-//        var intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-//        startActivity(intent);
-        //     MyApplication.myCustomNotificationListenerService = CustomNotificationListenerService()
-
-        // This next line checks if the app has permission to look at notifications
-        if (Settings.Secure.getString((activity as MainActivity).contentResolver,"enabled_notification_listeners").contains(
-                (activity as MainActivity).applicationContext.packageName
-            )) {
-            // yes, it has permission
-//            Toast.makeText(this, "App has permission to look at notifications", Toast.LENGTH_SHORT).show()
+        binding.transactionAddFab.setOnClickListener {
+            findNavController().navigate(R.id.TransactionFragment)
         }
-        else {
-            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-            startActivity(intent)
-            if (Settings.Secure.getString((activity as MainActivity).contentResolver,"enabled_notification_listeners").contains(
-                    (activity as MainActivity).applicationContext.packageName
-                )) {
-                Log.d("Alex", "After asking, it's true")
-            } else
-                Log.d("Alex", "After asking, it's false")
+        binding.transactionAddFab.setOnLongClickListener {
+            MyApplication.displayToast("Long click")
+            true
+        }
+        binding.expandButton.setOnClickListener {
+            onExpandClicked()
+        }
+        binding.settingsButton.setOnClickListener {
+            findNavController().navigate(R.id.SettingsFragment)
+        }
+        binding.loanButton.setOnClickListener {
+            findNavController().navigate(R.id.LoanFragment)
+        }
+        binding.helpButton.setOnClickListener {
+            findNavController().navigate(R.id.HelpFragment)
+        }
+        binding.adminButton.setOnClickListener {
+            findNavController().navigate(R.id.AdminFragment)
         }
         return binding.root
     }
@@ -130,103 +172,39 @@ class HomeFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        view.findViewById<Button>(R.id.expenditure_button)
-            ?.setOnClickListener { iview: View ->
-                iview.findNavController().navigate(R.id.TransactionFragment)
-            }
-        view.findViewById<Button>(R.id.view_all_button)
-            ?.setOnClickListener { iview: View ->
-                iview.findNavController().navigate(R.id.ViewTransactionsFragment)
-            }
-        view.findViewById<Button>(R.id.dashboard_button)
-            ?.setOnClickListener { iview: View ->
-                iview.findNavController().navigate(R.id.DashboardFragment)
-            }
-        view.findViewById<TextView>(R.id.quote_field)?.setOnTouchListener(object :
-            OnSwipeTouchListener(requireContext()) {
-            override fun onSwipeLeft() {
-                super.onSwipeLeft()
-                Log.d("Alex", "swiped left")
-                val navController = view.findNavController()
-                navController.navigate(R.id.DashboardFragment)
-            }
-
-            override fun onSwipeRight() {
-                super.onSwipeRight()
-                Log.d("Alex", "swiped right")
-                val navController = view.findNavController()
-                navController.navigate(R.id.ViewTransactionsFragment)
-            }
-
-            override fun onSwipeBottom() {
-                super.onSwipeBottom()
-                Log.d("Alex", "swiped bottom, want to show menu")
-                (activity as MainActivity).openDrawer()
-            }
-
-            override fun onSwipeTop() {
-                super.onSwipeTop()
-                Log.d("Alex", "swiped top, want to go to Add Transaction")
-                val navController = view.findNavController()
-                navController.navigate(R.id.TransactionFragment)
-            }
-        })
-
-//        alignExpenditureMenuWithDataState()
-
-        CategoryViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in Category onDataUpdate callback")
-                alignExpenditureMenuWithDataState()
-            }
-        })
-        SpenderViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in Spender onDataUpdate callback")
-                alignExpenditureMenuWithDataState()
-                if (SpenderViewModel.singleUser()) {
-                    (activity as MainActivity).singleUserMode()
+        Log.d("Alex", "area expanded is $homePageExpansionAreaExpanded")
+        val scrollView = view.findViewById<NestedScrollView>(R.id.scroll_view)
+        scrollView.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                if (p1 != null) {
+                    try {
+                        // this call is in a "try" because if the user swipes partially over the tracker on the home page, it crashes.  So we want to ignore that gesture
+                        gestureDetector?.onTouchEvent(p1)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        return false
+                    }
                 }
+                return false
             }
         })
-        ChatViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in Chat onDataUpdate callback")
-                tryToUpdateChatIcon()
-            }
-        })
-        ExpenditureViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in Expenditure onDataUpdate callback")
-                alignExpenditureMenuWithDataState()
-            }
-        })
-        BudgetViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in Budget onDataUpdate callback")
-                alignExpenditureMenuWithDataState()
-            }
-        })
-        RecurringTransactionViewModel.singleInstance.setCallback(object: DataUpdatedCallback {
-            override fun onDataUpdate() {
-                Log.d("Alex", "in RecurringTransaction onDataUpdate callback")
-                alignExpenditureMenuWithDataState()
-            }
-        })
+//        setupDataCallbacks()
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         val account = GoogleSignIn.getLastSignedInAccount(requireContext())
         if (account?.email == null) {
-            // turn off all menu/buttons
-//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            // user is logged out
             (activity as MainActivity).setLoggedOutMode(true)
+            binding.expandButton.isEnabled = false
             binding.signInButton.visibility = View.VISIBLE
             binding.quoteField.text = ""
             binding.quoteLabel.visibility = View.GONE
+            binding.transactionAddFab.visibility = View.GONE
+            binding.expandButton.visibility = View.GONE
             binding.homeScreenMessage.visibility = View.VISIBLE
-            binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
+            binding.homeScreenMessage.text =
+                "You must sign in using your Google account to proceed.  Click below to continue."
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
         } else {
             binding.signInButton.visibility = View.GONE
@@ -241,15 +219,119 @@ class HomeFragment : Fragment() {
                     binding.quoteField.text = getQuote()
             }
         }
-        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName)
+        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
         MyApplication.userGivenName = account?.givenName.toString()
-        (activity as MainActivity).setAdminMode(account?.email == "alexreid2070@gmail.com")
+        MyApplication.userFamilyName = account?.familyName.toString()
+        if (account != null) {
+            MyApplication.userPhotoURL = account.photoUrl.toString()
+            Glide.with(requireContext()).load(MyApplication.userPhotoURL)
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.imgProfilePic)
+            binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
+        }
+        setAdminMode(account?.email == "alexreid2070@gmail.com")
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         signIn(currentUser)
+        binding.imgProfilePic.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Are you sure?")
+                .setMessage("Are you sure that you want to sign out?")
+                .setPositiveButton("Sign Out") { _, _ -> signout() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
+                .show()
+        }
+        binding.signoutText.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Are you sure?")
+                .setMessage("Are you sure that you want to sign out?")
+                .setPositiveButton("Sign Out") { _, _ -> signout() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
+                .show()
+        }
+        if (homePageExpansionAreaExpanded)
+            expandTop()
+        // this next block allows the floating action button to move up and down (it starts constrained to bottom)
+        val set = ConstraintSet()
+        val constraintLayout = binding.constraintLayout
+        set.clone(constraintLayout)
+        set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
+        set.applyTo(constraintLayout)
+
     }
 
-    private fun getQuote() : String {
+    private fun setupDataCallbacks() {
+        CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("CategoryViewModel")
+            }
+        })
+        SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
+                alignPageWithDataState("SpenderViewModel")
+            }
+        })
+        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("HintViewModel")
+            }
+        })
+        TransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("TransactionViewModel")
+            }
+        })
+        BudgetViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("BudgetViewModel")
+            }
+        })
+        RecurringTransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("RTViewModel")
+                RecurringTransactionViewModel.generateTransactions(activity as MainActivity)
+            }
+        })
+    }
+
+    private fun onExpandClicked() {
+        if (binding.expansionAreaLayout.visibility == View.GONE) { // ie expand the section
+            expandTop()
+        } else { // ie retract the section
+            retractTop()
+        }
+    }
+
+    private fun expandTop() {
+        binding.expandButtonLayout.setBackgroundColor(
+            MaterialColors.getColor(
+                requireContext(),
+                R.attr.colorPrimary,
+                Color.BLACK
+            )
+        )
+        binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
+        binding.expansionAreaLayout.visibility = View.VISIBLE
+        homePageExpansionAreaExpanded = true
+    }
+
+    private fun retractTop() {
+        binding.expandButtonLayout.setBackgroundColor(
+            MaterialColors.getColor(
+                requireContext(),
+                R.attr.colorSecondary,
+                Color.BLACK
+            )
+        )
+        binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
+        binding.expansionAreaLayout.visibility = View.GONE
+        homePageExpansionAreaExpanded = false
+    }
+
+    private fun getQuote(): String {
         return if (MyApplication.userEmail != MyApplication.currentUserEmail)
             "Currently impersonating " + MyApplication.currentUserEmail
         else
@@ -258,7 +340,6 @@ class HomeFragment : Fragment() {
 
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
         Log.d("Alex", "onSignIn")
-        binding.homeScreenMessage.text = ""
         val signInIntent: Intent = mGoogleSignInClient.signInIntent
         mainActivityResultLauncher.launch(signInIntent)
     }
@@ -283,21 +364,38 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun signIn(account: FirebaseUser?) {
-        Log.d("Alex", "in signIn, account is " + account?.email)
+        Log.d(
+            "Alex",
+            "in signIn, account is " + account?.email + " and uid is " + MyApplication.userUID
+        )
         MyApplication.userEmail = account?.email.toString()
-        if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
-            MyApplication.userUID = account?.uid.toString()
-            Log.d("Alex", "Just set userUID to " + account?.uid.toString())
+        if (account != null) {
+            if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
+                MyApplication.userUID = account.uid
+                MyApplication.originalUserUID = account.uid
+                Log.d("Alex", "Just set userUID to " + account.uid)
+            }
+            if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
+                MyApplication.currentUserEmail = account.email ?: ""
+            MyApplication.userPhotoURL = account.photoUrl.toString()
+            Glide.with(requireContext()).load(MyApplication.userPhotoURL)
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.imgProfilePic)
+            binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
         }
-        if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
-            MyApplication.currentUserEmail = account?.email ?: ""
         if (account == null) {
+            binding.transactionAddFab.visibility = View.GONE
+            binding.expandButton.visibility = View.GONE
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
             binding.homeScreenMessage.visibility = View.VISIBLE
-            binding.homeScreenMessage.text = "You must sign in using your Google account to proceed.  Click below to continue."
-        }
-        else {
+            binding.homeScreenMessage.text =
+                "You must sign in using your Google account to proceed.  Click below to continue."
+        } else {
+            binding.transactionAddFab.visibility = View.VISIBLE
+            binding.expandButton.visibility = View.VISIBLE
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -308,193 +406,200 @@ class HomeFragment : Fragment() {
                     binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
             }
             if (account.email == "alexreid2070@gmail.com")
-                (activity as MainActivity).setAdminMode(true)
-            requireActivity().invalidateOptionsMenu()
+                setAdminMode(true)
             Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
-                getLastReadChatsInfo()
-                defaultsModel.loadDefaults()
-                categoryModel.loadCategories()
-                spenderModel.loadSpenders()
-                budgetModel.loadBudgets()
-                recurringTransactionModel.loadRecurringTransactions(activity as MainActivity)
-                expenditureModel.loadExpenditures()
-                chatModel.loadChats()
-                translationModel.loadTranslations()
-                MyApplication.haveLoadedDataForThisUser = true
-                val dateNow = Calendar.getInstance()
-                MyApplication.database.getReference("Users/"+MyApplication.userUID)
-                    .child("Info")
-                    .child("LastSignIn")
-                    .child("date")
-                    .setValue(giveMeMyDateFormat(dateNow))
-                MyApplication.database.getReference("Users/"+MyApplication.userUID)
-                    .child("Info")
-                    .child("LastSignIn")
-                    .child("time").setValue(giveMeMyTimeFormat(dateNow))
+                // check if I should load my own UID, or if I'm a JoinUser
+                val joinListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.value != null) {  // found the JoinUser node
+                            Log.d("Alex", "dataSnapshot.value is " + dataSnapshot.value)
+                            MyApplication.userUID = dataSnapshot.value.toString()
+                        }
+                        loadEverything()
+                  }
+
+                    override fun onCancelled(dataSnapshot: DatabaseError) {
+                        MyApplication.displayToast("User authorization failed 112.")
+                    }
+                }
+                val dbRef =
+                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                        .child("Info")
+                        .child("0")
+                        .child("JoinUser")
+                dbRef.addListenerForSingleValueEvent(joinListener)
             }
         }
-        alignExpenditureMenuWithDataState()
+        alignPageWithDataState("end of OVC")
+    }
+
+    private fun loadEverything() {
+        Log.d("Alex", "uid is " + MyApplication.userUID)
+        setupDataCallbacks()
+        hintModel.loadHints()
+        defaultsModel.loadDefaults()
+        categoryModel.loadCategories()
+        spenderModel.loadSpenders()
+        budgetModel.loadBudgets()
+        recurringTransactionModel.loadRecurringTransactions()
+        transactionModel.loadTransactions()
+        translationModel.loadTranslations()
+        MyApplication.haveLoadedDataForThisUser = true
+        val dateNow = Calendar.getInstance()
+        MyApplication.database.getReference("Users/" + MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("LastSignIn")
+            .child("date")
+            .setValue(giveMeMyDateFormat(dateNow))
+        MyApplication.database.getReference("Users/" + MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("LastSignIn")
+            .child("time").setValue(giveMeMyTimeFormat(dateNow))
     }
 
     @SuppressLint("SetTextI18n")
-    private fun alignExpenditureMenuWithDataState() {
+    private fun alignPageWithDataState(iTag: String)  {
+        Log.d("Alex", "alignPage $iTag")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
         }
 
-            if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
+        if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
             && RecurringTransactionViewModel.isLoaded()
-            && ExpenditureViewModel.isLoaded() && BudgetViewModel.isLoaded()) {
+            && TransactionViewModel.isLoaded() && BudgetViewModel.isLoaded() &&
+            DefaultsViewModel.isLoaded() && HintViewModel.isLoaded()
+        ) {
             if (thisIsANewUser()) {
                 Log.d("Alex", "This is a new user")
+                binding.quoteField.visibility = View.VISIBLE
+                binding.quoteField.text = "THIS IS A NEW USER.  NEED TO DO SETUP BEFORE PROCEEDING."
+//                binding.transactionAddFab.isEnabled = false
+                setupNewUser()
             } else {
                 Log.d("Alex", "This is not a new user")
-            }
-            Log.d("Alex", "alignExpenditureMenu true")
-            binding.expenditureButton.visibility = View.VISIBLE
-            binding.viewAllButton.visibility = View.VISIBLE
-            binding.dashboardButton.visibility = View.VISIBLE
-            (activity as MainActivity).setLoggedOutMode(false)
-            if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
-                binding.quoteLabel.visibility = View.VISIBLE
-                binding.quoteField.visibility = View.VISIBLE
-                if (thisIsANewUser())
-                    binding.quoteField.text = "THIS IS A NEW USER.  NEED TO DO SETUP."
-                else
+                (activity as MainActivity).setLoggedOutMode(false)
+                binding.expandButton.isEnabled = true
+                if (DefaultsViewModel.getDefault(cDEFAULT_QUOTE) == "On") {
+                    binding.quoteLabel.visibility = View.VISIBLE
+                    binding.quoteField.visibility = View.VISIBLE
                     binding.quoteField.text = getQuote()
-            }
-            binding.homeScreenMessage.text = ""
-            binding.homeScreenMessage.visibility = View.GONE
+                }
+                binding.homeScreenMessage.text = ""
+                binding.homeScreenMessage.visibility = View.GONE
                 val trackerFragment: TrackerFragment =
-                childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-            trackerFragment.loadBarChart()
-        } else {
-            Log.d("Alex", "alignExpenditureMenu false " + MyApplication.userUID + " C " + CategoryViewModel.isLoaded() + " S " + SpenderViewModel.isLoaded() +
-            " E " + ExpenditureViewModel.isLoaded() + " B " + BudgetViewModel.isLoaded())
-            binding.expenditureButton.visibility = View.GONE
-            binding.viewAllButton.visibility = View.GONE
-            binding.dashboardButton.visibility = View.GONE
-            (activity as MainActivity).setLoggedOutMode(true)
-        }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            if (menu.getItem(i).itemId == R.id.SignOut) {
-                menu.getItem(i).isVisible = true
-                menu.getItem(i).title = "Sign Out (" + MyApplication.userEmail + ")"
-            } else if (menu.getItem(i).itemId == R.id.ChatFragment) {
-                when (thereAreUnreadMessages()) {
-                    -1 -> {
-                        menu.getItem(i).isVisible = false
-                    }
-                    0 -> {
-                        menu.getItem(i).isVisible = false
-                    }
-                    1 -> {
-                        menu.getItem(i).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_fas_envelope)
-                        menu.getItem(i).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-                        menu.getItem(i).isVisible = true
-                    }
-                }
-            } else
-                menu.getItem(i).isVisible = false
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.SignOut) {
-            Log.d("Alex", "sign out attempted")
-            BudgetViewModel.clear()
-            CategoryViewModel.clear()
-            ChatViewModel.clear()
-            DefaultsViewModel.clear()
-            ExpenditureViewModel.clear()
-            RecurringTransactionViewModel.clear()
-            SpenderViewModel.clear()
-            Firebase.auth.signOut()
-            mGoogleSignInClient.signOut()
-            MyApplication.userUID = ""
-            MyApplication.currentUserEmail = ""
-            MyApplication.adminMode = false
-            requireActivity().invalidateOptionsMenu()
-//            (activity as MainActivity).setDrawerMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            (activity as MainActivity).setLoggedOutMode(true)
-            binding.signInButton.visibility = View.VISIBLE
-            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
-            binding.quoteField.text = ""
-            binding.quoteLabel.visibility = View.GONE
-            binding.expenditureButton.visibility = View.GONE
-            binding.viewAllButton.visibility = View.GONE
-            binding.dashboardButton.visibility = View.GONE
-            val trackerFragment: TrackerFragment =
-                childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-            trackerFragment.hideBarChart()
-            MyApplication.haveLoadedDataForThisUser = false
-            return true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun getLastReadChatsInfo() {
-        val infoListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.value != null) { // nothing exists at this node so we can add it
-                    dataSnapshot.children.forEach {
-                        when (it.key) {
-                            "date" -> MyApplication.lastReadChatsDate = it.value.toString()
-                            "time" -> MyApplication.lastReadChatsTime = it.value.toString()
-                        }
-                    }
-                    tryToUpdateChatIcon()
-                }
+                    childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
+                trackerFragment.initCurrentBudgetMonth()
+                trackerFragment.loadBarChart(4)
+                DefaultsViewModel.confirmCategoryDetailsListIsComplete()
+                HintViewModel.showHint(parentFragmentManager, "Home")
+                CategoryViewModel.singleInstance.clearCallback()
+                SpenderViewModel.singleInstance.clearCallback()
+                TransactionViewModel.singleInstance.clearCallback()
+                BudgetViewModel.singleInstance.clearCallback()
+                RecurringTransactionViewModel.singleInstance.clearCallback()
+                TranslationViewModel.singleInstance.clearCallback()
+                DefaultsViewModel.singleInstance.clearCallback()
             }
-
-            override fun onCancelled(dataSnapshot: DatabaseError) {
-            }
-        }
-        val dbRef =
-            MyApplication.databaseref.child("Users/" + MyApplication.userUID)
-                .child("Info")
-                .child("LastReadChats")
-        dbRef.addListenerForSingleValueEvent(infoListener)
-    }
-
-    fun tryToUpdateChatIcon() {
-        // this is called when lastSignedIn date/time are found, and also when chats are loaded.  When both are done then do something
-        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
-            activity?.invalidateOptionsMenu()
+        } else {
+            (activity as MainActivity).setLoggedOutMode(true)
+            binding.expandButton.isEnabled = false
         }
     }
 
-    private fun thereAreUnreadMessages() : Int {
-        if (ChatViewModel.getCount() > 0 && MyApplication.lastReadChatsDate != "") {
-            val tChat = ChatViewModel.getLastChat()
-            Log.d("Alex", MyApplication.lastReadChatsDate + " " + MyApplication.lastReadChatsTime + " " + tChat.date + " " + tChat.time)
-            if (MyApplication.lastReadChatsDate < tChat.date ||
-                (MyApplication.lastReadChatsDate == tChat.date && MyApplication.lastReadChatsTime < tChat.time))
-                    return 1 // there are unread chats
-            else
-                return 0 // there are no unread chats
-        } else
-            return -1    // don't show icon
+    private fun setupNewUser() {
+        Log.d("Alex", "Setting up new user")
+        AppUserViewModel.addUserKey()
+        CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, cON, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Mortgage", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Property Taxes", cDiscTypeNondiscretionary, 2, cON,false)
+        CategoryViewModel.updateCategory(0, "Housing", "Rent", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Car Payment", cDiscTypeNondiscretionary,2, cON, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Insurance", cDiscTypeNondiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeDiscretionary,2, cON,false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeDiscretionary,2, cON,false)
+        DefaultsViewModel.setColour("Housing", -12400683, false)
+        DefaultsViewModel.setColour("Life", -1072612, false)
+        DefaultsViewModel.setColour("Transportation", -3751917, false)
+        DefaultsViewModel.setPriority("Housing", 0, false)
+        DefaultsViewModel.setPriority("Life", 1, false)
+        DefaultsViewModel.setPriority("Transportation", 2, false)
+        val cat = CategoryViewModel.getID("Life", "Groceries")
+        DefaultsViewModel.updateDefault("Category", cat.toString())
+        DefaultsViewModel.updateDefault("Spender", "0")
+        SpenderViewModel.addLocalSpender(Spender(MyApplication.userGivenName, MyApplication.userEmail, 100,1))
+        SpenderViewModel.addSpender(0, Spender(MyApplication.userGivenName, MyApplication.userEmail, 100,1))
+    }
+
+    private fun signout() {
+        Log.d("Alex", "sign out attempted")
+        BudgetViewModel.clear()
+        CategoryViewModel.clear()
+        DefaultsViewModel.clear()
+        TransactionViewModel.clear()
+        RecurringTransactionViewModel.clear()
+        TranslationViewModel.clear()
+        SpenderViewModel.clear()
+        HintViewModel.clear()
+        Firebase.auth.signOut()
+        mGoogleSignInClient.signOut()
+        MyApplication.userUID = ""
+        MyApplication.currentUserEmail = ""
+        MyApplication.userFamilyName = ""
+        MyApplication.userPhotoURL = ""
+        MyApplication.adminMode = false
+        (activity as MainActivity).setLoggedOutMode(true)
+        binding.expandButton.isEnabled = false
+        binding.transactionAddFab.visibility = View.GONE
+        binding.expandButton.visibility = View.GONE
+        binding.signInButton.visibility = View.VISIBLE
+        binding.signInButton.setSize(SignInButton.SIZE_WIDE)
+        binding.quoteField.text = ""
+        binding.quoteLabel.visibility = View.GONE
+        val trackerFragment: TrackerFragment =
+            childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
+        trackerFragment.hideBarChart()
+        MyApplication.haveLoadedDataForThisUser = false
+        onExpandClicked()
+        binding.adminButton.visibility = View.GONE
+    }
+
+    private fun setAdminMode(inAdminMode: Boolean) {
+        if (inAdminMode)
+            binding.adminButton.visibility = View.VISIBLE
+        else
+            binding.adminButton.visibility = View.GONE
+        MyApplication.adminMode = inAdminMode
     }
 
     override fun onDestroy() {
         super.onDestroy()
         CategoryViewModel.singleInstance.clearCallback()
         SpenderViewModel.singleInstance.clearCallback()
-        ChatViewModel.singleInstance.clearCallback()
-        ExpenditureViewModel.singleInstance.clearCallback()
+        TransactionViewModel.singleInstance.clearCallback()
         BudgetViewModel.singleInstance.clearCallback()
         RecurringTransactionViewModel.singleInstance.clearCallback()
+        TranslationViewModel.singleInstance.clearCallback()
         DefaultsViewModel.singleInstance.clearCallback()
         _binding = null
     }
 }
-

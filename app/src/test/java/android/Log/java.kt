@@ -1,5 +1,5 @@
 @file:JvmName("Log")
-package android.util
+package android.Log
 
 
 fun e(tag: String, msg: String, t: Throwable): Int {

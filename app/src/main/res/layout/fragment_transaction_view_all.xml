@@ -2,11 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/transaction_view_all_constraint_layout"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TransactionViewAllFragment"
-    android:paddingTop="?android:attr/actionBarSize">
+    android:paddingStart="5dp"
+    android:paddingEnd="5dp"
+    tools:context=".TransactionViewAllFragment">
 
     <androidx.appcompat.widget.SearchView
         android:id="@+id/transaction_search"
@@ -16,104 +17,172 @@
         android:textCursorDrawable="@null"
         android:theme="@style/WhiteCursorSearchView"
         app:iconifiedByDefault="false"
-        app:queryBackground="@null"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:queryBackground="@null" />
 
     <LinearLayout
         android:id="@+id/RecyclerLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:background="@drawable/row_header"
+        android:padding="5dp"
         app:layout_constraintTop_toBottomOf="@+id/transaction_search">
 
         <TextView
             android:id="@+id/amountHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="center"
-            android:text="Amt"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Amount"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:tooltipText="@string/toolTipAmount"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/percentage1Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Amt1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="@string/toolTipAmt1"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/percentage2Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="Amt2"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="@string/toolTipAmt2"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/categoryHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="Cat"
-            android:tooltipText="Category"
+            android:layout_gravity="end"
+            android:layout_weight="1.5"
+            android:gravity="start"
+            android:text="Category"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/subCategoryHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="SubCat"
-            android:tooltipText="Sub-Category"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:tooltipText="@string/toolTipCategorySubCategory"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/whoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="By:For"
-            android:tooltipText="Who paid for the expense, and who was it bought for.  If name is the same, only one name is shown."
+            android:text="Who"
+            android:textAlignment="center"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:tooltipText="@string/toolTipWhoView"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/noteHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="Note"
+            android:gravity="start"
+            android:text="Where"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:tooltipText="@string/toolTipWhere"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/discHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight=".5"
+            android:gravity="center"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            android:text="D?"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="@string/toolTipDisc"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/typeHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight=".5"
             android:layout_gravity="end"
+            android:layout_weight=".5"
+            android:gravity="end"
             android:text="Typ"
-            android:tooltipText="R = Recurring transaction, T = Transfer, otherwise blank."
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:tooltipText="@string/toolTipType"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/runningTotalHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight=".8"
+            android:gravity="end"
+            android:text="Owes"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="@string/toolTipRunningTotal"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="0dp"
+    <com.l4digital.fastscroll.FastScrollRecyclerView
+        android:id="@+id/transaction_view_all_recycler_view"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:scrollbars="vertical"
+        android:transitionGroup="true"
+        app:bubbleColor="?attr/colorPrimary"
+        app:bubbleSize="small"
+        app:bubbleTextColor="?attr/textOnBackground"
+        app:handleColor="?attr/colorPrimary"
+        app:hideScrollbar="false"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/total_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout"
-        app:layout_constraintVertical_bias="1.0"
-        android:scrollbarSize="25dp"
-        android:scrollbarThumbVertical="@drawable/scrollbar"
-        android:fastScrollEnabled="true"
-        android:fastScrollAlwaysVisible="true" />
+        app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout" />
+
+    <TextView
+        android:id="@+id/noInformationText"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?attr/colorSecondary"
+        android:padding="20dp"
+        android:paddingTop="30dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/total_layout"
+        app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout" />
 
     <LinearLayout
         android:id="@+id/total_layout"
@@ -121,120 +190,177 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/button_linear_layout">
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout">
+
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:background="@android:color/darker_gray" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total for this selection is: "
                 tools:ignore="HardcodedText" />
+
             <TextView
                 android:id="@+id/total_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:background="@android:color/darker_gray" />
     </LinearLayout>
+
+    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+        android:id="@+id/transaction_add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:contentDescription="@string/app_name"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_fas_plus"
+        android:tooltipText="Add Expense"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <LinearLayout
-        android:id="@+id/button_linear_layout"
+        android:id="@+id/expansion_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/recycler_view"
-        android:weightSum="8"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:paddingTop="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/nav_button_linear_layout"
+        app:layout_constraintTop_toBottomOf="@+id/transaction_view_all_recycler_view">
+
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/expand_nav"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Navigate"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="View"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_filter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Filter"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Search"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_search_24"
+            tools:ignore="HardcodedText"
+            android:maxLines="1"/>
+
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_button_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSecondaryVariant"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="6"
+        app:layout_constraintBottom_toTopOf="@+id/view_button_linear_layout"
+        app:layout_constraintTop_toBottomOf="@+id/expansion_layout">
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_year_backward"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/colorSecondary"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Yr"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_month_backward"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="-Mo"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
-            android:id="@+id/button_page_backward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="-Pg"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_today"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Today"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/button_page_forward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="Pg+"
-            android:textSize="11sp"
             tools:ignore="HardcodedText" />
 
         <Space
@@ -242,15 +368,15 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_month_forward"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Mo+"
-            android:textSize="11sp"
             tools:ignore="HardcodedText" />
 
         <Space
@@ -258,22 +384,576 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_year_forward"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:text="Yr+"
-            android:textSize="11sp"
-            tools:ignore="HardcodedText">
-        </Button>
+            tools:ignore="HardcodedText" />
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_button_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSecondaryVariant"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/filter_button_linear_layout"
+        app:layout_constraintTop_toBottomOf="@+id/nav_button_linear_layout">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/show_splits_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Split Amount columns?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_individual_amounts_columns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="false"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Category column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_category_columns"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:checked="true"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/show_who_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Who column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_who_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Where column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_note_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Discretionary indicator column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_disc_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Type column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_type_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="true"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/show_running_total_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Show Running Total column?  "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/show_running_total_column"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checked="false"
+                android:textOff="Off"
+                android:textOn="On"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="These settings are sticky."
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/filter_button_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSecondaryVariant"
+        android:orientation="vertical"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_button_linear_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp">
+
+            <TextView
+                android:id="@+id/categoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginBottom="5dp"
+                android:text="Category: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:background="@drawable/spinner_background"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/categorySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="end"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:contentDescription="Click to select"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                    tools:ignore="HardcodedText" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/subCategoryLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/subcategoryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Sub-Category:"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <RelativeLayout
+                android:id="@+id/inputSpinnerRelativeLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:background="@drawable/spinner_background"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/subcategorySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="end"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/inputImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:contentDescription="Click to select"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24"
+                    tools:ignore="HardcodedText" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Discretionary? "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                <RadioGroup
+                    android:id="@+id/filterDiscRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/allDiscRadioButton"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    tools:ignore="TooManyViews">
+                    <RadioButton
+                        android:id="@+id/allDiscRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/discRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Disc"
+                        tools:ignore="HardcodedText,TooManyViews" />
+                    <RadioButton
+                        android:id="@+id/nonDiscRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Non-Disc"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/paidby_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Paid by: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                <RadioGroup
+                    android:id="@+id/filterPaidByRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/allPaidByRadioButton"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/allPaidByRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/name1PaidByRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Al"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/name2PaidByRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Br"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/jointPaidByRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Joint"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/boughtfor_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Bought for: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                <RadioGroup
+                    android:id="@+id/filterBoughtForRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/allBoughtForRadioButton"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/allBoughtForRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/name1BoughtForRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Al"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/name2BoughtForRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Br"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/jointBoughtForRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Joint"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Type: "
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <HorizontalScrollView
+                android:id="@+id/radioGroupScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
+                <RadioGroup
+                    android:id="@+id/filterTypeRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkedButton="@+id/allTypeRadioButton"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/allTypeRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/manuallyEnteredTypeRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Expense"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/creditTypeRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Credit"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/rtTypeRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scheduled"
+                        tools:ignore="HardcodedText" />
+                    <RadioButton
+                        android:id="@+id/transferTypeRadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Transfer"
+                        tools:ignore="HardcodedText" />
+                </RadioGroup>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resetFilterButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="Reset all filters"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

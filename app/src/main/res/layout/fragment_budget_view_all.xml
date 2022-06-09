@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BudgetViewAllFragment"
-    android:paddingTop="?android:attr/actionBarSize">
+    tools:context=".BudgetViewAllFragment">
 
     <LinearLayout
         android:id="@+id/budget_category_spinner_layout"
@@ -24,7 +25,8 @@
             android:textStyle="bold"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipBudgetCategory"/>
         <RelativeLayout
             android:id="@+id/budget_category_spinner_relative_layout"
             android:layout_width="wrap_content"
@@ -70,10 +72,11 @@
             android:layout_gravity="center"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:text="Category Type: "
+            android:text="Type: "
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            android:tooltipText="@string/toolTipDisc"/>
 
         <TextView
             android:id="@+id/category_type"
@@ -84,12 +87,78 @@
             android:textSize="16sp"/>
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/year_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/category_type_layout"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp">
+
+        <TextView
+            android:id="@+id/budgetAddYear_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Year: "
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <it.sephiroth.android.library.numberpicker.NumberPicker
+            android:id="@+id/budgetAddYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:picker_orientation="vertical"
+            app:picker_tracker="linear"
+            app:picker_stepSize="1"
+            app:picker_min="2018"
+            app:picker_max="2040"
+            style="@style/NumberPicker.Filled"
+            android:background="?attr/colorSecondaryVariant"/>
+
+        <TextView
+            android:id="@+id/budgetAddMonth_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="   Month: "
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <it.sephiroth.android.library.numberpicker.NumberPicker
+            android:id="@+id/budgetAddMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:picker_orientation="vertical"
+            app:picker_tracker="linear"
+            app:picker_stepSize="1"
+            app:picker_min="1"
+            app:picker_max="12"
+            style="@style/NumberPicker.Filled"
+            android:background="?attr/colorSecondaryVariant"/>
+
+    </LinearLayout>
+    <Space
+        android:id="@+id/space1"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/year_layout"/>
+    <LinearLayout
         android:id="@+id/BudgetLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingEnd="5dp"
         android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:layout_weight="1"
-        app:layout_constraintTop_toBottomOf="@+id/category_type_layout">
+        android:textSize="14sp"
+        android:background="@drawable/row_header"
+        app:layout_constraintTop_toBottomOf="@+id/space1">
 
         <TextView
             android:id="@+id/row_budget_DateHeading"
@@ -100,7 +169,6 @@
             android:paddingEnd="5dp"
             android:text="Date"
             android:tooltipText="This is the month that the budget amount applies to."
-            android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -108,9 +176,19 @@
             android:id="@+id/row_budget_AmountHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Amount"
-            android:textSize="16sp"
+            android:layout_weight="1.1"
+            android:text="Amt"
+            android:tooltipText="Budget amount."
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/row_budget_AnnualIndicatorHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:text="A?"
+            android:tooltipText="Annual budget indicator, it shows 'A' if the budget amount is for the entire year."
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -120,8 +198,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Who"
-            android:tooltipText="Who is this budget for?"
-            android:textSize="16sp"
+            android:tooltipText="@string/toolTipBudgetWho"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
@@ -130,31 +207,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Once?"
-            android:tooltipText="Is this a single-month budget? (1 means it is single-month, blank means it is recurring)"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/row_budget_IsAnnualHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Annual?"
-            android:tooltipText="Is this an annual budget (ie the budget amount is the total for the year and can be used anytime during the year)?  (Blank means no it's not.)"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/row_budget_DateStartedHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Date Started"
-            android:tooltipText="This is the date for which the budget amount was first set."
-            android:textSize="16sp"
+            android:text="Occ?"
+            android:tooltipText="@string/toolTipBudgetOccurence"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
     </LinearLayout>
@@ -164,7 +218,201 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/BudgetLinearLayout"
-        app:layout_constraintBottom_toBottomOf="parent">
-    </ListView>
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        android:fadeScrollbars="false"/>
 
+    <TextView
+        android:id="@+id/noInformationText"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="?attr/colorSecondary"
+        android:padding="20dp"
+        android:paddingTop="30dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/BudgetLinearLayout"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
+
+    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+        android:id="@+id/budget_add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom|center"
+        android:tooltipText="Add Budget"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/ic_fas_plus"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
+    <LinearLayout
+        android:id="@+id/expansion_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/budget_list_view"
+        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout">
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/expand_settings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Preferences"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_categories"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Categories"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_budgets"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Budgets"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_top_corners"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_recurring_transactions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Scheduled Payments"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="2"/>
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/nav_button_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSecondaryVariant"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        android:weightSum="6"
+        app:layout_constraintTop_toBottomOf="@+id/expansion_layout"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/button_backward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_gravity="center"
+            app:drawableStartCompat="@drawable/ic_baseline_arrow_back_24"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/button_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_gravity="center"
+            app:drawableStartCompat="@drawable/ic_baseline_arrow_forward_24"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimary"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="?attr/colorPrimary"
+            android:text="View by: "
+            tools:ignore="HardcodedText" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fadeScrollbars="false"
+            android:scrollbarThumbHorizontal="?attr/colorSecondary">
+            <RadioGroup
+                android:id="@+id/viewRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/button_view_by_date"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/button_view_by_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category"
+                    android:textColor="?attr/colorPrimary"
+                    tools:ignore="HardcodedText" />
+
+                <RadioButton
+                    android:id="@+id/button_view_by_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textColor="?attr/colorPrimary"
+                    android:checked="true"
+                    tools:ignore="HardcodedText" />
+            </RadioGroup>
+        </HorizontalScrollView>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

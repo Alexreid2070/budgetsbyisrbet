@@ -1,3 +1,5 @@
+package com.isrbet.budgetsbyisrbet
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
@@ -9,7 +11,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
-import com.isrbet.budgetsbyisrbet.*
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationEditDialogBinding
 
 class TranslationEditDialogFragment : DialogFragment() {
@@ -75,7 +76,7 @@ class TranslationEditDialogFragment : DialogFragment() {
     }
 
     private fun setupClickListeners() {
-        binding.dialogButtonSave.setOnClickListener {
+        binding.buttonSave.setOnClickListener {
             TranslationViewModel.updateTranslation(myTranslation.key, binding.afterField.text.toString())
             if (listener != null)
                 listener?.onNewDataSaved()
@@ -83,7 +84,7 @@ class TranslationEditDialogFragment : DialogFragment() {
             dismiss()
         }
 
-        binding.dialogButtonDelete.setOnClickListener {
+        binding.buttonDelete.setOnClickListener {
             fun yesClicked() {
                 TranslationViewModel.deleteTranslation(myTranslation.key)
                 if (listener != null) {
@@ -103,7 +104,7 @@ class TranslationEditDialogFragment : DialogFragment() {
                 .show()
         }
 
-        binding.dialogButtonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
     }

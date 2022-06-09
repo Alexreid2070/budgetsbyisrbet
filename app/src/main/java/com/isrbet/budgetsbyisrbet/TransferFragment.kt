@@ -12,15 +12,10 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.round
 
@@ -43,7 +38,6 @@ class TransferFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransferBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_transfer, container, false)
         return binding.root
@@ -53,6 +47,7 @@ class TransferFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
+        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
@@ -71,8 +66,11 @@ class TransferFragment : Fragment() {
             ).show()
         }
 
-        binding.buttonSaveTransfer.setOnClickListener {
+        binding.buttonSave.setOnClickListener {
             onSaveButtonClicked()
+        }
+        binding.buttonCancel.setOnClickListener {
+            activity?.onBackPressed()
         }
 
         loadSpenderRadioButtons()
@@ -91,21 +89,21 @@ class TransferFragment : Fragment() {
             }
         })
 
-        if (!SpenderViewModel.singleUser()) {
+        if (SpenderViewModel.multipleUsers()) {
             binding.splitName1Label.text = SpenderViewModel.getSpenderName(0)
             binding.splitName2Label.text = SpenderViewModel.getSpenderName(1)
         }
         if (newTransferMode) {
-            (activity as AppCompatActivity).supportActionBar?.title = "Add Transfer"
-            binding.buttonPrevTransfer.visibility = View.GONE
-            binding.buttonNextTransfer.visibility = View.GONE
-            if (!SpenderViewModel.singleUser()) {
+            binding.pageTitle.text = "Add Transfer"
+            binding.expansionLayout.visibility = View.GONE
+            if (SpenderViewModel.multipleUsers()) {
                 var button = binding.fromRadioGroup.getChildAt(0) as RadioButton
                 button.isChecked = true
                 button = binding.toRadioGroup.getChildAt(1) as RadioButton
                 button.isChecked = true
-            }
-            if (!SpenderViewModel.singleUser()) {
+
+                binding.splitLayout.visibility = View.GONE
+
                 val selectedId = binding.toRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 when {
@@ -128,8 +126,9 @@ class TransferFragment : Fragment() {
                 }
             }
         } else {
-            (activity as AppCompatActivity).supportActionBar?.title = "View Transfer"
-            binding.buttonSaveTransfer.visibility = View.GONE
+            binding.pageTitle.text = "View Transfer"
+            binding.buttonSave.visibility = View.GONE
+            binding.buttonCancel.visibility = View.GONE
             binding.editTextDate.isEnabled = false
             binding.editTextAmount.isEnabled = false
             binding.editTextNote.isEnabled = false
@@ -205,19 +204,27 @@ class TransferFragment : Fragment() {
             if (radioButton.text == "Joint") {
                 binding.splitName1Split.isEnabled = true
                 binding.splitName2Split.isEnabled = true
+                binding.splitLayout.visibility = View.VISIBLE
             } else {
                 binding.splitName1Split.isEnabled = false
                 binding.splitName2Split.isEnabled = false
+                binding.splitLayout.visibility = View.GONE
             }
         }
         binding.buttonPrevTransfer.setOnClickListener {
-            viewTransfer(ExpenditureViewModel.getPreviousTransferKey(binding.transactionId.text.toString()))
+            viewTransfer(TransactionViewModel.getPreviousTransferKey(binding.transactionId.text.toString()))
         }
         binding.buttonNextTransfer.setOnClickListener {
-            viewTransfer(ExpenditureViewModel.getNextTransferKey(binding.transactionId.text.toString()))
+            viewTransfer(TransactionViewModel.getNextTransferKey(binding.transactionId.text.toString()))
+        }
+        binding.buttonEdit.setOnClickListener {
+            editTransfer()
+        }
+        binding.buttonDelete.setOnClickListener {
+            deleteTransfer(args.transactionID)
         }
         if (args.mode == "edit")
-            editTransfer(args.transactionID)
+            editTransfer()
     }
 
     override fun onPause() {
@@ -225,48 +232,14 @@ class TransferFragment : Fragment() {
         hideKeyboard(requireContext(), requireView())
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        if (newTransferMode) {
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible = menu.getItem(i).itemId == R.id.ViewTransfersFragment
-            }
-        }
-        else { // in view mode
-            for (i in 0 until menu.size()) {
-                menu.getItem(i).isVisible =
-                    menu.getItem(i).itemId == R.id.Edit || menu.getItem(i).itemId == R.id.Delete
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.Edit -> {
-                editTransfer(args.transactionID)
-                true
-            }
-            R.id.Delete -> {
-                deleteTransfer(args.transactionID)
-                true
-            }
-            R.id.ViewTransfersFragment -> {
-                MyApplication.transactionSearchText = "Transfer"
-                view?.findNavController()?.navigate(R.id.ViewTransactionsFragment)
-                true
-            }
-            else -> {
-                val navController = findNavController()
-                item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-            }
-        }
-    }
-    private fun editTransfer(iTransactionID: String) {
-        Log.d("Alex", "clicked on $iTransactionID")
-        (activity as AppCompatActivity).supportActionBar?.title = "Edit Transfer"
-        binding.buttonSaveTransfer.visibility = View.VISIBLE
-        binding.buttonNextTransfer.visibility = View.GONE
-        binding.buttonPrevTransfer.visibility = View.GONE
+    @SuppressLint("SetTextI18n")
+    private fun editTransfer() {
+        binding.pageTitle.text = "Edit Transfer"
+        binding.expansionLayout.visibility = View.GONE
+        binding.buttonEdit.visibility = View.GONE
+        binding.buttonDelete.visibility = View.GONE
+        binding.buttonCancel.visibility = View.VISIBLE
+        binding.buttonSave.visibility = View.VISIBLE
         binding.editTextDate.isEnabled = true
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
@@ -286,7 +259,7 @@ class TransferFragment : Fragment() {
 
     private fun deleteTransfer(iTransactionID: String) {
         fun yesClicked() {
-            ExpenditureViewModel.deleteTransaction(iTransactionID)
+            TransactionViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
             Toast.makeText(activity, "Transfer deleted", Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -303,30 +276,34 @@ class TransferFragment : Fragment() {
     }
 
     private fun viewTransfer(iTransactionID: String) {
-        val thisTransaction = ExpenditureViewModel.getExpenditure(iTransactionID)
+        val thisTransaction = TransactionViewModel.getTransaction(iTransactionID)
         binding.transactionId.text = iTransactionID
+        binding.categoryId.text = thisTransaction?.category.toString()
         if (MyApplication.adminMode) {
             binding.transactionIdLayout.visibility = View.VISIBLE
             binding.transactionId.visibility = View.VISIBLE
+            binding.categoryId.visibility = View.VISIBLE
         }
         if (thisTransaction != null) {  //
             editingKey = iTransactionID
 
             val iAmount = thisTransaction.amount
-            val dec = DecimalFormat("#.00")
             val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-            binding.editTextAmount.setText(dec.format(formattedAmount))
+            binding.editTextAmount.setText(gDec.format(formattedAmount))
             binding.editTextDate.setText(thisTransaction.date)
-            binding.editTextNote.setText(thisTransaction.note)
+            binding.editTextNote.setText(thisTransaction.note2)
             binding.splitName1Split.setText(thisTransaction.bfname1split.toString())
-            binding.splitName2Split.setText(thisTransaction.bfname2split.toString())
-
+            binding.splitName2Split.setText(thisTransaction.getSplit2().toString())
+            if (thisTransaction.boughtfor == 2) {
+                binding.splitLayout.visibility = View.VISIBLE
+            } else {
+                binding.splitLayout.visibility = View.GONE
+            }
             val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
             for (i in 0 until pbRadioGroup.childCount) {
                 val o = pbRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    if (o.text == thisTransaction.paidby) {
-                        Log.d("Alex", "match")
+                    if (o.text == SpenderViewModel.getSpenderName(thisTransaction.paidby)) {
                         o.isChecked = true
                     }
                 }
@@ -335,8 +312,7 @@ class TransferFragment : Fragment() {
             for (i in 0 until bfRadioGroup.childCount) {
                 val o = bfRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
-                    if (o.text == thisTransaction.boughtfor) {
-                        Log.d("Alex", "match")
+                    if (o.text == SpenderViewModel.getSpenderName(thisTransaction.boughtfor)) {
                         o.isChecked = true
                     }
                 }
@@ -365,7 +341,7 @@ class TransferFragment : Fragment() {
         }
         if (binding.editTextNote.text.toString() == "") {
 //            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
-            binding.editTextNote.error = getString(R.string.missingNoteError)
+            binding.editTextNote.error = getString(R.string.missingWhereError)
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
@@ -392,17 +368,18 @@ class TransferFragment : Fragment() {
         val amountInt: Int
         val amountDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
         amountInt = amountDouble.toInt()
-        Log.d("Alex", "text is " + binding.editTextAmount.text + " and double is " + amountDouble.toString() + " and int is " + amountInt.toString())
 
         if (newTransferMode) {
-            val expenditure = ExpenditureOut(
+            val transfer = TransferOut(
                 binding.editTextDate.text.toString(),
-                amountInt, "Transfer", "",
-                binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), binding.splitName1Split.text.toString().toInt(),
-                binding.splitName2Split.text.toString().toInt(), "Transfer"
+                amountInt,
+                SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
+                SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
+                binding.splitName1Split.text.toString().toInt(),
+                "",
+                binding.editTextNote.text.toString()
             )
-            ExpenditureViewModel.addTransaction(expenditure)
+            TransactionViewModel.addTransaction(transfer)
             binding.editTextAmount.setText("")
             binding.editTextAmount.requestFocus()
             binding.editTextNote.setText("")
@@ -410,15 +387,17 @@ class TransferFragment : Fragment() {
             Toast.makeText(activity, "Transfer added", Toast.LENGTH_SHORT).show()
 
         } else {
-            val expenditure = ExpenditureOut(
+            val transfer = TransferOut(
                 binding.editTextDate.text.toString(),
-                amountInt, "Transfer", "",
-                binding.editTextNote.text.toString().trim(), fromRadioButton.text.toString(),
-                toRadioButton.text.toString(), binding.splitName1Split.text.toString().toInt(),
-                binding.splitName2Split.text.toString().toInt(),"Transfer"
+                amountInt,
+                SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
+                SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
+                binding.splitName1Split.text.toString().toInt(),
+                "",
+                binding.editTextNote.text.toString()
             )
 
-            ExpenditureViewModel.updateTransaction(editingKey, expenditure)
+            TransactionViewModel.updateTransaction(editingKey, transfer)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, "Transfer updated", Toast.LENGTH_SHORT).show()
         }
@@ -433,7 +412,7 @@ class TransferFragment : Fragment() {
         else fromRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -444,8 +423,7 @@ class TransferFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             fromRadioGroup.addView(newRadioButton)
-            if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default from $spender")
+            if (newTransferMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 fromRadioGroup.check(newRadioButton.id)
             }
         }
@@ -455,7 +433,7 @@ class TransferFragment : Fragment() {
         else toRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
-            val spender = SpenderViewModel.getSpender(i, true)
+            val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -466,8 +444,7 @@ class TransferFragment : Fragment() {
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             toRadioGroup.addView(newRadioButton)
-            if (newTransferMode && spender?.name == DefaultsViewModel.getDefault(cDEFAULT_SPENDER)) {
-                Log.d("Alex", "found default to $spender")
+            if (newTransferMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 toRadioGroup.check(newRadioButton.id)
             }
         }

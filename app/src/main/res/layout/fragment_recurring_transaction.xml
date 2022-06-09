@@ -2,16 +2,117 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecurringTransactionFragment"
-    android:paddingTop="?android:attr/actionBarSize">
+    tools:context=".RecurringTransactionFragment">
 
     <ListView
         android:id="@+id/recurring_transaction_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </ListView>
+        app:layout_constraintTop_toTopOf="parent"
+        android:fadeScrollbars="false"/>
+
+    <TextView
+        android:id="@+id/noInformationText"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:background="?attr/colorSecondary"
+        android:padding="20dp"
+        android:paddingTop="30dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
+
+    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+        android:id="@+id/rt_add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom|center"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/ic_fas_plus"
+        android:tooltipText="Add Scheduled Payment"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/expansion_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recurring_transaction_list_view">
+
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/expand_settings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Preferences"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_categories"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Categories"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_budgets"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Budgets"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/expand_recurring_transactions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_top_corners"
+            android:gravity="center"
+            android:text="Scheduled Payments"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="16sp"
+            tools:ignore="HardcodedText"
+            android:ellipsize="end"
+            android:maxLines="2"/>
+
+        <Space
+            android:layout_width="5dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,91 +1,99 @@
 package com.isrbet.budgetsbyisrbet
 
-import CategoryEditDialogFragment
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryBinding
+import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter
 
 class CategoryFragment : Fragment() {
     private var _binding: FragmentCategoryBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        setHasOptionsMenu(true)
         _binding = FragmentCategoryBinding.inflate(inflater, container, false)
-        return inflater.inflate(R.layout.fragment_category, container, false)
+        inflater.inflate(R.layout.fragment_category, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
+        val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
 
         val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
-        listView.setAdapter(adapter)
+        listView.adapter = adapter
+/*        if (SpenderViewModel.twoDistinctUsers())
+            binding.privacyHeading.visibility = View.VISIBLE
+        else
+            binding.privacyHeading.visibility = View.GONE
+*/
 
-        listView.onItemClickListener = object : AdapterView.OnItemClickListener {
-
-            override fun onItemClick(parent: AdapterView<*>, view: View,
-                                     position: Int, id: Long) {
-
-                // value of item that is clicked
+        listView.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Category
-                val cdf = CategoryEditDialogFragment.newInstance(itemValue.categoryName, itemValue.subcategoryName, itemValue.discType) // what do I pass here? zzz
+                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(),
+                    itemValue.categoryName, itemValue.subcategoryName, itemValue.discType,
+                    if (itemValue.private != 2) "true" else "false",
+                    itemValue.state)
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
-                        val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
-                        listView.setAdapter(myAdapter)
+                        val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
+                        listView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
                 })
-                cdf.show(getParentFragmentManager(), "Edit Category")
-
+                cdf.show(parentFragmentManager, "Edit Category")
             }
+        binding.expandSettings.setOnClickListener {
+            findNavController().navigate(R.id.SettingsFragment)
         }
+        binding.expandBudgets.setOnClickListener {
+            findNavController().navigate(R.id.BudgetViewAllFragment)
+        }
+        binding.expandRecurringTransactions.setOnClickListener {
+            findNavController().navigate(R.id.RecurringTransactionFragment)
+        }
+
+        binding.categoryFab.setMenuListener(object : SimpleMenuListenerAdapter() {
+            override fun onMenuItemSelected(menuItem: MenuItem?): Boolean {
+                return when (menuItem?.itemId) {
+                    R.id.action_color -> {
+                        findNavController().navigate(R.id.CategoryDetailsFragment)
+                        true
+                    }
+                    R.id.action_add -> {
+                        addCategory()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        })
+/*        if (SpenderViewModel.twoDistinctUsers())
+            binding.privacyHeading.visibility = View.VISIBLE
+        else
+            binding.privacyHeading.visibility = View.GONE */
+        HintViewModel.showHint(parentFragmentManager, "Category")
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            if (menu.getItem(i).getItemId() == R.id.AddCategory)
-                menu.getItem(i).setVisible(true)
-            else
-                menu.getItem(i).setVisible(false)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.AddCategory) {
-            addCategory()
-            return true
-        } else {
-            val navController = findNavController()
-            return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-        }
-    }
-
-    fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("", "","Off")
+    private fun addCategory() {
+        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",
+            cDiscTypeDiscretionary, "false", cON)
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
-                val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategoriesIncludingOff())
+                val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
                 val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
-                listView.setAdapter(adapter)
+                listView.adapter = adapter
                 adapter.notifyDataSetChanged()
             }
         })
-        cdf.show(getParentFragmentManager(), "Add Category")
-
+        cdf.show(parentFragmentManager, "Add Category")
     }
 
     override fun onDestroyView() {

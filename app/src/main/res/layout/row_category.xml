@@ -1,38 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical"
+    android:transitionGroup="true">
 
     <TextView
         android:id="@+id/row_category"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight=".3"
-        android:layout_gravity="start"
-        android:gravity="start"
-        android:padding="10dip"
-        android:textSize="14sp">
-    </TextView>
-    <TextView
-        android:id="@+id/row_subcategory"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight=".35"
-        android:layout_gravity="start"
-        android:gravity="start"
-        android:padding="10dip"
-        android:textSize="14sp">
-    </TextView>
-    <TextView
-        android:id="@+id/row_disctype"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight=".35"
-        android:layout_gravity="start"
-        android:gravity="start"
-        android:padding="10dip"
-        android:textSize="14sp">
-    </TextView>
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/row_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <TextView
+            android:id="@+id/row_category_id"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/row_subcategory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_weight=".65"
+            android:gravity="start"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/row_disctype"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_weight=".35"
+            android:gravity="start"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+        <ImageView
+            android:id="@+id/row_private"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".2"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:src="@drawable/ic_baseline_lock_24"
+            android:contentDescription="Indicates if category is private or not."
+            android:textSize="14sp"
+            tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/row_state"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:layout_weight=".2"
+            android:visibility="gone"
+            android:textSize="14sp"/>
+    </LinearLayout>
 </LinearLayout>

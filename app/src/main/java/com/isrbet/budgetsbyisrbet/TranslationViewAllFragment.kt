@@ -15,11 +15,11 @@ class TranslationViewAllFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        setHasOptionsMenu(true)
         _binding = FragmentTranslationViewAllBinding.inflate(inflater, container, false)
-        return inflater.inflate(R.layout.fragment_translation_view_all, container, false)
+        inflater.inflate(R.layout.fragment_translation_view_all, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
@@ -29,7 +29,7 @@ class TranslationViewAllFragment : Fragment() {
         listView.adapter = adapter
 
         listView.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, view, position, id -> // value of item that is clicked
+            AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Translation
                 val cdf = TranslationEditDialogFragment.newInstance(itemValue.before, itemValue.after, itemValue.key) // what do I pass here? zzz
                 cdf.setTranslationEditDialogFragmentListener(object: TranslationEditDialogFragment.TranslationEditDialogFragmentListener {
@@ -41,18 +41,6 @@ class TranslationViewAllFragment : Fragment() {
                 })
                 cdf.show(parentFragmentManager, "Edit Translation")
             }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).isVisible = false
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val navController = findNavController()
-        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

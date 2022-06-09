@@ -7,20 +7,24 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
-data class User(var email: String, var uid: String)
+data class AppUser(var email: String, var uid: String, var primary: String, var secondary: String)
 
-class UserViewModel : ViewModel() {
+class AppUserViewModel : ViewModel() {
     lateinit var userListener: ValueEventListener
-    private val users: MutableList<User> = ArrayList()
+    private val users: MutableList<AppUser> = ArrayList()
     private var dataUpdatedCallback: DataUpdatedCallback? = null
 
     companion object {
-        lateinit var singleInstance: UserViewModel // used to track static single instance of self
+        lateinit var singleInstance: AppUserViewModel // used to track static single instance of self
         fun showMe() {
             singleInstance.users.forEach {
                 Log.d("Alex", "SM User is " + it.email + " " + it.uid)
             }
         }
+        fun getUsers(): MutableList<AppUser> {
+            return singleInstance.users
+        }
+
         fun getUserEmail(pos:Int): String {
             return if (pos  < singleInstance.users.size)
                 singleInstance.users[pos].email
@@ -56,25 +60,56 @@ class UserViewModel : ViewModel() {
                     for (element in dataSnapshot.children.toMutableList()) {
                         val uid = element.key.toString()
                         var email = ""
+                        var primary = ""
+                        var secondary = ""
                         for (child in element.children) {
-                            if (child.key.toString() == "Info") {
-                                for ( nChild in child.children) {
-                                    if (nChild.key.toString() == "Email")
-                                        email = nChild.value.toString()
-                                }
+                            when (child.key.toString()) {
+                                "Email" -> email = child.value.toString()
+                                "Primary" -> primary = child.value.toString()
+                                "Secondary" -> secondary = child.value.toString()
                             }
                         }
-                        singleInstance.users.add(User(email, uid))
+                        singleInstance.users.add(AppUser(email, uid, primary, secondary))
                     }
+                    singleInstance.users.sortBy { it.email }
                     singleInstance.dataUpdatedCallback?.onDataUpdate()
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {
                     // Getting Post failed, log a message
-                    Log.w("Alex", "loadPost:onCancelled", databaseError.toException())
+                    MyApplication.displayToast("User authorization failed 101.")
                 }
             }
-            MyApplication.database.getReference("Users").addValueEventListener(singleInstance.userListener)
+            MyApplication.database.getReference("Userkeys").addValueEventListener(singleInstance.userListener)
+        }
+
+        fun addUserKey() {
+            MyApplication.database.getReference("Userkeys")
+                .child(MyApplication.originalUserUID)
+                .child("Email").setValue(MyApplication.userEmail)
+        }
+        fun addPrimary(iEmail: String) {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Primary").setValue(iEmail)
+        }
+        fun addSecondary(iEmail: String) {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Secondary").setValue(iEmail)
+        }
+        fun removePrimary() {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Primary").removeValue()
+        }
+        fun removeSecondary() {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Secondary").removeValue()
+        }
+        fun getPrimaryEmail(iUID: String) : String {
+            singleInstance.users.forEach {
+                if (it.uid == iUID)
+                    return it.email
+            }
+            return ""
         }
     }
 
@@ -85,7 +120,7 @@ class UserViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         if (::userListener.isInitialized)
-            MyApplication.databaseref.child("Users")
+            MyApplication.databaseref.child("Userkeys")
                 .removeEventListener(userListener)
     }
     fun clearCallback() {
