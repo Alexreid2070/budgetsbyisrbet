@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:tools="http://schemas.android.com/tools"
+<menu
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/homeFragment"
-        android:title="Home"
+        android:title="@string/home"
         android:icon="@drawable/ic_baseline_home_24"
-        app:showAsAction="ifRoom"
-        tools:ignore="HardcodedText" />
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/TransactionViewAllFragment"
-        android:title="Transactions"
+        android:title="@string/view_all_transactions"
         android:icon="@drawable/ic_baseline_table_rows_24"
-        app:showAsAction="ifRoom"
-        tools:ignore="HardcodedText" />
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/DashboardFragment"
-        android:title="Dashboard"
+        android:title="@string/dashboard"
         android:icon="@drawable/ic_baseline_dashboard_24"
-        app:showAsAction="ifRoom"
-        tools:ignore="HardcodedText" />
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/AccountingFragment"
-        android:title="Accounting"
+        android:title="@string/accounting"
         android:icon="@drawable/ic_baseline_account_balance_24"
-        app:showAsAction="ifRoom"
-        tools:ignore="HardcodedText" />
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/uncheckedItem"
         android:visible="false"

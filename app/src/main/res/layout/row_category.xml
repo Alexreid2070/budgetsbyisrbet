@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -57,9 +56,8 @@
             android:gravity="center"
             android:visibility="gone"
             android:src="@drawable/ic_baseline_lock_24"
-            android:contentDescription="Indicates if category is private or not."
-            android:textSize="14sp"
-            tools:ignore="HardcodedText" />
+            android:contentDescription="@string/indicates_if_category_is_private_or_not"
+            android:textSize="14sp"/>
         <TextView
             android:id="@+id/row_state"
             android:layout_width="0dp"

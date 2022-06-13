@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -143,11 +144,15 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRecurringTransactionEditDialogBinding.inflate(inflater, container, false)
+        binding.editRtNewAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.loanAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.acceleratedPaymentAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.amortizationPeriod.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.interestRate.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         return binding.root
 //        return inflater.inflate(R.layout.fragment_recurring_transaction_edit_dialog, container, false)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.currencySymbol.text = getLocalCurrencySymbol() + " "
@@ -343,7 +348,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
             }
-            @SuppressLint("SetTextI18n")
+
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val boughtFor = binding.editRtNewBoughtFor.selectedItem.toString()
                 when (boughtFor) {
@@ -435,7 +440,6 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setExpansionFields(iView: Int) {
         if (iView == View.GONE) {
             binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
@@ -501,7 +505,6 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun onSaveButtonClicked() {
         if (!textIsSafeForKey(binding.editRtNewName.text.toString())) {
             showErrorMessage(parentFragmentManager, "The text contains unsafe characters.  They must be removed.")
@@ -518,7 +521,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
             return
         }
-        if (getDoubleValue(binding.editRtNewAmount.text.toString()) == 0.0) {
+        if (gNumberFormat.parse(binding.editRtNewAmount.text.toString()).toDouble() == 0.0) {
             showErrorMessage(parentFragmentManager, "Amount of this new scheduled payment cannot be zero.")
             focusAndOpenSoftKeyboard(requireContext(), binding.editRtNewAmount)
             return
@@ -548,7 +551,8 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
         }
         val rtSpinner:Spinner = binding.editRtNewPeriodSpinner
         var somethingChanged = false
-        var amountInt: Int = round(getDoubleValue(binding.editRtNewAmount.text.toString())*100).toInt()
+        var amountDouble = gNumberFormat.parse(binding.editRtNewAmount.text.toString()).toDouble()
+        var amountInt: Int = round(amountDouble * 100).toInt()
 
         if (currentMode == "View") { // change to "edit"
             binding.viewHeader.visibility = View.GONE
@@ -647,7 +651,8 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountInt = round(getDoubleValue(binding.loanAmount.text.toString()) * 100).toInt()
+                amountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
+                amountInt = round(amountDouble * 100).toInt()
                 if (oldLoanAmount != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -656,8 +661,8 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountInt =
-                    round(getDoubleValue(binding.amortizationPeriod.text.toString()) * 100).toInt()
+                amountDouble = gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()
+                amountInt = round(amountDouble * 100).toInt()
                 if (oldLoanAmortization != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -666,7 +671,8 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountInt = round(getDoubleValue(binding.interestRate.text.toString()) * 100).toInt()
+                amountDouble = gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()
+                amountInt = round(amountDouble * 100).toInt()
                 if (oldLoanInterestRate != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -682,8 +688,8 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountInt = if (binding.acceleratedPaymentAmount.text.toString() == "") 0
-                else round(getDoubleValue(binding.acceleratedPaymentAmount.text.toString()) * 100).toInt()
+                amountDouble = gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
+                amountInt = round(amountDouble * 100).toInt()
                 if (oldLoanAcceleratedPaymentAmount != amountInt) {
                     RecurringTransactionViewModel.updateRecurringTransactionIntField(
                         oldName,
@@ -696,7 +702,7 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
             if (somethingChanged) {
                 RecurringTransactionViewModel.updateRecurringTransaction(
                     oldName,
-                    round(getDoubleValue(binding.editRtNewAmount.text.toString())*100).toInt(),
+                    round(gNumberFormat.parse(binding.editRtNewAmount.text.toString()).toDouble()*100).toInt(),
                     rtSpinner.selectedItem.toString(),
                     binding.editRtNewNextDate.text.toString(),
                     binding.editRtNewRegularity.text.toString().toInt(),
@@ -707,11 +713,11 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                     binding.splitSlider.value.toInt(),
                     binding.rtLoanSwitch.isChecked,
                     if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                    if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.loanAmount.text.toString())*100).toInt() else 0,
-                    if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.amortizationPeriod.text.toString())*100).toInt() else 0,
-                    if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.interestRate.text.toString())*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()*100).toInt() else 0,
+                    if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()*100).toInt() else 0,
                     freq,
-                    if (binding.acceleratedPaymentAmount.text.toString() != "") (getDoubleValue(binding.acceleratedPaymentAmount.text.toString())*100).toInt() else 0,
+                    if (binding.acceleratedPaymentAmount.text.toString() != "") (gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()*100).toInt() else 0,
                 )
                 if (listener != null)
                     listener?.onNewDataSaved()
@@ -734,11 +740,11 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 binding.splitSlider.value.toInt(),
                 binding.rtLoanSwitch.isChecked,
                 if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.loanAmount.text.toString())*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.amortizationPeriod.text.toString())*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.interestRate.text.toString())*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()*100).toInt() else 0,
                 freq,
-                if (binding.acceleratedPaymentAmount.text.toString() == "") 0 else (getDoubleValue(binding.acceleratedPaymentAmount.text.toString()) * 100).toInt()
+                if (binding.acceleratedPaymentAmount.text.toString() == "") 0 else (gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()*100).toInt()
                 )
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             if (listener != null) {
@@ -757,11 +763,11 @@ class RecurringTransactionEditDialogFragment : DialogFragment() {
                 binding.splitSlider.value.toInt(),
                 binding.rtLoanSwitch.isChecked,
                 if (binding.rtLoanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.loanAmount.text.toString())*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.amortizationPeriod.text.toString())*100).toInt() else 0,
-                if (binding.rtLoanSwitch.isChecked) (getDoubleValue(binding.interestRate.text.toString())*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()*100).toInt() else 0,
+                if (binding.rtLoanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()*100).toInt() else 0,
                 freq,
-                (getDoubleValue(binding.acceleratedPaymentAmount.text.toString())*100).toInt()
+                (gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()*100).toInt()
                 )
             RecurringTransactionViewModel.addRecurringTransaction(rt)
             RecurringTransactionViewModel.deleteRecurringTransactionFromFirebase(oldName)

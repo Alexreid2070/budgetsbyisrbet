@@ -57,7 +57,7 @@ class HintViewModel : ViewModel() {
             singleInstance.hints.clear()
             singleInstance.loaded = false
         }
-        @SuppressLint("SetTextI18n", "ClickableViewAccessibility", "InflateParams")
+        @SuppressLint("ClickableViewAccessibility", "InflateParams")
         fun showHint(iParentFragmentManager: FragmentManager, iFragment: String) {
                 val hdf = HintDialogFragment.newInstance(iFragment)
                 hdf.show(iParentFragmentManager, "Show Hint")

@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
@@ -56,7 +55,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         var vhAnnualIndicator: TextView = view.findViewById(R.id.row_budget_annual_indicator)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
-    @SuppressLint("SetTextI18n")
+
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
         val viewHolder: BudgetViewHolder
         val bData = getItem(pos) as BudgetInputRow

@@ -154,7 +154,6 @@ class TransactionRecyclerAdapter(
         return ViewHolder(view)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val data = filteredList[position]
 

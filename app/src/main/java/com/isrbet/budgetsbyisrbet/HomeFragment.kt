@@ -169,7 +169,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Alex", "area expanded is $homePageExpansionAreaExpanded")
@@ -362,7 +362,6 @@ class HomeFragment : Fragment() {
             }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun signIn(account: FirebaseUser?) {
         Log.d(
             "Alex",
@@ -460,7 +459,6 @@ class HomeFragment : Fragment() {
             .child("time").setValue(giveMeMyTimeFormat(dateNow))
     }
 
-    @SuppressLint("SetTextI18n")
     private fun alignPageWithDataState(iTag: String)  {
         Log.d("Alex", "alignPage $iTag")
         if (MyApplication.userUID != "") {

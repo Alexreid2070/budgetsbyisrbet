@@ -27,8 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="start"
-            android:text="Load Users"
-            tools:ignore="HardcodedText" />
+            android:text="@string/load_users"/>
         <Space
             android:id="@+id/space1"
             android:layout_width="10dp"
@@ -40,8 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_weight="1"
-            android:text="Do something"
-            tools:ignore="HardcodedText" />
+            android:text="@string/do_something"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/currentUserLayout"
@@ -51,13 +49,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Current User: "
-            tools:ignore="HardcodedText" />
+            android:text="@string/current_user"/>
         <TextView
             android:id="@+id/admin_current_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CurrentUser"
-            tools:ignore="HardcodedText" />
+            android:text="@string/current_user"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

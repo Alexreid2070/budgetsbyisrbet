@@ -12,10 +12,9 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="10dp"
-        android:text="OnBudget!"
+        android:text="@string/app_name"
         android:textSize="18sp"
-        android:textStyle="bold"
-        tools:ignore="HardcodedText" />
+        android:textStyle="bold"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,10 +25,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Version Name: "
+            android:text="@string/version_name"
             android:textSize="14sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/help_version_name"
@@ -39,10 +37,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="   Version Code: "
+            android:text="@string/version_code"
             android:textSize="14sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/help_version_code"
@@ -55,8 +52,7 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:paddingTop="40dp"
-        android:text="OnBudget! help is located at the link below."
-        tools:ignore="HardcodedText" />
+        android:text="@string/onbudget_help_is_located_at_the_link_below"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -77,10 +73,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email the address below with any support issues.  All feedback is welcome."
+            android:text="@string/email_the_address_below_with_any_support_issues_all_feedback_is_welcome"
             android:textSize="16sp"
-            android:layout_gravity="start"
-            tools:ignore="HardcodedText" />
+            android:layout_gravity="start"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,17 +97,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:contentDescription="Restart hints"
+            android:contentDescription="@string/restart_hints"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Click to restart hints"
+            android:text="@string/click_to_restart_hints"
             android:tooltipText="Restart hints, i.e. see them all again as you visit each screen."
             android:textSize="16sp"
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"
             android:textColor="?attr/colorPrimary"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_restart_alt_24" />
     </LinearLayout>
 </LinearLayout>

@@ -1,13 +1,11 @@
-<menu xmlns:tools="http://schemas.android.com/tools"
+<menu
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_color"
         android:icon="@drawable/ic_baseline_format_paint_24"
-        android:title="Colour or sort"
-        tools:ignore="HardcodedText" />
+        android:title="@string/colour_or_sort"/>
     <item
         android:id="@+id/action_add"
         android:icon="@drawable/ic_fas_plus"
-        android:title="Add new category"
-        tools:ignore="HardcodedText" />
+        android:title="@string/add_new_category"/>
 </menu>

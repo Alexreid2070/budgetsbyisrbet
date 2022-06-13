@@ -182,7 +182,7 @@ class BudgetViewAllFragment : Fragment() {
         var noDataText: String
         Log.d("Alex", "Incoming $iCategoryID $iYear $iMonth")
         val rows = if (binding.buttonViewByDate.isChecked) {
-            noDataText = "You have not yet entered any budgets for ${MonthNames[iMonth-1]} $iYear.  \n\nClick on the Add button below to add a budget."
+            noDataText = "You have not yet entered any budgets for ${gMonthName(iMonth)} $iYear.  \n\nClick on the Add button below to add a budget."
             BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
         } else {
             val cat = CategoryViewModel.getCategory(iCategoryID)
@@ -219,7 +219,7 @@ class BudgetViewAllFragment : Fragment() {
                             Log.d("Alex", "in onNewDataSaved")
 
                             val trows = if (binding.buttonViewByDate.isChecked) {
-                                noDataText = "You have not yet entered any budgets for ${MonthNames[iMonth-1]} $iYear.  \n\nClick on the Add button below to add a budget."
+                                noDataText = "You have not yet entered any budgets for ${gMonthName(iMonth)} $iYear.  \n\nClick on the Add button below to add a budget."
                                 BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
                             } else {
                                 val cat = CategoryViewModel.getCategory(iCategoryID)

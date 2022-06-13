@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="12dp">
@@ -22,10 +21,9 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="start"
-            android:text="Before"
+            android:text="@string/before"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
         <TextView
             android:id="@+id/before_field"
             android:layout_width="0dp"
@@ -47,10 +45,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="After"
+            android:text="@string/after"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/beforeLayout"
@@ -58,9 +55,8 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:minWidth="@dimen/custom_max_width"
-            android:hint="Note"
-            app:endIconMode="clear_text"
-            tools:ignore="HardcodedText">
+            android:hint="@string/note"
+            app:endIconMode="clear_text">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/after_field"
                 android:layout_width="wrap_content"
@@ -84,10 +80,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Cancel"
+            android:contentDescription="@string/cancel"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:tooltipText="Cancel"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -96,7 +92,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
         <TextView
             android:id="@+id/button_save"
@@ -104,10 +99,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Save"
+            android:contentDescription="@string/save"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Save"
+            android:text="@string/save"
             android:tooltipText="Save"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -116,7 +111,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_save_24" />
         <TextView
             android:id="@+id/button_delete"
@@ -124,10 +118,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Delete"
+            android:contentDescription="@string/delete"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Delete"
+            android:text="@string/delete"
             android:tooltipText="Delete"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -136,7 +130,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_delete_24" />
     </LinearLayout>
 

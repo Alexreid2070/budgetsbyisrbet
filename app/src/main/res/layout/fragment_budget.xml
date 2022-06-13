@@ -18,10 +18,9 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Add Budget"
+            android:text="@string/add_budget"
             android:textSize="24sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
     </LinearLayout>
     <ScrollView
         android:id="@+id/scroll_view"
@@ -46,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginBottom="5dp"
-                android:text="@string/inputCategoryLabel"
+                android:text="@string/category"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:tooltipText="@string/toolTipBudgetCategory"/>
@@ -79,7 +78,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="@string/inputSubcategoryLabel"
+                    android:text="@string/subcategory"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:tooltipText="@string/toolTipBudgetCategory"/>
@@ -109,9 +108,8 @@
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_gravity="center"
-                        android:contentDescription="Click to select"
-                        android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                        tools:ignore="HardcodedText" />
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
                 </RelativeLayout>
             </LinearLayout>
 
@@ -127,10 +125,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Budget period: "
+                    android:text="@string/budget_period"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="@string/toolTipBudgetPeriod"/>
 
                 <RadioGroup
@@ -145,14 +142,12 @@
                         android:id="@+id/monthlyRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Monthly"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/monthly"/>
 
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Annual"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/annual"/>
                 </RadioGroup>
             </LinearLayout>
 
@@ -171,10 +166,9 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:paddingTop="10dp"
-                    android:text="Year: "
+                    android:text="@string/year"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
 
                 <it.sephiroth.android.library.numberpicker.NumberPicker
                     android:id="@+id/budgetAddYear"
@@ -195,10 +189,9 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:paddingTop="10dp"
-                    android:text="   Month: "
+                    android:text="@string/month"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
 
                 <it.sephiroth.android.library.numberpicker.NumberPicker
                     android:id="@+id/budgetAddMonth"
@@ -231,10 +224,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Budget for: "
+                    android:text="@string/budget_for"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="@string/toolTipBudgetWho"/>
 
                 <HorizontalScrollView
@@ -263,10 +255,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Occurs: "
+                    android:text="@string/occurs"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="@string/toolTipBudgetOccurence"/>
 
                 <RadioGroup
@@ -293,10 +284,9 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:text="Enter new budget amount "
+                    android:text="@string/enter_new_budget_amount"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Budget amount for the indicated period."/>
 
                 <LinearLayout
@@ -318,10 +308,9 @@
                         android:id="@+id/amountLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="Enter amount"
+                        android:hint="@string/enter_amount"
                         android:minWidth="@dimen/custom_med_width"
-                        app:endIconMode="clear_text"
-                        tools:ignore="HardcodedText">
+                        app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/budgetAddAmount"
@@ -347,10 +336,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="start"
-                    android:text="** OR **"
+                    android:text="@string/stars_or_stars"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="If there is a previous budget amount, you can increase it by a specified %."/>
 
                 <TextView
@@ -359,10 +347,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="start"
-                    android:text=" add "
+                    android:text="@string/add"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
 
                 <LinearLayout
                     android:id="@+id/budgetAddPercentage_entire_input_amount_area"
@@ -377,10 +364,9 @@
                         android:id="@+id/percentageLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="%"
+                        android:hint="@string/percentage_short"
                         android:minWidth="@dimen/custom_min_width"
-                        app:endIconMode="clear_text"
-                        tools:ignore="HardcodedText">
+                        app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/budgetAddPercentage"
@@ -398,10 +384,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="start"
-                    android:text=" % to current budget amount."
+                    android:text="@string/to_current_budget_amount"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
             </LinearLayout>
 
             <Space
@@ -415,6 +400,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/budgetAdd_space3"
+                android:paddingTop="20dp"
+                android:paddingBottom="10dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -424,10 +411,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Cancel"
+                    android:contentDescription="@string/cancel"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Cancel"
+                    android:text="@string/cancel"
                     android:tooltipText="Cancel"
                     android:textSize="16sp"
                     android:layout_gravity="center"
@@ -436,7 +423,6 @@
                     android:textColor="?attr/colorPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
                 <TextView
                     android:id="@+id/budgetAdd_button_save"
@@ -444,10 +430,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Save"
+                    android:contentDescription="@string/save"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Save"
+                    android:text="@string/save"
                     android:tooltipText="Save"
                     android:textSize="16sp"
                     android:layout_gravity="center"
@@ -456,7 +442,6 @@
                     android:textColor="?attr/colorPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_save_24" />
             </LinearLayout>
 

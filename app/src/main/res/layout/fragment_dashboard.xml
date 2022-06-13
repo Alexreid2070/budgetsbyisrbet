@@ -21,10 +21,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Dashboard"
+            android:text="@string/dashboard"
             android:textSize="18sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText"/>
+            android:textStyle="bold"/>
         <TextView
             android:id="@+id/dashboard_subtitle"
             android:layout_width="match_parent"
@@ -100,11 +99,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Navigate"
+                android:text="@string/navigate"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText"
                 android:maxLines="1"/>
 
             <TextView
@@ -113,11 +111,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="View"
+                android:text="@string/view"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText"
                 android:maxLines="1"/>
 
             <TextView
@@ -126,11 +123,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Filter"
+                android:text="@string/filter"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText"
                 android:maxLines="1"/>
 
             <TextView
@@ -139,11 +135,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Options"
+                android:text="@string/options"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
                 app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-                tools:ignore="HardcodedText"
                 android:maxLines="1"/>
 
             <Space
@@ -210,12 +205,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="View by: "
+                    android:text="@string/view_by"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    tools:ignore="HardcodedText" />
+                    android:paddingEnd="5dp"/>
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -234,27 +228,23 @@
                             android:id="@+id/button_view_month"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Month"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/month"/>
 
                         <RadioButton
                             android:id="@+id/button_view_ytd"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="YTD"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/ytd"/>
                         <RadioButton
                             android:id="@+id/button_view_year"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Year"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/year"/>
                         <RadioButton
                             android:id="@+id/button_view_all_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="All-Time"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/all_time"/>
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
@@ -268,27 +258,24 @@
                     android:layout_weight="1"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Show Discretionary indicator column?  "
+                    android:text="@string/show_discretionary_indicator_column"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText">
+                    android:textStyle="bold">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/show_disc_column"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    android:checked="true"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"
+                    android:checked="true"/>
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="These settings are sticky."
-                tools:ignore="HardcodedText" />
+                android:text="@string/these_settings_are_sticky" />
         </LinearLayout>
 
         <LinearLayout
@@ -308,10 +295,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Type: "
+                    android:text="@string/type"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -328,21 +314,18 @@
                             android:id="@+id/allDiscRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="All"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/all"/>
                         <RadioButton
                             android:id="@+id/discRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Discretionary"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/discretionary"/>
 
                         <RadioButton
                             android:id="@+id/nonDiscRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Non-Discretionary"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/non_discretionary"/>
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
@@ -355,10 +338,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Who: "
+                    android:text="@string/who"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -375,20 +357,15 @@
                             android:id="@+id/whoAllRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="All"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/all"/>
                         <RadioButton
                             android:id="@+id/name1RadioButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Al"
-                            tools:ignore="HardcodedText" />
+                            android:layout_height="wrap_content"/>
                         <RadioButton
                             android:id="@+id/name2RadioButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Br"
-                            tools:ignore="HardcodedText" />
+                            android:layout_height="wrap_content"/>
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
@@ -398,17 +375,15 @@
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                 android:layout_gravity="center"
-                android:text="Reset all filters"
+                android:text="@string/reset_all_filters"
                 android:minWidth="50dp"
                 android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                tools:ignore="HardcodedText" />
+                android:paddingRight="4dp"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="These settings are sticky."
-                tools:ignore="HardcodedText" />
+                android:text="@string/these_settings_are_sticky"/>
         </LinearLayout>
 
         <LinearLayout
@@ -431,10 +406,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Show Delta as "
+                    android:text="@string/show_delta_as"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -457,8 +431,7 @@
                             android:id="@+id/percentageRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="%"
-                            tools:ignore="HardcodedText" />
+                            android:text="@string/percentage_short"/>
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
@@ -473,27 +446,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Round to nearest dollar? "
+                    android:text="@string/round_to_nearest_dollar"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switch_round_to_nearest_dollar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    android:checked="false"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"
+                    android:checked="false"/>
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="These settings are sticky."
-                tools:ignore="HardcodedText" />
+                android:text="@string/these_settings_are_sticky"/>
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

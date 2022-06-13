@@ -24,10 +24,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".65"
-            android:text="Category"
+            android:text="@string/category"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:tooltipText="@string/toolTipCategory"
             android:maxLines="1"/>
 
@@ -36,10 +35,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".35"
-            android:text="Type"
+            android:text="@string/type"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:tooltipText="@string/toolTipDisc"
             android:maxLines="1"/>
         <TextView
@@ -47,10 +45,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".2"
-            android:text="Private?"
+            android:text="@string/private_question"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:visibility="gone"
             android:tooltipText="@string/toolTipPrivacy"
             android:maxLines="1"/>
@@ -59,11 +56,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".2"
-            android:text="State"
+            android:text="@string/state"
             android:textSize="16sp"
             android:textStyle="bold"
             android:visibility="gone"
-            tools:ignore="HardcodedText"
             android:tooltipText="@string/toolTipCatState"
             android:maxLines="1"/>
     </LinearLayout>
@@ -110,11 +106,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Preferences"
+            android:text="@string/preferences"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -125,11 +120,10 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_weight="1"
-            android:text="Categories"
+            android:text="@string/categories"
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
             android:background="@drawable/rounded_top_corners"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -139,11 +133,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Budgets"
+            android:text="@string/budgets"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -153,11 +146,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Scheduled Payments"
+            android:text="@string/scheduled_payments"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="2"/>
         <Space

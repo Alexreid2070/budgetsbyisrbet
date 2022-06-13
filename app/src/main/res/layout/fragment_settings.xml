@@ -29,9 +29,8 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:minWidth="150dp"
-                    android:hint="Primary user name"
+                    android:hint="@string/primary_user_name"
                     app:endIconMode="clear_text"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="User name.  If set up for 2 users, this is primary user, and the other is secondary user.">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/settings_first_user_name"
@@ -60,10 +59,9 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Authorize second user?  "
+                    android:text="@string/authorize_second_user"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Switch to on if you want to add a second user to share data.">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -71,9 +69,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/switch_join_other_user_layout"
@@ -86,10 +83,9 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Join other user?  "
+                    android:text="@string/join_other_user"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Switch to on if you are joining another user, to share data.">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -97,9 +93,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/uidLayout"
                     android:layout_width="wrap_content"
@@ -107,10 +102,9 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:minWidth="@dimen/custom_max_width"
-                    android:hint="Enter authorization key"
+                    android:hint="@string/enter_authorization_key"
                     app:endIconMode="clear_text"
                     android:visibility="gone"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Used when you are joining another user, enter the authorization key that the other user supplied.">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/join_uid"
@@ -133,9 +127,8 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:minWidth="150dp"
-                    android:hint="Second user name"
+                    android:hint="@string/second_user_name"
                     app:endIconMode="clear_text"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Enter the second user's name.">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/settings_second_user_name"
@@ -153,9 +146,8 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:minWidth="@dimen/custom_med_width"
-                    android:hint="Second user email"
-                    app:endIconMode="clear_text"
-                    tools:ignore="HardcodedText">
+                    android:hint="@string/second_user_email"
+                    app:endIconMode="clear_text">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/secondUserEmail"
                         android:layout_width="wrap_content"
@@ -179,10 +171,9 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Share this authorization key with second user: "
+                    android:text="@string/share_this_authorization_key_with_second_user"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText"/>
+                    android:textStyle="bold"/>
 
                 <LinearLayout
                     android:id="@+id/authorization_key_layout"
@@ -199,8 +190,7 @@
                         android:paddingStart="5dp"
                         android:layout_weight="1"
                         android:paddingEnd="5dp"
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText"/>
+                        android:textSize="16sp"/>
                     <ImageButton
                         android:id="@+id/copyButton"
                         android:layout_width="wrap_content"
@@ -210,8 +200,7 @@
                         android:background="@color/white"
                         android:layout_gravity="start"
                         android:src="@drawable/ic_baseline_content_copy_24"
-                        android:contentDescription="Copy authorization key"
-                        tools:ignore="HardcodedText"
+                        android:contentDescription="@string/copy_authorization_key"
                         android:tooltipText="Copy this authorization key to your buffer so you can send it to the second user."/>
                 </LinearLayout>
             </LinearLayout>
@@ -226,10 +215,9 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Disconnect from primary user?  "
+                    android:text="@string/disconnect_from_primary_user"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Switch on if you no longer want to share data with the primary user.  Data stays with the primary user.">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -237,9 +225,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
             </LinearLayout>
             <Space
                 android:layout_width="match_parent"
@@ -257,12 +244,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Cancel"
+                    android:contentDescription="@string/cancel"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Cancel"
+                    android:text="@string/cancel"
                     android:textSize="16sp"
-                    android:tooltipText="Cancel"
+                    android:tooltipText="@string/cancel"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:textStyle="bold"
@@ -270,7 +257,6 @@
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
                 <TextView
                     android:id="@+id/settings_save_button"
@@ -278,11 +264,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Save"
+                    android:contentDescription="@string/save"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Save"
-                    android:tooltipText="Save"
+                    android:text="@string/save"
+                    android:tooltipText="@string/save"
                     android:textSize="16sp"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -291,7 +277,6 @@
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_save_24" />
             </LinearLayout>
             <Space
@@ -317,10 +302,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="Default User: "
+                    android:text="@string/default_user"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Default user when adding a new transaction.  Can be changed before saving."/>
 
                 <HorizontalScrollView
@@ -346,10 +330,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="start"
-                    android:text=" Default Split: "
+                    android:text="@string/default_split"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Default amount split when adding a new transaction.  Can be changed before saving."/>
                 <com.google.android.material.slider.Slider
                     android:id="@+id/split_slider"
@@ -379,9 +362,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="Split is "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/split_is"
+                        android:textSize="16sp"/>
                     <TextView
                         android:id="@+id/split_name1_pct"
                         android:layout_width="wrap_content"
@@ -391,9 +373,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="% "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/percentage_short"
+                        android:textSize="16sp"/>
                     <TextView
                         android:id="@+id/split_name1"
                         android:layout_width="wrap_content"
@@ -404,9 +385,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text=" and "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/and"
+                        android:textSize="16sp"/>
                     <TextView
                         android:id="@+id/split_name2_pct"
                         android:layout_width="wrap_content"
@@ -416,9 +396,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="% "
-                        android:textSize="16sp"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/percentage_short"
+                        android:textSize="16sp"/>
                     <TextView
                         android:id="@+id/split_name2"
                         android:layout_width="wrap_content"
@@ -440,10 +419,9 @@
                     android:layout_gravity="start"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Default category for new expenses: "
+                    android:text="@string/default_category_for_new_expenses"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Default category when adding a new transaction.  Can be changed before saving."/>
                 <RelativeLayout
                     android:id="@+id/settingsCategorySpinnerRelativeLayout"
@@ -470,9 +448,8 @@
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_gravity="center"
-                        android:contentDescription="Click to select"
-                        android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                        tools:ignore="HardcodedText" />
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
                 </RelativeLayout>
             </LinearLayout>
 
@@ -496,10 +473,9 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Integration with TD MySpend?  "
+                    android:text="@string/integration_with_td_myspend"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Switch on if you use TD MySpend.">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -507,9 +483,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/manage_translations_layout"
@@ -521,10 +496,9 @@
                     android:layout_gravity="center"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Manage notification translations:  "
+                    android:text="@string/manage_notification_translations"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Click to edit vendor translations that you have done.">
                 </TextView>
                 <ImageButton
@@ -539,8 +513,7 @@
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     android:src="@drawable/ic_baseline_edit_24"
-                    android:contentDescription="Edit translations"
-                    tools:ignore="HardcodedText" />
+                    android:contentDescription="@string/edit_translations"/>
             </LinearLayout>
 
             <Space
@@ -563,11 +536,10 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Fabulous sound effects:  "
+                    android:text="@string/sound"
                     android:layout_gravity="center"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Turn sound on/off.">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -575,9 +547,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
             </LinearLayout>
 
             <LinearLayout
@@ -589,11 +560,10 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Show Quote of the Day:  "
+                    android:text="@string/show_quote_of_the_day"
                     android:layout_gravity="center"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Turn home page quote-of-the-day on/off.">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -601,9 +571,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settings_currency_layout"
@@ -614,11 +583,10 @@
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:text="Show Currency Symbol:  "
+                    android:text="@string/show_currency_symbol"
                     android:layout_gravity="center"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:ignore="HardcodedText"
                     android:tooltipText="Turn currency symbol on/off throughout (useful for saving screen space).">
                 </TextView>
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -626,9 +594,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textOn="On"
-                    android:textOff="Off"
-                    tools:ignore="HardcodedText" />
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"/>
             </LinearLayout>
             <Space
                 android:layout_width="match_parent"
@@ -656,11 +623,10 @@
                         android:layout_gravity="center_vertical"
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"
-                        android:text="Show red at "
+                        android:text="@string/show_red_at"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:tooltipText="Expenses less than budget = green.   Over budget but less than 'Red %' = yellow.  Greater than 'Red %' = red."
-                        tools:ignore="HardcodedText" />
+                        android:tooltipText="Expenses less than budget = green.   Over budget but less than 'Red %' = yellow.  Greater than 'Red %' = red." />
                     <TextView
                         android:id="@+id/redPercentage"
                         android:layout_width="wrap_content"
@@ -672,10 +638,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="%: "
+                        android:text="@string/percentage_short"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        tools:ignore="HardcodedText,TooManyViews" />
+                        tools:ignore="TooManyViews" />
                     <com.google.android.material.slider.Slider
                         android:id="@+id/redPercentageSlider"
                         android:layout_height="wrap_content"
@@ -718,10 +684,9 @@
             android:layout_weight="1"
             android:background="@drawable/rounded_top_corners"
             android:gravity="center"
-            android:text="Preferences"
+            android:text="@string/preferences"
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -731,11 +696,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Categories"
+            android:text="@string/categories"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -745,11 +709,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Budgets"
+            android:text="@string/budgets"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -759,11 +722,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Scheduled Payments"
+            android:text="@string/scheduled_payments"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="2"/>
 

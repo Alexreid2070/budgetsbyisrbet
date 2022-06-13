@@ -1,8 +1,8 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -72,10 +72,10 @@ class BudgetDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentBudgetEditDialogBinding.inflate(inflater, container, false)
+        binding.budgetDialogNewAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.currencySymbol.text = getLocalCurrencySymbol() + " "
@@ -143,20 +143,18 @@ class BudgetDialogFragment : DialogFragment() {
         )
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setupView() {
         val categoryID = arguments?.getString(KEY_CATEGORY_ID)
         val cat = CategoryViewModel.getCategory(categoryID.toString().toInt())
         binding.budgetDialogCategoryID.text = cat?.id.toString()
-        binding.budgetDialogCategory.text = cat?.categoryName
-        binding.budgetDialogSubcategory.text = cat?.subcategoryName
+        binding.budgetDialogCategorySubcategory.text = "${cat?.categoryName}-${cat?.subcategoryName}"
         binding.budgetDialogYear.text = arguments?.getString(KEY_YEAR_VALUE)
         val month = arguments?.getString(KEY_MONTH_VALUE)
         monthInt = if (month == "") -1 else month?.toInt()?.minus(1)!!
         if (monthInt == -1)
             binding.budgetDialogMonth.text = ""
         else
-            binding.budgetDialogMonth.text = MonthNames[monthInt]
+            binding.budgetDialogMonth.text = gMonthName(monthInt+1)
         val amtDouble: Double
         val amt = arguments?.getString(KEY_AMOUNT_VALUE)
         amtDouble = amt?.toDouble() ?: 0.0
@@ -183,7 +181,6 @@ class BudgetDialogFragment : DialogFragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         var budgetListenerLocation = ""
         lateinit var budgetListener: ValueEventListener
@@ -214,15 +211,14 @@ class BudgetDialogFragment : DialogFragment() {
                     focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
                     return@setOnClickListener
                 }
-                if (getDoubleValue(binding.budgetDialogNewAmount.text.toString()) == 0.0) {
-//                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
+                val amountDouble = gNumberFormat.parse(binding.budgetDialogNewAmount.text.toString()).toDouble()
+                if (amountDouble == 0.0) {
                     binding.budgetDialogNewAmount.error=getString(R.string.missingAmountError)
                     focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
                     return@setOnClickListener
                 }
 
                 Log.d("Alex", "need to save new values")
-                val tmpDouble1: Double = getDoubleValue(binding.budgetDialogNewAmount.text.toString())
 
                 var newWho = -1
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
@@ -246,7 +242,7 @@ class BudgetDialogFragment : DialogFragment() {
                             oldYear, oldMonth
                         ).toString(),
                         newWho,
-                        tmpDouble1,
+                        amountDouble,
                         newOccurence)
                     if (listener != null)
                         listener?.onNewDataSaved()
@@ -272,8 +268,8 @@ class BudgetDialogFragment : DialogFragment() {
                                     prevMonth,
                                     newWho
                                 )
-                                Log.d("Alex", "tmpDouble1 is " + tmpDouble1.toString() + " and tmpPrev is " + tmpPrevAmt.amount.toString())
-                                if (tmpDouble1 == tmpPrevAmt.amount) {
+                                Log.d("Alex", "amountDouble is $amountDouble and tmpPrev is " + tmpPrevAmt.amount.toString())
+                                if (amountDouble == tmpPrevAmt.amount) {
                                     // ie new amount is same as previous month, so we can just delete this month's change
                                     BudgetViewModel.deleteBudget(
                                         binding.budgetDialogCategoryID.text.toString().toInt(),
@@ -294,7 +290,7 @@ class BudgetDialogFragment : DialogFragment() {
                                     dismiss()
                                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                                     Log.d("Alex",
-                                        "tmpDouble1 is same as previous month so just deleted the entry '$tmpDouble1'"
+                                        "tmpDouble1 is same as previous month so just deleted the entry '$amountDouble'"
                                     )
                                 } else { // new amount is different from previous month, so need to record it
                                     val  tempBudget = BudgetViewModel.getBudget(binding.budgetDialogCategoryID.text.toString().toInt())
@@ -308,7 +304,7 @@ class BudgetDialogFragment : DialogFragment() {
                                                     oldYear, oldMonth
                                                 ).toString(),
                                                 newWho,
-                                                tmpDouble1,
+                                                amountDouble,
                                                 newOccurence
                                             )
                                             // delete oldWho

@@ -23,11 +23,10 @@
             android:gravity="center"
             android:padding="10dp"
             android:paddingBottom="10dp"
-            android:text="Did you know?"
+            android:text="@string/did_you_know"
             android:textAlignment="center"
             android:textColor="?attr/colorSecondary"
-            android:textSize="24sp"
-            tools:ignore="HardcodedText" />
+            android:textSize="24sp"/>
 
         <TextView
             android:id="@+id/tooltip_text"
@@ -36,11 +35,9 @@
             android:layout_below="@id/text1"
             android:padding="10dp"
             android:paddingBottom="15dp"
-            android:text="Tooltip using PopupWindow :)"
             android:textAlignment="viewStart"
             android:textColor="@color/white"
-            android:textSize="18sp"
-            tools:ignore="HardcodedText" />
+            android:textSize="18sp"/>
 
         <TextView
             android:id="@+id/text2"
@@ -50,11 +47,10 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:padding="10dp"
-            android:text="(touch screen anywhere to dismiss)"
+            android:text="@string/touch_screen_anywhere_to_dismiss"
             android:textAlignment="center"
             android:textColor="?attr/colorSecondary"
-            android:textSize="12sp"
-            tools:ignore="HardcodedText" />
+            android:textSize="12sp"/>
 
     </RelativeLayout>
     <ImageView

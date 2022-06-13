@@ -64,7 +64,6 @@ class TransactionViewAllFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged", "SetTextI18n")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
 

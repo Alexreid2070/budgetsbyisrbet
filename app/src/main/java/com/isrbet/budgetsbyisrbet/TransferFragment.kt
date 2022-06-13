@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -38,12 +39,12 @@ class TransferFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransferBinding.inflate(inflater, container, false)
+        binding.editTextAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_transfer, container, false)
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
@@ -232,7 +233,6 @@ class TransferFragment : Fragment() {
         hideKeyboard(requireContext(), requireView())
     }
 
-    @SuppressLint("SetTextI18n")
     private fun editTransfer() {
         binding.pageTitle.text = "Edit Transfer"
         binding.expansionLayout.visibility = View.GONE
@@ -365,9 +365,8 @@ class TransferFragment : Fragment() {
             return
         }
 
-        val amountInt: Int
-        val amountDouble : Double = round(binding.editTextAmount.text.toString().toDouble()*100)
-        amountInt = amountDouble.toInt()
+        val amountDouble = gNumberFormat.parse(binding.editTextAmount.text.toString()).toDouble()
+        val amountInt: Int = round(amountDouble * 100).toInt()
 
         if (newTransferMode) {
             val transfer = TransferOut(

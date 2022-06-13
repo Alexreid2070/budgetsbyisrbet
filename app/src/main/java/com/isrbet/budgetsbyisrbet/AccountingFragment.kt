@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
@@ -67,8 +66,7 @@ class AccountingFragment : Fragment() {
         HintViewModel.showHint(parentFragmentManager, "Accounting")
     }
 
-    @SuppressLint("SetTextI18n")
-    fun fillInContent() {
+    private fun fillInContent() {
         val totals = Array(3) {DoubleArray(4) {0.0} }
         val transferTotals = Array(3) {DoubleArray(4) {0.0} }
         val firstName = SpenderViewModel.getSpender(0)?.name.toString()
@@ -383,7 +381,6 @@ class AccountingFragment : Fragment() {
 
     }
 
-    @SuppressLint("SetTextI18n")
     private fun buildGrid(iGridLayout: GridLayout, iName1: String, iName2: String, iAmount: Double, iCellIndex: Int, iTransfer: String = "") {
         val paramsT: GridLayout.LayoutParams = GridLayout.LayoutParams()
         paramsT.rowSpec = GridLayout.spec(iCellIndex / 2, GridLayout.CENTER)

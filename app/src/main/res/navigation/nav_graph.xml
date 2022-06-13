@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/TransactionFragment"
         android:name="com.isrbet.budgetsbyisrbet.TransactionFragment"
-        android:label="@string/transaction_fragment_label"
+        android:label="@string/expenditures"
         tools:layout="@layout/fragment_transaction">
         <argument
             android:name="transactionID"
@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/RecurringTransactionFragment"
         android:name="com.isrbet.budgetsbyisrbet.RecurringTransactionFragment"
-        android:label="@string/recurring_transaction_fragment_label"
+        android:label="@string/scheduled_payments"
         tools:layout="@layout/fragment_recurring_transaction">
         <action
             android:id="@+id/action_RecurringTransactionFragment_to_LoanFragment"
@@ -30,7 +30,7 @@
     <fragment
         android:id="@+id/SettingsFragment"
         android:name="com.isrbet.budgetsbyisrbet.SettingsFragment"
-        android:label="@string/settings_fragment_label"
+        android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/TransactionViewAllFragment"
@@ -64,7 +64,7 @@
     <fragment
         android:id="@+id/DashboardFragment"
         android:name="com.isrbet.budgetsbyisrbet.DashboardFragment"
-        android:label="@string/dashboard_fragment_label"
+        android:label="@string/dashboard"
         tools:layout="@layout/fragment_dashboard" >
         <action
             android:id="@+id/action_DashboardFragment_to_TransactionViewAllFragment"
@@ -76,12 +76,12 @@
     <fragment
         android:id="@+id/AdminFragment"
         android:name="com.isrbet.budgetsbyisrbet.AdminFragment"
-        android:label="@string/admin_fragment_label"
+        android:label="@string/admin"
         tools:layout="@layout/fragment_admin" />
     <fragment
         android:id="@+id/CategoryFragment"
         android:name="com.isrbet.budgetsbyisrbet.CategoryFragment"
-        android:label="@string/settings_edit_category_label"
+        android:label="@string/categories"
         tools:layout="@layout/fragment_category">
     <action
         android:id="@+id/action_CategoryFragment_to_BudgetViewAllFragment"
@@ -96,7 +96,7 @@
     <fragment
         android:id="@+id/AccountingFragment"
         android:name="com.isrbet.budgetsbyisrbet.AccountingFragment"
-        android:label="@string/accounting_fragment_label">
+        android:label="@string/accounting">
         <action
             android:id="@+id/action_AccountingFragment_to_TransactionViewAllFragment"
             app:destination="@id/TransactionViewAllFragment" />
@@ -104,7 +104,7 @@
     <fragment
         android:id="@+id/TransferFragment"
         android:name="com.isrbet.budgetsbyisrbet.TransferFragment"
-        android:label="@string/transfer_fragment_label">
+        android:label="@string/transfer">
         <argument
             android:name="mode"
             app:argType="string"
@@ -117,7 +117,7 @@
     <fragment
         android:id="@+id/HelpFragment"
         android:name="com.isrbet.budgetsbyisrbet.HelpFragment"
-        android:label="@string/help_fragment_label"
+        android:label="@string/help"
         tools:layout="@layout/fragment_help" />
     <fragment
         android:id="@+id/BudgetFragment"

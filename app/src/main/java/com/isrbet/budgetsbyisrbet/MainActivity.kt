@@ -85,12 +85,12 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+/*    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.options_menu, menu)
         return true
     }
-
+*/
     fun openDrawer() {
         Log.d("Alex", "Opening drawer")
 /*        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)

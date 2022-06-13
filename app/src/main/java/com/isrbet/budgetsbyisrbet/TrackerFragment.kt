@@ -295,7 +295,6 @@ class TrackerFragment : Fragment() {
         layout.visibility = View.GONE
     }
 
-    @SuppressLint("SetTextI18n")
     fun setPieGraphNumericStyle(pieChart: PieChart, iStyle: String) {
         when (iStyle) {
             "%" -> {
@@ -332,7 +331,6 @@ class TrackerFragment : Fragment() {
         binding.chartSummaryText.visibility = View.GONE
     }
 
-    @SuppressLint("SetTextI18n")
     private fun loadPieChart(iSpecificCategory: String = "") {
         binding.chartTitle.visibility = View.VISIBLE
         binding.actualPieChart.visibility = View.VISIBLE
@@ -488,7 +486,6 @@ class TrackerFragment : Fragment() {
         binding.barChart.invalidate()
     }
 
-    @SuppressLint("SetTextI18n")
     private fun getBarChartData(): ArrayList<DataObject> {
         val tList = ArrayList<DataObject>()
 
@@ -652,7 +649,6 @@ class TrackerFragment : Fragment() {
         return tList
     }
 
-    @SuppressLint("SetTextI18n")
     private fun createBarChart(iData: ArrayList<DataObject>) {
         val dataSets: ArrayList<IBarDataSet> = ArrayList()
         for (i in 0 until iData.size) { // for until loop excludes the "until" number
@@ -694,7 +690,6 @@ class TrackerFragment : Fragment() {
         setChartTitle()
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setChartTitle() {
         if (binding.barChart.visibility == View.VISIBLE) {
             binding.chartTitle.text = "Expense Tracker"
@@ -709,7 +704,7 @@ class TrackerFragment : Fragment() {
                 "All-Time" -> " - All-Time"
                 "YTD" -> " - YTD"
                 "Year" -> " - ${currentBudgetMonth.year}"
-                else -> " - " + MonthNames[currentBudgetMonth.month - 1] + " " + currentBudgetMonth.year
+                else -> " - " + gMonthName(currentBudgetMonth.month) + " " + currentBudgetMonth.year
             }
         var currentFilterIndicator = ""
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER) != cDiscTypeAll)
@@ -727,7 +722,7 @@ class TrackerFragment : Fragment() {
             binding.chartSubTitle.text = "($currentFilterIndicator)"
         }
     }
-    @SuppressLint("SetTextI18n")
+
     private fun getActualPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
         Log.d("Alex", "DiscFilter is $discFilter")
@@ -801,7 +796,6 @@ class TrackerFragment : Fragment() {
         return pieDataSet
     }
 
-    @SuppressLint("SetTextI18n")
     private fun getBudgetPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_TRACKER)
         val whoFilter = if (isNumber(DefaultsViewModel.getDefault(cDEFAULT_FILTER_WHO_TRACKER)))
@@ -917,7 +911,6 @@ class TrackerFragment : Fragment() {
         pieChart.highlightValues(null) // makes sure no pie slice is showing as selected
     }
 
-    @SuppressLint("SetTextI18n")
     private fun createPieChart(pieChart: PieChart, pieDataSet: PieDataSet, iDescription: String) {
         //setting text size of the value
         pieDataSet.valueTextSize = 12f

@@ -21,10 +21,10 @@ class RecurringTransactionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRecurringTransactionBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         val rows = RecurringTransactionViewModel.getCopyOfRecurringTransactions()
@@ -84,7 +84,7 @@ class RecurringTransactionFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.rt_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(parentFragmentManager, "RecurringTransaction")
+        HintViewModel.showHint(parentFragmentManager, "ScheduledPayment")
     }
 
     override fun onDestroyView() {

@@ -41,7 +41,7 @@ class LoanAdapter (context: Context, data: MutableList<LoanPayment>): BaseAdapte
         var vhPrincipalAmount: TextView = view.findViewById(R.id.row_principal_amount)
         var vhRemainingPrincipal: TextView = view.findViewById(R.id.row_principal_remaining_amount)
     }
-    @SuppressLint("SetTextI18n")
+
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
         val viewHolder: LoanViewHolder
         val bData = getItem(pos) as LoanPayment

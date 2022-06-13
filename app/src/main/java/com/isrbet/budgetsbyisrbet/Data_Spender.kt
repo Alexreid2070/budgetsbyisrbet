@@ -40,7 +40,7 @@ class SpenderViewModel : ViewModel() {
             return if (index >= 0 && index  < singleInstance.spenders.size)
                 singleInstance.spenders[index].name
             else
-                ""
+                "Unknown"
         }
         fun getSpenderSplit(index: Int): Int {
             return if (index  < singleInstance.spenders.size && index >= 0)

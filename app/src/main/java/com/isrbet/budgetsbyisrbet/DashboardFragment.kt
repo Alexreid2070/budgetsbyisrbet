@@ -297,7 +297,6 @@ class DashboardFragment : Fragment() {
         binding.tableDashboardRows.post(run)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun createViewRow(iRowType: String, iRowNo: Int, iCategoryID: Int, iCategory: String, iSubcategory: String, iDiscFlag: String, iBudgetAmount: Double, iActualAmount:Double) {
         val leftRowMargin = 0
         val topRowMargin = 0
@@ -676,14 +675,13 @@ class DashboardFragment : Fragment() {
         layout.visibility = View.GONE
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setActionBarTitle() {
         binding.dashboardTitle.text =
                 when (DefaultsViewModel.getDefault(cDEFAULT_VIEW_PERIOD_DASHBOARD)) {
                     "All-Time" -> "Dashboard - All-Time"
                     "YTD" -> "Dashboard - YTD"
                     "Year" -> "Dashboard - ${currentBudgetMonth.year}"
-                    else -> "Dashboard - " + MonthNames[currentBudgetMonth.month - 1] + " " + currentBudgetMonth.year
+                    else -> "Dashboard - " + gMonthName(currentBudgetMonth.month) + " " + currentBudgetMonth.year
                 }
         var currentFilterIndicator = ""
         if (DefaultsViewModel.getDefault(cDEFAULT_FILTER_DISC_DASHBOARD) != "")

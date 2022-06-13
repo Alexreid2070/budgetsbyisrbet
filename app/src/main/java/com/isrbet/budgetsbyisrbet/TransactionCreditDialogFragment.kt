@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,42 +19,17 @@ class TransactionCreditDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     companion object {
-        private const val KEY_AMOUNT = "KEY_AMOUNT"
-        private const val KEY_CATEGORY_ID = "KEY_CATEGORY_ID"
-        private const val KEY_WHERE = "KEY_WHERE"
-        private const val KEY_PAID_BY = "KEY_PAID_BY"
-        private const val KEY_BOUGHT_FOR = "KEY_BOUGHT_FOR"
-        private const val KEY_SPLIT = "KEY_SPLIT"
-        private var oldAmount: Double = 0.0
-        private var oldCategoryID: Int = 0
-        private var oldWhere: String = ""
-        private var oldPaidBy: Int = 0
-        private var oldBoughtFor: Int = 0
-        private var oldSplit: Int = 0
+        private const val KEY_TRANSACTION_ID = "KEY_TRANSACTION_ID"
+        private var oldID: String = ""
         fun newInstance(
-            inAmount: Int,
-            inCategoryID: Int,
-            inWhere: String,
-            inPaidBy: Int,
-            inBoughtor: Int,
-            inSplit: Int
+            inID: String
         ): TransactionCreditDialogFragment {
             val args = Bundle()
 
-            args.putString(KEY_AMOUNT, inAmount.toString())
-            args.putString(KEY_CATEGORY_ID, inCategoryID.toString())
-            args.putString(KEY_WHERE, inWhere)
-            args.putString(KEY_PAID_BY, inPaidBy.toString())
-            args.putString(KEY_BOUGHT_FOR, inBoughtor.toString())
-            args.putString(KEY_SPLIT, inSplit.toString())
+            args.putString(KEY_TRANSACTION_ID, inID)
             val fragment = TransactionCreditDialogFragment()
             fragment.arguments = args
-            oldAmount = inAmount / 100.0
-            oldCategoryID = inCategoryID
-            oldWhere = inWhere
-            oldPaidBy = inPaidBy
-            oldBoughtFor = inBoughtor
-            oldSplit = inSplit
+            oldID = inID
             return fragment
         }
     }
@@ -64,18 +40,19 @@ class TransactionCreditDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionCreditDialogBinding.inflate(inflater, container, false)
+        binding.creditAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val cal = android.icu.util.Calendar.getInstance()
         super.onViewCreated(view, savedInstanceState)
-        Log.d("Alex", "In amount $oldAmount cat $oldCategoryID where $oldWhere pb $oldPaidBy bf $oldBoughtFor split $oldSplit")
+        Log.d("Alex", "In id $oldID")
 
         setupClickListeners()
+        val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return
 
-        binding.creditAmount.setText("-" + gDec.format(oldAmount))
+        binding.creditAmount.setText(gDecM.format(-1 * thisTransaction.amount/100.0))
         binding.creditDate.setText(giveMeMyDateFormat(cal))
         binding.creditNote.setText("CREDIT")
         binding.currencySymbol.text = getLocalCurrencySymbol() + " "
@@ -105,26 +82,32 @@ class TransactionCreditDialogFragment : DialogFragment() {
         )
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         binding.buttonSave.setOnClickListener {
+            val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return@setOnClickListener
+
             if (binding.creditAmount.text.toString() == "") {
                 binding.creditAmount.error=getString(R.string.missingAmountError)
                 focusAndOpenSoftKeyboard(requireContext(), binding.creditAmount)
                 return@setOnClickListener
             }
-            val amountInt: Int
-            val tempDouble : Double = round(getDoubleValue(binding.creditAmount.text.toString())*100)
-            amountInt = tempDouble.toInt()
+            val amount = gNumberFormat.parse(binding.creditAmount.text.toString()).toDouble()
+            if (amount > 0.0) {
+                binding.creditAmount.error=getString(R.string.amountNotNegative)
+                focusAndOpenSoftKeyboard(requireContext(), binding.creditAmount)
+                return@setOnClickListener
+            }
+
+            val amountInt: Int = round(amount * 100).toInt()
             val transactionOut = TransactionOut(
                 binding.creditDate.text.toString(),
                 amountInt,
-                oldCategoryID,
-                oldWhere,
+                thisTransaction.category,
+                thisTransaction.note,
                 binding.creditNote.text.toString().trim(),
-                oldPaidBy,
-                oldBoughtFor,
-                oldSplit,
+                thisTransaction.paidby,
+                thisTransaction.boughtfor,
+                thisTransaction.bfname1split,
                 "Credit"
             )
             TransactionViewModel.addTransaction(transactionOut)

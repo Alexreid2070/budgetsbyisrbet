@@ -31,6 +31,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.time.Month
+import java.time.format.TextStyle
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -56,26 +59,19 @@ const val cBudgetCategoryView = "Category"
 const val cON = "On"
 const val cOFF = "Off"
 
-const val january = "Jan"
-const val february = "Feb"
-const val march = "Mar"
-const val april = "Apr"
-const val may = "May"
-const val june = "Jun"
-const val july = "Jul"
-const val august = "Aug"
-const val september = "Sep"
-const val october = "Oct"
-const val november = "Nov"
-const val december = "Dec"
-val MonthNames = listOf(january, february, march, april, may, june, july, august, september, october, november, december)
 val gDec = DecimalFormat("###0.00;(###0.00)")
 val gDecM = DecimalFormat("###0.00;-###0.00")
 val gDecRound = DecimalFormat("###0;(###0)")
 val gDecRoundM = DecimalFormat("###0;-###0")
-//val gDecWithCurrency = DecimalFormat("${getLocalCurrencySymbol()} 0.00")
 var goToPie = false
 var homePageExpansionAreaExpanded = false
+val gNumberFormat: NumberFormat = NumberFormat.getInstance()
+val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
+
+fun gMonthName(iMonth: Int) : String {
+    val month = Month.of(iMonth)
+    return month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+}
 
 fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
     val s = getLocalCurrencySymbol()
@@ -370,9 +366,9 @@ fun getDaysInMonth(cal: Calendar): Int {
     val year = cal.get(Calendar.YEAR)
     return getDaysInMonth(year, month)
 }
-fun getDaysInMonth(bm: BudgetMonth): Int {
+/* fun getDaysInMonth(bm: BudgetMonth): Int {
     return getDaysInMonth(bm.year, bm.month)
-}
+} */
 fun getDaysInMonth(year: Int, month: Int): Int { // month is 1..12
     return if (month == 4 || month == 6 || month == 9 || month == 11) {
         30
@@ -581,7 +577,7 @@ fun switchTo(iUID: String) {
     BudgetViewModel.refresh()
     RecurringTransactionViewModel.refresh()
 }
-
+/*
 fun getDoubleValue(iNumberToParse: String): Double {
     var numberToParse = iNumberToParse
     return if (numberToParse.contains("(")) {
@@ -591,7 +587,7 @@ fun getDoubleValue(iNumberToParse: String): Double {
         numberToParse = numberToParse.replace("[,]".toRegex(), "")
         numberToParse.toDouble()
     }
-}
+} */
 
 fun Context.copyToClipboard(clipLabel: String, text: CharSequence){
     val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java)

@@ -35,11 +35,10 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Amount"
+            android:text="@string/amount"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipAmount"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -49,11 +48,10 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="end"
-            android:text="Amt1"
+            android:text="@string/amt1"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipAmt1"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -63,11 +61,10 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end"
-            android:text="Amt2"
+            android:text="@string/amt2"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipAmt2"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -77,11 +74,10 @@
             android:layout_gravity="end"
             android:layout_weight="1.5"
             android:gravity="start"
-            android:text="Category"
+            android:text="@string/category"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipCategorySubCategory"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -89,12 +85,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Who"
+            android:text="@string/who"
             android:textAlignment="center"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipWhoView"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -104,11 +99,10 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="start"
-            android:text="Where"
+            android:text="@string/where"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipWhere"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -120,11 +114,10 @@
             android:gravity="center"
             android:paddingLeft="2dp"
             android:paddingRight="2dp"
-            android:text="D?"
+            android:text="@string/discretionary_short_question"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipDisc"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -134,11 +127,10 @@
             android:layout_gravity="end"
             android:layout_weight=".5"
             android:gravity="end"
-            android:text="Typ"
+            android:text="@string/type_short"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipType"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -148,11 +140,10 @@
             android:layout_gravity="end"
             android:layout_weight=".8"
             android:gravity="end"
-            android:text="Owes"
+            android:text="@string/owes"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipRunningTotal"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
     </LinearLayout>
 
@@ -204,8 +195,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total for this selection is: "
-                tools:ignore="HardcodedText" />
+                android:text="@string/total_for_this_selection_is"/>
 
             <TextView
                 android:id="@+id/total_amount"
@@ -252,11 +242,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Navigate"
+            android:text="@string/navigate"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -265,11 +254,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="View"
+            android:text="@string/view"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -278,11 +266,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Filter"
+            android:text="@string/filter"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <TextView
@@ -291,11 +278,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Search"
+            android:text="@string/search"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_search_24"
-            tools:ignore="HardcodedText"
             android:maxLines="1"/>
 
         <Space
@@ -328,8 +314,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="-Yr"
-            tools:ignore="HardcodedText" />
+            android:text="@string/back_year_short"/>
 
         <Space
             android:layout_width="0dp"
@@ -344,8 +329,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="-Mo"
-            tools:ignore="HardcodedText" />
+            android:text="@string/back_month_short"/>
 
         <Space
             android:layout_width="0dp"
@@ -360,8 +344,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Today"
-            tools:ignore="HardcodedText" />
+            android:text="@string/today"/>
 
         <Space
             android:layout_width="0dp"
@@ -376,8 +359,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Mo+"
-            tools:ignore="HardcodedText" />
+            android:text="@string/forward_month_short"/>
 
         <Space
             android:layout_width="0dp"
@@ -392,8 +374,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Yr+"
-            tools:ignore="HardcodedText" />
+            android:text="@string/forward_year_short"/>
 
         <Space
             android:layout_width="0dp"
@@ -428,10 +409,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Split Amount columns?  "
+                android:text="@string/show_split_amount_columns"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_individual_amounts_columns"
@@ -439,9 +419,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="false"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <LinearLayout
@@ -455,10 +434,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Category column?  "
+                android:text="@string/show_category_column"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_category_columns"
@@ -466,9 +444,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:checked="true"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <LinearLayout
@@ -483,10 +460,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Who column?  "
+                android:text="@string/show_who_column"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_who_column"
@@ -494,9 +470,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <LinearLayout
@@ -510,10 +485,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Where column?  "
+                android:text="@string/show_where_column"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_note_column"
@@ -521,9 +495,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <LinearLayout
@@ -537,10 +510,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Discretionary indicator column?  "
+                android:text="@string/show_discretionary_indicator_column"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_disc_column"
@@ -548,9 +520,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <LinearLayout
@@ -564,10 +535,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Type column?  "
+                android:text="@string/show_type_column"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_type_column"
@@ -575,9 +545,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="true"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <LinearLayout
@@ -592,10 +561,9 @@
                 android:layout_weight="1"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="Show Running Total column?  "
+                android:text="@string/show_running_total_column"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"/>
+                android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/show_running_total_column"
@@ -603,9 +571,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:checked="false"
-                android:textOff="Off"
-                android:textOn="On"
-                tools:ignore="HardcodedText" />
+                android:textOff="@string/off"
+                android:textOn="@string/on"/>
         </LinearLayout>
 
         <Space
@@ -617,8 +584,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="These settings are sticky."
-            tools:ignore="HardcodedText" />
+            android:text="@string/these_settings_are_sticky"/>
     </LinearLayout>
 
     <LinearLayout
@@ -644,10 +610,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginBottom="5dp"
-                android:text="Category: "
+                android:text="@string/category"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textStyle="bold"/>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -673,9 +638,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:contentDescription="Click to select"
-                    android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                    tools:ignore="HardcodedText" />
+                    android:contentDescription="@string/click_to_select"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
             </RelativeLayout>
         </LinearLayout>
 
@@ -690,10 +654,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-                android:text="Sub-Category:"
+                android:text="@string/subcategory"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textStyle="bold"/>
 
             <RelativeLayout
                 android:id="@+id/inputSpinnerRelativeLayout"
@@ -721,9 +684,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:contentDescription="Click to select"
-                    android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                    tools:ignore="HardcodedText" />
+                    android:contentDescription="@string/click_to_select"
+                    android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
             </RelativeLayout>
         </LinearLayout>
 
@@ -735,10 +697,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Discretionary? "
+                android:text="@string/discretionary_question"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textStyle="bold"/>
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -756,20 +717,18 @@
                         android:id="@+id/allDiscRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/all"/>
                     <RadioButton
                         android:id="@+id/discRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Disc"
-                        tools:ignore="HardcodedText,TooManyViews" />
+                        android:text="@string/discretionary_short"
+                        tools:ignore="TooManyViews" />
                     <RadioButton
                         android:id="@+id/nonDiscRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Non-Disc"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/non_discretionary_short"/>
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>
@@ -783,10 +742,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Paid by: "
+                android:text="@string/paid_by"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textStyle="bold"/>
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -803,26 +761,20 @@
                         android:id="@+id/allPaidByRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/all"/>
                     <RadioButton
                         android:id="@+id/name1PaidByRadioButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Al"
-                        tools:ignore="HardcodedText" />
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/name2PaidByRadioButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Br"
-                        tools:ignore="HardcodedText" />
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/jointPaidByRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Joint"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/joint"/>
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>
@@ -836,10 +788,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Bought for: "
+                android:text="@string/bought_for"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textStyle="bold"/>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -858,26 +809,20 @@
                         android:id="@+id/allBoughtForRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/all"/>
                     <RadioButton
                         android:id="@+id/name1BoughtForRadioButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Al"
-                        tools:ignore="HardcodedText" />
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/name2BoughtForRadioButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Br"
-                        tools:ignore="HardcodedText" />
+                        android:layout_height="wrap_content"/>
                     <RadioButton
                         android:id="@+id/jointBoughtForRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Joint"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/joint"/>
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>
@@ -890,10 +835,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Type: "
+                android:text="@string/type"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+                android:textStyle="bold"/>
 
             <HorizontalScrollView
                 android:id="@+id/radioGroupScroll"
@@ -913,32 +857,27 @@
                         android:id="@+id/allTypeRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/all"/>
                     <RadioButton
                         android:id="@+id/manuallyEnteredTypeRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Expense"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/expense"/>
                     <RadioButton
                         android:id="@+id/creditTypeRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Credit"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/credit"/>
                     <RadioButton
                         android:id="@+id/rtTypeRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Scheduled"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/scheduled"/>
                     <RadioButton
                         android:id="@+id/transferTypeRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Transfer"
-                        tools:ignore="HardcodedText" />
+                        android:text="@string/transfer"/>
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>
@@ -952,8 +891,7 @@
             android:minWidth="50dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Reset all filters"
-            tools:ignore="HardcodedText" />
+            android:text="@string/reset_all_filters"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

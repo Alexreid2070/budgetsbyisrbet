@@ -49,7 +49,6 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
         val viewHolder: CategoryViewHolder
         val cData = getItem(pos) as Category

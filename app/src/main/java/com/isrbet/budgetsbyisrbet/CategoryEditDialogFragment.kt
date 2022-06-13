@@ -86,7 +86,6 @@ class CategoryEditDialogFragment : DialogFragment() {
 //        return inflater.inflate(R.layout.fragment_category_edit_dialog, container, false)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -232,7 +231,6 @@ class CategoryEditDialogFragment : DialogFragment() {
         catArrayAdapter.notifyDataSetChanged()
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         binding.categoryDialogButtonSave.setOnClickListener {
             Log.d("Alex", "Clicked save $currentMode")

@@ -60,8 +60,6 @@ class SettingsFragment : Fragment() {
             }
     }
 
-
-    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
@@ -571,7 +569,6 @@ class SettingsFragment : Fragment() {
         _binding = null
     }
 
-    @SuppressLint("SetTextI18n")
     private fun onSaveButtonClicked () {
         if (!textIsAlphaOrSpace(binding.settingsFirstUserName.text.toString())) {
             binding.settingsFirstUserName.error = "The text contains non-alphabetic characters."

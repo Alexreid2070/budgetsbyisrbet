@@ -10,9 +10,6 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAdminBinding
 
 class AdminFragment : Fragment() {
@@ -72,7 +69,7 @@ class AdminFragment : Fragment() {
         _binding = null
     }
 
-    fun convertCategories() {
+/*    fun convertCategories() {
         val listener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var previousCategoryID = 1000
@@ -525,5 +522,5 @@ class AdminFragment : Fragment() {
         }
         MyApplication.database.getReference("Users/" + MyApplication.userUID + "/NewBudget")
             .addListenerForSingleValueEvent(listener)
-    }
+    } */
 }

@@ -64,7 +64,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val textAmount = notificationText.substring(dollarSign+1, space).trim()
 
 //                            textAmount = textAmount.replace(",","")
-                            tAmount = getDoubleValue(textAmount)
+                            tAmount = gNumberFormat.parse(textAmount).toDouble()
+//                            tAmount = getDoubleValue(textAmount)
                             val credited = notificationText.indexOf("credited")
                             if (credited != -1) {
                                 Log.d("Alex", "it's a credit!")

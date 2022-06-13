@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/dialog_layout"
@@ -12,11 +11,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="Add Expense Credit"
+        android:text="@string/add_expense_credit"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:paddingTop="20dp"
-        tools:ignore="HardcodedText" />
+        android:paddingTop="20dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,17 +25,15 @@
             android:layout_gravity="center"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Date: "
-            android:layout_weight="1"
-            tools:ignore="HardcodedText" />
+            android:text="@string/date"
+            android:layout_weight="1"/>
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:hint="Date"
+            android:hint="@string/date"
             android:minWidth="@dimen/custom_med_width"
-            app:endIconMode="clear_text"
-            tools:ignore="HardcodedText">
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/credit_date"
@@ -64,9 +60,8 @@
             android:layout_gravity="center"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Amount: "
-            android:layout_weight="1"
-            tools:ignore="HardcodedText" />
+            android:text="@string/amount"
+            android:layout_weight="1"/>
 
         <TextView
             android:id="@+id/currencySymbol"
@@ -79,10 +74,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:hint="Amount"
+            android:hint="@string/amount"
             android:minWidth="@dimen/custom_med_width"
-            app:endIconMode="clear_text"
-            tools:ignore="HardcodedText">
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/credit_amount"
@@ -90,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal|numberSigned" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -104,7 +98,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="@string/inputNoteLabel"
+            android:text="@string/note"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipNote"/>
@@ -112,10 +106,9 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Note (optional)"
+            android:hint="@string/note_optional"
             android:minWidth="@dimen/custom_max_width"
-            app:endIconMode="clear_text"
-            tools:ignore="HardcodedText">
+            app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/credit_note"
@@ -136,9 +129,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="(All other fields remain the same as the original transaction.)"
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            android:text="@string/all_other_fields_remain_the_same_as_the_original_transaction"
+            android:textSize="16sp"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -152,10 +144,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Cancel"
+            android:contentDescription="@string/cancel"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:tooltipText="Cancel"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -164,7 +156,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
         <TextView
             android:id="@+id/button_save"
@@ -172,10 +163,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Save"
+            android:contentDescription="@string/save"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Save"
+            android:text="@string/save"
             android:tooltipText="Save"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -184,7 +175,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_save_24" />
     </LinearLayout>
 

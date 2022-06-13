@@ -48,7 +48,6 @@ class RecurringTransactionAdapter (context: Context, data: MutableList<Recurring
         var vhSplit2: TextView = view.findViewById(R.id.rt_row_split2)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
         val viewHolder: RTViewHolder
         val rtData = getItem(pos) as RecurringTransaction

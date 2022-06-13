@@ -20,12 +20,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:text="Category: "
+            android:text="@string/category"
             android:textSize="16sp"
             android:textStyle="bold"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            tools:ignore="HardcodedText"
             android:tooltipText="@string/toolTipBudgetCategory"/>
         <RelativeLayout
             android:id="@+id/budget_category_spinner_relative_layout"
@@ -53,9 +52,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:contentDescription="Click to select"
-                android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                tools:ignore="HardcodedText" />
+                android:contentDescription="@string/click_to_select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
         </RelativeLayout>
     </LinearLayout>
 
@@ -72,10 +70,9 @@
             android:layout_gravity="center"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:text="Type: "
+            android:text="@string/type"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:tooltipText="@string/toolTipDisc"/>
 
         <TextView
@@ -102,10 +99,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Year: "
+            android:text="@string/year"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <it.sephiroth.android.library.numberpicker.NumberPicker
             android:id="@+id/budgetAddYear"
@@ -124,10 +120,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="   Month: "
+            android:text="@string/month"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <it.sephiroth.android.library.numberpicker.NumberPicker
             android:id="@+id/budgetAddMonth"
@@ -167,50 +162,45 @@
             android:layout_weight="1"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:text="Date"
+            android:text="@string/date"
             android:tooltipText="This is the month that the budget amount applies to."
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/row_budget_AmountHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.1"
-            android:text="Amt"
+            android:text="@string/amt"
             android:tooltipText="Budget amount."
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/row_budget_AnnualIndicatorHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            android:text="A?"
+            android:text="@string/annual_short"
             android:tooltipText="Annual budget indicator, it shows 'A' if the budget amount is for the entire year."
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/row_budget_WhoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Who"
+            android:text="@string/who"
             android:tooltipText="@string/toolTipBudgetWho"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/row_budget_IsSingleHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Occ?"
+            android:text="@string/occurence_short"
             android:tooltipText="@string/toolTipBudgetOccurence"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <ListView
@@ -263,11 +253,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Preferences"
+            android:text="@string/preferences"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -277,11 +266,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Categories"
+            android:text="@string/categories"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -292,11 +280,10 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_weight="1"
-            android:text="Budgets"
+            android:text="@string/budgets"
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
             android:background="@drawable/rounded_top_corners"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -306,11 +293,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Scheduled Payments"
+            android:text="@string/scheduled_payments"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="2"/>
         <Space
@@ -377,8 +363,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textColor="?attr/colorPrimary"
-            android:text="View by: "
-            tools:ignore="HardcodedText" />
+            android:text="@string/view_by"/>
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -396,18 +381,16 @@
                     android:id="@+id/button_view_by_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Category"
-                    android:textColor="?attr/colorPrimary"
-                    tools:ignore="HardcodedText" />
+                    android:text="@string/category"
+                    android:textColor="?attr/colorPrimary"/>
 
                 <RadioButton
                     android:id="@+id/button_view_by_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date"
+                    android:text="@string/date"
                     android:textColor="?attr/colorPrimary"
-                    android:checked="true"
-                    tools:ignore="HardcodedText" />
+                    android:checked="true"/>
             </RadioGroup>
         </HorizontalScrollView>
         <Space

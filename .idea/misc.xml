@@ -134,6 +134,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_arrow_forward_24.xml" value="0.1335" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_backspace_24.xml" value="0.1335" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_calculate_24.xml" value="0.137" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_calculate_black24.xml" value="0.1195" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_cancel_24.xml" value="0.202" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_check_box_outline_blank_24.xml" value="0.137" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_delete_24.xml" value="0.202" />
@@ -147,6 +148,8 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_notifications_24.xml" value="0.202" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_restart_alt_24.xml" value="0.202" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_save_24.xml" value="0.137" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.202" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_settings_backup_restore_24.xml" value="0.1195" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_fas_child.xml" value="0.153" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_fas_envelope.xml" value="0.1605" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_launcher_background.xml" value="0.153" />
@@ -197,6 +200,10 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_transaction.xml" value="0.159375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_user.xml" value="0.15052083333333333" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/testrect.xml" value="0.12135416666666667" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/menu/bottom_nav_menu.xml" value="0.14583333333333334" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/menu/category_menu.xml" value="0.14583333333333334" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/menu/navdrawer_menu.xml" value="0.1265625" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/menu/options_menu.xml" value="0.1265625" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.153" />
       </map>
     </option>

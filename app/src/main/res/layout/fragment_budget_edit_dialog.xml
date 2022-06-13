@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="12dp">
@@ -20,31 +19,12 @@
             android:layout_height="wrap_content"
             android:visibility="gone" />
         <TextView
-            android:id="@+id/budget_dialog_category"
+            android:id="@+id/budget_dialog_category_subcategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="category"
             android:textStyle="bold"
             android:textSize="18sp"
-            tools:ignore="HardcodedText"
             android:layout_gravity="center" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:text="-"
-            tools:ignore="HardcodedText" />
-        <TextView
-            android:id="@+id/budget_dialog_subcategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="subcategory"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            tools:ignore="HardcodedText" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/budget_dialog_linear_layout1"
@@ -59,9 +39,8 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Start date: "
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            android:text="@string/start_date"
+            android:textSize="16sp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -95,9 +74,8 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Budget For: "
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            android:text="@string/budget_for"
+            android:textSize="16sp"/>
         <TextView
             android:id="@+id/who_field"
             android:layout_width="0dp"
@@ -131,11 +109,10 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Period: "
+            android:text="@string/period"
             android:textStyle="bold"
             android:layout_weight="1"
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            android:textSize="16sp"/>
         <TextView
             android:id="@+id/period_field"
             android:layout_width="0dp"
@@ -153,11 +130,10 @@
             android:id="@+id/budget_dialog_OccurenceLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Frequency: "
+            android:text="@string/frequency"
             android:textStyle="bold"
             android:layout_weight="1"
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            android:textSize="16sp"/>
         <TextView
             android:id="@+id/occurence_field"
             android:layout_width="0dp"
@@ -185,10 +161,9 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Amount: "
+            android:text="@string/amount"
             android:textStyle="bold"
-            android:textSize="16sp"
-            tools:ignore="HardcodedText" />
+            android:textSize="16sp"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -209,9 +184,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="@dimen/custom_med_width"
-                android:hint="Amount"
-                app:endIconMode="clear_text"
-                tools:ignore="HardcodedText">
+                android:hint="@string/amount"
+                app:endIconMode="clear_text">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/budget_dialog_new_amount"
                     android:layout_width="wrap_content"
@@ -243,10 +217,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Cancel"
+            android:contentDescription="@string/cancel"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:tooltipText="Cancel"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -255,7 +229,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
         <TextView
             android:id="@+id/budget_dialog_button_edit"
@@ -263,10 +236,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Edit"
+            android:contentDescription="@string/edit"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Edit"
+            android:text="@string/edit"
             android:tooltipText="Edit"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -275,7 +248,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_edit_24" />
         <TextView
             android:id="@+id/budget_dialog_button_delete"
@@ -283,10 +255,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"
-            android:contentDescription="Delete"
+            android:contentDescription="@string/delete"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:text="Delete"
+            android:text="@string/delete"
             android:tooltipText="Delete"
             android:textSize="16sp"
             android:layout_gravity="center"
@@ -295,7 +267,6 @@
             android:textColor="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="HardcodedText"
             app:drawableTopCompat="@drawable/ic_baseline_delete_24" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,69 +7,62 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/homeFragment"
-            android:title="@string/main_label"/>
+            android:title="@string/home"/>
     </group>
     <group
         android:id="@+id/nav_drawer_group1"
         android:checkableBehavior="single">
         <item
             android:id="@+id/TransactionFragment"
-            android:title="Add Expense"
-            tools:ignore="HardcodedText" />
+            android:title="@string/add_expense"/>
         <item
             android:id="@+id/TransactionViewAllFragment"
-            android:title="@string/transaction_view_all_fragment_label" />
+            android:title="@string/view_all_transactions" />
         <item
             android:id="@+id/TrackerFragment"
-            android:title="Tracker"
-            tools:ignore="HardcodedText" />
+            android:title="@string/tracker"/>
         <item
             android:id="@+id/DashboardFragment"
-            android:title="Dashboard"
-            tools:ignore="HardcodedText" />
+            android:title="@string/dashboard"/>
     </group>
     <group
         android:id="@+id/nav_drawer_group3"
         android:checkableBehavior="single">
         <item
             android:id="@+id/TransferFragment"
-            android:title="Add Funds Transfer"
-            tools:ignore="HardcodedText" />
+            android:title="@string/add_funds_transfer"/>
         <item
             android:id="@+id/AccountingFragment"
-            android:title="@string/accounting_fragment_label" />
+            android:title="@string/accounting" />
     </group>
     <group
         android:id="@+id/nav_drawer_group4"
         android:checkableBehavior="single">
         <item
             android:id="@+id/CategoryFragment"
-            android:title="Categories"
-            tools:ignore="HardcodedText" />
+            android:title="@string/categories"/>
         <item
             android:id="@+id/BudgetViewAllFragment"
-            android:title="Budgets"
-            tools:ignore="HardcodedText" />
+            android:title="@string/budgets"/>
         <item
             android:id="@+id/RecurringTransactionFragment"
-            android:title="Scheduled Payments"
-            tools:ignore="HardcodedText" />
+            android:title="@string/scheduled_payments"/>
         <item
             android:id="@+id/SettingsFragment"
-            android:title="@string/settings_fragment_label" />
+            android:title="@string/settings" />
     </group>
     <group
         android:id="@+id/nav_drawer_group6"
         android:checkableBehavior="single">
         <item
             android:id="@+id/HelpFragment"
-            android:title="@string/help_fragment_label" />
+            android:title="@string/help" />
     </group>
     <group
         android:id="@+id/nav_drawer_group7"
         android:checkableBehavior="single">
         <item
             android:id="@+id/AdminFragment"
-            android:title="@string/admin_fragment_label" />
+            android:title="@string/admin" />
     </group>
 </menu>

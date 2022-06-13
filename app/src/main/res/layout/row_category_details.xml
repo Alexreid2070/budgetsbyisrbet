@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
@@ -25,9 +24,8 @@
         android:gravity="center"
         android:padding="10dip"
         android:src="@drawable/ic_baseline_format_color_reset_24"
-        android:contentDescription="Reset the category's colour"
-        android:textSize="14sp"
-        tools:ignore="HardcodedText"/>
+        android:contentDescription="@string/reset_the_category_s_colour"
+        android:textSize="14sp"/>
     <ImageView
         android:id="@+id/row_category_color"
         android:layout_width="0dp"
@@ -37,7 +35,6 @@
         android:gravity="center"
         android:padding="10dip"
         android:src="@drawable/ic_baseline_format_paint_24"
-        android:contentDescription="Paint the category"
-        android:textSize="14sp"
-        tools:ignore="HardcodedText"/>
+        android:contentDescription="@string/paint_the_category"
+        android:textSize="14sp"/>
 </LinearLayout>

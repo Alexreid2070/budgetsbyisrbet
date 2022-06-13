@@ -19,20 +19,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            android:text="Translated From"
+            android:text="@string/translated_from"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/afterHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            android:text="Translated To"
+            android:text="@string/translated_to"
             android:textSize="16sp"
-            android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <ListView

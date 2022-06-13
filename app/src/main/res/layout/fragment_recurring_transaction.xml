@@ -60,11 +60,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Preferences"
+            android:text="@string/preferences"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -74,11 +73,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Categories"
+            android:text="@string/categories"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -88,11 +86,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="Budgets"
+            android:text="@string/budgets"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="1"/>
 
@@ -104,10 +101,9 @@
             android:layout_weight="1"
             android:background="@drawable/rounded_top_corners"
             android:gravity="center"
-            android:text="Scheduled Payments"
+            android:text="@string/scheduled_payments"
             android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
-            tools:ignore="HardcodedText"
             android:ellipsize="end"
             android:maxLines="2"/>
 

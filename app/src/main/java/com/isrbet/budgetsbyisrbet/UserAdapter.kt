@@ -40,7 +40,6 @@ class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() 
         var vhSecondary: TextView = view.findViewById(R.id.userSecondary)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
         val viewHolder: UserViewHolder
         val rtData = getItem(pos) as AppUser

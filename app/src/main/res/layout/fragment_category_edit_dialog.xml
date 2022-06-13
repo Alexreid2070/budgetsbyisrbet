@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/dialog_layout"
@@ -42,10 +41,9 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:text="Current Details: "
+                        android:text="@string/current_details"
                         android:textSize="24sp"
-                        android:textStyle="bold"
-                        tools:ignore="HardcodedText" />
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,13 +56,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Category: "
+                        android:text="@string/category"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:tooltipText="@string/toolTipCategory"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="HardcodedText" />
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/category_id"
@@ -95,13 +92,12 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sub-Category: "
+                        android:text="@string/subcategory"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:tooltipText="@string/toolTipSubCategory"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="HardcodedText" />
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/old_subcategory_name"
@@ -122,13 +118,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Type: "
+                        android:text="@string/type"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:tooltipText="@string/toolTipDisc"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="HardcodedText" />
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/old_disctype"
@@ -150,13 +145,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Private? "
+                        android:text="@string/private_question"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:tooltipText="@string/toolTipPrivacy"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="HardcodedText" />
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/old_privacy"
@@ -178,13 +172,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="In Use? "
+                        android:text="@string/in_use"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:tooltipText="@string/toolTipCatState"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="HardcodedText" />
+                        app:layout_constraintTop_toTopOf="parent"/>
 
                     <TextView
                         android:id="@+id/old_state"
@@ -201,9 +194,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="This category is used in:"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:text="@string/this_category_is_used_in"
+                    android:textStyle="bold"/>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -265,10 +257,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="This category is the default for new transactions"
+                        android:text="@string/this_category_is_the_default_for_new_transactions"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="HardcodedText" />
+                        app:layout_constraintTop_toTopOf="parent"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
 
@@ -288,10 +279,9 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:paddingTop="20dp"
-                    android:text="Change To:"
+                    android:text="@string/change_to"
                     android:textSize="24sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
             </LinearLayout>
 
             <LinearLayout
@@ -306,11 +296,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Category: "
+                    android:text="@string/category"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipCategory"
-                    tools:ignore="HardcodedText" />
+                    android:tooltipText="@string/toolTipCategory"/>
 
                 <RelativeLayout
                     android:id="@+id/inputSpinnerRelativeLayout"
@@ -338,9 +327,8 @@
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_gravity="center"
-                        android:contentDescription="Click to select"
-                        android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                        tools:ignore="HardcodedText,RedundantDescriptionCheck" />
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
                 </RelativeLayout>
             </LinearLayout>
 
@@ -356,19 +344,17 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="New Category Name: "
+                    android:text="@string/new_category_name"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
+                    android:textStyle="bold"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/catLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Category"
+                    android:hint="@string/category"
                     android:minWidth="@dimen/custom_med_width"
-                    app:endIconMode="clear_text"
-                    tools:ignore="HardcodedText">
+                    app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edit_category_new_name"
@@ -392,20 +378,18 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:text="Sub-Category: "
+                    android:text="@string/subcategory"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipSubCategory"
-                    tools:ignore="HardcodedText" />
+                    android:tooltipText="@string/toolTipSubCategory"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/subcatLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Sub-Category"
+                    android:hint="@string/subcategory"
                     android:minWidth="@dimen/custom_med_width"
-                    app:endIconMode="clear_text"
-                    tools:ignore="HardcodedText">
+                    app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edit_subcategory_new_name"
@@ -429,11 +413,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Type: "
+                    android:text="@string/type"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipDisc"
-                    tools:ignore="HardcodedText" />
+                    android:tooltipText="@string/toolTipDisc"/>
 
                 <RelativeLayout
                     android:id="@+id/editCategorySpinnerLayout"
@@ -461,9 +444,8 @@
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_gravity="center"
-                        android:contentDescription="Click to select"
-                        android:src="@drawable/ic_baseline_arrow_drop_down_24"
-                        tools:ignore="HardcodedText" />
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
                 </RelativeLayout>
             </LinearLayout>
 
@@ -479,11 +461,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Private? "
+                    android:text="@string/private_question"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipPrivacy"
-                    tools:ignore="HardcodedText" />
+                    android:tooltipText="@string/toolTipPrivacy"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/privacy_switch"
@@ -491,9 +472,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:checked="false"
-                    android:textOff="Off"
-                    android:textOn="On"
-                    tools:ignore="HardcodedText" />
+                    android:textOff="@string/off"
+                    android:textOn="@string/on"/>
             </LinearLayout>
 
             <LinearLayout
@@ -508,11 +488,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="In use? "
+                    android:text="@string/in_use"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="Marking a category as Not in Use will not change the visibility of any existing data in that category.  Rather, you will no longer have the option to add new transactions or budgets to this category."
-                    tools:ignore="HardcodedText" />
+                    android:tooltipText="Marking a category as Not in Use will not change the visibility of any existing data in that category.  Rather, you will no longer have the option to add new transactions or budgets to this category." />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/state_switch"
@@ -520,9 +499,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:checked="false"
-                    android:textOff="Off"
-                    android:textOn="On"
-                    tools:ignore="HardcodedText" />
+                    android:textOff="@string/off"
+                    android:textOn="@string/on"/>
             </LinearLayout>
 
             <LinearLayout
@@ -536,11 +514,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Enter budget for this new category? "
+                    android:text="@string/enter_budget_for_this_new_category"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="On = go to Add New Budget page after hitting save.  Off = do not..."
-                    tools:ignore="HardcodedText" />
+                    android:tooltipText="On = go to Add New Budget page after hitting save.  Off = do not..." />
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switch_enter_budget"
@@ -548,9 +525,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:checked="true"
-                    android:textOff="Off"
-                    android:textOn="On"
-                    tools:ignore="HardcodedText" />
+                    android:textOff="@string/off"
+                    android:textOn="@string/on"/>
             </LinearLayout>
 
             <LinearLayout
@@ -567,11 +543,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Cancel"
+                    android:contentDescription="@string/cancel"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Cancel"
-                    android:tooltipText="Cancel"
+                    android:text="@string/cancel"
+                    android:tooltipText="@string/cancel"
                     android:textSize="16sp"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -579,7 +555,6 @@
                     android:textColor="?attr/colorPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
                 <TextView
                     android:id="@+id/category_dialog_button_save"
@@ -587,11 +562,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Edit"
+                    android:contentDescription="@string/edit"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Edit"
-                    android:tooltipText="Edit"
+                    android:text="@string/edit"
+                    android:tooltipText="@string/edit"
                     android:textSize="16sp"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -599,7 +574,6 @@
                     android:textColor="?attr/colorPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_edit_24" />
                 <TextView
                     android:id="@+id/category_dialog_button_delete"
@@ -607,11 +581,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/white"
-                    android:contentDescription="Delete"
+                    android:contentDescription="@string/delete"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
-                    android:text="Delete"
-                    android:tooltipText="Delete"
+                    android:text="@string/delete"
+                    android:tooltipText="@string/delete"
                     android:textSize="16sp"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -619,7 +593,6 @@
                     android:textColor="?attr/colorPrimary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="HardcodedText"
                     app:drawableTopCompat="@drawable/ic_baseline_delete_24" />
             </LinearLayout>
         </LinearLayout>

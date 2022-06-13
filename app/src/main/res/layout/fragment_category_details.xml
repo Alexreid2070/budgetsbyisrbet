@@ -19,12 +19,11 @@
             android:layout_gravity="end"
             android:gravity="start"
             android:layout_weight="1"
-            android:text="Category"
+            android:text="@string/category"
             android:textSize="16sp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:tooltipText="@string/toolTipCategory"/>
 
         <TextView
@@ -33,10 +32,9 @@
             android:layout_gravity="end"
             android:gravity="center"
             android:layout_weight=".2"
-            android:text="Reset"
+            android:text="@string/reset"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:tooltipText="Reset category colour to white."/>
         <TextView
             android:layout_width="0dp"
@@ -44,10 +42,9 @@
             android:layout_gravity="end"
             android:gravity="center"
             android:layout_weight=".2"
-            android:text="Paint"
+            android:text="@string/paint"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText"
             android:tooltipText="Open category colouring tool."/>
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
@@ -62,8 +59,7 @@
         android:paddingTop="20dp"
         android:textSize="14sp"
         android:padding="5dp"
-        android:text="Drag the categories above to move them into the desired order.  Click the Reset icon to remove colour.  Click the Paint icon to apply a colour to the category."
+        android:text="@string/drag_the_categories"
         android:textColor="?attr/textOnBackground"
-        tools:ignore="HardcodedText"
         android:background="@drawable/hint_drawable"/>
 </LinearLayout>

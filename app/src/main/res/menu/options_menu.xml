@@ -6,76 +6,65 @@
         android:id="@+id/nav_drawer_group">
         <item
             android:id="@+id/SettingsFragment"
-            android:title="@string/settings_fragment_label" />
+            android:title="@string/settings" />
         <item
             android:id="@+id/RecurringTransactionFragment"
-            android:title="Scheduled Payments"
-            tools:ignore="HardcodedText" />
+            android:title="@string/scheduled_payments"/>
         <item
             android:id="@+id/TransactionViewAllFragment"
-            android:title="View all"
+            android:title="@string/view_all"
             android:icon="@drawable/ic_fas_binoculars"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/ViewTranslationsFragment"
-            android:title="View Translations"
-            tools:ignore="HardcodedText" />
+            android:title="@string/view_translations"/>
         <item
             android:id="@+id/ViewTransfersFragment"
-            android:title="View transfers"
+            android:title="@string/view_transfers"
             android:icon="@drawable/ic_fas_binoculars"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/ViewRecurringTransactionsFragment"
-            android:title="View scheduled payments"
+            android:title="@string/view_scheduled_payments"
             android:icon="@drawable/ic_fas_binoculars"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
     </group>
     <group
         android:id="@+id/transaction_options_group">
         <item
             android:id="@+id/Edit"
-            android:title="Edit"
+            android:title="@string/edit"
             android:icon="@drawable/ic_far_edit"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/Delete"
-            android:title="Delete"
+            android:title="@string/delete"
             android:icon="@drawable/ic_far_trash_alt"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/Search"
-            android:title="Search"
+            android:title="@string/search"
             android:icon="@drawable/ic_fas_search"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
     </group>
     <group
         android:id="@+id/directional_group">
         <item
             android:id="@+id/AddBudget"
-            android:title="Add Budget"
+            android:title="@string/add_budget"
             android:icon="@drawable/ic_fas_plus"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/Previous"
-            android:title="Previous"
+            android:title="@string/previous"
             android:icon="@drawable/ic_fas_chevron_left"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
 
         <item
             android:id="@+id/Next"
-            android:title="Next"
+            android:title="@string/next"
             android:icon="@drawable/ic_fas_chevron_right"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
     </group>
     <group
         android:id="@+id/filter_options_group"
@@ -83,80 +72,43 @@
         <item
             android:id="@+id/FilterTitle"
             android:checkable="false"
-            android:title="Filter"
-            tools:ignore="HardcodedText" />
+            android:title="@string/filter"/>
         <item
             android:id="@+id/FilterDiscretionary"
-            android:title=" Discretionary"
-            tools:ignore="HardcodedText" />
+            android:title="@string/discretionary"/>
         <item
             android:id="@+id/FilterNonDiscretionary"
-            android:title=" Non-Discretionary"
-            tools:ignore="HardcodedText" />
+            android:title="@string/non_discretionary"/>
         <item
             android:id="@+id/FilterPaidByTitle"
             android:checkable="false"
-            android:title="Paid By"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/FilterPaidByName1"
-            android:title=" Alex"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/FilterPaidByName2"
-            android:title=" Brent"
-            tools:ignore="HardcodedText" />
+            android:title="@string/paid_by"/>
         <item
             android:id="@+id/FilterBoughtForTitle"
             android:checkable="false"
-            android:title="Bought For"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/FilterBoughtForName1"
-            android:title=" Alex"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/FilterBoughtForName2"
-            android:title=" Brent"
-            tools:ignore="HardcodedText" />
+            android:title="@string/bought_for"/>
         <item
             android:id="@+id/DeltaPercentage"
-            android:title="Show Delta as %"
-            tools:ignore="HardcodedText" />
+            android:title="@string/show_delta_as_percentage"/>
         <item
             android:id="@+id/DeltaNumeric"
-            android:title="Show Delta as $"
-            tools:ignore="HardcodedText" />
-    </group>
-    <group
-        android:id="@+id/other_options_group">
-        <item
-            android:id="@+id/Refresh"
-            android:title="Refresh"
-            tools:ignore="HardcodedText" />
-        <item
-            android:id="@+id/ShowMe"
-            android:title="ShowMe"
-            tools:ignore="HardcodedText" />
+            android:title="@string/show_delta_as_currency"/>
     </group>
     <group
         android:id="@+id/groupx">
         <item
             android:id="@+id/SignOut"
-            android:title="Sign Out"
-            tools:ignore="HardcodedText" />
+            android:title="@string/sign_out"/>
         <item
             android:id="@+id/DashboardFragment"
-            android:title="Dashboard"
+            android:title="@string/dashboard"
             android:icon="@drawable/ic_fas_compass"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/AddRecurringTransaction"
-            android:title="Add Scheduled Payment"
+            android:title="@string/add_scheduled_payment"
             android:icon="@drawable/ic_fas_plus"
-            app:showAsAction="ifRoom"
-            tools:ignore="HardcodedText" />
+            app:showAsAction="ifRoom"/>
         <item
             android:id="@+id/AddCategory"
             android:title="Add Category / SubCategory"

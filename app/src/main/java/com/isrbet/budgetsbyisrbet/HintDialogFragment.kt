@@ -64,7 +64,6 @@ class HintDialogFragment : DialogFragment() {
         )
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setupClickListeners() {
         binding.doneButton.setOnClickListener {
             dismiss()

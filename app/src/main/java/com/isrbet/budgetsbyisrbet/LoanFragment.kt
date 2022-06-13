@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.text.method.DigitsKeyListener
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -26,11 +27,12 @@ class LoanFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentLoanBinding.inflate(inflater, container, false)
+        binding.loanAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.acceleratedPaymentAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         inflater.inflate(R.layout.fragment_loan, container, false)
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         binding.currencySymbol1.text = getLocalCurrencySymbol() + " "
@@ -164,14 +166,16 @@ class LoanFragment : Fragment() {
         val dt = binding.loanStartDate.text.toString()
         cal.set(dt.substring(0,4).toInt(), dt.substring(5,7).toInt()-1, dt.substring(8,10).toInt())
 
-        val accPayment =
-            if (binding.acceleratedPaymentAmount.text.toString() == "") 0.0 else getDoubleValue(binding.acceleratedPaymentAmount.text.toString())
+        val loanAmountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
+        val accAmountDouble = gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
         loadRows(cal,
-            getDoubleValue(binding.amortizationPeriod.text.toString()),
+            gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble(),
+//            getDoubleValue(binding.amortizationPeriod.text.toString()),
             freq,
-            getDoubleValue(binding.interestRate.text.toString())/100.0,
-            getDoubleValue(binding.loanAmount.text.toString()),
-            accPayment)
+            gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()/100.0,
+//            getDoubleValue(binding.interestRate.text.toString())/100.0,
+            loanAmountDouble,
+            accAmountDouble)
     }
 
     private fun loadRows(iFirstPaymentDate: Calendar, iAmortizationYears: Double,
