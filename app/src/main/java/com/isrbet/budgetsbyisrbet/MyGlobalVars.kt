@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Color
 import android.icu.text.NumberFormat
 import android.icu.util.Calendar
@@ -40,51 +41,107 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
+const val cMODE_VIEW = 0
+const val cMODE_EDIT = 1
+const val cMODE_ADD = 2
+
+const val cTRUE = "true"
+const val cFALSE = "false"
 const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
 const val cDiscTypeAll = "All"
-val DiscTypeValues = listOf(cDiscTypeDiscretionary, cDiscTypeNondiscretionary)
+
 const val cPeriodWeek = "Week"
 const val cPeriodMonth = "Month"
 const val cPeriodQuarter = "Quarter"
 const val cPeriodYear = "Year"
-val PeriodValues = listOf(cPeriodWeek, cPeriodMonth, cPeriodQuarter, cPeriodYear)
-const val cBUDGET_RECURRING = "Recurring"
-const val cBUDGET_JUST_THIS_MONTH = "Just once"
+const val cPeriodYTD = "YTD"
+const val cPeriodAllTime = "All-Time"
+
+const val gMaxNumbersBeforeDecimalPlace = 5
+const val gMaxNumbersAfterDecimalPlace = 2
+
+fun getTranslationForPeriod(iPeriod: String) : String {
+    return when (iPeriod) {
+        cPeriodWeek -> MyApplication.getString(R.string.week)
+        cPeriodMonth -> MyApplication.getString(R.string.month)
+        cPeriodQuarter -> MyApplication.getString(R.string.quarter)
+        cPeriodYear -> MyApplication.getString(R.string.year)
+        cPeriodYTD -> MyApplication.getString(R.string.ytd)
+        cPeriodAllTime -> MyApplication.getString(R.string.all_time)
+        else -> ""
+    }
+}
+
+const val cBUDGET_RECURRING = 0
+const val cBUDGET_JUST_THIS_MONTH = 1
 const val cFAKING_TD = false
 const val cTRANSFER_CODE = -99
 const val cLAST_ROW = 9999999
 const val cBudgetDateView = "Date"
 const val cBudgetCategoryView = "Category"
-const val cON = "On"
-const val cOFF = "Off"
+const val cOpacity = "1F"
+const val NOT_ROUNDED = false
+const val cDEFAULT_COLOUR_WHITE = "#FFFFFF"
 
-val gDec = DecimalFormat("###0.00;(###0.00)")
-val gDecM = DecimalFormat("###0.00;-###0.00")
-val gDecRound = DecimalFormat("###0;(###0)")
-val gDecRoundM = DecimalFormat("###0;-###0")
+const val cHINT_BUDGET = "Budget"
+const val cHINT_DASHBOARD = "Dashboard"
+const val cHINT_LOAN = "Loan"
+const val cHINT_TRANSACTION = "Transaction"
+const val cHINT_PREFERENCES = "Preferences"
+const val cHINT_TRACKER = "Tracker"
+const val cHINT_ACCOUNTING = "Accounting"
+const val cHINT_CATEGORY = "Category"
+const val cHINT_HOME = "Home"
+const val cHINT_SCHEDULED_PAYMENT = "ScheduledPayment"
+const val cHINT_TRANSACTION_VIEW_ALL = "TransactionViewAll"
+
+const val cTRANSACTION_TYPE_EXPENSE = "Expense"
+const val cTRANSACTION_TYPE_CREDIT = "Credit"
+const val cTRANSACTION_TYPE_SCHEDULED = "Recurring" // uses Recurring for historical db reasons
+const val cTRANSACTION_TYPE_TRANSFER = "Transfer"
+
+const val cNEXT_YEAR = 0
+const val cPREV_YEAR = 1
+const val cNEXT_MONTH = 2
+const val cPREV_MONTH = 3
+const val cTODAY = 4
+
+val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
 var goToPie = false
 var homePageExpansionAreaExpanded = false
 val gNumberFormat: NumberFormat = NumberFormat.getInstance()
-val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
+
+fun gDecM(iDouble: Double): String {
+    return DecimalFormat("###0.00;-###0.00").format(iDouble)
+}
+fun gDec(iDouble: Double): String {
+    return DecimalFormat("###0.00;(###0.00)").format(iDouble)
+}
+fun gDecRoundM(iDouble: Double): String {
+    return DecimalFormat("###0;-###0").format(iDouble)
+}
+fun gDecRound(iDouble: Double): String {
+    return DecimalFormat("###0;(###0)").format(iDouble)
+}
 
 fun gMonthName(iMonth: Int) : String {
     val month = Month.of(iMonth)
-    return month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    return month.getDisplayName(TextStyle.FULL, Locale.getDefault())
 }
 
 fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
     val s = getLocalCurrencySymbol()
     return if (iRound) {
         if (s == "")
-            gDecRound.format(round(iDouble))
+            gDecRound(round(iDouble))
         else
-            s + " " + gDecRound.format(round(iDouble))
+            s + " " + gDecRound(round(iDouble))
     } else {
         if (s == "")
-            gDec.format(iDouble)
+            gDec(iDouble)
         else
-            s + " " + gDec.format(iDouble)
+            s + " " + gDec(iDouble)
     }
 }
 
@@ -92,14 +149,14 @@ fun gDecWithCurrencyM(iDouble: Double, iRound: Boolean = false) : String{
     val s = getLocalCurrencySymbol()
     return if (iRound) {
         if (s == "")
-            gDecRoundM.format(round(iDouble))
+            gDecRoundM(round(iDouble))
         else
-            s + " " + gDecRoundM.format(round(iDouble))
+            s + " " + gDecRoundM(round(iDouble))
     } else {
         if (s == "")
-            gDecM.format(iDouble)
+            gDecM(iDouble)
         else
-            s + " " + gDecM.format(iDouble)
+            s + " " + gDecM(iDouble)
     }
 }
 enum class LoanPaymentRegularity(val code: Int) {
@@ -119,6 +176,8 @@ enum class DateRange(val code: Int) {
 
 class MyApplication : Application() {
     companion object {
+        lateinit var mContext: Context
+        lateinit var resources: Resources
         lateinit var database: FirebaseDatabase
         lateinit var databaseref: DatabaseReference
         var transactionSearchText: String = ""
@@ -137,8 +196,11 @@ class MyApplication : Application() {
         var haveLoadedDataForThisUser = false
         lateinit var myMainActivity: MainActivity
 
+        fun getString(iParam: Int): String {
+            return mContext.resources.getString(iParam)
+        }
+
         fun displayToast(iMessage: String) {
-            Log.d("Alex", "displaying toast")
             Toast.makeText(myMainActivity, iMessage, Toast.LENGTH_SHORT).show()
         }
         fun getQuote(): String {
@@ -151,7 +213,7 @@ class MyApplication : Application() {
         }
 
         fun playSound(context: Context?, iSound: Int ) {
-            if (DefaultsViewModel.getDefault(cDEFAULT_SOUND) == "Off")
+            if (!DefaultsViewModel.getDefaultSound())
                 return
 
             if (mediaPlayer == null)
@@ -176,6 +238,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         // initialization code here
+        mContext = this
         Firebase.database.setPersistenceEnabled(true)
         database = FirebaseDatabase.getInstance()
         databaseref = database.reference
@@ -305,7 +368,7 @@ fun hideKeyboard(activity: Activity) {
 
 fun perfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): String {
     var str = iStr
-    if (str[0] == '.') str = "0$str"
+    if (str[0] == gDecimalSeparator) str = "0$str"
     val max = str.length
     var rFinal = ""
     var after = false
@@ -315,10 +378,10 @@ fun perfectDecimal(iStr: String, MAX_BEFORE_POINT: Int, MAX_DECIMAL: Int): Strin
     var t: Char
     while (i < max) {
         t = str[i]
-        if (t != '.' && !after) {
+        if (t != gDecimalSeparator && !after) {
             up++
             if (up > MAX_BEFORE_POINT) return rFinal
-        } else if (t == '.') {
+        } else if (t == gDecimalSeparator) {
             after = true
         } else {
             decimal++
@@ -463,7 +526,7 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
         } else
             MaterialColors.getColor(context, R.attr.background, Color.BLACK)
         return colorToReturn
-    } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefault(cDEFAULT_SHOWRED).toInt()/100.0))) ||
+    } else if ((rActual > rBudget * (1.0 + (DefaultsViewModel.getDefaultShowRed()/100.0))) ||
         (rBudget == 0.0 && rActual > 0.0)) {
         return if (inDarkMode(context))
             ContextCompat.getColor(context, R.color.darkRed)
@@ -474,8 +537,8 @@ fun getBudgetColour(context: Context, iActual: Double, iBudget: Double, iAlwaysS
     }
 }
 
-fun getLocalCurrencySymbol() : String {
-    return if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CURRENCY_SYMBOL) == "true") {
+fun getLocalCurrencySymbol(iAlways: Boolean = false) : String {
+    return if (DefaultsViewModel.getDefaultShowCurrencySymbol() || iAlways) {
         val locale = Locale.getDefault()
         val numberFormat = NumberFormat.getCurrencyInstance(locale)
         if (numberFormat.currency == null)
@@ -564,7 +627,7 @@ fun thisIsANewUser(): Boolean {
             SpenderViewModel.isLoaded() && SpenderViewModel.getTotalCount() == 0 &&
             TransactionViewModel.isLoaded() && TransactionViewModel.getCount() == 0 &&
             BudgetViewModel.isLoaded() && BudgetViewModel.getCount() == 0 &&
-            RecurringTransactionViewModel.isLoaded() && RecurringTransactionViewModel.getCount() == 0
+            ScheduledPaymentViewModel.isLoaded() && ScheduledPaymentViewModel.getCount() == 0
 
 }
 
@@ -575,7 +638,7 @@ fun switchTo(iUID: String) {
     TransactionViewModel.refresh()
     CategoryViewModel.refresh()
     BudgetViewModel.refresh()
-    RecurringTransactionViewModel.refresh()
+    ScheduledPaymentViewModel.refresh()
 }
 /*
 fun getDoubleValue(iNumberToParse: String): Double {
@@ -675,6 +738,51 @@ class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
     companion object {
         private const val CLICK_DRAG_TOLERANCE =
             10f // Often, there will be a slight, unintentional, drag when the user taps the FAB, so we need to account for this.
+    }
+}
+
+fun getSplitText (iSplit1: Int, iAmount: String): String {
+    val split2 = 100 - iSplit1
+
+    val amount = if (iAmount == "") 0.0
+    else gNumberFormat.parse(iAmount).toDouble()
+    val amount1 = round(amount * iSplit1) / 100.0
+    val amount2 = round(amount * split2) / 100.0
+
+    if (amount == 0.0) {
+        return if (iSplit1 == 0) {
+            String.format(MyApplication.getString(R.string.split_is_x_pct_for_name1),
+                100,
+                SpenderViewModel.getSpenderName(1))
+        } else if (split2 == 0) {
+            String.format(MyApplication.getString(R.string.split_is_x_pct_for_name1),
+                100,
+                SpenderViewModel.getSpenderName(0))
+        } else {
+            String.format(MyApplication.getString(R.string.split_is_x_pct_for_name1_and_z_pct_for_name2),
+                iSplit1,
+                SpenderViewModel.getSpenderName(0),
+                split2,
+                SpenderViewModel.getSpenderName(1))
+        }
+    } else if (iSplit1 == 0) {
+        return String.format(MyApplication.getString(R.string.split_is_x_pct_d_for_name1),
+            100,
+            gDec(amount2),
+            SpenderViewModel.getSpenderName(1))
+    } else if (split2 == 0) {
+        return String.format(MyApplication.getString(R.string.split_is_x_pct_d_for_name1),
+            100,
+            gDec(amount1),
+            SpenderViewModel.getSpenderName(0))
+    } else {
+        return String.format(MyApplication.getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
+            iSplit1,
+            gDec(amount1),
+            SpenderViewModel.getSpenderName(0),
+            split2,
+            gDec(amount2),
+            SpenderViewModel.getSpenderName(1))
     }
 }
 

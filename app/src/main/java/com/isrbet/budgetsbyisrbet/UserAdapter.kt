@@ -1,14 +1,11 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
-import com.firebase.ui.auth.data.model.User
-import java.text.DecimalFormat
 
 class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() {
 
@@ -56,10 +53,12 @@ class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() 
             viewHolder.vhPrimary.visibility = View.VISIBLE
             viewHolder.vhSecondary.visibility = View.VISIBLE
             if (rtData.primary == "") { // this user is the primary
-                viewHolder.vhPrimary.text = "Secondary: "
+                viewHolder.vhPrimary.text =
+                    MyApplication.getString(R.string.secondary) + ": "
                 viewHolder.vhSecondary.text = rtData.secondary
             } else {  // this user is the seconary
-                viewHolder.vhPrimary.text = "Primary: "
+                viewHolder.vhPrimary.text =
+                    MyApplication.getString(R.string.primary) + ": "
                 viewHolder.vhSecondary.text = AppUserViewModel.getPrimaryEmail(rtData.primary)
             }
         }

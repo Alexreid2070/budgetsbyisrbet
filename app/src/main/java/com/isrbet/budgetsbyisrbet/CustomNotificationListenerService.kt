@@ -7,6 +7,7 @@ import android.util.Log
 
 data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
 
+@Suppress("HardCodedStringLiteral")
 class CustomNotificationListenerService : NotificationListenerService() {
 
     companion object {

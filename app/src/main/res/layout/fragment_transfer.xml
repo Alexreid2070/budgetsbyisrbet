@@ -195,74 +195,43 @@
                 android:id="@+id/split_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingTop="10dp">
 
-                <TextView
-                    android:id="@+id/split_name1_preamble"
+                <LinearLayout
+                    android:id="@+id/slider_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/split_is"
-                    android:textSize="16sp"/>
+                    android:paddingTop="10dp">
 
-                <EditText
-                    android:id="@+id/split_name1_split"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:minWidth="@dimen/custom_min_width"
-                    tools:ignore="Autofill,LabelFor" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/split"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="@string/toolTipSplit"/>
 
-                <TextView
-                    android:id="@+id/split_name1_suffix"
-                    android:layout_width="wrap_content"
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/split_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stepSize="1"
+                        android:valueFrom="0.0"
+                        android:valueTo="100.0" />
+                </LinearLayout>
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/percent_for"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/split_name1_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/split_name2_preamble"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/and"
-                    android:textSize="16sp"/>
-
-                <EditText
-                    android:id="@+id/split_name2_split"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:minWidth="@dimen/custom_min_width"
-                    tools:ignore="Autofill,LabelFor" />
-
-                <TextView
-                    android:id="@+id/split_name2_suffix"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/percent_for"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/split_name2_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textSize="16sp"/>
+                    android:fadeScrollbars="false">
+                    <TextView
+                        android:id="@+id/split_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textSize="16sp"/>
+                </HorizontalScrollView>
             </LinearLayout>
 
             <LinearLayout

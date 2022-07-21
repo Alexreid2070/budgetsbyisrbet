@@ -1,3 +1,5 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
@@ -9,7 +11,7 @@ import java.util.ArrayList
 
 data class Category(var id: Int, var categoryName: String, var subcategoryName: String,
                     var discType: String = "", var private: Int = 2,
-                    var state: String = cON) {
+                    var inUse: Boolean = true) {
     var priority = 0
     constructor(id: Int, iFullCategoryName: String) : this(id, iFullCategoryName, iFullCategoryName) {
         val dash = iFullCategoryName.indexOf("-")
@@ -17,6 +19,10 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
             categoryName = iFullCategoryName.substring(0, dash)
             subcategoryName = iFullCategoryName.substring(dash + 1, iFullCategoryName.length)
             this.id = CategoryViewModel.getID(categoryName, subcategoryName)
+            val cat = CategoryViewModel.getCategory(this.id)
+            this.discType = cat?.discType.toString()
+            this.private = cat?.private!!
+            this.inUse = cat.inUse == true
         }
         catch (exception: Exception) {
             Log.d("Alex", "caught an exception in Category constructor (missing dash) $iFullCategoryName")
@@ -24,7 +30,7 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
     }
     fun fullCategoryName() : String {
         return if (id == cTRANSFER_CODE)
-            "Transfer"
+            MyApplication.getString(R.string.transfer)
         else
             "$categoryName-$subcategoryName"
     }
@@ -42,11 +48,12 @@ class CategoryViewModel : ViewModel() {
 
     companion object {
         lateinit var singleInstance: CategoryViewModel // used to track static single instance of self
-        fun showMe() {
+/*        fun showMe() {
             singleInstance.categories.forEach {
-                Log.d("Alex", "ShowMe Category is ${it.id} " + it.categoryName + " subcategory is " + it.subcategoryName + " disc type is " + it.discType)
+                Log.d("Alex", "ShowMe Category is ${it.id} " + it.categoryName + " subcategory is " + it.subcategoryName + " disc type is " + it.discType +
+                " private is " + it.private + " inUse is " + it.inUse)
             }
-        }
+        } */
 
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -60,7 +67,7 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun getID(iCategory: String, iSubcategory: String): Int {
-            if (iCategory == "Transfer")
+            if (iCategory == MyApplication.getString(R.string.transfer))
                 return cTRANSFER_CODE
 
             val cat: Category? = singleInstance.categories.find { it.categoryName.lowercase().trim() == iCategory.lowercase().trim()
@@ -69,9 +76,24 @@ class CategoryViewModel : ViewModel() {
         }
         fun getCategory(id: Int): Category? {
             if (id == cTRANSFER_CODE)
-                return Category(cTRANSFER_CODE, "Transfer", "", "Discretionary", 2, cON)
+                return Category(cTRANSFER_CODE, MyApplication.getString(R.string.transfer), "",
+                    MyApplication.getString(R.string.discretionary), 2, true)
             return singleInstance.categories.find { it.id == id }
         }
+        fun getCategory(fullName: String): Category? {
+            val dash = fullName.indexOf("-")
+            try {
+                val categoryName = fullName.substring(0, dash)
+                val subcategoryName = fullName.substring(dash + 1, fullName.length)
+                val id = getID(categoryName, subcategoryName)
+                return getCategory(id)
+            }
+            catch (exception: Exception) {
+                Log.d("Alex", "caught an exception in getCategory with $fullName")
+            }
+            return null
+        }
+
         fun getCategoryPriority(id: Int): Int {
             val cat = singleInstance.categories.find { it.id == id }
             val cd = cat?.categoryName?.let { DefaultsViewModel.getCategoryDetail(it) }
@@ -83,7 +105,7 @@ class CategoryViewModel : ViewModel() {
             return cd?.color ?: 0
         }
         fun getDefaultCategory(): Category? {
-            val id = DefaultsViewModel.getDefault(cDEFAULT_CATEGORY_ID).toInt()
+            val id = DefaultsViewModel.getDefaultCategory()
             return singleInstance.categories.find {it.id == id}
         }
 
@@ -105,10 +127,11 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
-                           iPrivate: Int, iState: String, iLocalOnly: Boolean = false): Category {
+                           iPrivate: Int, iInUse: Boolean, iLocalOnly: Boolean = false): Category {
+            Log.d("Alex", "Setting iInUse to $iInUse")
             var cat: Category? = singleInstance.categories.find { it.id == id }
             if (cat == null) {
-                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iState)
+                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse)
                 cat.id = getNextID()
                 singleInstance.categories.add(cat)
                 singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
@@ -117,7 +140,7 @@ class CategoryViewModel : ViewModel() {
                 cat.subcategoryName = iSubcategory
                 cat.discType = iDisctype
                 cat.private = iPrivate
-                cat.state = iState
+                cat.inUse = iInUse
             }
             if (!iLocalOnly) {
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
@@ -139,13 +162,13 @@ class CategoryViewModel : ViewModel() {
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
                     .child(cat.id.toString())
                     .child("State")
-                    .setValue(iState)
+                    .setValue(iInUse)
             }
             return cat
         }
         fun getFullCategoryName(id: Int): String {
             return if (id == cTRANSFER_CODE)
-                "Transfer"
+                MyApplication.getString(R.string.transfer)
             else {
                 val cat: Category? = singleInstance.categories.find { it.id == id }
                 cat?.fullCategoryName() ?: ""
@@ -170,9 +193,9 @@ class CategoryViewModel : ViewModel() {
             val tList: MutableList<Category>  = ArrayList()
 
             singleInstance.categories.forEach {
-                if ((it.state != cOFF || includingOff) &&
+                if ((it.inUse || includingOff) &&
                     it.iAmAllowedToSeeThisCategory()) {
-                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType, it.private, it.state))
+                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType, it.private, it.inUse))
                     val cat = tList[tList.size - 1]
                     cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName).priority
                 }
@@ -186,7 +209,7 @@ class CategoryViewModel : ViewModel() {
             var prevName = ""
             val origList = getCategories(true)
             origList.forEach {
-                if (it.categoryName != prevName && (iIncludeOff || it.state != cOFF)) {
+                if (it.categoryName != prevName && (iIncludeOff || it.inUse)) {
                     tmpList.add(it.categoryName)
                     prevName = it.categoryName
                 }
@@ -199,7 +222,7 @@ class CategoryViewModel : ViewModel() {
             val origList = getCategories(true)
 //            singleInstance.categories.forEach {
             origList.forEach {
-                if (it.state != cOFF)
+                if (it.inUse)
                     tmpList.add(it.fullCategoryName())
             }
             return tmpList
@@ -219,7 +242,7 @@ class CategoryViewModel : ViewModel() {
         fun getSubcategoriesForSpinner(iCategory: String) : MutableList<String> {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
-                if ((it.categoryName == iCategory && it.state != cOFF) &&
+                if ((it.categoryName == iCategory && it.inUse) &&
                         it.iAmAllowedToSeeThisCategory())
                     list.add(it.subcategoryName)
             }
@@ -275,25 +298,22 @@ class CategoryViewModel : ViewModel() {
                         var subcategory = ""
                         var disctype = ""
                         var private = 2
-                        var state = ""
+                        var inUse = ""
                         for (child in it.children) {
                             when (child.key.toString()) {
                                 "Category" -> category = child.value.toString().trim()
                                 "SubCategory" -> subcategory = child.value.toString().trim()
                                 "Type" -> disctype = child.value.toString().trim()
-                                "State" -> state = child.value.toString().trim()
+                                "State" -> {
+                                    Log.d("Alex", "In callback $category $subcategory state value is " + child.value.toString().trim())
+                                    inUse = child.value.toString().lowercase().trim()
+                                }
                                 "Private" -> {
                                     private = child.value.toString().toInt()
                                 }
                             }
                         }
-/*                        if (disctype == "Off") {
-                            state = cOFF
-                            disctype = cDiscTypeDiscretionary
-                        } */
-                        if (state == "")
-                            state = cON
-                        categories.add(Category(categoryID, category, subcategory, disctype, private, state))
+                        categories.add(Category(categoryID, category, subcategory, disctype, private, inUse != cFALSE))
                     }
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)
@@ -309,7 +329,7 @@ class CategoryViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                MyApplication.displayToast("User authorization failed 105.")
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 105.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category").addValueEventListener(

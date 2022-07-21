@@ -33,7 +33,7 @@ class BudgetViewAllFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         if (args.categoryID == "") {
-            when (DefaultsViewModel.getDefault(cDEFAULT_BUDGET_VIEW)) {
+            when (DefaultsViewModel.getDefaultBudgetView()) {
                 cBudgetDateView -> binding.buttonViewByDate.isChecked = true
                 cBudgetCategoryView -> binding.buttonViewByCategory.isChecked = true
             }
@@ -43,10 +43,10 @@ class BudgetViewAllFragment : Fragment() {
         setupCategorySpinner()
         if (binding.buttonViewByDate.isChecked) {
             setupDateSelectors()
-            binding.rowBudgetDateHeading.text = cBudgetCategoryView
+            binding.rowBudgetDateHeading.text = getString(R.string.category)
             loadRows(0, binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
         } else {
-            binding.rowBudgetDateHeading.text = cBudgetDateView
+            binding.rowBudgetDateHeading.text = getString(R.string.date)
             setCategoryType()
         }
 
@@ -73,8 +73,8 @@ class BudgetViewAllFragment : Fragment() {
         binding.expandCategories.setOnClickListener {
             findNavController().navigate(R.id.CategoryFragment)
         }
-        binding.expandRecurringTransactions.setOnClickListener {
-            findNavController().navigate(R.id.RecurringTransactionFragment)
+        binding.expandScheduledPayments.setOnClickListener {
+            findNavController().navigate(R.id.ScheduledPaymentFragment)
         }
         binding.buttonBackward.setOnClickListener {
             if (binding.buttonViewByDate.isChecked)
@@ -88,37 +88,44 @@ class BudgetViewAllFragment : Fragment() {
             else
                 moveCategories(1)
         }
+
+        val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
         binding.budgetAddFab.setOnClickListener {
-            val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
-            val action = BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
+            val action =
+                BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
             action.categoryID = currentCategory.id.toString()
             findNavController().navigate(action)
         }
+        updateFabVisibility()
         binding.buttonViewByCategory.setOnClickListener {
-            DefaultsViewModel.updateDefault(cDEFAULT_BUDGET_VIEW, cBudgetCategoryView)
-            binding.rowBudgetDateHeading.text = cBudgetDateView
+            DefaultsViewModel.updateDefaultString(cDEFAULT_BUDGET_VIEW, cBudgetCategoryView)
+            binding.rowBudgetDateHeading.text = getString(R.string.date)
             setupCategorySpinner()
             setCategoryType()
         }
         binding.buttonViewByDate.setOnClickListener {
-            Log.d("Alex", "Here1")
-            DefaultsViewModel.updateDefault(cDEFAULT_BUDGET_VIEW, cBudgetDateView)
-            Log.d("Alex", "Here2")
-            binding.rowBudgetDateHeading.text = cBudgetCategoryView
-            Log.d("Alex", "Here3")
+            DefaultsViewModel.updateDefaultString(cDEFAULT_BUDGET_VIEW, cBudgetDateView)
+            binding.rowBudgetDateHeading.text = getString(R.string.category)
             setupDateSelectors()
-            Log.d("Alex", "Here4")
             loadRows(0, binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
-            Log.d("Alex", "Here5")
         }
-//        binding.budgetAddYear.setOnValueChangedListener { _, _, _ -> loadRows(0, binding.budgetAddYear.value, binding.budgetAddMonth.value) }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
         val constraintLayout = binding.constraintLayout
         set.clone(constraintLayout)
         set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(parentFragmentManager, "Budget")
+        HintViewModel.showHint(parentFragmentManager, cHINT_BUDGET)
+    }
+
+    private fun updateFabVisibility() {
+        if (binding.buttonViewByCategory.isChecked) {
+            val currentCategory = CategoryViewModel.getCategory(binding.budgetCategorySpinner.selectedItem.toString())
+            if (currentCategory?.inUse == true)
+                binding.budgetAddFab.visibility = View.VISIBLE
+            else
+                binding.budgetAddFab.visibility = View.GONE
+        }
     }
 
     private fun setupCategorySpinner() {
@@ -133,7 +140,7 @@ class BudgetViewAllFragment : Fragment() {
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getCombinedCategoriesForSpinner())
         categorySpinner.adapter = arrayAdapter
         arrayAdapter.notifyDataSetChanged()
-        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
         binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         if (args.categoryID != "") {
             categorySpinner.setSelection(
@@ -149,7 +156,6 @@ class BudgetViewAllFragment : Fragment() {
         binding.categoryTypeLayout.visibility = View.GONE
         binding.yearLayout.visibility = View.VISIBLE
         val cal = android.icu.util.Calendar.getInstance()
-        Log.d("Alex", "Year is ${cal.get(Calendar.YEAR)} and month is ${cal.get(Calendar.MONTH)}")
         if (args.year == "") {
             binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
             binding.budgetAddMonth.progress = cal.get(Calendar.MONTH) + 1
@@ -157,7 +163,6 @@ class BudgetViewAllFragment : Fragment() {
             binding.budgetAddYear.progress = args.year.toInt()
             binding.budgetAddMonth.progress = args.month.toInt()
         }
-        Log.d("Alex", "budgetaddmonth is now ${binding.budgetAddMonth.progress}")
         binding.rowBudgetIsSingleHeading.visibility = View.GONE
         val param = binding.rowBudgetDateHeading.layoutParams as LinearLayout.LayoutParams
         param.weight = 3f
@@ -168,8 +173,11 @@ class BudgetViewAllFragment : Fragment() {
 
     fun setCategoryType() {
         val category = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
-        binding.categoryType.text = CategoryViewModel.getCategory(category.id)?.discType
-        if (CategoryViewModel.getCategory(category.id)?.state == cOFF) {
+        if (CategoryViewModel.getCategory(category.id)?.discType == cDiscTypeDiscretionary)
+            binding.categoryType.text = getString(R.string.discretionary)
+        else
+            binding.categoryType.text = getString(R.string.non_discretionary)
+        if (CategoryViewModel.getCategory(category.id)?.inUse == false) {
             binding.categoryType.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.red))
         } else {
@@ -180,13 +188,15 @@ class BudgetViewAllFragment : Fragment() {
 
     fun loadRows(iCategoryID: Int, iYear: Int, iMonth: Int) {
         var noDataText: String
-        Log.d("Alex", "Incoming $iCategoryID $iYear $iMonth")
         val rows = if (binding.buttonViewByDate.isChecked) {
-            noDataText = "You have not yet entered any budgets for ${gMonthName(iMonth)} $iYear.  \n\nClick on the Add button below to add a budget."
+            noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
+                    " ${gMonthName(iMonth)} $iYear.  " + getString(R.string.click_on_the_add_button_below_to_add_a_budget)
             BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
         } else {
             val cat = CategoryViewModel.getCategory(iCategoryID)
-            noDataText = "You have not yet entered any budgets for ${cat?.categoryName}-${cat?.subcategoryName}.  \n\nClick on the Add button below to add a budget."
+            noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
+                    " ${cat?.categoryName}-${cat?.subcategoryName}. " +
+                    getString(R.string.click_on_the_add_button_below_to_add_a_budget)
             BudgetViewModel.getBudgetInputRows(iCategoryID)
         }
         val adapter = BudgetAdapter(requireContext(), rows)
@@ -216,14 +226,16 @@ class BudgetViewAllFragment : Fragment() {
                     rtdf.setDialogFragmentListener(object :
                         BudgetDialogFragment.BudgetEditDialogFragmentListener {
                         override fun onNewDataSaved() {
-                            Log.d("Alex", "in onNewDataSaved")
-
                             val trows = if (binding.buttonViewByDate.isChecked) {
-                                noDataText = "You have not yet entered any budgets for ${gMonthName(iMonth)} $iYear.  \n\nClick on the Add button below to add a budget."
+                                noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
+                                        " ${gMonthName(iMonth)} $iYear.  " +
+                                        getString(R.string.click_on_the_add_button_below_to_add_a_budget)
                                 BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
                             } else {
                                 val cat = CategoryViewModel.getCategory(iCategoryID)
-                                noDataText = "You have not yet entered any budgets for ${cat?.categoryName}-${cat?.subcategoryName}.  \n\nClick on the Add button below to add a budget."
+                                noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
+                                        " ${cat?.categoryName}-${cat?.subcategoryName}.  " +
+                                        getString(R.string.click_on_the_add_button_below_to_add_a_budget)
                                 BudgetViewModel.getBudgetInputRows(iCategoryID)
                             }
                             val tadapter = BudgetAdapter(requireContext(), trows)
@@ -232,11 +244,11 @@ class BudgetViewAllFragment : Fragment() {
                             tadapter.notifyDataSetChanged()
                         }
                     })
-                    rtdf.show(parentFragmentManager, "Edit Budget")
+                    rtdf.show(parentFragmentManager, getString(R.string.edit_budget))
                 } else {
                     Toast.makeText(
                         requireActivity(),
-                        "Only actual budget entries (in bold) are clickable.",
+                        getString(R.string.only_actual_budget_entries_in_bold_are_clickable),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -289,6 +301,7 @@ class BudgetViewAllFragment : Fragment() {
         binding.budgetCategorySpinner.setSelection(newCategoryPosition)
         val currentCategory = Category(0, newCategory.toString())
         loadRows(currentCategory.id, 0, 0)
+        updateFabVisibility()
     }
 
     override fun onDestroyView() {

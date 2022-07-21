@@ -1,3 +1,5 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
@@ -9,18 +11,15 @@ import java.util.*
 import kotlin.math.round
 import kotlin.math.roundToInt
 
-const val ROUNDED = true
-const val NOT_ROUNDED = false
-
 data class Transaction(
     var date: String = "",
-    var amount: Int = 0,
+    var amount: Double = 0.0,
     var category: Int = 0,
     var note: String = "",
     var note2: String = "",
     var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var type: String = "Expense",
+    var type: String = cTRANSACTION_TYPE_EXPENSE,
     var bfname1split: Int = 0,
     var mykey: String = ""
 ) {
@@ -29,7 +28,7 @@ data class Transaction(
         when (key) {
             "key" -> mykey = value.trim()
             "date" -> date = value.trim()
-            "amount" -> amount = value.toInt()
+            "amount" -> amount = value.toDouble()
             "category" -> category = value.toInt()
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
@@ -59,27 +58,25 @@ data class Transaction(
     fun getSplit2(): Int {
         return 100 - bfname1split
     }
-    private fun getAmount1(iRounded: Boolean): Double {
-        var t = amount / 100.0 * bfname1split.toDouble() / 100.0
-        if (iRounded)
-            t = (t * 100.0).roundToInt() / 100.0
-        return t
-    }
-    fun getAmount(iWho: Int, iRounded: Boolean): Double {
+    fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
         when (iWho) {
             0 -> {
-                if (boughtfor == 2 || boughtfor == iWho) {
-                    return getAmount1(iRounded)
+                when (boughtfor) {
+                    0 -> return amount
+                    1 -> return 0.0
+                    2 -> return if (iRound) round(amount * bfname1split) / 100.0
+                        else amount * bfname1split / 100.0
                 }
             }
             1 -> {
-                if (boughtfor == 2 || boughtfor == iWho) {
-//                    return amount / 100.0 * getSplit2() / 100.0
-                    // return the whole amount minus user 0's amount, to ensure that the entire amount is allocated (otherwise may have rounding issues with cents left behind)
-                    return (amount / 100.0) - getAmount1(iRounded)
+                when (boughtfor) {
+                    0 -> return 0.0
+                    1 -> return amount
+                    2 -> return if (iRound) amount - round(amount * bfname1split) / 100.0
+                        else amount - (amount * bfname1split / 100.0)
                 }
             }
-            else -> return amount / 100.0
+            else -> return amount
         }
         return 0.0
     }
@@ -89,7 +86,7 @@ data class TransactionOut(
     var date: String = "", var amount: Int = 0, var category: Int = 0,
     var note: String = "", var note2: String = "", var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var bfname1split: Int = 0, var type: String = "Expense"
+    var bfname1split: Int = 0, var type: String = cTRANSACTION_TYPE_EXPENSE
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -115,7 +112,7 @@ data class TransferOut(
     var bfname1split: Int = 0,
     var note: String = "", var note2: String = "",
     var category: Int = cTRANSFER_CODE,
-    var type: String = "Transfer"
+    var type: String = cTRANSACTION_TYPE_TRANSFER
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -184,19 +181,12 @@ class TransactionViewModel : ViewModel() {
 
             singleInstance.transactions.forEach {
                 val cat = CategoryViewModel.getCategory(it.category)
-                if (it.type != "Transfer" && it.date > iStartMonth && it.date < iEndMonth &&
+                if (it.type != cTRANSACTION_TYPE_TRANSFER
+                    && it.date > iStartMonth && it.date < iEndMonth &&
                     (cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
                     (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2 || iWho == -1) &&
                         cat?.iAmAllowedToSeeThisCategory() == true) {
-//                            var por1 = (it.amount / 100.0 * it.bfname1split/100.0)
-//                            por1 = (por1 * 100.0).roundToInt() / 100.0
-
-                        tmpTotal += it.getAmount(iWho, NOT_ROUNDED)
-/*                        when (iWho) {
-                            0 -> tmpTotal += por1
-                            1 -> tmpTotal += (it.amount / 100.0 - por1)
-                            2 -> tmpTotal += (it.amount / 100.0)
-                        } */
+                        tmpTotal += it.getAmountByUser(iWho)
                 }
             }
             return (tmpTotal * 100.0).roundToInt() / 100.0
@@ -238,13 +228,15 @@ class TransactionViewModel : ViewModel() {
                 val cat = CategoryViewModel.getCategory(transaction.category)
                 if (cat?.iAmAllowedToSeeThisCategory() == true) {
                         if (transaction.date > startDate && transaction.date < endDate) {
-                            if (transaction.type != "Transfer") {
+                            if (transaction.type != cTRANSACTION_TYPE_TRANSFER) {
                                 val expDiscIndicator =
                                     CategoryViewModel.getCategory(transaction.category)?.discType
-                                if (iDiscFlag == "" || iDiscFlag == "All" || iDiscFlag == expDiscIndicator) {
+                                if (iDiscFlag == "" ||
+                                    iDiscFlag == MyApplication.getString(R.string.all) ||
+                                    iDiscFlag == expDiscIndicator) {
                                     if (iWhoFlag == 2 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
                                         // this is a transaction to add to our subtotal
-                                        val amountToAdd = transaction.getAmount(iWhoFlag, NOT_ROUNDED)
+                                        val amountToAdd = transaction.getAmountByUser(iWhoFlag)
                                         val dobj: DataObject? = tList.find { it.id == cat.id }
                                         if (dobj == null) {
                                             val pri = CategoryViewModel.getCategoryPriority(transaction.category).toString() +
@@ -284,7 +276,7 @@ class TransactionViewModel : ViewModel() {
             loop@ for (transaction in singleInstance.transactions) {
                 val cat = CategoryViewModel.getCategory(transaction.category)
                 if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                    if (transaction.type != "Transfer" &&
+                    if (transaction.type != cTRANSACTION_TYPE_TRANSFER &&
                         transaction.date >= firstDay &&
                         transaction.date <= lastDay &&
                         transaction.category == iCategoryID &&
@@ -293,9 +285,9 @@ class TransactionViewModel : ViewModel() {
                                 (transaction.boughtfor == 2 && includeRelated))  // this picks up that we want all joint expenses regardless of who they're bought for
                     ) {
                         tTotal += when (iWho) {
-                            0 -> transaction.getAmount(0, NOT_ROUNDED)
-                            1 -> transaction.getAmount(1, NOT_ROUNDED)
-                            else -> transaction.getAmount(2, NOT_ROUNDED)
+                            0 -> transaction.getAmountByUser(0)
+                            1 -> transaction.getAmountByUser(1)
+                            else -> transaction.getAmountByUser(2)
                         }
                     }
                 }
@@ -306,13 +298,13 @@ class TransactionViewModel : ViewModel() {
         fun addTransaction(iTransactionOut: TransactionOut, iLocalOnly: Boolean = false) {
             if (iLocalOnly) {
                 singleInstance.transactions.add(Transaction(iTransactionOut.date,
-                    iTransactionOut.amount, iTransactionOut.category,
+                    iTransactionOut.amount/100.0, iTransactionOut.category,
                     iTransactionOut.note, iTransactionOut.note2,
                     iTransactionOut.paidby, iTransactionOut.boughtfor,
                     iTransactionOut.type, iTransactionOut.bfname1split))
             } else {
                 val bm = BudgetMonth(iTransactionOut.date)
-                val key: String = if (iTransactionOut.type == "Recurring")
+                val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
                     iTransactionOut.note + iTransactionOut.date + "R"
                 else
                     MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions" +
@@ -323,6 +315,7 @@ class TransactionViewModel : ViewModel() {
                     .child(bm.get2DigitMonth())
                     .child(key)
                     .setValue(iTransactionOut)
+                Log.d("Alex", "Just set amount to ${iTransactionOut.amount}")
             }
             singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
         }
@@ -331,9 +324,9 @@ class TransactionViewModel : ViewModel() {
             if (iLocalOnly) {
                 singleInstance.transactions.add(
                     Transaction(iTransfer.date,
-                    iTransfer.amount, cTRANSFER_CODE, "", "", iTransfer.paidby,
+                    iTransfer.amount/100.0, cTRANSFER_CODE, "", "", iTransfer.paidby,
                     iTransfer.boughtfor, iTransfer.type, iTransfer.bfname1split,
-                    "Transfer")
+                        cTRANSACTION_TYPE_TRANSFER)
                 )
             } else {
                 val bm = BudgetMonth(iTransfer.date)
@@ -361,10 +354,6 @@ class TransactionViewModel : ViewModel() {
             singleInstance.loaded = false
         }
 
-        fun exists(iKey: String): Boolean {
-            val exp = singleInstance.transactions.find { it.mykey == iKey }
-            return exp != null
-        }
         fun getPreviousKey(iKey: String): String {
             val exp = singleInstance.transactions.find { it.mykey == iKey }
             var ind = singleInstance.transactions.indexOf(exp)
@@ -399,11 +388,11 @@ class TransactionViewModel : ViewModel() {
             val exp = singleInstance.transactions.find { it.mykey == iKey }
             val ind = singleInstance.transactions.indexOf(exp)
             for (i in ind-1 downTo 0)
-                if (singleInstance.transactions[i].type == "Transfer")
+                if (singleInstance.transactions[i].type == cTRANSACTION_TYPE_TRANSFER)
                     return singleInstance.transactions[i].mykey
             // if we get here, we didn't find a transfer in the rest of the transaction list, so start at the beginning
             for (i in singleInstance.transactions.size-1 downTo ind)
-                if (singleInstance.transactions[i].type == "Transfer")
+                if (singleInstance.transactions[i].type == cTRANSACTION_TYPE_TRANSFER)
                     return singleInstance.transactions[i].mykey
             return iKey
         }
@@ -411,11 +400,11 @@ class TransactionViewModel : ViewModel() {
             val exp = singleInstance.transactions.find { it.mykey == iKey }
             val ind = singleInstance.transactions.indexOf(exp)
             for (i in ind+1 until singleInstance.transactions.size)
-                if (singleInstance.transactions[i].type == "Transfer")
+                if (singleInstance.transactions[i].type == cTRANSACTION_TYPE_TRANSFER)
                     return singleInstance.transactions[i].mykey
             // if we get here, we didn't find a transfer in the rest of the transaction list, so start at the beginning
             for (i in 0 until singleInstance.transactions.size)
-                if (singleInstance.transactions[i].type == "Transfer")
+                if (singleInstance.transactions[i].type == cTRANSACTION_TYPE_TRANSFER)
                     return singleInstance.transactions[i].mykey
             return iKey
         }
@@ -450,7 +439,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.note = iTransactionOut.note
                 transaction.note2 = iTransactionOut.note2
                 transaction.category = iTransactionOut.category
-                transaction.amount = iTransactionOut.amount
+                transaction.amount = iTransactionOut.amount/100.0
                 transaction.paidby = iTransactionOut.paidby
                 transaction.boughtfor = iTransactionOut.boughtfor
                 transaction.bfname1split = iTransactionOut.bfname1split
@@ -470,7 +459,7 @@ class TransactionViewModel : ViewModel() {
                 getTransaction(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
             if (transaction != null) {
                 transaction.date = iTransfer.date
-                transaction.amount = iTransfer.amount
+                transaction.amount = iTransfer.amount/100.0
                 transaction.paidby = iTransfer.paidby
                 transaction.boughtfor = iTransfer.boughtfor
                 transaction.bfname1split = iTransfer.bfname1split
@@ -521,7 +510,13 @@ class TransactionViewModel : ViewModel() {
                             val tExp = Transaction()
                             tExp.setValue("key", month.key.toString())
                             for (child in month.children) {
-                                tExp.setValue(child.key.toString(), child.value.toString())
+                                if (child.key.toString() == "amount")
+                                    tExp.setValue(
+                                        child.key.toString(),
+                                        (child.value.toString().toInt() / 100.0).toString()
+                                    )
+                                else
+                                    tExp.setValue(child.key.toString(), child.value.toString())
                             }
                             transactions.add(tExp)
                         }
@@ -533,7 +528,7 @@ class TransactionViewModel : ViewModel() {
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
-                MyApplication.displayToast("User authorization failed 108.")
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 108.")
             }
         }
         expDBRef.addValueEventListener(transListener as ValueEventListener)

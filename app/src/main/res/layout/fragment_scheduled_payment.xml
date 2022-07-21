@@ -5,10 +5,10 @@
     android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecurringTransactionFragment">
+    tools:context=".ScheduledPaymentFragment">
 
     <ListView
-        android:id="@+id/recurring_transaction_list_view"
+        android:id="@+id/scheduled_payment_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/expansion_layout"
@@ -30,7 +30,7 @@
         app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
 
     <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
-        android:id="@+id/rt_add_fab"
+        android:id="@+id/add_fab"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="bottom|center"
@@ -48,7 +48,7 @@
         android:orientation="horizontal"
         android:paddingTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recurring_transaction_list_view">
+        app:layout_constraintTop_toBottomOf="@+id/scheduled_payment_list_view">
 
         <Space
             android:layout_width="5dp"
@@ -94,7 +94,7 @@
             android:maxLines="1"/>
 
         <TextView
-            android:id="@+id/expand_recurring_transactions"
+            android:id="@+id/expand_scheduled_payments"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

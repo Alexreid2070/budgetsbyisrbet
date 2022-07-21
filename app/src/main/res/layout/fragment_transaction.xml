@@ -125,8 +125,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
-                            android:inputType="numberDecimal|numberSigned"
-                            android:digits="0123456789,"/>
+                            android:inputType="numberDecimal|numberSigned"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -409,7 +408,7 @@
                 android:gravity="center"
                 android:layout_below="@id/slider_layout"/>
             <LinearLayout
-                android:id="@+id/recurring_transaction_type_layout"
+                android:id="@+id/scheduled_payment_label_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/split_text"
@@ -417,7 +416,7 @@
                 android:paddingTop="10dp">
 
                 <TextView
-                    android:id="@+id/recurring_transaction_label"
+                    android:id="@+id/scheduled_payment_label"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
@@ -431,7 +430,7 @@
                 android:id="@+id/transaction_id_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/recurring_transaction_type_layout"
+                android:layout_below="@+id/scheduled_payment_label_layout"
                 android:gravity="center"
                 android:visibility="gone">
 

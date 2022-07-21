@@ -28,7 +28,7 @@ class HelpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.restartHintButton.setOnClickListener {
             HintViewModel.restartHints()
-            Toast.makeText(activity, "Hints have been restarted.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, getString(R.string.hints_have_been_restarted), Toast.LENGTH_SHORT).show()
         }
     }
     override fun onDestroyView() {

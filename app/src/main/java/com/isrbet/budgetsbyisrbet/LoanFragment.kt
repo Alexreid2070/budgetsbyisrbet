@@ -1,8 +1,8 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.icu.util.Calendar
+import android.opengl.Visibility
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.util.Log
@@ -39,16 +39,16 @@ class LoanFragment : Fragment() {
         binding.currencySymbol2.text = getLocalCurrencySymbol() + " "
         if (args.loanID != "") {
             setupLoanSpinner(args.loanID)
-            val rt = RecurringTransactionViewModel.getRecurringTransaction(args.loanID)
-            if (rt != null) {
-                cal.set(rt.loanFirstPaymentDate.substring(0,4).toInt(), rt.loanFirstPaymentDate.substring(5,7).toInt()-1, rt.loanFirstPaymentDate.substring(8,10).toInt())
+            val sp = ScheduledPaymentViewModel.getScheduledPayment(args.loanID)
+            if (sp != null) {
+                cal.set(sp.loanFirstPaymentDate.substring(0,4).toInt(), sp.loanFirstPaymentDate.substring(5,7).toInt()-1, sp.loanFirstPaymentDate.substring(8,10).toInt())
                 loadRows(
                     cal,
-                    rt.loanAmortization / 100.0,
-                    rt.loanPaymentRegularity,
-                    rt.loanInterestRate / 10000.0,
-                    rt.loanAmount / 100.0,
-                rt.loanAcceleratedPaymentAmount / 100.0)
+                    sp.loanAmortization,
+                    sp.loanPaymentRegularity,
+                    sp.loanInterestRate / 100.0,
+                    sp.loanAmount,
+                    sp.amount)
             }
         } else
             setupLoanSpinner()
@@ -77,15 +77,15 @@ class LoanFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
                 if (position > 0) {
-                    val rt = RecurringTransactionViewModel.getRecurringTransaction(selection as String)
-                    if (rt != null) {
-                        binding.loanStartDate.setText(rt.loanFirstPaymentDate)
-                        cal.set(rt.loanFirstPaymentDate.substring(0,4).toInt(), rt.loanFirstPaymentDate.substring(5,7).toInt()-1, rt.loanFirstPaymentDate.substring(8,10).toInt())
-                        binding.loanAmount.setText(gDec.format(rt.loanAmount / 100.0))
-                        binding.amortizationPeriod.setText((rt.loanAmortization / 100.0).toString())
-                        binding.interestRate.setText((rt.loanInterestRate / 100.0).toString())
-                        binding.acceleratedPaymentAmount.setText(gDec.format(rt.loanAcceleratedPaymentAmount / 100.0))
-                        when (rt.loanPaymentRegularity) {
+                    val sp = ScheduledPaymentViewModel.getScheduledPayment(selection as String)
+                    if (sp != null) {
+                        binding.loanStartDate.setText(sp.loanFirstPaymentDate)
+                        cal.set(sp.loanFirstPaymentDate.substring(0,4).toInt(), sp.loanFirstPaymentDate.substring(5,7).toInt()-1, sp.loanFirstPaymentDate.substring(8,10).toInt())
+                        binding.loanAmount.setText(gDec(sp.loanAmount))
+                        binding.amortizationPeriod.setText((sp.loanAmortization).toString())
+                        binding.interestRate.setText((sp.loanInterestRate).toString())
+                        binding.acceleratedPaymentAmount.setText(gDec(sp.amount))
+                        when (sp.loanPaymentRegularity) {
                             LoanPaymentRegularity.WEEKLY -> binding.buttonWeekly.isChecked = true
                             LoanPaymentRegularity.BIWEEKLY -> binding.buttonBiweekly.isChecked = true
                             LoanPaymentRegularity.MONTHLY -> binding.buttonMonthly.isChecked = true
@@ -102,7 +102,7 @@ class LoanFragment : Fragment() {
             hideKeyboard(requireContext(), requireView())
             reset()
         }
-        HintViewModel.showHint(parentFragmentManager, "Loan")
+        HintViewModel.showHint(parentFragmentManager, cHINT_LOAN)
     }
 
     private fun reset() {
@@ -113,6 +113,7 @@ class LoanFragment : Fragment() {
         binding.amortizationPeriod.setText("")
         binding.interestRate.setText("")
         binding.calculatedPaymentAmount.text = ""
+        binding.calculatedPaymentText.visibility = View.INVISIBLE
         binding.acceleratedPaymentAmount.setText("")
         val myList: MutableList<LoanPayment> = ArrayList()
         val adapter = LoanAdapter(requireContext(), myList)
@@ -121,10 +122,9 @@ class LoanFragment : Fragment() {
     }
 
     private fun setupLoanSpinner(iSelection: String = "") {
-        Log.d("Alex", "Setting up loan spinner with $iSelection")
-        val listOfActiveLoans = RecurringTransactionViewModel.getActiveLoanRTs()
+        val listOfActiveLoans = ScheduledPaymentViewModel.getActiveLoanSPs()
         if (listOfActiveLoans.size > 0) {
-            listOfActiveLoans.add(0,"<Choose existing loan>")
+            listOfActiveLoans.add(0,getString(R.string.choose_existing_loan))
             binding.loanSpinnerLayout.visibility = View.VISIBLE
             val loanSpinner = binding.LoanSpinner
             val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listOfActiveLoans)
@@ -141,25 +141,25 @@ class LoanFragment : Fragment() {
     private fun onCalculateButtonClicked() {
         // need to reject if all the fields aren't entered
         if (binding.loanAmount.text.toString() == "") {
-            binding.loanAmount.error=getString(R.string.missingAmountError)
+            binding.loanAmount.error=getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.loanAmount)
             return
         }
         if (binding.amortizationPeriod.text.toString() == "") {
-            binding.amortizationPeriod.error="Amortization period (in years) is missing."
+            binding.amortizationPeriod.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.amortizationPeriod)
             return
         }
         if (binding.interestRate.text.toString() == "") {
-            binding.interestRate.error="Interest rate is missing."
+            binding.interestRate.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.interestRate)
             return
         }
         val selectedId = binding.paymentFrequencyGroup.checkedRadioButtonId
         val radioButton = requireActivity().findViewById(selectedId) as RadioButton
         val freq = when (radioButton.text) {
-            "Weekly" -> LoanPaymentRegularity.WEEKLY
-            "Biweekly" -> LoanPaymentRegularity.BIWEEKLY
+            getString(R.string.weekly) -> LoanPaymentRegularity.WEEKLY
+            getString(R.string.biweekly) -> LoanPaymentRegularity.BIWEEKLY
             else -> LoanPaymentRegularity.MONTHLY
         }
 
@@ -167,7 +167,9 @@ class LoanFragment : Fragment() {
         cal.set(dt.substring(0,4).toInt(), dt.substring(5,7).toInt()-1, dt.substring(8,10).toInt())
 
         val loanAmountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
-        val accAmountDouble = gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
+        val accAmountDouble = if (isNumber(binding.acceleratedPaymentAmount.text.toString()))
+                gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
+            else 0.0
         loadRows(cal,
             gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble(),
 //            getDoubleValue(binding.amortizationPeriod.text.toString()),
@@ -181,8 +183,8 @@ class LoanFragment : Fragment() {
     private fun loadRows(iFirstPaymentDate: Calendar, iAmortizationYears: Double,
                             iPaymentRegularity: LoanPaymentRegularity,
                             iInterestRate: Double, iPrincipal: Double,
-                            iAcceleratedPayment: Double) {
-        Log.d("Alex", "$iPrincipal $iAmortizationYears $iInterestRate $iPaymentRegularity")
+                            iAmount: Double) {
+        Log.d("Alex", "Loading rows with amount $iAmount")
         val myList: MutableList<LoanPayment> = ArrayList()
         val iPaymentsPerYear = when (iPaymentRegularity) {
             LoanPaymentRegularity.WEEKLY -> 52
@@ -196,17 +198,16 @@ class LoanFragment : Fragment() {
             iPrincipal * (iInterestRate / iPaymentsPerYear) * (1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear * iAmortizationYears) /
                 ((1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear*iAmortizationYears) - 1)
         binding.calculatedPaymentAmount.text = gDecWithCurrency(calcPayment)
-        Log.d("Alex", "payment is $calcPayment")
+        binding.calculatedPaymentText.visibility = View.VISIBLE
         var owingAtEndOfPeriod = iPrincipal
-        val extraPayment = if (iAcceleratedPayment == 0.0) 0.0 else iAcceleratedPayment - calcPayment
-        Log.d("Alex", "Extra payment is $extraPayment")
+        val extraPayment = if (iAmount == 0.0) 0.0 else iAmount - calcPayment
         for (i in 1..(round(iAmortizationYears * iPaymentsPerYear).toInt())) {
             val interestOwingForThisPeriod = owingAtEndOfPeriod * iInterestRate / iPaymentsPerYear
             owingAtEndOfPeriod = if (iInterestRate == 0.0)
                 owingAtEndOfPeriod - calcPayment
             else
                 (1 + iInterestRate/iPaymentsPerYear).pow(i)*iPrincipal - (((1+iInterestRate/iPaymentsPerYear).pow(i) - 1)/(iInterestRate/iPaymentsPerYear)*calcPayment) - (extraPayment*i)
-            if (iAcceleratedPayment > owingAtEndOfPeriod) { // ie last payment
+            if (iAmount > owingAtEndOfPeriod) { // ie last payment
                 myList.add(
                     LoanPayment(
                         iFirstPaymentDate.clone() as Calendar,
@@ -219,9 +220,9 @@ class LoanFragment : Fragment() {
                 break
             } else
                 myList.add(LoanPayment(iFirstPaymentDate.clone() as Calendar,
-                    if (iAcceleratedPayment != 0.0) iAcceleratedPayment else calcPayment,
+                    if (iAmount != 0.0) iAmount else calcPayment,
                     interestOwingForThisPeriod,
-                    if (iAcceleratedPayment != 0.0) iAcceleratedPayment-interestOwingForThisPeriod
+                    if (iAmount != 0.0) iAmount-interestOwingForThisPeriod
                     else calcPayment-interestOwingForThisPeriod,
                     owingAtEndOfPeriod))
             when (iPaymentRegularity) {

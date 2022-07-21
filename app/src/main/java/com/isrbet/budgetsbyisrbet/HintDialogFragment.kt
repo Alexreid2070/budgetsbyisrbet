@@ -1,8 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +15,7 @@ class HintDialogFragment : DialogFragment() {
     private var currentHintText = ""
 
     companion object {
-        private const val KEY_FRAGMENT = "KEY_FRAGMENT"
+        private const val KEY_FRAGMENT = "0"
         private var myFragment = ""
         fun newInstance(
             fragment: String
@@ -69,10 +67,10 @@ class HintDialogFragment : DialogFragment() {
             dismiss()
         }
         binding.prevButton.setOnClickListener {
-            Log.d("Alex", "on hint $currentHintID")
             val tHint = HintViewModel.getPreviousHint(myFragment, currentHintID)
             if (tHint == null) { // no hint to show
-                binding.hintText.text = "$currentHintText\n\nThere are no previous hints to show."
+                binding.hintText.text = "$currentHintText\n\n" +
+                        getString(R.string.there_are_no_previous_hints_to_show)
             } else {
                 currentHintID = tHint.id
                 currentHintText = tHint.text
@@ -83,7 +81,8 @@ class HintDialogFragment : DialogFragment() {
         binding.nextButton.setOnClickListener {
             val tHint = HintViewModel.getNextHint(myFragment, currentHintID)
             if (tHint == null) { // no hint to show
-                binding.hintText.text = "$currentHintText\n\nThere are no next hints to show."
+                binding.hintText.text = "$currentHintText\n\n" +
+                        getString(R.string.there_are_no_more_hints_to_show)
             } else {
                 currentHintID = tHint.id
                 currentHintText = tHint.text

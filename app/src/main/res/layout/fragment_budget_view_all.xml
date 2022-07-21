@@ -163,7 +163,7 @@
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             android:text="@string/date"
-            android:tooltipText="This is the month that the budget amount applies to."
+            android:tooltipText="@string/toolTipBudgetDate"
             android:textStyle="bold"/>
 
         <TextView
@@ -172,7 +172,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.1"
             android:text="@string/amt"
-            android:tooltipText="Budget amount."
+            android:tooltipText="@string/toolTipBudgetAmount"
             android:textStyle="bold"/>
 
         <TextView
@@ -180,8 +180,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            android:text="@string/annual_short"
-            android:tooltipText="Annual budget indicator, it shows 'A' if the budget amount is for the entire year."
+            android:text="@string/annual_short_question"
+            android:tooltipText="@string/toolTipBudgetIndicator"
             android:textStyle="bold"/>
 
         <TextView
@@ -288,7 +288,7 @@
             android:maxLines="1"/>
 
         <TextView
-            android:id="@+id/expand_recurring_transactions"
+            android:id="@+id/expand_scheduled_payments"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -363,6 +363,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textColor="?attr/colorPrimary"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:text="@string/view_by"/>
         <HorizontalScrollView
             android:layout_width="match_parent"

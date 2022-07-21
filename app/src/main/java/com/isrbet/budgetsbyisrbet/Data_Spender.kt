@@ -1,6 +1,7 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -25,11 +26,11 @@ class SpenderViewModel : ViewModel() {
             return singleInstance.loaded
         }
 
-        fun showMe() {
+/*        fun showMe() {
             singleInstance.spenders.forEach {
                 Log.d("Alex", "SM Spender is ${it.name} ${it.split} ${it.email} ${it.isActive}")
             }
-        }
+        } */
         fun getSpender(index:Int): Spender? {
             return if (index  < singleInstance.spenders.size) {
                 Spender(singleInstance.spenders[index])
@@ -40,31 +41,19 @@ class SpenderViewModel : ViewModel() {
             return if (index >= 0 && index  < singleInstance.spenders.size)
                 singleInstance.spenders[index].name
             else
-                "Unknown"
+                MyApplication.getString(R.string.unknown)
         }
-        fun getSpenderSplit(index: Int): Int {
+        fun getSpenderSplit(index: Int): Double {
             return if (index  < singleInstance.spenders.size && index >= 0)
-                singleInstance.spenders[index].split
+                singleInstance.spenders[index].split / 100.0
             else
-                0
+                0.0
         }
         fun myIndex(): Int {
             return if (iAmPrimaryUser())
                 0
             else
                 1
-        }
-        fun myName(): String {
-            return if (iAmPrimaryUser())
-                singleInstance.spenders[0].name
-            else
-                singleInstance.spenders[1].name
-        }
-        fun sharingEmail(): Boolean {
-            if (singleUser())
-                return false
-            else
-                return singleInstance.spenders[0].email == singleInstance.spenders[1].email
         }
         fun getSpenderIndex(iName:String): Int {
             return when (iName) {
@@ -74,10 +63,10 @@ class SpenderViewModel : ViewModel() {
             }
         }
         fun getDefaultSpender(): Int {
-            return DefaultsViewModel.getDefault(cDEFAULT_SPENDER).toInt()
+            return DefaultsViewModel.getDefaultSpender()
         }
         fun getDefaultSpenderName() : String {
-            val ind = DefaultsViewModel.getDefault(cDEFAULT_SPENDER).toInt()
+            val ind = DefaultsViewModel.getDefaultSpender()
             return getSpenderName(ind)
         }
         fun updateSpenderSplits(iFirstSplit: Int) {
@@ -135,8 +124,6 @@ class SpenderViewModel : ViewModel() {
             singleInstance.spenders.add(spender)
         }
         fun addSpender(index: Int, spender: Spender) {
-            Log.d("Alex", "Adding spender $index to $spender")
-            Log.d("Alex", "count is " + singleInstance.spenders.count())
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
                 .child(index.toString()).child("name").setValue(spender.name)
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
@@ -147,8 +134,6 @@ class SpenderViewModel : ViewModel() {
                 .child(index.toString()).child("split").setValue(spender.split)
     }
         fun updateSpender(index: Int, spender: Spender) {
-            Log.d("Alex", "Updating spender $index to $spender")
-            Log.d("Alex", "count is " + singleInstance.spenders.count() + " and 0 is " + singleInstance.spenders[0].name)
             if (spender.name != singleInstance.spenders[index].name) {
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
                     .child(index.toString()).child("name").setValue(spender.name)
@@ -214,7 +199,6 @@ class SpenderViewModel : ViewModel() {
         spenderListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 spenders.clear()
-                Log.d("Alex", "Spender callback children count: " + dataSnapshot.children.count())
                 dataSnapshot.children.forEach()
                 {
                     var email = ""
@@ -243,7 +227,7 @@ class SpenderViewModel : ViewModel() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                MyApplication.displayToast("User authorization failed 110.")
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 110.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").addValueEventListener(

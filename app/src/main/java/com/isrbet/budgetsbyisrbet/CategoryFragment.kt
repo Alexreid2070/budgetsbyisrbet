@@ -1,7 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -37,10 +36,7 @@ class CategoryFragment : Fragment() {
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Category
-                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString(),
-                    itemValue.categoryName, itemValue.subcategoryName, itemValue.discType,
-                    if (itemValue.private != 2) "true" else "false",
-                    itemValue.state)
+                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString())
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
@@ -48,7 +44,7 @@ class CategoryFragment : Fragment() {
                         myAdapter.notifyDataSetChanged()
                     }
                 })
-                cdf.show(parentFragmentManager, "Edit Category")
+                cdf.show(parentFragmentManager, getString(R.string.edit_category))
             }
         binding.expandSettings.setOnClickListener {
             findNavController().navigate(R.id.SettingsFragment)
@@ -56,8 +52,8 @@ class CategoryFragment : Fragment() {
         binding.expandBudgets.setOnClickListener {
             findNavController().navigate(R.id.BudgetViewAllFragment)
         }
-        binding.expandRecurringTransactions.setOnClickListener {
-            findNavController().navigate(R.id.RecurringTransactionFragment)
+        binding.expandScheduledPayments.setOnClickListener {
+            findNavController().navigate(R.id.ScheduledPaymentFragment)
         }
 
         binding.categoryFab.setMenuListener(object : SimpleMenuListenerAdapter() {
@@ -79,12 +75,11 @@ class CategoryFragment : Fragment() {
             binding.privacyHeading.visibility = View.VISIBLE
         else
             binding.privacyHeading.visibility = View.GONE */
-        HintViewModel.showHint(parentFragmentManager, "Category")
+        HintViewModel.showHint(parentFragmentManager, cHINT_CATEGORY)
     }
 
     private fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("0", "", "",
-            cDiscTypeDiscretionary, "false", cON)
+        val cdf = CategoryEditDialogFragment.newInstance("0")
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
@@ -93,7 +88,7 @@ class CategoryFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         })
-        cdf.show(parentFragmentManager, "Add Category")
+        cdf.show(parentFragmentManager, getString(R.string.add_category))
     }
 
     override fun onDestroyView() {

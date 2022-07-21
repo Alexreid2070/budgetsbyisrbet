@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -38,10 +37,9 @@ class TransactionViewAllFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        accountingMode = args.accountingFlag == "Accounting"
+        accountingMode = args.accountingFlag == getString(R.string.accounting)
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d("Alex", "onBackPressed")
                 transactionSearchText = ""
                 isEnabled =
                     false  // without this line there will be a recursive call to OnBackPressed
@@ -85,7 +83,7 @@ class TransactionViewAllFragment : Fragment() {
             expList.sortBy { it.date }
             if (expList.size == 0) {
                 binding.noInformationText.visibility = View.VISIBLE
-                binding.noInformationText.text = "You have not yet entered any transactions.  \n\nClick on the Add button below to add a transaction."
+                binding.noInformationText.text = getString(R.string.you_have_not_yet_entered_any_transactions)
             } else {
                 binding.noInformationText.visibility = View.GONE
             }
@@ -94,10 +92,9 @@ class TransactionViewAllFragment : Fragment() {
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
             recyclerView.adapter =
                 TransactionRecyclerAdapter(requireContext(), expList, filters) { item ->
-                    Log.d("Alex", "I clicked item " + item.mykey)
                     MyApplication.transactionFirstInList =
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                    if (item.type == "Transfer") {
+                    if (item.type == cTRANSACTION_TYPE_TRANSFER) {
                         val action =
                             TransactionViewAllFragmentDirections.actionTransactionViewAllFragmentToTransferFragment()
                                 .setTransactionID(item.mykey)
@@ -131,7 +128,6 @@ class TransactionViewAllFragment : Fragment() {
                     recyclerView.adapter as TransactionRecyclerAdapter
                 ladapter.filter.filter(newText)
                 if (newText != "") {
-                    Log.d("Alex", "setting newText '$newText'")
                     binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
                     binding.transactionSearch.visibility = View.VISIBLE
@@ -153,24 +149,19 @@ class TransactionViewAllFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    Log.d("Alex", "category onItemSelected")
                     val selection = parent?.getItemAtPosition(position).toString()
                     addSubCategories(selection, filters.prevSubcategoryFilter)
-                    val categoryFilter = if (selection == "All") "" else selection
+                    val categoryFilter = if (selection == getString(R.string.all)) "" else selection
                     binding.totalLayout.visibility = View.VISIBLE
                     if (categoryFilter != filters.prevCategoryFilter) {
                         val ladapter: TransactionRecyclerAdapter =
                             recyclerView.adapter as TransactionRecyclerAdapter
-                        Log.d("Alex", "adapter2 is $ladapter")
                         ladapter.setCategoryFilter(categoryFilter)
                         ladapter.filterTheList(transactionSearchText)
                         ladapter.notifyDataSetChanged()
                         filters.prevCategoryFilter = categoryFilter
                         goToCorrectRow()
                     }
-                    val ladapter: TransactionRecyclerAdapter =
-                        recyclerView.adapter as TransactionRecyclerAdapter
-                    Log.d("Alex", "adapter8 is $ladapter")
                 }
             }
         binding.subcategorySpinner.onItemSelectedListener =
@@ -187,7 +178,7 @@ class TransactionViewAllFragment : Fragment() {
                     id: Long
                 ) {
                     val selection = parent?.getItemAtPosition(position).toString()
-                    val subcategoryFilter = if (selection == "All")
+                    val subcategoryFilter = if (selection == getString(R.string.all))
                         ""
                     else
                         selection
@@ -200,15 +191,14 @@ class TransactionViewAllFragment : Fragment() {
                         ladapter.notifyDataSetChanged()
                         filters.prevSubcategoryFilter = subcategoryFilter
                         goToCorrectRow()
-                        Log.d("Alex", "onItemSelected SubCategory")
                     }
                 }
             }
         binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
             val discretionaryFilter: String = when (radioButton.text.toString()) {
-                "Disc" -> cDiscTypeDiscretionary
-                "Non-Disc" -> cDiscTypeNondiscretionary
+                getString(R.string.disc) -> cDiscTypeDiscretionary
+                getString(R.string.non_disc) -> cDiscTypeNondiscretionary
                 else -> ""
             }
             binding.totalLayout.visibility = View.VISIBLE
@@ -224,7 +214,7 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            val paidbyFilter = if (radioButton.text.toString() == "All")
+            val paidbyFilter = if (radioButton.text.toString() == getString(R.string.all))
                 -1
             else
                 SpenderViewModel.getSpenderIndex(radioButton.text.toString())
@@ -241,7 +231,7 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            val boughtforFilter = if (radioButton.text.toString() == "All")
+            val boughtforFilter = if (radioButton.text.toString() == getString(R.string.all))
                 -1
             else
                 SpenderViewModel.getSpenderIndex(radioButton.text.toString())
@@ -258,10 +248,13 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.filterTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
-            val typeFilter = if (radioButton.text.toString() == "All")
-                ""
-            else
-                radioButton.text.toString()
+            val typeFilter = when (radioButton.text.toString()) {
+                getString(R.string.expense) -> cTRANSACTION_TYPE_EXPENSE
+                getString(R.string.credit) -> cTRANSACTION_TYPE_CREDIT
+                getString(R.string.scheduled) -> cTRANSACTION_TYPE_SCHEDULED
+                getString(R.string.transfer) -> cTRANSACTION_TYPE_TRANSFER
+                else -> ""
+            }
             if (typeFilter != filters.prevTypeFilter) {
                 binding.totalLayout.visibility = View.VISIBLE
                 val ladapter: TransactionRecyclerAdapter =
@@ -277,7 +270,7 @@ class TransactionViewAllFragment : Fragment() {
         binding.buttonYearForward.setOnClickListener {
             val getNewPosition = adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                "+year"
+                cNEXT_YEAR
             )
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 getNewPosition,
@@ -296,7 +289,7 @@ class TransactionViewAllFragment : Fragment() {
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                    "+month"
+                    cNEXT_MONTH
                 ), 0
             )
         }
@@ -305,7 +298,7 @@ class TransactionViewAllFragment : Fragment() {
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                    "-month"
+                    cPREV_MONTH
                 ), 0
             )
         }
@@ -314,7 +307,7 @@ class TransactionViewAllFragment : Fragment() {
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                    "-year"
+                    cPREV_YEAR
                 ), 0
             )
         }
@@ -324,22 +317,20 @@ class TransactionViewAllFragment : Fragment() {
             //        view?.setOnTouchListener(object : OnSwipeTouchListener(requireContext()) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                Log.d("Alex", "swiped left")
                 (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                     adapter.getPositionOf(
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                        "+month"
+                        cNEXT_MONTH
                     ), 0
                 )
             }
 
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                Log.d("Alex", "swiped right")
                 (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                     adapter.getPositionOf(
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
-                        "-month"
+                        cPREV_MONTH
                     ), 0
                 )
             }
@@ -367,7 +358,6 @@ class TransactionViewAllFragment : Fragment() {
             }
         }
         binding.search.setOnClickListener {
-            Log.d("Alex", "adapter10 is ${recyclerView.adapter}")
             if (binding.transactionSearch.visibility == View.GONE) {
                 resetLayout(binding.expandNav, binding.navButtonLinearLayout)
                 resetLayout(binding.expandView, binding.viewButtonLinearLayout)
@@ -393,7 +383,8 @@ class TransactionViewAllFragment : Fragment() {
             setFiltersToAccounting()
             binding.percentage1Heading.text = SpenderViewModel.getSpenderName(0)
             binding.percentage2Heading.text = SpenderViewModel.getSpenderName(1)
-            binding.runningTotalHeading.tooltipText = "The amount that ${SpenderViewModel.getSpenderName(0)} owes ${SpenderViewModel.getSpenderName(1)}"
+            binding.runningTotalHeading.tooltipText = String.format(getString(R.string.the_amount_that_x_owes_y),SpenderViewModel.getSpenderName(0),
+                    SpenderViewModel.getSpenderName(1))
             if (SpenderViewModel.getSpenderName(0).substring(0,1) == SpenderViewModel.getSpenderName(1).substring(0,1))
                 binding.runningTotalHeading.text = "1->2"
             else
@@ -406,11 +397,11 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.showIndividualAmountsColumns.setOnCheckedChangeListener { _, _ ->
             if (binding.showIndividualAmountsColumns.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, true)
                 binding.percentage1Heading.visibility = View.VISIBLE
                 binding.percentage2Heading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, false)
                 binding.percentage1Heading.visibility = View.GONE
                 binding.percentage2Heading.visibility = View.GONE
             }
@@ -418,60 +409,60 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.showCategoryColumns.setOnCheckedChangeListener { _, _ ->
             if (binding.showCategoryColumns.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, true)
                 binding.categoryHeading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, false)
                 binding.categoryHeading.visibility = View.GONE
             }
             updateView()
         }
         binding.showWhoColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showWhoColumn.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, true)
                 binding.whoHeading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, false)
                 binding.whoHeading.visibility = View.GONE
             }
             updateView()
         }
         binding.showNoteColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showNoteColumn.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_NOTE_VIEW_ALL, true)
                 binding.noteHeading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_NOTE_VIEW_ALL, false)
                 binding.noteHeading.visibility = View.GONE
             }
             updateView()
         }
         binding.showDiscColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showDiscColumn.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, true)
                 binding.discHeading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, false)
                 binding.discHeading.visibility = View.GONE
             }
             updateView()
         }
         binding.showTypeColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showTypeColumn.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, true)
                 binding.typeHeading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, false)
                 binding.typeHeading.visibility = View.GONE
             }
             updateView()
         }
         binding.showRunningTotalColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showRunningTotalColumn.isChecked) {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, "true")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, true)
                 binding.runningTotalHeading.visibility = View.VISIBLE
             } else {
-                DefaultsViewModel.updateDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, "false")
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, false)
                 binding.runningTotalHeading.visibility = View.GONE
             }
             updateView()
@@ -496,45 +487,37 @@ class TransactionViewAllFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(parentFragmentManager, "TransactionViewAll")
+        HintViewModel.showHint(parentFragmentManager, cHINT_TRANSACTION_VIEW_ALL)
     }
 
     private fun setViewsToDefault() {
-        binding.showCategoryColumns.isChecked = DefaultsViewModel.getDefault(
-            cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL
-        ) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
+        binding.showCategoryColumns.isChecked = DefaultsViewModel.getDefaultShowCategoryInViewAll()
+        if (!DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
             binding.categoryHeading.visibility = View.GONE
         }
-        binding.showIndividualAmountsColumns.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
+        binding.showIndividualAmountsColumns.isChecked = DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()
+        if (!DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
             binding.percentage1Heading.visibility = View.GONE
             binding.percentage2Heading.visibility = View.GONE
         }
-        binding.showWhoColumn.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true") {
+        binding.showWhoColumn.isChecked = DefaultsViewModel.getDefaultShowWhoInViewAll()
+        if (!DefaultsViewModel.getDefaultShowWhoInViewAll()) {
             binding.whoHeading.visibility = View.GONE
         }
-        binding.showNoteColumn.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true") {
+        binding.showNoteColumn.isChecked = DefaultsViewModel.getDefaultShowNoteInViewAll()
+        if (!DefaultsViewModel.getDefaultShowNoteInViewAll()) {
             binding.noteHeading.visibility = View.GONE
         }
-        binding.showDiscColumn.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true") {
+        binding.showDiscColumn.isChecked = DefaultsViewModel.getDefaultShowDiscInViewAll()
+        if (!DefaultsViewModel.getDefaultShowDiscInViewAll()) {
             binding.discHeading.visibility = View.GONE
         }
-        binding.showTypeColumn.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true") {
+        binding.showTypeColumn.isChecked = DefaultsViewModel.getDefaultShowTypeInViewAll()
+        if (!DefaultsViewModel.getDefaultShowTypeInViewAll()) {
             binding.typeHeading.visibility = View.GONE
         }
-        binding.showRunningTotalColumn.isChecked =
-            DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) == "true"
-        if (DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) != "true") {
+        binding.showRunningTotalColumn.isChecked = DefaultsViewModel.getDefaultShowRunningTotalInViewAll()
+        if (!DefaultsViewModel.getDefaultShowRunningTotalInViewAll()) {
             binding.runningTotalHeading.visibility = View.GONE
         }
     }
@@ -560,32 +543,25 @@ class TransactionViewAllFragment : Fragment() {
     }
     private fun setViewsToAccounting() {
         binding.showIndividualAmountsColumns.isChecked = true
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL, "true")
         binding.percentage1Heading.visibility = View.VISIBLE
         binding.percentage2Heading.visibility = View.VISIBLE
 
         binding.showRunningTotalColumn.isChecked = true
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL, "true")
         binding.runningTotalHeading.visibility = View.VISIBLE
 
         binding.showWhoColumn.isChecked = true
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, "true")
         binding.whoHeading.visibility = View.VISIBLE
 
         binding.showCategoryColumns.isChecked = false
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL, "false")
         binding.categoryHeading.visibility = View.GONE
 
         binding.showNoteColumn.isChecked = false
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL, "false")
         binding.noteHeading.visibility = View.GONE
 
         binding.showDiscColumn.isChecked = false
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL, "false")
         binding.discHeading.visibility = View.GONE
 
         binding.showTypeColumn.isChecked = true
-//        DefaultsViewModel.updateDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL, "false")
         binding.typeHeading.visibility = View.VISIBLE
         updateView()
     }
@@ -593,7 +569,6 @@ class TransactionViewAllFragment : Fragment() {
     private fun resetFilters() {
         val recyclerView: FastScrollRecyclerView =
             requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
-        Log.d("Alex", "adapter5 is ${recyclerView.adapter}")
         val adapter: TransactionRecyclerAdapter =
             recyclerView.adapter as TransactionRecyclerAdapter
         adapter.setCategoryIDFilter(0)
@@ -674,11 +649,9 @@ class TransactionViewAllFragment : Fragment() {
                 binding.totalLayout.visibility = View.GONE
             }
         } else if (item.itemId == android.R.id.home) {
-            Log.d("Alex", "i want to go home")
             // for some reason "back" doesn't work from this fragment.  This forces it to work.
             requireActivity().onBackPressed()
-        } else
-            Log.d("Alex", "what was this " + item.itemId)
+        }
         return true
     }
 
@@ -687,7 +660,7 @@ class TransactionViewAllFragment : Fragment() {
         radioGroup?.removeAllViews()
 
         val categoryNames = CategoryViewModel.getCategoryNames()
-        categoryNames.add(0,"All")
+        categoryNames.add(0,getString(R.string.all))
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categoryNames)
 
         binding.categorySpinner.adapter = arrayAdapter
@@ -696,11 +669,11 @@ class TransactionViewAllFragment : Fragment() {
         else {
             // set to saved category filter
         }
-        addSubCategories("All", filters.prevSubcategoryFilter)
+        addSubCategories(getString(R.string.all), filters.prevSubcategoryFilter)
     }
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
         val subcategoryList = CategoryViewModel.getSubcategoriesForSpinner(iCategory)
-        subcategoryList.add(0,"All")
+        subcategoryList.add(0, getString(R.string.all))
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subcategoryList)
         binding.subcategorySpinner.adapter = arrayAdapter
         if (iSubCategory == "")

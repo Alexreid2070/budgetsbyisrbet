@@ -722,13 +722,13 @@
                         android:id="@+id/discRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/discretionary_short"
+                        android:text="@string/disc"
                         tools:ignore="TooManyViews" />
                     <RadioButton
                         android:id="@+id/nonDiscRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/non_discretionary_short"/>
+                        android:text="@string/non_disc"/>
                 </RadioGroup>
             </HorizontalScrollView>
         </LinearLayout>

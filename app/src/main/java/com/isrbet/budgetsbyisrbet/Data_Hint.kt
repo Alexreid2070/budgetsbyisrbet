@@ -1,8 +1,9 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -35,11 +36,11 @@ class HintViewModel : ViewModel() {
 
     companion object {
         lateinit var singleInstance: HintViewModel // used to track static single instance of self
-        fun showMe() {
+/*        fun showMe() {
             singleInstance.hints.forEach {
                 Log.d("Alex", "SM Hint is " + it.fragment + " " + it.id + " " + it.text)
             }
-        }
+        } */
 
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -60,7 +61,7 @@ class HintViewModel : ViewModel() {
         @SuppressLint("ClickableViewAccessibility", "InflateParams")
         fun showHint(iParentFragmentManager: FragmentManager, iFragment: String) {
                 val hdf = HintDialogFragment.newInstance(iFragment)
-                hdf.show(iParentFragmentManager, "Show Hint")
+                hdf.show(iParentFragmentManager, MyApplication.getString(R.string.show_hint))
         }
 
         fun getNextHint(iFragment: String, iStartPosition: Int = -1) : Hint? {
@@ -100,7 +101,6 @@ class HintViewModel : ViewModel() {
             if (hls == null)
                 hls = HintLastShown(iFragment, 99999, "1999-01-01")
             val startPosition = if (iStartPosition == 99999) hls.id else iStartPosition
-            Log.d("Alex", "Looking from $iStartPosition, startPosition is $startPosition hls.id is ${hls.id}")
 
             singleInstance.hints.asReversed().forEach {
                 if (it.fragment == iFragment &&
@@ -169,7 +169,7 @@ class HintViewModel : ViewModel() {
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
-                MyApplication.displayToast("User authorization failed 120.")
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 120.")
             }
         }
         MyApplication.database.getReference("Hints").addValueEventListener(
@@ -196,7 +196,7 @@ class HintViewModel : ViewModel() {
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
-                MyApplication.displayToast("User authorization failed 112.")
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 112.")
             }
         }
         MyApplication.databaseref.child("Users/" + MyApplication.userUID)

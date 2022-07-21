@@ -1,6 +1,7 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -26,11 +27,11 @@ class TranslationViewModel : ViewModel() {
             return copy
         }
 
-        fun showMe() {
+/*        fun showMe() {
             singleInstance.translations.forEach {
                 Log.d("Alex", "Translation is '" + it.before + "' to '" + it.after + "'")
             }
-        }
+        } */
         fun exists(iString: String): Boolean {
             if (::singleInstance.isInitialized) {
                 singleInstance.translations.forEach {
@@ -131,7 +132,7 @@ class TranslationViewModel : ViewModel() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                MyApplication.displayToast("User authorization failed 111.")
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 111.")
             }
         }
         MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").addValueEventListener(

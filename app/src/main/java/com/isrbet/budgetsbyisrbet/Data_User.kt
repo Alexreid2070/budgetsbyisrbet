@@ -1,6 +1,7 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -16,26 +17,13 @@ class AppUserViewModel : ViewModel() {
 
     companion object {
         lateinit var singleInstance: AppUserViewModel // used to track static single instance of self
-        fun showMe() {
+/*        fun showMe() {
             singleInstance.users.forEach {
                 Log.d("Alex", "SM User is " + it.email + " " + it.uid)
             }
-        }
+        } */
         fun getUsers(): MutableList<AppUser> {
             return singleInstance.users
-        }
-
-        fun getUserEmail(pos:Int): String {
-            return if (pos  < singleInstance.users.size)
-                singleInstance.users[pos].email
-            else
-                ""
-        }
-        fun getUserUID(pos:Int): String {
-            return if (pos  < singleInstance.users.size)
-                singleInstance.users[pos].uid
-            else
-                ""
         }
 
         fun getCount(): Int {
@@ -77,7 +65,7 @@ class AppUserViewModel : ViewModel() {
 
                 override fun onCancelled(databaseError: DatabaseError) {
                     // Getting Post failed, log a message
-                    MyApplication.displayToast("User authorization failed 101.")
+                    MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 101.")
                 }
             }
             MyApplication.database.getReference("Userkeys").addValueEventListener(singleInstance.userListener)

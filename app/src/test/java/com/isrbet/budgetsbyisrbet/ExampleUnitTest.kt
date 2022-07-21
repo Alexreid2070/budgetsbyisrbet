@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import org.junit.Test
 
 import org.junit.Assert.*
-import org.junit.runner.RunWith
 
 class GlobalVarsUnitTest {
     @Test
@@ -29,7 +28,7 @@ class GlobalVarsUnitTest {
         bm = BudgetMonth("2021")
         assertEquals(2021, bm.year)
         assertEquals(0, bm.month)
-        var bm2 = BudgetMonth("2023-03")
+        val bm2 = BudgetMonth("2023-03")
         bm.setValue(bm2)
         assertEquals(2023, bm.year)
         assertEquals(3, bm.month)

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <TextView
-        android:id="@+id/rtDescription"
+        android:id="@+id/spDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
@@ -14,7 +14,7 @@
         android:paddingStart="5dp"
         android:paddingEnd="5dp"/>
     <TextView
-        android:id="@+id/rtDescription2"
+        android:id="@+id/spDescription2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
@@ -28,48 +28,48 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/rt_row_name"
+            android:id="@+id/row_name"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_amount"
+            android:id="@+id/row_amount"
             android:layout_width="wrap_content"
             android:layout_height="match_parent">
         </TextView>
         <TextView
-            android:id="@+id/rt_row_regularity"
+            android:id="@+id/row_regularity"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_period"
+            android:id="@+id/row_period"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_next_date"
+            android:id="@+id/row_next_date"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_category"
+            android:id="@+id/row_category"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_subcategory"
+            android:id="@+id/row_subcategory"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_paidby"
+            android:id="@+id/row_paidby"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_boughtfor"
+            android:id="@+id/row_boughtfor"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView
-            android:id="@+id/rt_row_split1"
+            android:id="@+id/row_split1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
-            android:id="@+id/rt_row_split2"
+            android:id="@+id/row_split2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>

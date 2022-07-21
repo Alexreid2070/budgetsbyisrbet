@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.icu.util.Calendar
 import android.view.LayoutInflater

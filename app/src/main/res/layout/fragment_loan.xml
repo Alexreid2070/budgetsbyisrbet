@@ -183,6 +183,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fadeScrollbars="false"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:scrollbarThumbHorizontal="?attr/colorSecondary">
                 <RadioGroup
                     android:id="@+id/paymentFrequencyGroup"
@@ -216,6 +218,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
+            android:paddingTop="5dp"
             android:baselineAligned="false">
             <TextView
                 android:id="@+id/currencySymbol2"
@@ -303,11 +306,15 @@
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@+id/space2">
         <TextView
+            android:id="@+id/calculated_payment_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:textStyle="bold"
             android:text="@string/calculated_payment"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:visibility="invisible"
             android:tooltipText="This is the minimum loan payment amount based on the parameters you've entered."/>
         <TextView
             android:id="@+id/calculated_payment_amount"
@@ -331,7 +338,7 @@
             android:id="@+id/row_loan_DateHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight=".8"
             android:gravity="start"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"

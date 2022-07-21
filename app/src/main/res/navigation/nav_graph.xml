@@ -19,12 +19,12 @@
             app:destination="@id/TransferFragment" />
     </fragment>
     <fragment
-        android:id="@+id/RecurringTransactionFragment"
-        android:name="com.isrbet.budgetsbyisrbet.RecurringTransactionFragment"
+        android:id="@+id/ScheduledPaymentFragment"
+        android:name="com.isrbet.budgetsbyisrbet.ScheduledPaymentFragment"
         android:label="@string/scheduled_payments"
-        tools:layout="@layout/fragment_recurring_transaction">
+        tools:layout="@layout/fragment_scheduled_payment">
         <action
-            android:id="@+id/action_RecurringTransactionFragment_to_LoanFragment"
+            android:id="@+id/action_ScheduledPaymentFragment_to_LoanFragment"
             app:destination="@id/LoanFragment" />
     </fragment>
     <fragment
@@ -107,8 +107,8 @@
         android:label="@string/transfer">
         <argument
             android:name="mode"
-            app:argType="string"
-            android:defaultValue='' />
+            app:argType="integer"
+            android:defaultValue='0' />
         <argument
             android:name="transactionID"
             app:argType="string"

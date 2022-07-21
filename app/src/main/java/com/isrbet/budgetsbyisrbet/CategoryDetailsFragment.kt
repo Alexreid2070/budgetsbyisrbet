@@ -3,11 +3,9 @@ package com.isrbet.budgetsbyisrbet
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -43,7 +41,6 @@ class CategoryDetailsFragment : Fragment() {
         val adapter =
             CategoryDetailsAdapter(requireContext(), DefaultsViewModel.getCategoryDetails(), { item ->
                 // this is called when a row is clicked
-                Log.d("Alex", "I clicked ${item.name}")
                 openColorPickerDialogue(item.name) },
                 { item ->
                     resetColor(item.name) }
@@ -61,7 +58,6 @@ class CategoryDetailsFragment : Fragment() {
             ): Boolean {
                 val fromPos = viewHolder.bindingAdapterPosition
                 val toPos = target.bindingAdapterPosition
-                Log.d("Alex", "Moved from $fromPos to $toPos")
                 val ladapter: CategoryDetailsAdapter =
                     recyclerView.adapter as CategoryDetailsAdapter
                 ladapter.notifyItemMoved(fromPos, toPos)
@@ -71,7 +67,6 @@ class CategoryDetailsFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                Log.d("Alex", "swiped")
                 return
             }
         }
@@ -104,7 +99,7 @@ class CategoryDetailsFragment : Fragment() {
                         ladapter.refresh()
                     }
                 })
-        }?.show()
+        }.show()
     }
     override fun onDestroyView() {
         super.onDestroyView()
@@ -119,10 +114,6 @@ class CategoryDetailsAdapter (private val context: Context, private var data: Mu
 
     override fun getItemId(pos: Int): Long {
         return pos.toLong()
-    }
-
-    fun getItem(pos: Int): CategoryDetail {
-        return data[pos]
     }
 
     @SuppressLint("NotifyDataSetChanged")

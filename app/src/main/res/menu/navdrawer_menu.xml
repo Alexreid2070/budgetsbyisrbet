@@ -36,22 +36,6 @@
             android:title="@string/accounting" />
     </group>
     <group
-        android:id="@+id/nav_drawer_group4"
-        android:checkableBehavior="single">
-        <item
-            android:id="@+id/CategoryFragment"
-            android:title="@string/categories"/>
-        <item
-            android:id="@+id/BudgetViewAllFragment"
-            android:title="@string/budgets"/>
-        <item
-            android:id="@+id/RecurringTransactionFragment"
-            android:title="@string/scheduled_payments"/>
-        <item
-            android:id="@+id/SettingsFragment"
-            android:title="@string/settings" />
-    </group>
-    <group
         android:id="@+id/nav_drawer_group6"
         android:checkableBehavior="single">
         <item

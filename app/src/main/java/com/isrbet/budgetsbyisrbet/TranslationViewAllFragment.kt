@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationViewAllBinding
 
 class TranslationViewAllFragment : Fragment() {
@@ -39,7 +37,7 @@ class TranslationViewAllFragment : Fragment() {
                         myAdapter.notifyDataSetChanged()
                     }
                 })
-                cdf.show(parentFragmentManager, "Edit Translation")
+                cdf.show(parentFragmentManager, getString(R.string.edit_translation))
             }
     }
 

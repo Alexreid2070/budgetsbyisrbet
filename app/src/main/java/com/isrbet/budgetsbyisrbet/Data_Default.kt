@@ -1,3 +1,5 @@
+@file:Suppress("HardCodedStringLiteral")
+
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
@@ -8,7 +10,6 @@ import com.google.firebase.database.ValueEventListener
 import java.util.ArrayList
 
 const val cDEFAULT_CATEGORY_ID = "Category"
-const val cDEFAULT_FULLCATEGORYNAME = "FullCategoryName"
 const val cDEFAULT_SPENDER = "Spender"
 const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
@@ -37,44 +38,38 @@ const val cDEFAULT_SHOW_CURRENCY_SYMBOL = "ShowCurrencySymbol"
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DataUpdatedCallback? = null
-    private var defaultCategory: Int = 0
-    private var defaultSpender: Int = -1
-    private var defaultShowRed: String = "5"
-    private var defaultIntegrateWithTDSpend: String = "Off"
-    private var defaultSound: String = "On"
-    private var defaultQuote: String = "On"
-    private var defaultShowIndividualAmountsInViewAll: String = "false"
-    private var defaultShowWhoInViewAll: String = "true"
-    private var defaultShowCategoryInViewAll: String = "true"
-    private var defaultShowNoteInViewAll: String = "true"
-    private var defaultShowDiscInViewAll: String = "true"
-    private var defaultShowTypeInViewAll: String = "true"
-    private var defaultShowRunningTotalInViewAll: String = "false"
-    private var defaultViewPeriodDashboard: String = "Month"
-    private var defaultFilterDiscDashboard: String = ""
-    private var defaultFilterWhoDashboard: String = ""
-    private var defaultDeltaDashboard: String = "#"
-    private var defaultRoundDashboard: String = "false"
-    private var defaultShowDiscDashboard: String = "true"
-    private var defaultBudgetView: String = "Date"
-    private val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
-    private var defaultFilterDiscTracker = cDiscTypeAll
-    private var defaultFilterWhoTracker = ""
-    private var defaultViewByTracker = "Month"
-    private var defaultShowTotalsTracker: String = "#"
-    private var defaultShowCurrencySymbol: String = "true"
+    var defaultCategory: Int = 0
+    var defaultSpender: Int = -1
+    var defaultShowRed: Int = 5
+    var defaultIntegrateWithTDSpend: Boolean = false
+    var defaultSound: Boolean = true
+    var defaultQuote: Boolean = true
+    var defaultShowIndividualAmountsInViewAll: Boolean = false
+    var defaultShowWhoInViewAll: Boolean = true
+    var defaultShowCategoryInViewAll: Boolean = true
+    var defaultShowNoteInViewAll: Boolean = true
+    var defaultShowDiscInViewAll: Boolean = true
+    var defaultShowTypeInViewAll: Boolean = true
+    var defaultShowRunningTotalInViewAll: Boolean = false
+    var defaultViewPeriodDashboard: String = cPeriodMonth
+    var defaultFilterDiscDashboard: String = ""
+    var defaultFilterWhoDashboard: String = ""
+    var defaultDeltaDashboard: String = "#"
+    var defaultRoundDashboard: Boolean = false
+    var defaultShowDiscDashboard: Boolean = true
+    var defaultBudgetView: String = cBudgetDateView
+    val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
+    var defaultFilterDiscTracker = cDiscTypeAll
+    var defaultFilterWhoTracker = ""
+    var defaultViewByTracker = cPeriodMonth
+    var defaultShowTotalsTracker: String = "#"
+    var defaultShowCurrencySymbol: Boolean = true
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
 
-        fun isEmpty(): Boolean {
-            return (isLoaded() &&
-                    singleInstance.defaultCategory == 0 &&
-                    singleInstance.defaultSpender == -1)
-        }
-
-        fun showMe() {
+/*        fun showMe() {
             Log.d("Alex", "Default Category/Subcategory is " + CategoryViewModel.getFullCategoryName(singleInstance.defaultCategory))
             Log.d("Alex", "Default Spender is " + singleInstance.defaultSpender)
             Log.d("Alex", "Default ShowRed is " + singleInstance.defaultShowRed)
@@ -98,47 +93,112 @@ class DefaultsViewModel : ViewModel() {
             Log.d("Alex", "Default showTotalsTracker is " + singleInstance.defaultShowTotalsTracker)
             Log.d("Alex", "Default showCurrencySymbol is " + singleInstance.defaultShowCurrencySymbol)
         }
+        fun showMeCategoryDetails() {
+            singleInstance.defaultCategoryDetails.forEach {
+                Log.d("Alex", "${it.name} ${it.color} ${it.priority}" )
+            }
+        } */
+        fun getDefaultCategory(): Int {
+            return singleInstance.defaultCategory
+        }
+        fun getDefaultFullCategoryName(): String {
+            val cat = CategoryViewModel.getCategory(singleInstance.defaultCategory)
+            return "${cat?.categoryName}-${cat?.subcategoryName}"
+        }
+        fun getDefaultSpender(): Int {
+            return singleInstance.defaultSpender
+        }
+        fun getDefaultShowRed(): Int {
+            return singleInstance.defaultShowRed
+        }
+        fun getDefaultIntegrateWithTDSpend(): Boolean {
+            return singleInstance.defaultIntegrateWithTDSpend
+        }
+        fun getDefaultSound(): Boolean {
+            return singleInstance.defaultSound
+        }
+        fun getDefaultQuote(): Boolean {
+            return singleInstance.defaultQuote
+        }
+        fun getDefaultShowIndividualAmountsInViewAll(): Boolean {
+            return singleInstance.defaultShowIndividualAmountsInViewAll
+        }
+        fun getDefaultShowWhoInViewAll(): Boolean {
+            return singleInstance.defaultShowWhoInViewAll
+        }
+        fun getDefaultShowCategoryInViewAll(): Boolean {
+            return singleInstance.defaultShowCategoryInViewAll
+        }
+        fun getDefaultShowNoteInViewAll(): Boolean {
+            return singleInstance.defaultShowNoteInViewAll
+        }
+        fun getDefaultShowDiscInViewAll(): Boolean {
+            return singleInstance.defaultShowDiscInViewAll
+        }
+        fun getDefaultShowTypeInViewAll(): Boolean {
+            return singleInstance.defaultShowTypeInViewAll
+        }
+        fun getDefaultShowRunningTotalInViewAll(): Boolean {
+            return singleInstance.defaultShowRunningTotalInViewAll
+        }
+        fun getDefaultViewPeriodDashboard(): String {
+            return singleInstance.defaultViewPeriodDashboard
+        }
+        fun getDefaultFilterDiscDashboard(): String {
+            return singleInstance.defaultFilterDiscDashboard
+        }
+        fun getDefaultFilterWhoDashboard(): String {
+            return singleInstance.defaultFilterWhoDashboard
+        }
+        fun getDefaultDeltaDashboard(): String {
+            return singleInstance.defaultDeltaDashboard
+        }
+        fun getDefaultRoundDashboard(): Boolean {
+            return singleInstance.defaultRoundDashboard
+        }
+        fun getDefaultShowDiscDashboard(): Boolean {
+            return singleInstance.defaultShowDiscDashboard
+        }
+        fun getDefaultBudgetView(): String {
+            return singleInstance.defaultBudgetView
+        }
+        fun getDefaultFilterDiscTracker(): String {
+            return singleInstance.defaultFilterDiscTracker
+        }
+        fun getDefaultFilterWhoTracker(): String {
+            return singleInstance.defaultFilterWhoTracker
+        }
+        fun getDefaultViewByTracker(): String {
+            return singleInstance.defaultViewByTracker
+        }
+        fun getDefaultShowTotalsTracker(): String {
+            return singleInstance.defaultShowTotalsTracker
+        }
+        fun getDefaultShowCurrencySymbol(): Boolean {
+            return singleInstance.defaultShowCurrencySymbol
+        }
+
         fun isLoaded():Boolean {
             return singleInstance.loaded
         }
 
-        fun getDefault(whichOne:String): String {
-            when (whichOne) {
-                cDEFAULT_CATEGORY_ID -> return singleInstance.defaultCategory.toString()
-                cDEFAULT_FULLCATEGORYNAME -> return CategoryViewModel.getFullCategoryName(singleInstance.defaultCategory)
-                cDEFAULT_SPENDER -> return singleInstance.defaultSpender.toString()
-                cDEFAULT_SHOWRED -> return singleInstance.defaultShowRed
-                cDEFAULT_INTEGRATEWITHTDSPEND -> return singleInstance.defaultIntegrateWithTDSpend
-                cDEFAULT_SOUND -> return singleInstance.defaultSound
-                cDEFAULT_QUOTE -> return singleInstance.defaultQuote
-                cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> return singleInstance.defaultShowIndividualAmountsInViewAll
-                cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> return singleInstance.defaultShowWhoInViewAll
-                cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL -> return singleInstance.defaultShowCategoryInViewAll
-                cDEFAULT_SHOW_NOTE_VIEW_ALL -> return singleInstance.defaultShowNoteInViewAll
-                cDEFAULT_SHOW_DISC_IN_VIEW_ALL -> return singleInstance.defaultShowDiscInViewAll
-                cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> return singleInstance.defaultShowTypeInViewAll
-                cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL -> return singleInstance.defaultShowRunningTotalInViewAll
-                cDEFAULT_VIEW_PERIOD_DASHBOARD -> return singleInstance.defaultViewPeriodDashboard
-                cDEFAULT_FILTER_DISC_DASHBOARD -> return singleInstance.defaultFilterDiscDashboard
-                cDEFAULT_FILTER_WHO_DASHBOARD -> return singleInstance.defaultFilterWhoDashboard
-                cDEFAULT_DELTA_DASHBOARD -> return singleInstance.defaultDeltaDashboard
-                cDEFAULT_ROUND_DASHBOARD -> return singleInstance.defaultRoundDashboard
-                cDEFAULT_SHOW_DISC_DASHBOARD -> return singleInstance.defaultShowDiscDashboard
-                cDEFAULT_BUDGET_VIEW -> return singleInstance.defaultBudgetView
-                cDEFAULT_FILTER_DISC_TRACKER -> return singleInstance.defaultFilterDiscTracker
-                cDEFAULT_FILTER_WHO_TRACKER -> return singleInstance.defaultFilterWhoTracker
-                cDEFAULT_VIEW_BY_TRACKER -> return singleInstance.defaultViewByTracker
-                cDEFAULT_SHOW_TOTALS_TRACKER -> return singleInstance.defaultShowTotalsTracker
-                cDEFAULT_SHOW_CURRENCY_SYMBOL -> return singleInstance.defaultShowCurrencySymbol
-                else -> return ""
-            }
-        }
-
-        fun updateDefault(whichOne: String, iValue: String) {
-            singleInstance.setLocal(whichOne, iValue)
+        fun updateDefaultString(whichOne: String, iValue: String) {
+            singleInstance.setLocalString(whichOne, iValue)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults")
                 .child(SpenderViewModel.myIndex().toString())
                 .child(whichOne).setValue(iValue)
+        }
+        fun updateDefaultInt(whichOne: String, iValue: Int) {
+            singleInstance.setLocalInt(whichOne, iValue)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults")
+                .child(SpenderViewModel.myIndex().toString())
+                .child(whichOne).setValue(iValue)
+        }
+        fun updateDefaultBoolean(whichOne: String, iValue: Boolean) {
+            singleInstance.setLocalBoolean(whichOne, iValue)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults")
+                .child(SpenderViewModel.myIndex().toString())
+                .child(whichOne).setValue(if (iValue) "true" else "false")
         }
 
         fun refresh() {
@@ -156,30 +216,30 @@ class DefaultsViewModel : ViewModel() {
         private fun resetToDefaults() {
             singleInstance.defaultCategory = 0
             singleInstance.defaultSpender = -1
-            singleInstance.defaultShowRed = "5"
-            singleInstance.defaultIntegrateWithTDSpend = "Off"
-            singleInstance.defaultSound = "On"
-            singleInstance.defaultQuote = "On"
-            singleInstance.defaultShowIndividualAmountsInViewAll = "false"
-            singleInstance.defaultShowWhoInViewAll = "true"
-            singleInstance.defaultShowCategoryInViewAll = "true"
-            singleInstance.defaultShowNoteInViewAll = "true"
-            singleInstance.defaultShowDiscInViewAll = "true"
-            singleInstance.defaultShowTypeInViewAll = "true"
-            singleInstance.defaultShowRunningTotalInViewAll = "false"
-            singleInstance.defaultViewPeriodDashboard = "Month"
+            singleInstance.defaultShowRed = 5
+            singleInstance.defaultIntegrateWithTDSpend = false
+            singleInstance.defaultSound = true
+            singleInstance.defaultQuote = true
+            singleInstance.defaultShowIndividualAmountsInViewAll = false
+            singleInstance.defaultShowWhoInViewAll = true
+            singleInstance.defaultShowCategoryInViewAll = true
+            singleInstance.defaultShowNoteInViewAll = true
+            singleInstance.defaultShowDiscInViewAll = true
+            singleInstance.defaultShowTypeInViewAll = true
+            singleInstance.defaultShowRunningTotalInViewAll = false
+            singleInstance.defaultViewPeriodDashboard = cPeriodMonth
             singleInstance.defaultFilterDiscDashboard = ""
             singleInstance.defaultFilterWhoDashboard = ""
             singleInstance.defaultDeltaDashboard = "#"
-            singleInstance.defaultRoundDashboard = "false"
-            singleInstance.defaultShowDiscDashboard = "true"
-            singleInstance.defaultBudgetView = "Date"
+            singleInstance.defaultRoundDashboard = false
+            singleInstance.defaultShowDiscDashboard = true
+            singleInstance.defaultBudgetView = cBudgetDateView
             singleInstance.defaultCategoryDetails.clear()
             singleInstance.defaultFilterDiscTracker = cDiscTypeAll
             singleInstance.defaultFilterWhoTracker = ""
-            singleInstance.defaultViewByTracker = "Month"
+            singleInstance.defaultViewByTracker = cPeriodMonth
             singleInstance.defaultShowTotalsTracker = "#"
-            singleInstance.defaultShowCurrencySymbol = "true"
+            singleInstance.defaultShowCurrencySymbol = true
         }
 
         fun getCategoryDetails(): MutableList<CategoryDetail> {
@@ -284,11 +344,6 @@ class DefaultsViewModel : ViewModel() {
                 }
             }
         }
-        fun showMeCategoryDetails() {
-            singleInstance.defaultCategoryDetails.forEach {
-                Log.d("Alex", "${it.name} ${it.color} ${it.priority}" )
-            }
-        }
     }
 
     init {
@@ -312,18 +367,54 @@ class DefaultsViewModel : ViewModel() {
         dataUpdatedCallback = null
     }
 
-    fun setLocal(whichOne: String, iValue: String) {
+    fun setLocalString(whichOne: String, iValue: String) {
         when (whichOne) {
-            cDEFAULT_CATEGORY_ID -> {
-                if (isNumber(iValue))
-                    singleInstance.defaultCategory = iValue.toInt()
+            cDEFAULT_VIEW_PERIOD_DASHBOARD -> {
+                singleInstance.defaultViewPeriodDashboard = iValue
             }
-            cDEFAULT_SPENDER -> {
-                singleInstance.defaultSpender = iValue.toInt()
+            cDEFAULT_FILTER_DISC_DASHBOARD -> {
+                singleInstance.defaultFilterDiscDashboard = iValue
             }
+            cDEFAULT_FILTER_WHO_DASHBOARD -> {
+                singleInstance.defaultFilterWhoDashboard = iValue
+            }
+            cDEFAULT_DELTA_DASHBOARD -> {
+                singleInstance.defaultDeltaDashboard = iValue
+            }
+            cDEFAULT_BUDGET_VIEW -> {
+                singleInstance.defaultBudgetView = iValue
+            }
+
+            cDEFAULT_FILTER_DISC_TRACKER -> {
+                singleInstance.defaultFilterDiscTracker = iValue
+            }
+            cDEFAULT_FILTER_WHO_TRACKER -> {
+                singleInstance.defaultFilterWhoTracker = iValue
+            }
+            cDEFAULT_VIEW_BY_TRACKER -> {
+                singleInstance.defaultViewByTracker = iValue
+            }
+            cDEFAULT_SHOW_TOTALS_TRACKER -> {
+                singleInstance.defaultShowTotalsTracker = iValue
+            }
+        }
+    }
+    fun setLocalInt(whichOne: String, iValue: Int) {
+        when (whichOne) {
             cDEFAULT_SHOWRED -> {
                 singleInstance.defaultShowRed = iValue
             }
+            cDEFAULT_CATEGORY_ID -> {
+                if (isNumber(iValue.toString()))
+                    singleInstance.defaultCategory = iValue
+            }
+            cDEFAULT_SPENDER -> {
+                singleInstance.defaultSpender = iValue
+            }
+        }
+    }
+    fun setLocalBoolean(whichOne: String, iValue: Boolean) {
+        when (whichOne) {
             cDEFAULT_INTEGRATEWITHTDSPEND -> {
                 singleInstance.defaultIntegrateWithTDSpend = iValue
             }
@@ -354,6 +445,19 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL -> {
                 singleInstance.defaultShowRunningTotalInViewAll = iValue
             }
+            cDEFAULT_ROUND_DASHBOARD -> {
+                singleInstance.defaultRoundDashboard = iValue
+            }
+            cDEFAULT_SHOW_DISC_DASHBOARD -> {
+                singleInstance.defaultShowDiscDashboard = iValue
+            }
+            cDEFAULT_SHOW_CURRENCY_SYMBOL -> {
+                singleInstance.defaultShowCurrencySymbol = iValue
+            }
+        }
+    }
+    fun setLocal(whichOne: String, iValue: String) {
+        when (whichOne) {
             cDEFAULT_VIEW_PERIOD_DASHBOARD -> {
                 singleInstance.defaultViewPeriodDashboard = iValue
             }
@@ -366,16 +470,9 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_DELTA_DASHBOARD -> {
                 singleInstance.defaultDeltaDashboard = iValue
             }
-            cDEFAULT_ROUND_DASHBOARD -> {
-                singleInstance.defaultRoundDashboard = iValue
-            }
-            cDEFAULT_SHOW_DISC_DASHBOARD -> {
-                singleInstance.defaultShowDiscDashboard = iValue
-            }
             cDEFAULT_BUDGET_VIEW -> {
                 singleInstance.defaultBudgetView = iValue
             }
-
             cDEFAULT_FILTER_DISC_TRACKER -> {
                 singleInstance.defaultFilterDiscTracker = iValue
             }
@@ -388,12 +485,53 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SHOW_TOTALS_TRACKER -> {
                 singleInstance.defaultShowTotalsTracker = iValue
             }
-            cDEFAULT_SHOW_CURRENCY_SYMBOL -> {
-                singleInstance.defaultShowCurrencySymbol = iValue
-                Log.d("Alex", "setting local currency to $iValue")
+            cDEFAULT_CATEGORY_ID -> {
+                if (isNumber(iValue))
+                    singleInstance.defaultCategory = iValue.toInt()
             }
-            else -> {
-                Log.d("Alex", "Unknown default $whichOne $iValue")
+            cDEFAULT_SPENDER -> {
+                if (isNumber(iValue))
+                    singleInstance.defaultSpender = iValue.toInt()
+            }
+            cDEFAULT_INTEGRATEWITHTDSPEND -> {
+                singleInstance.defaultIntegrateWithTDSpend = (iValue == cTRUE)
+            }
+            cDEFAULT_SOUND -> {
+                singleInstance.defaultSound = (iValue == cTRUE)
+            }
+            cDEFAULT_QUOTE -> {
+                singleInstance.defaultQuote = (iValue == cTRUE)
+                Log.d("Alex", "setting sound to $iValue")
+            }
+            cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> {
+                singleInstance.defaultShowIndividualAmountsInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL -> {
+                singleInstance.defaultShowCategoryInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> {
+                singleInstance.defaultShowWhoInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_NOTE_VIEW_ALL -> {
+                singleInstance.defaultShowNoteInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_DISC_IN_VIEW_ALL -> {
+                singleInstance.defaultShowDiscInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_TYPE_IN_VIEW_ALL -> {
+                singleInstance.defaultShowTypeInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL -> {
+                singleInstance.defaultShowRunningTotalInViewAll = (iValue == cTRUE)
+            }
+            cDEFAULT_ROUND_DASHBOARD -> {
+                singleInstance.defaultRoundDashboard = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_DISC_DASHBOARD -> {
+                singleInstance.defaultShowDiscDashboard = (iValue == cTRUE)
+            }
+            cDEFAULT_SHOW_CURRENCY_SYMBOL -> {
+                singleInstance.defaultShowCurrencySymbol = (iValue == cTRUE)
             }
         }
     }

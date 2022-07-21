@@ -1,10 +1,8 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,9 +20,9 @@ class TranslationEditDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     companion object {
-        private const val KEY_BEFORE = "KEY_BEFORE"
-        private const val KEY_AFTER = "KEY_AFTER"
-        private const val KEY_KEY = "KEY_KEY"
+        private const val KEY_BEFORE = "0"
+        private const val KEY_AFTER = "1"
+        private const val KEY_KEY = "2"
         private val myTranslation = Translation("","","")
         fun newInstance(
             before: String,
@@ -56,9 +54,8 @@ class TranslationEditDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
-        Log.d("Alex", "in dialog, translation is $myTranslation")
 
-        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), "1F")
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
         binding.afterField.setBackgroundColor(Color.parseColor(hexColor))
         binding.afterField.requestFocus()
 
@@ -96,8 +93,8 @@ class TranslationEditDialogFragment : DialogFragment() {
             }
 
             AlertDialog.Builder(requireContext())
-                .setTitle("Are you sure?")
-                .setMessage("Are you sure that you want to delete this translation?")
+                .setTitle(getString(R.string.are_you_sure))
+                .setMessage(getString(R.string.are_you_sure_that_you_want_to_delete_this_item))
                 .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()

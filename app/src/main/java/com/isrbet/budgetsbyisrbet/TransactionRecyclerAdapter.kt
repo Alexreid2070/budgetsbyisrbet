@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.l4digital.fastscroll.FastScroller
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.math.round
 
 class TransactionRecyclerAdapter(
     private val context: Context, private val list: MutableList<Transaction>,
@@ -62,7 +63,6 @@ class TransactionRecyclerAdapter(
             }
 
             @SuppressLint("NotifyDataSetChanged")
-            @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 filteredList = results?.values as MutableList<Transaction>
                 notifyDataSetChanged()
@@ -73,8 +73,8 @@ class TransactionRecyclerAdapter(
     fun getTotal(): Double {
         var tTotal = 0.0
         filteredList.forEach {
-            if (it.type != "Transfer")
-                tTotal += (it.amount / 100.0)
+            if (it.type != cTRANSACTION_TYPE_TRANSFER)
+                tTotal += it.amount
         }
         return tTotal
     }
@@ -107,14 +107,15 @@ class TransactionRecyclerAdapter(
                         CategoryViewModel.getCategory(row.category)?.subcategoryName == subcategoryFilter) &&
                         (paidbyFilter == -1 || row.paidby == paidbyFilter) &&
                         (boughtforFilter == -1 || row.boughtfor == boughtforFilter) &&
-                        (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter == "Expense")) &&
+                        (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter ==
+                                MyApplication.getString(R.string.expense))) &&
                         (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator)
                     ) {
                         if (accountingFilter) {
                             if (row.paidby == row.boughtfor && row.paidby != 2)
                                 false
                             else if (row.paidby == 2 && row.boughtfor == 2 &&
-                                row.bfname1split == SpenderViewModel.getSpenderSplit(0)
+                                row.bfname1split == (SpenderViewModel.getSpenderSplit(0)*100).toInt()
                             )
                                 false
                             else
@@ -164,12 +165,11 @@ class TransactionRecyclerAdapter(
         } else {
             holder.vtfdate.isVisible = false
         }
-        val formattedAmount = (data.amount / 100).toDouble() + (data.amount % 100).toDouble() / 100
-        holder.vtfamount.text = gDecWithCurrencyM(formattedAmount)
-        val percentage1 = formattedAmount * data.bfname1split / 100
+        holder.vtfamount.text = gDecWithCurrency(data.amount)
+        val percentage1 = data.amount * data.bfname1split / 100
         val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
         holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
-        val percentage2 = formattedAmount - rounded.toDouble()
+        val percentage2 = data.amount - rounded.toDouble()
         holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
         holder.vtfrunningtotal.text = gDecWithCurrency(runningTotalList[position])
         holder.vtfCategoryID.text = data.category.toString()
@@ -183,34 +183,34 @@ class TransactionRecyclerAdapter(
                     .toString()
         holder.vtfnote.text = data.note
         if (CategoryViewModel.getCategory(data.category)?.discType == cDiscTypeDiscretionary)
-            holder.vtfdisc.text = "D"
+            holder.vtfdisc.text = MyApplication.getString(R.string.disc_short)
         else
-            holder.vtfdisc.text = "ND"
+            holder.vtfdisc.text = MyApplication.getString(R.string.non_disc_short)
         if (data.type.isNotEmpty())
             holder.vtftype.text = data.type.substring(0, 1)
         else
             holder.vtftype.text = ""
-        if (holder.vtftype.text == "R") holder.vtftype.text = "S"  // now called Scheduled payment rather than Recurring transaction
+        if (holder.vtftype.text == "R") holder.vtftype.text = MyApplication.getString(R.string.scheduled_payment_short)  // now called Scheduled payment rather than Recurring transaction
         holder.itemView.setOnClickListener { listener(data) }
         if (SpenderViewModel.singleUser()) {
             holder.vtfwho.visibility = View.GONE
         }
-        if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL) != "true") {
+        if (accountingFilter || !DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
             holder.vtfcategory.visibility = View.GONE
         }
-        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL) != "true") {
+        if (!accountingFilter && !DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
             holder.vtfpercentage1.visibility = View.GONE
             holder.vtfpercentage2.visibility = View.GONE
         }
-        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_TYPE_IN_VIEW_ALL) != "true")
+        if (!accountingFilter && !DefaultsViewModel.getDefaultShowTypeInViewAll())
             holder.vtftype.visibility = View.GONE
-        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_WHO_IN_VIEW_ALL) != "true")
+        if (!accountingFilter && !DefaultsViewModel.getDefaultShowWhoInViewAll())
             holder.vtfwho.visibility = View.GONE
-        if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_NOTE_VIEW_ALL) != "true")
+        if (accountingFilter || !DefaultsViewModel.getDefaultShowNoteInViewAll())
             holder.vtfnote.visibility = View.GONE
-        if (accountingFilter || DefaultsViewModel.getDefault(cDEFAULT_SHOW_DISC_IN_VIEW_ALL) != "true")
+        if (accountingFilter || !DefaultsViewModel.getDefaultShowDiscInViewAll())
             holder.vtfdisc.visibility = View.GONE
-        if (!accountingFilter && DefaultsViewModel.getDefault(cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL) != "true")
+        if (!accountingFilter && !DefaultsViewModel.getDefaultShowRunningTotalInViewAll())
             holder.vtfrunningtotal.visibility = View.GONE
     }
 
@@ -260,16 +260,17 @@ class TransactionRecyclerAdapter(
                 filteredList[i].paidby == 2
             ) {
                 val name1PortionOfExpense =
-                    filteredList[i].amount / 100.0 * filteredList[i].bfname1split / 100.0
+                    round(filteredList[i].amount * filteredList[i].bfname1split) / 100.0
                 val name1PortionOfFundsUsed =
                     when (filteredList[i].paidby) {
-                        0 -> filteredList[i].amount / 100.0
+                        0 -> filteredList[i].amount
                         1 -> 0.0
                         else // must be Joint
-                        -> filteredList[i].amount / 100.0 * SpenderViewModel.getSpenderSplit(0) / 100.0
+                        -> filteredList[i].amount * SpenderViewModel.getSpenderSplit(0)
                     }
                 trunningTotalList.add(previousRunningTotal + name1PortionOfExpense - name1PortionOfFundsUsed)
                 previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed)
+                previousRunningTotal = round(previousRunningTotal * 100) / 100
             } else {
                 trunningTotalList.add(previousRunningTotal)
             }
@@ -298,10 +299,10 @@ class TransactionRecyclerAdapter(
         return filteredList.size
     }
 
-    fun getPositionOf(currentTopPosition: Int, jump: String): Int {
+    fun getPositionOf(currentTopPosition: Int, jump: Int): Int {
         var newPosition: Int
         when (jump) {
-            "-year" -> {
+            cPREV_YEAR -> {
                 if (currentTopPosition == 0) return 0
                 newPosition = currentTopPosition - 1
                 val targetYear: String = if (filteredList[currentTopPosition].date.substring(
@@ -324,7 +325,7 @@ class TransactionRecyclerAdapter(
                 newPosition++
                 return newPosition
             }
-            "-month" -> {
+            cPREV_MONTH -> {
                 if (currentTopPosition == 0) return 0
                 newPosition = currentTopPosition - 1
                 val targetYearMonth: String = if (filteredList[currentTopPosition].date.substring(
@@ -345,7 +346,7 @@ class TransactionRecyclerAdapter(
                 newPosition++
                 return newPosition
             }
-            "today" -> {
+            cTODAY -> {
                 val currentDate: String
                 val cal = android.icu.util.Calendar.getInstance()
                 currentDate = giveMeMyDateFormat(cal)
@@ -355,7 +356,7 @@ class TransactionRecyclerAdapter(
                 }
                 return (newPosition - 1)
             }
-            "+month" -> {
+            cNEXT_MONTH -> {
                 newPosition = currentTopPosition + 1
                 val currentYearMonth: String = filteredList[currentTopPosition].date.substring(0, 7)
                 while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
@@ -367,7 +368,7 @@ class TransactionRecyclerAdapter(
                 }
                 return newPosition
             }
-            "+year" -> {
+            cNEXT_YEAR -> {
                 newPosition = currentTopPosition + 1
                 val currentYear: String = filteredList[currentTopPosition].date.substring(0, 4)
                 while (newPosition < filteredList.size && filteredList[newPosition].date.substring(

@@ -79,20 +79,20 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         viewHolder.vhWho.text = SpenderViewModel.getSpenderName(bData.who)
         viewHolder.vhOccurence.text = bData.occurence
         if (bData.occurence == "0")
-            viewHolder.vhOccurence.text = "Recurring"
+            viewHolder.vhOccurence.text =  MyApplication.getString(R.string.recurring)
         else
-            viewHolder.vhOccurence.text = "Once"
+            viewHolder.vhOccurence.text = MyApplication.getString(R.string.once)
         viewHolder.vhAmount.text = gDecWithCurrency(bData.amount.toDouble())
         if (bData.isAnnual == "") {
             viewHolder.vhAnnualIndicator.text = ""
         } else {
-            viewHolder.vhAnnualIndicator.text = "A"
+            viewHolder.vhAnnualIndicator.text = MyApplication.getString(R.string.annual_short)
             if (bData.label == cBudgetCategoryView)
                 viewHolder.vhLabel.text = bData.dateApplicable.substring(0,4)
         }
-        if (bData.dateApplicable == bData.dateStarted ) {
+/*        if (bData.dateApplicable == bData.dateStarted ) {
             viewHolder.vhLabel.setTypeface(viewHolder.vhLabel.typeface, Typeface.BOLD)
-        }
+        } */
         if (SpenderViewModel.singleUser()) {
             viewHolder.vhWho.visibility = View.GONE
         }

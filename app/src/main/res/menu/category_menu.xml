@@ -7,5 +7,5 @@
     <item
         android:id="@+id/action_add"
         android:icon="@drawable/ic_fas_plus"
-        android:title="@string/add_new_category"/>
+        android:title="@string/add_category"/>
 </menu>

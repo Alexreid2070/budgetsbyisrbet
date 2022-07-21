@@ -1,10 +1,8 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +17,7 @@ class TransactionCreditDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     companion object {
-        private const val KEY_TRANSACTION_ID = "KEY_TRANSACTION_ID"
+        private const val KEY_TRANSACTION_ID = "0"
         private var oldID: String = ""
         fun newInstance(
             inID: String
@@ -47,12 +45,11 @@ class TransactionCreditDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val cal = android.icu.util.Calendar.getInstance()
         super.onViewCreated(view, savedInstanceState)
-        Log.d("Alex", "In id $oldID")
 
         setupClickListeners()
         val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return
 
-        binding.creditAmount.setText(gDecM.format(-1 * thisTransaction.amount/100.0))
+        binding.creditAmount.setText(gDecM(-1 * thisTransaction.amount))
         binding.creditDate.setText(giveMeMyDateFormat(cal))
         binding.creditNote.setText("CREDIT")
         binding.currencySymbol.text = getLocalCurrencySymbol() + " "
@@ -87,7 +84,7 @@ class TransactionCreditDialogFragment : DialogFragment() {
             val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return@setOnClickListener
 
             if (binding.creditAmount.text.toString() == "") {
-                binding.creditAmount.error=getString(R.string.missingAmountError)
+                binding.creditAmount.error=getString(R.string.value_cannot_be_blank)
                 focusAndOpenSoftKeyboard(requireContext(), binding.creditAmount)
                 return@setOnClickListener
             }
@@ -98,17 +95,16 @@ class TransactionCreditDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
 
-            val amountInt: Int = round(amount * 100).toInt()
             val transactionOut = TransactionOut(
                 binding.creditDate.text.toString(),
-                amountInt,
+                round(amount*100).toInt(),
                 thisTransaction.category,
                 thisTransaction.note,
                 binding.creditNote.text.toString().trim(),
                 thisTransaction.paidby,
                 thisTransaction.boughtfor,
                 thisTransaction.bfname1split,
-                "Credit"
+                cTRANSACTION_TYPE_CREDIT
             )
             TransactionViewModel.addTransaction(transactionOut)
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)

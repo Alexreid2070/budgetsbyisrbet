@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
@@ -69,16 +68,18 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
 
         viewHolder.vhID.text = cData.id.toString()
         viewHolder.vhSubcategory.text = cData.subcategoryName
-        viewHolder.vhDiscType.text = cData.discType
-        viewHolder.vhState.text = cData.state
+        viewHolder.vhDiscType.text =
+            if (cData.discType == cDiscTypeDiscretionary)
+                MyApplication.getString(R.string.discretionary)
+            else
+                MyApplication.getString(R.string.non_discretionary)
+        viewHolder.vhState.text = if (cData.inUse) MyApplication.getString(R.string.on)
+            else MyApplication.getString(R.string.off)
         if (SpenderViewModel.twoDistinctUsers()) {
             viewHolder.vhPrivacy.visibility = if (cData.private != 2) View.VISIBLE else View.INVISIBLE
         } else
             viewHolder.vhPrivacy.visibility = View.INVISIBLE
-        if (cData.state == cOFF) {
-            viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
-            viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
-        } else {
+        if (cData.inUse) {
             val col = MaterialColors.getColor(
                 myContext,
                 R.attr.textOnBackground,
@@ -86,6 +87,9 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
             )
             viewHolder.vhSubcategory.setTextColor(col)
             viewHolder.vhDiscType.setTextColor(col)
+        } else {
+            viewHolder.vhSubcategory.setTextColor(ContextCompat.getColor(myContext, R.color.red))
+            viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         }
         val cat = DefaultsViewModel.getCategoryDetail(cData.categoryName)
         if (cat.color != 0) {

@@ -46,16 +46,16 @@ class AccountingFragment : Fragment() {
         binding.accountingSummary.setOnClickListener {
             val action =
                 AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
-            action.accountingFlag = "Accounting"
+            action.accountingFlag = getString(R.string.accounting)
             findNavController().navigate(action)
-            MyApplication.displayToast("These are the transactions that result in the amount owing.")
+            MyApplication.displayToast(getString(R.string.these_are_the_transactions))
         }
         binding.summarySection.setOnClickListener {
             val action =
                 AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
-            action.accountingFlag = "Accounting"
+            action.accountingFlag = getString(R.string.accounting)
             findNavController().navigate(action)
-            MyApplication.displayToast("These are the transactions that result in the amount owing.")
+            MyApplication.displayToast(getString(R.string.these_are_the_transactions))
         }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
@@ -63,7 +63,7 @@ class AccountingFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.transfer_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-        HintViewModel.showHint(parentFragmentManager, "Accounting")
+        HintViewModel.showHint(parentFragmentManager, cHINT_ACCOUNTING)
     }
 
     private fun fillInContent() {
@@ -79,42 +79,42 @@ class AccountingFragment : Fragment() {
         binding.accountingSecondRowName.text = secondName
         binding.accountingTTofRowName.text = firstName
         binding.accountingTTosRowName.text = secondName
-        binding.accountingJfrowName.text = "Jt-$firstName"
-        binding.accountingJsrowName.text = "Jt-$secondName"
-        binding.accountingTToj1RowName.text = "Jt-$firstName"
-        binding.accountingTToj2RowName.text = "Jt-$secondName"
+        binding.accountingJfrowName.text = getString(R.string.JTdash) + firstName
+        binding.accountingJsrowName.text = getString(R.string.JTdash) + secondName
+        binding.accountingTToj1RowName.text = getString(R.string.JTdash) + firstName
+        binding.accountingTToj2RowName.text = getString(R.string.JTdash) + secondName
 
         for (i in 0 until TransactionViewModel.getCount()) {
             val exp = TransactionViewModel.getTransaction(i)
-            if (exp.type == "Transfer") {
+            if (exp.type == cTRANSACTION_TYPE_TRANSFER) {
                 when (exp.paidby) {
                     0 -> {
                         when (exp.boughtfor) {
-                            0 -> transferTotals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            1 -> transferTotals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            0 -> transferTotals[cFIRST_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
+                            1 -> transferTotals[cFIRST_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
                             2 -> {
-                                transferTotals[cFIRST_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
+                                transferTotals[cFIRST_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
+                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
                             }
                         }
                     }
                     1 -> {
                         when (exp.boughtfor) {
-                            0 -> transferTotals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            1 -> transferTotals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            0 -> transferTotals[cSECOND_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
+                            1 -> transferTotals[cSECOND_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
                             2 -> {
-                                transferTotals[cSECOND_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
+                                transferTotals[cSECOND_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
+                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
                             }
                         }
                     }
                     2 -> {
                         when (exp.boughtfor) {
-                            0 -> transferTotals[cJOINT_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            1 -> transferTotals[cJOINT_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            0 -> transferTotals[cJOINT_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
+                            1 -> transferTotals[cJOINT_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
                             2 -> {
-                                transferTotals[cJOINT_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
+                                transferTotals[cJOINT_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
+                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
                             }
                         }
                     }
@@ -123,33 +123,31 @@ class AccountingFragment : Fragment() {
                 when (exp.paidby) {
                     0 -> {
                         when (exp.boughtfor) {
-                            0 -> totals[cFIRST_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            1 -> totals[cFIRST_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            0 -> totals[cFIRST_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
+                            1 -> totals[cFIRST_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
                             2 -> {
-                                totals[cFIRST_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                                totals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
+                                totals[cFIRST_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
+                                totals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
                             }
                         }
                     }
                     1 -> {
                         when (exp.boughtfor) {
-                            0 -> totals[cSECOND_NAME][cFIRST_NAME] += (exp.amount/100.0)
-                            1 -> totals[cSECOND_NAME][cSECOND_NAME] += (exp.amount/100.0)
+                            0 -> totals[cSECOND_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
+                            1 -> totals[cSECOND_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
                             2 -> {
-                                totals[cSECOND_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                                totals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
+                                totals[cSECOND_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
+                                totals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
                             }
                         }
                     }
                     2 -> {
                         when (exp.boughtfor) {
-                            0 -> {
-                                totals[cJOINT_NAME][cFIRST_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                            }
-                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += exp.getAmount(1, NOT_ROUNDED)
+                            0 -> totals[cJOINT_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
+                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
                             2 -> {
-                                totals[cJOINT_NAME][cJOINT_NAME] += exp.getAmount(0, NOT_ROUNDED)
-                                totals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmount(1, NOT_ROUNDED)
+                                totals[cJOINT_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
+                                totals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
                             }
                         }
                     }
@@ -189,8 +187,7 @@ class AccountingFragment : Fragment() {
         binding.accountingJfj.text = gDecWithCurrency(totals[cJOINT_NAME][cJOINT_NAME])
 
         val jointIsAsExpected = totals[cJOINT_NAME][cJOINT_NAME] == ((totals[cJOINT_NAME][cJOINT_NAME] +
-                totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(0) / 100.0)
-        Log.d("Alex", "joint is as expected is $jointIsAsExpected")
+                totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(0))
         if (totals[cJOINT_NAME][cJOINT_NAME] == 0.0 || jointIsAsExpected)
             binding.accountingJfj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingJsj.text = gDecWithCurrency(totals[cJOINT_NAME][cJOINT_NAME+1])
@@ -238,16 +235,16 @@ class AccountingFragment : Fragment() {
                 + (totals[cSECOND_NAME][cFIRST_NAME])
                 - (totals[cFIRST_NAME][cJOINT_NAME+1])
                 + (totals[cSECOND_NAME][cJOINT_NAME])
-                + ((totals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
-                - ((totals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100)
-                + ((totals[cJOINT_NAME][cJOINT_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
-                - ((totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(1)/100)
+                + ((totals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0))
+                - ((totals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1))
+                + ((totals[cJOINT_NAME][cJOINT_NAME]) * SpenderViewModel.getSpenderSplit(0))
+                - ((totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(1))
                 - (transferTotals[cFIRST_NAME][cSECOND_NAME])
                 + (transferTotals[cSECOND_NAME][cFIRST_NAME])
                 - (transferTotals[cFIRST_NAME][cJOINT_NAME+1])
                 + (transferTotals[cSECOND_NAME][cJOINT_NAME])
-                + ((transferTotals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0)/100)
-                - ((transferTotals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)/100))
+                + ((transferTotals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0))
+                - ((transferTotals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)))
 
         val gridLayout = binding.gridLayout
         var cellIndex = 0
@@ -265,50 +262,50 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
-                "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
                 totals[cFIRST_NAME][cJOINT_NAME+1], cellIndex)
             cellIndex += 2
             subtotal += totals[cFIRST_NAME][cJOINT_NAME+1]
         }
         if (totals[cJOINT_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
+            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 SpenderViewModel.getSpenderName(1),
-                totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100, cellIndex)
+                totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1), cellIndex)
             cellIndex += 2
-            subtotal += totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100
+            subtotal += totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)
         }
         if (totals[cJOINT_NAME][cJOINT_NAME+1] != 0.0 && !jointIsAsExpected) {
-            buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
-                "Joint ("+SpenderViewModel.getSpenderName(1)+"'s)",
-                totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)/100, cellIndex)
+            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                getString(R.string.joint) + " (" + SpenderViewModel.getSpenderName(1) + ")",
+                totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1), cellIndex)
             cellIndex += 2
-            subtotal += totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)/100
+            subtotal += totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)
         }
         if (transferTotals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
                 SpenderViewModel.getSpenderName(1),
-                transferTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, "Transfer")
+                transferTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
             subtotal += transferTotals[cFIRST_NAME][cSECOND_NAME]
         }
         if (transferTotals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
-                "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
-                transferTotals[cFIRST_NAME][cJOINT_NAME+1], cellIndex, "Transfer")
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                transferTotals[cFIRST_NAME][cJOINT_NAME+1], cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
             subtotal += transferTotals[cFIRST_NAME][cJOINT_NAME+1]
         }
         if (transferTotals[cJOINT_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
+            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 SpenderViewModel.getSpenderName(1),
-                transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100,
-                cellIndex, "Transfer")
+                transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1),
+                cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
-            subtotal += transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)/100
+            subtotal += transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)
         }
         buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
             SpenderViewModel.getSpenderName(1),
-            subtotal, cellIndex, "Sub-Total")
+            subtotal, cellIndex, getString(R.string.sub_total))
         cellIndex += 2
 
         var subtotal2 = 0.0
@@ -321,60 +318,60 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
-                "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 totals[cSECOND_NAME][cJOINT_NAME], cellIndex)
             cellIndex += 2
             subtotal2 += totals[cSECOND_NAME][cJOINT_NAME]
         }
         if (totals[cJOINT_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
+            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
                 SpenderViewModel.getSpenderName(0),
-                totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100, cellIndex)
+                totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0), cellIndex)
             cellIndex += 2
-            subtotal2 += totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100
+            subtotal2 += totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)
         }
         if (totals[cJOINT_NAME][cJOINT_NAME] != 0.0 && !jointIsAsExpected) {
-            buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
-                "Joint ("+SpenderViewModel.getSpenderName(0)+"'s)",
-                totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)/100, cellIndex)
+            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                getString(R.string.joint) + " ("+SpenderViewModel.getSpenderName(0)+")",
+                totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0), cellIndex)
             cellIndex += 2
-            subtotal2 += totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)/100
+            subtotal2 += totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)
         }
         if (transferTotals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
                 SpenderViewModel.getSpenderName(0),
-                transferTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, "Transfer")
+                transferTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
             subtotal2 += transferTotals[cSECOND_NAME][cFIRST_NAME]
         }
         if (transferTotals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
-                "Joint ("+SpenderViewModel.getSpenderName(0)+"'s portion)",
-                transferTotals[cSECOND_NAME][cJOINT_NAME], cellIndex, "Transfer")
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                transferTotals[cSECOND_NAME][cJOINT_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
             subtotal2 += transferTotals[cSECOND_NAME][cJOINT_NAME]
         }
         if (transferTotals[cJOINT_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout, "Joint ("+SpenderViewModel.getSpenderName(1)+"'s portion)",
+            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
                 SpenderViewModel.getSpenderName(0),
-                transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100,
-                cellIndex, "Transfer")
+                transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0),
+                cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
-            subtotal2 += transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)/100
+            subtotal2 += transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)
         }
         buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
             SpenderViewModel.getSpenderName(0),
-            subtotal2, cellIndex, "Sub-Total")
+            subtotal2, cellIndex, getString(R.string.sub_total))
         cellIndex += 2
 
         when {
-            oneOwesTwo == 0.0 -> binding.accountingSummary.text = "Nobody owes anyone!"
+            oneOwesTwo == 0.0 -> binding.accountingSummary.text = getString(R.string.nobody_owes_anybody)
             oneOwesTwo > 0 -> {
-                binding.accountingSummary.text = firstName + " owes " + secondName +  " " + gDecWithCurrency(oneOwesTwo)
+                binding.accountingSummary.text = firstName + " " + getString(R.string.owes) +  " " + secondName +  " " + gDecWithCurrency(oneOwesTwo)
                 binding.accountingSummary2.text = " (" + gDecWithCurrency(subtotal2) + " - " + gDecWithCurrency(subtotal) + ")"
             }
             else -> {
-                binding.accountingSummary.text = secondName + " owes " + firstName + " " + gDecWithCurrency(oneOwesTwo*-1)
+                binding.accountingSummary.text = secondName + " " + getString(R.string.owes) + " " + firstName + " " + gDecWithCurrency(oneOwesTwo*-1)
                 binding.accountingSummary2.text = " (" + gDecWithCurrency(subtotal) + " - " + gDecWithCurrency(subtotal2) + ")"
             }
         }
@@ -391,19 +388,19 @@ class AccountingFragment : Fragment() {
         val titleText = TextView(context)
         val amountText = TextView(context)
         when (iTransfer) {
-            "Transfer" -> titleText.text = "$iName1 transferred to $iName2:  "
-            "Sub-Total" -> {
+            cTRANSACTION_TYPE_TRANSFER -> titleText.text = String.format(getString(R.string.transferred_to), iName1, iName2)  + ":  "
+            getString(R.string.sub_total) -> {
                 paramsT.topMargin = 10
                 paramsT.bottomMargin = 40
                 titleText.setTypeface(null, Typeface.BOLD)
                 amountText.setTypeface(null, Typeface.BOLD)
-                titleText.text = "Total $iName1's funds used for $iName2:  "
+                titleText.text = String.format(getString(R.string.total_funds_used_for), iName1, iName2) + ":  "
             }
-            else -> titleText.text = "$iName1 paid for $iName2:  "
+            else -> titleText.text = String.format(getString(R.string.paid_for), iName1, iName2) + ":  "
         }
         titleText.layoutParams = paramsT
         iGridLayout.addView(titleText,0)
-        if (iTransfer == "Sub-Total")
+        if (iTransfer == getString(R.string.sub_total))
             amountText.text = gDecWithCurrency(iAmount)
         else
             amountText.text = gDecWithCurrency(iAmount)

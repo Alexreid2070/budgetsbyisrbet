@@ -359,47 +359,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/split_is"
-                        android:textSize="16sp"/>
-                    <TextView
-                        android:id="@+id/split_name1_pct"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/percentage_short"
-                        android:textSize="16sp"/>
-                    <TextView
-                        android:id="@+id/split_name1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:textSize="16sp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/and"
-                        android:textSize="16sp"/>
-                    <TextView
-                        android:id="@+id/split_name2_pct"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/percentage_short"
-                        android:textSize="16sp"/>
-                    <TextView
-                        android:id="@+id/split_name2"
+                        android:id="@+id/split_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
@@ -626,7 +586,8 @@
                         android:text="@string/show_red_at"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:tooltipText="Expenses less than budget = green.   Over budget but less than 'Red %' = yellow.  Greater than 'Red %' = red." />
+                        android:tooltipText="Expenses less than budget = green.   Over budget but less than 'Red %' = yellow.  Greater than 'Red %' = red."
+                        tools:ignore="TooManyViews" />
                     <TextView
                         android:id="@+id/redPercentage"
                         android:layout_width="wrap_content"
@@ -717,7 +678,7 @@
             android:maxLines="1"/>
 
         <TextView
-            android:id="@+id/expand_recurring_transactions"
+            android:id="@+id/expand_scheduled_payments"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
