@@ -246,6 +246,7 @@
     <string name="scheduled">Scheduled</string>
     <string name="add_scheduled_payment">Add Scheduled Payment</string>
     <string name="amountNotNegative">Credit amount must be negative.</string>
+    <string name="credit_created">Credit has been created.</string>
     <string name="these_are_the_transactions">These are the transactions that result in the amount owing.</string>
     <string name="JTdash">Jt-</string>
     <string name="sub_total">Sub-total</string>
@@ -375,4 +376,8 @@
     <string name="split_is_x_pct_d_for_name1_and_z_pct_d_for_name2">Split is %1$s%% (\$%2$s) for %3$s and %4$s%% (\$%5$s) for %6$s.</string>
     <string name="split_is_x_pct_d_for_name1">Split is %1$s%% (\$%2$s) for %3$s.</string>
     <string name="split_is_x_pct_for_name1">Split is %1$s%% for %2$s.</string>
+    <string name="english">English</string>
+    <string name="french">French</string>
+    <string name="default_language">Language</string>
+    <string name="language_has_been_changed_please_restart">Language has been changed.  Restart application to see changes.</string>
 </resources>

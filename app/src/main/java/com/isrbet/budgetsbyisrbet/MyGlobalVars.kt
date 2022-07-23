@@ -1,19 +1,23 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.app.Activity
 import android.app.Application
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
+import android.app.Application.ActivityLifecycleCallbacks
+import android.content.*
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
 import android.icu.text.NumberFormat
 import android.icu.util.Calendar
 import android.media.MediaPlayer
+import android.os.Build
+import android.os.Bundle
+import android.os.LocaleList
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.util.ArrayMap
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
@@ -23,7 +27,12 @@ import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.annotation.NonNull
+import androidx.annotation.Nullable
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -40,6 +49,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
+
 
 const val cMODE_VIEW = 0
 const val cMODE_EDIT = 1
@@ -195,6 +205,8 @@ class MyApplication : Application() {
         var adminMode: Boolean = false
         var haveLoadedDataForThisUser = false
         lateinit var myMainActivity: MainActivity
+        lateinit var prefs: SharedPreferences
+        lateinit var prefEditor: SharedPreferences.Editor
 
         fun getString(iParam: Int): String {
             return mContext.resources.getString(iParam)
@@ -242,6 +254,9 @@ class MyApplication : Application() {
         Firebase.database.setPersistenceEnabled(true)
         database = FirebaseDatabase.getInstance()
         databaseref = database.reference
+        prefs = applicationContext.getSharedPreferences("Prefs", 0)
+        prefEditor = prefs.edit()
+        LangUtils.init(this)
     }
 
     override fun onTerminate() {
@@ -783,6 +798,149 @@ fun getSplitText (iSplit1: Int, iAmount: String): String {
             split2,
             gDec(amount2),
             SpenderViewModel.getSpenderName(1))
+    }
+}
+
+object LangUtils {
+    const val LANG_AUTO = "auto"
+    const val LANG_DEFAULT = "en"
+    private var sLocaleMap: ArrayMap<String, Locale>? = null
+    fun init(@NonNull application: Application) {
+        application.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            private val mLastLocales: HashMap<ComponentName, Locale> = HashMap()
+            override fun onActivityCreated(
+                @NonNull activity: Activity,
+                @Nullable savedInstanceState: Bundle?
+            ) {
+                mLastLocales[activity.componentName] = applyLocaleToActivity(activity)
+            }
+
+            override fun onActivityStarted(@NonNull activity: Activity) {
+                if (mLastLocales[activity.componentName] != getFromPreference(activity)) {
+                    Log.d("LangUtils", "Locale changed in activity " + activity.componentName)
+                    ActivityCompat.recreate(activity)
+                }
+            }
+
+            override fun onActivityResumed(@NonNull activity: Activity) {}
+            override fun onActivityPaused(@NonNull activity: Activity) {}
+            override fun onActivityStopped(@NonNull activity: Activity) {}
+            override fun onActivitySaveInstanceState(
+                @NonNull activity: Activity,
+                @NonNull outState: Bundle
+            ) {
+            }
+
+            override fun onActivityDestroyed(@NonNull activity: Activity) {
+                mLastLocales.remove(activity.componentName)
+            }
+        })
+        application.registerComponentCallbacks(object : ComponentCallbacks {
+            override fun onConfigurationChanged(@NonNull newConfig: Configuration) {
+                applyLocale(application)
+            }
+
+            override fun onLowMemory() {}
+        })
+        applyLocale(application)
+    }
+
+    fun setAppLanguages(@NonNull context: Context) {
+        if (sLocaleMap == null) sLocaleMap = ArrayMap()
+        val res = context.resources
+        val conf = res.configuration
+        // Assume that there is an array called language_key which contains all the supported language tags
+        val locales = context.resources.getStringArray(R.array.languages_key)
+        val appDefaultLocale = Locale.forLanguageTag(LANG_DEFAULT)
+        val langTag = MyApplication.prefs.getString("lang", null)
+        for (locale in locales) {
+            conf.setLocale(Locale.forLanguageTag(locale))
+            val ctx = context.createConfigurationContext(conf)
+            if (LANG_AUTO == locale) {
+                sLocaleMap!!.put(LANG_AUTO, null)
+            } else if (LANG_DEFAULT == langTag) {
+                sLocaleMap!!.put(LANG_DEFAULT, appDefaultLocale)
+            } else sLocaleMap!!.put(locale, ConfigurationCompat.getLocales(conf)[0])
+        }
+    }
+
+    @NonNull
+    fun getAppLanguages(@NonNull context: Context): ArrayMap<String, Locale>? {
+        if (sLocaleMap == null) setAppLanguages(context)
+        return sLocaleMap
+    }
+
+    @NonNull
+    fun getFromPreference(@NonNull context: Context): Locale {
+        getAppLanguages(context)
+        val language: String? = MyApplication.prefs.getString("lang", null)
+        val locale: Locale? = sLocaleMap?.get(language)
+        if (locale != null) {
+            return locale
+        }
+        // Load from system configuration
+        val conf = Resources.getSystem().configuration
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) conf.locales[0] else conf.locale
+    }
+
+    fun applyLocaleToActivity(activity: Activity): Locale {
+        val locale = applyLocale(activity)
+        // Update title
+        try {
+            val info = activity.packageManager.getActivityInfo(activity.componentName, 0)
+            if (info.labelRes != 0) {
+                activity.setTitle(info.labelRes)
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        // Update menu
+        activity.invalidateOptionsMenu()
+        return locale
+    }
+
+    private fun applyLocale(context: Context): Locale {
+        return applyLocale(context, getFromPreference(context))
+    }
+
+    private fun applyLocale(@NonNull context: Context, @NonNull locale: Locale): Locale {
+        updateResources(context, locale)
+        val appContext = context.applicationContext
+        if (appContext !== context) {
+            updateResources(appContext, locale)
+        }
+        return locale
+    }
+
+    private fun updateResources(@NonNull context: Context, @NonNull locale: Locale) {
+        Locale.setDefault(locale)
+        val res = context.resources
+        var conf = res.configuration
+        val current =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) conf.locales[0] else conf.locale
+        if (current === locale) {
+            return
+        }
+        conf = Configuration(conf)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            setLocaleApi24(conf, locale)
+        } else {
+            conf.setLocale(locale)
+        }
+        res.updateConfiguration(conf, res.displayMetrics)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun setLocaleApi24(@NonNull config: Configuration, @NonNull locale: Locale) {
+        val defaultLocales = LocaleList.getDefault()
+        val locales: LinkedHashSet<Locale?> = LinkedHashSet(defaultLocales.size() + 1)
+        // Bring the target locale to the front of the list
+        // There's a hidden API, but it's not currently used here.
+        locales.add(locale)
+        for (i in 0 until defaultLocales.size()) {
+            locales.add(defaultLocales[i])
+        }
+        config.setLocales(LocaleList(*locales.toArray(arrayOfNulls<Locale>(0))))
     }
 }
 

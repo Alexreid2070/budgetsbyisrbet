@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionCreditDialogBinding
 import java.util.*
@@ -107,6 +108,7 @@ class TransactionCreditDialogFragment : DialogFragment() {
                 cTRANSACTION_TYPE_CREDIT
             )
             TransactionViewModel.addTransaction(transactionOut)
+            Toast.makeText(activity, getString(R.string.credit_created), Toast.LENGTH_SHORT).show()
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         }

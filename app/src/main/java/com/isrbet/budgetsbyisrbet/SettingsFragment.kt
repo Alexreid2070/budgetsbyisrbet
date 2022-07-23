@@ -518,6 +518,26 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        binding.languageRadioGroup.setOnCheckedChangeListener { _, _ ->
+            val selectedId = binding.languageRadioGroup.checkedRadioButtonId
+            val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+            val language = radioButton.text.toString()
+            if (language == getString(R.string.english)) {
+                MyApplication.prefEditor.putString("lang", "en")
+            } else {
+                MyApplication.prefEditor.putString("lang", "fr-rCA")
+            }
+            MyApplication.prefEditor.commit()
+            Toast.makeText(activity, getString(R.string.language_has_been_changed_please_restart), Toast.LENGTH_SHORT).show()
+        }
+
+        var lang = MyApplication.prefs.getString("lang", null)
+        val desiredButton = if (lang == "en")
+            requireActivity().findViewById(R.id.button_english) as RadioButton
+        else
+            requireActivity().findViewById(R.id.button_french) as RadioButton
+        desiredButton.isChecked = true
+
         binding.settingsFirstUserName.requestFocus()
         HintViewModel.showHint(parentFragmentManager, cHINT_PREFERENCES)
     }

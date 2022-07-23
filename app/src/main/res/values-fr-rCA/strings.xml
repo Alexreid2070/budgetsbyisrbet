@@ -248,6 +248,7 @@
     <string name="scheduled">Programmé</string>
     <string name="add_scheduled_payment">Ajouter un paiement programmé</string>
     <string name="amountNotNegative">Le montant du crédit doit être négatif.</string>
+    <string name="credit_created">Le crédit a été créé.</string>
     <string name="these_are_the_transactions">Ce sont les transactions qui donnent lieu au montant dû.</string>
     <string name="JTdash">Jt-</string>
     <string name="sub_total">Sous-total</string>
@@ -377,4 +378,8 @@
     <string name="split_is_x_pct_d_for_name1_and_z_pct_d_for_name2">Fractionner est %1$s%% (\$%2$s) pour %3$s et %4$s%% (\$%5$s) pour %6$s.</string>
     <string name="split_is_x_pct_d_for_name1">Fractionner est %1$s%% (\$%2$s) pour %3$s.</string>
     <string name="split_is_x_pct_for_name1">Fractionner est %1$s%% pour %2$s.</string>
+    <string name="english">Anglais</string>
+    <string name="french">Français</string>
+    <string name="default_language">Langue</string>
+    <string name="language_has_been_changed_please_restart">La langue a été modifiée. Redémarrez l\'application pour voir les changements.</string>
 </resources>
