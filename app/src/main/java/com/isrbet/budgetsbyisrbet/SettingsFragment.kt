@@ -523,16 +523,16 @@ class SettingsFragment : Fragment() {
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             val language = radioButton.text.toString()
             if (language == getString(R.string.english)) {
-                MyApplication.prefEditor.putString("lang", "en")
+                MyApplication.prefEditor.putString("lang", "en-US")
             } else {
-                MyApplication.prefEditor.putString("lang", "fr-rCA")
+                MyApplication.prefEditor.putString("lang", "fr-CA")
             }
             MyApplication.prefEditor.commit()
             Toast.makeText(activity, getString(R.string.language_has_been_changed_please_restart), Toast.LENGTH_SHORT).show()
         }
 
         var lang = MyApplication.prefs.getString("lang", null)
-        val desiredButton = if (lang == "en")
+        val desiredButton = if (lang == "en-US")
             requireActivity().findViewById(R.id.button_english) as RadioButton
         else
             requireActivity().findViewById(R.id.button_french) as RadioButton

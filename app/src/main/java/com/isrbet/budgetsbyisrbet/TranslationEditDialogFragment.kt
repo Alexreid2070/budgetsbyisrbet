@@ -94,7 +94,7 @@ class TranslationEditDialogFragment : DialogFragment() {
 
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.are_you_sure))
-                .setMessage(getString(R.string.are_you_sure_that_you_want_to_delete_this_item))
+                .setMessage(String.format(getString(R.string.are_you_sure_that_you_want_to_delete_this_item), myTranslation.before))
                 .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()

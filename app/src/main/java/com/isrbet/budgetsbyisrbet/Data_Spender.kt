@@ -37,6 +37,10 @@ class SpenderViewModel : ViewModel() {
             } else
                 null
         }
+        fun getCurrentSpender(): Spender? {
+            return singleInstance.spenders.find { it.email == MyApplication.currentUserEmail }
+        }
+
         fun getSpenderName(index:Int): String {
             return if (index >= 0 && index  < singleInstance.spenders.size)
                 singleInstance.spenders[index].name
@@ -132,7 +136,7 @@ class SpenderViewModel : ViewModel() {
                 .child(index.toString()).child("isactive").setValue(spender.isActive)
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")
                 .child(index.toString()).child("split").setValue(spender.split)
-    }
+        }
         fun updateSpender(index: Int, spender: Spender) {
             if (spender.name != singleInstance.spenders[index].name) {
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Spender")

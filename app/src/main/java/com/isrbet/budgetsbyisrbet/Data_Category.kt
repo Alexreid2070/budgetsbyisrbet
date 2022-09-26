@@ -128,7 +128,6 @@ class CategoryViewModel : ViewModel() {
 
         fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
                            iPrivate: Int, iInUse: Boolean, iLocalOnly: Boolean = false): Category {
-            Log.d("Alex", "Setting iInUse to $iInUse")
             var cat: Category? = singleInstance.categories.find { it.id == id }
             if (cat == null) {
                 cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse)
@@ -304,13 +303,8 @@ class CategoryViewModel : ViewModel() {
                                 "Category" -> category = child.value.toString().trim()
                                 "SubCategory" -> subcategory = child.value.toString().trim()
                                 "Type" -> disctype = child.value.toString().trim()
-                                "State" -> {
-                                    Log.d("Alex", "In callback $category $subcategory state value is " + child.value.toString().trim())
-                                    inUse = child.value.toString().lowercase().trim()
-                                }
-                                "Private" -> {
-                                    private = child.value.toString().toInt()
-                                }
+                                "State" -> inUse = child.value.toString().lowercase().trim()
+                                "Private" -> private = child.value.toString().toInt()
                             }
                         }
                         categories.add(Category(categoryID, category, subcategory, disctype, private, inUse != cFALSE))

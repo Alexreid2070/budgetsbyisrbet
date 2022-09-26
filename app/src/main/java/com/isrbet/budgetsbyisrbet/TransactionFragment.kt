@@ -104,8 +104,7 @@ class TransactionFragment : Fragment() {
                 val selectedId = binding.paidByRadioGroup.checkedRadioButtonId
                 val pbRadioButton = requireActivity().findViewById(selectedId) as RadioButton
 
-                val bfRadioGroup =
-                    requireActivity().findViewById<RadioGroup>(R.id.boughtForRadioGroup)
+                val bfRadioGroup = binding.boughtForRadioGroup
                 for (i in 0 until bfRadioGroup.childCount) {
                     val o = bfRadioGroup.getChildAt(i)
                     if (o is RadioButton) {
@@ -409,7 +408,7 @@ class TransactionFragment : Fragment() {
                 binding.buttonCredit.visibility = View.VISIBLE
 //            val iAmount = thisTransaction.amount
 //            val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-            binding.editTextAmount.setText(gDecM(thisTransaction.amount))
+            binding.editTextAmount.setText(gDec(thisTransaction.amount))
             binding.transactionId.text = iTransactionID
             binding.categoryId.text = thisTransaction.category.toString()
             if (MyApplication.adminMode) {

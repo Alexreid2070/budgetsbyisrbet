@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
+    tools:context=".RetirementDetailsFragment">
+
+    <ScrollView
+        android:id="@+id/scroll_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
+        android:layout_above="@id/expansion_layout">
+
+            <HorizontalScrollView
+                android:id="@+id/horizontalScrollLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                    <TableLayout
+                        android:id="@+id/retirement_table_rows"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:stretchColumns="*" />
+
+            </HorizontalScrollView>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/expansion_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/expand_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:maxLines="1"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:text="@string/view"
+            android:textAlignment="center"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24" />
+
+        <RadioGroup
+            android:id="@+id/viewRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/allRadioButton"
+            android:gravity="start"
+            android:orientation="vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="?attr/colorSecondaryVariant"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/show_all_columns_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_all_columns" />
+
+            <RadioButton
+                android:id="@+id/show_summary_columns_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_summary_columns" />
+
+            <RadioButton
+                android:id="@+id/show_tax_columns_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_tax_columns" />
+
+            <RadioButton
+                android:id="@+id/show_income_details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_income_details" />
+
+            <RadioButton
+                android:id="@+id/show_pension_details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_pension_details" />
+
+            <RadioButton
+                android:id="@+id/show_rrsp_details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_rrsp_details" />
+
+            <RadioButton
+                android:id="@+id/show_tfsa_details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_tfsa_details" />
+
+            <RadioButton
+                android:id="@+id/show_savings_details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_savings_details" />
+
+            <RadioButton
+                android:id="@+id/show_property_details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_property_details" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/sticky_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="5dp"
+            android:text="@string/these_settings_are_sticky"
+            android:background="?attr/colorSecondaryVariant"
+            android:visibility="gone"/>
+    </LinearLayout>
+</RelativeLayout>

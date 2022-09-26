@@ -315,7 +315,6 @@ class TransactionViewModel : ViewModel() {
                     .child(bm.get2DigitMonth())
                     .child(key)
                     .setValue(iTransactionOut)
-                Log.d("Alex", "Just set amount to ${iTransactionOut.amount}")
             }
             singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
         }

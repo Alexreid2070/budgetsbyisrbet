@@ -183,5 +183,15 @@
             app:argType="string"
             android:defaultValue="" />
     </fragment>
-
+    <fragment
+        android:id="@+id/RetirementFragment"
+        android:name="com.isrbet.budgetsbyisrbet.RetirementFragment"
+        android:label="@string/Retirement"
+        tools:layout="@layout/fragment_retirement">
+    </fragment>
+    <fragment
+        android:id="@+id/RetirementDetailsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.RetirementDetailsFragment"
+        android:label="@string/RetirementDetails"
+        tools:layout="@layout/fragment_retirement_details" />
 </navigation>

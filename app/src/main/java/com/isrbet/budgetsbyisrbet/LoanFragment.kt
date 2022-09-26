@@ -35,8 +35,8 @@ class LoanFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        binding.currencySymbol1.text = getLocalCurrencySymbol() + " "
-        binding.currencySymbol2.text = getLocalCurrencySymbol() + " "
+        binding.currencySymbol1.text = String.format("${getLocalCurrencySymbol()} ")
+        binding.currencySymbol2.text = String.format("${getLocalCurrencySymbol()} ")
         if (args.loanID != "") {
             setupLoanSpinner(args.loanID)
             val sp = ScheduledPaymentViewModel.getScheduledPayment(args.loanID)
@@ -184,7 +184,6 @@ class LoanFragment : Fragment() {
                             iPaymentRegularity: LoanPaymentRegularity,
                             iInterestRate: Double, iPrincipal: Double,
                             iAmount: Double) {
-        Log.d("Alex", "Loading rows with amount $iAmount")
         val myList: MutableList<LoanPayment> = ArrayList()
         val iPaymentsPerYear = when (iPaymentRegularity) {
             LoanPaymentRegularity.WEEKLY -> 52

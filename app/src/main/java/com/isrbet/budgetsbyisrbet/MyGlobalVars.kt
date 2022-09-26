@@ -31,6 +31,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.FragmentManager
@@ -42,14 +43,18 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
+import java.time.LocalDate
 import java.time.Month
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashSet
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
-
+import kotlin.random.Random
 
 const val cMODE_VIEW = 0
 const val cMODE_EDIT = 1
@@ -121,23 +126,24 @@ val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
 var goToPie = false
 var homePageExpansionAreaExpanded = false
 val gNumberFormat: NumberFormat = NumberFormat.getInstance()
-
-fun gDecM(iDouble: Double): String {
-    return DecimalFormat("###0.00;-###0.00").format(iDouble)
-}
-fun gDec(iDouble: Double): String {
-    return DecimalFormat("###0.00;(###0.00)").format(iDouble)
-}
-fun gDecRoundM(iDouble: Double): String {
-    return DecimalFormat("###0;-###0").format(iDouble)
-}
-fun gDecRound(iDouble: Double): String {
-    return DecimalFormat("###0;(###0)").format(iDouble)
-}
+var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
 
 fun gMonthName(iMonth: Int) : String {
     val month = Month.of(iMonth)
     return month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+}
+
+/* fun gDecM(iDouble: Double): String {
+    return DecimalFormat("###0.00;-###0.00").format(iDouble)
+} */
+fun gDec(iInt: Int): String {
+    return DecimalFormat("####;(####)").format(iInt)
+}
+fun gDec(iDouble: Double): String {
+    return DecimalFormat("###0.00;(###0.00)").format(iDouble)
+}
+fun gDecRound(iDouble: Double): String {
+    return DecimalFormat("###0;(###0)").format(iDouble)
 }
 
 fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
@@ -155,19 +161,12 @@ fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
     }
 }
 
-fun gDecWithCurrencyM(iDouble: Double, iRound: Boolean = false) : String{
+fun gDecWithCurrency(iInt: Int) : String{
     val s = getLocalCurrencySymbol()
-    return if (iRound) {
-        if (s == "")
-            gDecRoundM(round(iDouble))
-        else
-            s + " " + gDecRoundM(round(iDouble))
-    } else {
-        if (s == "")
-            gDecM(iDouble)
-        else
-            s + " " + gDecM(iDouble)
-    }
+    return if (s == "")
+        gDec(iInt)
+    else
+        s + " " + gDec(iInt)
 }
 enum class LoanPaymentRegularity(val code: Int) {
     WEEKLY(1),
@@ -217,7 +216,9 @@ class MyApplication : Application() {
         }
         fun getQuote(): String {
             if (quoteForThisSession == "") {
-                val randomIndex = (0 until inspirationalQuotes.size-1).random()
+//                val randomIndex = (0 until inspirationalQuotes.size-1).random()
+                val randomIndex = Random.nextInt(inspirationalQuotes.size)
+                Log.d("Alex", "randomIndex is $randomIndex")
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
             }
@@ -257,11 +258,43 @@ class MyApplication : Application() {
         prefs = applicationContext.getSharedPreferences("Prefs", 0)
         prefEditor = prefs.edit()
         LangUtils.init(this)
+
+        registerActivityLifecycleCallbacks(object: ActivityLifecycleCallbacks {
+            override fun onActivityCreated(p0: Activity, p1: Bundle?) {
+                Log.d("Alex", "Callback: onActivityCreated")
+            }
+
+            override fun onActivityStarted(p0: Activity) {
+                Log.d("Alex", "Callback: onActivityStarted")
+            }
+
+            override fun onActivityResumed(p0: Activity) {
+                Log.d("Alex", "Callback: onActivityResumed")
+            }
+
+            override fun onActivityPaused(p0: Activity) {
+                Log.d("Alex", "Callback: onActivityPaused")
+            }
+
+            override fun onActivityStopped(p0: Activity) {
+                Log.d("Alex", "Callback: onActivityStopped")
+            }
+
+            override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
+                Log.d("Alex", "Callback: onActivitySaveInstanceState")
+            }
+
+            override fun onActivityDestroyed(p0: Activity) {
+                Log.d("Alex", "Callback: onActivityDestroyed")
+                quoteForThisSession = ""
+            }
+        })
     }
 
     override fun onTerminate() {
         super.onTerminate()
         mediaPlayer?.release()
+        Log.d("Alex", "Terminating MyApplication")
     }
 }
 
@@ -655,6 +688,13 @@ fun switchTo(iUID: String) {
     BudgetViewModel.refresh()
     ScheduledPaymentViewModel.refresh()
 }
+
+fun daysDiff(iStartDate: String, iEndDate: String) : Int {
+    val startDate = LocalDate.parse(iStartDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    val endDate = LocalDate.parse(iEndDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+    return endDate.dayOfYear - startDate.dayOfYear
+}
 /*
 fun getDoubleValue(iNumberToParse: String): Double {
     var numberToParse = iNumberToParse
@@ -803,7 +843,7 @@ fun getSplitText (iSplit1: Int, iAmount: String): String {
 
 object LangUtils {
     const val LANG_AUTO = "auto"
-    const val LANG_DEFAULT = "en"
+    const val LANG_DEFAULT = "en-US"
     private var sLocaleMap: ArrayMap<String, Locale>? = null
     fun init(@NonNull application: Application) {
         application.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
@@ -851,16 +891,17 @@ object LangUtils {
         val conf = res.configuration
         // Assume that there is an array called language_key which contains all the supported language tags
         val locales = context.resources.getStringArray(R.array.languages_key)
-        val appDefaultLocale = Locale.forLanguageTag(LANG_DEFAULT)
-        val langTag = MyApplication.prefs.getString("lang", null)
+        var langTag = MyApplication.prefs.getString("lang", null)
         for (locale in locales) {
-            conf.setLocale(Locale.forLanguageTag(locale))
-            val ctx = context.createConfigurationContext(conf)
             if (LANG_AUTO == locale) {
                 sLocaleMap!!.put(LANG_AUTO, null)
             } else if (LANG_DEFAULT == langTag) {
-                sLocaleMap!!.put(LANG_DEFAULT, appDefaultLocale)
-            } else sLocaleMap!!.put(locale, ConfigurationCompat.getLocales(conf)[0])
+                sLocaleMap!!.put(LANG_DEFAULT, Locale.forLanguageTag(LANG_DEFAULT))
+            } else {
+                conf.setLocale(Locale.forLanguageTag(locale))
+                val ctx = context.createConfigurationContext(conf)
+                sLocaleMap!!.put(locale, ConfigurationCompat.getLocales(conf)[0])
+            }
         }
     }
 

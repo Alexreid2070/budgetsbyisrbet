@@ -103,6 +103,19 @@
                         android:layout_height="0dp"
                         android:layout_weight=".5" />
                     <TextView
+                        android:id="@+id/retirementButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="@string/Retirement"
+                        app:drawableTopCompat="@drawable/ic_baseline_elderly_24" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight=".5" />
+                    <TextView
                         android:id="@+id/helpButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

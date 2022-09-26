@@ -127,7 +127,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
         val activeNotnCount = this@CustomNotificationListenerService.activeNotifications.size
 
         if (activeNotnCount > 0) {
-            Log.d("Alex", "$activeNotnCount active notifications found")
             for (count in 0 until singleInstance.activeNotifications.size) {
                 val sbn = singleInstance.activeNotifications[count]
                 if (sbn.packageName == "com.td.myspend") {

@@ -47,6 +47,7 @@ class HomeFragment : Fragment() {
     private val spenderModel: SpenderViewModel by viewModels()
     private val budgetModel: BudgetViewModel by viewModels()
     private val scheduledPaymentModel: ScheduledPaymentViewModel by viewModels()
+    private val retirementUserModel: RetirementViewModel by viewModels()
     private val userModel: AppUserViewModel by viewModels()
     private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
@@ -60,6 +61,7 @@ class HomeFragment : Fragment() {
         transactionModel.clearCallback()
         budgetModel.clearCallback()
         scheduledPaymentModel.clearCallback()
+        retirementUserModel.clearCallback()
         defaultsModel.clearCallback()
         translationModel.clearCallback()
         hintModel.clearCallback()
@@ -159,13 +161,15 @@ class HomeFragment : Fragment() {
         binding.adminButton.setOnClickListener {
             findNavController().navigate(R.id.AdminFragment)
         }
+        binding.retirementButton.setOnClickListener {
+            findNavController().navigate(R.id.RetirementFragment)
+        }
         return binding.root
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("Alex", "area expanded is $homePageExpansionAreaExpanded")
         val scrollView = view.findViewById<NestedScrollView>(R.id.scroll_view)
         scrollView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
@@ -211,7 +215,7 @@ class HomeFragment : Fragment() {
                     binding.quoteField.text = getQuote()
             }
         }
-        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
+//        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
         MyApplication.userGivenName = account?.givenName.toString()
         MyApplication.userFamilyName = account?.familyName.toString()
         if (account != null) {
@@ -255,6 +259,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupDataCallbacks() {
+        DefaultsViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("DefaultViewModel")
+            }
+        })
         CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("CategoryViewModel")
@@ -355,16 +364,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun signIn(account: FirebaseUser?) {
-        Log.d(
-            "Alex",
-            "in signIn, account is " + account?.email + " and uid is " + MyApplication.userUID
-        )
         MyApplication.userEmail = account?.email.toString()
         if (account != null) {
             if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
                 MyApplication.userUID = account.uid
                 MyApplication.originalUserUID = account.uid
-                Log.d("Alex", "Just set userUID to " + account.uid)
+//                Log.d("Alex", "Just set userUID to " + account.uid)
             }
             if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
                 MyApplication.currentUserEmail = account.email ?: ""
@@ -397,7 +402,6 @@ class HomeFragment : Fragment() {
             }
             if (account.email == "alexreid2070@gmail.com")
                 setAdminMode(true)
-            Log.d("Alex", "Should I load? " + !MyApplication.haveLoadedDataForThisUser)
             if (!MyApplication.haveLoadedDataForThisUser) {
                 // check if I should load my own UID, or if I'm a JoinUser
                 val joinListener = object : ValueEventListener {
@@ -425,7 +429,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadEverything() {
-        Log.d("Alex", "uid is " + MyApplication.userUID)
         setupDataCallbacks()
         hintModel.loadHints()
         defaultsModel.loadDefaults()
@@ -433,6 +436,7 @@ class HomeFragment : Fragment() {
         spenderModel.loadSpenders()
         budgetModel.loadBudgets()
         scheduledPaymentModel.loadScheduledPayments()
+        retirementUserModel.loadRetirementUsers()
         transactionModel.loadTransactions()
         translationModel.loadTranslations()
         MyApplication.haveLoadedDataForThisUser = true
@@ -451,7 +455,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun alignPageWithDataState(iTag: String)  {
-        Log.d("Alex", "alignPage $iTag")
+//        Log.d("Alex", "alignPage $iTag")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -469,7 +473,6 @@ class HomeFragment : Fragment() {
 //                binding.transactionAddFab.isEnabled = false
                 setupNewUser()
             } else {
-                Log.d("Alex", "This is not a new user")
                 (activity as MainActivity).setLoggedOutMode(false)
                 binding.expandButton.isEnabled = true
                 if (DefaultsViewModel.getDefaultQuote()) {

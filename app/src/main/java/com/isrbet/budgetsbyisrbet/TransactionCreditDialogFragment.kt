@@ -50,10 +50,10 @@ class TransactionCreditDialogFragment : DialogFragment() {
         setupClickListeners()
         val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return
 
-        binding.creditAmount.setText(gDecM(-1 * thisTransaction.amount))
+        binding.creditAmount.setText(gDec(-1 * thisTransaction.amount))
         binding.creditDate.setText(giveMeMyDateFormat(cal))
-        binding.creditNote.setText("CREDIT")
-        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
+        binding.creditNote.setText(getString(R.string.CREDIT))
+        binding.currencySymbol.text = String.format("${getLocalCurrencySymbol()} ")
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)

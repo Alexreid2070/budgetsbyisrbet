@@ -7,7 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.ArrayList
+import java.util.*
+import kotlin.math.min
 
 const val cDEFAULT_CATEGORY_ID = "Category"
 const val cDEFAULT_SPENDER = "Spender"
@@ -34,37 +35,65 @@ const val cDEFAULT_FILTER_WHO_TRACKER = "FilterWhoTracker"
 const val cDEFAULT_VIEW_BY_TRACKER = "ViewByTracker"
 const val cDEFAULT_SHOW_TOTALS_TRACKER = "ShowTotalsTracker"
 const val cDEFAULT_SHOW_CURRENCY_SYMBOL = "ShowCurrencySymbol"
+const val cDEFAULT_VIEW_IN_RETIREMENT_DETAILS = "ViewInRetirementDetails"
+
+const val cDEFAULT_CATEGORY_VALUE = 0
+const val cDEFAULT_SPENDER_VALUE = -1
+const val cDEFAULT_SHOW_RED_VALUE = 5
+const val cDEFAULT_INTEGRATE_WITH_TDSPEND_VALUE = false
+const val cDEFAULT_SOUND_VALUE = true
+const val cDEFAULT_QUOTE_VALUE = true
+const val cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE = false
+const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_SHOW_NOTE_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_VIEW_PERIOD_DASHBOARD_VALUE = cPeriodMonth
+const val cDEFAULT_FILTER_DISC_DASHBOARD_VALUE = ""
+const val cDEFAULT_FILTER_WHO_DASHBOARD_VALUE = ""
+const val cDEFAULT_DELTA_DASHBOARD_VALUE = "#"
+const val cDEFAULT_ROUND_DASHBOARD_VALUE = false
+const val cDEFAULT_SHOW_DISC_DASHBOARD_VALUE = true
+const val cDEFAULT_BUDGET_VIEW_VALUE = cBudgetDateView
+const val cDEFAULT_FILTER_DISC_TRACKER_VALUE = cDiscTypeAll
+const val cDEFAULT_FILTER_WHO_TRACKER_VALUE = ""
+const val cDEFAULT_VIEW_BY_TRACKER_VALUE = cPeriodMonth
+const val cDEFAULT_SHOW_TOTALS_TRACKER_VALUE = "#"
+const val cDEFAULT_SHOW_CURRENCY_SYMBOL_VALUE = true
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
     private var dataUpdatedCallback: DataUpdatedCallback? = null
-    var defaultCategory: Int = 0
-    var defaultSpender: Int = -1
-    var defaultShowRed: Int = 5
-    var defaultIntegrateWithTDSpend: Boolean = false
-    var defaultSound: Boolean = true
-    var defaultQuote: Boolean = true
-    var defaultShowIndividualAmountsInViewAll: Boolean = false
-    var defaultShowWhoInViewAll: Boolean = true
-    var defaultShowCategoryInViewAll: Boolean = true
-    var defaultShowNoteInViewAll: Boolean = true
-    var defaultShowDiscInViewAll: Boolean = true
-    var defaultShowTypeInViewAll: Boolean = true
-    var defaultShowRunningTotalInViewAll: Boolean = false
-    var defaultViewPeriodDashboard: String = cPeriodMonth
-    var defaultFilterDiscDashboard: String = ""
-    var defaultFilterWhoDashboard: String = ""
-    var defaultDeltaDashboard: String = "#"
-    var defaultRoundDashboard: Boolean = false
-    var defaultShowDiscDashboard: Boolean = true
-    var defaultBudgetView: String = cBudgetDateView
-    val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
-    var defaultFilterDiscTracker = cDiscTypeAll
-    var defaultFilterWhoTracker = ""
-    var defaultViewByTracker = cPeriodMonth
-    var defaultShowTotalsTracker: String = "#"
-    var defaultShowCurrencySymbol: Boolean = true
     private var loaded:Boolean = false
+    var defaultCategory: Int = cDEFAULT_CATEGORY_VALUE
+    var defaultSpender: Int = cDEFAULT_SPENDER_VALUE
+    var defaultShowRed: Int = cDEFAULT_SHOW_RED_VALUE
+    var defaultIntegrateWithTDSpend: Boolean = cDEFAULT_INTEGRATE_WITH_TDSPEND_VALUE
+    var defaultSound: Boolean = cDEFAULT_SOUND_VALUE
+    var defaultQuote: Boolean = cDEFAULT_QUOTE_VALUE
+    var defaultShowIndividualAmountsInViewAll: Boolean = cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE
+    var defaultShowWhoInViewAll: Boolean = cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE
+    var defaultShowCategoryInViewAll: Boolean = cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE
+    var defaultShowNoteInViewAll: Boolean = cDEFAULT_SHOW_NOTE_IN_VIEW_ALL_VALUE
+    var defaultShowDiscInViewAll: Boolean = cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE
+    var defaultShowTypeInViewAll: Boolean = cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE
+    var defaultShowRunningTotalInViewAll: Boolean = cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL_VALUE
+    var defaultViewPeriodDashboard: String = cDEFAULT_VIEW_PERIOD_DASHBOARD_VALUE
+    var defaultFilterDiscDashboard: String = cDEFAULT_FILTER_DISC_DASHBOARD_VALUE
+    var defaultFilterWhoDashboard: String = cDEFAULT_FILTER_WHO_DASHBOARD_VALUE
+    var defaultDeltaDashboard: String = cDEFAULT_DELTA_DASHBOARD_VALUE
+    var defaultRoundDashboard: Boolean = cDEFAULT_ROUND_DASHBOARD_VALUE
+    var defaultShowDiscDashboard: Boolean = cDEFAULT_SHOW_DISC_DASHBOARD_VALUE
+    var defaultBudgetView: String = cDEFAULT_BUDGET_VIEW_VALUE
+    var defaultFilterDiscTracker = cDEFAULT_FILTER_DISC_TRACKER_VALUE
+    var defaultFilterWhoTracker = cDEFAULT_FILTER_WHO_TRACKER_VALUE
+    var defaultViewByTracker = cDEFAULT_VIEW_BY_TRACKER_VALUE
+    var defaultShowTotalsTracker: String = cDEFAULT_SHOW_TOTALS_TRACKER_VALUE
+    var defaultShowCurrencySymbol: Boolean = cDEFAULT_SHOW_CURRENCY_SYMBOL_VALUE
+    var defaultViewInRetirementDetails = RetirementDetailsViews.ALL
+    val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
 
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
@@ -177,6 +206,9 @@ class DefaultsViewModel : ViewModel() {
         fun getDefaultShowCurrencySymbol(): Boolean {
             return singleInstance.defaultShowCurrencySymbol
         }
+        fun getDefaultViewInRetirementDetails(): RetirementDetailsViews {
+            return singleInstance.defaultViewInRetirementDetails
+        }
 
         fun isLoaded():Boolean {
             return singleInstance.loaded
@@ -214,32 +246,33 @@ class DefaultsViewModel : ViewModel() {
             resetToDefaults()
         }
         private fun resetToDefaults() {
-            singleInstance.defaultCategory = 0
-            singleInstance.defaultSpender = -1
-            singleInstance.defaultShowRed = 5
-            singleInstance.defaultIntegrateWithTDSpend = false
-            singleInstance.defaultSound = true
-            singleInstance.defaultQuote = true
-            singleInstance.defaultShowIndividualAmountsInViewAll = false
-            singleInstance.defaultShowWhoInViewAll = true
-            singleInstance.defaultShowCategoryInViewAll = true
-            singleInstance.defaultShowNoteInViewAll = true
-            singleInstance.defaultShowDiscInViewAll = true
-            singleInstance.defaultShowTypeInViewAll = true
-            singleInstance.defaultShowRunningTotalInViewAll = false
-            singleInstance.defaultViewPeriodDashboard = cPeriodMonth
-            singleInstance.defaultFilterDiscDashboard = ""
-            singleInstance.defaultFilterWhoDashboard = ""
-            singleInstance.defaultDeltaDashboard = "#"
-            singleInstance.defaultRoundDashboard = false
-            singleInstance.defaultShowDiscDashboard = true
-            singleInstance.defaultBudgetView = cBudgetDateView
+            singleInstance.defaultCategory = cDEFAULT_CATEGORY_VALUE
+            singleInstance.defaultSpender = cDEFAULT_SPENDER_VALUE
+            singleInstance.defaultShowRed = cDEFAULT_SHOW_RED_VALUE
+            singleInstance.defaultIntegrateWithTDSpend = cDEFAULT_INTEGRATE_WITH_TDSPEND_VALUE
+            singleInstance.defaultSound = cDEFAULT_SOUND_VALUE
+            singleInstance.defaultQuote = cDEFAULT_QUOTE_VALUE
+            singleInstance.defaultShowIndividualAmountsInViewAll = cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowWhoInViewAll = cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowCategoryInViewAll = cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowNoteInViewAll = cDEFAULT_SHOW_NOTE_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowDiscInViewAll = cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowTypeInViewAll = cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowRunningTotalInViewAll = cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL_VALUE
+            singleInstance.defaultViewPeriodDashboard = cDEFAULT_VIEW_PERIOD_DASHBOARD_VALUE
+            singleInstance.defaultFilterDiscDashboard = cDEFAULT_FILTER_DISC_DASHBOARD_VALUE
+            singleInstance.defaultFilterWhoDashboard = cDEFAULT_FILTER_WHO_DASHBOARD_VALUE
+            singleInstance.defaultDeltaDashboard = cDEFAULT_DELTA_DASHBOARD_VALUE
+            singleInstance.defaultRoundDashboard = cDEFAULT_ROUND_DASHBOARD_VALUE
+            singleInstance.defaultShowDiscDashboard = cDEFAULT_SHOW_DISC_DASHBOARD_VALUE
+            singleInstance.defaultBudgetView = cDEFAULT_BUDGET_VIEW_VALUE
+            singleInstance.defaultFilterDiscTracker = cDEFAULT_FILTER_DISC_TRACKER_VALUE
+            singleInstance.defaultFilterWhoTracker = cDEFAULT_FILTER_WHO_TRACKER_VALUE
+            singleInstance.defaultViewByTracker = cDEFAULT_VIEW_BY_TRACKER_VALUE
+            singleInstance.defaultShowTotalsTracker = cDEFAULT_SHOW_TOTALS_TRACKER_VALUE
+            singleInstance.defaultShowCurrencySymbol = cDEFAULT_SHOW_CURRENCY_SYMBOL_VALUE
+            singleInstance.defaultViewInRetirementDetails = RetirementDetailsViews.ALL
             singleInstance.defaultCategoryDetails.clear()
-            singleInstance.defaultFilterDiscTracker = cDiscTypeAll
-            singleInstance.defaultFilterWhoTracker = ""
-            singleInstance.defaultViewByTracker = cPeriodMonth
-            singleInstance.defaultShowTotalsTracker = "#"
-            singleInstance.defaultShowCurrencySymbol = true
         }
 
         fun getCategoryDetails(): MutableList<CategoryDetail> {
@@ -351,6 +384,7 @@ class DefaultsViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        Log.d("Alex", "WHY IS DEFAULT onCleared being called??")
         super.onCleared()
         if (defaultsListener != null) {
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
@@ -410,6 +444,13 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_SPENDER -> {
                 singleInstance.defaultSpender = iValue
+            }
+            cDEFAULT_VIEW_IN_RETIREMENT_DETAILS -> {
+                singleInstance.defaultViewInRetirementDetails = try {
+                    RetirementDetailsViews.getByValue(iValue)!!
+                } catch (e: IllegalArgumentException) {
+                    RetirementDetailsViews.ALL
+                }
             }
         }
     }
@@ -501,7 +542,6 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_QUOTE -> {
                 singleInstance.defaultQuote = (iValue == cTRUE)
-                Log.d("Alex", "setting sound to $iValue")
             }
             cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> {
                 singleInstance.defaultShowIndividualAmountsInViewAll = (iValue == cTRUE)
@@ -533,17 +573,29 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SHOW_CURRENCY_SYMBOL -> {
                 singleInstance.defaultShowCurrencySymbol = (iValue == cTRUE)
             }
+            cDEFAULT_VIEW_IN_RETIREMENT_DETAILS -> {
+                singleInstance.defaultViewInRetirementDetails = if (isNumber(iValue))
+                    RetirementDetailsViews.getByValue(iValue.toInt())!!
+                else {
+                    try {
+                        RetirementDetailsViews.valueOf(iValue)
+                    } catch (e: IllegalArgumentException) {
+                        RetirementDetailsViews.ALL
+                    }
+                }
+            }
         }
     }
     fun loadDefaults() {
         singleInstance.defaultsListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 clear()
+                RetirementViewModel.clearDefaults()
+                val cal = android.icu.util.Calendar.getInstance()
                 // Get Post object and use the values to update the UI
-                dataSnapshot.children.forEach()
-                {
-                    if (it.key.toString() == "CategoryDetails") {
-                        for (cat in it.children.toMutableList()) {
+                for (defaultRow in dataSnapshot.children.toMutableList()) {
+                    if (defaultRow.key.toString() == "CategoryDetails") {
+                        for (cat in defaultRow.children.toMutableList()) {
                             val catName = cat.key.toString()
                             for (def in cat.children.toMutableList()) {
                                 when (def.key.toString()) {
@@ -552,8 +604,220 @@ class DefaultsViewModel : ViewModel() {
                                 }
                             }
                         }
+                    } else if (defaultRow.key.toString() == "Retirement") {
+                        for (retUser in defaultRow.children.toMutableList()) {
+                            val userId = retUser.key.toString().toInt()
+                            val retData = RetirementData("", userId, 0, "", 0, 0, true, 0.0, "")
+
+                            for (data in retUser.children.toMutableList()) {
+                                when (data.key.toString()) {
+                                    "birthDate" -> retData.birthDate = data.value.toString()
+                                    "cppAge" -> retData.cppAge = data.value.toString().toInt()
+                                    "inflationRate" -> retData.inflationRate =
+                                        data.value.toString().toDouble()
+                                    "minimizeTax" -> retData.minimizeTax =
+                                        (data.value.toString() == "true")
+                                    "name" -> retData.name = data.value.toString()
+                                    "planToAge" -> retData.planToAge = data.value.toString().toInt()
+                                    "retirementDate" -> retData.retirementDate =
+                                        data.value.toString()
+                                    "targetMonthlyIncome" -> retData.targetMonthlyIncome =
+                                        data.value.toString().toInt()
+                                    "cpp" -> {
+                                        var v60 = 0
+                                        var v65 = 0
+                                        var v70 = 0
+                                        var estimatedGrowthPct = 0.0
+                                        for (cppRow in data.children.toMutableList()) {
+                                            when (cppRow.key.toString()) {
+                                                "annualValueAt60" -> v60 =
+                                                    cppRow.value.toString().toInt()
+                                                "annualValueAt65" -> v65 =
+                                                    cppRow.value.toString().toInt()
+                                                "annualValueAt70" -> v70 =
+                                                    cppRow.value.toString().toInt()
+                                                "estimatedGrowthPct" -> estimatedGrowthPct =
+                                                    cppRow.value.toString().toDouble()
+                                            }
+                                            retData.cpp = CPP(v60, v65, v70, estimatedGrowthPct)
+                                        }
+                                    }
+                                    "oas" -> {
+                                        var currentAnnualValue = 0
+                                        var inflationRate = 0.0
+                                        for (oasRow in data.children.toMutableList()) {
+                                            when (oasRow.key.toString()) {
+                                                "currentAnnualValue" -> currentAnnualValue =
+                                                    oasRow.value.toString().toInt()
+                                                "estimatedGrowthPct" -> inflationRate =
+                                                    oasRow.value.toString().toDouble()
+                                            }
+                                            retData.oas = OAS(currentAnnualValue, inflationRate)
+                                        }
+                                    }
+                                    "salary" -> {
+                                        var annualValueAfterTax = 0
+                                        var name = ""
+                                        var estimatedGrowthPct = 0.0
+                                        for (salRow in data.children.toMutableList()) {
+                                            when (salRow.key.toString()) {
+                                                "annualValueAfterTax" -> annualValueAfterTax =
+                                                    salRow.value.toString().toInt()
+                                                "name" -> name = salRow.value.toString()
+                                                "estimatedGrowthPct" -> estimatedGrowthPct =
+                                                    salRow.value.toString().toDouble()
+                                            }
+                                            retData.salary = Salary(
+                                                0,
+                                                name,
+                                                annualValueAfterTax,
+                                                estimatedGrowthPct
+                                            )
+                                        }
+                                    }
+                                    "assets" -> {
+                                        for (asset in data.children.toMutableList()) {
+                                            val assetID = asset.key.toString().toInt()
+                                            var annualContribution = 0
+                                            var distributionOrder = 0
+                                            var estimatedGrowthPct = 0.0
+                                            var estimatedGrowthPctAfterSale = 0.0
+                                            var willSellToFinanceRetirement = false
+                                            var mortgageDetailsText = ""
+                                            var ownershipPercentage = 0.0
+                                            var name = ""
+                                            var type = AssetType.RRSP
+                                            var value = 0
+                                            for (det in asset.children.toMutableList()) {
+                                                when (det.key.toString()) {
+                                                    "annualContribution" -> annualContribution =
+                                                        det.value.toString().toInt()
+                                                    "distributionOrder" -> distributionOrder =
+                                                        det.value.toString().toInt()
+                                                    "estimatedGrowthPct" -> estimatedGrowthPct =
+                                                        det.value.toString().toDouble()
+                                                    "name" -> name = det.value.toString()
+                                                    "type" -> {
+                                                        type =
+                                                            try {
+                                                                AssetType.valueOf(det.value.toString())
+                                                            } catch (e: IllegalArgumentException) {
+                                                                AssetType.RRSP
+                                                            }
+                                                    }
+                                                    "value" -> value = det.value.toString().toInt()
+                                                    "estimatedGrowthPctAsSavings" -> estimatedGrowthPctAfterSale =
+                                                        det.value.toString().toDouble()
+                                                    "willSellToFinanceRetirement" -> willSellToFinanceRetirement =
+                                                        (det.value.toString() == "true")
+                                                    "scheduledPaymentName" -> mortgageDetailsText =
+                                                        det.value.toString()
+                                                    "ownershipPct" -> ownershipPercentage =
+                                                        det.value.toString().toDouble()
+                                                }
+                                            }
+                                            var newAsset: Asset? = null
+                                            when (type) {
+                                                AssetType.RRSP -> {
+                                                    newAsset = RRSP(
+                                                        assetID,
+                                                        name,
+                                                        value,
+                                                        estimatedGrowthPct,
+                                                        annualContribution,
+                                                        12 - cal.get(Calendar.MONTH) - 1,
+                                                        distributionOrder
+                                                    )
+                                                }
+                                                AssetType.TFSA -> {
+                                                    newAsset = TFSA(
+                                                        assetID,
+                                                        name,
+                                                        value,
+                                                        estimatedGrowthPct,
+                                                        annualContribution,
+                                                        12 - cal.get(Calendar.MONTH) - 1,
+                                                        distributionOrder
+                                                    )
+                                                }
+                                                AssetType.SAVINGS -> {
+                                                    newAsset = Savings(
+                                                        assetID,
+                                                        name,
+                                                        value,
+                                                        estimatedGrowthPct,
+                                                        annualContribution,
+                                                        12 - cal.get(Calendar.MONTH) - 1,
+                                                        distributionOrder
+                                                    )
+                                                }
+                                                AssetType.PROPERTY -> {
+                                                    newAsset = Property(
+                                                        assetID,
+                                                        name,
+                                                        (value / (ownershipPercentage / 100.0)).toInt(),
+                                                        estimatedGrowthPct,
+                                                        12 - cal.get(Calendar.MONTH) - 1,
+                                                        distributionOrder,
+                                                        estimatedGrowthPctAfterSale,
+                                                        willSellToFinanceRetirement,
+                                                        mortgageDetailsText,
+                                                        ownershipPercentage,
+                                                        0
+                                                    )
+                                                }
+                                                else -> {}
+                                            }
+                                            if (newAsset != null)
+                                                retData.assets.add(min(assetID, retData.assets.size), newAsset)
+                                        }
+                                        retData.assets.sortBy { it.distributionOrder }
+                                        retData.updateDistributionOrderAsRequired()
+                                    }
+                                    "pensions" -> {
+                                        for (pension in data.children.toMutableList()) {
+                                            val pensionID = pension.key.toString().toInt()
+                                            var name = ""
+                                            var pensionType = PensionType.BASIC
+                                            var value = 0
+                                            var pensionStartDate = ""
+                                            var workStartDate = ""
+                                            var best5 = 0
+                                            for (det in pension.children.toMutableList()) {
+                                                when (det.key.toString()) {
+                                                    "name" -> name = det.value.toString()
+                                                    "pensionType" -> {
+                                                        pensionType =
+                                                            try {
+                                                                PensionType.valueOf(det.value.toString())
+                                                            } catch (e: IllegalArgumentException) {
+                                                                PensionType.BASIC
+                                                            }
+                                                    }
+                                                    "value" -> value = det.value.toString().toInt()
+                                                    "pensionStartDate" -> pensionStartDate = det.value.toString()
+                                                    "workStartDate" -> workStartDate = det.value.toString()
+                                                    "best5YearsSalary" -> best5 = det.value.toString().toInt()
+                                                }
+                                            }
+                                            val newPension = Pension(
+                                                        pensionID,
+                                                        name,
+                                                        value,
+                                                        pensionType,
+                                                        workStartDate,
+                                                        best5,
+                                                        pensionStartDate
+                                                    )
+                                            retData.pensions.add(min(pensionID, retData.pensions.size), newPension)
+                                        }
+                                    }
+                                }
+                            }
+                            RetirementViewModel.updateRetirementDefault(retData, true)
+                        }
                     } else
-                        setLocal(it.key.toString(), it.value.toString())
+                        setLocal(defaultRow.key.toString(), defaultRow.value.toString())
                 }
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
