@@ -149,6 +149,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_format_color_reset_24.xml" value="0.202" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_format_paint_24.xml" value="0.202" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_help_24.xml" value="0.137" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_help_orange.xml" value="0.1535" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_home_24.xml" value="0.125" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_list_24.xml" value="0.138" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/drawable/ic_baseline_lock_24.xml" value="0.202" />
@@ -219,6 +220,7 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_pension.xml" value="0.19010416666666666" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_recurring_transaction.xml" value="0.15052083333333333" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_retirement_details.xml" value="0.1" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_retirement_result.xml" value="0.18333333333333332" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_scheduled_payment.xml" value="0.13645833333333332" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_transaction.xml" value="0.159375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_translation.xml" value="0.1" />

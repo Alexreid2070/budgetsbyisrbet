@@ -203,7 +203,7 @@ class BudgetDialogFragment : DialogFragment() {
                 binding.whoField.visibility = View.GONE
                 binding.budgetDialogOccurenceRadioGroup.visibility = View.VISIBLE
                 binding.occurenceField.visibility = View.GONE
-            } else { // it's edit
+            } else { // we're in edit mode, so need to save
                 // Make sure there are values set for all fields
                 if (binding.budgetDialogNewAmount.text.toString() == "") {
 //                    showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))

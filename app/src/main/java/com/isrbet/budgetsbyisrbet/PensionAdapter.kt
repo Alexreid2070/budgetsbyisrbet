@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class PensionAdapter (context: Context, data: RetirementData): BaseAdapter() {
+class PensionAdapter (context: Context): BaseAdapter() {
 
     private var myData: MutableList<Pension> = arrayListOf()
     init {
-        data.pensions.forEach {
-            myData.add(it)
+        myData.clear()
+        for (i in 0 until RetirementViewModel.getWorkingPensionListCount()) {
+            RetirementViewModel.getWorkingPension(i).let { myData.add(it) }
         }
     }
 
@@ -50,21 +51,18 @@ class PensionAdapter (context: Context, data: RetirementData): BaseAdapter() {
         val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_pension, parent, false)
         viewHolder = PensionViewHolder(myConvertView)
 
-        val desc1 = when (pension.pensionType) {
-            PensionType.BASIC ->
-                String.format("%s %s", pension.name, gDecWithCurrency(pension.value))
-            PensionType.OTPP ->
-                String.format("%s", pension.name)
-            PensionType.PSPP ->
-                String.format("%s", pension.name)
-        }
+        val desc1 = pension.name
         val desc2 = when (pension.pensionType) {
             PensionType.BASIC ->
-                String.format("Starts on %s", pension.pensionStartDate)
+                String.format("%s starts on %s", gDecWithCurrency(pension.value), pension.pensionStartDate)
             PensionType.OTPP ->
-                String.format("Work start date %s, best 5 years salary %s", pension.workStartDate, pension.best5YearsSalary)
+                if (pension.pensionStartDelay > 0)
+                    String.format("Work start %s, Salary %s, Delay %s", pension.workStartDate,
+                        pension.best5YearsSalary, pension.pensionStartDelay)
+                else
+                    String.format("Work start %s, Salary %s", pension.workStartDate, gDecWithCurrency(pension.best5YearsSalary))
             PensionType.PSPP ->
-                String.format("Work start date %s, best 5 years salary %s", pension.workStartDate, pension.best5YearsSalary)
+                String.format("Work start %s, Salary %s", pension.workStartDate, gDecWithCurrency(pension.best5YearsSalary))
         }
         viewHolder.vhDescription.text = desc1
         viewHolder.vhDescription2.text = desc2

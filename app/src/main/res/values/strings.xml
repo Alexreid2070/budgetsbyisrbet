@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">On Budget!</string>
     <string name="home">Home</string>
     <string name="settings">Settings</string>
@@ -184,7 +184,7 @@
     <string name="preferences">Preferences</string>
     <string name="budgets">Budgets</string>
     <string name="or_add_percentage_to_current_budget_amount">** OR ** add % to current budget amount</string>
-    <string name="amt1">Amt1</string>
+    <string name="amt1" tools:ignore="Typos">Amt1</string>
     <string name="amt2">Amt2</string>
     <string name="discretionary_short_question">D?</string>
     <string name="type_short">Typ</string>
@@ -362,7 +362,7 @@
     <string name="s">s</string>
     <string name="switching_to_user">Switching to user</string>
     <string name="budget_to_date">Budget to date</string>
-    <string name="you_are_over_your_x_budget_this_period">You are over your %1$desc budget this period.</string>
+    <string name="you_are_over_your_x_budget_this_period">You are over your %1$s budget this period.</string>
     <string name="keeping_x_expenses_below">Keeping %1$s expenses below %2$s per day will keep you within your %3$s budget this month.</string>
     <string name="allocation_x_of_budget_and_actual">Allocation (%1$s) of Budget and Actual</string>
     <string name="s_portion">Joint (%1$s\'s portion)</string>
@@ -390,21 +390,21 @@
     <string name="property">Property</string>
     <string name="property_sold_year">Property Sold Year</string>
     <string name="earliest_retirement_year">Earliest Retirement Year</string>
-    <string name="ending_rrsp_balance">Ending RRSP Balance</string>
-    <string name="ending_savings_balance">Ending Savings Balance</string>
+    <string name="ending_rrsp_balance">RRSP Balance</string>
+    <string name="ending_savings_balance">Savings Balance</string>
     <string name="savings">Savings</string>
-    <string name="ending_property_balance">Ending Property Balance</string>
+    <string name="ending_property_balance">Property Balance %1$s</string>
     <string name="choose_user"><![CDATA[<choose user>]]></string>
     <string name="scenario">Scenario</string>
     <string name="user_id">User ID</string>
-    <string name="use_default"><![CDATA[<use default>]]></string>
+    <string name="user_default">Default (%1$s)</string>
     <string name="Retirement">Retirement</string>
     <string name="retirement_year">Retirement year</string>
     <string name="retirement_month">Retirement month</string>
-    <string name="minimizeRRSPTax">Minimize tax on RRSP withdrawals</string>
+    <string name="minimizeRRSPTax">Minimize tax</string>
     <string name="maximum_monthly_budget">Maximum Monthly Budget</string>
-    <string name="ending_net_worth">Ending Net Worth</string>
-    <string name="ending_tfsa_balance">Ending TFSA Balance</string>
+    <string name="ending_net_worth">Net worth</string>
+    <string name="ending_tfsa_balance">TFSA Balance</string>
     <string name="minimize_rrsp_tooltip">If set to true, the calculations will keep the RRSP amount in the lowest tax bracket *unless* RRIF rules require a larger minimum withdrawal.</string>
     <string name="target_income">Target\nIncome</string>
     <string name="maximum_taxable_income">Maximum\nTaxable\nIncome</string>
@@ -416,8 +416,9 @@
     <string name="cpp">CPP</string>
     <string name="oas">OAS</string>
     <string name="minimum_rrif_withdrawal">Minimum RRIF\nWithdrawal</string>
+    <string name="s_pension">Pension\n(%1$s)</string>
     <string name="s_withdrawal">Withdrawal\n(%1$s)</string>
-    <string name="s_growth">Growth\n(%1$s)</string>
+    <string name="s_growth">Growth (%1$s%%)\n(%2$s)</string>
     <string name="s_balance">Balance\n(%1$s)</string>
     <string name="net_worth">Net Worth</string>
     <string name="see_details">See details</string>
@@ -443,11 +444,11 @@
     <string name="birth_date">Birth Date</string>
     <string name="basics">Basics</string>
     <string name="oas_amount">Current annual OAS amount</string>
-    <string name="cpp_amount_expected_at_age">CPP amount expected at ages:</string>
+    <string name="cpp_amount_expected_at_age">CPP annual amount expected at ages:</string>
     <string name="rrsp">RRSP</string>
     <string name="rrsp_amount">RRSP amount</string>
     <string name="value_must_be_60_65_70">Value must be 60, 65, or 70</string>
-    <string name="annual_contribution">Annual contribution</string>
+    <string name="annual_contribution">Annual contribution while employed</string>
     <string name="tfsa">TFSA</string>
     <string name="assets">Assets (%1$s)</string>
     <string name="age60">60</string>
@@ -458,8 +459,8 @@
     <string name="asset">"Asset: "</string>
     <string name="asset_name">Asset Name</string>
     <string name="value">Value</string>
-    <string name="estimated_growth">Estimated annual growth %</string>
-    <string name="estimated_growth_after_sale">Estimated annual growth % after sale</string>
+    <string name="annual_growth">Annual growth</string>
+    <string name="annual_growth_after_sale">Annual growth after sale</string>
     <string name="will_sell">Will sell to finance retirement?</string>
     <string name="ownership_percentage">Ownership %</string>
     <string name="mortgage_details">Mortgage details</string>
@@ -482,11 +483,29 @@
     <string name="save_as">Save as</string>
     <string name="move_asset_up">Move asset up</string>
     <string name="move_asset_down">Move asset down</string>
-    <string name="calculating">Calculating...</string>
+    <string name="calculating">Calculating…</string>
     <string name="scenario_deleted">Scenario deleted</string>
     <string name="defaultt">Default</string>
     <string name="default_updated">Default updated.</string>
     <string name="new_scenario_saved">New scenario saved.</string>
     <string name="scenario_updated">Scenario updated.</string>
     <string name="CREDIT">CREDIT</string>
+    <string name="pension_formula">%1$s Pension formula</string>
+    <string name="Use_default">Use default</string>
+    <string name="investmentGrowthRate">Investment growth rate</string>
+    <string name="propertyGrowthRate">Property growth rate</string>
+    <string name="pension_start_delay">Pension start delay (yrs)</string>
+    <string name="ending_balances">Ending balances</string>
+    <string name="never">Never</string>
+    <string name="always">Always</string>
+    <string name="if_possible">If possible</string>
+    <string name="tax_sheltered">Tax sheltered?</string>
+    <string name="save_scenario">Save scenario</string>
+    <string name="confirm_scenario_name">Confirm name and click save again:</string>
+    <string name="invalid_name">Invalid scenario name</string>
+    <string name="lifetime_taxes">Lifetime taxes</string>
+    <string name="lifetime_surplus">Lifetime income surplus</string>
+    <string name="sold_in">%1$s: %2$s (sold in %3$s)</string>
+    <string name="excellent">Excellent!  You can retire with these parameters! You can raise your monthly income to a maximum of %1$s.</string>
+    <string name="you_cannot">You cannot achieve your retirement goals with these parameters. Your earliest retirement year would be %1$s.  Or, you can reduce your target monthly income to %2$s</string>
 </resources>

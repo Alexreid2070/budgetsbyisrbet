@@ -7,36 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
-class AssetAdapter (context: Context, data: RetirementData,
+class AssetAdapter (context: Context,
+                    private val defaultInvestmentGrowthRate: Double,
+                    private val defaultPropertyGrowthRate: Double,
                     private val moveUp: (Asset) -> Unit = {},
                     private val moveDown: (Asset) -> Unit = {} ): BaseAdapter() {
-
+    private val myContext = context
     private var myData: MutableList<Asset> = arrayListOf()
     init {
-        data.assets.forEach {
-            myData.add(it)
-        }
+        refreshData()
     }
 
     private val inflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    fun refreshData(iData: RetirementData) {
+    fun refreshData() {
         myData.clear()
-        iData.assets.forEach {
-            myData.add(it.copy())
-        }
+        for (i in 0 until RetirementViewModel.getWorkingAssetListCount())
+            RetirementViewModel.getWorkingAsset(i)?.let { myData.add(it) }
     }
-    fun refreshData(newList: MutableList<Asset>) {
-        myData.clear()
-        newList.forEach {
-            myData.add(it.copy())
-        }
-    }
-
     override fun getCount(): Int {
         return myData.size
     }
@@ -74,16 +66,32 @@ class AssetAdapter (context: Context, data: RetirementData,
 
         val desc1 = if (asset.type == AssetType.PROPERTY) {
             val prop = asset as Property
-            String.format("%s %s %s @%s%% (id %s dist %s)", AssetType.getText(asset.type), asset.name,
-                gDecWithCurrency((asset.value / (prop.ownershipPct / 100)).toInt()), prop.ownershipPct, prop.id, prop.distributionOrder)
+            String.format("%s %s %s @%s%%", AssetType.getText(asset.type), asset.name,
+                gDecWithCurrency((asset.value / (prop.ownershipPct / 100)).toInt()), prop.ownershipPct)
         } else
-            String.format("%s %s %s (id %s dist %s)", AssetType.getText(asset.type), asset.name, gDecWithCurrency(asset.value), asset.id, asset.distributionOrder)
-        val desc2 = if (asset.type == AssetType.PROPERTY)
-            String.format("Annual %s%% growth, (%s%% after sale), %s", asset.estimatedGrowthPct, (asset as Property).estimatedGrowthPctAsSavings, (asset as Property).scheduledPaymentName)
-        else
-            String.format("Annual %s%% growth, + %s", asset.estimatedGrowthPct, gDecWithCurrency(asset.annualContribution))
+            String.format("%s %s %s", AssetType.getText(asset.type), asset.name, gDecWithCurrency(asset.value))
+        val desc2 = if (asset.type == AssetType.PROPERTY) {
+            val propGrowth = if (asset.useDefaultGrowthPct) defaultPropertyGrowthRate else asset.estimatedGrowthPct
+            val invGrowth = if ((asset as Property).useDefaultGrowthPctAsSavings)
+                defaultInvestmentGrowthRate
+            else
+                asset.estimatedGrowthPctAsSavings
+            String.format("Annual %s%% growth, (%s%% after sale), %s", propGrowth, invGrowth, asset.scheduledPaymentName)
+        } else {
+            val growth = if (asset.useDefaultGrowthPct) defaultInvestmentGrowthRate else asset.estimatedGrowthPct
+            val taxed = if (asset.growthIsTaxable())
+                "(taxed)"
+            else
+                ""
+            String.format("Annual %s%% growth %s, + %s", growth, taxed, gDecWithCurrency(asset.annualContribution))
+        }
         viewHolder.vhDescription.text = desc1
         viewHolder.vhDescription2.text = desc2
+        if (!asset.willSellToFinanceRetirement) {
+            viewHolder.vhDescription.setTextColor(
+                ContextCompat.getColor(myContext, R.color.red))
+            viewHolder.vhDescription2.setTextColor(ContextCompat.getColor(myContext, R.color.red))
+        }
         viewHolder.vhAssetType.text = asset.type.toString()
         viewHolder.vhLabel.text = asset.name
         viewHolder.vhAmount.text = asset.value.toString()
@@ -92,7 +100,7 @@ class AssetAdapter (context: Context, data: RetirementData,
             viewHolder.vhGrowthRateOnceSold.text =
                 (asset as Property).estimatedGrowthPctAsSavings.toString()
             viewHolder.vhLinkToScheduledPayment.text =
-                (asset as Property).scheduledPaymentName
+                asset.scheduledPaymentName
         }
         viewHolder.vhAnnualContribution.text = asset.annualContribution.toString()
         viewHolder.vhDistributionOrder.text = asset.distributionOrder.toString()

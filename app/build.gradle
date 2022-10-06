@@ -1,3 +1,4 @@
+//file:noinspection HardCodedStringLiteral
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -20,12 +21,12 @@ android {
             keyPassword 'N!chola!'
         }
     }
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.isrbet.budgetsbyisrbet"
         minSdk 26
-        targetSdk 31
+        targetSdk 33
         versionCode 45
         versionName "1.0"
 

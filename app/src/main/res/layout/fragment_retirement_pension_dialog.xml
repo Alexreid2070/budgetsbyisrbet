@@ -30,13 +30,24 @@
 
                 <TextView
                     android:id="@+id/title"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:text="@string/new_pension"
                     android:textSize="24sp"
                     android:textStyle="bold" />
+                <ImageButton
+                    android:id="@+id/pensionHelpButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_baseline_help_orange"
+                    android:contentDescription="@string/help" />
             </LinearLayout>
 
             <LinearLayout
@@ -248,6 +259,36 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/pensionStartDelayLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/pension_start_delay"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/pension_start_delay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

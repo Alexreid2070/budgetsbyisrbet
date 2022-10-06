@@ -12,7 +12,7 @@
         android:id="@+id/scroll_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fadeScrollbars="false"
+        android:fadeScrollbars="true"
         android:layout_above="@id/expansion_layout">
 
             <HorizontalScrollView

@@ -31,6 +31,7 @@
                 android:text="@string/calculate_retirement"
                 android:textSize="24sp"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/retirementDefaultsButton"
                 android:layout_width="wrap_content"
@@ -47,6 +48,17 @@
             android:layout_height="wrap_content"
             android:paddingBottom="20dp">
 
+            <ImageButton
+                android:id="@+id/scenarioSaveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:background="@color/white"
+                android:contentDescription="@string/save_scenario"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:src="@drawable/ic_baseline_save_24"
+                android:tooltipText="Save scenario" />
             <TextView
                 android:id="@+id/scenario_spinner_label"
                 android:layout_width="wrap_content"
@@ -62,9 +74,9 @@
                 android:id="@+id/scenario_spinner_relative_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
+                android:layout_weight="1"
                 android:background="@drawable/spinner_background"
                 android:orientation="horizontal">
 
@@ -88,52 +100,27 @@
                     android:contentDescription="@string/click_to_select"
                     android:src="@drawable/ic_baseline_arrow_drop_down_24" />
             </RelativeLayout>
+
             <ImageButton
                 android:id="@+id/button_delete_scenario"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
                 android:background="@color/white"
                 android:contentDescription="@string/delete_scenario"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:src="@drawable/ic_baseline_delete_24"
-                android:tooltipText="Delete scenario"  />
+                android:tooltipText="Delete scenario" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/user_id_layout"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/userID"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/who"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <HorizontalScrollView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fadeScrollbars="false"
-                android:scrollbarThumbHorizontal="?attr/colorSecondary">
-
-                <RadioGroup
-                    android:id="@+id/userIDRadioGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="1dp" />
-            </HorizontalScrollView>
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/basics_expand_button_layout"
@@ -224,6 +211,57 @@
                 android:orientation="horizontal"
                 android:padding="5dp">
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/growthRateLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:hint="@string/investmentGrowthRate"
+                    android:minWidth="@dimen/custom_med_width"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/investmentGrowthRate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:hint="@string/percentage_short"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/propertyGrowthRateLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:hint="@string/propertyGrowthRate"
+                    android:minWidth="@dimen/custom_med_width"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/propertyGrowthRate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
                 <LinearLayout
                     android:id="@+id/entire_target_monthly_amount_layout"
                     android:layout_width="wrap_content"
@@ -265,8 +303,8 @@
                     android:id="@+id/planToAgeLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_gravity="start"
+                    android:layout_weight="1"
                     android:hint="@string/planToAge"
                     android:minWidth="@dimen/custom_med_width"
                     app:endIconMode="clear_text">
@@ -280,32 +318,6 @@
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/minimizeRRSPTaxLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/minimizeRRSPTax"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="@string/minimize_rrsp_tooltip" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/minimizeRRSPSwitch"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:textOff="@string/off"
-                    android:textOn="@string/on" />
             </LinearLayout>
 
         </LinearLayout>
@@ -441,11 +453,11 @@
                 android:id="@+id/assets_add_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:layout_alignParentEnd="true"
-                android:visibility="gone"
+                android:layout_gravity="end"
+                android:contentDescription="@string/add_asset"
                 android:src="@drawable/ic_baseline_add_24"
-                android:contentDescription="@string/add_asset" />
+                android:visibility="gone" />
         </RelativeLayout>
 
         <LinearLayout
@@ -493,11 +505,11 @@
                 android:id="@+id/pensions_add_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:layout_alignParentEnd="true"
-                android:visibility="gone"
+                android:layout_gravity="end"
+                android:contentDescription="@string/add_pension"
                 android:src="@drawable/ic_baseline_add_24"
-                android:contentDescription="@string/add_pension" />
+                android:visibility="gone" />
         </RelativeLayout>
 
         <LinearLayout
@@ -683,7 +695,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:gravity="start"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    tools:ignore="TooManyViews" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
@@ -691,15 +704,23 @@
             android:id="@+id/scenarioNameEntireLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:visibility="gone"
             tools:layout_editor_absoluteX="5dp"
-            android:baselineAligned="false">
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm_scenario_name"
+                android:padding="5dp"
+                tools:ignore="TooManyViews" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:hint="@string/scenario_name"
@@ -723,7 +744,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingTop="10dp"
-            android:paddingBottom="10dp">
+            android:paddingBottom="10dp"
+            tools:ignore="TooManyViews">
 
             <ImageButton
                 android:id="@+id/button_cancel"
@@ -731,47 +753,32 @@
                 android:layout_height="@dimen/button_size"
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
-                android:padding="5dp"
                 android:background="@color/white"
-                android:stateListAnimator="@animator/anim"
-                android:elevation="4dp"
-                android:scaleType="fitXY"
-                android:visibility="gone"
-                android:src="@drawable/ic_baseline_cancel_24"
                 android:contentDescription="@string/cancel"
+                android:elevation="4dp"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_baseline_cancel_24"
+                android:stateListAnimator="@animator/anim"
                 android:tooltipText="Go back to calculations"
+                android:visibility="gone"
                 tools:ignore="TooManyViews" />
 
             <ImageButton
-                android:id="@+id/button_update_scenario"
+                android:id="@+id/button_update_defaults"
                 android:layout_width="@dimen/button_size"
                 android:layout_height="@dimen/button_size"
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
-                android:padding="5dp"
                 android:background="@color/white"
-                android:stateListAnimator="@animator/anim"
+                android:contentDescription="@string/update_defaults"
                 android:elevation="4dp"
+                android:padding="5dp"
                 android:scaleType="fitXY"
-                android:visibility="gone"
-                android:contentDescription="@string/update_scenario"
                 android:src="@drawable/ic_baseline_save_24"
-                android:tooltipText="Save changes"  />
-
-            <ImageButton
-                android:id="@+id/button_save_scenario"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:padding="5dp"
-                android:background="@color/white"
                 android:stateListAnimator="@animator/anim"
-                android:elevation="4dp"
-                android:scaleType="fitXY"
-                android:contentDescription="@string/save_new_scenario"
-                android:src="@drawable/ic_baseline_save_as_24"
-                android:tooltipText="Save as new scenario"  />
+                android:tooltipText="Save changes"
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/button_calculate"
@@ -779,197 +786,114 @@
                 android:layout_height="@dimen/button_size"
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
-                android:padding="5dp"
                 android:background="@color/white"
-                android:stateListAnimator="@animator/anim"
-                android:elevation="4dp"
-                android:scaleType="fitXY"
                 android:contentDescription="@string/calculate"
+                android:elevation="4dp"
+                android:padding="5dp"
+                android:scaleType="fitXY"
                 android:src="@drawable/ic_baseline_calculate_24"
-                android:tooltipText="Calculate loan based on input parameters" />
+                android:stateListAnimator="@animator/anim"
+                android:tooltipText="Calculate retirement possibility based on input parameters" />
 
+            <ImageButton
+                android:id="@+id/button_see_details"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="@dimen/button_size"
+                android:layout_gravity="center"
+                android:layout_margin="15dp"
+                android:background="@color/white"
+                android:contentDescription="@string/see_details"
+                android:elevation="4dp"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_baseline_list_24"
+                android:stateListAnimator="@animator/anim"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/earliest_retirement_year_layout"
+            android:id="@+id/calculation_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/calculation_response"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ending_balances"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+            <ListView
+                android:id="@+id/results_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                android:divider="@null"
+                tools:ignore="NestedScrolling" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lifetime_taxes_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingStart="0dp"
             android:paddingEnd="5dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/earliest_retirement_year"
-                android:textSize="18sp"
+                android:text="@string/lifetime_taxes"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/earliest_retirement_year"
+                android:id="@+id/lifetime_taxes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_weight="1"
                 android:gravity="end"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
         </LinearLayout>
-
         <LinearLayout
-            android:id="@+id/maximum_monthly_budget_layout"
+            android:id="@+id/lifetime_surplus_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="5dp"
+            android:paddingStart="0dp"
             android:paddingEnd="5dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/maximum_monthly_budget"
-                android:textSize="18sp"
+                android:text="@string/lifetime_surplus"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/maximum_monthly_budget"
+                android:id="@+id/lifetime_surplus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_weight="1"
                 android:gravity="end"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ending_rrsp_balance_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ending_rrsp_balance"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ending_rrsp_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ending_tfsa_balance_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ending_tfsa_balance"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ending_tfsa_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ending_savings_balance_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ending_savings_balance"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ending_savings_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/property_sold_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/property_sold_year"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/property_sold_year"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ending_property_balance_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ending_property_balance"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ending_property_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="18sp" />
-        </LinearLayout>
-
         <LinearLayout
             android:id="@+id/ending_net_worth_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="5dp"
+            android:paddingStart="0dp"
             android:paddingEnd="5dp">
 
             <TextView
@@ -977,7 +901,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/ending_net_worth"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -987,31 +911,7 @@
                 android:layout_gravity="end"
                 android:layout_weight="1"
                 android:gravity="end"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/see_details_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/button_see_details"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:padding="5dp"
-                android:background="@color/white"
-                android:stateListAnimator="@animator/anim"
-                android:elevation="4dp"
-                android:scaleType="fitXY"
-                android:visibility="gone"
-                android:contentDescription="@string/see_details"
-                android:src="@drawable/ic_baseline_list_24" />
+                android:textSize="16sp" />
         </LinearLayout>
 
     </LinearLayout>

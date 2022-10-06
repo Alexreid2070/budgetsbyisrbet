@@ -150,16 +150,26 @@ class RetirementDetailsFragment : Fragment() {
         if (iWhichView == RetirementDetailsViews.ALL ||
             iWhichView == RetirementDetailsViews.INCOME) {
             addHeaderCell(tr, getString(R.string.salary), true)
-            addHeaderCell(tr, getString(R.string.cpp), true)
-            addHeaderCell(tr, getString(R.string.oas), true)
+        }
+        if (iWhichView == RetirementDetailsViews.ALL ||
+            iWhichView == RetirementDetailsViews.INCOME ||
+            iWhichView == RetirementDetailsViews.TAX) {
+            addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_pension),
+                getString(R.string.cpp)), true)
         }
         var minAlreadyShown = false
         gRetirementDetailsList[1].pensionIncomes.forEach {
             if (iWhichView == RetirementDetailsViews.ALL ||
                 iWhichView == RetirementDetailsViews.INCOME ||
-                iWhichView == RetirementDetailsViews.PENSION)
-                addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
-                    getString(R.string.pension) + ": " + it.name), true)
+                iWhichView == RetirementDetailsViews.PENSION ||
+                iWhichView == RetirementDetailsViews.TAX)
+                addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_pension),
+                    it.name), true)
+        }
+        if (iWhichView == RetirementDetailsViews.ALL ||
+            iWhichView == RetirementDetailsViews.INCOME ||
+            iWhichView == RetirementDetailsViews.TAX) {
+            addHeaderCell(tr, getString(R.string.oas), true)
         }
         gRetirementDetailsList[1].assetIncomes.forEach {
             when (it.type) {
@@ -171,13 +181,19 @@ class RetirementDetailsFragment : Fragment() {
                             addHeaderCell(tr, getString(R.string.minimum_rrif_withdrawal), true)
                             minAlreadyShown = true
                         }
+                    }
+                    if (iWhichView == RetirementDetailsViews.ALL ||
+                        iWhichView == RetirementDetailsViews.INCOME ||
+                        iWhichView == RetirementDetailsViews.RRSP ||
+                        iWhichView == RetirementDetailsViews.TAX) {
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
                             getString(R.string.rrsp) + ": " + it.name), true)
                     }
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.RRSP)
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
-                        getString(R.string.rrsp) + ": " + it.name), true)
+                            it.getGrowthPct(),
+                            getString(R.string.rrsp) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
                         iWhichView == RetirementDetailsViews.RRSP)
@@ -193,6 +209,7 @@ class RetirementDetailsFragment : Fragment() {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.TFSA)
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                            it.getGrowthPct(),
                             getString(R.string.tfsa) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -207,8 +224,11 @@ class RetirementDetailsFragment : Fragment() {
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
                             getString(R.string.savings) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
-                        iWhichView == RetirementDetailsViews.SAVINGS)
+                        iWhichView == RetirementDetailsViews.SAVINGS ||
+                        (iWhichView == RetirementDetailsViews.TAX &&
+                                it.growthIsTaxable()))
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                            it.getGrowthPct(),
                             getString(R.string.savings) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -225,6 +245,7 @@ class RetirementDetailsFragment : Fragment() {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.PROPERTY)
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                            it.getGrowthPct(),
                             getString(R.string.property) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -243,9 +264,6 @@ class RetirementDetailsFragment : Fragment() {
 
     private fun createTableRows(iWhichView: RetirementDetailsViews) {
         for (i in 0 until gRetirementDetailsList.size) {
-            val ageAtStartOfYear = gRetirementDetailsList[i].year -
-                    (gRetirementDetailsList[i].parentScenario?.birthDate?.substring(0,4)?.toInt()
-                        ?: 0)
             val tr = TableRow(requireContext())
             val trParams = TableLayout.LayoutParams(
                 TableLayout.LayoutParams.MATCH_PARENT,
@@ -262,7 +280,7 @@ class RetirementDetailsFragment : Fragment() {
             if (iWhichView == RetirementDetailsViews.ALL ||
                 iWhichView == RetirementDetailsViews.TAX ||
                 iWhichView == RetirementDetailsViews.SUMMARY) {
-                val totalNetIncome = gRetirementDetailsList[i].getTotalNetIncome()
+                val totalNetIncome = gRetirementDetailsList[i].getTotalAvailableIncome()
                 if (totalNetIncome < targetAnnualIncome)
                     addHeaderCell(tr, totalNetIncome.toString(), iBold = false, iRed = true) // show red
                 else
@@ -278,53 +296,69 @@ class RetirementDetailsFragment : Fragment() {
             if (iWhichView == RetirementDetailsViews.ALL ||
                 iWhichView == RetirementDetailsViews.INCOME) {
                 addHeaderCell(tr, gRetirementDetailsList[i].getTotalSalary().toString())
+            }
+            if (iWhichView == RetirementDetailsViews.ALL ||
+                iWhichView == RetirementDetailsViews.INCOME ||
+                iWhichView == RetirementDetailsViews.TAX) {
                 addHeaderCell(tr, gRetirementDetailsList[i].cppIncome.toString())
-                addHeaderCell(tr, gRetirementDetailsList[i].oasIncome.toString())
             }
             var minAlreadyShown = false
             gRetirementDetailsList[i].pensionIncomes.forEach {
                 if (iWhichView == RetirementDetailsViews.ALL ||
                     iWhichView == RetirementDetailsViews.INCOME ||
-                    iWhichView == RetirementDetailsViews.PENSION)
+                    iWhichView == RetirementDetailsViews.PENSION ||
+                    iWhichView == RetirementDetailsViews.TAX)
                     addHeaderCell(tr, it.getPensionIncome(gRetirementDetailsList[i].year).toString())
             }
+            if (iWhichView == RetirementDetailsViews.ALL ||
+                iWhichView == RetirementDetailsViews.INCOME ||
+                iWhichView == RetirementDetailsViews.TAX) {
+                addHeaderCell(tr, gRetirementDetailsList[i].oasIncome.toString())
+            }
             gRetirementDetailsList[i].assetIncomes.forEach {
-                when (it.type) {
-                    AssetType.RRSP -> {
-                        if (iWhichView == RetirementDetailsViews.ALL ||
-                            iWhichView == RetirementDetailsViews.INCOME ||
-                            iWhichView == RetirementDetailsViews.RRSP) {
-                            if (!minAlreadyShown) {
-                                addHeaderCell(tr, gRetirementDetailsList[i].getMinimumRRIFWithdrawal(ageAtStartOfYear).toString())
-                                minAlreadyShown = true
-                            }
-                            addHeaderCell(tr, it.withdrawalAmount.toString())
-                        }
-                        if (iWhichView == RetirementDetailsViews.ALL ||
-                            iWhichView == RetirementDetailsViews.RRSP)
-                            addHeaderCell(tr, it.growthThisYear.toString())
-                        if (iWhichView == RetirementDetailsViews.ALL ||
-                            iWhichView == RetirementDetailsViews.SUMMARY ||
-                            iWhichView == RetirementDetailsViews.RRSP)
-                            addHeaderCell(tr, it.getEndingBalance().toString())
+                if ((iWhichView == RetirementDetailsViews.ALL ||
+                    iWhichView == RetirementDetailsViews.INCOME ||
+                    iWhichView == RetirementDetailsViews.RRSP) &&
+                    it.type == AssetType.RRSP) {
+                    if (!minAlreadyShown) {
+                        addHeaderCell(tr, gRetirementDetailsList[i].getMinimumRRIFWithdrawal(
+                            gRetirementDetailsList[i].getAgeAtStartOfYear(
+                                gRetirementDetailsList[i].year)
+                        ).toString())
+                        minAlreadyShown = true
                     }
-                    else -> {
-                        if (iWhichView == RetirementDetailsViews.ALL ||
-                            iWhichView == RetirementDetailsViews.INCOME ||
-                            iWhichView.compareTo(it.type))
-                            addHeaderCell(tr, it.withdrawalAmount.toString())
-                        if (iWhichView == RetirementDetailsViews.ALL ||
-                            iWhichView.compareTo(it.type))
-                            addHeaderCell(tr, it.growthThisYear.toString())
-                        if (iWhichView == RetirementDetailsViews.ALL ||
-                            iWhichView == RetirementDetailsViews.SUMMARY ||
-                            iWhichView.compareTo(it.type)) {
-                            if (it.type == AssetType.PROPERTY && (it as Property).soldInYear == gRetirementDetailsList[i].year) {
-                                addHeaderCell(tr, it.getEndingBalance().toString(), true)
-                            } else {
-                                addHeaderCell(tr, it.getEndingBalance().toString())
-                            }
-                        }
+                }
+                if (iWhichView == RetirementDetailsViews.ALL ||
+                    iWhichView == RetirementDetailsViews.INCOME ||
+                    iWhichView.compareTo(it.type) ||
+                    (iWhichView == RetirementDetailsViews.TAX &&
+                            it.withdrawalIsTaxable())) {
+                    if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0) {
+                        addHeaderCell(tr, it.withdrawalAmount.toString(), iBold = false, iRed = true)
+                    } else {
+                        addHeaderCell(tr, it.withdrawalAmount.toString())
+                    }
+                }
+                if (iWhichView == RetirementDetailsViews.ALL ||
+                    iWhichView.compareTo(it.type) ||
+                    (iWhichView == RetirementDetailsViews.TAX &&
+                            it.growthIsTaxable()))
+                    if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0) {
+                        addHeaderCell(tr, it.growthThisYear.toString(), iBold = false, iRed = true)
+                    } else {
+                        addHeaderCell(tr, it.growthThisYear.toString())
+                    }
+
+                if (iWhichView == RetirementDetailsViews.ALL ||
+                    iWhichView == RetirementDetailsViews.SUMMARY ||
+                    iWhichView.compareTo(it.type)) {
+                    if (it.type == AssetType.PROPERTY && (it as Property).soldInYear == gRetirementDetailsList[i].year) {
+                        addHeaderCell(tr, it.getEndingBalance().toString(), true)
+                    } else {
+                        if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0)
+                            addHeaderCell(tr, it.getEndingBalance().toString(), iBold = false, iRed = true)
+                        else
+                            addHeaderCell(tr, it.getEndingBalance().toString())
                     }
                 }
             }

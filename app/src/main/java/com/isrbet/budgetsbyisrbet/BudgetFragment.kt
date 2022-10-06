@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -40,9 +41,10 @@ class BudgetFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
+        binding.currencySymbol.text = "${getLocalCurrencySymbol()} "
 
         loadCategoryRadioButtons()
         loadSpenderRadioButtons()
@@ -387,7 +389,7 @@ class BudgetFragment : Fragment() {
             if (binding.budgetAddMonth.progress < 10)
                 period + "-0" + binding.budgetAddMonth.progress
             else
-                period + binding.budgetAddMonth.progress
+                period + "-" + binding.budgetAddMonth.progress
         } else {
             "$period-00"
         }

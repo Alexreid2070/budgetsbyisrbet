@@ -123,6 +123,12 @@ class SpenderViewModel : ViewModel() {
                 return (getSpender(0)?.email != getSpender(1)?.email)
             return false
         }
+        fun getNumberOfUsers(): Int {  // but not including Joint
+            return if (singleUser())
+                1
+            else
+                2
+        }
 
         fun addLocalSpender(spender: Spender) {
             singleInstance.spenders.add(spender)

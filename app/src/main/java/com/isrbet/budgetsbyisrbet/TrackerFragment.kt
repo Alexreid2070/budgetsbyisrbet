@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -623,6 +622,7 @@ class TrackerFragment : Fragment() {
         }
         if (totalActualsToDate > totalBudget)
             binding.chartSummaryText.text = String.format(getString(R.string.you_are_over_your_x_budget_this_period), lab)
+//          binding.chartSummaryText.text = lab
         else {
             val remainingBudget = totalBudget - totalActualsToDate
             val daysRemaining = daysInMonth - dateNow.get(Calendar.DATE) + 1

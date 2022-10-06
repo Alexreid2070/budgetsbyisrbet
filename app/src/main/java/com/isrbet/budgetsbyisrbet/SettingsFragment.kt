@@ -521,14 +521,24 @@ class SettingsFragment : Fragment() {
         binding.languageRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.languageRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-            val language = radioButton.text.toString()
-            if (language == getString(R.string.english)) {
-                MyApplication.prefEditor.putString("lang", "en-US")
-            } else {
-                MyApplication.prefEditor.putString("lang", "fr-CA")
+            val userChosenLanguage = radioButton.text.toString()
+            var currentSavedLanguage = MyApplication.prefs.getString("lang", null)
+            if ((userChosenLanguage == getString(R.string.english) &&
+                currentSavedLanguage != "en-US") ||
+                (userChosenLanguage == getString(R.string.french) &&
+                        currentSavedLanguage != "fr-CA")) {
+                if (userChosenLanguage == getString(R.string.english)) {
+                    MyApplication.prefEditor.putString("lang", "en-US")
+                } else {
+                    MyApplication.prefEditor.putString("lang", "fr-CA")
+                }
+                MyApplication.prefEditor.commit()
+                Toast.makeText(
+                    activity,
+                    getString(R.string.language_has_been_changed_please_restart),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            MyApplication.prefEditor.commit()
-            Toast.makeText(activity, getString(R.string.language_has_been_changed_please_restart), Toast.LENGTH_SHORT).show()
         }
 
         var lang = MyApplication.prefs.getString("lang", null)
