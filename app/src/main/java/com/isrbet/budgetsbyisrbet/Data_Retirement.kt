@@ -70,6 +70,7 @@ data class RetirementData(
     var birthDate: String) {
         var assets: MutableList<Asset> = ArrayList()
         var pensions: MutableList<Pension> = ArrayList()
+        var additionalItems: MutableList<AdditionalItem> = ArrayList()
         var salary: Salary = Salary(0, "", 0, 0.0)
         var cpp: CPP = CPP()
         var oas: OAS = OAS()
@@ -146,6 +147,44 @@ data class RetirementData(
                             )
                         }
                     }
+                    "additionalItems" -> {
+                        for (addItem in data.children.toMutableList()) {
+                            val addItemID = addItem.key.toString().toInt()
+                            var name = ""
+                            var amount = 0
+                            var assetName = ""
+                            var type = AdditionalType.DEPOSIT
+                            var year = 0
+                            for (det in addItem.children.toMutableList()) {
+                                when (det.key.toString()) {
+                                    "name" -> name = det.value.toString()
+                                    "amount" -> amount = det.value.toString().toInt()
+                                    "assetName" -> assetName = det.value.toString()
+                                    "type" -> {
+                                        type =
+                                            try {
+                                                AdditionalType.valueOf(det.value.toString())
+                                            } catch (e: IllegalArgumentException) {
+                                                AdditionalType.DEPOSIT
+                                            }
+                                    }
+                                    "year" -> year = det.value.toString().toInt()
+                                }
+                            }
+                            val newItem = AdditionalItem(
+                                addItemID,
+                                type,
+                                name,
+                                year,
+                                amount,
+                                assetName
+                            )
+                            retData.additionalItems.add(
+                                min(addItemID, retData.additionalItems.size),
+                                newItem
+                            )
+                        }
+                    }
                     "assets" -> {
                         for (asset in data.children.toMutableList()) {
                             val assetID = asset.key.toString().toInt()
@@ -163,6 +202,7 @@ data class RetirementData(
                             var name = ""
                             var type = AssetType.RRSP
                             var value = 0
+                            var primaryResidence = true
                             for (det in asset.children.toMutableList()) {
                                 when (det.key.toString()) {
                                     "annualContribution" -> annualContribution =
@@ -205,6 +245,8 @@ data class RetirementData(
                                         det.value.toString()
                                     "ownershipPct" -> ownershipPercentage =
                                         det.value.toString().toDouble()
+                                    "primaryResidence" -> primaryResidence =
+                                        (det.value.toString() == "true")
                                 }
                             }
                             var newAsset: Asset? = null
@@ -264,7 +306,8 @@ data class RetirementData(
                                         estimatedGrowthPctAfterSale,
                                         mortgageDetailsText,
                                         ownershipPercentage,
-                                        0
+                                        0,
+                                        primaryResidence
                                     )
                                 }
                                 else -> {}
@@ -335,7 +378,7 @@ data class RetirementData(
         }
         assets.sortBy { it.distributionOrder }
     }
-    fun setAssetsAndPensionsFromWorking() {
+    fun setAssetsAndPensionsAndAdditionalItemsFromWorking() {
         for (i in 0 until RetirementViewModel.getWorkingAssetListCount()) {
             val copiedAsset = RetirementViewModel.getWorkingAsset(i).copy()
             if (copiedAsset.type == AssetType.PROPERTY) {
@@ -353,6 +396,12 @@ data class RetirementData(
         for (i in 0 until RetirementViewModel.getWorkingPensionListCount()) {
             RetirementViewModel.getWorkingPension(i).copy().let { pensions.add(it) }
         }
+        for (i in 0 until RetirementViewModel.getWorkingAdditionalListCount()) {
+            val temp = RetirementViewModel.getWorkingAdditionalItem(i)
+            if (temp != null) {
+                additionalItems.add(temp.copy())
+            }
+        }
     }
     fun getAgeAtStartOfYear(iYear: Int) : Int {
         val birthYear = birthDate.substring(0,4)
@@ -361,20 +410,45 @@ data class RetirementData(
         else
             99
     }
+    fun getAdditionalGrowth(iAssetName: String, iYear: Int) : Int {
+        var tot = 0
+        additionalItems.forEach {
+            if (it.year == iYear &&
+                    it.assetName == iAssetName &&
+                    it.type == AdditionalType.DEPOSIT) {
+                tot += it.amount
+            }
+        }
+        return tot
+    }
 }
 
-abstract class Asset(val id: Int, val type: AssetType, val name: String, var value: Int,
+class AdditionalItem(var id: Int, var type: AdditionalType, var name: String, var year: Int,
+                     var amount: Int, var assetName: String = "") {
+    fun copy() : AdditionalItem {
+        return AdditionalItem(id, type, name, year, amount, assetName)
+    }
+}
+
+abstract class Asset(val id: Int, val type: AssetType, val name: String, private var value: Int,
                      var useDefaultGrowthPct: Boolean,
                      var estimatedGrowthPct: Double, var annualContribution: Int,
                      var willSellToFinanceRetirement: Boolean,
                      val monthsOfGrowthThisYear: Int = 12, var distributionOrder: Int) {
     var growthThisYear = 0
+    var additionalGrowthThisYear = 0
     var withdrawalAmount = 0
     init {
         this.computeGrowth()
     }
+    fun getValue() : Int {
+        return value
+    }
+    fun getAvailableValue() : Int {
+        return value + additionalGrowthThisYear
+    }
     open fun getEndingBalance() : Int {
-        return  value - withdrawalAmount + growthThisYear
+        return  value - withdrawalAmount + growthThisYear + additionalGrowthThisYear
     }
     open fun computeGrowth() {
         growthThisYear = if (value != 0 && withdrawalAmount < value)
@@ -383,7 +457,7 @@ abstract class Asset(val id: Int, val type: AssetType, val name: String, var val
         else
             0
     }
-    open fun getTaxableIncome(): Int {
+    open fun getTaxableIncome(iYear: Int): Int {
         return 0
     }
     open fun withdrawalIsTaxable(): Boolean {
@@ -427,8 +501,10 @@ class RRSP (
     }
 
     override fun copy(): Asset {
-        return RRSP(id, name, value, useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
+        val rrsp = RRSP(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
             monthsOfGrowthThisYear, distributionOrder, ageAtStartOfYear, minimizeTax)
+        rrsp.additionalGrowthThisYear = additionalGrowthThisYear
+        return rrsp
     }
     override fun getNextYear(iAmIRetired: Boolean): Asset {
         return RRSP(
@@ -459,7 +535,7 @@ class RRSP (
             round(gMinimizeTaxAmount *
                     (1 + inflationRate/100.0).pow(iYear - cal.get(Calendar.YEAR))).toInt()
         }
-        var minWithdrawal1 = min(value, iAmount)
+        var minWithdrawal1 = min(getAvailableValue(), iAmount)
         minWithdrawal1 = min(minWithdrawal1, currentMinimalTaxAmount - iTaxableIncomeAlreadyMade) // at this point minWithdrawal1 is the minimum of...
         // the current balance of the account, the amount requested, and the minimum tax bracket
 
@@ -475,7 +551,7 @@ class RRSP (
         if (minimizeTax != MinimizeTaxEnum.MINIMIZE_WHEN_POSSIBLE)
             return
 
-        withdrawalAmount += min(value-withdrawalAmount, iAmount)
+        withdrawalAmount += min(getAvailableValue()-withdrawalAmount, iAmount)
         computeGrowth()
     }
 
@@ -483,7 +559,7 @@ class RRSP (
         return true
     }
 
-    override fun getTaxableIncome(): Int {
+    override fun getTaxableIncome(iYear: Int): Int {
         return withdrawalAmount
     }
 }
@@ -504,7 +580,7 @@ class TFSA(
 
     override fun withdraw(iAmount: Int, iYear: Int) {
         if (willSellToFinanceRetirement) {
-            withdrawalAmount = min(iAmount, value)
+            withdrawalAmount = min(iAmount, getAvailableValue())
             computeGrowth()
         }
     }
@@ -514,9 +590,11 @@ class TFSA(
     }
 
     override fun copy(): Asset {
-        return TFSA(id, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        val tfsa = TFSA(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, willSellToFinanceRetirement, monthsOfGrowthThisYear,
             distributionOrder)
+        tfsa.additionalGrowthThisYear = additionalGrowthThisYear
+        return tfsa
     }
     override fun getNextYear(iAmIRetired: Boolean): Asset {
         return TFSA(
@@ -550,7 +628,7 @@ class Savings(
 
     override fun withdraw(iAmount: Int, iYear: Int) {
         if (willSellToFinanceRetirement) {
-            withdrawalAmount = min(iAmount, value)
+            withdrawalAmount = min(iAmount, getAvailableValue())
             computeGrowth()
         }
     }
@@ -561,9 +639,11 @@ class Savings(
     }
 
     override fun copy(): Asset {
-        return Savings(id, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        val savings = Savings(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, willSellToFinanceRetirement, monthsOfGrowthThisYear,
             distributionOrder, taxSheltered)
+        savings.additionalGrowthThisYear = additionalGrowthThisYear
+        return savings
     }
     override fun getNextYear(iAmIRetired: Boolean): Asset {
         return Savings(
@@ -583,7 +663,7 @@ class Savings(
         return !taxSheltered
     }
 
-    override fun getTaxableIncome(): Int {
+    override fun getTaxableIncome(iYear: Int): Int {
         return if (taxSheltered)
             0
         else {
@@ -605,7 +685,8 @@ class Property(
     var estimatedGrowthPctAsSavings: Double,
     var scheduledPaymentName: String,
     var ownershipPct: Double,
-    var soldInYear: Int) :
+    var soldInYear: Int,
+    var primaryResidence: Boolean) :
         Asset(id, AssetType.PROPERTY, name, round(value*ownershipPct/100).toInt(), useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, 0, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder) {
@@ -614,18 +695,20 @@ class Property(
     }
 
     override fun computeGrowth() { // needs to be overridden to get the correct growth pct
-        growthThisYear = if (value != 0 && withdrawalAmount < value)
-            round((value  - withdrawalAmount) *
+        growthThisYear = if (getValue() != 0 && withdrawalAmount < getValue())
+            round((getValue()  - withdrawalAmount) *
                     (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) + annualContribution).toInt()
         else
             0
     }
     override fun copy(): Asset {
-        return Property(id, name, (value/(ownershipPct/100)).toInt(), useDefaultGrowthPct,
+        val prop = Property(id, name, (getValue()/(ownershipPct/100)).toInt(), useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder,
             useDefaultGrowthPctAsSavings, estimatedGrowthPctAsSavings,
-            scheduledPaymentName, ownershipPct, soldInYear)
+            scheduledPaymentName, ownershipPct, soldInYear, primaryResidence)
+        prop.additionalGrowthThisYear = additionalGrowthThisYear
+        return prop
     }
     override fun getNextYear(iAmIRetired: Boolean): Asset {
         return Property(
@@ -641,7 +724,8 @@ class Property(
             estimatedGrowthPctAsSavings,
             scheduledPaymentName,
             100.0,
-            soldInYear
+            soldInYear,
+            primaryResidence
         )
     }
 
@@ -656,8 +740,9 @@ class Property(
         if (willSellToFinanceRetirement) {
             if (soldInYear == 0) {
                 soldInYear = iYear
-            }
-            withdrawalAmount = min(iAmount, value)
+                withdrawalAmount = min(iAmount, getAvailableValue()) + (getValue() * .25).toInt()
+            } else
+                withdrawalAmount = min(iAmount, getAvailableValue())
             estimatedGrowthPct = getGrowthPct()
             computeGrowth()
         }
@@ -665,6 +750,13 @@ class Property(
 
     override fun getGrossIncome(): Int {
         return withdrawalAmount
+    }
+    override fun getTaxableIncome(iYear: Int): Int {
+        if (soldInYear == iYear &&
+                !primaryResidence)
+            return (getValue() * .25).toInt()  // assumes 25% tax on capital gains
+        else
+            return 0
     }
 }
 
@@ -962,6 +1054,7 @@ class RetirementViewModel : ViewModel() {
     private val scenarios: MutableList<RetirementData> = ArrayList()
     private val workingAssetList: MutableList<Asset> = ArrayList()
     private val workingPensionList: MutableList<Pension> = ArrayList()
+    private val workingAdditionalList: MutableList<AdditionalItem> = ArrayList()
 
     companion object {
         lateinit var singleInstance: RetirementViewModel // used to track static single instance of self
@@ -1094,7 +1187,7 @@ class RetirementViewModel : ViewModel() {
 
         private fun allRowsMetTarget(iList: MutableList<RetirementCalculationRow>): Boolean {
             iList.forEach {
-                if (it.getTotalAvailableIncome() < it.targetAnnualIncome)
+                if (it.getTotalAvailableIncome() < it.getTotalTargetIncome())
                     return false
             }
             return true
@@ -1212,7 +1305,51 @@ class RetirementViewModel : ViewModel() {
             else
                 singleInstance.workingPensionList[ind] = iPension
         }
-
+        fun populateWorkingAdditionalList(iList: MutableList<AdditionalItem>) {
+            singleInstance.workingAdditionalList.clear()
+            iList.forEach {
+                addAdditionalItemToWorkingList(it.copy())
+            }
+        }
+        fun getWorkingAdditionalListCount(iType: AdditionalType? = null) : Int {
+            return if (iType == null)
+                singleInstance.workingAdditionalList.size
+            else {
+                var count = 0
+                singleInstance.workingAdditionalList.forEach {
+                    if (it.type == iType)
+                        count++
+                }
+                count
+            }
+        }
+        fun getWorkingAdditionalItem(iIndex: Int) : AdditionalItem? {
+            return if (iIndex >= 0 && iIndex < singleInstance.workingAdditionalList.size)
+                singleInstance.workingAdditionalList[iIndex]
+            else
+                null
+        }
+        fun deleteAdditionalItemFromWorkingList(iIndex: Int) {
+            if (iIndex < singleInstance.workingAdditionalList.size)
+                singleInstance.workingAdditionalList.removeAt(iIndex)
+            var i = 0
+            singleInstance.workingAdditionalList.forEach {
+                it.id = i
+                i += 1
+            }
+        }
+        fun addAdditionalItemToWorkingList(iItem: AdditionalItem) {
+            singleInstance.workingAdditionalList.add(iItem)
+            var i = 0
+            singleInstance.workingAdditionalList.forEach {
+                it.id = i
+                i += 1
+            }
+        }
+        fun updateAdditionalItemInWorkingList(iIndex: Int, iAdditionalItem: AdditionalItem) {
+            if (iIndex < singleInstance.workingAdditionalList.size)
+                singleInstance.workingAdditionalList[iIndex] = iAdditionalItem
+        }
     }
 
     init {
@@ -1241,85 +1378,10 @@ class RetirementViewModel : ViewModel() {
                 singleInstance.scenarios.clear()
                 for (retirementChild in dataSnapshot.children)
                 {
-//                    val retData = RetirementData("", 0, 0, "", 0, 0,0.0, 0.0, 0.0,"")
                     val retData = RetirementData.create(retirementChild.children.toMutableList())
-/*                    for (data in retirementChild.children.toMutableList()) {
-                        when (data.key.toString()) {
-                            "userID" -> retData.userID = data.value.toString().toInt()
-                            "birthDate" -> retData.birthDate = data.value.toString()
-                            "cppAge" -> retData.cppAge = data.value.toString().toInt()
-                            "inflationRate" -> retData.inflationRate = data.value.toString().toDouble()
-                            "investmentGrowthRate" -> retData.investmentGrowthRate = data.value.toString().toDouble()
-                            "propertyGrowthRate" -> retData.propertyGrowthRate = data.value.toString().toDouble()
-                            "name" -> retData.name = data.value.toString()
-                            "planToAge" -> retData.planToAge = data.value.toString().toInt()
-                            "retirementDate" -> retData.retirementDate = data.value.toString()
-                            "targetMonthlyIncome" -> retData.targetMonthlyIncome = data.value.toString().toInt()
-                            "cpp" -> {
-                                var v60 = 0
-                                var v65 = 0
-                                var v70 = 0
-                                for (cppRow in data.children.toMutableList()) {
-                                    when (cppRow.key.toString()) {
-                                        "annualValueAt60" -> v60 =
-                                            cppRow.value.toString().toInt()
-                                        "annualValueAt65" -> v65 =
-                                            cppRow.value.toString().toInt()
-                                        "annualValueAt70" -> v70 =
-                                            cppRow.value.toString().toInt()
-                                    }
-                                    retData.cpp = CPP(v60, v65, v70)
-                                }
-                            }
-                            "oas" -> {
-                                var currentAnnualValue = 0
-                                for (oasRow in data.children.toMutableList()) {
-                                    when (oasRow.key.toString()) {
-                                        "annualValueAt67" -> currentAnnualValue =
-                                            oasRow.value.toString().toInt()
-                                    }
-                                    retData.oas = OAS(currentAnnualValue)
-                                }
-                            }
-                            "salary" -> {
-                                var annualValueAfterTax = 0
-                                var name = ""
-                                var estimatedGrowthPct = 0.0
-                                for (salRow in data.children.toMutableList()) {
-                                    when (salRow.key.toString()) {
-                                        "annualValueAfterTax" -> annualValueAfterTax =
-                                            salRow.value.toString().toInt()
-                                        "name" -> name = salRow.value.toString()
-                                        "estimatedGrowthPct" -> estimatedGrowthPct =
-                                            salRow.value.toString().toDouble()
-                                    }
-                                    retData.salary = Salary(0, name, annualValueAfterTax, estimatedGrowthPct)
-                                }
-                            }
-                            "assets" -> {
-                                for (asset in data.children.toMutableList()) {
-                                    var assetID = -1
-                                    var distributionOrder = 0
-                                    for (det in asset.children.toMutableList()) {
-                                        when (det.key.toString()) {
-                                            "distributionOrder" -> distributionOrder = det.value.toString().toInt()
-                                            "id" -> assetID = det.value.toString().toInt()
-                                        }
-                                    }
-                                    val userDefault = getUserDefault(SpenderViewModel.myIndex())
-                                    val newAsset: Asset? = userDefault?.assets?.find {it.id == assetID}
-                                    if (newAsset != null) {
-                                        val assetToAdd = newAsset.copy()
-                                        assetToAdd.distributionOrder = distributionOrder
-                                        retData.assets.add(assetToAdd)
-                                    }
-                                }
-                                retData.assets.sortBy { it.distributionOrder }
-                            }
-                        }
-                    } */
                     updateRetirementScenario(retData, true)
                 }
+                singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
             }
 
@@ -1338,12 +1400,13 @@ data class Income(val id: Int, val amount: Int)
 
 data class RetirementCalculationRow(val userID: Int, val year: Int, val inflationRate: Double,
     val investmentGrowthRate: Double, val propertyGrowthRate: Double) {
-    var targetAnnualIncome: Int = 0
+    private var targetAnnualIncome: Int = 0
     var cppIncome: Int = 0
     var oasIncome: Int = 0
     private var salaryIncomes: MutableList<Income> = ArrayList()
     var assetIncomes: MutableList<Asset> = ArrayList()
     var pensionIncomes: MutableList<PensionIncome> = ArrayList()
+//    var additionalItems: MutableList<AdditionalItem> = ArrayList()
     private var parentScenario: RetirementData? = null
 
     constructor(iRetirementScenario: RetirementData, forYear: Int, inflationRate: Double,
@@ -1353,17 +1416,11 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         parentScenario = iRetirementScenario
         // this section is called for the very first row, so data needs to be loaded from scenario / current balances
         targetAnnualIncome = iRetirementScenario.targetMonthlyIncome * 12
-//        val retUser = RetirementViewModel.getUserDefaults(userID)
-//        if (retUser != null) {
-            cppIncome = iRetirementScenario.cpp.getCPPIncome(iRetirementScenario.cppAge,
-                iRetirementScenario.birthDate, iRetirementScenario.inflationRate, year)
-            oasIncome = iRetirementScenario.oas.getOASIncome(iRetirementScenario.birthDate,
-                iRetirementScenario.inflationRate, year)
-//        }
+        cppIncome = iRetirementScenario.cpp.getCPPIncome(iRetirementScenario.cppAge,
+            iRetirementScenario.birthDate, iRetirementScenario.inflationRate, year)
+        oasIncome = iRetirementScenario.oas.getOASIncome(iRetirementScenario.birthDate,
+            iRetirementScenario.inflationRate, year)
         salaryIncomes.add(Income(iRetirementScenario.salary.id, iRetirementScenario.salary.getSalary(iRetirementScenario.retirementDate, year)))
-//        iRetirementScenario.pensions.forEach {
-//            pensionIncomes.add(Income(it.id, it.annualValue))
-//        }
         val cal = android.icu.util.Calendar.getInstance()
         var amRetired = false
         if (parentScenario != null) {
@@ -1371,11 +1428,12 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 amRetired = true
         }
         iRetirementScenario.assets.forEach {
+            val additionalGrowth = parentScenario!!.getAdditionalGrowth(it.name, year)
             when (it.type) {
                 AssetType.RRSP -> {
                     val rrsp = RRSP(it.id,
                         it.name,
-                        it.value,
+                        it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
@@ -1383,24 +1441,26 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.distributionOrder,
                         getAgeAtStartOfYear(forYear),
                         (it as RRSP).minimizeTax)
+                    rrsp.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(rrsp)
                 }
                 AssetType.TFSA -> {
                     val tfsa = TFSA(it.id,
                         it.name,
-                        it.value,
+                        it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
                         it.willSellToFinanceRetirement,
                         12 - cal.get(Calendar.MONTH) - 1,
                         it.distributionOrder)
+                    tfsa.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(tfsa)
                 }
                 AssetType.SAVINGS -> {
                     val sav = Savings(it.id,
                         it.name,
-                        it.value,
+                        it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
@@ -1408,12 +1468,13 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         12 - cal.get(Calendar.MONTH) - 1,
                         it.distributionOrder,
                         (it as Savings).taxSheltered)
+                    sav.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(sav)
                 }
                 AssetType.PROPERTY -> {
                     val prop = Property(it.id,
                         it.name,
-                        it.value,
+                        it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) propertyGrowthRate else it.estimatedGrowthPct,
                         it.willSellToFinanceRetirement,
@@ -1423,7 +1484,9 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         if (it.useDefaultGrowthPctAsSavings) investmentGrowthRate else it.estimatedGrowthPctAsSavings,
                         it.scheduledPaymentName,
                         100.0,
-                        0)
+                        0,
+                        it.primaryResidence)
+                    prop.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(prop)
                 }
                 else -> {
@@ -1444,6 +1507,9 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 iRetirementScenario.inflationRate, iRetirementScenario.cppAge,
                 iRetirementScenario.birthDate))
         }
+//        iRetirementScenario.additionalItems.forEach {
+  //          additionalItems.add(it.copy())
+    //    }
     }
 
     fun getAgeAtStartOfYear(iYear: Int) : Int {
@@ -1456,7 +1522,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         val multiplier = (1 + inflationRate/100.0).pow(year - currentYear)
         val outputString =  String.format("%4d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d",
             year,
-            targetAnnualIncome,
+            getTotalTargetIncome(),
             round(gMinimizeTaxAmount*multiplier).toInt(),
             getTaxableIncome(year),
             getTotalGrossIncome(year),
@@ -1490,6 +1556,15 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         return round(gMinimizeTaxAmount*multiplier).toInt()
     }
 
+    fun getTotalTargetIncome() : Int {
+        var totalAdditionalItemRequired = 0
+        parentScenario?.additionalItems?.forEach {
+            if (it.year == year && it.type == AdditionalType.EXPENSE)
+                totalAdditionalItemRequired += it.amount
+        }
+        return targetAnnualIncome + totalAdditionalItemRequired
+    }
+
     fun createNextRow(iRetirementScenario: RetirementData)
     : RetirementCalculationRow {
 //        val retUser = RetirementViewModel.getUserDefaults(userID) ?: return null
@@ -1505,13 +1580,15 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
             iRetirementScenario.inflationRate, nextRow.year)
 
         nextRow.salaryIncomes.add(Income(iRetirementScenario.salary.id, iRetirementScenario.salary.getSalary(iRetirementScenario.retirementDate, nextRow.year)))
-//        iRetirementScenario.pensions.forEach {
-//            nextRow.pensionIncomes.add(Income(it.id, it.getPensionIncome(nextRow.year)))
-//        }
 
         val retirementYear = iRetirementScenario.retirementDate.substring(0,4).toInt()
         assetIncomes.forEach {
-            nextRow.assetIncomes.add(it.getNextYear(nextRow.year > retirementYear))
+            val additionalGrowth = parentScenario?.getAdditionalGrowth(it.name, year+1)
+            val asset = it.getNextYear(nextRow.year > retirementYear)
+            if (additionalGrowth != null) {
+                asset.additionalGrowthThisYear = additionalGrowth
+            }
+            nextRow.assetIncomes.add(asset)
         }
         pensionIncomes.forEach {
             nextRow.pensionIncomes.add(it.getNextYear())
@@ -1554,7 +1631,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun availableIncomeGreaterThanTargetIncome(): Boolean {
-        return getTotalAvailableIncome() >= targetAnnualIncome
+        return getTotalAvailableIncome() >= getTotalTargetIncome()
     }
 
     fun getTotalAvailableIncome() : Int {
@@ -1585,7 +1662,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     fun getTaxableIncome(iYear: Int) : Int {
         var tTotal = cppIncome + oasIncome
         assetIncomes.forEach {
-            tTotal += it.getTaxableIncome()
+            tTotal += it.getTaxableIncome(iYear)
         }
         pensionIncomes.forEach {
             tTotal += it.getPensionIncome(iYear)
@@ -1713,15 +1790,15 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun ensureIncomeIsAdequate() {
-        if (getTotalAvailableIncome() >= targetAnnualIncome)
+        if (getTotalAvailableIncome() >= getTotalTargetIncome())
             return
 //        Log.d("Alex", "$year gross ${getTotalGrossIncome(year)} totalNetIncome ${getTotalAvailableIncome()} taxable ${getTaxableIncome(year)}")
         for (i in 0 until assetIncomes.size) {
             assetIncomes.forEach {
                 val totalNetIncome = getTotalAvailableIncome()
-                if (it.distributionOrder == i && it.value > 0.0 &&
-                    totalNetIncome < targetAnnualIncome) {
-                    val netWithdrawalAmountNeeded = min(it.value, targetAnnualIncome - totalNetIncome)
+                if (it.distributionOrder == i && it.getAvailableValue() > 0.0 &&
+                    totalNetIncome < getTotalTargetIncome()) {
+                    val netWithdrawalAmountNeeded = min(it.getAvailableValue(), getTotalTargetIncome() - totalNetIncome)
                     if (it.withdrawalIsTaxable()) { // e.g. RRSP
                         val cal = android.icu.util.Calendar.getInstance()
                         it.withdraw(
@@ -1740,13 +1817,13 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         }
     }
     fun ensureIncomeIsAdequate2() {
-        if (getTotalAvailableIncome() >= targetAnnualIncome)
+        if (getTotalAvailableIncome() >= getTotalTargetIncome())
             return
         for (i in 0 until assetIncomes.size) {
             assetIncomes.forEach {
-                if (it.distributionOrder == i && it.value > 0.0 &&
+                if (it.distributionOrder == i && it.getAvailableValue() > 0.0 &&
                     getTotalAvailableIncome() < targetAnnualIncome) {
-                    val netWithdrawalAmountNeeded = min(it.value, targetAnnualIncome - getTotalAvailableIncome())
+                    val netWithdrawalAmountNeeded = min(it.getAvailableValue(), getTotalTargetIncome() - getTotalAvailableIncome())
                     if (it.withdrawalIsTaxable()) { // e.g. RRSP
                         val cal = android.icu.util.Calendar.getInstance()
                         it.withdrawExtra(
@@ -1772,7 +1849,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         var minRRIFWithdrawal = 0
         assetIncomes.forEach {
             if (it.type == AssetType.RRSP)
-                minRRIFWithdrawal += round((it as RRSP).value * minimumWithdrawalPct).toInt()
+                minRRIFWithdrawal += round((it as RRSP).getValue() * minimumWithdrawalPct).toInt()
         }
         return minRRIFWithdrawal
     }

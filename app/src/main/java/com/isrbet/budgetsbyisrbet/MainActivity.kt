@@ -11,8 +11,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
-import java.util.*
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -41,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
                 navHostFragment.childFragmentManager.popBackStack()
             }
+            binding.bottomNavigationView.menu.findItem(R.id.homeFragment).isChecked = true
             when(it.itemId){
                 R.id.homeFragment -> { // no navigation needed since we've popped our way back...
                     binding.bottomNavigationView.menu.findItem(it.itemId).isChecked = true
@@ -53,6 +52,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.AccountingFragment-> {
                     navController.navigate(R.id.AccountingFragment)
+                }
+                R.id.RetirementFragment-> {
+                    navController.navigate(R.id.RetirementFragment)
                 }
             }
             true

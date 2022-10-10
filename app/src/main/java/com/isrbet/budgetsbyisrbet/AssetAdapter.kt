@@ -1,7 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +26,7 @@ class AssetAdapter (context: Context,
     fun refreshData() {
         myData.clear()
         for (i in 0 until RetirementViewModel.getWorkingAssetListCount())
-            RetirementViewModel.getWorkingAsset(i)?.let { myData.add(it) }
+            RetirementViewModel.getWorkingAsset(i).let { myData.add(it) }
     }
     override fun getCount(): Int {
         return myData.size
@@ -67,9 +66,9 @@ class AssetAdapter (context: Context,
         val desc1 = if (asset.type == AssetType.PROPERTY) {
             val prop = asset as Property
             String.format("%s %s %s @%s%%", AssetType.getText(asset.type), asset.name,
-                gDecWithCurrency((asset.value / (prop.ownershipPct / 100)).toInt()), prop.ownershipPct)
+                gDecWithCurrency((asset.getValue() / (prop.ownershipPct / 100)).toInt()), prop.ownershipPct)
         } else
-            String.format("%s %s %s", AssetType.getText(asset.type), asset.name, gDecWithCurrency(asset.value))
+            String.format("%s %s %s", AssetType.getText(asset.type), asset.name, gDecWithCurrency(asset.getValue()))
         val desc2 = if (asset.type == AssetType.PROPERTY) {
             val propGrowth = if (asset.useDefaultGrowthPct) defaultPropertyGrowthRate else asset.estimatedGrowthPct
             val invGrowth = if ((asset as Property).useDefaultGrowthPctAsSavings)
@@ -94,7 +93,7 @@ class AssetAdapter (context: Context,
         }
         viewHolder.vhAssetType.text = asset.type.toString()
         viewHolder.vhLabel.text = asset.name
-        viewHolder.vhAmount.text = asset.value.toString()
+        viewHolder.vhAmount.text = asset.getValue().toString()
         viewHolder.vhGrowthRate.text = asset.estimatedGrowthPct.toString()
         if (asset.type == AssetType.PROPERTY) {
             viewHolder.vhGrowthRateOnceSold.text =

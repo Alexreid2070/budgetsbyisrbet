@@ -217,8 +217,10 @@ class MyApplication : Application() {
         fun getQuote(): String {
             if (quoteForThisSession == "") {
 //                val randomIndex = (0 until inspirationalQuotes.size-1).random()
-                val randomIndex = Random.nextInt(inspirationalQuotes.size)
-                Log.d("Alex", "randomIndex is $randomIndex")
+//                val randomIndex = Random.nextInt(inspirationalQuotes.size)
+                val secondsSinceEpoch = System.currentTimeMillis()
+//                val randomIndex = (0 until inspirationalQuotes.size).random()
+                val randomIndex = (secondsSinceEpoch % inspirationalQuotes.size).toInt()
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
             }

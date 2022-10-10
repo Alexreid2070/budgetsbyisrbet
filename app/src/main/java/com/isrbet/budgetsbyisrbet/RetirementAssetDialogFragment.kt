@@ -72,9 +72,9 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 binding.assetName.setText(asset.name)
                 if (asset.type == AssetType.PROPERTY) {
                     val prop = asset as Property
-                    binding.assetValue.setText((prop.value / (prop.ownershipPct / 100)).toInt().toString())
+                    binding.assetValue.setText((prop.getValue() / (prop.ownershipPct / 100)).toInt().toString())
                 } else
-                    binding.assetValue.setText(asset.value.toString())
+                    binding.assetValue.setText(asset.getValue().toString())
                 binding.switchUseDefaultGrowth.isChecked = asset.useDefaultGrowthPct
                 binding.estimatedAnnualGrowth.isEnabled = !binding.switchUseDefaultGrowth.isChecked
                 if (asset.type == AssetType.RRSP) {
@@ -98,29 +98,34 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     binding.estimatedAnnualGrowth.setText(asset.estimatedGrowthPct.toString())
                 }
                 binding.annualContribution.setText(asset.annualContribution.toString())
-                if (asset.type == AssetType.PROPERTY) {
-                    val prop = asset as Property
-                    binding.propertyFields.visibility = View.VISIBLE
-                    binding.switchUseDefaultGrowthAfterSale.isChecked = asset.useDefaultGrowthPctAsSavings
-                    binding.estimatedAnnualGrowthAfterSale.isEnabled = !binding.switchUseDefaultGrowthAfterSale.isChecked
-                    if (binding.switchUseDefaultGrowthAfterSale.isChecked) {
-                        binding.estimatedAnnualGrowthAfterSale.setText(userDefault.investmentGrowthRate.toString())
-                    } else {
-                        binding.estimatedAnnualGrowthAfterSale.setText(asset.estimatedGrowthPctAsSavings.toString())
+                when (asset.type) {
+                    AssetType.PROPERTY -> {
+                        val prop = asset as Property
+                        binding.propertyFields.visibility = View.VISIBLE
+                        binding.switchUseDefaultGrowthAfterSale.isChecked = asset.useDefaultGrowthPctAsSavings
+                        binding.estimatedAnnualGrowthAfterSale.isEnabled = !binding.switchUseDefaultGrowthAfterSale.isChecked
+                        if (binding.switchUseDefaultGrowthAfterSale.isChecked) {
+                            binding.estimatedAnnualGrowthAfterSale.setText(userDefault.investmentGrowthRate.toString())
+                        } else {
+                            binding.estimatedAnnualGrowthAfterSale.setText(asset.estimatedGrowthPctAsSavings.toString())
+                        }
+                        binding.ownershipPercentage.setText(prop.ownershipPct.toString())
+                        binding.mortgageDetails.setText(prop.scheduledPaymentName)
+                        binding.switchPrimaryResidence.isChecked = prop.primaryResidence
                     }
-                    binding.ownershipPercentage.setText(prop.ownershipPct.toString())
-                    binding.mortgageDetails.setText(prop.scheduledPaymentName)
-                }
-                else if (asset.type == AssetType.RRSP) {
-                    val rrsp = asset as RRSP
-                    binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
-                    when (rrsp.minimizeTax) {
-                        MinimizeTaxEnum.DO_NOT_MINIMIZE -> binding.minimizeRRSPNever.isChecked = true
-                        MinimizeTaxEnum.MINIMIZE_WHEN_POSSIBLE -> binding.minimizeRRSPIfPossible.isChecked = true
-                        else -> binding.minimizeRRSPAlways.isChecked = true
+                    AssetType.RRSP -> {
+                        val rrsp = asset as RRSP
+                        binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
+                        when (rrsp.minimizeTax) {
+                            MinimizeTaxEnum.DO_NOT_MINIMIZE -> binding.minimizeRRSPNever.isChecked = true
+                            MinimizeTaxEnum.MINIMIZE_WHEN_POSSIBLE -> binding.minimizeRRSPIfPossible.isChecked = true
+                            else -> binding.minimizeRRSPAlways.isChecked = true
+                        }
                     }
-                } else if (asset.type == AssetType.SAVINGS) {
-                    binding.taxShelteredLayout.visibility = View.VISIBLE
+                    AssetType.SAVINGS -> {
+                        binding.taxShelteredLayout.visibility = View.VISIBLE
+                    }
+                    else -> {}
                 }
             } else {
                 setDefaultGrowthRates()
@@ -157,23 +162,6 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 setDefaultGrowthRates()
                 binding.title.text = String.format("$selection: ${binding.assetName.text.toString()}")
             }
-        }
-        if (false) { //(!inDefaultMode) {
-            binding.assetTypeSpinner.isEnabled = false
-            binding.assetName.isEnabled = false
-            binding.assetValue.isEnabled = false
-            binding.switchUseDefaultGrowth.isEnabled = false
-            binding.switchUseDefaultGrowthAfterSale.isEnabled = false
-            binding.switchWillSellToFinanceRetirement.isEnabled = false
-            binding.estimatedAnnualGrowth.isEnabled = false
-            binding.estimatedAnnualGrowthAfterSale.isEnabled = false
-            binding.annualContribution.isEnabled = false
-            binding.ownershipPercentage.isEnabled = false
-            binding.mortgageDetails.isEnabled = false
-            binding.minimizeRRSPRadioGroup.isEnabled = false
-            binding.switchTaxSheltered.isEnabled = false
-            binding.saveButton.visibility = View.GONE
-            binding.deleteButton.visibility = View.GONE
         }
     }
 
@@ -351,7 +339,8 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.estimatedAnnualGrowthAfterSale.text.toString().toDouble(),
                         binding.mortgageDetails.text.toString(),
                         binding.ownershipPercentage.text.toString().toDouble(),
-                        0
+                        0,
+                        binding.switchPrimaryResidence.isChecked
                     )
                 }
                 else -> {}

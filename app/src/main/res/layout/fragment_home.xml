@@ -26,10 +26,9 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:background="?attr/colorPrimary"
-                android:orientation="vertical">
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"/>
+                android:orientation="vertical"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp">
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -45,102 +44,71 @@
                         android:layout_weight="1"
                         android:contentDescription="@string/profile_picture"/>
                 </androidx.cardview.widget.CardView>
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp" />
                 <TextView
                     android:id="@+id/user_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
                     android:layout_gravity="center"/>
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="5dp"/>
                 <TextView
                     android:id="@+id/signout_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:paddingBottom="20dp"
                     android:text="@string/sign_out"/>
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
-
                     <TextView
                         android:id="@+id/settingsButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:text="@string/settings"
                         app:drawableTopCompat="@drawable/ic_baseline_settings_24" />
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
                     <TextView
                         android:id="@+id/loanButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:text="@string/loan_calc"
                         android:tooltipText="Loan Calculator"
                         app:drawableTopCompat="@drawable/ic_baseline_calculate_black24" />
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
-                    <TextView
-                        android:id="@+id/retirementButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:text="@string/Retirement"
-                        app:drawableTopCompat="@drawable/ic_baseline_elderly_24" />
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
                     <TextView
                         android:id="@+id/helpButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:text="@string/help"
                         app:drawableTopCompat="@drawable/ic_baseline_help_24" />
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight=".5" />
                     <TextView
                         android:id="@+id/adminButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:text="@string/admin"
                         android:src="@drawable/ic_baseline_admin_panel_settings_24"/>
                 </LinearLayout>
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/expand_button_layout"
@@ -229,9 +197,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="240dp" />
             </FrameLayout>
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="60dp"/>
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
@@ -245,14 +210,12 @@
         android:contentDescription="@string/app_name"
         android:src="@drawable/ic_fas_plus"
         android:paddingBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_space"
+        app:layout_constraintBottom_toTopOf="@id/space"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
-    <Space
-        android:id="@+id/bottom_space"
+    <TextView
+        android:id="@+id/space"
         android:layout_width="match_parent"
         android:layout_height="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

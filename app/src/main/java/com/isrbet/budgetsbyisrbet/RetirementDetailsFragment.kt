@@ -274,7 +274,7 @@ class RetirementDetailsFragment : Fragment() {
             tr.layoutParams = trParams
 
             addHeaderCell(tr, gRetirementDetailsList[i].year.toString())
-            val targetAnnualIncome = gRetirementDetailsList[i].targetAnnualIncome
+            val targetAnnualIncome = gRetirementDetailsList[i].getTotalTargetIncome()
             if (iWhichView == RetirementDetailsViews.ALL)
                 addHeaderCell(tr, targetAnnualIncome.toString())
             if (iWhichView == RetirementDetailsViews.ALL ||
@@ -344,9 +344,9 @@ class RetirementDetailsFragment : Fragment() {
                     (iWhichView == RetirementDetailsViews.TAX &&
                             it.growthIsTaxable()))
                     if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0) {
-                        addHeaderCell(tr, it.growthThisYear.toString(), iBold = false, iRed = true)
+                        addHeaderCell(tr, (it.growthThisYear + it.additionalGrowthThisYear).toString(), iBold = false, iRed = true)
                     } else {
-                        addHeaderCell(tr, it.growthThisYear.toString())
+                        addHeaderCell(tr, (it.growthThisYear + it.additionalGrowthThisYear).toString())
                     }
 
                 if (iWhichView == RetirementDetailsViews.ALL ||

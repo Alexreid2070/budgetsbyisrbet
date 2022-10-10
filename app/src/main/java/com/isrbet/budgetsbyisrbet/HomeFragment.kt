@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
@@ -24,7 +23,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
-import com.google.android.material.color.MaterialColors
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -160,9 +158,6 @@ class HomeFragment : Fragment() {
         }
         binding.adminButton.setOnClickListener {
             findNavController().navigate(R.id.AdminFragment)
-        }
-        binding.retirementButton.setOnClickListener {
-            findNavController().navigate(R.id.RetirementFragment)
         }
         return binding.root
     }
@@ -307,26 +302,26 @@ class HomeFragment : Fragment() {
     }
 
     private fun expandTop() {
-        binding.expandButtonLayout.setBackgroundColor(
+/*        binding.expandButtonLayout.setBackgroundColor(
             MaterialColors.getColor(
                 requireContext(),
                 R.attr.colorPrimary,
                 Color.BLACK
             )
-        )
+        ) */
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
         binding.expansionAreaLayout.visibility = View.VISIBLE
         homePageExpansionAreaExpanded = true
     }
 
     private fun retractTop() {
-        binding.expandButtonLayout.setBackgroundColor(
+/*        binding.expandButtonLayout.setBackgroundColor(
             MaterialColors.getColor(
                 requireContext(),
                 R.attr.colorSecondary,
                 Color.BLACK
             )
-        )
+        ) */
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
         binding.expansionAreaLayout.visibility = View.GONE
         homePageExpansionAreaExpanded = false
@@ -464,7 +459,8 @@ class HomeFragment : Fragment() {
         if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
             && ScheduledPaymentViewModel.isLoaded()
             && TransactionViewModel.isLoaded() && BudgetViewModel.isLoaded() &&
-            DefaultsViewModel.isLoaded() && HintViewModel.isLoaded()
+            DefaultsViewModel.isLoaded() && HintViewModel.isLoaded() &&
+            RetirementViewModel.isLoaded()
         ) {
             if (thisIsANewUser()) {
                 Log.d("Alex", "This is a new user")

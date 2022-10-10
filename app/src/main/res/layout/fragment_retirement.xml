@@ -59,6 +59,7 @@
                 android:paddingEnd="5dp"
                 android:src="@drawable/ic_baseline_save_24"
                 android:tooltipText="Save scenario" />
+
             <TextView
                 android:id="@+id/scenario_spinner_label"
                 android:layout_width="wrap_content"
@@ -120,7 +121,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/basics_expand_button_layout"
@@ -166,6 +167,8 @@
                     android:layout_weight="1"
                     android:hint="@string/birth_date"
                     android:minWidth="@dimen/custom_med_width"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -347,7 +350,6 @@
             android:layout_height="wrap_content"
             android:baselineAligned="false"
             android:orientation="vertical"
-            android:padding="5dp"
             android:visibility="gone">
 
             <LinearLayout
@@ -357,23 +359,41 @@
                 android:orientation="horizontal"
                 android:padding="5dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/salary_amount_layout"
+                <LinearLayout
+                    android:id="@+id/entire_salary_amount_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:hint="@string/salary_amount"
-                    android:minWidth="@dimen/custom_med_width"
-                    app:endIconMode="clear_text">
+                    android:layout_gravity="end"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/salary_amount"
+                    <TextView
+                        android:id="@+id/currencySymbol2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_gravity="center"
+                        android:textStyle="bold"
+                        tools:ignore="RtlSymmetry" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/salary_amount_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:hint="@string/salary_amount"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/salary_amount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/salary_annual_increase_layout"
@@ -412,6 +432,8 @@
                     android:layout_weight="1"
                     android:hint="@string/retirement_date"
                     android:minWidth="@dimen/custom_med_width"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="0dp"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -457,7 +479,7 @@
                 android:layout_gravity="end"
                 android:contentDescription="@string/add_asset"
                 android:src="@drawable/ic_baseline_add_24"
-                android:visibility="gone" />
+                android:visibility="visible" />
         </RelativeLayout>
 
         <LinearLayout
@@ -509,7 +531,7 @@
                 android:layout_gravity="end"
                 android:contentDescription="@string/add_pension"
                 android:src="@drawable/ic_baseline_add_24"
-                android:visibility="gone" />
+                android:visibility="visible" />
         </RelativeLayout>
 
         <LinearLayout
@@ -568,26 +590,43 @@
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/cpp_60_amount_layout"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:hint="@string/age60"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    app:endIconMode="clear_text">
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/cpp_60_amount"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/currencySymbol3"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_gravity="center"
+                        android:textStyle="bold"
+                        tools:ignore="RtlSymmetry" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/cpp_60_amount_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="start"
+                        android:gravity="center"
+                        android:hint="@string/age60"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        app:endIconMode="clear_text"
+                        tools:ignore="NestedWeights">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/cpp_60_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/cpp_65_amount_layout"
@@ -596,8 +635,8 @@
                     android:layout_gravity="start"
                     android:layout_weight="1"
                     android:hint="@string/age65"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -616,7 +655,7 @@
                     android:layout_gravity="start"
                     android:layout_weight="1"
                     android:hint="@string/age70"
-                    android:paddingStart="10dp"
+                    android:paddingStart="5dp"
                     android:paddingEnd="0dp"
                     app:endIconMode="clear_text">
 
@@ -678,26 +717,123 @@
                 </HorizontalScrollView>
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/oas_current_annual_amount_layout"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-                android:hint="@string/oas_amount"
-                android:minWidth="@dimen/custom_med_width"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                app:endIconMode="clear_text">
+                android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/oas_current_annual_amount"
+                <TextView
+                    android:id="@+id/currencySymbol4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:gravity="start"
-                    android:inputType="number"
-                    tools:ignore="TooManyViews" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_gravity="center"
+                    android:textStyle="bold"
+                    tools:ignore="RtlSymmetry" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/oas_current_annual_amount_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:hint="@string/oas_amount"
+                    android:minWidth="@dimen/custom_med_width"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/oas_current_annual_amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="number"
+                        tools:ignore="TooManyViews" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/additional_expand_button_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/additional_expand_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/additional_deposits_or_expenditures"
+                android:textColor="@color/orange_salmon"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
+            <ImageView
+                android:id="@+id/additional_add_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="end"
+                android:contentDescription="@string/add_additional_deposit_or_expense"
+                android:src="@drawable/ic_baseline_add_24"
+                android:visibility="visible" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/additional_deposits_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="vertical"
+            android:padding="5dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/additional_deposits_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/additional_deposits"
+                android:textColor="@color/orange_salmon"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <ListView
+                android:id="@+id/additional_deposits_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                tools:ignore="NestedScrolling" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/additional_expenditures_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="vertical"
+            android:padding="5dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/additional_expenses_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/additional_expenditures"
+                android:textColor="@color/orange_salmon"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <ListView
+                android:id="@+id/additional_expenditures_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fadeScrollbars="false"
+                tools:ignore="NestedScrolling" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -705,17 +841,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="false"
+            android:orientation="vertical"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:visibility="gone"
-            tools:layout_editor_absoluteX="5dp"
-            android:orientation="vertical">
+            tools:layout_editor_absoluteX="5dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/confirm_scenario_name"
                 android:padding="5dp"
+                android:text="@string/confirm_scenario_name"
                 tools:ignore="TooManyViews" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -733,7 +869,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="start"
-                    android:inputType="text"
+                    android:inputType="textCapSentences"
                     android:longClickable="false" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
@@ -821,31 +957,68 @@
                 android:id="@+id/calculation_response"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
+                android:gravity="center"
+                android:paddingBottom="5dp"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+            <TextView
+                android:id="@+id/calculation_response2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingBottom="10dp"
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ending_balances"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <ListView
                 android:id="@+id/results_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fadeScrollbars="false"
                 android:divider="@null"
+                android:fadeScrollbars="false"
                 tools:ignore="NestedScrolling" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ending_net_worth_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="0dp"
+            android:paddingEnd="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/ending_net_worth"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/ending_net_worth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/lifetime_taxes_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="5dp"
             android:paddingStart="0dp"
+            android:paddingTop="5dp"
             android:paddingEnd="5dp">
 
             <TextView
@@ -865,6 +1038,7 @@
                 android:gravity="end"
                 android:textSize="16sp" />
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/lifetime_surplus_layout"
             android:layout_width="match_parent"
@@ -882,30 +1056,6 @@
 
             <TextView
                 android:id="@+id/lifetime_surplus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="16sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/ending_net_worth_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ending_net_worth"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ending_net_worth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"

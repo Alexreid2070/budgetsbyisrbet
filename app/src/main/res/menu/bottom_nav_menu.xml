@@ -23,7 +23,8 @@
         android:icon="@drawable/ic_baseline_account_balance_24"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/uncheckedItem"
-        android:visible="false"
-        android:title="" />
+        android:id="@+id/RetirementFragment"
+        android:title="@string/Retirement"
+        android:icon="@drawable/ic_baseline_elderly_24"
+        app:showAsAction="ifRoom"/>
 </menu>

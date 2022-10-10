@@ -290,6 +290,7 @@
     <string name="no_changes_made">No changes made.</string>
     <string name="transactions">Transactions</string>
     <string name="are_you_sure_that_you_want_to_delete_this_item">Are you sure that you want to delete this item (%1$s)?</string>
+    <string name="are_you_sure_that_you_want_to_delete_this_item_NP">Are you sure that you want to delete this item?</string>
     <string name="cant_delete">Can\'t delete</string>
     <string name="cannot_be_deleted_as_it_is_used_in">%1$s cannot be deleted as it is used in %2$s.</string>
     <string name="edit_category">Edit Category</string>
@@ -506,6 +507,17 @@
     <string name="lifetime_taxes">Lifetime taxes</string>
     <string name="lifetime_surplus">Lifetime income surplus</string>
     <string name="sold_in">%1$s: %2$s (sold in %3$s)</string>
-    <string name="excellent">Excellent!  You can retire with these parameters! You can raise your monthly income to a maximum of %1$s.</string>
-    <string name="you_cannot">You cannot achieve your retirement goals with these parameters. Your earliest retirement year would be %1$s.  Or, you can reduce your target monthly income to %2$s</string>
+    <string name="excellent">Excellent!  You can retire with these goals!</string>
+    <string name="excellent2">(You could raise your monthly income to a maximum of %1$s.)</string>
+    <string name="you_cannot">You cannot achieve these retirement goals.</string>
+    <string name="you_cannot2">Your earliest retirement year would be %1$s.  Or, you can reduce your target monthly income to %2$s.</string>
+    <string name="additional_deposits_or_expenditures">Additional deposits/expenses (%1$s)</string>
+    <string name="additional_expenditures">Additional expenses (%1$s)</string>
+    <string name="additional_deposits">Additional deposits (%1$s)</string>
+    <string name="add_additional_deposit_or_expense">Add additional deposit/expense</string>
+    <string name="deposit">Deposit</string>
+    <string name="edit_additional_item">Edit additional deposit/expense</string>
+    <string name="edit_deposit">Edit Deposit</string>
+    <string name="edit_expense">Edit Expense</string>
+    <string name="primary_residence">Primary residence?</string>
 </resources>
