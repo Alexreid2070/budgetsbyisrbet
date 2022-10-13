@@ -188,10 +188,18 @@
         android:name="com.isrbet.budgetsbyisrbet.RetirementFragment"
         android:label="@string/Retirement"
         tools:layout="@layout/fragment_retirement">
+        <action
+            android:id="@+id/action_RetirementFragment_to_RetirementDetailsFragment"
+            app:destination="@id/RetirementDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/RetirementDetailsFragment"
         android:name="com.isrbet.budgetsbyisrbet.RetirementDetailsFragment"
         android:label="@string/RetirementDetails"
-        tools:layout="@layout/fragment_retirement_details" />
+        tools:layout="@layout/fragment_retirement_details">
+        <argument
+            android:name="scenarioName"
+            app:argType="string"
+            android:defaultValue=''/>
+    </fragment>
 </navigation>

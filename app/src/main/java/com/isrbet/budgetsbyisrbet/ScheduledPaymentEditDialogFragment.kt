@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -301,45 +302,17 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-/*                val split1 = binding.splitSlider.value.toInt()
-                val split2 = 100 - split1
-                val amount = if (binding.editNewAmount.text.toString() == "") 0.0
-                else gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble()
-                val amount1 = round(amount * split1) / 100.0
-                val amount2 = round(amount * split2) / 100.0 */
-
                 val boughtFor = binding.editNewBoughtFor.selectedItem.toString()
                 when (boughtFor) {
                     getString(R.string.joint) -> {
-                        if (!initialLoad)
+//                        if (!initialLoad)
                            binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0) * 100).toFloat()
                         binding.splitSlider.isEnabled = true
-/*                        binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
-                            binding.splitSlider.value.toInt(),
-                            amount1,
-                            SpenderViewModel.getSpenderName(0),
-                            100 - binding.splitSlider.value.toInt(),
-                            amount2,
-                            SpenderViewModel.getSpenderName(1)) */
                     }
                     SpenderViewModel.getSpenderName(0) -> {
-/*                        binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
-                            100,
-                            amount1,
-                            SpenderViewModel.getSpenderName(0),
-                            0,
-                            amount2,
-                            SpenderViewModel.getSpenderName(1)) */
                         binding.splitSlider.value = 100.0F
                     }
                     else -> {
-/*                        binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
-                            0,
-                            amount1,
-                            SpenderViewModel.getSpenderName(0),
-                            100,
-                            amount2,
-                            SpenderViewModel.getSpenderName(1)) */
                         binding.splitSlider.value = 0.0F
                     }
                 }
@@ -348,6 +321,20 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 binding.splitSlider.isEnabled = boughtFor == getString(R.string.joint)
             }
         }
+        binding.editNewPaidBy.onItemSelectedListener = object:
+            AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // Do nothing
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    if (binding.boughtForLabel.visibility == View.GONE) { // need to keep both values in sync
+                        val paidByName = binding.editNewPaidBy.selectedItem.toString()
+                        Log.d("Alex", "paid by name is $paidByName")
+                        boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(paidByName))
+                    }
+                }
+            }
         binding.splitSlider.addOnChangeListener { _, _, _ ->
 /*            binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
                 binding.splitSlider.value.toInt(),
@@ -621,7 +608,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     binding.editNewSubcategory.selectedItem.toString()))
                 somethingChanged = true
             }
-            if (oldSP?.paidby?.let { SpenderViewModel.getSpenderName(it) } != binding.editNewPaidBy.toString()) {
+            if (oldSP?.paidby?.let { SpenderViewModel.getSpenderName(it) } != binding.editNewPaidBy.selectedItem.toString()) {
                 ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName,
                     "paidby", SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()))
                 somethingChanged = true
@@ -724,7 +711,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 return
             }
             val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
-                gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
+                amountDouble,
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
                 binding.editNewNextDate.text.toString(),
                 CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),

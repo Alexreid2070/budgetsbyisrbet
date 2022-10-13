@@ -261,36 +261,36 @@ class MyApplication : Application() {
         prefEditor = prefs.edit()
         LangUtils.init(this)
 
-        registerActivityLifecycleCallbacks(object: ActivityLifecycleCallbacks {
-            override fun onActivityCreated(p0: Activity, p1: Bundle?) {
-                Log.d("Alex", "Callback: onActivityCreated")
-            }
+/*        registerActivityLifecycleCallbacks(object: ActivityLifecycleCallbacks {
+                       override fun onActivityCreated(p0: Activity, p1: Bundle?) {
+                            Log.d("Alex", "Callback: onActivityCreated")
+                        }
 
-            override fun onActivityStarted(p0: Activity) {
-                Log.d("Alex", "Callback: onActivityStarted")
-            }
+                        override fun onActivityStarted(p0: Activity) {
+                            Log.d("Alex", "Callback: onActivityStarted")
+                        }
 
-            override fun onActivityResumed(p0: Activity) {
-                Log.d("Alex", "Callback: onActivityResumed")
-            }
+                        override fun onActivityResumed(p0: Activity) {
+                            Log.d("Alex", "Callback: onActivityResumed")
+                        }
 
-            override fun onActivityPaused(p0: Activity) {
-                Log.d("Alex", "Callback: onActivityPaused")
-            }
+                        override fun onActivityPaused(p0: Activity) {
+                            Log.d("Alex", "Callback: onActivityPaused")
+                        }
 
-            override fun onActivityStopped(p0: Activity) {
-                Log.d("Alex", "Callback: onActivityStopped")
-            }
+                        override fun onActivityStopped(p0: Activity) {
+                            Log.d("Alex", "Callback: onActivityStopped")
+                        }
 
-            override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
-                Log.d("Alex", "Callback: onActivitySaveInstanceState")
-            }
-
+                        override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
+                            Log.d("Alex", "Callback: onActivitySaveInstanceState")
+                        }
             override fun onActivityDestroyed(p0: Activity) {
                 Log.d("Alex", "Callback: onActivityDestroyed")
                 quoteForThisSession = ""
             }
         })
+            */
     }
 
     override fun onTerminate() {

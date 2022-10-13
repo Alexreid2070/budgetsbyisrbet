@@ -3,6 +3,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.icu.util.Calendar
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -59,6 +60,55 @@ data class ScheduledPayment(
     fun getSplit2(): Int {
         return 100 - split1
     }
+    fun getOutstandingLoanAmount(iDate: android.icu.util.Calendar, iOwnershipPercentage: Double = 100.0): Int {
+        if (activeLoan) {
+            val paymentsPerYear = when (loanPaymentRegularity) {
+                LoanPaymentRegularity.WEEKLY -> 52
+                LoanPaymentRegularity.BIWEEKLY -> 26
+                LoanPaymentRegularity.MONTHLY -> 12
+            }
+            var principalOwing = loanAmount
+            val paymentDate = android.icu.util.Calendar.getInstance()
+            paymentDate.set(loanFirstPaymentDate.substring(0,4).toInt(), loanFirstPaymentDate.substring(5,7).toInt()-1, loanFirstPaymentDate.substring(8,10).toInt())
+            do {
+                val interestInThisPeriod = principalOwing * (loanInterestRate / 100.0 / paymentsPerYear)
+                principalOwing -= (amount - interestInThisPeriod)
+                when (loanPaymentRegularity) {
+                    LoanPaymentRegularity.WEEKLY -> paymentDate.add(android.icu.util.Calendar.DATE, 7)
+                    LoanPaymentRegularity.BIWEEKLY -> paymentDate.add(android.icu.util.Calendar.DATE, 14)
+                    LoanPaymentRegularity.MONTHLY -> paymentDate.add(android.icu.util.Calendar.MONTH, 1)
+                }
+            } while (principalOwing > 0.0 && paymentDate < iDate)
+            if (principalOwing > 0.0)
+                return round(principalOwing * iOwnershipPercentage / 100.0).toInt()
+        }
+    return 0
+    }
+}
+
+data class ScheduledPaymentOut(
+    var name: String = "",
+    var amount: Int = 0,
+    var period: String = "",
+    var regularity: Int = 1,
+    var nextdate: String = "",
+    var category: Int = 0,
+    var paidby: Int = -1,
+    var boughtfor: Int = -1,
+    var split1: Int = 100,
+    var activeLoan: Boolean = false,
+    var loanFirstPaymentDate: String = "",
+    var loanAmount: Int = 0,
+    var loanAmortization: Int = 0,
+    var loanInterestRate: Int = 0,
+    var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
+) {
+    constructor(sp: ScheduledPayment) : this(
+        sp.name, round(sp.amount*100).toInt(), sp.period, sp.regularity,
+        sp.nextdate, sp.category, sp.paidby, sp.boughtfor, sp.split1,
+        sp.activeLoan, sp.loanFirstPaymentDate, round(sp.loanAmount*100).toInt(),
+        round(sp.loanAmortization*100).toInt(),round(sp.loanInterestRate*100).toInt(),
+        sp.loanPaymentRegularity)
 }
 
 class ScheduledPaymentViewModel : ViewModel() {
@@ -136,24 +186,9 @@ class ScheduledPaymentViewModel : ViewModel() {
             // also, if I don't add locally right away, the app crashes because of a sync issue
             singleInstance.scheduledPayments.add(iScheduledPayment)
             singleInstance.scheduledPayments.sortWith(compareBy { it.name })
+            val spOut = ScheduledPaymentOut(iScheduledPayment)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iScheduledPayment.name).setValue(iScheduledPayment)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iScheduledPayment.name)
-                .child("amount")
-                .setValue(round(iScheduledPayment.amount * 100))
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iScheduledPayment.name)
-                .child("loanAmount")
-                .setValue(round(iScheduledPayment.loanAmount * 100))
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iScheduledPayment.name)
-                .child("loanAmortization")
-                .setValue(round(iScheduledPayment.loanAmortization * 100))
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iScheduledPayment.name)
-                .child("loanInterestRate")
-                .setValue(round(iScheduledPayment.loanInterestRate * 100))
+                .child(iScheduledPayment.name).setValue(spOut)
         }
         fun updateScheduledPayment(iName: String, iAmount: Double, iPeriod: String, iNextDate: String, iRegularity: Int,
                                        iCategoryID: Int, iPaidBy: Int, iBoughtFor: Int,
@@ -194,7 +229,7 @@ class ScheduledPaymentViewModel : ViewModel() {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
                 .child(iName)
                 .child(iField)
-                .setValue(round(iValue * 100))
+                .setValue(round(iValue * 100).toInt())
         }
         fun refresh() {
             singleInstance.loadScheduledPayments()
@@ -210,7 +245,8 @@ class ScheduledPaymentViewModel : ViewModel() {
         }
         fun generateScheduledPayments(mainActivity: MainActivity) {
             // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
-            val dateNow = giveMeMyDateFormat(Calendar.getInstance())
+            val cal = Calendar.getInstance()
+            val dateNow = giveMeMyDateFormat(cal)
             singleInstance.scheduledPayments.forEach {
                 while (it.nextdate <= dateNow) {
                     val newNextDate = Calendar.getInstance()
@@ -240,13 +276,23 @@ class ScheduledPaymentViewModel : ViewModel() {
                         round(it.amount*100).toInt(),
                         it.category, it.name, "", it.paidby, it.boughtfor,
                         it.split1, cTRANSACTION_TYPE_SCHEDULED))
+                    val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(cal) else 0
                     if (nextDayIsBusinessDay)
                         Toast.makeText(mainActivity, MyApplication.getString(R.string.scheduled_payment_was_added_for) +
-                            " ${it.name} ${gDecWithCurrency(it.amount)} " + CategoryViewModel.getFullCategoryName(it.category) + " $nextDate", Toast.LENGTH_SHORT).show()
+                            " ${it.name} ${gDecWithCurrency(it.amount)} " +
+                                CategoryViewModel.getFullCategoryName(it.category) +
+                                " $nextDate" +
+                            if (outstandingLoanAmount > 0) " Outstanding loan amount ${
+                                gDecWithCurrency(outstandingLoanAmount)}" else "",
+                            Toast.LENGTH_SHORT).show()
                     else
                         Toast.makeText(mainActivity, MyApplication.getString(R.string.scheduled_payment_was_added_for) +
-                            " ${it.name} ${gDecWithCurrency(it.amount)} " + CategoryViewModel.getFullCategoryName(it.category) + " " +
-                            MyApplication.getString(R.string.on_next_business_day) + nextDate, Toast.LENGTH_SHORT).show()
+                            " ${it.name} ${gDecWithCurrency(it.amount)} " +
+                                CategoryViewModel.getFullCategoryName(it.category) + " " +
+                            MyApplication.getString(R.string.on_next_business_day) + nextDate +
+                            if (outstandingLoanAmount > 0) " Outstanding loan amount ${
+                                gDecWithCurrency(outstandingLoanAmount)}" else "",
+                            Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -274,7 +320,7 @@ class ScheduledPaymentViewModel : ViewModel() {
     }
 
     fun loadScheduledPayments() {
-        // Do an asynchronous operation to fetch schduled payments pka recurring transactions
+        // Do an asynchronous operation to fetch scheduled payments pka recurring transactions
         scheduledPaymentListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 scheduledPayments.clear()
@@ -283,10 +329,12 @@ class ScheduledPaymentViewModel : ViewModel() {
                     tScheduledPayment.setValue("name", element.key.toString())
                     for (child in element.children) {
                         when (child.key.toString()) {
-                            "amount" -> tScheduledPayment.setValue(
-                                child.key.toString(),
-                                (child.value.toString().toInt() / 100.0).toString()
-                            )
+                            "amount" -> {
+                                tScheduledPayment.setValue(
+                                    child.key.toString(),
+                                    (child.value.toString().toInt() / 100.0).toString()
+                                )
+                            }
                             "loanAmount" -> tScheduledPayment.setValue(
                                 child.key.toString(),
                                 (child.value.toString().toInt() / 100.0).toString()

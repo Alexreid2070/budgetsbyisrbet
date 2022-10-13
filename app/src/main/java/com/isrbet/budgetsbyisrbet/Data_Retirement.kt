@@ -222,7 +222,9 @@ data class RetirementData(
                                                 AssetType.RRSP
                                             }
                                     }
-                                    "value" -> value = det.value.toString().toInt()
+                                    "value" -> {
+                                        value = det.value.toString().toInt()
+                                    }
                                     "useDefaultGrowthPctAsSavings" -> useDefaultGrowthPctAsSavings =
                                         det.value.toString().toBoolean()
                                     "estimatedGrowthPctAsSavings" -> estimatedGrowthPctAfterSale =
@@ -296,7 +298,7 @@ data class RetirementData(
                                     newAsset = Property(
                                         assetID,
                                         name,
-                                        (value / (ownershipPercentage / 100.0)).toInt(),
+                                        value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         willSellToFinanceRetirement,
@@ -443,6 +445,9 @@ abstract class Asset(val id: Int, val type: AssetType, val name: String, private
     }
     fun getValue() : Int {
         return value
+    }
+    fun setValue(iValue: Int) {
+        value = iValue
     }
     fun getAvailableValue() : Int {
         return value + additionalGrowthThisYear
@@ -687,7 +692,7 @@ class Property(
     var ownershipPct: Double,
     var soldInYear: Int,
     var primaryResidence: Boolean) :
-        Asset(id, AssetType.PROPERTY, name, round(value*ownershipPct/100).toInt(), useDefaultGrowthPct,
+        Asset(id, AssetType.PROPERTY, name, value, useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, 0, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder) {
     init {
@@ -702,7 +707,7 @@ class Property(
             0
     }
     override fun copy(): Asset {
-        val prop = Property(id, name, (getValue()/(ownershipPct/100)).toInt(), useDefaultGrowthPct,
+        val prop = Property(id, name, getValue(), useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder,
             useDefaultGrowthPctAsSavings, estimatedGrowthPctAsSavings,
@@ -723,7 +728,7 @@ class Property(
             useDefaultGrowthPctAsSavings,
             estimatedGrowthPctAsSavings,
             scheduledPaymentName,
-            100.0,
+            ownershipPct,
             soldInYear,
             primaryResidence
         )
@@ -740,7 +745,21 @@ class Property(
         if (willSellToFinanceRetirement) {
             if (soldInYear == 0) {
                 soldInYear = iYear
-                withdrawalAmount = min(iAmount, getAvailableValue()) + (getValue() * .25).toInt()
+                val cal = android.icu.util.Calendar.getInstance()
+                cal.set(Calendar.YEAR, iYear)
+                cal.set(Calendar.MONTH, 0)
+                cal.set(Calendar.DAY_OF_MONTH, 1)
+                val outstandingLoanAmount = getOutstandingLoanAmount(cal)
+                if (outstandingLoanAmount > 0) {
+                    Log.d("Alex", "oustanding loan amount $iYear $outstandingLoanAmount")
+                    setValue(getValue() - outstandingLoanAmount)
+                    Log.d("Alex", "value is now ${getValue()}, iAmount $iAmount availval ${getAvailableValue()}")
+                }
+                if (primaryResidence) {
+                    withdrawalAmount = min(iAmount, getAvailableValue())
+                } else {
+                    withdrawalAmount = min(iAmount, getAvailableValue()) + (getValue() * .25).toInt()
+                }
             } else
                 withdrawalAmount = min(iAmount, getAvailableValue())
             estimatedGrowthPct = getGrowthPct()
@@ -752,11 +771,18 @@ class Property(
         return withdrawalAmount
     }
     override fun getTaxableIncome(iYear: Int): Int {
-        if (soldInYear == iYear &&
-                !primaryResidence)
-            return (getValue() * .25).toInt()  // assumes 25% tax on capital gains
+        return if (soldInYear == iYear &&
+            !primaryResidence)
+            (getValue() * .25).toInt()  // assumes 25% tax on capital gains
         else
-            return 0
+            0
+    }
+    private fun getOutstandingLoanAmount(iDate: android.icu.util.Calendar): Int {
+        val sp = ScheduledPaymentViewModel.getScheduledPayment(scheduledPaymentName)
+        return if (sp != null) {
+            sp.getOutstandingLoanAmount(iDate, ownershipPct)
+        } else
+            0
     }
 }
 
@@ -1062,6 +1088,21 @@ class RetirementViewModel : ViewModel() {
         fun clearDefaults() {
             singleInstance.userDefaults.clear()
         }
+        fun clear() {
+            if (singleInstance.dataListener != null) {
+                Log.d("Alex", "retirement listener being cleared")
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Retirement")
+                    .child(SpenderViewModel.myIndex().toString())
+                    .removeEventListener(singleInstance.dataListener!!)
+                singleInstance.dataListener = null
+            }
+            singleInstance.userDefaults.clear()
+            singleInstance.scenarios.clear()
+            singleInstance.workingAssetList.clear()
+            singleInstance.workingPensionList.clear()
+            singleInstance.workingAdditionalList.clear()
+            singleInstance.loaded = false
+        }
 
         fun updateRetirementDefault(iRetirementData: RetirementData, iLocalOnly: Boolean) : RetirementData{
             val scenario = getUserDefault(iRetirementData.userID)
@@ -1225,8 +1266,18 @@ class RetirementViewModel : ViewModel() {
                 addAssetToWorkingList(it.copy())
             }
         }
-        fun getWorkingAssetListCount() : Int {
-            return singleInstance.workingAssetList.size
+
+        fun getWorkingAssetListCount(iAssetType: AssetType = AssetType.ALL) : Int {
+            if (iAssetType == AssetType.ALL)
+                return singleInstance.workingAssetList.size
+            else {
+                var cnt = 0
+                singleInstance.workingAssetList.forEach {
+                    if (it.type == iAssetType)
+                        cnt += 1
+                }
+                return cnt
+            }
         }
         fun getWorkingAsset(iAssetName: String) : Asset? {
             return singleInstance.workingAssetList.find {it.name == iAssetName}
@@ -1483,7 +1534,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         (it as Property).useDefaultGrowthPctAsSavings,
                         if (it.useDefaultGrowthPctAsSavings) investmentGrowthRate else it.estimatedGrowthPctAsSavings,
                         it.scheduledPaymentName,
-                        100.0,
+                        it.ownershipPct,
                         0,
                         it.primaryResidence)
                     prop.additionalGrowthThisYear = additionalGrowth

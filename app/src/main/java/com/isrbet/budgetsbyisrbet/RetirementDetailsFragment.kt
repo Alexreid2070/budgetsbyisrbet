@@ -1,15 +1,21 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.Gravity
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementDetailsBinding
+
 
 enum class RetirementDetailsViews(val code: Int) {
     ALL(0),
@@ -38,6 +44,7 @@ enum class RetirementDetailsViews(val code: Int) {
 class RetirementDetailsFragment : Fragment() {
     private var _binding: FragmentRetirementDetailsBinding? = null
     private val binding get() = _binding!!
+    private val args: RetirementDetailsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +52,36 @@ class RetirementDetailsFragment : Fragment() {
     ): View {
         _binding = FragmentRetirementDetailsBinding.inflate(inflater, container, false)
         inflater.inflate(R.layout.fragment_retirement_details, container, false)
+        val saveFileLauncher =
+            registerForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { result ->
+                result?.let { saveFile(it) }
+            }
+        binding.saveButton.setOnClickListener {
+            if (args.scenarioName == "")
+                saveFileLauncher.launch("scenario.csv")
+            else
+                saveFileLauncher.launch(args.scenarioName+".csv")
+        }
+        if (RetirementViewModel.getWorkingAssetListCount(AssetType.SAVINGS) > 0)
+            binding.showSavingsDetailsButton.visibility = View.VISIBLE
+        else
+            binding.showSavingsDetailsButton.visibility = View.GONE
+        if (RetirementViewModel.getWorkingAssetListCount(AssetType.RRSP) > 0)
+            binding.showRrspDetailsButton.visibility = View.VISIBLE
+        else
+            binding.showRrspDetailsButton.visibility = View.GONE
+        if (RetirementViewModel.getWorkingAssetListCount(AssetType.TFSA) > 0)
+            binding.showTfsaDetailsButton.visibility = View.VISIBLE
+        else
+            binding.showTfsaDetailsButton.visibility = View.GONE
+        if (RetirementViewModel.getWorkingAssetListCount(AssetType.PROPERTY) > 0)
+            binding.showPropertyDetailsButton.visibility = View.VISIBLE
+        else
+            binding.showPropertyDetailsButton.visibility = View.GONE
+        if (RetirementViewModel.getWorkingPensionListCount() > 0)
+            binding.showPensionDetailsButton.visibility = View.VISIBLE
+        else
+            binding.showPensionDetailsButton.visibility = View.GONE
         return binding.root
     }
 
@@ -368,4 +405,90 @@ class RetirementDetailsFragment : Fragment() {
             binding.retirementTableRows.addView(tr)
         }
     }
+    private fun saveFile(uri: Uri) {
+            requireContext().contentResolver.openOutputStream(uri)?.writer()?.run {
+                write("\"${getString(R.string.year)}\"")
+                write(",\"${getString(R.string.target_income)}\"")
+                write(",\"${getString(R.string.net_income)}\"")
+                write(",\"${getString(R.string.maximum_taxable_income)}\"")
+                write(",\"${getString(R.string.taxable_income)}\"")
+                write(",\"${getString(R.string.gross_income)}\"")
+                write(",\"${getString(R.string.tax)}\"")
+                write(",\"${getString(R.string.salary)}\"")
+                write(",\"${String.format(MyApplication.getString(R.string.s_pension), getString(R.string.cpp))}\"")
+                gRetirementDetailsList[1].pensionIncomes.forEach {
+                    write(",\"${String.format(MyApplication.getString(R.string.s_pension), it.name)}\"")
+                }
+                write(",\"${getString(R.string.oas)}\"")
+                var minAlreadyShown = false
+                gRetirementDetailsList[1].assetIncomes.forEach {
+                    when (it.type) {
+                        AssetType.RRSP -> {
+                            if (!minAlreadyShown) {
+                                write(",\"${getString(R.string.minimum_rrif_withdrawal)}\"")
+                                minAlreadyShown = true
+                            }
+                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.rrsp) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.rrsp) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.rrsp) + ": " + it.name)}\"")
+                        }
+                        AssetType.TFSA -> {
+                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.tfsa) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.tfsa) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.tfsa) + ": " + it.name)}\"")
+                        }
+                        AssetType.SAVINGS -> {
+                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.savings) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_growth),
+                                it.getGrowthPct(),
+                                getString(R.string.savings) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.savings) + ": " + it.name)}\"")
+                        }
+                        AssetType.PROPERTY -> {
+                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.property) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_growth),
+                                it.getGrowthPct(),
+                                getString(R.string.property) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.property) + ": " + it.name)}\"")
+                        }
+                        else -> {} // do nothing
+                    }
+                }
+                write(",\"${getString(R.string.net_worth)}\"")
+                write("\n")
+                for (i in 0 until gRetirementDetailsList.size) {
+                    minAlreadyShown = false
+                    write("\"${gRetirementDetailsList[i].year}\"")
+                    write(",\"${gRetirementDetailsList[i].getTotalTargetIncome()}\"")
+                    write(",\"${gRetirementDetailsList[i].getTotalAvailableIncome()}\"")
+                    write(",\"${gRetirementDetailsList[i].getMaximumTaxableIncome()}\"")
+                    write(",\"${gRetirementDetailsList[i].getTaxableIncome(gRetirementDetailsList[i].year)}\"")
+                    write(",\"${gRetirementDetailsList[i].getTotalGrossIncome(gRetirementDetailsList[i].year)}\"")
+                    write(",\"${gRetirementDetailsList[i].getTotalTax()}\"")
+                    write(",\"${gRetirementDetailsList[i].getTotalSalary()}\"")
+                    write(",\"${gRetirementDetailsList[i].cppIncome}\"")
+                    gRetirementDetailsList[i].pensionIncomes.forEach {
+                        write(",\"${it.getPensionIncome(gRetirementDetailsList[i].year)}\"")
+                    }
+                    write(",\"${gRetirementDetailsList[i].oasIncome}\"")
+                    gRetirementDetailsList[i].assetIncomes.forEach {
+                        if (it.type == AssetType.RRSP) {
+                            if (!minAlreadyShown) {
+                                write(",\"${gRetirementDetailsList[i].getMinimumRRIFWithdrawal(
+                                    gRetirementDetailsList[i].getAgeAtStartOfYear(
+                                        gRetirementDetailsList[i].year))}\"")
+                                minAlreadyShown = true
+                            }
+                        }
+                        write(",\"${it.withdrawalAmount}\"")
+                        write(",\"${(it.growthThisYear + it.additionalGrowthThisYear)}\"")
+                        write(",\"${it.getEndingBalance()}\"")
+                    }
+                    write(",\"${gRetirementDetailsList[i].getNetWorth()}\"")
+                    write("\n")
+                }
+                flush()
+                close()
+            }
+        }
 }

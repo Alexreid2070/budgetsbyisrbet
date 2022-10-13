@@ -237,6 +237,7 @@ class DefaultsViewModel : ViewModel() {
         }
         fun clear() {
             if (singleInstance.defaultsListener != null) {
+                Log.d("Alex", "default listener being cleared")
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
                     .child(SpenderViewModel.myIndex().toString())
                     .removeEventListener(singleInstance.defaultsListener!!)
@@ -588,7 +589,7 @@ class DefaultsViewModel : ViewModel() {
     fun loadDefaults() {
         singleInstance.defaultsListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                clear()
+//                clear()
                 RetirementViewModel.clearDefaults()
                 // Get Post object and use the values to update the UI
                 for (defaultRow in dataSnapshot.children.toMutableList()) {

@@ -521,5 +521,6 @@
     <string name="edit_deposit">Edit Deposit</string>
     <string name="edit_expense">Edit Expense</string>
     <string name="primary_residence">Primary residence?</string>
+    <string name="expand_all">Expand all</string>
 </resources>
 

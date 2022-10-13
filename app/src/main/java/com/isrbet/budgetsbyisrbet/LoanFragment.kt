@@ -2,10 +2,8 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.DatePickerDialog
 import android.icu.util.Calendar
-import android.opengl.Visibility
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -28,6 +26,8 @@ class LoanFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentLoanBinding.inflate(inflater, container, false)
         binding.loanAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.amortizationPeriod.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.interestRate.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         binding.acceleratedPaymentAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         inflater.inflate(R.layout.fragment_loan, container, false)
         return binding.root
@@ -82,8 +82,8 @@ class LoanFragment : Fragment() {
                         binding.loanStartDate.setText(sp.loanFirstPaymentDate)
                         cal.set(sp.loanFirstPaymentDate.substring(0,4).toInt(), sp.loanFirstPaymentDate.substring(5,7).toInt()-1, sp.loanFirstPaymentDate.substring(8,10).toInt())
                         binding.loanAmount.setText(gDec(sp.loanAmount))
-                        binding.amortizationPeriod.setText((sp.loanAmortization).toString())
-                        binding.interestRate.setText((sp.loanInterestRate).toString())
+                        binding.amortizationPeriod.setText(gDec(sp.loanAmortization))
+                        binding.interestRate.setText(gDec(sp.loanInterestRate))
                         binding.acceleratedPaymentAmount.setText(gDec(sp.amount))
                         when (sp.loanPaymentRegularity) {
                             LoanPaymentRegularity.WEEKLY -> binding.buttonWeekly.isChecked = true
@@ -185,6 +185,7 @@ class LoanFragment : Fragment() {
                             iInterestRate: Double, iPrincipal: Double,
                             iAmount: Double) {
         val myList: MutableList<LoanPayment> = ArrayList()
+
         val iPaymentsPerYear = when (iPaymentRegularity) {
             LoanPaymentRegularity.WEEKLY -> 52
             LoanPaymentRegularity.BIWEEKLY -> 26
@@ -198,6 +199,7 @@ class LoanFragment : Fragment() {
                 ((1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear*iAmortizationYears) - 1)
         binding.calculatedPaymentAmount.text = gDecWithCurrency(calcPayment)
         binding.calculatedPaymentText.visibility = View.VISIBLE
+
         var owingAtEndOfPeriod = iPrincipal
         val extraPayment = if (iAmount == 0.0) 0.0 else iAmount - calcPayment
         for (i in 1..(round(iAmortizationYears * iPaymentsPerYear).toInt())) {

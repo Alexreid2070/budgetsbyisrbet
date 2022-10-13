@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementBinding
 import kotlinx.coroutines.CoroutineScope
@@ -57,6 +57,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
         // Inflate the layout for this fragment
         _binding = FragmentRetirementBinding.inflate(inflater, container, false)
 
+        binding.expandAllButton.setOnClickListener {
+            onAllClicked()
+        }
         binding.basicsExpandButton.setOnClickListener {
             onBasicsExpandClicked()
         }
@@ -205,6 +208,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(getString(R.string.defaultt),
                 binding.userID.text.toString().toInt()))
         }
+        binding.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_down_24
 
         inflater.inflate(R.layout.fragment_retirement, container, false)
         return binding.root
@@ -659,7 +663,10 @@ class RetirementFragment : Fragment(), CoroutineScope {
 
     private fun onSeeDetailsButtonClicked() {
         gRetirementDetailsList = lRetirementDetailsList
-        findNavController().navigate(R.id.RetirementDetailsFragment)
+        val action =
+            RetirementFragmentDirections.actionRetirementFragmentToRetirementDetailsFragment()
+        action.scenarioName = binding.scenarioNameInput.text.toString()
+        findNavController().navigate(action)
     }
     private fun setupDefaultMode(iMoveToDefaultMode: Boolean) {
         inDefaultMode = iMoveToDefaultMode
@@ -866,7 +873,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         loadRetirementInfoFromWorking = true
                         updateAdditionalItemsAdapters()
                         if (RetirementViewModel.getWorkingAdditionalListCount() == 0) {
-                            onAdditionalItemsExpandClicked(true)
+                            onAdditionalItemsExpandClicked("Closed")
                         }
                     }
                 })
@@ -884,7 +891,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         loadRetirementInfoFromWorking = true
                         updateAdditionalItemsAdapters()
                         if (RetirementViewModel.getWorkingAdditionalListCount() == 0) {
-                            onAdditionalItemsExpandClicked(true)
+                            onAdditionalItemsExpandClicked("Closed")
                         }
                     }
                 })
@@ -924,8 +931,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
         listView.requestLayout()
     }
 
-    private fun onBasicsExpandClicked(iForceClosed: Boolean = false) {
-        if (binding.basicsLayout.visibility == View.VISIBLE || iForceClosed) {
+    private fun onBasicsExpandClicked(iForceOpenOrClosed: String = "") {
+        if ((binding.basicsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+            iForceOpenOrClosed == "Closed") {
             binding.basicsLayout.visibility = View.GONE
             binding.basicsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
@@ -935,8 +943,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
-    private fun onSalaryExpandClicked(iForceClosed: Boolean = false) {
-        if (binding.salaryLayout.visibility == View.VISIBLE || iForceClosed) {
+    private fun onSalaryExpandClicked(iForceOpenOrClosed: String = "") {
+        if ((binding.salaryLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+            iForceOpenOrClosed == "Closed") {
             binding.salaryLayout.visibility = View.GONE
             binding.salaryExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
@@ -946,37 +955,40 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
-    private fun onAssetsExpandClicked(iForceClosed: Boolean = false) {
+    private fun onAssetsExpandClicked(iForceOpenOrClosed: String = "") {
         val plistView: ListView = requireActivity().findViewById(R.id.assets_list_view)
         val assetCount = plistView.adapter?.count ?: 0
-        if (binding.assetsLayout.visibility == View.VISIBLE || iForceClosed) {
+        if ((binding.assetsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+            iForceOpenOrClosed == "Closed") {
             binding.assetsLayout.visibility = View.GONE
             binding.assetsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
-        } else if (assetCount > 0){
+        } else if (assetCount > 0) {
             binding.assetsLayout.visibility = View.VISIBLE
             binding.assetsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
-    private fun onPensionsExpandClicked(iForceClosed: Boolean = false) {
+    private fun onPensionsExpandClicked(iForceOpenOrClosed: String = "") {
         val plistView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
         val pensionCount = plistView.adapter?.count ?: 0
-        if (binding.pensionsLayout.visibility == View.VISIBLE || iForceClosed) {
+        if ((binding.pensionsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+            iForceOpenOrClosed == "Closed") {
             binding.pensionsLayout.visibility = View.GONE
             binding.pensionsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
-        } else if (pensionCount > 0){
+        } else if (pensionCount > 0) {
             binding.pensionsLayout.visibility = View.VISIBLE
             binding.pensionsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
-    private fun onAdditionalItemsExpandClicked(iForceClosed: Boolean = false) {
+    private fun onAdditionalItemsExpandClicked(iForceOpenOrClosed: String = "") {
         val depListView: ListView = requireActivity().findViewById(R.id.additional_deposits_list_view)
         val expListView: ListView = requireActivity().findViewById(R.id.additional_expenditures_list_view)
         val totCount = (depListView.adapter?.count ?: 0) + (expListView.adapter?.count ?: 0)
-        if (binding.additionalDepositsLayout.visibility == View.VISIBLE || iForceClosed) {
+        if ((binding.additionalDepositsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+            iForceOpenOrClosed == "Closed") {
             binding.additionalDepositsLayout.visibility = View.GONE
             binding.additionalExpendituresLayout.visibility = View.GONE
             binding.additionalExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
@@ -988,8 +1000,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
-    private fun onCPPOASExpandClicked(iForceClosed: Boolean = false) {
-        if (binding.cppOasLayout.visibility == View.VISIBLE || iForceClosed) {
+    private fun onCPPOASExpandClicked(iForceOpenOrClosed: String = "") {
+        if ((binding.cppOasLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+            iForceOpenOrClosed == "Closed") {
             binding.cppOasLayout.visibility = View.GONE
             binding.cppOasExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
@@ -1000,13 +1013,37 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
     }
 
+    private fun onAllClicked() {
+        if (binding.expandAllButton.tag == R.drawable.ic_baseline_keyboard_double_arrow_down_24) {
+            // need to expand all
+            binding.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_up_24
+            binding.expandAllButton.setImageDrawable(context?.let
+            { ContextCompat.getDrawable(it,R.drawable.ic_baseline_keyboard_double_arrow_up_24) } )
+            onExpandAllClicked()
+        } else { // need to collapse all
+            binding.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_down_24
+            binding.expandAllButton.setImageDrawable(context?.let
+            { ContextCompat.getDrawable(it,R.drawable.ic_baseline_keyboard_double_arrow_down_24) } )
+            collapseAll()
+        }
+    }
+
     private fun collapseAll() {
-        onBasicsExpandClicked(true)
-        onSalaryExpandClicked(true)
-        onAssetsExpandClicked(true)
-        onPensionsExpandClicked(true)
-        onAdditionalItemsExpandClicked(true)
-        onCPPOASExpandClicked(true)
+        onBasicsExpandClicked("Closed")
+        onSalaryExpandClicked("Closed")
+        onAssetsExpandClicked("Closed")
+        onPensionsExpandClicked("Closed")
+        onAdditionalItemsExpandClicked("Closed")
+        onCPPOASExpandClicked("Closed")
+    }
+
+    private fun onExpandAllClicked() {
+        onBasicsExpandClicked("Open")
+        onSalaryExpandClicked("Open")
+        onAssetsExpandClicked("Open")
+        onPensionsExpandClicked("Open")
+        onAdditionalItemsExpandClicked("Open")
+        onCPPOASExpandClicked("Open")
     }
 
     override fun onDestroy() {

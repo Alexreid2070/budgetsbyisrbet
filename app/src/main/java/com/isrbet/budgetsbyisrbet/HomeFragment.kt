@@ -287,8 +287,13 @@ class HomeFragment : Fragment() {
         })
         ScheduledPaymentViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
-                alignPageWithDataState("RTViewModel")
+                alignPageWithDataState("ScheduledPaymentViewModel")
                 ScheduledPaymentViewModel.generateScheduledPayments(activity as MainActivity)
+            }
+        })
+        RetirementViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+            override fun onDataUpdate() {
+                alignPageWithDataState("RetirementViewModel")
             }
         })
     }
@@ -489,6 +494,7 @@ class HomeFragment : Fragment() {
                 TransactionViewModel.singleInstance.clearCallback()
                 BudgetViewModel.singleInstance.clearCallback()
                 ScheduledPaymentViewModel.singleInstance.clearCallback()
+                RetirementViewModel.singleInstance.clearCallback()
                 TranslationViewModel.singleInstance.clearCallback()
                 DefaultsViewModel.singleInstance.clearCallback()
             }
@@ -546,6 +552,7 @@ class HomeFragment : Fragment() {
         TransactionViewModel.clear()
         ScheduledPaymentViewModel.clear()
         TranslationViewModel.clear()
+        RetirementViewModel.clear()
         SpenderViewModel.clear()
         HintViewModel.clear()
         Firebase.auth.signOut()
@@ -586,6 +593,7 @@ class HomeFragment : Fragment() {
         TransactionViewModel.singleInstance.clearCallback()
         BudgetViewModel.singleInstance.clearCallback()
         ScheduledPaymentViewModel.singleInstance.clearCallback()
+        RetirementViewModel.singleInstance.clearCallback()
         TranslationViewModel.singleInstance.clearCallback()
         DefaultsViewModel.singleInstance.clearCallback()
         _binding = null

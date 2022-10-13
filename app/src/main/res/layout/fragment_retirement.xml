@@ -123,7 +123,7 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/basics_expand_button_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -141,7 +141,16 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/expand_all_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="end"
+                android:contentDescription="@string/expand_all"
+                android:src="@drawable/ic_baseline_keyboard_double_arrow_down_24"
+                android:visibility="visible" />
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/basics_layout"

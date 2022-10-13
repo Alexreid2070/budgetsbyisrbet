@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -72,6 +73,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 binding.assetName.setText(asset.name)
                 if (asset.type == AssetType.PROPERTY) {
                     val prop = asset as Property
+                    Log.d("Alex", "assetdialog value is ${prop.getValue()}")
                     binding.assetValue.setText((prop.getValue() / (prop.ownershipPct / 100)).toInt().toString())
                 } else
                     binding.assetValue.setText(asset.getValue().toString())
@@ -244,7 +246,8 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.assetName)
                 return@setOnClickListener
             }
-            if (RetirementViewModel.getWorkingAsset(binding.assetName.text.toString()) == null) {
+            if (assetName == "" && RetirementViewModel.getWorkingAsset(binding.assetName.text.toString()) != null) {
+                Log.d("Alex", "name already exists ${binding.assetName.text}")
                 binding.assetName.error = getString(R.string.name_already_exists)
                 focusAndOpenSoftKeyboard(requireContext(), binding.assetName)
                 return@setOnClickListener
@@ -329,7 +332,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     asset = Property(
                         RetirementViewModel.getWorkingAssetListCount(),
                         binding.assetName.text.toString(),
-                        binding.assetValue.text.toString().toInt(),
+                        (binding.assetValue.text.toString().toInt() * binding.ownershipPercentage.text.toString().toDouble() / 100.0).toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         binding.switchWillSellToFinanceRetirement.isChecked,
