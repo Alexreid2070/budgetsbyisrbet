@@ -374,7 +374,7 @@ class TransactionFragment : Fragment() {
 
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.are_you_sure))
-            .setMessage(getString(R.string.are_you_sure_that_you_want_to_delete_this_item))
+            .setMessage(getString(R.string.are_you_sure_that_you_want_to_delete_this_item_NP))
             .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
             .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
             .show()
@@ -631,7 +631,18 @@ class TransactionFragment : Fragment() {
             binding.editTextWhere.setText("")
             binding.editTextNote.setText("")
             hideKeyboard(requireContext(), requireView())
-            Toast.makeText(activity, getString(R.string.transaction_added), Toast.LENGTH_SHORT).show()
+            var actuals = TransactionViewModel.getActualsForPeriod(chosenCatID,
+                BudgetMonth(binding.editTextDate.text.toString()),
+                BudgetMonth(binding.editTextDate.text.toString()),
+                2,
+                true)
+            var budget = BudgetViewModel.getCalculatedBudgetAmount(DateRange.MONTH,
+                BudgetMonth(binding.editTextDate.text.toString()),
+                chosenCatID,
+                2)
+
+            Toast.makeText(activity, String.format(getString(R.string.transaction_added),
+                gDecWithCurrency(actuals), gDecWithCurrency(budget)), Toast.LENGTH_LONG).show()
 
             if (CustomNotificationListenerService.getExpenseNotificationCount() != 0) {
                 binding.buttonLoadTransactionFromTdmyspend.isEnabled = true

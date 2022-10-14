@@ -216,6 +216,10 @@ class RetirementFragment : Fragment(), CoroutineScope {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         setupDefaultMode(false)
+        binding.assetsExpandButton.text = String.format(getString(R.string.assets), 0)
+        binding.pensionsExpandButton.text = String.format(getString(R.string.pensions), 0)
+        binding.additionalExpandButton.text = String.format(getString(R.string.additional_deposits_or_expenditures), 0)
+
         binding.currencySymbol1.text = String.format("${getLocalCurrencySymbol()} ")
         binding.currencySymbol2.text = String.format("${getLocalCurrencySymbol()} ")
         binding.currencySymbol3.text = String.format("${getLocalCurrencySymbol()} ")
@@ -356,8 +360,10 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
     }
     private fun onCalculateButtonClicked() {
-        MyApplication.displayToast(getString(R.string.calculating))
+        if (!checkThatAllFieldsAreOK())
+            return
 
+        MyApplication.displayToast(getString(R.string.calculating))
         setSummaryFields(View.GONE)
         binding.scenarioNameInput.error = null
         binding.scenarioNameEntireLayout.visibility = View.GONE
@@ -493,74 +499,79 @@ class RetirementFragment : Fragment(), CoroutineScope {
             .show()
     }
 
-    private fun onSaveButtonClicked(inDefaultMode: Boolean) {
-        setSummaryFields(View.GONE)
+    private fun checkThatAllFieldsAreOK(): Boolean {
         if (binding.birthDate.text.toString() == "") {
             binding.basicsLayout.visibility = View.VISIBLE
             binding.birthDate.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.birthDate)
-            return
+            return false
         }
         if (binding.inflationRate.text.toString() == "") {
             binding.basicsLayout.visibility = View.VISIBLE
             binding.inflationRate.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.inflationRate)
-            return
+            return false
         }
         if (binding.investmentGrowthRate.text.toString() == "") {
             binding.basicsLayout.visibility = View.VISIBLE
             binding.investmentGrowthRate.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.investmentGrowthRate)
-            return
+            return false
         }
         if (binding.propertyGrowthRate.text.toString() == "") {
             binding.basicsLayout.visibility = View.VISIBLE
             binding.propertyGrowthRate.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.propertyGrowthRate)
-            return
+            return false
         }
         if (binding.targetMonthlyIncome.text.toString() == "") {
             binding.basicsLayout.visibility = View.VISIBLE
             binding.targetMonthlyIncome.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.targetMonthlyIncome)
-            return
+            return false
         }
         if (binding.planToAge.text.toString() == "") {
             binding.basicsLayout.visibility = View.VISIBLE
             binding.planToAge.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.planToAge)
-            return
+            return false
         }
         if (binding.retirementDate.text.toString() == "") {
             binding.salaryLayout.visibility = View.VISIBLE
             binding.retirementDate.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.retirementDate)
-            return
+            return false
         }
         if (binding.cpp60Amount.text.toString() == "") {
             binding.cppOasLayout.visibility = View.VISIBLE
             binding.cpp60Amount.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.cpp60Amount)
-            return
+            return false
         }
         if (binding.cpp65Amount.text.toString() == "") {
             binding.cppOasLayout.visibility = View.VISIBLE
             binding.cpp65Amount.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.cpp65Amount)
-            return
+            return false
         }
         if (binding.cpp70Amount.text.toString() == "") {
             binding.cppOasLayout.visibility = View.VISIBLE
             binding.cpp70Amount.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.cpp70Amount)
-            return
+            return false
         }
         if (binding.oasCurrentAnnualAmount.text.toString() == "") {
             binding.cppOasLayout.visibility = View.VISIBLE
             binding.oasCurrentAnnualAmount.error = getString(R.string.value_cannot_be_blank)
             focusAndOpenSoftKeyboard(requireContext(), binding.oasCurrentAnnualAmount)
-            return
+            return false
         }
+        return true
+    }
+    private fun onSaveButtonClicked(inDefaultMode: Boolean) {
+        setSummaryFields(View.GONE)
+        if (!checkThatAllFieldsAreOK())
+            return
         if (!inDefaultMode) {
             if (binding.scenarioNameEntireLayout.visibility == View.GONE ) {
                 binding.scenarioNameEntireLayout.visibility = View.VISIBLE
@@ -642,12 +653,14 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.propertyGrowthRate.text.toString().toDouble(),
             binding.birthDate.text.toString()
         )
-        rtData.salary = Salary(
-            0,
-            getString(R.string.salary),
-            binding.salaryAmount.text.toString().toInt(),
-            binding.salaryAnnualIncrease.text.toString().toDouble()
-        )
+        if (isNumber(binding.salaryAmount.text.toString())) {
+            rtData.salary = Salary(
+                0,
+                getString(R.string.salary),
+                binding.salaryAmount.text.toString().toInt(),
+                binding.salaryAnnualIncrease.text.toString().toDouble()
+            )
+        }
         rtData.cpp = CPP(
             binding.cpp60Amount.text.toString().toInt(),
             binding.cpp65Amount.text.toString().toInt(),
@@ -702,10 +715,14 @@ class RetirementFragment : Fragment(), CoroutineScope {
 
     private fun loadScreen(iRetirementData: RetirementData?, iJustResetAdaptersFromWorking: Boolean = false) {
         if (iJustResetAdaptersFromWorking) {
-            setupAdapters(binding.userID.text.toString().toInt(),
-                binding.investmentGrowthRate.text.toString().toDouble(),
-                binding.propertyGrowthRate.text.toString().toDouble())
-
+            if (isNumber(binding.investmentGrowthRate.text.toString()) &&
+                    isNumber(binding.propertyGrowthRate.text.toString())) {
+                setupAdapters(
+                    binding.userID.text.toString().toInt(),
+                    binding.investmentGrowthRate.text.toString().toDouble(),
+                    binding.propertyGrowthRate.text.toString().toDouble()
+                )
+            }
         } else if (iRetirementData != null) {
             val ageRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.cppStartAgeRadioGroup)
             for (i in 0 until ageRadioGroup.childCount) {

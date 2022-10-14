@@ -151,7 +151,7 @@ class BudgetViewModel : ViewModel() {
             return  tList
         }
 
-        private fun getCalculatedBudgetAmount(iPeriod: DateRange, iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
+        fun getCalculatedBudgetAmount(iPeriod: DateRange, iBudgetMonth: BudgetMonth, iCategoryID: Int, iWhoToLookup: Int): Double {
             var tBudgetAmount = 0.0
             if (iPeriod == DateRange.ALLTIME) {
                 val dateNow = android.icu.util.Calendar.getInstance()

@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -307,6 +308,7 @@ class TrackerFragment : Fragment() {
         createBarChart(getBarChartData())
         if (hackActualTotal == 0.0 && hackBudgetTotal == 0.0) {
             hideBarChart()
+            binding.chartSummaryText.text = getString(R.string.no_tracker_data)
         }
     }
 
@@ -314,7 +316,7 @@ class TrackerFragment : Fragment() {
         binding.chartTitle.visibility = View.GONE
         binding.chartSubTitle.visibility = View.GONE
         binding.barChart.visibility = View.GONE
-        binding.chartSummaryText.visibility = View.GONE
+//        binding.chartSummaryText.visibility = View.GONE
     }
 
     private fun loadPieChart(iSpecificCategory: String = "") {
@@ -653,12 +655,6 @@ class TrackerFragment : Fragment() {
             R.attr.textOnBackground,
             Color.BLACK
         )
-/*        binding.barChart.axisLeft.textColor = MaterialColors.getColor(
-            requireContext(),
-            R.attr.textOnBackground,
-            Color.BLACK
-        ) */
-
         val xAxis: XAxis = binding.barChart.xAxis
         xAxis.granularity = 1f
         xAxis.isGranularityEnabled = true

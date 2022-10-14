@@ -348,7 +348,7 @@
     <string name="transaction_deleted">Transaction supprimée</string>
     <string name="this_expense_was_automatically_generated">Cette dépense a été générée automatiquement sous la forme d\'un paiement programmé.</string>
     <string name="you_are_attempting_to_add_to_your_private_category">Vous essayez d\'ajouter à votre catégorie privée, la transaction doit donc être à votre nom.</string>
-    <string name="transaction_added">Transaction ajoutée</string>
+    <string name="transaction_added">Transaction added.  (Actuals for period are %1$s, budget is %2$s.)</string>
     <string name="transaction_updated">Transaction actualisé</string>
     <string name="credit_expense">Créditer la dépense</string>
     <string name="share_this_authorization_key_with">Partagez cette clé d\'autorisation avec</string>
@@ -522,5 +522,6 @@
     <string name="edit_expense">Edit Expense</string>
     <string name="primary_residence">Primary residence?</string>
     <string name="expand_all">Expand all</string>
+    <string name="no_tracker_data">There is no data matching your current filters, so Tracker is not shown at this time.</string>
 </resources>
 

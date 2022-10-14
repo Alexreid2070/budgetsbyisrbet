@@ -346,7 +346,7 @@
     <string name="transaction_deleted">Transaction deleted</string>
     <string name="this_expense_was_automatically_generated">This expense was automatically generated as a scheduled payment.</string>
     <string name="you_are_attempting_to_add_to_your_private_category">You are attempting to add to your private category, so transaction must be in your name.</string>
-    <string name="transaction_added">Transaction added</string>
+    <string name="transaction_added">Transaction added.  Actuals for period are %1$s, budget is %2$s.)</string>
     <string name="transaction_updated">Transaction updated</string>
     <string name="credit_expense">Credit Expense</string>
     <string name="share_this_authorization_key_with">Share this authorization key with</string>
@@ -521,4 +521,5 @@
     <string name="edit_expense">Edit Expense</string>
     <string name="primary_residence">Primary residence?</string>
     <string name="expand_all">Expand all</string>
+    <string name="no_tracker_data">There is no data matching your current filters, so Tracker is not shown at this time.</string>
 </resources>

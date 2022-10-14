@@ -296,13 +296,14 @@ class TransactionViewModel : ViewModel() {
         }
 
         fun addTransaction(iTransactionOut: TransactionOut, iLocalOnly: Boolean = false) {
-            if (iLocalOnly) {
+//            if (iLocalOnly) {
                 singleInstance.transactions.add(Transaction(iTransactionOut.date,
                     iTransactionOut.amount/100.0, iTransactionOut.category,
                     iTransactionOut.note, iTransactionOut.note2,
                     iTransactionOut.paidby, iTransactionOut.boughtfor,
                     iTransactionOut.type, iTransactionOut.bfname1split))
-            } else {
+//            } else {
+            if (!iLocalOnly) {
                 val bm = BudgetMonth(iTransactionOut.date)
                 val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
                     iTransactionOut.note + iTransactionOut.date + "R"
