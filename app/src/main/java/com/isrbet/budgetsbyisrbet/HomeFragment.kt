@@ -23,12 +23,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
+import com.google.api.services.sheets.v4.SheetsScopes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
@@ -111,6 +114,7 @@ class HomeFragment : Fragment() {
                         Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
                         MyApplication.userGivenName = account.givenName.toString()
                         MyApplication.userFamilyName = account.familyName.toString()
+                        MyApplication.userAccount = account.account
                         firebaseAuthWithGoogle(account.idToken!!)
                     } catch (e: ApiException) {
                         // Google Sign In failed, update UI appropriately
@@ -127,6 +131,7 @@ class HomeFragment : Fragment() {
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
+            .requestScopes(Scope(SheetsScopes.SPREADSHEETS))
             .requestEmail()
             .build()
 
@@ -213,6 +218,7 @@ class HomeFragment : Fragment() {
 //        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
         MyApplication.userGivenName = account?.givenName.toString()
         MyApplication.userFamilyName = account?.familyName.toString()
+        MyApplication.userAccount = account?.account
         if (account != null) {
             MyApplication.userPhotoURL = account.photoUrl.toString()
             Glide.with(requireContext()).load(MyApplication.userPhotoURL)
@@ -250,7 +256,6 @@ class HomeFragment : Fragment() {
         set.clone(constraintLayout)
         set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
-
     }
 
     private fun setupDataCallbacks() {

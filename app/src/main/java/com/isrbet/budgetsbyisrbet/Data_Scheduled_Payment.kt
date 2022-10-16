@@ -305,6 +305,7 @@ class ScheduledPaymentViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         if (scheduledPaymentListener != null) {
+
             MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/RecurringTransactions")
                 .removeEventListener(scheduledPaymentListener!!)
             scheduledPaymentListener = null
@@ -347,10 +348,12 @@ class ScheduledPaymentViewModel : ViewModel() {
                                 child.key.toString(),
                                 (child.value.toString().toInt() / 100.0).toString()
                             )
-                            else -> tScheduledPayment.setValue(
-                                child.key.toString(),
-                                child.value.toString()
-                            )
+                            else -> {
+                                tScheduledPayment.setValue(
+                                    child.key.toString(),
+                                    child.value.toString()
+                                )
+                            }
                         }
                     }
                     scheduledPayments.add(tScheduledPayment)

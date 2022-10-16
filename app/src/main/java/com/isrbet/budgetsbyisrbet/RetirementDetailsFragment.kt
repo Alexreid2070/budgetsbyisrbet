@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +15,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import com.google.api.client.extensions.android.http.AndroidHttp
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.SheetsScopes
+import com.google.api.services.sheets.v4.model.Spreadsheet
+import com.google.api.services.sheets.v4.model.SpreadsheetProperties
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementDetailsBinding
-
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 enum class RetirementDetailsViews(val code: Int) {
     ALL(0),
@@ -52,7 +61,7 @@ class RetirementDetailsFragment : Fragment() {
     ): View {
         _binding = FragmentRetirementDetailsBinding.inflate(inflater, container, false)
         inflater.inflate(R.layout.fragment_retirement_details, container, false)
-        val saveFileLauncher =
+/*        val saveFileLauncher =
             registerForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { result ->
                 result?.let { saveFile(it) }
             }
@@ -61,6 +70,12 @@ class RetirementDetailsFragment : Fragment() {
                 saveFileLauncher.launch("scenario.csv")
             else
                 saveFileLauncher.launch(args.scenarioName+".csv")
+        } */
+        binding.saveButton.setOnClickListener {
+            if (args.scenarioName == "")
+                saveFile2("scenario")
+            else
+                saveFile2(args.scenarioName)
         }
         if (RetirementViewModel.getWorkingAssetListCount(AssetType.SAVINGS) > 0)
             binding.showSavingsDetailsButton.visibility = View.VISIBLE
@@ -404,6 +419,45 @@ class RetirementDetailsFragment : Fragment() {
                 addHeaderCell(tr, gRetirementDetailsList[i].getNetWorth().toString())
             binding.retirementTableRows.addView(tr)
         }
+    }
+    private fun createSpreadsheet(service: Sheets, iFileName: String) {
+        Log.d("Alex", "Here")
+/*        var spreadsheet = Spreadsheet()
+            .setProperties(
+                SpreadsheetProperties()
+                    .setTitle(iFileName)
+           )
+
+        GlobalScope.launch {
+            spreadsheet = service.spreadsheets().create(spreadsheet).execute()
+            Log.d("Alex","ID: ${spreadsheet.spreadsheetId}")
+        } */
+        val spreadsheetMaker = SpreadsheetMaker()
+        val spreadsheet: Spreadsheet = spreadsheetMaker.create(iFileName,
+            "Sheet1",
+            gRetirementDetailsList)
+        GlobalScope.launch {
+            val disposable = service.spreadsheets().create(spreadsheet).execute()
+            Log.d("Alex", "ID: ${disposable.spreadsheetId}")
+        }
+        MyApplication.displayToast(getString(R.string.creating_file))
+    }
+
+    private fun saveFile2(iFileName: String) {
+        val scopes = listOf(SheetsScopes.SPREADSHEETS)
+        val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
+        credential.selectedAccount = MyApplication.userAccount
+        Log.d("Alex", "accoutn is ${credential.selectedAccount}")
+
+        val jsonFactory = JacksonFactory.getDefaultInstance()
+        // GoogleNetHttpTransport.newTrustedTransport()
+        val httpTransport =  AndroidHttp.newCompatibleTransport()
+        val service = Sheets.Builder(httpTransport, jsonFactory, credential)
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+
+        Log.d("Alex", "Service is $service")
+        createSpreadsheet(service, iFileName)
     }
     private fun saveFile(uri: Uri) {
             requireContext().contentResolver.openOutputStream(uri)?.writer()?.run {

@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.accounts.Account
 import android.app.Activity
 import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
@@ -126,6 +127,7 @@ val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
 var goToPie = false
 var homePageExpansionAreaExpanded = false
 val gNumberFormat: NumberFormat = NumberFormat.getInstance()
+var gRetirementScenario:RetirementData? = null
 var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
 
 fun gMonthName(iMonth: Int) : String {
@@ -189,6 +191,7 @@ class MyApplication : Application() {
         lateinit var resources: Resources
         lateinit var database: FirebaseDatabase
         lateinit var databaseref: DatabaseReference
+
         var transactionSearchText: String = ""
         var transactionFirstInList: Int = cLAST_ROW
         var userUID: String = ""
@@ -198,6 +201,7 @@ class MyApplication : Application() {
         var userGivenName: String = ""
         var userFamilyName: String = ""
         var userPhotoURL: String = ""
+        var userAccount: Account? = null
         private var quoteForThisSession: String = ""
         var currentUserEmail: String = ""
         var mediaPlayer: MediaPlayer? = null
@@ -257,6 +261,7 @@ class MyApplication : Application() {
         Firebase.database.setPersistenceEnabled(true)
         database = FirebaseDatabase.getInstance()
         databaseref = database.reference
+
         prefs = applicationContext.getSharedPreferences("Prefs", 0)
         prefEditor = prefs.edit()
         LangUtils.init(this)

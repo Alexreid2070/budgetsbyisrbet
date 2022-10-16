@@ -330,7 +330,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     if (binding.boughtForLabel.visibility == View.GONE) { // need to keep both values in sync
                         val paidByName = binding.editNewPaidBy.selectedItem.toString()
-                        Log.d("Alex", "paid by name is $paidByName")
                         boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(paidByName))
                     }
                 }
@@ -399,6 +398,18 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 lCal.get(Calendar.MONTH),
                 lCal.get(Calendar.DAY_OF_MONTH)
             ).show()
+        }
+        when (binding.editNewBoughtFor.selectedItem.toString()) {
+            getString(R.string.joint) -> {
+                binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0) * 100).toFloat()
+                binding.splitSlider.isEnabled = true
+            }
+            SpenderViewModel.getSpenderName(0) -> {
+                binding.splitSlider.value = 100.0F
+            }
+            else -> {
+                binding.splitSlider.value = 0.0F
+            }
         }
     }
 

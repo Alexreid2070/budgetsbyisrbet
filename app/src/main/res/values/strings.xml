@@ -522,4 +522,5 @@
     <string name="primary_residence">Primary residence?</string>
     <string name="expand_all">Expand all</string>
     <string name="no_tracker_data">There is no data matching your current filters, so Tracker is not shown at this time.</string>
+    <string name="creating_file">Creating file</string>
 </resources>

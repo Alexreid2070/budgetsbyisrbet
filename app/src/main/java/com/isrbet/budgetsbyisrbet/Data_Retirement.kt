@@ -639,8 +639,8 @@ class Savings(
     }
 
     override fun getGrossIncome(): Int {
-        return withdrawalAmount +
-            if (taxSheltered) 0 else growthThisYear
+        return withdrawalAmount //+
+//            if (taxSheltered) 0 else growthThisYear
     }
 
     override fun copy(): Asset {
@@ -1013,7 +1013,9 @@ data class Salary(
             iRetirementDate.substring(5,7).toInt() / 12.0
         } else
             1.0
-        return round(annualValueAfterTax * multiplier).toInt()
+        val cal = android.icu.util.Calendar.getInstance()
+        val inflationMultiplier = (1 + estimatedGrowthPct/100.0).pow(iForYear - cal.get(Calendar.YEAR))
+        return round(annualValueAfterTax * multiplier * inflationMultiplier).toInt()
     }
 }
 

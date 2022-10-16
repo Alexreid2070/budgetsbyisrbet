@@ -89,8 +89,8 @@ class BudgetViewAllFragment : Fragment() {
                 moveCategories(1)
         }
 
-        val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
         binding.budgetAddFab.setOnClickListener {
+            val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
             val action =
                 BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
             action.categoryID = currentCategory.id.toString()

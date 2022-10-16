@@ -237,7 +237,6 @@ class DefaultsViewModel : ViewModel() {
         }
         fun clear() {
             if (singleInstance.defaultsListener != null) {
-                Log.d("Alex", "default listener being cleared")
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
                     .child(SpenderViewModel.myIndex().toString())
                     .removeEventListener(singleInstance.defaultsListener!!)
