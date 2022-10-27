@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -60,6 +61,24 @@ class RetirementAssetDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var cal = android.icu.util.Calendar.getInstance()
+        val dateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                cal.set(Calendar.YEAR, year)
+                cal.set(Calendar.MONTH, monthOfYear)
+                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                binding.annuityStartDate.setText(giveMeMyDateFormat(cal))
+            }
+
+        binding.annuityStartDate.setOnClickListener {
+            DatePickerDialog(
+                requireContext(), dateSetListener,
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
         setupAssetTypeSpinner()
         setupClickListeners()
         if (assetName == "")
@@ -68,31 +87,30 @@ class RetirementAssetDialogFragment : DialogFragment() {
         if (userDefault != null) {
             val asset = RetirementViewModel.getWorkingAsset(assetName)
             if (asset != null) {
-                binding.title.text = String.format("${AssetType.getText(asset.type)}: ${asset.name}")
-                setupAssetTypeSpinner(AssetType.getText(asset.type))
+                binding.title.text = String.format("${AssetType.getText(asset.assetType)}: ${asset.name}")
+                setupAssetTypeSpinner(AssetType.getText(asset.assetType))
                 binding.assetName.setText(asset.name)
-                if (asset.type == AssetType.PROPERTY) {
+                if (asset.assetType == AssetType.PROPERTY) {
                     val prop = asset as Property
-                    Log.d("Alex", "assetdialog value is ${prop.getValue()}")
                     binding.assetValue.setText((prop.getValue() / (prop.ownershipPct / 100)).toInt().toString())
                 } else
                     binding.assetValue.setText(asset.getValue().toString())
                 binding.switchUseDefaultGrowth.isChecked = asset.useDefaultGrowthPct
                 binding.estimatedAnnualGrowth.isEnabled = !binding.switchUseDefaultGrowth.isChecked
-                if (asset.type == AssetType.RRSP) {
+                if (asset.assetType == AssetType.RRSP) {
                     binding.switchWillSellToFinanceRetirement.isChecked = true
                 } else {
                     binding.switchWillSellToFinanceRetirement.isChecked =
                         asset.willSellToFinanceRetirement
                 }
-                if (asset.type == AssetType.SAVINGS) {
+                if (asset.assetType == AssetType.SAVINGS) {
                     binding.taxShelteredLayout.visibility = View.VISIBLE
                     binding.switchTaxSheltered.isChecked = (asset as Savings).taxSheltered
                 } else {
                     binding.taxShelteredLayout.visibility = View.GONE
                 }
                 if (binding.switchUseDefaultGrowth.isChecked) {
-                    if (asset.type == AssetType.PROPERTY)
+                    if (asset.assetType == AssetType.PROPERTY)
                         binding.estimatedAnnualGrowth.setText(userDefault.propertyGrowthRate.toString())
                     else
                         binding.estimatedAnnualGrowth.setText(userDefault.investmentGrowthRate.toString())
@@ -100,7 +118,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     binding.estimatedAnnualGrowth.setText(asset.estimatedGrowthPct.toString())
                 }
                 binding.annualContribution.setText(asset.annualContribution.toString())
-                when (asset.type) {
+                when (asset.assetType) {
                     AssetType.PROPERTY -> {
                         val prop = asset as Property
                         binding.propertyFields.visibility = View.VISIBLE
@@ -124,6 +142,21 @@ class RetirementAssetDialogFragment : DialogFragment() {
                             else -> binding.minimizeRRSPAlways.isChecked = true
                         }
                     }
+                    AssetType.LIRA_LIF -> {
+                        val liraLif = asset as LIRA_LIF
+                        binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
+                        when (liraLif.minimizeTax) {
+                            MinimizeTaxEnum.DO_NOT_MINIMIZE -> binding.minimizeRRSPNever.isChecked = true
+                            MinimizeTaxEnum.MINIMIZE_WHEN_POSSIBLE -> binding.minimizeRRSPIfPossible.isChecked = true
+                            else -> binding.minimizeRRSPAlways.isChecked = true
+                        }
+                    }
+                    AssetType.LIRA_Annuity -> {
+                        binding.annuityStartDateLayout.visibility = View.VISIBLE
+                        binding.annualAmountLayout.visibility = View.VISIBLE
+                        binding.annuityStartDate.setText((asset as LIRA_ANNUITY).pensionStartDate)
+                        binding.annualAnnuityAmount.setText(asset.annualAmount.toString())
+                    }
                     AssetType.SAVINGS -> {
                         binding.taxShelteredLayout.visibility = View.VISIBLE
                     }
@@ -144,18 +177,34 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 if (selection == AssetType.getText(AssetType.PROPERTY)) {
                     binding.propertyFields.visibility = View.VISIBLE
                     binding.annualContributionLayout.visibility = View.GONE
+                } else if (selection == AssetType.getText(AssetType.LIRA_LIF) ||
+                        selection == AssetType.getText(AssetType.LIRA_Annuity)) {
+                    binding.annualContributionLayout.visibility = View.GONE
+                    binding.propertyFields.visibility = View.GONE
                 } else {
                     binding.annualContributionLayout.visibility = View.VISIBLE
                     binding.propertyFields.visibility = View.GONE
                 }
-                if (selection == AssetType.getText(AssetType.RRSP)) {
-                    binding.switchWillSellToFinanceRetirement.isEnabled = false
+                if (selection == AssetType.getText(AssetType.RRSP) ||
+                    selection == AssetType.getText(AssetType.LIRA_LIF)) {
+                    binding.willSellLayout.visibility = View.GONE
                     binding.switchWillSellToFinanceRetirement.isChecked = true
                     binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
+                } else if (selection == AssetType.getText(AssetType.LIRA_Annuity)) {
+                    binding.willSellLayout.visibility = View.GONE
+                    binding.switchWillSellToFinanceRetirement.isChecked = true
+                    binding.minimizeRRSPTaxLayout.visibility = View.GONE
                 } else {
                     if (inDefaultMode)
-                        binding.switchWillSellToFinanceRetirement.isEnabled = true
+                        binding.willSellLayout.visibility = View.VISIBLE
                     binding.minimizeRRSPTaxLayout.visibility = View.GONE
+                }
+                if (selection == AssetType.getText(AssetType.LIRA_Annuity)) {
+                    binding.annualAmountLayout.visibility = View.VISIBLE
+                    binding.annuityStartDateLayout.visibility = View.VISIBLE
+                } else {
+                    binding.annualAmountLayout.visibility = View.GONE
+                    binding.annuityStartDateLayout.visibility = View.GONE
                 }
                 if (selection == AssetType.getText(AssetType.SAVINGS))
                     binding.taxShelteredLayout.visibility = View.VISIBLE
@@ -195,6 +244,8 @@ class RetirementAssetDialogFragment : DialogFragment() {
     private fun setupAssetTypeSpinner(iSelection: String = "") {
         val assetTypeList: MutableList<String> = ArrayList()
         assetTypeList.add(AssetType.getText(AssetType.RRSP))
+        assetTypeList.add(AssetType.getText(AssetType.LIRA_LIF))
+        assetTypeList.add(AssetType.getText(AssetType.LIRA_Annuity))
         assetTypeList.add(AssetType.getText(AssetType.TFSA))
         assetTypeList.add(AssetType.getText(AssetType.SAVINGS))
         assetTypeList.add(AssetType.getText(AssetType.PROPERTY))
@@ -299,6 +350,40 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         distributionOrder,
                         0,
                         minRRSPVal
+                    )
+                }
+                AssetType.getText(AssetType.LIRA_LIF) -> {
+                    val minTaxVal = if (binding.minimizeRRSPNever.isChecked)
+                        MinimizeTaxEnum.DO_NOT_MINIMIZE
+                    else if (binding.minimizeRRSPIfPossible.isChecked)
+                        MinimizeTaxEnum.MINIMIZE_WHEN_POSSIBLE
+                    else
+                        MinimizeTaxEnum.ALWAYS_MINIMIZE
+                    asset = LIRA_LIF(
+                        RetirementViewModel.getWorkingAssetListCount(),
+                        binding.assetName.text.toString(),
+                        binding.assetValue.text.toString().toInt(),
+                        binding.switchUseDefaultGrowth.isChecked,
+                        binding.estimatedAnnualGrowth.text.toString().toDouble(),
+                        if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
+                        12 - cal.get(Calendar.MONTH) - 1,
+                        distributionOrder,
+                        0,
+                        minTaxVal
+                    )
+                }
+                AssetType.getText(AssetType.LIRA_Annuity) -> {
+                    asset = LIRA_ANNUITY(
+                        RetirementViewModel.getWorkingAssetListCount(),
+                        binding.assetName.text.toString(),
+                        binding.assetValue.text.toString().toInt(),
+                        binding.annuityStartDate.text.toString(),
+                        cal.get(Calendar.YEAR),
+                        binding.annualAnnuityAmount.text.toString().toInt(),
+                        binding.switchUseDefaultGrowth.isChecked,
+                        binding.estimatedAnnualGrowth.text.toString().toDouble(),
+                        12 - cal.get(Calendar.MONTH) - 1,
+                        distributionOrder
                     )
                 }
                 AssetType.getText(AssetType.TFSA) -> {

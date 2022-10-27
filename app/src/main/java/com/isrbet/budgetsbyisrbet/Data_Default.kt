@@ -438,7 +438,7 @@ class DefaultsViewModel : ViewModel() {
                 singleInstance.defaultShowRed = iValue
             }
             cDEFAULT_CATEGORY_ID -> {
-                if (isNumber(iValue.toString()))
+                if (iValue.toString().toIntOrNull() != null)
                     singleInstance.defaultCategory = iValue
             }
             cDEFAULT_SPENDER -> {
@@ -526,11 +526,11 @@ class DefaultsViewModel : ViewModel() {
                 singleInstance.defaultShowTotalsTracker = iValue
             }
             cDEFAULT_CATEGORY_ID -> {
-                if (isNumber(iValue))
+                if (iValue.toIntOrNull() != null)
                     singleInstance.defaultCategory = iValue.toInt()
             }
             cDEFAULT_SPENDER -> {
-                if (isNumber(iValue))
+                if (iValue.toIntOrNull() != null)
                     singleInstance.defaultSpender = iValue.toInt()
             }
             cDEFAULT_INTEGRATEWITHTDSPEND -> {
@@ -573,7 +573,7 @@ class DefaultsViewModel : ViewModel() {
                 singleInstance.defaultShowCurrencySymbol = (iValue == cTRUE)
             }
             cDEFAULT_VIEW_IN_RETIREMENT_DETAILS -> {
-                singleInstance.defaultViewInRetirementDetails = if (isNumber(iValue))
+                singleInstance.defaultViewInRetirementDetails = if (iValue.toIntOrNull() != null)
                     RetirementDetailsViews.getByValue(iValue.toInt())!!
                 else {
                     try {

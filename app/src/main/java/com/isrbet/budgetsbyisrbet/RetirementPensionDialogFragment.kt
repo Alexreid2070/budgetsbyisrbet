@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -263,7 +262,10 @@ class RetirementPensionDialogFragment : DialogFragment() {
                     0,
                     pensionType,
                     binding.workStartDate.text.toString(),
-                    if (isNumber(binding.best5YearsSalary.text.toString())) binding.best5YearsSalary.text.toString().toInt() else 0,
+                    if (binding.best5YearsSalary.text.toString().toIntOrNull() != null)
+                        binding.best5YearsSalary.text.toString().toInt()
+                    else
+                        0,
                     binding.workStartDate.text.toString(),
                     binding.pensionStartDelay.text.toString().toInt())
                 PensionType.PSPP -> Pension(
@@ -272,7 +274,10 @@ class RetirementPensionDialogFragment : DialogFragment() {
                     0,
                     pensionType,
                     binding.workStartDate.text.toString(),
-                    if (isNumber(binding.best5YearsSalary.text.toString())) binding.best5YearsSalary.text.toString().toInt() else 0,
+                    if (binding.best5YearsSalary.text.toString().toIntOrNull() != null)
+                        binding.best5YearsSalary.text.toString().toInt()
+                    else
+                        0,
                     binding.workStartDate.text.toString(),
                 0)
                 }

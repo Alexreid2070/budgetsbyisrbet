@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,8 +26,12 @@ class AssetAdapter (context: Context,
 
     fun refreshData() {
         myData.clear()
-        for (i in 0 until RetirementViewModel.getWorkingAssetListCount())
-            RetirementViewModel.getWorkingAsset(i).let { myData.add(it) }
+        if (gRetirementScenario != null) {
+            for (i in 0 until gRetirementScenario!!.assets.count())
+                gRetirementScenario!!.assets[i].let { myData.add(it) }
+        } else {
+            Log.d("Alex", "Why is asset list null")
+        }
     }
     override fun getCount(): Int {
         return myData.size
@@ -63,13 +68,13 @@ class AssetAdapter (context: Context,
         val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_asset, parent, false)
         viewHolder = AssetViewHolder(myConvertView)
 
-        val desc1 = if (asset.type == AssetType.PROPERTY) {
+        val desc1 = if (asset.assetType == AssetType.PROPERTY) {
             val prop = asset as Property
-            String.format("%s %s %s @%s%%", AssetType.getText(asset.type), asset.name,
+            String.format("%s %s %s @%s%%", AssetType.getText(asset.assetType), asset.name,
                 gDecWithCurrency((asset.getValue() / (prop.ownershipPct / 100)).toInt()), prop.ownershipPct)
         } else
-            String.format("%s %s %s", AssetType.getText(asset.type), asset.name, gDecWithCurrency(asset.getValue()))
-        val desc2 = if (asset.type == AssetType.PROPERTY) {
+            String.format("%s %s %s", AssetType.getText(asset.assetType), asset.name, gDecWithCurrency(asset.getValue()))
+        val desc2 = if (asset.assetType == AssetType.PROPERTY) {
             val propGrowth = if (asset.useDefaultGrowthPct) defaultPropertyGrowthRate else asset.estimatedGrowthPct
             val invGrowth = if ((asset as Property).useDefaultGrowthPctAsSavings)
                 defaultInvestmentGrowthRate
@@ -91,11 +96,11 @@ class AssetAdapter (context: Context,
                 ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDescription2.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         }
-        viewHolder.vhAssetType.text = asset.type.toString()
+        viewHolder.vhAssetType.text = asset.assetType.toString()
         viewHolder.vhLabel.text = asset.name
         viewHolder.vhAmount.text = asset.getValue().toString()
         viewHolder.vhGrowthRate.text = asset.estimatedGrowthPct.toString()
-        if (asset.type == AssetType.PROPERTY) {
+        if (asset.assetType == AssetType.PROPERTY) {
             viewHolder.vhGrowthRateOnceSold.text =
                 (asset as Property).estimatedGrowthPctAsSavings.toString()
             viewHolder.vhLinkToScheduledPayment.text =

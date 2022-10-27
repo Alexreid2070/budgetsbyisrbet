@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -17,6 +18,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import nl.dionsegijn.konfetti.models.Shape
+import nl.dionsegijn.konfetti.models.Size
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -225,7 +228,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         binding.currencySymbol3.text = String.format("${getLocalCurrencySymbol()} ")
         binding.currencySymbol4.text = String.format("${getLocalCurrencySymbol()} ")
         gRetirementDetailsList = arrayListOf()
-        gRetirementScenario = null
+//        gRetirementScenario = null
         if (myEarliestRetirementYear == 0) {
             setSummaryFields(View.GONE)
         }
@@ -462,6 +465,17 @@ class RetirementFragment : Fragment(), CoroutineScope {
                     ContextCompat.getColor(requireContext(), R.color.green))
                 binding.calculationResponse2.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.green))
+                binding.konfettiView.bringToFront()
+                binding.konfettiView.build()
+                    .addColors(Color.RED, Color.CYAN, Color.GREEN, Color.YELLOW)
+                    .setDirection(0.0, 359.0)
+                    .setSpeed(1f, 6f)
+                    .setFadeOutEnabled(true)
+                    .setTimeToLive(1000L)
+                    .addShapes(Shape.Square, Shape.Circle)
+                    .addSizes(Size(12))
+                    .setPosition(-50f, binding.konfettiView.width+150f, -50f, binding.konfettiView.height+150f)
+                    .streamFor(300, 2000L)
             } else {
                 myCalculationResponse = String.format(getString(R.string.you_cannot))
                 myCalculationResponse2 = String.format(getString(R.string.you_cannot2),
@@ -473,6 +487,13 @@ class RetirementFragment : Fragment(), CoroutineScope {
             }
             binding.calculationResponse.text = myCalculationResponse
             binding.calculationResponse2.text = myCalculationResponse2
+        } else {
+            myCalculationResponse = String.format(getString(R.string.you_cannot))
+            binding.calculationResponse.text = myCalculationResponse
+            myCalculationResponse2 = ""
+            binding.calculationResponse2.text = myCalculationResponse2
+            binding.calculationResponse.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red))
         }
     }
 
@@ -654,7 +675,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.propertyGrowthRate.text.toString().toDouble(),
             binding.birthDate.text.toString()
         )
-        if (isNumber(binding.salaryAmount.text.toString())) {
+        if (binding.salaryAmount.text.toString().toIntOrNull() != null) {
             rtData.salary = Salary(
                 0,
                 getString(R.string.salary),
@@ -670,17 +691,20 @@ class RetirementFragment : Fragment(), CoroutineScope {
         rtData.oas = OAS(
             binding.oasCurrentAnnualAmount.text.toString().toInt()
         )
+
         rtData.setAssetsAndPensionsAndAdditionalItemsFromWorking()
 
+        gRetirementScenario = rtData
         return rtData
     }
 
     private fun onSeeDetailsButtonClicked() {
         gRetirementDetailsList = lRetirementDetailsList
-        gRetirementScenario = createDataFromScreenValues()
+//        gRetirementScenario = createDataFromScreenValues()
         val action =
             RetirementFragmentDirections.actionRetirementFragmentToRetirementDetailsFragment()
         action.scenarioName = binding.scenarioNameInput.text.toString()
+        action.userID = binding.userID.text.toString().toInt()
         findNavController().navigate(action)
     }
     private fun setupDefaultMode(iMoveToDefaultMode: Boolean) {
@@ -717,8 +741,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
 
     private fun loadScreen(iRetirementData: RetirementData?, iJustResetAdaptersFromWorking: Boolean = false) {
         if (iJustResetAdaptersFromWorking) {
-            if (isNumber(binding.investmentGrowthRate.text.toString()) &&
-                    isNumber(binding.propertyGrowthRate.text.toString())) {
+            val inv = binding.investmentGrowthRate.text.toString().toDoubleOrNull()
+            val prop = binding.propertyGrowthRate.text.toString().toDoubleOrNull()
+            if (inv != null && prop != null) {
                 setupAdapters(
                     binding.userID.text.toString().toInt(),
                     binding.investmentGrowthRate.text.toString().toDouble(),
@@ -749,7 +774,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.cpp65Amount.setText(iRetirementData.cpp.annualValueAt65.toString())
             binding.cpp70Amount.setText(iRetirementData.cpp.annualValueAt70.toString())
             binding.oasCurrentAnnualAmount.setText(iRetirementData.oas.currentAnnualValue.toString())
-            if (!loadRetirementInfoFromWorking) {
+            gRetirementScenario = iRetirementData.copy()
+/*            if (!loadRetirementInfoFromWorking) {
                 RetirementViewModel.populateWorkingAssetList(iRetirementData.assets)
             }
             if (!loadRetirementInfoFromWorking) {
@@ -757,7 +783,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             }
             if (!loadRetirementInfoFromWorking) {
                 RetirementViewModel.populateWorkingAdditionalList(iRetirementData.additionalItems)
-            }
+            } */
             setupAdapters(binding.userID.text.toString().toInt(),
                 binding.investmentGrowthRate.text.toString().toDouble(),
                 binding.propertyGrowthRate.text.toString().toDouble())

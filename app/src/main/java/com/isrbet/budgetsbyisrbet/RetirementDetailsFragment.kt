@@ -1,17 +1,14 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
@@ -21,7 +18,6 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import com.google.api.services.sheets.v4.model.Spreadsheet
-import com.google.api.services.sheets.v4.model.SpreadsheetProperties
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementDetailsBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -35,7 +31,8 @@ enum class RetirementDetailsViews(val code: Int) {
     TFSA(5),
     SAVINGS(6),
     PROPERTY(7),
-    PENSION(8);
+    PENSION(8),
+    LIRA(9);
     companion object {
         fun getByValue(value: Int) = values().firstOrNull { it.code == value }
     }
@@ -45,6 +42,7 @@ enum class RetirementDetailsViews(val code: Int) {
             5 -> iAssetType == AssetType.TFSA
             6 -> iAssetType == AssetType.SAVINGS
             7 -> iAssetType == AssetType.PROPERTY
+            9 -> iAssetType == AssetType.LIRA_LIF || iAssetType == AssetType.LIRA_Annuity
             else -> false
         }
     }
@@ -72,10 +70,13 @@ class RetirementDetailsFragment : Fragment() {
                 saveFileLauncher.launch(args.scenarioName+".csv")
         } */
         binding.saveButton.setOnClickListener {
-            if (args.scenarioName == "")
-                saveFile2("scenario")
+            var fName = SpenderViewModel.getSpenderName(args.userID) + " "
+            fName += if (args.scenarioName == "")
+                "scenario"
             else
-                saveFile2(args.scenarioName)
+                args.scenarioName
+            fName += " Retirement Scenario Calculations"
+            saveFile2(fName)
         }
         if (RetirementViewModel.getWorkingAssetListCount(AssetType.SAVINGS) > 0)
             binding.showSavingsDetailsButton.visibility = View.VISIBLE
@@ -89,6 +90,11 @@ class RetirementDetailsFragment : Fragment() {
             binding.showTfsaDetailsButton.visibility = View.VISIBLE
         else
             binding.showTfsaDetailsButton.visibility = View.GONE
+        if (RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_LIF) +
+            RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_Annuity)> 0)
+            binding.showLiraDetailsButton.visibility = View.VISIBLE
+        else
+            binding.showLiraDetailsButton.visibility = View.GONE
         if (RetirementViewModel.getWorkingAssetListCount(AssetType.PROPERTY) > 0)
             binding.showPropertyDetailsButton.visibility = View.VISIBLE
         else
@@ -117,6 +123,7 @@ class RetirementDetailsFragment : Fragment() {
                 getString(R.string.show_pension_details) -> RetirementDetailsViews.PENSION
                 getString(R.string.show_rrsp_details) -> RetirementDetailsViews.RRSP
                 getString(R.string.show_tfsa_details) -> RetirementDetailsViews.TFSA
+                getString(R.string.show_lira_details) -> RetirementDetailsViews.LIRA
                 getString(R.string.show_savings_details) -> RetirementDetailsViews.SAVINGS
                 getString(R.string.show_property_details) -> RetirementDetailsViews.PROPERTY
                 else -> RetirementDetailsViews.ALL
@@ -134,6 +141,7 @@ class RetirementDetailsFragment : Fragment() {
             RetirementDetailsViews.TAX -> binding.showTaxColumnsButton.isChecked = true
             RetirementDetailsViews.RRSP -> binding.showRrspDetailsButton.isChecked = true
             RetirementDetailsViews.TFSA -> binding.showTfsaDetailsButton.isChecked = true
+            RetirementDetailsViews.LIRA -> binding.showLiraDetailsButton.isChecked = true
             RetirementDetailsViews.SAVINGS -> binding.showSavingsDetailsButton.isChecked = true
             RetirementDetailsViews.PROPERTY -> binding.showPropertyDetailsButton.isChecked = true
             else -> binding.showAllColumnsButton.isChecked = true
@@ -224,7 +232,7 @@ class RetirementDetailsFragment : Fragment() {
             addHeaderCell(tr, getString(R.string.oas), true)
         }
         gRetirementDetailsList[1].assetIncomes.forEach {
-            when (it.type) {
+            when (it.assetType) {
                 AssetType.RRSP -> {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.INCOME ||
@@ -251,6 +259,23 @@ class RetirementDetailsFragment : Fragment() {
                         iWhichView == RetirementDetailsViews.RRSP)
                         addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
                             getString(R.string.rrsp) + ": " + it.name), true)
+                }
+                AssetType.LIRA_LIF, AssetType.LIRA_Annuity -> {
+                    if (iWhichView == RetirementDetailsViews.ALL ||
+                        iWhichView == RetirementDetailsViews.INCOME ||
+                        iWhichView == RetirementDetailsViews.LIRA)
+                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
+                            getString(R.string.lira) + ": " + it.name), true)
+                    if (iWhichView == RetirementDetailsViews.ALL ||
+                        iWhichView == RetirementDetailsViews.LIRA)
+                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                            it.getGrowthPct(),
+                            getString(R.string.lira) + ": " + it.name), true)
+                    if (iWhichView == RetirementDetailsViews.ALL ||
+                        iWhichView == RetirementDetailsViews.SUMMARY ||
+                        iWhichView == RetirementDetailsViews.LIRA)
+                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
+                            getString(R.string.lira) + ": " + it.name), true)
                 }
                 AssetType.TFSA -> {
                     if (iWhichView == RetirementDetailsViews.ALL ||
@@ -371,7 +396,7 @@ class RetirementDetailsFragment : Fragment() {
                 if ((iWhichView == RetirementDetailsViews.ALL ||
                     iWhichView == RetirementDetailsViews.INCOME ||
                     iWhichView == RetirementDetailsViews.RRSP) &&
-                    it.type == AssetType.RRSP) {
+                    it.assetType == AssetType.RRSP) {
                     if (!minAlreadyShown) {
                         addHeaderCell(tr, gRetirementDetailsList[i].getMinimumRRIFWithdrawal(
                             gRetirementDetailsList[i].getAgeAtStartOfYear(
@@ -382,7 +407,7 @@ class RetirementDetailsFragment : Fragment() {
                 }
                 if (iWhichView == RetirementDetailsViews.ALL ||
                     iWhichView == RetirementDetailsViews.INCOME ||
-                    iWhichView.compareTo(it.type) ||
+                    iWhichView.compareTo(it.assetType) ||
                     (iWhichView == RetirementDetailsViews.TAX &&
                             it.withdrawalIsTaxable())) {
                     if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0) {
@@ -392,7 +417,7 @@ class RetirementDetailsFragment : Fragment() {
                     }
                 }
                 if (iWhichView == RetirementDetailsViews.ALL ||
-                    iWhichView.compareTo(it.type) ||
+                    iWhichView.compareTo(it.assetType) ||
                     (iWhichView == RetirementDetailsViews.TAX &&
                             it.growthIsTaxable()))
                     if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0) {
@@ -403,8 +428,8 @@ class RetirementDetailsFragment : Fragment() {
 
                 if (iWhichView == RetirementDetailsViews.ALL ||
                     iWhichView == RetirementDetailsViews.SUMMARY ||
-                    iWhichView.compareTo(it.type)) {
-                    if (it.type == AssetType.PROPERTY && (it as Property).soldInYear == gRetirementDetailsList[i].year) {
+                    iWhichView.compareTo(it.assetType)) {
+                    if (it.assetType == AssetType.PROPERTY && (it as Property).soldInYear == gRetirementDetailsList[i].year) {
                         addHeaderCell(tr, it.getEndingBalance().toString(), true)
                     } else {
                         if (it.withdrawalAmount > 0 && it.getEndingBalance() == 0)
@@ -476,7 +501,7 @@ class RetirementDetailsFragment : Fragment() {
                 write(",\"${getString(R.string.oas)}\"")
                 var minAlreadyShown = false
                 gRetirementDetailsList[1].assetIncomes.forEach {
-                    when (it.type) {
+                    when (it.assetType) {
                         AssetType.RRSP -> {
                             if (!minAlreadyShown) {
                                 write(",\"${getString(R.string.minimum_rrif_withdrawal)}\"")
@@ -485,6 +510,11 @@ class RetirementDetailsFragment : Fragment() {
                             write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.rrsp) + ": " + it.name)}\"")
                             write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.rrsp) + ": " + it.name)}\"")
                             write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.rrsp) + ": " + it.name)}\"")
+                        }
+                        AssetType.LIRA_LIF, AssetType.LIRA_Annuity -> {
+                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.lira) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.lira) + ": " + it.name)}\"")
+                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.lira) + ": " + it.name)}\"")
                         }
                         AssetType.TFSA -> {
                             write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.tfsa) + ": " + it.name)}\"")
@@ -526,7 +556,7 @@ class RetirementDetailsFragment : Fragment() {
                     }
                     write(",\"${gRetirementDetailsList[i].oasIncome}\"")
                     gRetirementDetailsList[i].assetIncomes.forEach {
-                        if (it.type == AssetType.RRSP) {
+                        if (it.assetType == AssetType.RRSP) {
                             if (!minAlreadyShown) {
                                 write(",\"${gRetirementDetailsList[i].getMinimumRRIFWithdrawal(
                                     gRetirementDetailsList[i].getAgeAtStartOfYear(

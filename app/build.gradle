@@ -27,7 +27,7 @@ android {
         applicationId "com.isrbet.budgetsbyisrbet"
         minSdk 26
         targetSdk 33
-        versionCode 45
+        versionCode 48
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -104,4 +104,5 @@ dependencies {
         exclude module: 'guava-jdk5'
     }
     implementation 'com.google.guava:guava:27.0.1-android'
+    implementation 'nl.dionsegijn:konfetti:1.2.2'
 }

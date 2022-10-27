@@ -3,7 +3,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.icu.util.Calendar
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -46,7 +45,8 @@ data class ScheduledPayment(
             "loanAmortization" -> loanAmortization = value.toDouble()
             "loanInterestRate" -> loanInterestRate = value.toDouble()
             "loanPaymentRegularity" ->
-                loanPaymentRegularity = if (isNumber(value))
+//                loanPaymentRegularity = if (isNumber(value))
+                    loanPaymentRegularity = if (value.toIntOrNull() != null)
                     LoanPaymentRegularity.getByValue(value.toInt())!!
                 else {
                     try {
@@ -60,7 +60,7 @@ data class ScheduledPayment(
     fun getSplit2(): Int {
         return 100 - split1
     }
-    fun getOutstandingLoanAmount(iDate: android.icu.util.Calendar, iOwnershipPercentage: Double = 100.0): Int {
+    fun getOutstandingLoanAmount(iDate: Calendar, iOwnershipPercentage: Double = 100.0): Int {
         if (activeLoan) {
             val paymentsPerYear = when (loanPaymentRegularity) {
                 LoanPaymentRegularity.WEEKLY -> 52
@@ -68,15 +68,15 @@ data class ScheduledPayment(
                 LoanPaymentRegularity.MONTHLY -> 12
             }
             var principalOwing = loanAmount
-            val paymentDate = android.icu.util.Calendar.getInstance()
+            val paymentDate = Calendar.getInstance()
             paymentDate.set(loanFirstPaymentDate.substring(0,4).toInt(), loanFirstPaymentDate.substring(5,7).toInt()-1, loanFirstPaymentDate.substring(8,10).toInt())
             do {
                 val interestInThisPeriod = principalOwing * (loanInterestRate / 100.0 / paymentsPerYear)
                 principalOwing -= (amount - interestInThisPeriod)
                 when (loanPaymentRegularity) {
-                    LoanPaymentRegularity.WEEKLY -> paymentDate.add(android.icu.util.Calendar.DATE, 7)
-                    LoanPaymentRegularity.BIWEEKLY -> paymentDate.add(android.icu.util.Calendar.DATE, 14)
-                    LoanPaymentRegularity.MONTHLY -> paymentDate.add(android.icu.util.Calendar.MONTH, 1)
+                    LoanPaymentRegularity.WEEKLY -> paymentDate.add(Calendar.DATE, 7)
+                    LoanPaymentRegularity.BIWEEKLY -> paymentDate.add(Calendar.DATE, 14)
+                    LoanPaymentRegularity.MONTHLY -> paymentDate.add(Calendar.MONTH, 1)
                 }
             } while (principalOwing > 0.0 && paymentDate < iDate)
             if (principalOwing > 0.0)

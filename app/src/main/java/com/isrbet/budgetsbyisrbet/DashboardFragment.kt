@@ -5,7 +5,6 @@ import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
@@ -234,7 +233,7 @@ class DashboardFragment : Fragment() {
             cPeriodYear -> DateRange.YEAR
             else -> DateRange.MONTH
         }
-        val defWho = if (isNumber(DefaultsViewModel.getDefaultFilterWhoDashboard()))
+        val defWho = if (DefaultsViewModel.getDefaultFilterWhoDashboard().toIntOrNull() != null)
             DefaultsViewModel.getDefaultFilterWhoDashboard().toInt() else 2
         val data: MutableList<DashboardData> = dashboardRows.getRows(iBudgetMonth,
             DefaultsViewModel.getDefaultFilterDiscDashboard(),

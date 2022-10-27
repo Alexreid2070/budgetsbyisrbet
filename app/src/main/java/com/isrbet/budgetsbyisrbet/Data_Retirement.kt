@@ -17,14 +17,18 @@ const val gMinimizeTaxAmount = 46226
 
 enum class AssetType(val code: Int) {
     RRSP(1),
-    TFSA(2),
-    SAVINGS(3),
-    PROPERTY(5),
-    ALL(6);
+    LIRA_LIF(2),
+    LIRA_Annuity(3),
+    TFSA(4),
+    SAVINGS(5),
+    PROPERTY(6),
+    ALL(7);
     companion object {
         fun getText(iValue: AssetType): String {
             return when (iValue) {
                 RRSP -> "RRSP"
+                LIRA_LIF -> "LIRA (LIF)"
+                LIRA_Annuity -> "LIRA (Annuity)"
                 TFSA -> "TFSA"
                 SAVINGS -> "Savings"
                 PROPERTY -> "Property"
@@ -160,7 +164,7 @@ data class RetirementData(
                                     "name" -> name = det.value.toString()
                                     "amount" -> amount = det.value.toString().toInt()
                                     "assetName" -> assetName = det.value.toString()
-                                    "type" -> {
+                                    "assetType", "type" -> {
                                         type =
                                             try {
                                                 AdditionalType.valueOf(det.value.toString())
@@ -203,6 +207,8 @@ data class RetirementData(
                             var type = AssetType.RRSP
                             var value = 0
                             var primaryResidence = true
+                            var pensionStartDate = ""
+                            var annualAmount = 0
                             for (det in asset.children.toMutableList()) {
                                 when (det.key.toString()) {
                                     "annualContribution" -> annualContribution =
@@ -214,7 +220,9 @@ data class RetirementData(
                                     "estimatedGrowthPct" -> estimatedGrowthPct =
                                         det.value.toString().toDouble()
                                     "name" -> name = det.value.toString()
-                                    "type" -> {
+                                    "pensionStartDate" -> pensionStartDate = det.value.toString()
+                                    "annualAmount" -> annualAmount = det.value.toString().toInt()
+                                    "assetType", "type" -> {
                                         type =
                                             try {
                                                 AssetType.valueOf(det.value.toString())
@@ -234,7 +242,7 @@ data class RetirementData(
                                     "taxSheltered" -> taxSheltered =
                                         (det.value.toString() == "true")
                                     "minimizeTax" ->
-                                        minimizeTax = if (isNumber(det.value.toString()))
+                                        minimizeTax = if (det.value.toString().toIntOrNull() != null)
                                             MinimizeTaxEnum.getByValue(value)!!
                                         else {
                                             try {
@@ -276,6 +284,34 @@ data class RetirementData(
                                         estimatedGrowthPct,
                                         annualContribution,
                                         willSellToFinanceRetirement,
+                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        distributionOrder
+                                    )
+                                }
+                                AssetType.LIRA_LIF -> {
+                                    newAsset = LIRA_LIF(
+                                        assetID,
+                                        name,
+                                        value,
+                                        useDefaultGrowthPct,
+                                        estimatedGrowthPct,
+                                        annualContribution,
+                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        distributionOrder,
+                                        0,
+                                        minimizeTax
+                                    )
+                                }
+                                AssetType.LIRA_Annuity -> {
+                                    newAsset = LIRA_ANNUITY(
+                                        assetID,
+                                        name,
+                                        value,
+                                        pensionStartDate,
+                                        cal.get(Calendar.YEAR),
+                                        annualAmount,
+                                        useDefaultGrowthPct,
+                                        estimatedGrowthPct,
                                         12 - cal.get(Calendar.MONTH) - 1,
                                         distributionOrder
                                     )
@@ -381,33 +417,33 @@ data class RetirementData(
         assets.sortBy { it.distributionOrder }
     }
     fun setAssetsAndPensionsAndAdditionalItemsFromWorking() {
-        for (i in 0 until RetirementViewModel.getWorkingAssetListCount()) {
-            val copiedAsset = RetirementViewModel.getWorkingAsset(i).copy()
-            if (copiedAsset.type == AssetType.PROPERTY) {
-                if (copiedAsset.useDefaultGrowthPct)
-                    copiedAsset.estimatedGrowthPct = propertyGrowthRate
-                if ((copiedAsset as Property).useDefaultGrowthPctAsSavings)
-                    copiedAsset.estimatedGrowthPctAsSavings = investmentGrowthRate
-            } else {
-                if (copiedAsset.useDefaultGrowthPct)
-                    copiedAsset.estimatedGrowthPct = investmentGrowthRate
+        if (gRetirementScenario != null) {
+            for (i in 0 until gRetirementScenario!!.assets.count()) {
+                val copiedAsset = gRetirementScenario!!.assets[i].copy()
+                if (copiedAsset.assetType == AssetType.PROPERTY) {
+                    if (copiedAsset.useDefaultGrowthPct)
+                        copiedAsset.estimatedGrowthPct = propertyGrowthRate
+                    if ((copiedAsset as Property).useDefaultGrowthPctAsSavings)
+                        copiedAsset.estimatedGrowthPctAsSavings = investmentGrowthRate
+                } else {
+                    if (copiedAsset.useDefaultGrowthPct)
+                        copiedAsset.estimatedGrowthPct = investmentGrowthRate
+                }
+                assets.add(copiedAsset)
             }
-            assets.add(copiedAsset)
-        }
-        updateDistributionOrderAsRequired()
-        for (i in 0 until RetirementViewModel.getWorkingPensionListCount()) {
-            RetirementViewModel.getWorkingPension(i).copy().let { pensions.add(it) }
-        }
-        for (i in 0 until RetirementViewModel.getWorkingAdditionalListCount()) {
-            val temp = RetirementViewModel.getWorkingAdditionalItem(i)
-            if (temp != null) {
+            updateDistributionOrderAsRequired()
+            for (i in 0 until gRetirementScenario!!.pensions.count()) {
+                gRetirementScenario!!.pensions[i].copy().let { pensions.add(it) }
+            }
+            for (i in 0 until gRetirementScenario!!.additionalItems.count()) {
+                val temp = gRetirementScenario!!.additionalItems[i]
                 additionalItems.add(temp.copy())
             }
         }
     }
     fun getAgeAtStartOfYear(iYear: Int) : Int {
         val birthYear = birthDate.substring(0,4)
-        return if (isNumber(birthYear))
+        return if (birthYear.toIntOrNull() != null)
             iYear - birthYear.toInt() - 1
         else
             99
@@ -423,6 +459,19 @@ data class RetirementData(
         }
         return tot
     }
+    fun copy() : RetirementData {
+        val rd = RetirementData(
+            name, userID, targetMonthlyIncome, retirementDate, planToAge,
+            cppAge, inflationRate, investmentGrowthRate, propertyGrowthRate, birthDate
+        )
+        rd.assets = assets.map {it.copy()}.toMutableList()
+        rd.pensions = pensions.map {it.copy()}.toMutableList()
+        rd.additionalItems = additionalItems.map {it.copy()}.toMutableList()
+        rd.salary = Salary(salary.id, salary.name, salary.annualValueAfterTax, salary.estimatedGrowthPct)
+        rd.cpp = CPP(cpp.annualValueAt60, cpp.annualValueAt65, cpp.annualValueAt70)
+        rd.oas = OAS(oas.currentAnnualValue)
+        return rd
+    }
 }
 
 class AdditionalItem(var id: Int, var type: AdditionalType, var name: String, var year: Int,
@@ -432,7 +481,7 @@ class AdditionalItem(var id: Int, var type: AdditionalType, var name: String, va
     }
 }
 
-abstract class Asset(val id: Int, val type: AssetType, val name: String, private var value: Int,
+abstract class Asset(val id: Int, var assetType: AssetType, val name: String, private var value: Int,
                      var useDefaultGrowthPct: Boolean,
                      var estimatedGrowthPct: Double, var annualContribution: Int,
                      var willSellToFinanceRetirement: Boolean,
@@ -458,7 +507,7 @@ abstract class Asset(val id: Int, val type: AssetType, val name: String, private
     open fun computeGrowth() {
         growthThisYear = if (value != 0 && withdrawalAmount < value)
             round((value  - withdrawalAmount) *
-                (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) + annualContribution).toInt()
+                (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) + annualContribution ).toInt()
         else
             0
     }
@@ -487,7 +536,7 @@ abstract class Asset(val id: Int, val type: AssetType, val name: String, private
     }
 }
 
-class RRSP (
+open class RRSP (
     id: Int,
     name: String,
     value: Int,
@@ -503,6 +552,7 @@ class RRSP (
             distributionOrder) {
     init {
         withdrawalAmount = round(getMinimumRRIFWithdrawalPercentage(ageAtStartOfYear) * value).toInt()
+        computeGrowth()
     }
 
     override fun copy(): Asset {
@@ -560,6 +610,124 @@ class RRSP (
         computeGrowth()
     }
 
+    override fun withdrawalIsTaxable(): Boolean {
+        return true
+    }
+
+    override fun getTaxableIncome(iYear: Int): Int {
+        return withdrawalAmount
+    }
+}
+
+class LIRA_LIF (
+    id: Int,
+    name: String,
+    value: Int,
+    useDefaultGrowthPct: Boolean,
+    estimatedGrowthPct: Double,
+    annualContribution: Int,
+    monthsOfGrowthThisYear: Int,
+    distributionOrder: Int,
+    private var ageAtStartOfYear: Int,
+    minimizeTax: MinimizeTaxEnum) :
+    RRSP(id, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        annualContribution, monthsOfGrowthThisYear, distributionOrder,
+        ageAtStartOfYear, minimizeTax) {
+    init {
+        withdrawalAmount = round(getMinimumRRIFWithdrawalPercentage(ageAtStartOfYear) * value).toInt()
+        assetType = AssetType.LIRA_LIF
+        computeGrowth()
+    }
+
+    override fun copy(): Asset {
+        val liraLif = LIRA_LIF(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
+            monthsOfGrowthThisYear, distributionOrder, ageAtStartOfYear, minimizeTax)
+        liraLif.additionalGrowthThisYear = additionalGrowthThisYear
+        return liraLif
+    }
+    override fun getNextYear(iAmIRetired: Boolean): Asset {
+        return LIRA_LIF(
+            id,
+            name,
+            getEndingBalance(),
+            useDefaultGrowthPct,
+            estimatedGrowthPct,
+            if (iAmIRetired) 0 else annualContribution,
+            12,
+            distributionOrder,
+            ageAtStartOfYear+1,
+            minimizeTax
+        )
+    }
+    override fun withdrawalIsTaxable(): Boolean {
+        return true
+    }
+
+    override fun getTaxableIncome(iYear: Int): Int {
+        return withdrawalAmount
+    }
+}
+
+class LIRA_ANNUITY (
+    id: Int,
+    name: String,
+    value: Int,
+    var pensionStartDate: String,
+    var currentYear: Int,
+    var annualAmount: Int,
+    useDefaultGrowthPct: Boolean,
+    estimatedGrowthPct: Double,
+    monthsOfGrowthThisYear: Int,
+    distributionOrder: Int) :
+    Asset(id, AssetType.LIRA_Annuity, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        0, true, monthsOfGrowthThisYear, distributionOrder) {
+    init {
+        withdrawalAmount = if (pensionStartDate.length < 10)
+            0
+        else if (currentYear < pensionStartDate.substring(0,4).toInt())
+            0
+        else if (currentYear == pensionStartDate.substring(0,4).toInt())
+            annualAmount * round((12 - pensionStartDate.substring(5,7).toInt() + 1)/12.0).toInt()
+        else
+            annualAmount
+        assetType = AssetType.LIRA_Annuity
+        computeGrowth()
+    }
+
+    override fun copy(): Asset {
+        val liraAnnuity = LIRA_ANNUITY(id, name, getValue(), pensionStartDate, currentYear,
+            annualAmount, useDefaultGrowthPct, estimatedGrowthPct,
+            monthsOfGrowthThisYear, distributionOrder)
+        return liraAnnuity
+    }
+    override fun computeGrowth() {
+        growthThisYear = round(getValue() *
+                    (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) ).toInt()
+    }
+    override fun getNextYear(iAmIRetired: Boolean): Asset {
+        return LIRA_ANNUITY(
+            id,
+            name,
+            getEndingBalance(),
+            pensionStartDate,
+            currentYear+1,
+            annualAmount,
+            useDefaultGrowthPct,
+            estimatedGrowthPct,
+            12,
+            distributionOrder
+        )
+    }
+
+    override fun getEndingBalance() : Int {
+        return  getValue() + growthThisYear
+    }
+    override fun withdraw(iAmount: Int, iYear: Int) {
+        return // can't withdraw more from an annuity
+    }
+    override fun getGrossIncome(): Int {
+        return withdrawalAmount
+    }
     override fun withdrawalIsTaxable(): Boolean {
         return true
     }
@@ -702,7 +870,7 @@ class Property(
     override fun computeGrowth() { // needs to be overridden to get the correct growth pct
         growthThisYear = if (getValue() != 0 && withdrawalAmount < getValue())
             round((getValue()  - withdrawalAmount) *
-                    (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) + annualContribution).toInt()
+                    (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) + annualContribution + additionalGrowthThisYear).toInt()
         else
             0
     }
@@ -751,9 +919,7 @@ class Property(
                 cal.set(Calendar.DAY_OF_MONTH, 1)
                 val outstandingLoanAmount = getOutstandingLoanAmount(cal)
                 if (outstandingLoanAmount > 0) {
-                    Log.d("Alex", "oustanding loan amount $iYear $outstandingLoanAmount")
                     setValue(getValue() - outstandingLoanAmount)
-                    Log.d("Alex", "value is now ${getValue()}, iAmount $iAmount availval ${getAvailableValue()}")
                 }
                 if (primaryResidence) {
                     withdrawalAmount = min(iAmount, getAvailableValue())
@@ -1080,9 +1246,9 @@ class RetirementViewModel : ViewModel() {
     private var loaded: Boolean = false
     private val userDefaults: MutableList<RetirementData> = ArrayList()
     private val scenarios: MutableList<RetirementData> = ArrayList()
-    private val workingAssetList: MutableList<Asset> = ArrayList()
-    private val workingPensionList: MutableList<Pension> = ArrayList()
-    private val workingAdditionalList: MutableList<AdditionalItem> = ArrayList()
+//    private val workingAssetList: MutableList<Asset> = ArrayList()
+  //  private val workingPensionList: MutableList<Pension> = ArrayList()
+    //private val workingAdditionalList: MutableList<AdditionalItem> = ArrayList()
 
     companion object {
         lateinit var singleInstance: RetirementViewModel // used to track static single instance of self
@@ -1092,7 +1258,6 @@ class RetirementViewModel : ViewModel() {
         }
         fun clear() {
             if (singleInstance.dataListener != null) {
-                Log.d("Alex", "retirement listener being cleared")
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Retirement")
                     .child(SpenderViewModel.myIndex().toString())
                     .removeEventListener(singleInstance.dataListener!!)
@@ -1100,9 +1265,10 @@ class RetirementViewModel : ViewModel() {
             }
             singleInstance.userDefaults.clear()
             singleInstance.scenarios.clear()
-            singleInstance.workingAssetList.clear()
-            singleInstance.workingPensionList.clear()
-            singleInstance.workingAdditionalList.clear()
+            gRetirementScenario = null
+//            singleInstance.workingAssetList.clear()
+  //          singleInstance.workingPensionList.clear()
+    //        singleInstance.workingAdditionalList.clear()
             singleInstance.loaded = false
         }
 
@@ -1189,21 +1355,29 @@ class RetirementViewModel : ViewModel() {
             while (yearToTryToRetire <= endYear) {
                 iRetirementScenario.retirementDate = "$yearToTryToRetire-12-31"
                 val calcRows = getCalculationRows(iRetirementScenario)
-                val lastRow = calcRows[calcRows.size - 1]
-                if (lastRow.availableIncomeGreaterThanTargetIncome()) {
+                var enoughIncome = true
+                calcRows.forEach {
+                    if (!it.availableIncomeGreaterThanTargetIncome()) {
+                        enoughIncome = false
+                        return@forEach
+                    }
+                }
+//                val lastRow = calcRows[calcRows.size - 1]
+//                if (lastRow.availableIncomeGreaterThanTargetIncome()) {
+                if (enoughIncome && yearToTryToRetire != endYear) {
                     iRetirementScenario.retirementDate = retirementDateSaver
                     return yearToTryToRetire
                 }
                 yearToTryToRetire += 1
             }
             iRetirementScenario.retirementDate = retirementDateSaver
-            return endYear
+            return 0
         }
 
         fun getMaximumMonthlyIncome(iRetirementScenario: RetirementData) : Int {
             val targetMonthlyIncomeSaver = iRetirementScenario.targetMonthlyIncome
             var gap = 1000
-            var lastSuccessfulAmount = 0
+            var lastSuccessfulAmount = -gap
             val tolerance = 5
             var success = true
 
@@ -1230,8 +1404,9 @@ class RetirementViewModel : ViewModel() {
 
         private fun allRowsMetTarget(iList: MutableList<RetirementCalculationRow>): Boolean {
             iList.forEach {
-                if (it.getTotalAvailableIncome() < it.getTotalTargetIncome())
+                if (it.getTotalAvailableIncome() < it.getTotalTargetIncome()) {
                     return false
+                }
             }
             return true
         }
@@ -1262,146 +1437,172 @@ class RetirementViewModel : ViewModel() {
             tList.add(calcRow)
             return tList
         }
-        fun populateWorkingAssetList(iList: MutableList<Asset>) {
+/*        fun populateWorkingAssetList(iList: MutableList<Asset>) {
             singleInstance.workingAssetList.clear()
             iList.forEach {
                 addAssetToWorkingList(it.copy())
             }
-        }
+        } */
 
         fun getWorkingAssetListCount(iAssetType: AssetType = AssetType.ALL) : Int {
-            if (iAssetType == AssetType.ALL)
-                return singleInstance.workingAssetList.size
-            else {
-                var cnt = 0
-                singleInstance.workingAssetList.forEach {
-                    if (it.type == iAssetType)
-                        cnt += 1
+            if (gRetirementScenario == null) {
+                return 0
+            } else {
+                if (iAssetType == AssetType.ALL)
+                    return gRetirementScenario!!.assets.size
+                else {
+                    var cnt = 0
+                    gRetirementScenario!!.assets.forEach {
+                        if (it.assetType == iAssetType)
+                            cnt += 1
+                    }
+                    return cnt
                 }
-                return cnt
             }
         }
         fun getWorkingAsset(iAssetName: String) : Asset? {
-            return singleInstance.workingAssetList.find {it.name == iAssetName}
+            return gRetirementScenario?.assets?.find {it.name == iAssetName}
         }
-        fun getWorkingAsset(iIndex: Int) : Asset {
-            return singleInstance.workingAssetList[iIndex]
+        fun getWorkingAsset(iIndex: Int) : Asset? {
+            return gRetirementScenario?.assets?.get(iIndex)
         }
         fun deleteAssetFromWorkingList(iAssetName: String) {
-            val asset = singleInstance.workingAssetList.find {it.name == iAssetName}
+            val asset = gRetirementScenario?.assets?.find {it.name == iAssetName}
             if (asset != null) {
-                singleInstance.workingAssetList.remove(asset)
+                gRetirementScenario?.assets?.remove(asset)
             }
             updateDistributionOrderAsRequired()
         }
         fun addAssetToWorkingList(iAsset: Asset) {
-            singleInstance.workingAssetList.add(iAsset)
+            gRetirementScenario?.assets?.add(iAsset)
             updateDistributionOrderAsRequired()
         }
         fun updateAssetInWorkingList(iOldAssetName: String, iAsset: Asset) {
-            val ind = singleInstance.workingAssetList.indexOfFirst { it.name == iOldAssetName }
-            if (ind == -1)
-                Log.d("Alex", "WHY can't I find asset $iOldAssetName????")
-            else
-                singleInstance.workingAssetList[ind] = iAsset
-            updateDistributionOrderAsRequired()
+            if (gRetirementScenario != null) {
+                val ind = gRetirementScenario!!.assets.indexOfFirst { it.name == iOldAssetName }
+                if (ind == -1)
+                    Log.d("Alex", "WHY can't I find asset $iOldAssetName????")
+                else
+                    gRetirementScenario!!.assets[ind] = iAsset
+                updateDistributionOrderAsRequired()
+            }
         }
         private fun updateDistributionOrderAsRequired() {
-            for (i in 0 until singleInstance.workingAssetList.size) {
-                singleInstance.workingAssetList[i].distributionOrder = i
+            if (gRetirementScenario != null) {
+                for (i in 0 until gRetirementScenario!!.assets.size) {
+                    gRetirementScenario!!.assets[i].distributionOrder = i
+                }
+                gRetirementScenario!!.assets.sortBy { it.distributionOrder }
             }
-            singleInstance.workingAssetList.sortBy { it.distributionOrder }
         }
         fun changeDefaultDistributionOrder(iCurrentDistributionOrder: Int, iDirection: Int) {
             if (iCurrentDistributionOrder == 0 && iDirection == -1) {
-                //               Log.d("Alex", "${userDefs.assets[0].name} is already at start of list")
                 return
             }
             if (iCurrentDistributionOrder >= getWorkingAssetListCount() - 1 && iDirection == 1) {
-//                Log.d("Alex", "${userDefs.assets[userDefs.assets.count()-1].name} is already at end of list")
                 return
             }
-
-            val temp = singleInstance.workingAssetList[iCurrentDistributionOrder + iDirection]
-            singleInstance.workingAssetList[iCurrentDistributionOrder + iDirection] = singleInstance.workingAssetList[iCurrentDistributionOrder]
-            singleInstance.workingAssetList[iCurrentDistributionOrder] = temp
-            updateDistributionOrderAsRequired()
+            if (gRetirementScenario != null) {
+                val temp = gRetirementScenario!!.assets[iCurrentDistributionOrder + iDirection]
+                gRetirementScenario!!.assets[iCurrentDistributionOrder + iDirection] =
+                    gRetirementScenario!!.assets[iCurrentDistributionOrder]
+                gRetirementScenario!!.assets[iCurrentDistributionOrder] = temp
+                updateDistributionOrderAsRequired()
+            }
         }
-        fun populateWorkingPensionList(iList: MutableList<Pension>) {
+/*        fun populateWorkingPensionList(iList: MutableList<Pension>) {
             singleInstance.workingPensionList.clear()
             iList.forEach {
                 addPensionToWorkingList(it.copy())
             }
-        }
+        } */
         fun getWorkingPensionListCount() : Int {
-            return singleInstance.workingPensionList.size
+            if (gRetirementScenario == null)
+                return 0
+            else
+                return gRetirementScenario!!.pensions.size
         }
         fun getWorkingPension(iPensionName: String) : Pension? {
-            return singleInstance.workingPensionList.find {it.name == iPensionName}
+            return gRetirementScenario?.pensions?.find {it.name == iPensionName}
         }
-        fun getWorkingPension(iIndex: Int) : Pension {
-            return singleInstance.workingPensionList[iIndex]
+        fun getWorkingPension(iIndex: Int) : Pension? {
+            return gRetirementScenario?.pensions?.get(iIndex)
         }
         fun deletePensionFromWorkingList(iPensionName: String) {
-            val pension = singleInstance.workingPensionList.find {it.name == iPensionName}
+            val pension = gRetirementScenario?.pensions?.find {it.name == iPensionName}
             if (pension != null) {
-                singleInstance.workingPensionList.remove(pension)
+                gRetirementScenario!!.pensions.remove(pension)
             }
         }
         fun addPensionToWorkingList(iPension: Pension) {
-            singleInstance.workingPensionList.add(iPension)
+            gRetirementScenario?.pensions?.add(iPension)
         }
         fun updatePensionInWorkingList(iOldPensionName: String, iPension: Pension) {
-            val ind = singleInstance.workingPensionList.indexOfFirst { it.name == iOldPensionName }
-            if (ind == -1)
-                Log.d("Alex", "WHY can't I find pension $iOldPensionName????")
-            else
-                singleInstance.workingPensionList[ind] = iPension
+            if (gRetirementScenario != null) {
+                val ind =
+                    gRetirementScenario!!.pensions.indexOfFirst { it.name == iOldPensionName }
+                if (ind == -1)
+                    Log.d("Alex", "WHY can't I find pension $iOldPensionName????")
+                else
+                    gRetirementScenario!!.pensions[ind] = iPension
+            }
         }
-        fun populateWorkingAdditionalList(iList: MutableList<AdditionalItem>) {
+/*        fun populateWorkingAdditionalList(iList: MutableList<AdditionalItem>) {
             singleInstance.workingAdditionalList.clear()
             iList.forEach {
                 addAdditionalItemToWorkingList(it.copy())
             }
-        }
+        } */
         fun getWorkingAdditionalListCount(iType: AdditionalType? = null) : Int {
-            return if (iType == null)
-                singleInstance.workingAdditionalList.size
-            else {
-                var count = 0
-                singleInstance.workingAdditionalList.forEach {
-                    if (it.type == iType)
-                        count++
+            if (gRetirementScenario == null) {
+                return 0
+            } else {
+                return if (iType == null)
+                    gRetirementScenario!!.additionalItems.size
+                else {
+                    var count = 0
+                    gRetirementScenario!!.additionalItems.forEach {
+                        if (it.type == iType)
+                            count++
+                    }
+                    count
                 }
-                count
             }
         }
         fun getWorkingAdditionalItem(iIndex: Int) : AdditionalItem? {
-            return if (iIndex >= 0 && iIndex < singleInstance.workingAdditionalList.size)
-                singleInstance.workingAdditionalList[iIndex]
+            return if (iIndex >= 0 &&
+                gRetirementScenario != null &&
+                iIndex < gRetirementScenario!!.additionalItems.size)
+                gRetirementScenario!!.additionalItems[iIndex]
             else
                 null
         }
         fun deleteAdditionalItemFromWorkingList(iIndex: Int) {
-            if (iIndex < singleInstance.workingAdditionalList.size)
-                singleInstance.workingAdditionalList.removeAt(iIndex)
-            var i = 0
-            singleInstance.workingAdditionalList.forEach {
-                it.id = i
-                i += 1
+            if (gRetirementScenario != null) {
+                if (iIndex < gRetirementScenario!!.additionalItems.size)
+                    gRetirementScenario!!.additionalItems.removeAt(iIndex)
+                var i = 0
+                gRetirementScenario!!.additionalItems.forEach {
+                    it.id = i
+                    i += 1
+                }
             }
         }
         fun addAdditionalItemToWorkingList(iItem: AdditionalItem) {
-            singleInstance.workingAdditionalList.add(iItem)
-            var i = 0
-            singleInstance.workingAdditionalList.forEach {
-                it.id = i
-                i += 1
+            if (gRetirementScenario != null) {
+                gRetirementScenario!!.additionalItems.add(iItem)
+                var i = 0
+                gRetirementScenario!!.additionalItems.forEach {
+                    it.id = i
+                    i += 1
+                }
             }
         }
         fun updateAdditionalItemInWorkingList(iIndex: Int, iAdditionalItem: AdditionalItem) {
-            if (iIndex < singleInstance.workingAdditionalList.size)
-                singleInstance.workingAdditionalList[iIndex] = iAdditionalItem
+            if (gRetirementScenario != null) {
+                if (iIndex < gRetirementScenario!!.additionalItems.size)
+                    gRetirementScenario!!.additionalItems[iIndex] = iAdditionalItem
+            }
         }
     }
 
@@ -1482,7 +1683,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         }
         iRetirementScenario.assets.forEach {
             val additionalGrowth = parentScenario!!.getAdditionalGrowth(it.name, year)
-            when (it.type) {
+            when (it.assetType) {
                 AssetType.RRSP -> {
                     val rrsp = RRSP(it.id,
                         it.name,
@@ -1509,6 +1710,34 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.distributionOrder)
                     tfsa.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(tfsa)
+                }
+                AssetType.LIRA_LIF -> {
+                    val lira = LIRA_LIF(it.id,
+                        it.name,
+                        it.getValue(),
+                        it.useDefaultGrowthPct,
+                        if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
+                        if (amRetired) 0 else it.annualContribution,
+                        12 - cal.get(Calendar.MONTH) - 1,
+                        it.distributionOrder,
+                        getAgeAtStartOfYear(forYear),
+                        (it as LIRA_LIF).minimizeTax)
+                    lira.additionalGrowthThisYear = additionalGrowth
+                    assetIncomes.add(lira)
+                }
+                AssetType.LIRA_Annuity -> {
+                    val lira = LIRA_ANNUITY(it.id,
+                        it.name,
+                        it.getValue(),
+                        (it as LIRA_ANNUITY).pensionStartDate,
+                        it.currentYear,
+                        it.annualAmount,
+                        it.useDefaultGrowthPct,
+                        if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
+                        12 - cal.get(Calendar.MONTH) - 1,
+                        it.distributionOrder)
+                    lira.additionalGrowthThisYear = additionalGrowth
+                    assetIncomes.add(lira)
                 }
                 AssetType.SAVINGS -> {
                     val sav = Savings(it.id,
@@ -1594,7 +1823,6 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
             assetIncomes[3].withdrawalAmount,
             assetIncomes[3].getEndingBalance(),
             getNetWorth())
-        Log.d("Alex", outputString)
 //        Log.d("Alex", "$userID $year tgInc ${gDec(targetAnnualIncome)} cpp ${gDec(cppIncome)} oas ${gDec(oasIncome)} sal $salaryIncomes pen $pensionIncomes")
 //        assetIncomes.forEach {
 //            Log.d("Alex", "${it.name} value ${gDec(it.value)} gpct ${gDec(it.estimatedGrowthPct)} growth ${gDec(it.growthThisYear)} withdrawal ${gDec(it.withdrawalAmount)} end ${gDec(it.getEndingBalance())}")
@@ -1652,7 +1880,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     fun getNetWorth(iType: AssetType = AssetType.ALL) : Int {
         var tmp = 0
         assetIncomes.forEach {
-            if (iType == AssetType.ALL || it.type == iType)
+            if (iType == AssetType.ALL || it.assetType == iType)
                 tmp += it.getEndingBalance()
         }
         return tmp
@@ -1774,7 +2002,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 tTax -= ((seniorAgeTaxCredit - (iTaxableIncome - minThreshold) * .15) * .15).toInt()
             }
         }
-        return tTax
+        return if (tTax < 0) 0 else tTax
     }
 
     private fun getOntarioTax(iTaxableIncome: Int, iYearsInTheFuture: Int, iBirthYear: Int): Int {
@@ -1821,7 +2049,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
             }
         }
 
-        return tTax
+        return if (tTax < 0) 0 else tTax
     }
 
     private fun howMuchGrossDoINeed(iTotalTaxableNetIncomeNeeded: Int, iCurrentTotalTaxableIncome: Int,
@@ -1901,10 +2129,13 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
 
         var minRRIFWithdrawal = 0
         assetIncomes.forEach {
-            if (it.type == AssetType.RRSP)
+            if (it.assetType == AssetType.RRSP)
                 minRRIFWithdrawal += round((it as RRSP).getValue() * minimumWithdrawalPct).toInt()
         }
         return minRRIFWithdrawal
+    }
+    fun getMinimumRRIFWithdrawalPercentage() : Double {
+        return getMinimumRRIFWithdrawalPercentage(getAgeAtStartOfYear(year))
     }
 }
 

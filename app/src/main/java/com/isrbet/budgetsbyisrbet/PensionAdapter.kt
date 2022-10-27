@@ -13,7 +13,10 @@ class PensionAdapter (context: Context): BaseAdapter() {
     init {
         myData.clear()
         for (i in 0 until RetirementViewModel.getWorkingPensionListCount()) {
-            RetirementViewModel.getWorkingPension(i).let { myData.add(it) }
+            val p = RetirementViewModel.getWorkingPension(i)
+            if (p != null)
+                myData.add(p)
+//            RetirementViewModel.getWorkingPension(i).let { myData.add(it) }
         }
     }
 

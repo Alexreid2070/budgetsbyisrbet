@@ -201,5 +201,9 @@
             android:name="scenarioName"
             app:argType="string"
             android:defaultValue=''/>
+        <argument
+            android:name="userID"
+            app:argType="integer"
+            android:defaultValue='0'/>
     </fragment>
 </navigation>

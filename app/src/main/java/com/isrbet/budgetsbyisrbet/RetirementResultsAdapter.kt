@@ -43,11 +43,11 @@ class RetirementResultsAdapter (context: Context, data: RetirementCalculationRow
         val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_retirement_result, parent, false)
         viewHolder = ResultViewHolder(myConvertView)
 
-        viewHolder.vhLabel.text = String.format("${AssetType.getText(asset.type)}: ${asset.name}")
-        if (asset.type == AssetType.PROPERTY) {
+        viewHolder.vhLabel.text = String.format("${AssetType.getText(asset.assetType)}: ${asset.name}")
+        if (asset.assetType == AssetType.PROPERTY) {
             if ((asset as Property).soldInYear != 0)
                 viewHolder.vhLabel.text = String.format(MyApplication.getString(R.string.sold_in),
-                    AssetType.getText(asset.type), asset.name, asset.soldInYear)
+                    AssetType.getText(asset.assetType), asset.name, asset.soldInYear)
         }
         viewHolder.vhAmount.text = gDecWithCurrency(asset.getEndingBalance())
         return myConvertView

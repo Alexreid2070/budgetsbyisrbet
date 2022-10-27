@@ -430,6 +430,7 @@
     <string name="show_income_details">Show Income Details</string>
     <string name="show_pension_details">Show Pension Details</string>
     <string name="show_rrsp_details">Show RRSP Details</string>
+    <string name="show_lira_details">Show LIRA Details</string>
     <string name="show_tfsa_details">Show TFSA Details</string>
     <string name="show_savings_details">Show Savings Details</string>
     <string name="show_property_details">Show Property Details</string>
@@ -448,6 +449,7 @@
     <string name="oas_amount">Current annual OAS amount</string>
     <string name="cpp_amount_expected_at_age">CPP annual amount expected at ages:</string>
     <string name="rrsp">RRSP</string>
+    <string name="lira">LIRA</string>
     <string name="rrsp_amount">RRSP amount</string>
     <string name="value_must_be_60_65_70">Value must be 60, 65, or 70</string>
     <string name="annual_contribution">Annual contribution while employed</string>
@@ -459,7 +461,7 @@
     <string name="employment">Employment</string>
     <string name="listed_in_the_order_each_is_to_be_used_for_income">(listed in the order each is to be used for income)</string>
     <string name="asset">"Asset: "</string>
-    <string name="asset_name">Asset Name</string>
+    <string name="asset_name">Asset name</string>
     <string name="value">Value</string>
     <string name="annual_growth">Annual growth</string>
     <string name="annual_growth_after_sale">Annual growth after sale</string>
@@ -524,5 +526,7 @@
     <string name="expand_all">Expand all</string>
     <string name="no_tracker_data">There is no data matching your current filters, so Tracker is not shown at this time.</string>
     <string name="creating_file">Creating file</string>
+    <string name="annuity_start_date">Annuity start date</string>
+    <string name="annual_annuity_amount">Annuity amount (annual)</string>
 </resources>
 

@@ -1,634 +1,689 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_alignParentBottom="false"
-    android:fadeScrollbars="false"
-    android:padding="5dp"
-    tools:context=".RetirementFragment">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/konfetti_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="false"
+        android:fadeScrollbars="false"
+        android:padding="5dp"
+        tools:context=".RetirementFragment">
 
         <LinearLayout
-            android:id="@+id/page_title_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/page_title"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/page_title_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingBottom="20dp"
-                android:text="@string/calculate_retirement"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:paddingTop="10dp">
 
-            <TextView
-                android:id="@+id/retirementDefaultsButton"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/page_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingBottom="20dp"
+                    android:text="@string/calculate_retirement"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/retirementDefaultsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    app:drawableTopCompat="@drawable/ic_baseline_settings_24_orange" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/scenario_spinner_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="5dp"
-                app:drawableTopCompat="@drawable/ic_baseline_settings_24_orange" />
-        </LinearLayout>
+                android:paddingBottom="20dp">
 
-        <LinearLayout
-            android:id="@+id/scenario_spinner_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="20dp">
+                <ImageButton
+                    android:id="@+id/scenarioSaveButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:background="@color/white"
+                    android:contentDescription="@string/save_scenario"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:src="@drawable/ic_baseline_save_24"
+                    android:tooltipText="Save scenario" />
 
-            <ImageButton
-                android:id="@+id/scenarioSaveButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:background="@color/white"
-                android:contentDescription="@string/save_scenario"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:src="@drawable/ic_baseline_save_24"
-                android:tooltipText="Save scenario" />
+                <TextView
+                    android:id="@+id/scenario_spinner_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:text="@string/scenario"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/scenario_spinner_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:text="@string/scenario"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                <RelativeLayout
+                    android:id="@+id/scenario_spinner_relative_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/spinner_background"
+                    android:orientation="horizontal">
 
-            <RelativeLayout
-                android:id="@+id/scenario_spinner_relative_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_weight="1"
-                android:background="@drawable/spinner_background"
-                android:orientation="horizontal">
+                    <Spinner
+                        android:id="@+id/scenarioSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginStart="5dp"
+                        android:background="@android:color/transparent"
+                        android:gravity="end"
+                        android:spinnerMode="dropdown" />
 
-                <Spinner
-                    android:id="@+id/scenarioSpinner"
-                    android:layout_width="match_parent"
+                    <ImageView
+                        android:id="@+id/UserImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/button_delete_scenario"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginStart="5dp"
-                    android:background="@android:color/transparent"
-                    android:gravity="end"
-                    android:spinnerMode="dropdown" />
+                    android:background="@color/white"
+                    android:contentDescription="@string/delete_scenario"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:src="@drawable/ic_baseline_delete_24"
+                    android:tooltipText="Delete scenario" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/userID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <RelativeLayout
+                android:id="@+id/basics_expand_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp"
+                tools:layout_editor_absoluteX="5dp">
+
+                <TextView
+                    android:id="@+id/basics_expand_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/basics"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
 
                 <ImageView
-                    android:id="@+id/UserImageView"
+                    android:id="@+id/expand_all_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/click_to_select"
-                    android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                    android:layout_gravity="end"
+                    android:contentDescription="@string/expand_all"
+                    android:src="@drawable/ic_baseline_keyboard_double_arrow_down_24"
+                    android:visibility="visible" />
             </RelativeLayout>
 
-            <ImageButton
-                android:id="@+id/button_delete_scenario"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@color/white"
-                android:contentDescription="@string/delete_scenario"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:src="@drawable/ic_baseline_delete_24"
-                android:tooltipText="Delete scenario" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/userID"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <RelativeLayout
-            android:id="@+id/basics_expand_button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp"
-            tools:layout_editor_absoluteX="5dp">
-
-            <TextView
-                android:id="@+id/basics_expand_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/basics"
-                android:textColor="@color/orange_salmon"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-            <ImageView
-                android:id="@+id/expand_all_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="end"
-                android:contentDescription="@string/expand_all"
-                android:src="@drawable/ic_baseline_keyboard_double_arrow_down_24"
-                android:visibility="visible" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/basics_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:visibility="gone"
-            tools:layout_editor_absoluteX="5dp">
-
             <LinearLayout
+                android:id="@+id/basics_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/birth_date"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/birthDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:gravity="start"
-                        android:inputType="date"
-                        android:longClickable="false" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/inflationRateLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/inflationRate"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inflationRate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/growthRateLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/investmentGrowthRate"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/investmentGrowthRate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:hint="@string/percentage_short"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/propertyGrowthRateLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/propertyGrowthRate"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/propertyGrowthRate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                android:orientation="vertical"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:visibility="gone"
+                tools:layout_editor_absoluteX="5dp">
 
                 <LinearLayout
-                    android:id="@+id/entire_target_monthly_amount_layout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/currencySymbol1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textStyle="bold"
-                        tools:ignore="RtlSymmetry" />
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:padding="5dp">
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/target_monthly_amount_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:hint="@string/target_monthly_income"
-                        android:minWidth="@dimen/custom_med_width"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="0dp"
-                        android:tooltipText="The base amount, in today's dollars, that is required in retirement."
-                        app:endIconMode="clear_text">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/target_monthly_income"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:gravity="start"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/planToAgeLayout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/planToAge"
-                    android:minWidth="@dimen/custom_med_width"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/planToAge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/salary_expand_button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:id="@+id/salary_expand_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/employment"
-                android:textColor="@color/orange_salmon"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/salary_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <LinearLayout
-                    android:id="@+id/entire_salary_amount_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/currencySymbol2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textStyle="bold"
-                        tools:ignore="RtlSymmetry" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/salary_amount_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:hint="@string/salary_amount"
-                        android:minWidth="@dimen/custom_med_width"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="0dp"
-                        app:endIconMode="clear_text">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/salary_amount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:gravity="start"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/salary_annual_increase_layout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/annual_increase"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/salary_annual_increase"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/retirement_date"
-                    android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="15dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/retirementDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
-                        android:gravity="start"
-                        android:inputType="date"
-                        android:longClickable="false" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-        </LinearLayout>
-
-        <RelativeLayout
-            android:id="@+id/assets_expand_button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:id="@+id/assets_expand_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/assets"
-                android:textColor="@color/orange_salmon"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-
-            <ImageView
-                android:id="@+id/assets_add_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="end"
-                android:contentDescription="@string/add_asset"
-                android:src="@drawable/ic_baseline_add_24"
-                android:visibility="visible" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/assets_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:text="@string/listed_in_the_order_each_is_to_be_used_for_income" />
-
-            <ListView
-                android:id="@+id/assets_list_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fadeScrollbars="false"
-                tools:ignore="NestedScrolling" />
-        </LinearLayout>
-
-        <RelativeLayout
-            android:id="@+id/pensions_expand_button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:id="@+id/pensions_expand_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/pensions"
-                android:textColor="@color/orange_salmon"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-
-            <ImageView
-                android:id="@+id/pensions_add_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="end"
-                android:contentDescription="@string/add_pension"
-                android:src="@drawable/ic_baseline_add_24"
-                android:visibility="visible" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/pensions_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <ListView
-                android:id="@+id/pensions_list_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fadeScrollbars="false"
-                tools:ignore="NestedScrolling" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/cpp_oas_expand_button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:id="@+id/cpp_oas_expand_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/cppoas"
-                android:textColor="@color/orange_salmon"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/cpp_oas_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:padding="5dp"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cpp_amount_expected_at_age"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/currencySymbol3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textStyle="bold"
-                        tools:ignore="RtlSymmetry" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/cpp_60_amount_layout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_gravity="start"
-                        android:gravity="center"
-                        android:hint="@string/age60"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        app:endIconMode="clear_text"
-                        tools:ignore="NestedWeights">
+                        android:layout_weight="1"
+                        android:hint="@string/birth_date"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/cpp_60_amount"
+                            android:id="@+id/birthDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:gravity="start"
+                            android:inputType="date"
+                            android:longClickable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/inflationRateLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/inflationRate"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inflationRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:padding="5dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/growthRateLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/investmentGrowthRate"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/investmentGrowthRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:hint="@string/percentage_short"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/propertyGrowthRateLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/propertyGrowthRate"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/propertyGrowthRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:padding="5dp">
+
+                    <LinearLayout
+                        android:id="@+id/entire_target_monthly_amount_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/currencySymbol1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textStyle="bold"
+                            tools:ignore="RtlSymmetry" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/target_monthly_amount_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:hint="@string/target_monthly_income"
+                            android:minWidth="@dimen/custom_med_width"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="0dp"
+                            android:tooltipText="The base amount, in today's dollars, that is required in retirement."
+                            app:endIconMode="clear_text">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/target_monthly_income"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/planToAgeLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/planToAge"
+                        android:minWidth="@dimen/custom_med_width"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/planToAge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/salary_expand_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/salary_expand_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/employment"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/salary_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:padding="5dp">
+
+                    <LinearLayout
+                        android:id="@+id/entire_salary_amount_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/currencySymbol2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textStyle="bold"
+                            tools:ignore="RtlSymmetry" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/salary_amount_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:hint="@string/salary_amount"
+                            android:minWidth="@dimen/custom_med_width"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="0dp"
+                            app:endIconMode="clear_text">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/salary_amount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/salary_annual_increase_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/annual_increase"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/salary_annual_increase"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    android:padding="5dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/retirement_date"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/retirementDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:gravity="start"
+                            android:inputType="date"
+                            android:longClickable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/assets_expand_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/assets_expand_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/assets"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
+
+                <ImageView
+                    android:id="@+id/assets_add_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="end"
+                    android:contentDescription="@string/add_asset"
+                    android:src="@drawable/ic_baseline_add_24"
+                    android:visibility="visible" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/assets_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:text="@string/listed_in_the_order_each_is_to_be_used_for_income" />
+
+                <ListView
+                    android:id="@+id/assets_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    tools:ignore="NestedScrolling" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/pensions_expand_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/pensions_expand_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/pensions"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
+
+                <ImageView
+                    android:id="@+id/pensions_add_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="end"
+                    android:contentDescription="@string/add_pension"
+                    android:src="@drawable/ic_baseline_add_24"
+                    android:visibility="visible" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/pensions_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ListView
+                    android:id="@+id/pensions_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    tools:ignore="NestedScrolling" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cpp_oas_expand_button_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/cpp_oas_expand_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/cppoas"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cpp_oas_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cpp_amount_expected_at_age"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/currencySymbol3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textStyle="bold"
+                            tools:ignore="RtlSymmetry" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/cpp_60_amount_layout"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:hint="@string/age60"
+                            android:paddingStart="5dp"
+                            android:paddingEnd="5dp"
+                            app:endIconMode="clear_text"
+                            tools:ignore="NestedWeights">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/cpp_60_amount"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:gravity="start"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/cpp_65_amount_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/age65"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/cpp_65_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/cpp_70_amount_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_weight="1"
+                        android:hint="@string/age70"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="0dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/cpp_70_amount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
@@ -637,441 +692,403 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/cpp_65_amount_layout"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/age65"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    app:endIconMode="clear_text">
+                <LinearLayout
+                    android:id="@+id/cpp_start_age_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/cpp_65_amount"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/cppStartAge"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <HorizontalScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:fadeScrollbars="false"
+                        android:scrollbarThumbHorizontal="?attr/colorSecondary">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/cpp_70_amount_layout"
-                    android:layout_width="0dp"
+                        <RadioGroup
+                            android:id="@+id/cppStartAgeRadioGroup"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkedButton="@+id/cpp65RadioButton"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <RadioButton
+                                android:id="@+id/cpp60RadioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/age60" />
+
+                            <RadioButton
+                                android:id="@+id/cpp65RadioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/age65" />
+
+                            <RadioButton
+                                android:id="@+id/cpp70RadioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/age70" />
+                        </RadioGroup>
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_weight="1"
-                    android:hint="@string/age70"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="0dp"
-                    app:endIconMode="clear_text">
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/cpp_70_amount"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/currencySymbol4"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_gravity="center"
+                        android:textStyle="bold"
+                        tools:ignore="RtlSymmetry" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/oas_current_annual_amount_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:hint="@string/oas_amount"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="10dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/oas_current_annual_amount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:gravity="start"
+                            android:inputType="number"
+                            tools:ignore="TooManyViews" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/cpp_start_age_layout"
+            <RelativeLayout
+                android:id="@+id/additional_expand_button_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
 
                 <TextView
+                    android:id="@+id/additional_expand_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/cppStartAge"
+                    android:text="@string/additional_deposits_or_expenditures"
+                    android:textColor="@color/orange_salmon"
                     android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
+
+                <ImageView
+                    android:id="@+id/additional_add_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="end"
+                    android:contentDescription="@string/add_additional_deposit_or_expense"
+                    android:src="@drawable/ic_baseline_add_24"
+                    android:visibility="visible" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/additional_deposits_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/additional_deposits_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/additional_deposits"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <HorizontalScrollView
+                <ListView
+                    android:id="@+id/additional_deposits_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fadeScrollbars="false"
-                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    tools:ignore="NestedScrolling" />
 
-                    <RadioGroup
-                        android:id="@+id/cppStartAgeRadioGroup"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checkedButton="@+id/cpp65RadioButton"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/cpp60RadioButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/age60" />
-
-                        <RadioButton
-                            android:id="@+id/cpp65RadioButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/age65" />
-
-                        <RadioButton
-                            android:id="@+id/cpp70RadioButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/age70" />
-                    </RadioGroup>
-                </HorizontalScrollView>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/additional_expenditures_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:orientation="horizontal">
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:visibility="gone">
 
                 <TextView
-                    android:id="@+id/currencySymbol4"
+                    android:id="@+id/additional_expenses_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/additional_expenditures"
+                    android:textColor="@color/orange_salmon"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <ListView
+                    android:id="@+id/additional_expenditures_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    tools:ignore="NestedScrolling" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/scenarioNameEntireLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:visibility="gone"
+                tools:layout_editor_absoluteX="5dp">
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textStyle="bold"
-                    tools:ignore="RtlSymmetry" />
+                    android:padding="5dp"
+                    android:text="@string/confirm_scenario_name"
+                    tools:ignore="TooManyViews" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/oas_current_annual_amount_layout"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:hint="@string/oas_amount"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:hint="@string/scenario_name"
                     android:minWidth="@dimen/custom_med_width"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="10dp"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/oas_current_annual_amount"
+                        android:id="@+id/scenarioNameInput"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
+                        android:layout_gravity="center"
                         android:gravity="start"
-                        android:inputType="number"
-                        tools:ignore="TooManyViews" />
+                        android:inputType="textCapSentences"
+                        android:longClickable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
-        </LinearLayout>
 
-        <RelativeLayout
-            android:id="@+id/additional_expand_button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:id="@+id/additional_expand_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/additional_deposits_or_expenditures"
-                android:textColor="@color/orange_salmon"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableEndCompat="@drawable/ic_baseline_expand_more_24" />
-            <ImageView
-                android:id="@+id/additional_add_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="end"
-                android:contentDescription="@string/add_additional_deposit_or_expense"
-                android:src="@drawable/ic_baseline_add_24"
-                android:visibility="visible" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/additional_deposits_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:padding="5dp"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/additional_deposits_label"
+            <LinearLayout
+                android:id="@+id/button_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/additional_deposits"
-                android:textColor="@color/orange_salmon"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:gravity="center"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                tools:ignore="TooManyViews">
 
-            <ListView
-                android:id="@+id/additional_deposits_list_view"
+                <ImageButton
+                    android:id="@+id/button_cancel"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:background="@color/white"
+                    android:contentDescription="@string/cancel"
+                    android:elevation="4dp"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_baseline_cancel_24"
+                    android:stateListAnimator="@animator/anim"
+                    android:tooltipText="Go back to calculations"
+                    android:visibility="gone"
+                    tools:ignore="TooManyViews" />
+
+                <ImageButton
+                    android:id="@+id/button_update_defaults"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:background="@color/white"
+                    android:contentDescription="@string/update_defaults"
+                    android:elevation="4dp"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_baseline_save_24"
+                    android:stateListAnimator="@animator/anim"
+                    android:tooltipText="Save changes"
+                    android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/button_calculate"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:background="@color/white"
+                    android:contentDescription="@string/calculate"
+                    android:elevation="4dp"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_baseline_calculate_24"
+                    android:stateListAnimator="@animator/anim"
+                    android:tooltipText="Calculate retirement possibility based on input parameters" />
+
+                <ImageButton
+                    android:id="@+id/button_see_details"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:background="@color/white"
+                    android:contentDescription="@string/see_details"
+                    android:elevation="4dp"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_baseline_list_24"
+                    android:stateListAnimator="@animator/anim"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/calculation_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fadeScrollbars="false"
-                tools:ignore="NestedScrolling" />
+                android:orientation="vertical">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/calculation_response"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/additional_expenditures_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:padding="5dp"
-            android:visibility="gone">
+                <TextView
+                    android:id="@+id/calculation_response2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:paddingBottom="10dp"
+                    android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/additional_expenses_label"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ending_balances"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ListView
+                    android:id="@+id/results_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@null"
+                    android:fadeScrollbars="false"
+                    tools:ignore="NestedScrolling" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ending_net_worth_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/additional_expenditures"
-                android:textColor="@color/orange_salmon"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:paddingStart="0dp"
+                android:paddingEnd="5dp">
 
-            <ListView
-                android:id="@+id/additional_expenditures_list_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fadeScrollbars="false"
-                tools:ignore="NestedScrolling" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/scenarioNameEntireLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="vertical"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:visibility="gone"
-            tools:layout_editor_absoluteX="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:text="@string/confirm_scenario_name"
-                tools:ignore="TooManyViews" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:hint="@string/scenario_name"
-                android:minWidth="@dimen/custom_med_width"
-                app:endIconMode="clear_text">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/scenarioNameInput"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="start"
-                    android:inputType="textCapSentences"
-                    android:longClickable="false" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
+                    android:layout_weight="1"
+                    android:text="@string/ending_net_worth"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            tools:ignore="TooManyViews">
+                <TextView
+                    android:id="@+id/ending_net_worth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-            <ImageButton
-                android:id="@+id/button_cancel"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:background="@color/white"
-                android:contentDescription="@string/cancel"
-                android:elevation="4dp"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_baseline_cancel_24"
-                android:stateListAnimator="@animator/anim"
-                android:tooltipText="Go back to calculations"
-                android:visibility="gone"
-                tools:ignore="TooManyViews" />
-
-            <ImageButton
-                android:id="@+id/button_update_defaults"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:background="@color/white"
-                android:contentDescription="@string/update_defaults"
-                android:elevation="4dp"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_baseline_save_24"
-                android:stateListAnimator="@animator/anim"
-                android:tooltipText="Save changes"
-                android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/button_calculate"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:background="@color/white"
-                android:contentDescription="@string/calculate"
-                android:elevation="4dp"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_baseline_calculate_24"
-                android:stateListAnimator="@animator/anim"
-                android:tooltipText="Calculate retirement possibility based on input parameters" />
-
-            <ImageButton
-                android:id="@+id/button_see_details"
-                android:layout_width="@dimen/button_size"
-                android:layout_height="@dimen/button_size"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:background="@color/white"
-                android:contentDescription="@string/see_details"
-                android:elevation="4dp"
-                android:padding="5dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_baseline_list_24"
-                android:stateListAnimator="@animator/anim"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/calculation_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/calculation_response"
+            <LinearLayout
+                android:id="@+id/lifetime_taxes_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingBottom="5dp"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/calculation_response2"
+                android:paddingStart="0dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/lifetime_taxes"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/lifetime_taxes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lifetime_surplus_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:paddingBottom="10dp"
-                android:textSize="16sp" />
+                android:paddingStart="0dp"
+                android:paddingEnd="5dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/ending_balances"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/lifetime_surplus"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-            <ListView
-                android:id="@+id/results_list_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@null"
-                android:fadeScrollbars="false"
-                tools:ignore="NestedScrolling" />
+                <TextView
+                    android:id="@+id/lifetime_surplus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ending_net_worth_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ending_net_worth"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ending_net_worth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/lifetime_taxes_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/lifetime_taxes"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/lifetime_taxes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/lifetime_surplus_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/lifetime_surplus"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/lifetime_surplus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

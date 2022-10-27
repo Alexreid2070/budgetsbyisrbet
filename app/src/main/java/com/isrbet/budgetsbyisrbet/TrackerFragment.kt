@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -476,7 +475,7 @@ class TrackerFragment : Fragment() {
         val tList = ArrayList<DataObject>()
 
         val discFilter = DefaultsViewModel.getDefaultFilterDiscTracker()
-        val whoFilter = if (isNumber(DefaultsViewModel.getDefaultFilterWhoTracker()))
+        val whoFilter = if (DefaultsViewModel.getDefaultFilterWhoTracker().toIntOrNull() != null)
             DefaultsViewModel.getDefaultFilterWhoTracker().toInt() else 2
 
         val viewPeriod = when (DefaultsViewModel.getDefaultViewByTracker()) {
@@ -709,7 +708,7 @@ class TrackerFragment : Fragment() {
 
     private fun getActualPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefaultFilterDiscTracker()
-        val whoFilter = if (isNumber(DefaultsViewModel.getDefaultFilterWhoTracker()))
+        val whoFilter = if (DefaultsViewModel.getDefaultFilterWhoTracker().toIntOrNull() != null)
             DefaultsViewModel.getDefaultFilterWhoTracker().toInt() else -1
 
         val viewPeriod = when (DefaultsViewModel.getDefaultViewByTracker()) {
@@ -779,7 +778,7 @@ class TrackerFragment : Fragment() {
 
     private fun getBudgetPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefaultFilterDiscTracker()
-        val whoFilter = if (isNumber(DefaultsViewModel.getDefaultFilterWhoTracker()))
+        val whoFilter = if (DefaultsViewModel.getDefaultFilterWhoTracker().toIntOrNull() != null)
             DefaultsViewModel.getDefaultFilterWhoTracker().toInt() else -1
         val viewPeriod = when (DefaultsViewModel.getDefaultViewByTracker()) {
             cPeriodAllTime -> DateRange.ALLTIME

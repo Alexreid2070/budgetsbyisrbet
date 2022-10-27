@@ -119,7 +119,8 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
         val assetNameList: MutableList<String> = ArrayList()
         for (i in 0 until RetirementViewModel.getWorkingAssetListCount()) {
             val asset = RetirementViewModel.getWorkingAsset(i)
-            assetNameList.add(asset.name)
+            if (asset != null)
+                assetNameList.add(asset.name)
         }
         val assetNameAdapter = ArrayAdapter(
             requireContext(),

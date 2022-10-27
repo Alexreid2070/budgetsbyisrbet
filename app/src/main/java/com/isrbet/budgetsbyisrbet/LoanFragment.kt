@@ -167,9 +167,10 @@ class LoanFragment : Fragment() {
         cal.set(dt.substring(0,4).toInt(), dt.substring(5,7).toInt()-1, dt.substring(8,10).toInt())
 
         val loanAmountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
-        val accAmountDouble = if (isNumber(binding.acceleratedPaymentAmount.text.toString()))
-                gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
-            else 0.0
+        val accAmountDouble = binding.acceleratedPaymentAmount.text.toString().toDoubleOrNull()
+//        val accAmountDouble = if (isNumber(binding.acceleratedPaymentAmount.text.toString()))
+  //              gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
+    //        else 0.0
         loadRows(cal,
             gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble(),
 //            getDoubleValue(binding.amortizationPeriod.text.toString()),
@@ -183,7 +184,7 @@ class LoanFragment : Fragment() {
     private fun loadRows(iFirstPaymentDate: Calendar, iAmortizationYears: Double,
                             iPaymentRegularity: LoanPaymentRegularity,
                             iInterestRate: Double, iPrincipal: Double,
-                            iAmount: Double) {
+                            iAccAmount: Double?) {
         val myList: MutableList<LoanPayment> = ArrayList()
 
         val iPaymentsPerYear = when (iPaymentRegularity) {
@@ -201,14 +202,14 @@ class LoanFragment : Fragment() {
         binding.calculatedPaymentText.visibility = View.VISIBLE
 
         var owingAtEndOfPeriod = iPrincipal
-        val extraPayment = if (iAmount == 0.0) 0.0 else iAmount - calcPayment
+        val extraPayment = if (iAccAmount == null) 0.0 else iAccAmount - calcPayment
         for (i in 1..(round(iAmortizationYears * iPaymentsPerYear).toInt())) {
             val interestOwingForThisPeriod = owingAtEndOfPeriod * iInterestRate / iPaymentsPerYear
             owingAtEndOfPeriod = if (iInterestRate == 0.0)
                 owingAtEndOfPeriod - calcPayment
             else
                 (1 + iInterestRate/iPaymentsPerYear).pow(i)*iPrincipal - (((1+iInterestRate/iPaymentsPerYear).pow(i) - 1)/(iInterestRate/iPaymentsPerYear)*calcPayment) - (extraPayment*i)
-            if (iAmount > owingAtEndOfPeriod) { // ie last payment
+            if (iAccAmount != null && iAccAmount > owingAtEndOfPeriod) { // ie last payment
                 myList.add(
                     LoanPayment(
                         iFirstPaymentDate.clone() as Calendar,
@@ -221,9 +222,9 @@ class LoanFragment : Fragment() {
                 break
             } else
                 myList.add(LoanPayment(iFirstPaymentDate.clone() as Calendar,
-                    if (iAmount != 0.0) iAmount else calcPayment,
+                    if (iAccAmount != null) iAccAmount else calcPayment,
                     interestOwingForThisPeriod,
-                    if (iAmount != 0.0) iAmount-interestOwingForThisPeriod
+                    if (iAccAmount != null) iAccAmount-interestOwingForThisPeriod
                     else calcPayment-interestOwingForThisPeriod,
                     owingAtEndOfPeriod))
             when (iPaymentRegularity) {

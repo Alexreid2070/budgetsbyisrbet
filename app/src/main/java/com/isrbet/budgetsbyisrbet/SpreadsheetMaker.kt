@@ -1,6 +1,5 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import com.google.api.services.sheets.v4.model.*
 
 const val cRow_SCENARIO_NAME = 1
@@ -33,10 +32,10 @@ fun getCol(iColumnNumber: Int) : String
         // If remainder is 0, then a 'Z' must be there in output
         if (rem == 0) {
             columnName += "Z"
-            columnNumber = (columnNumber / 26) - 1;
+            columnNumber = (columnNumber / 26) - 1
         } else { // If remainder is non-zero
             columnName += letterA.plus(rem - 1)
-            columnNumber /= 26;
+            columnNumber /= 26
         }
     }
     // Reverse the string and print result
@@ -116,9 +115,8 @@ private class ColumnHeadingRowDataMaker(val iRow: RetirementCalculationRow?) {
         }
         listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.oas), ""))
         var minAlreadyShown = false
-        Log.d("Alex", "Creating headers, iRow is $iRow # of assets ${iRow?.assetIncomes?.size}")
         iRow?.assetIncomes?.forEach {
-            when (it.type) {
+            when (it.assetType) {
                 AssetType.RRSP -> {
                     if (!minAlreadyShown) {
                         listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.minimum_rrif_withdrawal), ""))
@@ -131,6 +129,15 @@ private class ColumnHeadingRowDataMaker(val iRow: RetirementCalculationRow?) {
                         MyApplication.getString(R.string.rrsp) + ": " + it.name), ""))
                     listCellData.add(cellDataMaker.create(String.format(MyApplication.getString(R.string.s_balance),
                         MyApplication.getString(R.string.rrsp) + ": " + it.name), ""))
+                }
+                AssetType.LIRA_LIF, AssetType.LIRA_Annuity -> {
+                    listCellData.add(cellDataMaker.create(String.format(MyApplication.getString(R.string.s_withdrawal),
+                        MyApplication.getString(R.string.lira) + ": " + it.name), ""))
+                    listCellData.add(cellDataMaker.create(String.format(MyApplication.getString(R.string.s_growth),
+                        it.getGrowthPct(),
+                        MyApplication.getString(R.string.lira) + ": " + it.name), ""))
+                    listCellData.add(cellDataMaker.create(String.format(MyApplication.getString(R.string.s_balance),
+                        MyApplication.getString(R.string.lira) + ": " + it.name), ""))
                 }
                 AssetType.TFSA -> {
                     listCellData.add(cellDataMaker.create(String.format(MyApplication.getString(R.string.s_withdrawal),
@@ -238,10 +245,10 @@ private class RowDataMaker {
 //        val cellInPrevRow = "=offset(indirect(address(row(),column())),-1,0)"
         val prevRowNum = iRow.year - iFirstYear + cFIRST_DATA_ROW - 1
         val currRowNum = iRow.year - iFirstYear + cFIRST_DATA_ROW
-        val inflationRateAddress = "B"+ cRow_INFLATION_RATE
-        val salaryGrowthAddress = "B" + cRow_SALARY_GROWTH
-        val investmentGrowthAddress = "B" + cRow_INVESTMENT_GROWTH
-        val propertyGrowthAddress = "B" + cRow_PROPERTY_GROWTH
+        val inflationRateAddress = "B$cRow_INFLATION_RATE"
+        val salaryGrowthAddress = "B$cRow_SALARY_GROWTH"
+        val investmentGrowthAddress = "B$cRow_INVESTMENT_GROWTH"
+        val propertyGrowthAddress = "B$cRow_PROPERTY_GROWTH"
         var taxableIncomeFormula = ""
         var grossIncomeFormula = ""
         var netWorthFormula = ""
@@ -276,7 +283,7 @@ private class RowDataMaker {
         listCellData.add(cellDataMaker.create("=F" + currRowNum + "-G" + currRowNum, ""))
         // column D Maximum Taxable Income
         if (iRow.year == iFirstYear)
-            listCellData.add(cellDataMaker.create(iRow.getMaximumTaxableIncome().toString(), "$46226 is the amount in 2022 that stays within 15% tax bracket, thereafter adjusted for inflation"))
+            listCellData.add(cellDataMaker.create(iRow.getMaximumTaxableIncome(), "$46226 is the amount in 2022 that stays within 15% tax bracket, thereafter adjusted for inflation"))
         else
             listCellData.add(cellDataMaker.create("=round(D" + prevRowNum + "*(1+" + inflationRateAddress +"))", ""))
         // column E Taxable Income
@@ -289,7 +296,7 @@ private class RowDataMaker {
             listCellData.add(cellDataMaker.create(iRow.getMaximumTaxableIncome().toString(), ""))
         else
             listCellData.add(cellDataMaker.create("=round(B" + prevRowNum + "*(1+" + inflationRateAddress +"))", ""))
-        listCellData.add(cellDataMaker.create(iRow.getTotalTax().toString(), "")) // column G Tax
+        listCellData.add(cellDataMaker.create(iRow.getTotalTax(), "")) // column G Tax
         // column H Salary
         if (iRow.year < retirementYear) {
             listCellData.add(cellDataMaker.create("=round(B" + cRow_SALARY_AMOUNT +
@@ -299,12 +306,12 @@ private class RowDataMaker {
                 "*" + retirementMonth + "/12" +
                 ")*pow((1+" + salaryGrowthAddress + ")," + iRow.year + "-" + iFirstYear + "))", "adjusted for partially worked year, and for salary growth"))
         } else {
-            listCellData.add(cellDataMaker.create("0", ""))
+            listCellData.add(cellDataMaker.create(0, ""))
         }
         grossIncomeFormula = "=" + getCol(listCellData.size) + currRowNum
         // column I CPP
         if (iRow.year < cppYear) {
-            listCellData.add(cellDataMaker.create("0", ""))
+            listCellData.add(cellDataMaker.create(0, ""))
         } else if (iRow.year == cppYear) {
             listCellData.add(cellDataMaker.create("=round(B" + cRow_CPP_AMOUNT +
                 "*" + (12-birthMonth+1) + "/12)", "starts at age " + gRetirementScenario?.cppAge + ", adjusted for partial year"))
@@ -322,7 +329,7 @@ private class RowDataMaker {
         }
         // OAS
         if (iRow.year < oasYear) {
-            listCellData.add(cellDataMaker.create("0", ""))
+            listCellData.add(cellDataMaker.create(0, ""))
         } else if (iRow.year == oasYear) {
             listCellData.add(cellDataMaker.create("=round((B" + cRow_OAS_AMOUNT +
                 "*" + (12-birthMonth+1) + "/12" +
@@ -334,24 +341,76 @@ private class RowDataMaker {
         taxableIncomeFormula += "+" + getCol(listCellData.size) + currRowNum
         grossIncomeFormula += "+" + getCol(listCellData.size) + currRowNum
         iRow.assetIncomes.forEach {
-            if (it.type == AssetType.RRSP) {
+            if (it.assetType == AssetType.RRSP) {
                 if (!minAlreadyShown) {
                     // minimum rrif withdrawal
-                    listCellData.add(cellDataMaker.create(iRow.getMinimumRRIFWithdrawal
-                        (iRow.getAgeAtStartOfYear(iRow.year)).toString(), ""))
+                    val pct = iRow.getMinimumRRIFWithdrawalPercentage()
+                    if (iRow.year == iFirstYear) // taxable income
+                        listCellData.add(cellDataMaker.create("=round(" + pct + "*" + it.getValue()+")", ""))
+                    else
+                        listCellData.add(cellDataMaker.create("=round(" + pct + "*" + getCol(listCellData.size+4) + prevRowNum + ")", ""))
                     minAlreadyShown = true
                 }
             }
-            listCellData.add(cellDataMaker.create(it.withdrawalAmount.toString(), ""))
-            if (it.type == AssetType.RRSP) {
+            listCellData.add(cellDataMaker.create(it.withdrawalAmount, ""))
+            if (it.assetType == AssetType.RRSP ||
+                    it.assetType == AssetType.LIRA_LIF ||
+                    it.assetType == AssetType.LIRA_Annuity) {
                 taxableIncomeFormula += "+" + getCol(listCellData.size) + currRowNum
             }
             grossIncomeFormula += "+" + getCol(listCellData.size) + currRowNum
-            listCellData.add(cellDataMaker.create((it.growthThisYear + it.additionalGrowthThisYear).toString(), ""))
-            if (it.type == AssetType.SAVINGS && it.growthIsTaxable()) {
+
+            var formula: String
+            if (it.growthThisYear == 0) {
+                formula = if (it.additionalGrowthThisYear == 0)
+                    "0"
+                else
+                    "=" + it.additionalGrowthThisYear
+            } else {
+                if (it.assetType == AssetType.LIRA_Annuity) { // don't subtract withdrawal
+                    formula = if (iRow.year == iFirstYear)
+                        "=round(" + it.getValue()
+                    else
+                        "=round(" + getCol(listCellData.size+2) + prevRowNum
+
+                } else {
+                    formula = if (iRow.year == iFirstYear)
+                        "=round((" + it.getValue() + "-" +  getCol(listCellData.size) + currRowNum + ") "
+                    else
+                        "=round((" + getCol(listCellData.size+2) + prevRowNum  + "-" + getCol(listCellData.size) + currRowNum + ") "
+                }
+                if (it.monthsOfGrowthThisYear == 12)
+                    formula += ("* " + it.getGrowthPct()/100)
+                else
+                    formula += ("* (" + it.getGrowthPct()/100 + "*" + it.monthsOfGrowthThisYear + "/12)")
+                formula += ")"
+                if (it.annualContribution > 0)
+                    formula += (" +" + it.annualContribution)
+                if (it.additionalGrowthThisYear != 0)
+                    formula += (" +" + it.additionalGrowthThisYear)
+            }
+            if (formula == "0")
+                listCellData.add(cellDataMaker.create(0, ""))
+            else
+                listCellData.add(cellDataMaker.create(formula, ""))
+            if (it.assetType == AssetType.SAVINGS && it.growthIsTaxable()) {
                 taxableIncomeFormula += "+" + getCol(listCellData.size) + currRowNum
             }
-            listCellData.add(cellDataMaker.create(it.getEndingBalance().toString(), ""))
+            if (it.assetType == AssetType.LIRA_Annuity) { // don't subtract withdrawal
+                formula = if (iRow.year == iFirstYear)
+                    "=" + it.getValue() + "+" + getCol(listCellData.size) + currRowNum
+                else
+                    "=" + getCol(listCellData.size+1) + prevRowNum + "+" + getCol(listCellData.size) + currRowNum
+            } else {
+                formula = if (iRow.year == iFirstYear)
+                    "=" + it.getValue() + "-" + getCol(listCellData.size-1) + currRowNum + "+" + getCol(listCellData.size) + currRowNum
+                else
+                    "=" + getCol(listCellData.size+1) + prevRowNum + "-" + getCol(listCellData.size-1) + currRowNum + "+" + getCol(listCellData.size) + currRowNum
+            }
+            listCellData.add(cellDataMaker.create(formula, ""))
+            if (it.assetType == AssetType.PROPERTY && !(it as Property).primaryResidence && it.soldInYear == iRow.year) {
+                taxableIncomeFormula += "+.25*" + getCol(listCellData.size) + prevRowNum
+            }
             if (netWorthFormula == "")
                 netWorthFormula += "=" + getCol(listCellData.size) + currRowNum
             else
@@ -367,6 +426,14 @@ private class RowDataMaker {
 }
 
 private class CellDataMaker {
+    fun create(iData: Int, iNote: String) : CellData {
+        val cellData = CellData()
+        val extendedValue = ExtendedValue()
+        cellData.userEnteredValue = extendedValue.setNumberValue(iData.toDouble())
+        if (iNote != "")
+            cellData.note = iNote
+        return cellData
+    }
     fun create(iData: String, iNote: String) : CellData {
         val cellData = CellData()
         val extendedValue = ExtendedValue()

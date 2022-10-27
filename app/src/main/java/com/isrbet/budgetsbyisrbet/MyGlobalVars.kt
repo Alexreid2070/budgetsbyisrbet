@@ -32,7 +32,6 @@ import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.FragmentManager
@@ -55,7 +54,6 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
-import kotlin.random.Random
 
 const val cMODE_VIEW = 0
 const val cMODE_EDIT = 1
@@ -644,9 +642,9 @@ fun textIsSafeForValue(iText: String) : Boolean {
     return !iText.contains("\\")
 }
 
-fun isNumber(s: String?): Boolean {
+/* fun isNumber(s: String?): Boolean {
     return if (s.isNullOrEmpty()) false else s.all { Character.isDigit(it) }
-}
+} */
 
 fun String.setFontSizeForPath(ind: Int, fontSizeInPixel: Int, colorCode: Int = Color.BLACK): SpannableString {
     val spannable = SpannableString(this)
