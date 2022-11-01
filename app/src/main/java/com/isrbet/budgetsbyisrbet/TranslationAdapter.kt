@@ -33,6 +33,7 @@ class TranslationAdapter (context: Context, data: MutableList<Translation>): Bas
     class TViewHolder(view: View) {
         var vhBefore: TextView = view.findViewById(R.id.row_before)
         var vhAfter: TextView = view.findViewById(R.id.row_after)
+        var vhCategory: TextView = view.findViewById(R.id.row_category)
     }
 
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
@@ -44,6 +45,7 @@ class TranslationAdapter (context: Context, data: MutableList<Translation>): Bas
 
         viewHolder.vhBefore.text = cData.before
         viewHolder.vhAfter.text = cData.after
+        viewHolder.vhCategory.text = CategoryViewModel.getFullCategoryName(cData.category)
         return myConvertView
     }
 }

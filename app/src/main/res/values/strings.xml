@@ -527,4 +527,5 @@
     <string name="creating_file">Creating file</string>
     <string name="annuity_start_date">Annuity start date</string>
     <string name="annual_annuity_amount">Annuity amount (annual)</string>
+    <string name="category_has_been_updated">Category has been updated using previous setting.</string>
 </resources>

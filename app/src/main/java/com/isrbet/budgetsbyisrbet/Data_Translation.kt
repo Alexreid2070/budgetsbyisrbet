@@ -7,8 +7,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
-data class Translation(var before: String, var after: String, var key: String)
-data class TranslationOut(var before: String, var after: String)
+data class Translation(var before: String, var after: String,
+                       var category: Int, var key: String)
+data class TranslationOut(var before: String, var after: String, var category: Int)
 
 class TranslationViewModel : ViewModel() {
     private var transListener: ValueEventListener? = null
@@ -41,20 +42,20 @@ class TranslationViewModel : ViewModel() {
             }
             return false
         }
-        fun getTranslation(iBefore: String): String {
+        fun getTranslation(iBefore: String): Translation? {
             if (::singleInstance.isInitialized) {
                 // first look for exact matches
                 singleInstance.translations.forEach {
                     if (it.before == iBefore)
-                        return it.after
+                        return it
                 }
                 // then look for translations where the before text includes after text
                 singleInstance.translations.forEach {
                     if (iBefore.contains(it.after, true)) // 'before' string contains an after
-                        return it.after
+                        return it
                 }
             }
-            return iBefore
+            return null
         }
         fun deleteTranslation(iKey: String) {
             if (::singleInstance.isInitialized) {
@@ -64,21 +65,24 @@ class TranslationViewModel : ViewModel() {
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(iKey).removeValue()
                 }
         }
-        fun updateTranslation(iKey: String, iAfter: String) {
+        fun updateTranslation(iKey: String, iBefore: String, iAfter: String, iCategory: Int) {
             if (::singleInstance.isInitialized) {
-                singleInstance.translations.forEach {
-                    if (it.key == iKey) {
+                    singleInstance.translations.forEach {
+                    if (it.key == iKey || iBefore == it.before) {
                         it.after = iAfter
-                        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation")
+                        it.category = iCategory
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Translation")
                             .child(it.key).child("after").setValue(iAfter)
+                        MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Translation")
+                            .child(it.key).child("category").setValue(iCategory)
+                        return
                     }
                 }
+                // didn't find it, so add it
+                val trans = TranslationOut(iBefore, iAfter, iCategory)
+                val key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").push().key.toString()
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(key).setValue(trans)
             }
-        }
-        fun addTranslation(iBefore: String, iAfter: String) {
-            val trans = TranslationOut(iBefore, iAfter)
-            val key = MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").push().key.toString()
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Translation").child(key).setValue(trans)
         }
         fun refresh() {
             singleInstance.loadTranslations()
@@ -120,13 +124,15 @@ class TranslationViewModel : ViewModel() {
                     val mKey = it.key.toString()
                     var before = ""
                     var after = ""
+                    var category = 0
                     for (child in it.children) {
                         when (child.key.toString()) {
                             "before" -> before = child.value.toString()
                             "after" -> after = child.value.toString()
+                            "category" -> category = child.value.toString().toInt()
                         }
                     }
-                    translations.add(Translation(before, after, mKey))
+                    translations.add(Translation(before, after, category, mKey))
                 }
                 singleInstance.loaded = true
             }

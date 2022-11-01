@@ -29,7 +29,10 @@ class TranslationViewAllFragment : Fragment() {
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
                 val itemValue = listView.getItemAtPosition(position) as Translation
-                val cdf = TranslationEditDialogFragment.newInstance(itemValue.before, itemValue.after, itemValue.key) // what do I pass here? zzz
+                val cdf = TranslationEditDialogFragment.newInstance(itemValue.before,
+                    itemValue.after,
+                    itemValue.category,
+                    itemValue.key) // what do I pass here? zzz
                 cdf.setTranslationEditDialogFragmentListener(object: TranslationEditDialogFragment.TranslationEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = TranslationAdapter(requireContext(), TranslationViewModel.getTranslations())

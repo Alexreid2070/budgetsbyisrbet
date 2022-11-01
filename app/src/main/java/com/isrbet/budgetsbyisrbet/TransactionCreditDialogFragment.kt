@@ -50,7 +50,7 @@ class TransactionCreditDialogFragment : DialogFragment() {
         setupClickListeners()
         val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return
 
-        binding.creditAmount.setText(gDec(-1 * thisTransaction.amount))
+        binding.creditAmount.setText(gDecM(-1 * thisTransaction.amount))
         binding.creditDate.setText(giveMeMyDateFormat(cal))
         binding.creditNote.setText(getString(R.string.CREDIT))
         binding.currencySymbol.text = String.format("${getLocalCurrencySymbol()} ")

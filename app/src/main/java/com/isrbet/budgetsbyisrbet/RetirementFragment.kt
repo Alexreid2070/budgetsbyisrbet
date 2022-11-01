@@ -279,7 +279,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
             ).show()
         }
         binding.userID.text = SpenderViewModel.myIndex().toString()
-        setupScenarioSpinner(binding.scenarioNameInput.text.toString())
+//        setupScenarioSpinner(binding.scenarioNameInput.text.toString())
+        setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(getString(R.string.defaultt),
+            binding.userID.text.toString().toInt()))
         binding.lifetimeTaxes.text = gDecWithCurrency(myLifetimeTaxes)
         binding.lifetimeSurplus.text = gDecWithCurrency(myLifetimeSurplus)
         binding.endingNetWorth.text = gDecWithCurrency(myEndingNetWorth)

@@ -34,6 +34,7 @@ class TransactionFragment : Fragment() {
     private var inExpandMode = false
     private var cal = android.icu.util.Calendar.getInstance()
     private var startingTransactionWhere = ""
+    private var startingTransactionCategory = 0
     private var gestureDetector: GestureDetectorCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -408,7 +409,7 @@ class TransactionFragment : Fragment() {
                 binding.buttonCredit.visibility = View.VISIBLE
 //            val iAmount = thisTransaction.amount
 //            val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-            binding.editTextAmount.setText(gDec(thisTransaction.amount))
+            binding.editTextAmount.setText(gDecM(thisTransaction.amount))
             binding.transactionId.text = iTransactionID
             binding.categoryId.text = thisTransaction.category.toString()
             if (MyApplication.adminMode) {
@@ -533,8 +534,10 @@ class TransactionFragment : Fragment() {
         binding.editTextAmount.setText("${notification.amount}")
         val iWhere = notification.where.lowercase()
         startingTransactionWhere = iWhere
-        val translatedWhere = TranslationViewModel.getTranslation(iWhere)
-        if (iWhere == translatedWhere) {
+        startingTransactionCategory = if (binding.categoryId.text.toString() == "") 0
+            else binding.categoryId.toString().toInt()
+        val translation = TranslationViewModel.getTranslation(iWhere)
+        if (translation == null) {
             val words = iWhere.split(" ")
             var newStr = ""
             words.forEach { s ->
@@ -544,7 +547,37 @@ class TransactionFragment : Fragment() {
         } else {
             binding.translatedWhereMessage.visibility = View.VISIBLE
             binding.translatedWhereMessage.text = getString(R.string.translated_from) + " $startingTransactionWhere"
-            binding.editTextWhere.setText(translatedWhere)
+            binding.editTextWhere.setText(translation.after)
+
+            // find current category ID
+            val radioGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
+            val radioButtonID = radioGroup.checkedRadioButtonId
+            val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
+            val subcategorySpinner = requireActivity().findViewById(R.id.inputSubcategorySpinner) as Spinner
+            val currentCatID = CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString())
+            if (translation.category != 0 && currentCatID != translation.category) {
+                val categoryGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
+                for (i in 0 until categoryGroup.childCount) {
+                    val o = categoryGroup.getChildAt(i)
+                    if (o is RadioButton &&
+                        o.text == CategoryViewModel.getCategory(translation.category)?.categoryName) {
+                        o.isChecked = true
+                    }
+                }
+                val subCategorySpinner =
+                    requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
+                val subCategoryList: MutableList<String> = ArrayList()
+                subCategoryList.add(CategoryViewModel.getCategory(translation.category)?.subcategoryName.toString())
+                val arrayAdapter = ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_spinner_dropdown_item,
+                    subCategoryList
+                )
+                subCategorySpinner.adapter = arrayAdapter
+                subCategorySpinner.setSelection(arrayAdapter.getPosition(
+                    CategoryViewModel.getCategory(translation.category)?.subcategoryName))
+                Toast.makeText(activity, getString(R.string.category_has_been_updated), Toast.LENGTH_LONG).show()
+            }
         }
 //        if (CustomNotificationListenerService.getExpenseNotificationCount() == 0) {
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
@@ -605,13 +638,17 @@ class TransactionFragment : Fragment() {
 
         val amountD = gNumberFormat.parse(binding.editTextAmount.text.toString()).toDouble()
 
-        if (startingTransactionWhere != "" && startingTransactionWhere != binding.editTextWhere.text.toString().trim()) {
+        if ((startingTransactionWhere != "" && startingTransactionWhere != binding.editTextWhere.text.toString().trim()) ||
+            (startingTransactionCategory != 0 && startingTransactionCategory != chosenCatID)) {
             // ie the user loaded the transaction from a TD MySpend, and then edited the Where.  We
             // want to keep track of this 'translation' and use it going forward
-            if (!TranslationViewModel.exists(startingTransactionWhere))
-                TranslationViewModel.addTranslation(startingTransactionWhere, binding.editTextWhere.text.toString().trim())
+//            if (!TranslationViewModel.exists(startingTransactionWhere))
+                TranslationViewModel.updateTranslation("", startingTransactionWhere,
+                    binding.editTextWhere.text.toString().trim(),
+                    chosenCatID)
         }
         startingTransactionWhere = ""
+        startingTransactionCategory = 0
         binding.translatedWhereMessage.visibility = View.GONE
         binding.translatedWhereMessage.text = ""
         if (newTransactionMode) {

@@ -527,10 +527,10 @@ class SettingsFragment : Fragment() {
                 currentSavedLanguage != "en-US") ||
                 (userChosenLanguage == getString(R.string.french) &&
                         currentSavedLanguage != "fr-CA")) {
-                if (userChosenLanguage == getString(R.string.english)) {
-                    MyApplication.prefEditor.putString("lang", "en-US")
-                } else {
+                if (userChosenLanguage == getString(R.string.french)) {
                     MyApplication.prefEditor.putString("lang", "fr-CA")
+                } else {
+                    MyApplication.prefEditor.putString("lang", "en-US")
                 }
                 MyApplication.prefEditor.commit()
                 Toast.makeText(
@@ -542,10 +542,10 @@ class SettingsFragment : Fragment() {
         }
 
         var lang = MyApplication.prefs.getString("lang", null)
-        val desiredButton = if (lang == "en-US")
-            requireActivity().findViewById(R.id.button_english) as RadioButton
-        else
+        val desiredButton = if (lang == "fr-CA")
             requireActivity().findViewById(R.id.button_french) as RadioButton
+        else
+            requireActivity().findViewById(R.id.button_english) as RadioButton
         desiredButton.isChecked = true
 
         binding.settingsFirstUserName.requestFocus()

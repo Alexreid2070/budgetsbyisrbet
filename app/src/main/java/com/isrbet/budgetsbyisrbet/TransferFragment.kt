@@ -110,13 +110,16 @@ class TransferFragment : Fragment() {
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
                 when {
                     radioButton.text.toString() == getString(R.string.joint) -> {
+                        binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
                         binding.splitText.text = getSplitText((SpenderViewModel.getSpenderSplit(0)*100).toInt(), binding.editTextAmount.text.toString())
                     }
                     radioButton.text.toString() == SpenderViewModel.getSpenderName(0) -> {
+                        binding.splitSlider.value = 100.0F
                         binding.splitText.text = getSplitText(100, binding.editTextAmount.text.toString())
                         binding.splitSlider.isEnabled = false
                     }
                     else -> {
+                        binding.splitSlider.value = 0.0F
                         binding.splitText.text = getSplitText(0, binding.editTextAmount.text.toString())
                         binding.splitSlider.isEnabled = false
                     }

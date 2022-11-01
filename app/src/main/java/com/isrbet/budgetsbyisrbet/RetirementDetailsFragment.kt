@@ -472,7 +472,6 @@ class RetirementDetailsFragment : Fragment() {
         val scopes = listOf(SheetsScopes.SPREADSHEETS)
         val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
         credential.selectedAccount = MyApplication.userAccount
-        Log.d("Alex", "accoutn is ${credential.selectedAccount}")
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         // GoogleNetHttpTransport.newTrustedTransport()
@@ -480,8 +479,6 @@ class RetirementDetailsFragment : Fragment() {
         val service = Sheets.Builder(httpTransport, jsonFactory, credential)
             .setApplicationName(getString(R.string.app_name))
             .build()
-
-        Log.d("Alex", "Service is $service")
         createSpreadsheet(service, iFileName)
     }
     private fun saveFile(uri: Uri) {

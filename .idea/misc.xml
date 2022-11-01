@@ -17,6 +17,10 @@
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_retirement_details.xml" value="0.16197916666666667" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_scheduled_payment_edit_dialog.xml" value="0.19375" />
         <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_tracker.xml" value="0.13489583333333333" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_transfer.xml" value="0.16822916666666668" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_translation_edit_dialog.xml" value="0.13541666666666666" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/fragment_translation_view_all.xml" value="0.13541666666666666" />
+        <entry key="..\:/Users/alexr/AndroidStudioProjects/OnBudget/app/src/main/res/layout/row_translation.xml" value="0.13541666666666666" />
       </map>
     </option>
   </component>

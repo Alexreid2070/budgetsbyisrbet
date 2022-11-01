@@ -133,9 +133,9 @@ fun gMonthName(iMonth: Int) : String {
     return month.getDisplayName(TextStyle.FULL, Locale.getDefault())
 }
 
-/* fun gDecM(iDouble: Double): String {
+ fun gDecM(iDouble: Double): String {
     return DecimalFormat("###0.00;-###0.00").format(iDouble)
-} */
+}
 fun gDec(iInt: Int): String {
     return DecimalFormat("####;(####)").format(iInt)
 }
@@ -160,7 +160,6 @@ fun gDecWithCurrency(iDouble: Double, iRound: Boolean = false) : String{
             s + " " + gDec(iDouble)
     }
 }
-
 fun gDecWithCurrency(iInt: Int) : String{
     val s = getLocalCurrencySymbol()
     return if (s == "")
@@ -805,6 +804,7 @@ fun getSplitText (iSplit1: Int, iAmount: String): String {
     val split2 = 100 - iSplit1
 
     val amount = if (iAmount == "") 0.0
+    else if (iAmount == "-") 0.0
     else gNumberFormat.parse(iAmount).toDouble()
     val amount1 = round(amount * iSplit1) / 100.0
     val amount2 = round(amount * split2) / 100.0

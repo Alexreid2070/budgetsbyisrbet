@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.l4digital.fastscroll.FastScroller
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.round
 
 class TransactionRecyclerAdapter(
     private val context: Context, private val list: MutableList<Transaction>,
@@ -171,16 +169,15 @@ class TransactionRecyclerAdapter(
         holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
         val percentage2 = data.amount - rounded.toDouble()
         holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
-        holder.vtfrunningtotal.text = gDecWithCurrency(runningTotalList[position])
+        holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
         holder.vtfCategoryID.text = data.category.toString()
         holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
         if (data.paidby == data.boughtfor)
             holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
         else
-            holder.vtfwho.text =
-                SpenderViewModel.getSpenderName(data.paidby).subSequence(0, 2).toString() +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).subSequence(0, 2)
-                    .toString()
+            holder.vtfwho.text = String.format("%s:%s",
+                SpenderViewModel.getSpenderName(data.paidby).subSequence(0, 2).toString(),
+                SpenderViewModel.getSpenderName(data.boughtfor).subSequence(0, 2).toString())
         holder.vtfnote.text = data.note
         if (CategoryViewModel.getCategory(data.category)?.discType == cDiscTypeDiscretionary)
             holder.vtfdisc.text = MyApplication.getString(R.string.disc_short)
@@ -260,7 +257,8 @@ class TransactionRecyclerAdapter(
                 filteredList[i].paidby == 2
             ) {
                 val name1PortionOfExpense =
-                    round(filteredList[i].amount * filteredList[i].bfname1split) / 100.0
+//                    round(filteredList[i].amount * filteredList[i].bfname1split) / 100.0
+                    filteredList[i].amount * filteredList[i].bfname1split / 100.0
                 val name1PortionOfFundsUsed =
                     when (filteredList[i].paidby) {
                         0 -> filteredList[i].amount
@@ -270,7 +268,7 @@ class TransactionRecyclerAdapter(
                     }
                 trunningTotalList.add(previousRunningTotal + name1PortionOfExpense - name1PortionOfFundsUsed)
                 previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed)
-                previousRunningTotal = round(previousRunningTotal * 100) / 100
+//                previousRunningTotal = round(previousRunningTotal * 100) / 100
             } else {
                 trunningTotalList.add(previousRunningTotal)
             }

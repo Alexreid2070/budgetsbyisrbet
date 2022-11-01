@@ -22,21 +22,25 @@ class TranslationEditDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_BEFORE = "0"
         private const val KEY_AFTER = "1"
-        private const val KEY_KEY = "2"
-        private val myTranslation = Translation("","","")
+        private const val KEY_CATEGORY = "2"
+        private const val KEY_KEY = "3"
+        private val myTranslation = Translation("","",0, "")
         fun newInstance(
             before: String,
             after: String,
+            category: Int,
             key: String
         ): TranslationEditDialogFragment {
             val args = Bundle()
             args.putString(KEY_BEFORE, before)
             args.putString(KEY_AFTER, after)
+            args.putString(KEY_CATEGORY, category.toString())
             args.putString(KEY_KEY, key)
             val fragment = TranslationEditDialogFragment()
             fragment.arguments = args
             myTranslation.before = before
             myTranslation.after = after
+            myTranslation.category = category
             myTranslation.key = key
             return fragment
         }
@@ -61,6 +65,7 @@ class TranslationEditDialogFragment : DialogFragment() {
 
         binding.beforeField.text = myTranslation.before
         binding.afterField.setText(myTranslation.after)
+        binding.categoryField.text = CategoryViewModel.getFullCategoryName(myTranslation.category)
     }
 
     override fun onStart() {
@@ -73,7 +78,10 @@ class TranslationEditDialogFragment : DialogFragment() {
 
     private fun setupClickListeners() {
         binding.buttonSave.setOnClickListener {
-            TranslationViewModel.updateTranslation(myTranslation.key, binding.afterField.text.toString())
+            TranslationViewModel.updateTranslation(myTranslation.key,
+                binding.beforeField.text.toString(),
+                binding.afterField.text.toString(),
+                myTranslation.category)
             if (listener != null)
                 listener?.onNewDataSaved()
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)

@@ -317,7 +317,7 @@ class TransactionViewModel : ViewModel() {
                     .child(key)
                     .setValue(iTransactionOut)
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
+            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
         }
 
         fun addTransaction(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
@@ -339,7 +339,7 @@ class TransactionViewModel : ViewModel() {
                     .child(key)
                     .setValue(iTransfer)
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
+            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
         }
         fun refresh() {
             singleInstance.loadTransactions()
@@ -445,7 +445,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransactionOut.bfname1split
                 transaction.type = iTransactionOut.type
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
+            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
         }
         fun updateTransaction(iTransactionID: String, iTransfer: TransferOut) {
             Log.d("Alex", "updateTransaction note is ${iTransfer.note2}")
@@ -465,7 +465,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransfer.bfname1split
                 transaction.note2 = iTransfer.note2
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }))
+            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
         }
         fun getEarliestYear() : Int {
             // since we know that this table is sorted on date, we simply return the first date
@@ -524,7 +524,7 @@ class TransactionViewModel : ViewModel() {
                 }
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
-                transactions.sortWith(compareBy({ it.date }, { it.note }))
+                transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
