@@ -346,7 +346,7 @@
     <string name="transaction_deleted">Transaction deleted</string>
     <string name="this_expense_was_automatically_generated">This expense was automatically generated as a scheduled payment.</string>
     <string name="you_are_attempting_to_add_to_your_private_category">You are attempting to add to your private category, so transaction must be in your name.</string>
-    <string name="transaction_added">Transaction added.  Actuals for period are %1$s, budget is %2$s.)</string>
+    <string name="transaction_added">Transaction added.  Actuals for period for %1$s are %2$s, budget is %3$s.)</string>
     <string name="transaction_updated">Transaction updated</string>
     <string name="credit_expense">Credit Expense</string>
     <string name="share_this_authorization_key_with">Share this authorization key with</string>
@@ -528,4 +528,9 @@
     <string name="annuity_start_date">Annuity start date</string>
     <string name="annual_annuity_amount">Annuity amount (annual)</string>
     <string name="category_has_been_updated">Category has been updated using previous setting.</string>
+    <string name="budgetStartDate">The date that this budget starts.</string>
+    <string name="regularity_short">Reg</string>
+    <string name="annual_budgets_must_start_on_Jan_1">Annual budgets must start on Jan 1.</string>
+    <string name="monthly_budgets_must_start_on_1">Monthly budgets must start on the 1st of the month.</string>
+    <string name="regularity_must_be_positive">Regularity must be greater than 0</string>
 </resources>

@@ -348,7 +348,7 @@
     <string name="transaction_deleted">Transaction supprimée</string>
     <string name="this_expense_was_automatically_generated">Cette dépense a été générée automatiquement sous la forme d\'un paiement programmé.</string>
     <string name="you_are_attempting_to_add_to_your_private_category">Vous essayez d\'ajouter à votre catégorie privée, la transaction doit donc être à votre nom.</string>
-    <string name="transaction_added">Transaction added.  (Actuals for period are %1$s, budget is %2$s.)</string>
+    <string name="transaction_added">Transaction added.  (Montant réel pour période pour %1$s est %2$s, budget est %3$s.)</string>
     <string name="transaction_updated">Transaction actualisé</string>
     <string name="credit_expense">Créditer la dépense</string>
     <string name="share_this_authorization_key_with">Partagez cette clé d\'autorisation avec</string>
@@ -529,5 +529,10 @@
     <string name="annuity_start_date">Annuity start date</string>
     <string name="annual_annuity_amount">Annuity amount (annual)</string>
     <string name="category_has_been_updated">Category has been updated using previous setting.</string>
+    <string name="budgetStartDate">The date that this budget starts.</string>
+    <string name="regularity_short">Reg</string>
+    <string name="annual_budgets_must_start_on_Jan_1">Annual budgets must start on Jan 1.</string>
+    <string name="monthly_budgets_must_start_on_1">Monthly budgets must start on the 1st of the month.</string>
+    <string name="regularity_must_be_positive">Regularity must be greater than 0</string>
 </resources>
 

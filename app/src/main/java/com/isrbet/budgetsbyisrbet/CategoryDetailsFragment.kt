@@ -58,9 +58,9 @@ class CategoryDetailsFragment : Fragment() {
             ): Boolean {
                 val fromPos = viewHolder.bindingAdapterPosition
                 val toPos = target.bindingAdapterPosition
-                val ladapter: CategoryDetailsAdapter =
+                val lAdapter: CategoryDetailsAdapter =
                     recyclerView.adapter as CategoryDetailsAdapter
-                ladapter.notifyItemMoved(fromPos, toPos)
+                lAdapter.notifyItemMoved(fromPos, toPos)
 
                 DefaultsViewModel.reorderCategory(fromPos, toPos)
                 return true
@@ -76,13 +76,13 @@ class CategoryDetailsFragment : Fragment() {
 
     private fun resetColor(iCategory: String) {
         DefaultsViewModel.setColour(iCategory, 0, false)
-        val ladapter: CategoryDetailsAdapter =
+        val lAdapter: CategoryDetailsAdapter =
             binding.recyclerView.adapter as CategoryDetailsAdapter
-        ladapter.refresh()
+        lAdapter.refresh()
     }
     private fun openColorPickerDialogue(iCategory: String) {
 
-        // the AmbilWarnaDialog callback needs 3 parameters
+        // the callback needs 3 parameters
         // one is the context, second is default color,
         DefaultsViewModel.getCategoryDetail(iCategory).color.let {
             AmbilWarnaDialog(
@@ -94,9 +94,9 @@ class CategoryDetailsFragment : Fragment() {
 
                     override fun onOk(dialog: AmbilWarnaDialog, color: Int) {
                         DefaultsViewModel.setColour(iCategory, color, false)
-                        val ladapter: CategoryDetailsAdapter =
+                        val lAdapter: CategoryDetailsAdapter =
                             binding.recyclerView.adapter as CategoryDetailsAdapter
-                        ladapter.refresh()
+                        lAdapter.refresh()
                     }
                 })
         }.show()

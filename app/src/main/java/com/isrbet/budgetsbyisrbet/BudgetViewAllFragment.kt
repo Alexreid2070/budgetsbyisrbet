@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintSet
@@ -42,6 +41,7 @@ class BudgetViewAllFragment : Fragment() {
         }
         setupCategorySpinner()
         if (binding.buttonViewByDate.isChecked) {
+
             setupDateSelectors()
             binding.rowBudgetDateHeading.text = getString(R.string.category)
             loadRows(0, binding.budgetAddYear.progress, binding.budgetAddMonth.progress)
@@ -191,7 +191,7 @@ class BudgetViewAllFragment : Fragment() {
         val rows = if (binding.buttonViewByDate.isChecked) {
             noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
                     " ${gMonthName(iMonth)} $iYear.  " + getString(R.string.click_on_the_add_button_below_to_add_a_budget)
-            BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
+            BudgetViewModel.getBudgetInputRows(MyDate(iYear, iMonth, 1))
         } else {
             val cat = CategoryViewModel.getCategory(iCategoryID)
             noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
@@ -205,32 +205,30 @@ class BudgetViewAllFragment : Fragment() {
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 val itemValue = listView.getItemAtPosition(position) as BudgetInputRow
-                val bmDateApplicable = BudgetMonth(itemValue.dateApplicable)
-                val bmDateStart = BudgetMonth(itemValue.dateStarted)
+                val bmDateApplicable = MyDate(itemValue.dateApplicable)
+//                val bmDateStart = MyDate(itemValue.dateStarted)
                 if (itemValue.dateApplicable == itemValue.dateStarted ||
-                    (bmDateApplicable.month == 1 && bmDateStart.month == 0)
+                    (bmDateApplicable.month == 1 && itemValue.period == cPeriodYear) //bmDateStart.month == 0)
                 ) {// ie only allow edits on "real" entries
-                    val bmDateStarted = BudgetMonth(itemValue.dateStarted)
-                    var monthToSend: Int = bmDateApplicable.month
-                    if (bmDateStarted.isAnnualBudget())
-                        monthToSend = 0
                     val amountToSend = itemValue.amount.toDouble()
-                    val rtdf = BudgetDialogFragment.newInstance(
+                    val rtdf = BudgetEditDialogFragment.newInstance(
+                        itemValue.key,
                         itemValue.categoryID,
-                        bmDateApplicable.year,
-                        monthToSend,
+                        bmDateApplicable.toString(),
+                        itemValue.period,
+                        itemValue.regularity,
                         itemValue.who,
                         amountToSend,
                         itemValue.occurence.toInt()
                     )
                     rtdf.setDialogFragmentListener(object :
-                        BudgetDialogFragment.BudgetEditDialogFragmentListener {
+                        BudgetEditDialogFragment.BudgetEditDialogFragmentListener {
                         override fun onNewDataSaved() {
                             val trows = if (binding.buttonViewByDate.isChecked) {
                                 noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +
                                         " ${gMonthName(iMonth)} $iYear.  " +
                                         getString(R.string.click_on_the_add_button_below_to_add_a_budget)
-                                BudgetViewModel.getBudgetInputRows(BudgetMonth(iYear, iMonth))
+                                BudgetViewModel.getBudgetInputRows(MyDate(iYear, iMonth, 1))
                             } else {
                                 val cat = CategoryViewModel.getCategory(iCategoryID)
                                 noDataText = getString(R.string.you_have_not_yet_entered_any_budgets_for) +

@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -21,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
+import timber.log.Timber
 import java.util.*
 import kotlin.math.round
 
@@ -57,7 +57,7 @@ class TransactionFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.currencySymbol.text = getLocalCurrencySymbol() + " "
+        binding.currencySymbol.text = String.format("${getLocalCurrencySymbol()} ")
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
 
         val dateSetListener =
@@ -151,7 +151,8 @@ class TransactionFragment : Fragment() {
             onSaveTransactionButtonClicked()
         }
         binding.buttonCancelTransaction.setOnClickListener {
-            activity?.onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+//            activity?.onBackPressed()
         }
         if (DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
             binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
@@ -294,7 +295,7 @@ class TransactionFragment : Fragment() {
                     }
                 }
                 catch (exception: Exception) {
-                    Log.d("Alex", "onFling crashed.  This is happening to Rheannon in production, hopefully this exception handler catches them now...")
+                    Timber.tag("Alex").d("onFling crashed.  This is happening to Rheannon in production, hopefully this exception handler catches them now...")
                 }
                 return true
             }
@@ -367,7 +368,8 @@ class TransactionFragment : Fragment() {
         fun yesClicked() {
             TransactionViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
             Toast.makeText(activity, getString(R.string.transaction_deleted), Toast.LENGTH_SHORT).show()
-            requireActivity().onBackPressed()
+//            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
         }
         fun noClicked() {
@@ -488,9 +490,7 @@ class TransactionFragment : Fragment() {
             }
         }
         else { // this doesn't make sense...
-            Log.d("Alex",
-                "iTransactionID $iTransactionID was passed for edit but can't find the data"
-            )
+            Timber.tag("Alex").d("iTransactionID $iTransactionID was passed for edit but can't find the data")
         }
 /*        if (inExpandMode)
             setExpansionFields(View.VISIBLE)
@@ -531,7 +531,8 @@ class TransactionFragment : Fragment() {
                 Toast.LENGTH_SHORT).show()
             return
         }
-        binding.editTextAmount.setText("${notification.amount}")
+//        binding.editTextAmount.setText("${notification.amount}")
+        binding.editTextAmount.setText(gDecM(notification.amount))
         val iWhere = notification.where.lowercase()
         startingTransactionWhere = iWhere
         startingTransactionCategory = if (binding.categoryId.text.toString() == "") 0
@@ -546,17 +547,16 @@ class TransactionFragment : Fragment() {
             binding.editTextWhere.setText(newStr)
         } else {
             binding.translatedWhereMessage.visibility = View.VISIBLE
-            binding.translatedWhereMessage.text = getString(R.string.translated_from) + " $startingTransactionWhere"
+            binding.translatedWhereMessage.text = String.format("${getString(R.string.translated_from)} $startingTransactionWhere")
             binding.editTextWhere.setText(translation.after)
 
             // find current category ID
-            val radioGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
-            val radioButtonID = radioGroup.checkedRadioButtonId
+            val categoryGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
+            val radioButtonID = categoryGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
             val subcategorySpinner = requireActivity().findViewById(R.id.inputSubcategorySpinner) as Spinner
             val currentCatID = CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString())
             if (translation.category != 0 && currentCatID != translation.category) {
-                val categoryGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
                 for (i in 0 until categoryGroup.childCount) {
                     val o = categoryGroup.getChildAt(i)
                     if (o is RadioButton &&
@@ -564,7 +564,10 @@ class TransactionFragment : Fragment() {
                         o.isChecked = true
                     }
                 }
-                val subCategorySpinner =
+                val category = CategoryViewModel.getCategory(translation.category)
+                if (category != null)
+                    addSubCategories(category.categoryName, category.subcategoryName)
+/*                val subCategorySpinner =
                     requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
                 val subCategoryList: MutableList<String> = ArrayList()
                 subCategoryList.add(CategoryViewModel.getCategory(translation.category)?.subcategoryName.toString())
@@ -575,7 +578,7 @@ class TransactionFragment : Fragment() {
                 )
                 subCategorySpinner.adapter = arrayAdapter
                 subCategorySpinner.setSelection(arrayAdapter.getPosition(
-                    CategoryViewModel.getCategory(translation.category)?.subcategoryName))
+                    CategoryViewModel.getCategory(translation.category)?.subcategoryName)) */
                 Toast.makeText(activity, getString(R.string.category_has_been_updated), Toast.LENGTH_LONG).show()
             }
         }
@@ -668,17 +671,18 @@ class TransactionFragment : Fragment() {
             binding.editTextWhere.setText("")
             binding.editTextNote.setText("")
             hideKeyboard(requireContext(), requireView())
-            var actuals = TransactionViewModel.getActualsForPeriod(chosenCatID,
-                BudgetMonth(binding.editTextDate.text.toString()),
-                BudgetMonth(binding.editTextDate.text.toString()),
-                2,
+            val actuals = TransactionViewModel.getActualsForPeriod(chosenCatID,
+                MyDate(binding.editTextDate.text.toString()),
+                MyDate(binding.editTextDate.text.toString()),
+                SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 true)
-            var budget = BudgetViewModel.getCalculatedBudgetAmount(DateRange.MONTH,
-                BudgetMonth(binding.editTextDate.text.toString()),
+            val budget = BudgetViewModel.getCalculatedBudgetAmount(DateRangeEnum.MONTH,
+                MyDate(binding.editTextDate.text.toString()),
                 chosenCatID,
-                2)
+                SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()))
 
             Toast.makeText(activity, String.format(getString(R.string.transaction_added),
+                radioButtonBoughtFor.text.toString(),
                 gDecWithCurrency(actuals), gDecWithCurrency(budget)), Toast.LENGTH_LONG).show()
 
             if (CustomNotificationListenerService.getExpenseNotificationCount() != 0) {
@@ -701,7 +705,8 @@ class TransactionFragment : Fragment() {
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, getString(R.string.transaction_updated), Toast.LENGTH_SHORT).show()
         }
-        activity?.onBackPressed()
+//        activity?.onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 

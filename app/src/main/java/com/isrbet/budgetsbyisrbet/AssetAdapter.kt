@@ -1,7 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import timber.log.Timber
 
 class AssetAdapter (context: Context,
                     private val defaultInvestmentGrowthRate: Double,
@@ -30,7 +30,7 @@ class AssetAdapter (context: Context,
             for (i in 0 until gRetirementScenario!!.assets.count())
                 gRetirementScenario!!.assets[i].let { myData.add(it) }
         } else {
-            Log.d("Alex", "Why is asset list null")
+            Timber.tag("Alex").d("Why is asset list null")
         }
     }
     override fun getCount(): Int {

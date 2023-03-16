@@ -743,8 +743,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
 
     private fun loadScreen(iRetirementData: RetirementData?, iJustResetAdaptersFromWorking: Boolean = false) {
         if (iJustResetAdaptersFromWorking) {
-            val inv = binding.investmentGrowthRate.text.toString().toDoubleOrNull()
-            val prop = binding.propertyGrowthRate.text.toString().toDoubleOrNull()
+            val inv = binding.investmentGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
+            val prop = binding.propertyGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
             if (inv != null && prop != null) {
                 setupAdapters(
                     binding.userID.text.toString().toInt(),

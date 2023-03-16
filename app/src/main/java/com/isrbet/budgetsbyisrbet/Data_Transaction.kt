@@ -192,25 +192,25 @@ class TransactionViewModel : ViewModel() {
             return (tmpTotal * 100.0).roundToInt() / 100.0
         }
 
-        fun getCategoryActuals(iMonth: BudgetMonth, iPeriod: DateRange,
+        fun getCategoryActuals(iMonth: MyDate, iPeriod: DateRangeEnum,
                                iDiscFlag: String, iWhoFlag: Int) : ArrayList<DataObject> {
             val tList: ArrayList<DataObject> = ArrayList()
             val startDate: String
             val endDate: String
-            if (iPeriod == DateRange.ALLTIME) {
+            if (iPeriod == DateRangeEnum.ALLTIME) {
                 startDate = "0000-00-00"
                 endDate = "9999-99-99"
-            } else if (iPeriod == DateRange.YTD) {
+            } else if (iPeriod == DateRangeEnum.YTD) {
                 startDate = iMonth.year.toString() + "-00-00"
                 endDate = if (iMonth.month < 10) {
                     iMonth.year.toString() + "-0" + iMonth.month.toString() + "-99"
                 } else {
                     iMonth.year.toString() + "-" + iMonth.month.toString() + "-99"
                 }
-            } else if (iPeriod == DateRange.YEAR) {
+            } else if (iPeriod == DateRangeEnum.YEAR) {
                 startDate = iMonth.year.toString() + "-00-00"
                 endDate = iMonth.year.toString() + "-99-99"
-            } else { // iPeriod == DateRange.MONTH
+            } else { // iPeriod == DateRangeEnum.MONTH
                 if (iMonth.month < 10) {
                     startDate =
                         iMonth.year.toString() + "-0" + iMonth.month.toString() + "-00"
@@ -268,10 +268,10 @@ class TransactionViewModel : ViewModel() {
             return tList
         }
 
-        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: BudgetMonth, iEndPeriod: BudgetMonth, iWho: Int, includeRelated: Boolean): Double {
+        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: MyDate, iEndPeriod: MyDate, iWho: Int, includeRelated: Boolean): Double {
             var tTotal = 0.0
-            val firstDay = "$iStartPeriod-01"
-            val  lastDay = "$iEndPeriod-31"
+            val firstDay = iStartPeriod.getFirstOfMonth()
+            val  lastDay = iStartPeriod.getLastDayOfMonth()
 //            Log.d("Alex","getActualsForPeriod $iStartPeriod $iEndPeriod $iWho $includeRelated")
             loop@ for (transaction in singleInstance.transactions) {
                 val cat = CategoryViewModel.getCategory(transaction.category)
@@ -304,7 +304,7 @@ class TransactionViewModel : ViewModel() {
                     iTransactionOut.type, iTransactionOut.bfname1split))
 //            } else {
             if (!iLocalOnly) {
-                val bm = BudgetMonth(iTransactionOut.date)
+                val bm = MyDate(iTransactionOut.date)
                 val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
                     iTransactionOut.note + iTransactionOut.date + "R"
                 else
@@ -329,7 +329,7 @@ class TransactionViewModel : ViewModel() {
                         cTRANSACTION_TYPE_TRANSFER)
                 )
             } else {
-                val bm = BudgetMonth(iTransfer.date)
+                val bm = MyDate(iTransfer.date)
                 val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions" +
                         "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
                         .push().key.toString()
@@ -410,7 +410,7 @@ class TransactionViewModel : ViewModel() {
         }
 
         fun deleteTransaction(date: String, iTransactionID: String) {
-            val bm = BudgetMonth(date)
+            val bm = MyDate(date)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
                 .child(bm.year.toString())
                 .child(bm.get2DigitMonth())
@@ -426,7 +426,7 @@ class TransactionViewModel : ViewModel() {
         }
 
         fun updateTransaction(iTransactionID: String, iTransactionOut: TransactionOut) {
-            val bm = BudgetMonth(iTransactionOut.date)
+            val bm = MyDate(iTransactionOut.date)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
                 .child(bm.year.toString())
                 .child(bm.get2DigitMonth())
@@ -449,7 +449,7 @@ class TransactionViewModel : ViewModel() {
         }
         fun updateTransaction(iTransactionID: String, iTransfer: TransferOut) {
             Log.d("Alex", "updateTransaction note is ${iTransfer.note2}")
-            val bm = BudgetMonth(iTransfer.date)
+            val bm = MyDate(iTransfer.date)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
                 .child(bm.year.toString())
                 .child(bm.get2DigitMonth())

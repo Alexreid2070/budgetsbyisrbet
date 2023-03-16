@@ -43,7 +43,8 @@ class TransactionViewAllFragment : Fragment() {
                 transactionSearchText = ""
                 isEnabled =
                     false  // without this line there will be a recursive call to OnBackPressed
-                activity?.onBackPressed()
+//                activity?.onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
         })
 //        val inflater = TransitionInflater.from(requireContext())

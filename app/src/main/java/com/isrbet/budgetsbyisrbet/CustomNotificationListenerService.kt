@@ -3,7 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.icu.util.Calendar
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
+import timber.log.Timber
 
 data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
 
@@ -18,16 +18,16 @@ class CustomNotificationListenerService : NotificationListenerService() {
                 return 1
             if (!::singleInstance.isInitialized)
                 return 0
-            val activeNotnCount = singleInstance.activeNotifications.size
-            Log.d("Alex", "activeNotnCount is $activeNotnCount")
+            val activeNotificationCount = singleInstance.activeNotifications.size
+            Timber.tag("Alex").d("activeNotificationCount is $activeNotificationCount")
             var tCount = 0
-            return if (activeNotnCount > 0) {
-                for (count in 0 until activeNotnCount) {
+            return if (activeNotificationCount > 0) {
+                for (count in 0 until activeNotificationCount) {
                     val sbn = singleInstance.activeNotifications[count]
-                    Log.d("Alex", "Package name is ${sbn.packageName}")
+                    Timber.tag("Alex").d("Package name is ${sbn.packageName}")
                     if (sbn.packageName == "com.td.myspend") {
                         tCount++
-                        Log.d("Alex", "tcount is now $tCount")
+                        Timber.tag("Alex").d("tcount is now $tCount")
                     }
                 }
                 tCount
@@ -50,7 +50,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notification = sbn.notification
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
-                        Log.d("Alex", "notification text: $notificationText")
+                        Timber.tag("Alex").d("notification text: $notificationText")
                         val dateNow = Calendar.getInstance()
                         val key = dateNow.get(Calendar.YEAR).toString() + "-" +
                                 dateNow.get(Calendar.MONTH).toString() + "-" +
@@ -65,11 +65,12 @@ class CustomNotificationListenerService : NotificationListenerService() {
                             val textAmount = notificationText.substring(dollarSign+1, space).trim()
 
 //                            textAmount = textAmount.replace(",","")
-                            tAmount = gNumberFormat.parse(textAmount).toDouble()
+//                            tAmount = gNumberFormat.parse(textAmount).toDouble()
+                            tAmount = textAmount.toDoubleOrNull()!!
 //                            tAmount = getDoubleValue(textAmount)
                             val credited = notificationText.indexOf("credited")
                             if (credited != -1) {
-                                Log.d("Alex", "it's a credit!")
+                                Timber.tag("Alex").d("it's a credit!")
                                 tAmount *= -1
                             }
                             val space2 = notificationText.indexOf(" ", space + 1)
@@ -134,12 +135,12 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notificationText =
                         notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
-                        Log.d("Alex", "package name ${sbn.packageName} notification text: $notificationText")
+                        Timber.tag("Alex").d("package name ${sbn.packageName} notification text: $notificationText")
                     }
                 }
             }
         } else {
-            Log.d("Alex", "No active Notn found")
+            Timber.tag("Alex").d("No active Notn found")
         }
    }
 }

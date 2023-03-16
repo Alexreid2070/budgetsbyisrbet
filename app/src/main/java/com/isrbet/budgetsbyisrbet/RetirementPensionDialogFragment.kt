@@ -210,7 +210,7 @@ class RetirementPensionDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.pensionName)
                 return@setOnClickListener
             }
-            if (RetirementViewModel.getWorkingPension(binding.pensionName.text.toString()) == null) {
+            if (RetirementViewModel.getWorkingPension(binding.pensionName.text.toString()) != null) {
                 binding.pensionName.error = getString(R.string.name_already_exists)
                 focusAndOpenSoftKeyboard(requireContext(), binding.pensionName)
                 return@setOnClickListener

@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
-import android.graphics.Typeface
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +13,11 @@ import android.widget.TableLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 
-data class BudgetInputRow(var categoryID: Int, var dateApplicable: String, var amount: String,
-                          var who: Int, var occurence: String, var isAnnual: String,
-                          var dateStarted: String, var label: String) {
+data class BudgetInputRow(var key: String, var categoryID: Int,
+                          var dateApplicable: String, var amount: String,
+                          var who: Int, var occurence: String,
+                          var dateStarted: String, var period: String,
+                          var regularity: Int, var label: String) {
     var category = CategoryViewModel.getCategory(categoryID)?.categoryName
     var subcategory = CategoryViewModel.getCategory(categoryID)?.subcategoryName
     var categoryPriority = category?.let { DefaultsViewModel.getCategoryDetail(it).priority }
@@ -52,7 +53,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         var vhAmount: TextView = view.findViewById(R.id.row_budget_amount)
         var vhWho: TextView = view.findViewById(R.id.row_budget_who)
         var vhOccurence: TextView = view.findViewById(R.id.row_budget_occurence)
-        var vhAnnualIndicator: TextView = view.findViewById(R.id.row_budget_annual_indicator)
+        var vhPeriodIndicator: TextView = view.findViewById(R.id.row_budget_period_indicator)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
 
@@ -83,13 +84,18 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         else
             viewHolder.vhOccurence.text = MyApplication.getString(R.string.once)
         viewHolder.vhAmount.text = gDecWithCurrency(bData.amount.toDouble())
-        if (bData.isAnnual == "") {
-            viewHolder.vhAnnualIndicator.text = ""
+        viewHolder.vhPeriodIndicator.text =
+            if (bData.regularity == 1)
+                bData.period.substring(0,1)
+            else
+                bData.regularity.toString() + bData.period.substring(0,1)
+/*        if (bData.isAnnual == "") {
+            viewHolder.vhPeriodIndicator.text = ""
         } else {
             viewHolder.vhAnnualIndicator.text = MyApplication.getString(R.string.annual_short)
             if (bData.label == cBudgetCategoryView)
                 viewHolder.vhLabel.text = bData.dateApplicable.substring(0,4)
-        }
+        } */
 /*        if (bData.dateApplicable == bData.dateStarted ) {
             viewHolder.vhLabel.setTypeface(viewHolder.vhLabel.typeface, Typeface.BOLD)
         } */
@@ -128,29 +134,29 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         return myConvertView
     }
     private fun setGroupList() {
-        val tgroupList: MutableList<Int> = mutableListOf()
-        tgroupList.clear()
+        val tGroupList: MutableList<Int> = mutableListOf()
+        tGroupList.clear()
         var c = 0 // row counter
         var j = 0 // number of transaction within specific date
 
         for (i in 0 until myData.size) {
-            if (tgroupList.size == 0) {
-                tgroupList.add(c, j)
+            if (tGroupList.size == 0) {
+                tGroupList.add(c, j)
                 c++
                 j++
             } else {
                 if (myData[i].category == myData[i - 1].category) {
-                    tgroupList.add(c, j)
+                    tGroupList.add(c, j)
                     c++
                     j++
                 } else {
                     j = 0
-                    tgroupList.add(c, j)
+                    tGroupList.add(c, j)
                     c++
                     j++
                 }
             }
         }
-        groupList = tgroupList
+        groupList = tGroupList
     }
 }

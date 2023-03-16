@@ -175,7 +175,7 @@ enum class LoanPaymentRegularity(val code: Int) {
         fun getByValue(value: Int) = values().firstOrNull { it.code == value }
     }
 }
-enum class DateRange(val code: Int) {
+enum class DateRangeEnum(val code: Int) {
     MONTH(1),
     YTD(2),
     YEAR(3),
@@ -201,7 +201,6 @@ class MyApplication : Application() {
         var userAccount: Account? = null
         private var quoteForThisSession: String = ""
         var currentUserEmail: String = ""
-        var mediaPlayer: MediaPlayer? = null
         var adminMode: Boolean = false
         var haveLoadedDataForThisUser = false
         lateinit var myMainActivity: MainActivity
@@ -232,18 +231,14 @@ class MyApplication : Application() {
             if (!DefaultsViewModel.getDefaultSound())
                 return
 
-            if (mediaPlayer == null)
-                mediaPlayer = MediaPlayer.create(context, iSound)
-            try {
-                mediaPlayer?.start()
-            }
-            catch (exception: Exception) {
-                Log.d("Alex", "caught an exception in playSound")
+            val mediaPlayer = MediaPlayer.create(context, iSound)
+            mediaPlayer.start()
+            mediaPlayer.setOnCompletionListener {
+                it.release()
             }
         }
 
         fun releaseResources() {
-            mediaPlayer?.release()
             transactionFirstInList = cLAST_ROW
             haveLoadedDataForThisUser = false
             transactionSearchText = ""
@@ -294,16 +289,11 @@ class MyApplication : Application() {
         })
             */
     }
-
-    override fun onTerminate() {
-        super.onTerminate()
-        mediaPlayer?.release()
-        Log.d("Alex", "Terminating MyApplication")
-    }
 }
 
 data class DataObject(var id: Int, var label: String, var value: Double, var priority: String, var color: Int)
 
+/*
 data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
     constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
         // might get "2022-02-23", or might get "2022-02", or might get "2022-2"
@@ -368,6 +358,74 @@ data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month c
         } else {
             "$year-$month"
         }
+    }
+    fun get2DigitMonth(): String {
+        return if (month < 10)
+            "0$month"
+        else
+            month.toString()
+    }
+}
+*/
+
+data class MyDate(
+    var year: Int,
+    var month: Int,
+    var day: Int) {
+    constructor(iDate: String) : this(iDate.substring(0,4).toInt(), 1, 1) {
+        // might get "2022-02-23", or might get "2022-2-23" or might get "2022-01"
+        val dash1 = iDate.indexOf("-")
+        val dash2 = iDate.indexOf("-", dash1+1)
+        if (dash1 != -1)
+        {
+            month = if (dash2 != -1)
+                iDate.substring(dash1 + 1, dash2).toInt()
+            else
+                iDate.substring(dash1 + 1, iDate.length).toInt()
+            day = if (dash2 != -1)
+                iDate.substring(dash2 + 1, iDate.length).toInt()
+            else
+                1
+        }
+        if (month == 0)
+            month = 1
+    }
+    constructor(iMyDate: MyDate) : this(iMyDate.year, iMyDate.month, iMyDate.day)
+    constructor(iCal: Calendar) : this(iCal.get(Calendar.YEAR), iCal.get(Calendar.MONTH)+1, iCal.get(Calendar.DAY_OF_MONTH))
+
+    override fun toString(): String {
+        return "%04d-%02d-%02d".format(year, month, day)
+    }
+    operator fun compareTo(iDate: MyDate): Int {
+        return if (this.toString() == iDate.toString())
+            0
+        else if (this.toString() < iDate.toString())
+            -1
+        else
+            1
+    }
+
+    fun getFirstOfMonth() : String {
+        return "%04d-%02d-01".format(year, month)
+    }
+
+    fun getLastDayOfMonth() : String {
+        return "%04d-%02d-31".format(year, month)
+    }
+    fun increment(iPeriod: String, iRegularity: Int) : MyDate {
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.YEAR, year)
+        cal.set(Calendar.MONTH, month-1)
+        cal.set(Calendar.DAY_OF_MONTH, day)
+        when (iPeriod) {
+            cPeriodWeek -> cal.add(Calendar.DATE, 7 * iRegularity)
+            cPeriodMonth -> cal.add(Calendar.MONTH, 1 * iRegularity)
+            cPeriodYear -> cal.add(Calendar.YEAR, 1 * iRegularity)
+        }
+        year = cal.get(Calendar.YEAR)
+        month = cal.get(Calendar.MONTH) + 1
+        day = cal.get(Calendar.DAY_OF_MONTH)
+        return  this
     }
     fun get2DigitMonth(): String {
         return if (month < 10)
@@ -910,13 +968,11 @@ object LangUtils {
         }
     }
 
-    @NonNull
-    fun getAppLanguages(@NonNull context: Context): ArrayMap<String, Locale>? {
+    private fun getAppLanguages(@NonNull context: Context): ArrayMap<String, Locale>? {
         if (sLocaleMap == null) setAppLanguages(context)
         return sLocaleMap
     }
 
-    @NonNull
     fun getFromPreference(@NonNull context: Context): Locale {
         getAppLanguages(context)
         val language: String? = MyApplication.prefs.getString("lang", null)

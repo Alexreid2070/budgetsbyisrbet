@@ -27,7 +27,7 @@ android {
         applicationId "com.isrbet.budgetsbyisrbet"
         minSdk 26
         targetSdk 33
-        versionCode 49
+        versionCode 50
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -53,6 +53,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.isrbet.budgetsbyisrbet'
 }
 
 dependencies {

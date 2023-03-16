@@ -2,11 +2,11 @@
 
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import timber.log.Timber
 import java.util.ArrayList
 
 data class Category(var id: Int, var categoryName: String, var subcategoryName: String,
@@ -25,7 +25,7 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
             this.inUse = cat.inUse == true
         }
         catch (exception: Exception) {
-            Log.d("Alex", "caught an exception in Category constructor (missing dash) $iFullCategoryName")
+            Timber.tag("Alex").d("caught an exception in Category constructor (missing dash) $iFullCategoryName")
         }
     }
     fun fullCategoryName() : String {
@@ -89,7 +89,7 @@ class CategoryViewModel : ViewModel() {
                 return getCategory(id)
             }
             catch (exception: Exception) {
-                Log.d("Alex", "caught an exception in getCategory with $fullName")
+                Timber.tag("Alex").d("caught an exception in getCategory with $fullName")
             }
             return null
         }
@@ -182,7 +182,7 @@ class CategoryViewModel : ViewModel() {
                     .child(id.toString()).removeValue()
                 val anyMoreCats: Category? = singleInstance.categories.find { it.categoryName == cat.categoryName }
                 if (anyMoreCats == null) {
-                    Log.d("Alex", "Just deleted the last category so clean up CategoryDetails too")
+                    Timber.tag("Alex").d("Just deleted the last category so clean up CategoryDetails too")
                     DefaultsViewModel.deleteCategoryDetail(cat.categoryName)
                 }
             }

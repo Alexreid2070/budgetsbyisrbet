@@ -116,29 +116,29 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         return myConvertView
     }
     private fun setGroupList() {
-        val tgroupList: MutableList<Int> = mutableListOf()
-        tgroupList.clear()
+        val tGroupList: MutableList<Int> = mutableListOf()
+        tGroupList.clear()
         var c = 0 // row counter
         var j = 0 // number of transaction within specific date
 
         for (i in 0 until myData.size) {
-            if (tgroupList.size == 0) {
-                tgroupList.add(c, j)
+            if (tGroupList.size == 0) {
+                tGroupList.add(c, j)
                 c++
                 j++
             } else {
                 if (myData[i].categoryName == myData[i - 1].categoryName) {
-                    tgroupList.add(c, j)
+                    tGroupList.add(c, j)
                     c++
                     j++
                 } else {
                     j = 0
-                    tgroupList.add(c, j)
+                    tGroupList.add(c, j)
                     c++
                     j++
                 }
             }
         }
-        groupList = tgroupList
+        groupList = tGroupList
     }
 }

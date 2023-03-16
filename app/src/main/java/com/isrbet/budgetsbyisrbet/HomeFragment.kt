@@ -439,6 +439,7 @@ class HomeFragment : Fragment() {
         defaultsModel.loadDefaults()
         categoryModel.loadCategories()
         spenderModel.loadSpenders()
+//        budgetModel.loadBudgetNews()
         budgetModel.loadBudgets()
         scheduledPaymentModel.loadScheduledPayments()
         retirementUserModel.loadRetirementUsers()

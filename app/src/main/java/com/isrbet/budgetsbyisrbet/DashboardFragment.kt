@@ -27,7 +27,7 @@ class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
     private var mTableLayout: TableLayout? = null
-    private var currentBudgetMonth: BudgetMonth = BudgetMonth(0,0)
+    private var currentBudgetMonth: MyDate = MyDate(0,1, 1)
     private var collapsedCategories: MutableList<String> = ArrayList()
 
     override fun onCreateView(
@@ -52,9 +52,9 @@ class DashboardFragment : Fragment() {
         if (currentBudgetMonth.year == 0) {
             val dateNow = Calendar.getInstance()
             currentBudgetMonth = if (DefaultsViewModel.getDefaultViewPeriodDashboard() == cPeriodYear)
-                BudgetMonth(dateNow.get(Calendar.YEAR), 0)
+                MyDate(dateNow.get(Calendar.YEAR), 0, 1)
             else
-                BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+                MyDate(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1, 1)
         }
         when (DefaultsViewModel.getDefaultFilterDiscDashboard()) {
             cDiscTypeDiscretionary -> binding.discRadioButton.isChecked = true
@@ -91,14 +91,14 @@ class DashboardFragment : Fragment() {
         binding.buttonViewMonth.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodMonth)
             val dateNow = Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(currentBudgetMonth.year, dateNow.get(Calendar.MONTH) + 1)
+            currentBudgetMonth = MyDate(currentBudgetMonth.year, dateNow.get(Calendar.MONTH) + 1, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
         binding.buttonViewYtd.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodYTD)
             val dateNow = Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+            currentBudgetMonth = MyDate(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
@@ -111,7 +111,7 @@ class DashboardFragment : Fragment() {
         binding.buttonViewAllTime.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodAllTime)
             val dateNow = Calendar.getInstance()
-            currentBudgetMonth = BudgetMonth(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1)
+            currentBudgetMonth = MyDate(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
@@ -225,13 +225,13 @@ class DashboardFragment : Fragment() {
         HintViewModel.showHint(parentFragmentManager, cHINT_DASHBOARD)
     }
 
-    private fun startLoadData(iBudgetMonth: BudgetMonth) {
+    private fun startLoadData(iBudgetMonth: MyDate) {
         val dashboardRows = DashboardRows()
         val viewPeriod = when (DefaultsViewModel.getDefaultViewPeriodDashboard()) {
-            cPeriodAllTime -> DateRange.ALLTIME
-            cPeriodYTD -> DateRange.YTD
-            cPeriodYear -> DateRange.YEAR
-            else -> DateRange.MONTH
+            cPeriodAllTime -> DateRangeEnum.ALLTIME
+            cPeriodYTD -> DateRangeEnum.YTD
+            cPeriodYear -> DateRangeEnum.YEAR
+            else -> DateRangeEnum.MONTH
         }
         val defWho = if (DefaultsViewModel.getDefaultFilterWhoDashboard().toIntOrNull() != null)
             DefaultsViewModel.getDefaultFilterWhoDashboard().toInt() else 2
@@ -324,13 +324,13 @@ class DashboardFragment : Fragment() {
             when (iRowType) {
                 cDETAIL -> tv1.text = iSubcategory
                 cSUBTOTAL -> {
-                    tv1.text = "$iCategory " + getString(R.string.total)
+                    tv1.text = String.format("$iCategory ${getString(R.string.total)}")
                     tv1.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.ic_baseline_expand_less_24, 0, 0, 0);                }
                 else -> tv1.text = iCategory
             }
             if (tv1.text.length > 15) {
-                tv1.text = tv1.text.substring(0,15) + "..."
+                tv1.text = String.format("{tv1.text.substring(0,15)}...")
             }
         }
         tv1.tag = getString(R.string.expanded)
@@ -702,7 +702,7 @@ class DashboardFragment : Fragment() {
             binding.dashboardSubtitle.visibility = View.GONE
         else {
             binding.dashboardSubtitle.visibility = View.VISIBLE
-            binding.dashboardSubtitle.text = "($currentFilterIndicator)"
+            binding.dashboardSubtitle.text = String.format("($currentFilterIndicator)")
         }
     }
 
@@ -712,7 +712,7 @@ class DashboardFragment : Fragment() {
             if (currentBudgetMonth.month == 0)
                 currentBudgetMonth.year--
             else
-                currentBudgetMonth.decrementMonth()
+                currentBudgetMonth.increment(cPeriodMonth, -1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
@@ -724,7 +724,7 @@ class DashboardFragment : Fragment() {
             if (currentBudgetMonth.month == 0)
                 currentBudgetMonth.year++
             else
-                currentBudgetMonth.addMonth()
+                currentBudgetMonth.increment(cPeriodMonth, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
@@ -758,10 +758,10 @@ class DashboardData {
 
 class DashboardRows {
     fun getRows(
-        iBudgetMonth: BudgetMonth,
+        iBudgetMonth: MyDate,
         iDiscFlag: String = "",
         iBoughtForFlag: Int = 2,
-        iViewPeriod: DateRange = DateRange.MONTH
+        iViewPeriod: DateRangeEnum = DateRangeEnum.MONTH
     ): MutableList<DashboardData> {
         val data: MutableList<DashboardData> = mutableListOf()
         val actualTotals = TransactionViewModel.getCategoryActuals(iBudgetMonth, iViewPeriod, iDiscFlag, iBoughtForFlag)

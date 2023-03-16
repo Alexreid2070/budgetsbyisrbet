@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -167,7 +168,7 @@ class LoanFragment : Fragment() {
         cal.set(dt.substring(0,4).toInt(), dt.substring(5,7).toInt()-1, dt.substring(8,10).toInt())
 
         val loanAmountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
-        val accAmountDouble = binding.acceleratedPaymentAmount.text.toString().toDoubleOrNull()
+        val accAmountDouble = binding.acceleratedPaymentAmount.text.toString().replace(',', '.').toDoubleOrNull()
 //        val accAmountDouble = if (isNumber(binding.acceleratedPaymentAmount.text.toString()))
   //              gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
     //        else 0.0

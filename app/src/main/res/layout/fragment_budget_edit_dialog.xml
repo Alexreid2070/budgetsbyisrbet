@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center_horizontal"
-        android:paddingBottom="5dp"
+        android:padding="5dp"
         app:layout_constraintTop_toTopOf="parent">
         <TextView
             android:id="@+id/budget_dialog_category_ID"
@@ -27,104 +27,177 @@
             android:layout_gravity="center" />
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/budget_dialog_linear_layout1"
+        android:id="@+id/linearlayoutDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
+        android:layout_below="@id/categoryLayout"
+        android:paddingTop="10dp"
         app:layout_constraintTop_toBottomOf="@+id/categoryLayout">
 
         <TextView
-            android:id="@+id/budget_dialog_period_heading"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:layout_weight="1"
+            android:layout_gravity="center"
             android:text="@string/start_date"
-            android:textSize="16sp"/>
+            android:textSize="16sp"
+            android:textStyle="bold" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dateLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="1"
+            android:hint="@string/date"
+            android:minWidth="@dimen/custom_med_width"
+            android:tooltipText="@string/budgetStartDate"
+            app:endIconMode="clear_text">
 
-        <LinearLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/startDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:gravity="start"
+                android:inputType="date"
+                android:enabled="false"/>
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutRegularity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/linearlayoutDate">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="@string/regularity"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:tooltipText="Indicates if payment is every period (1), every second period (2), etc." />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/regularityLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
-                android:id="@+id/budget_dialog_month"
+            android:hint="@string/regularity"
+            android:minWidth="@dimen/custom_med_width"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/regularity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:textSize="16sp"/>
-            <TextView
-                android:id="@+id/budget_dialog_year"
+                android:layout_gravity="end"
+                android:clickable="true"
+                android:cursorVisible="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="start"
+                android:inputType="number"
+                android:longClickable="false"
+                android:enabled="false"/>
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutPeriod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutRegularity">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/period"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/period_field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+        <RelativeLayout
+            android:id="@+id/periodSpinnerRelativeLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/spinner_background"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/period_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@android:color/transparent"
+                android:gravity="end"
+                android:spinnerMode="dropdown" />
+
+            <ImageView
+                android:id="@+id/inputImageView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"/>
-        </LinearLayout>
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="end"
+                android:contentDescription="@string/click_to_select"
+                android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+        </RelativeLayout>
+
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/who_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_linear_layout1"
+        android:paddingTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutPeriod"
         app:layout_constraintStart_toStartOf="parent">
         <TextView
             android:id="@+id/budget_dialog_who_heading"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:text="@string/budget_for"
+            android:layout_weight="1"
             android:textSize="16sp"/>
         <TextView
             android:id="@+id/who_field"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-    </LinearLayout>
-    <HorizontalScrollView
-        android:id="@+id/whoRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fadeScrollbars="false"
-        android:scrollbarThumbHorizontal="?attr/colorSecondary"
-        app:layout_constraintTop_toBottomOf="@+id/who_layout"
-        app:layout_constraintStart_toStartOf="parent">
-        <RadioGroup
-            android:id="@+id/budget_dialog_new_who_RadioGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/who_layout"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:padding="1dp"/>
-    </HorizontalScrollView>
-    <LinearLayout
-        android:id="@+id/period_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/whoRadioGroup"
-        app:layout_constraintStart_toStartOf="parent">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/period"
-            android:textStyle="bold"
             android:layout_weight="1"
-            android:textSize="16sp"/>
-        <TextView
-            android:id="@+id/period_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="0dp"/>
+        <HorizontalScrollView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:fadeScrollbars="false">
+            <RadioGroup
+                android:id="@+id/budget_dialog_new_who_RadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_gravity="end"
+                android:orientation="horizontal"/>
+        </HorizontalScrollView>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/occurence_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/period_layout"
+        android:paddingTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/who_layout"
         app:layout_constraintStart_toStartOf="parent">
         <TextView
             android:id="@+id/budget_dialog_OccurenceLabel"
@@ -139,21 +212,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
+        <RadioGroup
+            android:id="@+id/budget_dialog_occurenceRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:padding="1dp"/>
     </LinearLayout>
-    <RadioGroup
-        android:id="@+id/budget_dialog_occurenceRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/occurence_layout"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="1dp"/>
 
     <LinearLayout
         android:id="@+id/budget_dialog_linear_layout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/budget_dialog_occurenceRadioGroup">
+        android:paddingTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/occurence_layout">
 
         <TextView
             android:id="@+id/budget_dialog_amount_heading"

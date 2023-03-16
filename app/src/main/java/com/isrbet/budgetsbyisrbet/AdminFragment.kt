@@ -58,7 +58,8 @@ class AdminFragment : Fragment() {
         MyApplication.currentUserEmail = email
         AppUserViewModel.clearCallback()
         switchTo(uid)
-        activity?.onBackPressed()
+//        activity?.onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 
     override fun onDestroyView() {
@@ -66,6 +67,7 @@ class AdminFragment : Fragment() {
         _binding = null
     }
 
-    fun doSomething() {
+    private fun doSomething() {
+        BudgetViewModel.migrateBudgets()
     }
 }

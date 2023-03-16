@@ -3,7 +3,6 @@ package com.isrbet.budgetsbyisrbet
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -158,7 +157,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             if (expenseCtr == 0)
                 binding.messageTransaction.visibility = View.GONE
             else
-                binding.messageTransaction.text = "$expenseCtr " + getString(R.string.transaction_psp)
+                binding.messageTransaction.text = String.format("$expenseCtr ${getString(R.string.transaction_psp)}")
             if (budgetCtr == 0)
                 binding.messageBudgetLayout.visibility = View.GONE
             else
