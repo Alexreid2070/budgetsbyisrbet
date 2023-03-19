@@ -24,7 +24,7 @@ class BudgetFragment : Fragment() {
     private val binding get() = _binding!!
     private val args: BudgetFragmentArgs by navArgs()
     private var prevBudgetAmt = 0.0
-    private var cal = android.icu.util.Calendar.getInstance()
+    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -254,7 +254,7 @@ class BudgetFragment : Fragment() {
                 endOfPeriod.month = 12
             }
         }
-        binding.budgetAddActualAmount.text = String.format("{getString(R.string.actual_amount_spent_in_previous_period_is)}  ${
+        binding.budgetAddActualAmount.text = String.format("${getString(R.string.actual_amount_spent_in_previous_period_is)}  ${
                         gDecWithCurrency(
                             TransactionViewModel.getActualsForPeriod(
                                 CategoryViewModel.getID(catText, subCatText),

@@ -59,9 +59,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
     }
 
     fun initCurrentBudgetMonth() {
-        val dateNow = android.icu.util.Calendar.getInstance()
         currentBudgetMonth = MyDate(
-            dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+            gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
                 android.icu.util.Calendar.MONTH) + 1, 1)
         if (DefaultsViewModel.getDefaultViewByTracker() == cPeriodYear) {
             currentBudgetMonth.month = 0
@@ -69,10 +68,9 @@ class TrackerFragment : Fragment(), CoroutineScope {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val dateNow = android.icu.util.Calendar.getInstance()
         if (currentBudgetMonth.year == 0) {
             currentBudgetMonth = MyDate(
-                dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
                     android.icu.util.Calendar.MONTH
                 ) + 1, 1
             )
@@ -191,7 +189,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
             }
             binding.buttonViewMonth.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodMonth)
-                currentBudgetMonth = MyDate(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                currentBudgetMonth = MyDate(
+                    gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
                     android.icu.util.Calendar.MONTH) + 1, 1)
                 startLoadData()
             }
@@ -202,13 +201,15 @@ class TrackerFragment : Fragment(), CoroutineScope {
             }
             binding.buttonViewYtd.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodYTD)
-                currentBudgetMonth = MyDate(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                currentBudgetMonth = MyDate(
+                    gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
                     android.icu.util.Calendar.MONTH) + 1, 1)
                 startLoadData()
             }
             binding.buttonViewAllTime.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodAllTime)
-                currentBudgetMonth = MyDate(dateNow.get(android.icu.util.Calendar.YEAR), dateNow.get(
+                currentBudgetMonth = MyDate(
+                    gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
                     android.icu.util.Calendar.MONTH) + 1, 1)
                 startLoadData()
             }
@@ -417,8 +418,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         if (currentBudgetMonth.month != 0)
                             action.month = currentBudgetMonth.month.toString()
                         else {
-                            val dateNow = android.icu.util.Calendar.getInstance()
-                            action.month = (dateNow.get(Calendar.MONTH)+1).toString()
+                            action.month = (gCurrentDate.get(Calendar.MONTH)+1).toString()
                         }
                         findNavController().navigate(action)
                     }
@@ -502,19 +502,18 @@ class TrackerFragment : Fragment(), CoroutineScope {
             totalBudget += budget.value.toFloat()
         }
 
-        val dateNow = android.icu.util.Calendar.getInstance()
         var totalBudgetToDate = 0.0
         var daysInMonth = 1
 
         if (viewPeriod == DateRangeEnum.MONTH) {
-            if (currentBudgetMonth.year == dateNow.get(Calendar.YEAR) &&
-                currentBudgetMonth.month == dateNow.get(Calendar.MONTH)+1) {
-                daysInMonth = getDaysInMonth(dateNow)
+            if (currentBudgetMonth.year == gCurrentDate.get(Calendar.YEAR) &&
+                currentBudgetMonth.month == gCurrentDate.get(Calendar.MONTH)+1) {
+                daysInMonth = getDaysInMonth(gCurrentDate)
                 totalBudgetToDate =
-                    totalBudget * dateNow.get(Calendar.DATE) / daysInMonth
-            } else if (currentBudgetMonth.year > dateNow.get(Calendar.YEAR) ||
-                    (currentBudgetMonth.year == dateNow.get(Calendar.YEAR) &&
-                            currentBudgetMonth.month > dateNow.get(Calendar.MONTH)+1)) {
+                    totalBudget * gCurrentDate.get(Calendar.DATE) / daysInMonth
+            } else if (currentBudgetMonth.year > gCurrentDate.get(Calendar.YEAR) ||
+                    (currentBudgetMonth.year == gCurrentDate.get(Calendar.YEAR) &&
+                            currentBudgetMonth.month > gCurrentDate.get(Calendar.MONTH)+1)) {
                 // looking at a future month
                 totalBudgetToDate = 0.0
             } else { // looking at a past month
@@ -527,12 +526,12 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 totalCurrentBudget += budget.value.toFloat()
             }
 
-            daysInMonth = getDaysInMonth(dateNow)
+            daysInMonth = getDaysInMonth(gCurrentDate)
             val thisMonthBudget =
-                totalCurrentBudget * dateNow.get(Calendar.DATE) / daysInMonth
+                totalCurrentBudget * gCurrentDate.get(Calendar.DATE) / daysInMonth
             totalBudgetToDate = totalBudget - totalCurrentBudget + thisMonthBudget
         } else if (viewPeriod == DateRangeEnum.YEAR) {
-            val thisMonth = MyDate(currentBudgetMonth.year, dateNow.get(Calendar.MONTH)+1, 1)
+            val thisMonth = MyDate(currentBudgetMonth.year, gCurrentDate.get(Calendar.MONTH)+1, 1)
             val ytdBudgets = BudgetViewModel.getCategoryBudgets(DateRangeEnum.YTD, thisMonth, discFilter, whoFilter, "")
             var totalYTDBudget = 0.0
             for (budget in ytdBudgets) {
@@ -545,9 +544,9 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 totalCurrentBudget += budget.value.toFloat()
             }
 
-            daysInMonth = getDaysInMonth(dateNow)
+            daysInMonth = getDaysInMonth(gCurrentDate)
             val thisMonthBudget =
-                totalCurrentBudget * dateNow.get(Calendar.DATE) / daysInMonth
+                totalCurrentBudget * gCurrentDate.get(Calendar.DATE) / daysInMonth
             totalBudgetToDate = totalYTDBudget - totalCurrentBudget + thisMonthBudget
         } else { // all-time, don't show this row
 
@@ -591,7 +590,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         if (viewPeriod != DateRangeEnum.ALLTIME) {
             tList.add(
                 DataObject(
-                    0, getString(R.string.budget_to_date) + " (" + dateNow.get(Calendar.DATE) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
+                    0, getString(R.string.budget_to_date) + " (" + gCurrentDate.get(Calendar.DATE) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
                     totalBudgetToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.medium_gray)
                 )
@@ -637,7 +636,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 //          binding.chartSummaryText.text = lab
         else {
             val remainingBudget = totalBudget - totalActualsToDate
-            val daysRemaining = daysInMonth - dateNow.get(Calendar.DATE) + 1
+            val daysRemaining = daysInMonth - gCurrentDate.get(Calendar.DATE) + 1
 
             binding.chartSummaryText.text = String.format(getString(R.string.keeping_x_expenses_below),
                 lab, gDecWithCurrency(remainingBudget / daysRemaining), lab2)

@@ -30,8 +30,8 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
     }
     private var listener: ScheduledPaymentEditDialogFragmentListener? = null
     private var initialLoad = true
-    private var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
-    private var lCal = android.icu.util.Calendar.getInstance()
+    private var cal: android.icu.util.Calendar = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+    private var lCal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
     private var currentMode = cMODE_VIEW
 
     companion object {

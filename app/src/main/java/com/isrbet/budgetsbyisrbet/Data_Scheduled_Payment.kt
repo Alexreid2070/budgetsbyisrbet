@@ -68,7 +68,7 @@ data class ScheduledPayment(
                 LoanPaymentRegularity.MONTHLY -> 12
             }
             var principalOwing = loanAmount
-            val paymentDate = Calendar.getInstance()
+            val paymentDate = gCurrentDate.clone() as Calendar // Calendar.getInstance()
             paymentDate.set(loanFirstPaymentDate.substring(0,4).toInt(), loanFirstPaymentDate.substring(5,7).toInt()-1, loanFirstPaymentDate.substring(8,10).toInt())
             do {
                 val interestInThisPeriod = principalOwing * (loanInterestRate / 100.0 / paymentsPerYear)
@@ -245,11 +245,10 @@ class ScheduledPaymentViewModel : ViewModel() {
         }
         fun generateScheduledPayments(mainActivity: MainActivity) {
             // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
-            val cal = Calendar.getInstance()
-            val dateNow = giveMeMyDateFormat(cal)
+            val dateNow = giveMeMyDateFormat(gCurrentDate)
             singleInstance.scheduledPayments.forEach {
                 while (it.nextdate <= dateNow) {
-                    val newNextDate = Calendar.getInstance()
+                    val newNextDate = gCurrentDate.clone() as Calendar // Calendar.getInstance()
                     newNextDate.set(it.nextdate.substring(0,4).toInt(), it.nextdate.substring(5,7).toInt()-1, it.nextdate.substring(8,10).toInt())
                     // Reset nextDate
                     when (it.period) {
@@ -276,7 +275,8 @@ class ScheduledPaymentViewModel : ViewModel() {
                         round(it.amount*100).toInt(),
                         it.category, it.name, "", it.paidby, it.boughtfor,
                         it.split1, cTRANSACTION_TYPE_SCHEDULED))
-                    val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(cal) else 0
+                    val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(
+                        gCurrentDate) else 0
                     if (nextDayIsBusinessDay)
                         Toast.makeText(mainActivity, MyApplication.getString(R.string.scheduled_payment_was_added_for) +
                             " ${it.name} ${gDecWithCurrency(it.amount)} " +

@@ -41,6 +41,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.time.LocalDate
@@ -127,6 +128,7 @@ var homePageExpansionAreaExpanded = false
 val gNumberFormat: NumberFormat = NumberFormat.getInstance()
 var gRetirementScenario:RetirementData? = null
 var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
+val gCurrentDate = android.icu.util.Calendar.getInstance()
 
 fun gMonthName(iMonth: Int) : String {
     val month = Month.of(iMonth)
@@ -216,10 +218,7 @@ class MyApplication : Application() {
         }
         fun getQuote(): String {
             if (quoteForThisSession == "") {
-//                val randomIndex = (0 until inspirationalQuotes.size-1).random()
-//                val randomIndex = Random.nextInt(inspirationalQuotes.size)
                 val secondsSinceEpoch = System.currentTimeMillis()
-//                val randomIndex = (0 until inspirationalQuotes.size).random()
                 val randomIndex = (secondsSinceEpoch % inspirationalQuotes.size).toInt()
                 val randomElement = inspirationalQuotes[randomIndex]
                 quoteForThisSession = randomElement
@@ -248,7 +247,6 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // initialization code here
         mContext = this
         Firebase.database.setPersistenceEnabled(true)
         database = FirebaseDatabase.getInstance()
@@ -257,116 +255,13 @@ class MyApplication : Application() {
         prefs = applicationContext.getSharedPreferences("Prefs", 0)
         prefEditor = prefs.edit()
         LangUtils.init(this)
-
-/*        registerActivityLifecycleCallbacks(object: ActivityLifecycleCallbacks {
-                       override fun onActivityCreated(p0: Activity, p1: Bundle?) {
-                            Log.d("Alex", "Callback: onActivityCreated")
-                        }
-
-                        override fun onActivityStarted(p0: Activity) {
-                            Log.d("Alex", "Callback: onActivityStarted")
-                        }
-
-                        override fun onActivityResumed(p0: Activity) {
-                            Log.d("Alex", "Callback: onActivityResumed")
-                        }
-
-                        override fun onActivityPaused(p0: Activity) {
-                            Log.d("Alex", "Callback: onActivityPaused")
-                        }
-
-                        override fun onActivityStopped(p0: Activity) {
-                            Log.d("Alex", "Callback: onActivityStopped")
-                        }
-
-                        override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
-                            Log.d("Alex", "Callback: onActivitySaveInstanceState")
-                        }
-            override fun onActivityDestroyed(p0: Activity) {
-                Log.d("Alex", "Callback: onActivityDestroyed")
-                quoteForThisSession = ""
-            }
-        })
-            */
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 }
 
 data class DataObject(var id: Int, var label: String, var value: Double, var priority: String, var color: Int)
-
-/*
-data class BudgetMonth(var year: Int, var month: Int = 0) { // note that month can be 0, signifying the entire year
-    constructor(period: String) : this(period.substring(0,4).toInt(), 0) {
-        // might get "2022-02-23", or might get "2022-02", or might get "2022-2"
-        val dash = period.indexOf("-")
-        val dash2 = period.indexOf("-", dash+1)
-        month = if (dash2 == -1)
-            if (dash > -1) period.substring(dash+1,period.length).toInt() else 0
-        else {
-            if (dash > -1) period.substring(dash + 1, dash2).toInt() else 0
-        }
-        }
-    constructor(bm: BudgetMonth) : this(bm.year, bm.month)
-
-    fun isAnnualBudget(): Boolean {
-        return (month == 0)
-    }
-
-    fun setValue(iBM:BudgetMonth) {
-        year = iBM.year
-        month = iBM.month
-    }
-
-    operator fun compareTo(iBM: BudgetMonth): Int {
-        return if (year == iBM.year && month == iBM.month)
-            0
-        else if (year < iBM.year || (year == iBM.year && month < iBM.month))
-            -1
-        else
-            1
-    }
-
-    fun addMonth(inc: Int = 1) { // only works up to increases of 12
-        if (month == 0) { // isannual
-            year += inc
-        } else {
-            month += inc
-            if (month > 12) {
-                year++
-                month -= 12
-            }
-        }
-    }
-
-    fun decrementMonth(inc: Int = 1) { // only works up to decreases of 12
-        if (month == 0) { // isannual
-            year -= inc
-        } else {
-            month -= inc
-            if (month <= 0) {
-                year--
-                month += 12
-            }
-        }
-    }
-
-    override fun toString(): String {
-//        if (month == 0) {
-//            return year.toString()
-//        } else
-        return if (month < 10) {
-            "$year-0$month"
-        } else {
-            "$year-$month"
-        }
-    }
-    fun get2DigitMonth(): String {
-        return if (month < 10)
-            "0$month"
-        else
-            month.toString()
-    }
-}
-*/
 
 data class MyDate(
     var year: Int,
@@ -413,7 +308,7 @@ data class MyDate(
         return "%04d-%02d-31".format(year, month)
     }
     fun increment(iPeriod: String, iRegularity: Int) : MyDate {
-        val cal = Calendar.getInstance()
+        val cal = gCurrentDate.clone() as Calendar // Calendar.getInstance()
         cal.set(Calendar.YEAR, year)
         cal.set(Calendar.MONTH, month-1)
         cal.set(Calendar.DAY_OF_MONTH, day)
@@ -664,7 +559,7 @@ fun getNextBusinessDate(iDate: String) : String {
     val year = iDate.substring(0,4).toInt()
     val month = iDate.substring(5,7).toInt()
     val day = iDate.substring(8,10).toInt()
-    val thisDate = Calendar.getInstance()
+    val thisDate = gCurrentDate.clone() as Calendar // Calendar.getInstance()
     thisDate.set(year, month-1, day)
     if(Calendar.SATURDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
         thisDate.add(Calendar.DATE, 2)

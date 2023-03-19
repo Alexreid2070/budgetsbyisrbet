@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class BudgetEditDialogFragment : DialogFragment() {
@@ -174,8 +176,11 @@ class BudgetEditDialogFragment : DialogFragment() {
         binding.budgetDialogCategoryID.text = cat?.id.toString()
         binding.budgetDialogCategorySubcategory.text = String.format("${cat?.categoryName}-${cat?.subcategoryName}")
         binding.startDate.setText(arguments?.getString(KEY_DATE_VALUE))
-        val cal = android.icu.util.Calendar.getInstance()
-        cal.set(Calendar.DAY_OF_MONTH, 1)
+        val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+        val tOldDate = LocalDate.parse(binding.startDate.text, DateTimeFormatter.ISO_DATE)
+        cal.set(Calendar.YEAR, tOldDate.year)
+        cal.set(Calendar.MONTH, tOldDate.monthValue-1)
+        cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
@@ -265,7 +270,8 @@ class BudgetEditDialogFragment : DialogFragment() {
                     cBUDGET_JUST_THIS_MONTH
                 else
                     cBUDGET_RECURRING
-                val errorMsg = BudgetViewModel.checkNewBudget("",
+                val errorMsg = BudgetViewModel.checkNewBudget(
+                    oldKey,
                     binding.budgetDialogCategoryID.text.toString().toInt(),
                     MyDate(binding.startDate.text.toString()),
                     newWho,

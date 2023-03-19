@@ -26,7 +26,7 @@ import kotlin.coroutines.CoroutineContext
 class RetirementFragment : Fragment(), CoroutineScope {
     private var _binding: FragmentRetirementBinding? = null
     private val binding get() = _binding!!
-    private var cal = android.icu.util.Calendar.getInstance()
+    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
     private var lRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
     private var myCalculationResponse = ""
     private var myCalculationResponse2 = ""
@@ -235,14 +235,14 @@ class RetirementFragment : Fragment(), CoroutineScope {
         binding.birthDate.setText(giveMeMyDateFormat(cal))
         val birthDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = android.icu.util.Calendar.getInstance()
+                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
                 lcal.set(Calendar.YEAR, year)
                 lcal.set(Calendar.MONTH, monthOfYear)
                 lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 binding.birthDate.setText(giveMeMyDateFormat(lcal))
             }
         binding.birthDate.setOnClickListener {
-            val lcal = android.icu.util.Calendar.getInstance()
+            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
             if (binding.birthDate.text.toString() != "") {
                 lcal.set(Calendar.YEAR, binding.birthDate.text.toString().substring(0,4).toInt())
                 lcal.set(Calendar.MONTH, binding.birthDate.text.toString().substring(5,7).toInt()-1)
@@ -258,14 +258,14 @@ class RetirementFragment : Fragment(), CoroutineScope {
         binding.retirementDate.setText(giveMeMyDateFormat(cal))
         val retDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = android.icu.util.Calendar.getInstance()
+                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
                 lcal.set(Calendar.YEAR, year)
                 lcal.set(Calendar.MONTH, monthOfYear)
                 lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 binding.retirementDate.setText(giveMeMyDateFormat(lcal))
             }
         binding.retirementDate.setOnClickListener {
-            val lcal = android.icu.util.Calendar.getInstance()
+            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
             if (binding.retirementDate.text.toString() != "") {
                 lcal.set(Calendar.YEAR, binding.retirementDate.text.toString().substring(0,4).toInt())
                 lcal.set(Calendar.MONTH, binding.retirementDate.text.toString().substring(5,7).toInt()-1)

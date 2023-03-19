@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -18,7 +17,7 @@ class LoanFragment : Fragment() {
     private var _binding: FragmentLoanBinding? = null
     private val binding get() = _binding!!
     private val args: LoanFragmentArgs by navArgs()
-    private var cal = Calendar.getInstance()
+    private var cal = gCurrentDate.clone() as Calendar // Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -108,8 +107,7 @@ class LoanFragment : Fragment() {
 
     private fun reset() {
         binding.LoanSpinner.setSelection(0)
-        val today = Calendar.getInstance()
-        binding.loanStartDate.setText(giveMeMyDateFormat(today))
+        binding.loanStartDate.setText(giveMeMyDateFormat(gCurrentDate))
         binding.loanAmount.setText("")
         binding.amortizationPeriod.setText("")
         binding.interestRate.setText("")
@@ -243,10 +241,9 @@ class LoanFragment : Fragment() {
     private fun goToCorrectRow() {
         val listView: ListView = requireActivity().findViewById(R.id.loan_list_view)
         var row = 0
-        val dateNow = Calendar.getInstance()
         for (i in 0 until listView.adapter.count) {
             val loanPayment: LoanPayment = listView.adapter.getItem(i) as LoanPayment
-            if (loanPayment.paymentDate >= dateNow) {
+            if (loanPayment.paymentDate >= gCurrentDate) {
                 row = if (i == 0) 0 else i-1
                 break
             }

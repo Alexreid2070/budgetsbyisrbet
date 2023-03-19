@@ -51,7 +51,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
                         Timber.tag("Alex").d("notification text: $notificationText")
-                        val dateNow = Calendar.getInstance()
+                        val dateNow = gCurrentDate
                         val key = dateNow.get(Calendar.YEAR).toString() + "-" +
                                 dateNow.get(Calendar.MONTH).toString() + "-" +
                                 dateNow.get(Calendar.DATE).toString() + "-" +

@@ -155,10 +155,9 @@ class BudgetViewAllFragment : Fragment() {
         binding.budgetCategorySpinnerLayout.visibility = View.GONE
         binding.categoryTypeLayout.visibility = View.GONE
         binding.yearLayout.visibility = View.VISIBLE
-        val cal = android.icu.util.Calendar.getInstance()
         if (args.year == "") {
-            binding.budgetAddYear.progress = cal.get(Calendar.YEAR)
-            binding.budgetAddMonth.progress = cal.get(Calendar.MONTH) + 1
+            binding.budgetAddYear.progress = gCurrentDate.get(Calendar.YEAR)
+            binding.budgetAddMonth.progress = gCurrentDate.get(Calendar.MONTH) + 1
         } else {
             binding.budgetAddYear.progress = args.year.toInt()
             binding.budgetAddMonth.progress = args.month.toInt()

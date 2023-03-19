@@ -81,7 +81,6 @@ data class RetirementData(
 
     companion object {
         fun create(iData: MutableList<DataSnapshot>) : RetirementData {
-            val cal = android.icu.util.Calendar.getInstance()
             val retData = RetirementData(
                 "", 0, 0,
                 "", 0, 0, 0.0,
@@ -269,7 +268,7 @@ data class RetirementData(
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
-                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                                         distributionOrder,
                                         0,
                                         minimizeTax
@@ -284,7 +283,7 @@ data class RetirementData(
                                         estimatedGrowthPct,
                                         annualContribution,
                                         willSellToFinanceRetirement,
-                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                                         distributionOrder
                                     )
                                 }
@@ -296,7 +295,7 @@ data class RetirementData(
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
-                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                                         distributionOrder,
                                         0,
                                         minimizeTax
@@ -308,11 +307,11 @@ data class RetirementData(
                                         name,
                                         value,
                                         pensionStartDate,
-                                        cal.get(Calendar.YEAR),
+                                        gCurrentDate.get(Calendar.YEAR),
                                         annualAmount,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
-                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                                         distributionOrder
                                     )
                                 }
@@ -325,7 +324,7 @@ data class RetirementData(
                                         estimatedGrowthPct,
                                         annualContribution,
                                         willSellToFinanceRetirement,
-                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                                         distributionOrder,
                                         taxSheltered
                                     )
@@ -338,7 +337,7 @@ data class RetirementData(
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         willSellToFinanceRetirement,
-                                        12 - cal.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                                         distributionOrder,
                                         useDefaultGrowthPctAsSavings,
                                         estimatedGrowthPctAfterSale,
@@ -585,10 +584,9 @@ open class RRSP (
         val currentMinimalTaxAmount = if (minimizeTax == MinimizeTaxEnum.DO_NOT_MINIMIZE) {
             999999
         } else {
-            val cal = android.icu.util.Calendar.getInstance()
             val inflationRate = iRetirementData?.inflationRate ?: 0.0
             round(gMinimizeTaxAmount *
-                    (1 + inflationRate/100.0).pow(iYear - cal.get(Calendar.YEAR))).toInt()
+                    (1 + inflationRate/100.0).pow(iYear - gCurrentDate.get(Calendar.YEAR))).toInt()
         }
         var minWithdrawal1 = min(getAvailableValue(), iAmount)
         minWithdrawal1 = min(minWithdrawal1, currentMinimalTaxAmount - iTaxableIncomeAlreadyMade) // at this point minWithdrawal1 is the minimum of...
@@ -913,7 +911,7 @@ class Property(
         if (willSellToFinanceRetirement) {
             if (soldInYear == 0) {
                 soldInYear = iYear
-                val cal = android.icu.util.Calendar.getInstance()
+                val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
                 cal.set(Calendar.YEAR, iYear)
                 cal.set(Calendar.MONTH, 0)
                 cal.set(Calendar.DAY_OF_MONTH, 1)
@@ -1179,8 +1177,7 @@ data class Salary(
             iRetirementDate.substring(5,7).toInt() / 12.0
         } else
             1.0
-        val cal = android.icu.util.Calendar.getInstance()
-        val inflationMultiplier = (1 + estimatedGrowthPct/100.0).pow(iForYear - cal.get(Calendar.YEAR))
+        val inflationMultiplier = (1 + estimatedGrowthPct/100.0).pow(iForYear - gCurrentDate.get(Calendar.YEAR))
         return round(annualValueAfterTax * multiplier * inflationMultiplier).toInt()
     }
 }
@@ -1235,8 +1232,7 @@ data class OAS(
             (12 - birthMonth + 1) / 12.0
         else
             1.0
-        val cal = android.icu.util.Calendar.getInstance()
-        return round((currentAnnualValue) * (1 + inflationRate/100.0).pow(forYear - cal.get(Calendar.YEAR)) * firstYearMultiplier).toInt()
+        return round((currentAnnualValue) * (1 + inflationRate/100.0).pow(forYear - gCurrentDate.get(Calendar.YEAR)) * firstYearMultiplier).toInt()
     }
 }
 
@@ -1344,9 +1340,8 @@ class RetirementViewModel : ViewModel() {
         }
 
         fun getEarliestRetirementYear(iRetirementScenario: RetirementData) : Int {
-            val cal = android.icu.util.Calendar.getInstance()
             val retirementDateSaver = iRetirementScenario.retirementDate
-            var yearToTryToRetire = min(cal.get(Calendar.YEAR) - 1, iRetirementScenario.retirementDate.substring(0,4).toInt())
+            var yearToTryToRetire = min(gCurrentDate.get(Calendar.YEAR) - 1, iRetirementScenario.retirementDate.substring(0,4).toInt())
             val retUser = getUserDefault(iRetirementScenario.userID)
             val endYear = if (retUser == null)
                 yearToTryToRetire
@@ -1414,8 +1409,7 @@ class RetirementViewModel : ViewModel() {
         fun getCalculationRows(iRetirementScenario: RetirementData, iLogOutput: Boolean = false)
         : MutableList<RetirementCalculationRow> {
             val tList: MutableList<RetirementCalculationRow> = ArrayList()
-            val cal = android.icu.util.Calendar.getInstance()
-            var calcRow = RetirementCalculationRow(iRetirementScenario, cal.get(Calendar.YEAR),
+            var calcRow = RetirementCalculationRow(iRetirementScenario, gCurrentDate.get(Calendar.YEAR),
                 iRetirementScenario.inflationRate, iRetirementScenario.investmentGrowthRate,
                 iRetirementScenario.propertyGrowthRate)
             calcRow.ensureIncomeIsAdequate()
@@ -1675,7 +1669,6 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         oasIncome = iRetirementScenario.oas.getOASIncome(iRetirementScenario.birthDate,
             iRetirementScenario.inflationRate, year)
         salaryIncomes.add(Income(iRetirementScenario.salary.id, iRetirementScenario.salary.getSalary(iRetirementScenario.retirementDate, year)))
-        val cal = android.icu.util.Calendar.getInstance()
         var amRetired = false
         if (parentScenario != null) {
             if (forYear > parentScenario!!.retirementDate.substring(0,4).toInt())
@@ -1691,7 +1684,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                         it.distributionOrder,
                         getAgeAtStartOfYear(forYear),
                         (it as RRSP).minimizeTax)
@@ -1706,7 +1699,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
                         it.willSellToFinanceRetirement,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                         it.distributionOrder)
                     tfsa.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(tfsa)
@@ -1718,7 +1711,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                         it.distributionOrder,
                         getAgeAtStartOfYear(forYear),
                         (it as LIRA_LIF).minimizeTax)
@@ -1734,7 +1727,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.annualAmount,
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                         it.distributionOrder)
                     lira.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(lira)
@@ -1747,7 +1740,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
                         it.willSellToFinanceRetirement,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                         it.distributionOrder,
                         (it as Savings).taxSheltered)
                     sav.additionalGrowthThisYear = additionalGrowth
@@ -1760,7 +1753,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) propertyGrowthRate else it.estimatedGrowthPct,
                         it.willSellToFinanceRetirement,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
                         it.distributionOrder,
                         (it as Property).useDefaultGrowthPctAsSavings,
                         if (it.useDefaultGrowthPctAsSavings) investmentGrowthRate else it.estimatedGrowthPctAsSavings,
@@ -1799,8 +1792,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun logRow() {
-        val cal = android.icu.util.Calendar.getInstance()
-        val currentYear = cal.get(Calendar.YEAR)
+        val currentYear = gCurrentDate.get(Calendar.YEAR)
         val multiplier = (1 + inflationRate/100.0).pow(year - currentYear)
         val outputString =  String.format("%4d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d",
             year,
@@ -1831,8 +1823,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun getMaximumTaxableIncome() : Int {
-        val cal = android.icu.util.Calendar.getInstance()
-        val currentYear = cal.get(Calendar.YEAR)
+        val currentYear = gCurrentDate.get(Calendar.YEAR)
         val multiplier = (1 + inflationRate/100.0).pow(year - currentYear)
         return round(gMinimizeTaxAmount*multiplier).toInt()
     }
@@ -1901,8 +1892,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun getTotalTax(): Int {
-        val cal = android.icu.util.Calendar.getInstance()
-        val yearsInFuture = year - cal.get(Calendar.YEAR)
+        val yearsInFuture = year - gCurrentDate.get(Calendar.YEAR)
         val birthYear = if (parentScenario == null)
             9999
         else
@@ -1916,8 +1906,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun getTotalAvailableIncome() : Int {
-        val cal = android.icu.util.Calendar.getInstance()
-        val yearsInFuture = year - cal.get(Calendar.YEAR)
+        val yearsInFuture = year - gCurrentDate.get(Calendar.YEAR)
         val taxableIncome = getTaxableIncome(year)
         val birthYear = if (parentScenario == null)
             9999
@@ -1990,8 +1979,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         }
 
         // Federal senior age tax credit
-        val cal = android.icu.util.Calendar.getInstance()
-        val age = cal.get(Calendar.YEAR) - iBirthYear + iYearsInTheFuture
+        val age = gCurrentDate.get(Calendar.YEAR) - iBirthYear + iYearsInTheFuture
         val minThreshold = 39826 * inflationMultiplier // as of 2022
         val maxThreshold = 92479 * inflationMultiplier // as of 2022
         val seniorAgeTaxCredit = 7898 * inflationMultiplier // as of 2022
@@ -2036,8 +2024,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         }
 
         // Ontario senior age tax credit
-        val cal = android.icu.util.Calendar.getInstance()
-        val age = cal.get(Calendar.YEAR) - iBirthYear + iYearsInTheFuture
+        val age = gCurrentDate.get(Calendar.YEAR) - iBirthYear + iYearsInTheFuture
         val minThreshold = 40495 * inflationMultiplier // as of 2022
         val maxThreshold = 76762 * inflationMultiplier // as of 2022
         val seniorAgeTaxCredit = 5440 * inflationMultiplier // as of 2022
@@ -2081,11 +2068,10 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                     totalNetIncome < getTotalTargetIncome()) {
                     val netWithdrawalAmountNeeded = min(it.getAvailableValue(), getTotalTargetIncome() - totalNetIncome)
                     if (it.withdrawalIsTaxable()) { // e.g. RRSP
-                        val cal = android.icu.util.Calendar.getInstance()
                         it.withdraw(
                             howMuchGrossDoINeed(netWithdrawalAmountNeeded, getTaxableIncome(year),
                                 getTotalTax(),
-                                netWithdrawalAmountNeeded, year - cal.get(Calendar.YEAR)),
+                                netWithdrawalAmountNeeded, year - gCurrentDate.get(Calendar.YEAR)),
                             getTaxableIncome(year), // tell the RRSP class how much taxable income already exists this year
                             year,
                             parentScenario
@@ -2106,11 +2092,10 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                     getTotalAvailableIncome() < targetAnnualIncome) {
                     val netWithdrawalAmountNeeded = min(it.getAvailableValue(), getTotalTargetIncome() - getTotalAvailableIncome())
                     if (it.withdrawalIsTaxable()) { // e.g. RRSP
-                        val cal = android.icu.util.Calendar.getInstance()
                         it.withdrawExtra(
                             howMuchGrossDoINeed(netWithdrawalAmountNeeded, getTaxableIncome(year),
                                 getTotalTax(),
-                                netWithdrawalAmountNeeded, year - cal.get(Calendar.YEAR)),
+                                netWithdrawalAmountNeeded, year - gCurrentDate.get(Calendar.YEAR)),
                             getTaxableIncome(year), // tell the RRSP class how much taxable income already exists this year
                             year,
                             parentScenario

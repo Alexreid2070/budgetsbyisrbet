@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -50,7 +51,7 @@ class DashboardFragment : Fragment() {
             binding.filterWhoLayout.visibility = View.GONE
 
         if (currentBudgetMonth.year == 0) {
-            val dateNow = Calendar.getInstance()
+            val dateNow = gCurrentDate
             currentBudgetMonth = if (DefaultsViewModel.getDefaultViewPeriodDashboard() == cPeriodYear)
                 MyDate(dateNow.get(Calendar.YEAR), 0, 1)
             else
@@ -90,14 +91,14 @@ class DashboardFragment : Fragment() {
         }
         binding.buttonViewMonth.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodMonth)
-            val dateNow = Calendar.getInstance()
+            val dateNow = gCurrentDate
             currentBudgetMonth = MyDate(currentBudgetMonth.year, dateNow.get(Calendar.MONTH) + 1, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
         }
         binding.buttonViewYtd.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodYTD)
-            val dateNow = Calendar.getInstance()
+            val dateNow = gCurrentDate
             currentBudgetMonth = MyDate(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
@@ -110,7 +111,7 @@ class DashboardFragment : Fragment() {
         }
         binding.buttonViewAllTime.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodAllTime)
-            val dateNow = Calendar.getInstance()
+            val dateNow = gCurrentDate
             currentBudgetMonth = MyDate(dateNow.get(Calendar.YEAR), dateNow.get(Calendar.MONTH) + 1, 1)
             setActionBarTitle()
             startLoadData(currentBudgetMonth)
@@ -330,7 +331,7 @@ class DashboardFragment : Fragment() {
                 else -> tv1.text = iCategory
             }
             if (tv1.text.length > 15) {
-                tv1.text = String.format("{tv1.text.substring(0,15)}...")
+                tv1.text = String.format("${tv1.text.substring(0,15)}...")
             }
         }
         tv1.tag = getString(R.string.expanded)

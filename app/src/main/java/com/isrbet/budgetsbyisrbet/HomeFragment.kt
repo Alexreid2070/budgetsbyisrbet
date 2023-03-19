@@ -35,9 +35,15 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import kotlin.coroutines.CoroutineContext
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), CoroutineScope {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -53,6 +59,10 @@ class HomeFragment : Fragment() {
     private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
     private var gestureDetector: GestureDetectorCompat? = null
+    private var job: Job = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -439,29 +449,27 @@ class HomeFragment : Fragment() {
         defaultsModel.loadDefaults()
         categoryModel.loadCategories()
         spenderModel.loadSpenders()
-//        budgetModel.loadBudgetNews()
-        budgetModel.loadBudgets()
+        budgetModel.loadBudgetNews()
+//        budgetModel.loadBudgets()
         scheduledPaymentModel.loadScheduledPayments()
         retirementUserModel.loadRetirementUsers()
         transactionModel.loadTransactions()
         translationModel.loadTranslations()
         MyApplication.haveLoadedDataForThisUser = true
-        val dateNow = Calendar.getInstance()
         MyApplication.database.getReference("Users/" + MyApplication.userUID)
             .child("Info")
             .child(SpenderViewModel.myIndex().toString())
             .child("LastSignIn")
             .child("date")
-            .setValue(giveMeMyDateFormat(dateNow))
+            .setValue(giveMeMyDateFormat(gCurrentDate))
         MyApplication.database.getReference("Users/" + MyApplication.userUID)
             .child("Info")
             .child(SpenderViewModel.myIndex().toString())
             .child("LastSignIn")
-            .child("time").setValue(giveMeMyTimeFormat(dateNow))
+            .child("time").setValue(giveMeMyTimeFormat(gCurrentDate))
     }
 
     private fun alignPageWithDataState(iTag: String)  {
-//        Log.d("Alex", "alignPage $iTag")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -492,7 +500,9 @@ class HomeFragment : Fragment() {
                 val trackerFragment: TrackerFragment =
                     childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
                 trackerFragment.initCurrentBudgetMonth()
-                trackerFragment.loadBarChart()
+                launch {
+                    trackerFragment.loadBarChart()
+                }
                 DefaultsViewModel.confirmCategoryDetailsListIsComplete()
                 HintViewModel.showHint(parentFragmentManager, cHINT_HOME)
                 CategoryViewModel.singleInstance.clearCallback()

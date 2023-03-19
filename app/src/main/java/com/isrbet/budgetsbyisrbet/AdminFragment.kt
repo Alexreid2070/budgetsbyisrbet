@@ -68,6 +68,6 @@ class AdminFragment : Fragment() {
     }
 
     private fun doSomething() {
-        BudgetViewModel.migrateBudgets()
+//        BudgetViewModel.migrateBudgets()
     }
 }

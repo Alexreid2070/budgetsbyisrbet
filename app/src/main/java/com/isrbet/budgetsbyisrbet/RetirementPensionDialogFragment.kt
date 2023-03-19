@@ -95,14 +95,14 @@ class RetirementPensionDialogFragment : DialogFragment() {
 //            val cal = android.icu.util.Calendar.getInstance()
         val pensionStartDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = android.icu.util.Calendar.getInstance()
+                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
                 lcal.set(Calendar.YEAR, year)
                 lcal.set(Calendar.MONTH, monthOfYear)
                 lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 binding.pensionStartDate.setText(giveMeMyDateFormat(lcal))
             }
         binding.pensionStartDate.setOnClickListener {
-            val lcal = android.icu.util.Calendar.getInstance()
+            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
             if (binding.pensionStartDate.text.toString() != "") {
                 lcal.set(Calendar.YEAR, binding.pensionStartDate.text.toString().substring(0,4).toInt())
                 lcal.set(Calendar.MONTH, binding.pensionStartDate.text.toString().substring(5,7).toInt()-1)
@@ -118,14 +118,14 @@ class RetirementPensionDialogFragment : DialogFragment() {
 //            binding.workStartDate.setText(giveMeMyDateFormat(cal))
         val workStartDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = android.icu.util.Calendar.getInstance()
+                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
                 lcal.set(Calendar.YEAR, year)
                 lcal.set(Calendar.MONTH, monthOfYear)
                 lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 binding.workStartDate.setText(giveMeMyDateFormat(lcal))
             }
         binding.workStartDate.setOnClickListener {
-            val lcal = android.icu.util.Calendar.getInstance()
+            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
             if (binding.workStartDate.text.toString() != "") {
                 lcal.set(Calendar.YEAR, binding.workStartDate.text.toString().substring(0,4).toInt())
                 lcal.set(Calendar.MONTH, binding.workStartDate.text.toString().substring(5,7).toInt()-1)

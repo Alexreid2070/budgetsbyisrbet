@@ -15,8 +15,9 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.math.round
 
 class TransferFragment : Fragment() {
     private var _binding: FragmentTransferBinding? = null
@@ -25,7 +26,7 @@ class TransferFragment : Fragment() {
     private var newTransferMode: Boolean = true
     private var editingKey: String = ""
 
-    private var cal: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
+    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -235,6 +236,11 @@ class TransferFragment : Fragment() {
         binding.buttonCancel.visibility = View.VISIBLE
         binding.buttonSave.visibility = View.VISIBLE
         binding.editTextDate.isEnabled = true
+        val tOldDate = LocalDate.parse(binding.editTextDate.text, DateTimeFormatter.ISO_DATE)
+        cal.set(Calendar.YEAR, tOldDate.year)
+        cal.set(Calendar.MONTH, tOldDate.monthValue-1)
+        cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
+
         binding.editTextAmount.isEnabled = true
         binding.editTextNote.isEnabled = true
         for (i in 0 until binding.fromRadioGroup.childCount) {

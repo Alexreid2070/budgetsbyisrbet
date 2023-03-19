@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import timber.log.Timber
 import java.util.*
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -142,13 +143,14 @@ class TransactionViewModel : ViewModel() {
         }
 
         fun transactionExistsUsingCategory(iCategoryID: Int): Int {
-            var ctr = 0
+            return singleInstance.transactions.filter { it.category == iCategoryID }.size
+/*            var ctr = 0
             singleInstance.transactions.forEach {
                 if (it.category == iCategoryID) {
                     ctr++
                 }
             }
-            return ctr
+            return ctr */
         }
         fun getTransaction(i:Int): Transaction {
             return singleInstance.transactions[i]
@@ -178,12 +180,12 @@ class TransactionViewModel : ViewModel() {
         fun getTotalActualsForRange(iStartMonth: String, iEndMonth: String,
                                     iDiscType: String, iWho: Int) : Double {
             var tmpTotal = 0.0
+            val subList = singleInstance.transactions.filter { it.date in iStartMonth..iEndMonth && it.type != cTRANSACTION_TYPE_TRANSFER}
 
-            singleInstance.transactions.forEach {
+//            singleInstance.transactions.forEach {
+            subList.forEach {
                 val cat = CategoryViewModel.getCategory(it.category)
-                if (it.type != cTRANSACTION_TYPE_TRANSFER
-                    && it.date > iStartMonth && it.date < iEndMonth &&
-                    (cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
+                if ((cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
                     (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2 || iWho == -1) &&
                         cat?.iAmAllowedToSeeThisCategory() == true) {
                         tmpTotal += it.getAmountByUser(iWho)
@@ -195,6 +197,7 @@ class TransactionViewModel : ViewModel() {
         fun getCategoryActuals(iMonth: MyDate, iPeriod: DateRangeEnum,
                                iDiscFlag: String, iWhoFlag: Int) : ArrayList<DataObject> {
             val tList: ArrayList<DataObject> = ArrayList()
+//            val ttList: ArrayList<DataObject> = ArrayList()
             val startDate: String
             val endDate: String
             if (iPeriod == DateRangeEnum.ALLTIME) {
@@ -223,6 +226,7 @@ class TransactionViewModel : ViewModel() {
                 }
             }
 
+/*            Timber.tag("Alex").d("starting tList")
             for (i in 0 until getCount()) {
                 val transaction = getTransaction(i)
                 val cat = CategoryViewModel.getCategory(transaction.category)
@@ -253,6 +257,37 @@ class TransactionViewModel : ViewModel() {
                 }
             }
             tList.sortWith(compareBy { it.priority })
+            Timber.tag("Alex").d("ending tList") */
+
+            val subList = singleInstance.transactions.filter { it.date > startDate && it.date < endDate && it.type != cTRANSACTION_TYPE_TRANSFER}
+
+            for (i in 0 until subList.size) {
+                val transaction = subList[i]
+                val cat = CategoryViewModel.getCategory(transaction.category)
+                if (cat?.iAmAllowedToSeeThisCategory() == true) {
+                            val expDiscIndicator =
+                                CategoryViewModel.getCategory(transaction.category)?.discType
+                            if (iDiscFlag == "" ||
+                                iDiscFlag == MyApplication.getString(R.string.all) ||
+                                iDiscFlag == expDiscIndicator) {
+                                if (iWhoFlag == 2 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
+                                    // this is a transaction to add to our subtotal
+                                    val amountToAdd = transaction.getAmountByUser(iWhoFlag)
+                                    val dobj: DataObject? = tList.find { it.id == cat.id }
+                                    if (dobj == null) {
+                                        val pri = CategoryViewModel.getCategoryPriority(transaction.category).toString() +
+                                                CategoryViewModel.getCategory(transaction.category)?.subcategoryName
+                                        val col = CategoryViewModel.getCategoryColour(transaction.category)
+                                        tList.add(DataObject(cat.id, cat.categoryName,
+                                            amountToAdd, pri,col))
+                                    } else
+                                        dobj.value += amountToAdd
+                                }
+                            }
+                }
+            }
+            tList.sortWith(compareBy { it.priority })
+
             tList.forEach {
                 if (iWhoFlag == 0) {
                     // this below will round up the total for user 0, and down for user 1 so that no cents are missing
@@ -271,18 +306,17 @@ class TransactionViewModel : ViewModel() {
         fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: MyDate, iEndPeriod: MyDate, iWho: Int, includeRelated: Boolean): Double {
             var tTotal = 0.0
             val firstDay = iStartPeriod.getFirstOfMonth()
-            val  lastDay = iStartPeriod.getLastDayOfMonth()
-//            Log.d("Alex","getActualsForPeriod $iStartPeriod $iEndPeriod $iWho $includeRelated")
-            loop@ for (transaction in singleInstance.transactions) {
+            val  lastDay = iEndPeriod.getLastDayOfMonth()
+            val subList = singleInstance.transactions.filter { it.date >= firstDay &&
+                    it.date < lastDay &&
+                    it.type != cTRANSACTION_TYPE_TRANSFER &&
+                    it.category == iCategoryID }
+            loop@ for (transaction in subList) {
                 val cat = CategoryViewModel.getCategory(transaction.category)
                 if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                    if (transaction.type != cTRANSACTION_TYPE_TRANSFER &&
-                        transaction.date >= firstDay &&
-                        transaction.date <= lastDay &&
-                        transaction.category == iCategoryID &&
-                        (transaction.boughtfor == iWho ||
+                    if (transaction.boughtfor == iWho ||
                                 (iWho == 2 && includeRelated) ||  // this picks up that we're looking for all Joint expenses and for a specific individual
-                                (transaction.boughtfor == 2 && includeRelated))  // this picks up that we want all joint expenses regardless of who they're bought for
+                                (transaction.boughtfor == 2 && includeRelated)  // this picks up that we want all joint expenses regardless of who they're bought for
                     ) {
                         tTotal += when (iWho) {
                             0 -> transaction.getAmountByUser(0)
@@ -448,7 +482,6 @@ class TransactionViewModel : ViewModel() {
             singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
         }
         fun updateTransaction(iTransactionID: String, iTransfer: TransferOut) {
-            Log.d("Alex", "updateTransaction note is ${iTransfer.note2}")
             val bm = MyDate(iTransfer.date)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
                 .child(bm.year.toString())
@@ -470,8 +503,7 @@ class TransactionViewModel : ViewModel() {
         fun getEarliestYear() : Int {
             // since we know that this table is sorted on date, we simply return the first date
             return if (singleInstance.transactions.size == 0) {
-                val dateNow = Calendar.getInstance()
-                dateNow.get(Calendar.YEAR)
+                gCurrentDate.get(Calendar.YEAR)
             } else singleInstance.transactions[0].date.substring(0,4).toInt()
         }
     }
@@ -500,9 +532,12 @@ class TransactionViewModel : ViewModel() {
 
     fun loadTransactions() {
         // Do an asynchronous operation to fetch transactions
+        val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
         transListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val start2 = System.currentTimeMillis()
+
                 transactions.clear()
                 for (element in dataSnapshot.children.toMutableList()) {
                     for (year in element.children) {
@@ -522,9 +557,13 @@ class TransactionViewModel : ViewModel() {
                         }
                     }
                 }
+                val start3 = System.currentTimeMillis()
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
                 transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+                val end = System.currentTimeMillis()
+                Timber.tag("Alex").d("loadTransactions time is ${end - start} ms, ${end - start2}, ${end - start3}")
+                Timber.tag("Alex").d("There are ${transactions.size} transactions")
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {

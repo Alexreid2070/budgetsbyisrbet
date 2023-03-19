@@ -27,7 +27,7 @@ android {
         applicationId "com.isrbet.budgetsbyisrbet"
         minSdk 26
         targetSdk 33
-        versionCode 50
+        versionCode 52
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

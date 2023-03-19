@@ -21,6 +21,8 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.round
 
@@ -32,7 +34,7 @@ class TransactionFragment : Fragment() {
     private var newTransactionMode: Boolean = true
     private var editingKey: String = ""
     private var inExpandMode = false
-    private var cal = android.icu.util.Calendar.getInstance()
+    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
     private var startingTransactionWhere = ""
     private var startingTransactionCategory = 0
     private var gestureDetector: GestureDetectorCompat? = null
@@ -333,6 +335,10 @@ class TransactionFragment : Fragment() {
         binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
         binding.expansionLayout.visibility = View.GONE
         binding.editTextDate.isEnabled = true
+        val tOldDate = LocalDate.parse(binding.editTextDate.text, DateTimeFormatter.ISO_DATE)
+        cal.set(Calendar.YEAR, tOldDate.year)
+        cal.set(Calendar.MONTH, tOldDate.monthValue-1)
+        cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
         binding.editTextAmount.isEnabled = true
 //        binding.editTextAmount.inputType = (InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED)
 //        binding.editTextAmount.keyListener = DigitsKeyListener.getInstance("0123456789$decimalSeparator")

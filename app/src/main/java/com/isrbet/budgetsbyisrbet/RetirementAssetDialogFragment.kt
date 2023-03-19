@@ -61,7 +61,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var cal = android.icu.util.Calendar.getInstance()
+        var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
@@ -325,7 +325,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     return@setOnClickListener
                 }
             }
-            val cal = android.icu.util.Calendar.getInstance()
+            val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
             val oldAsset = RetirementViewModel.getWorkingAsset(assetName)
             val distributionOrder = oldAsset?.distributionOrder ?: RetirementViewModel.getWorkingAssetListCount()
 

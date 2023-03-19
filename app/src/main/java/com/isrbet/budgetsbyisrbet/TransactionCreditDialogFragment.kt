@@ -44,7 +44,7 @@ class TransactionCreditDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val cal = android.icu.util.Calendar.getInstance()
+        val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
         super.onViewCreated(view, savedInstanceState)
 
         setupClickListeners()

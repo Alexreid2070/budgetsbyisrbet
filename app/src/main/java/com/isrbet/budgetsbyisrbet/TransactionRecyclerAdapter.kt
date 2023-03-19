@@ -154,6 +154,9 @@ class TransactionRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if (filteredList.size == 0 || groupList.size == 0)
+            return
+
         val data = filteredList[position]
 
         holder.vtfdate.text = data.date
@@ -345,9 +348,7 @@ class TransactionRecyclerAdapter(
                 return newPosition
             }
             cTODAY -> {
-                val currentDate: String
-                val cal = android.icu.util.Calendar.getInstance()
-                currentDate = giveMeMyDateFormat(cal)
+                val currentDate = giveMeMyDateFormat(gCurrentDate)
                 newPosition = 0
                 while (newPosition < filteredList.size && filteredList[newPosition].date < currentDate) {
                     newPosition++

@@ -80,7 +80,7 @@ class HintViewModel : ViewModel() {
                         .child(iFragment)
                         .child("LastShownID")
                         .setValue(it.id)
-                    val dateNow = android.icu.util.Calendar.getInstance()
+                    val dateNow = gCurrentDate
                     MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                         .child("Info")
                         .child(SpenderViewModel.myIndex().toString())
@@ -113,7 +113,7 @@ class HintViewModel : ViewModel() {
                         .child(iFragment)
                         .child("LastShownID")
                         .setValue(it.id)
-                    val dateNow = android.icu.util.Calendar.getInstance()
+                    val dateNow = gCurrentDate
                     MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                         .child("Info")
                         .child(SpenderViewModel.myIndex().toString())
