@@ -446,7 +446,6 @@ class RetirementDetailsFragment : Fragment() {
         }
     }
     private fun createSpreadsheet(service: Sheets, iFileName: String) {
-        Log.d("Alex", "Here")
 /*        var spreadsheet = Spreadsheet()
             .setProperties(
                 SpreadsheetProperties()

@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 class TransactionRecyclerAdapter(
-    private val context: Context, private val list: MutableList<Transaction>,
+    private val context: Context, private var list: MutableList<Transaction>,
     filters: PreviousFilters,
     private val listener: (Transaction) -> Unit = {}
 ) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
@@ -43,6 +44,11 @@ class TransactionRecyclerAdapter(
         typeFilter = filters.prevTypeFilter
         filterTheList(MyApplication.transactionSearchText)
         currentTotal = getTotal()
+    }
+
+    fun reset(iList: MutableList<Transaction>) {
+        list = iList
+        filterTheList("")
     }
 
     override fun getItemCount(): Int {

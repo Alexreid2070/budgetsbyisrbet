@@ -3,10 +3,14 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.util.Log
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.getValue
 import timber.log.Timber
 import java.util.*
 import kotlin.math.round
@@ -91,7 +95,7 @@ data class TransactionOut(
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
-    fun setValue(key: String, value: String) {
+/*    fun setValue(key: String, value: String) {
         when (key) {
             "date" -> date = value.trim()
             "amount" -> amount = value.toInt()
@@ -104,7 +108,7 @@ data class TransactionOut(
             "type" -> type = value.trim()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
         }
-    }
+    } */
 }
 
 data class TransferOut(
@@ -117,7 +121,7 @@ data class TransferOut(
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
-    fun setValue(key: String, value: String) {
+/*    fun setValue(key: String, value: String) {
         when (key) {
             "date" -> date = value.trim()
             "amount" -> amount = value.toInt()
@@ -126,18 +130,42 @@ data class TransferOut(
             "bfname1split" -> bfname1split = value.toInt()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
         }
-    }
+    }*/
 }
 
 class TransactionViewModel : ViewModel() {
-    private var transListener: ValueEventListener? = null
+//    private var transListener: ValueEventListener? = null
+    private var firstLoadListener: ValueEventListener? = null
+    private var childListener: ChildEventListener? = null
     private val transactions: MutableList<Transaction> = mutableListOf()
+    val transactionsLiveData = MutableLiveData<MutableList<Transaction>>()
     private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: TransactionViewModel // used to track static single instance of self
 
+/*        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Transaction>>) {
+            singleInstance.transactionsLiveData.observe(iFragment, iObserver)
+        } */
+        fun doSomething() {
+            singleInstance.transactions.forEach {
+                val transactionOut = TransactionOut(it.date,
+                    round(it.amount*100).toInt(),
+                    it.category,
+                    it.note,
+                    it.note2,
+                    it.paidby,
+                    it.boughtfor,
+                    it.bfname1split,
+                    it.type)
+                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .push().key.toString()
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .child(key)
+                    .setValue(transactionOut)
+            }
+        }
         fun isLoaded():Boolean {
             return singleInstance.loaded
         }
@@ -329,32 +357,30 @@ class TransactionViewModel : ViewModel() {
             return (tTotal * 100.0).roundToInt() / 100.0
         }
 
-        fun addTransaction(iTransactionOut: TransactionOut, iLocalOnly: Boolean = false) {
-//            if (iLocalOnly) {
-                singleInstance.transactions.add(Transaction(iTransactionOut.date,
-                    iTransactionOut.amount/100.0, iTransactionOut.category,
-                    iTransactionOut.note, iTransactionOut.note2,
-                    iTransactionOut.paidby, iTransactionOut.boughtfor,
-                    iTransactionOut.type, iTransactionOut.bfname1split))
-//            } else {
-            if (!iLocalOnly) {
-                val bm = MyDate(iTransactionOut.date)
-                val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
-                    iTransactionOut.note + iTransactionOut.date + "R"
-                else
-                    MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions" +
-                    "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
-                        .push().key.toString()
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
-                    .child(bm.year.toString())
-                    .child(bm.get2DigitMonth())
-                    .child(key)
-                    .setValue(iTransactionOut)
+        fun addTransactionLocal(iTransaction: Transaction) {
+            val transaction = getTransaction(iTransaction.mykey)
+            if (transaction != null &&
+                transaction == iTransaction) {
+                return
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            updateTransactionLocal(iTransaction)
+//            singleInstance.transactions.add(iTransaction)
+  //          singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+    //        singleInstance.transactionsLiveData.value = singleInstance.transactions
+        }
+        fun addTransactionDatabase(iTransactionOut: TransactionOut) {
+            val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
+                iTransactionOut.note + iTransactionOut.date + "R"
+            else
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .push().key.toString()
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                .child(key)
+                .setValue(iTransactionOut)
+//            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
         }
 
-        fun addTransaction(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
+        fun addTransfer(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
             if (iLocalOnly) {
                 singleInstance.transactions.add(
                     Transaction(iTransfer.date,
@@ -364,12 +390,12 @@ class TransactionViewModel : ViewModel() {
                 )
             } else {
                 val bm = MyDate(iTransfer.date)
-                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions" +
-                        "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
+                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+//                        "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
                         .push().key.toString()
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Transactions")
-                    .child(bm.year.toString())
-                    .child(bm.get2DigitMonth())
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+//                    .child(bm.year.toString())
+//                    .child(bm.get2DigitMonth())
                     .child(key)
                     .setValue(iTransfer)
             }
@@ -379,10 +405,15 @@ class TransactionViewModel : ViewModel() {
             singleInstance.loadTransactions()
         }
         fun clear() {
-            if (singleInstance.transListener != null) {
-                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
-                    .removeEventListener(singleInstance.transListener!!)
-                singleInstance.transListener = null
+            if (singleInstance.firstLoadListener != null) {
+                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
+                    .removeEventListener(singleInstance.firstLoadListener!!)
+                singleInstance.firstLoadListener = null
+            }
+            if (singleInstance.childListener != null) {
+                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
+                    .removeEventListener(singleInstance.childListener!!)
+                singleInstance.childListener = null
             }
             singleInstance.transactions.clear()
             singleInstance.loaded = false
@@ -443,27 +474,65 @@ class TransactionViewModel : ViewModel() {
             return iKey
         }
 
-        fun deleteTransaction(date: String, iTransactionID: String) {
-            val bm = MyDate(date)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
-                .child(bm.year.toString())
-                .child(bm.get2DigitMonth())
+        fun deleteTransactionDatabase(iTransactionID: String) {
+//            val bm = MyDate(date)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TransactionsNew")
+//                .child(bm.year.toString())
+//                .child(bm.get2DigitMonth())
                 .child(iTransactionID).removeValue()
+/*            val trans =
+                getTransaction(iTransactionID) // this block below ensures that the viewAll view is updated immediately
+            val ind = singleInstance.transactions.indexOf(trans)
+            singleInstance.transactions.removeAt(ind) */
+        }
+        fun deleteTransactionLocal(iTransactionID: String) {
+//            val bm = MyDate(date)
+//            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
+//                .child(bm.year.toString())
+//                .child(bm.get2DigitMonth())
+//                .child(iTransactionID).removeValue()
             val trans =
                 getTransaction(iTransactionID) // this block below ensures that the viewAll view is updated immediately
             val ind = singleInstance.transactions.indexOf(trans)
-            singleInstance.transactions.removeAt(ind)
+            if (ind != -1) {
+                singleInstance.transactions.removeAt(ind)
+                singleInstance.transactionsLiveData.value = singleInstance.transactions
+            }
         }
 
         fun getTransaction(iTransactionID: String): Transaction? {
             return singleInstance.transactions.find { it.mykey == iTransactionID }
         }
 
-        fun updateTransaction(iTransactionID: String, iTransactionOut: TransactionOut) {
-            val bm = MyDate(iTransactionOut.date)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
-                .child(bm.year.toString())
-                .child(bm.get2DigitMonth())
+        fun updateTransactionLocal(iTransaction: Transaction) {
+            // this is new one
+            val transaction = getTransaction(iTransaction.mykey)
+            if (transaction == iTransaction) { // ie all contents are structurally equal
+                Log.d("Alex", "updateTransactionLocal: is the same")
+                return
+            }
+            if (transaction == null) {
+                singleInstance.transactions.add(iTransaction)
+            } else {
+                transaction.date = iTransaction.date
+                transaction.note = iTransaction.note
+                transaction.note2 = iTransaction.note2
+                transaction.category = iTransaction.category
+                transaction.amount = iTransaction.amount
+                transaction.paidby = iTransaction.paidby
+                transaction.boughtfor = iTransaction.boughtfor
+                transaction.bfname1split = iTransaction.bfname1split
+                transaction.type = iTransaction.type
+            }
+            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            singleInstance.transactionsLiveData.value = singleInstance.transactions
+        }
+
+        fun updateTransactionDatabase(iTransactionID: String, iTransactionOut: TransactionOut) {
+//            val bm = MyDate(iTransactionOut.date)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TransactionsNew")
+//                .child(bm.year.toString())
+//                .child(bm.get2DigitMonth())
                 .child(iTransactionID)
                 .setValue(iTransactionOut)
             val transaction =
@@ -480,12 +549,13 @@ class TransactionViewModel : ViewModel() {
                 transaction.type = iTransactionOut.type
             }
             singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            singleInstance.transactionsLiveData.value = singleInstance.transactions
         }
-        fun updateTransaction(iTransactionID: String, iTransfer: TransferOut) {
-            val bm = MyDate(iTransfer.date)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
-                .child(bm.year.toString())
-                .child(bm.get2DigitMonth())
+        fun updateTransfer(iTransactionID: String, iTransfer: TransferOut) {
+//            val bm = MyDate(iTransfer.date)
+            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TransactionsNew")
+//                .child(bm.year.toString())
+//                .child(bm.get2DigitMonth())
                 .child(iTransactionID)
                 .setValue(iTransfer)
             val transaction =
@@ -513,11 +583,17 @@ class TransactionViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        Log.d("Alex", "WHY IS TRANSACTION onCleared being called??")
         super.onCleared()
-        if (transListener != null) {
-            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Transactions")
-                .removeEventListener(transListener!!)
-            transListener = null
+        if (firstLoadListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/TransactionsNew")
+                .removeEventListener(firstLoadListener!!)
+            firstLoadListener = null
+        }
+        if (childListener != null) {
+            MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/TransactionsNew")
+                .removeEventListener(childListener!!)
+            childListener = null
         }
     }
 
@@ -530,11 +606,11 @@ class TransactionViewModel : ViewModel() {
         dataUpdatedCallback = null
     }
 
-    fun loadTransactions() {
+    fun loadTransactionsbkp() {
         // Do an asynchronous operation to fetch transactions
         val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
-        transListener = object : ValueEventListener {
+        firstLoadListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val start2 = System.currentTimeMillis()
 
@@ -563,13 +639,92 @@ class TransactionViewModel : ViewModel() {
                 transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
                 val end = System.currentTimeMillis()
                 Timber.tag("Alex").d("loadTransactions time is ${end - start} ms, ${end - start2}, ${end - start3}")
-                Timber.tag("Alex").d("There are ${transactions.size} transactions")
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
                 MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 108.")
             }
         }
-        expDBRef.addValueEventListener(transListener as ValueEventListener)
+        expDBRef.addValueEventListener(firstLoadListener as ValueEventListener)
+    }
+    fun loadTransactions() {
+        // Do an asynchronous operation to fetch transactions
+        val start = System.currentTimeMillis()
+        val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
+        firstLoadListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val start2 = System.currentTimeMillis()
+
+                transactions.clear()
+                Log.d("Alex", "Found ${dataSnapshot.childrenCount} transactions")
+                for (element in dataSnapshot.children.toMutableList()) {
+                    val transaction = element.getValue<Transaction>()
+                    if (transaction != null) {
+                        transaction.mykey = element.key!!
+                        transaction.amount /= 100.0
+                        transactions.add(transaction)
+                    }
+                }
+                val start3 = System.currentTimeMillis()
+                singleInstance.loaded = true
+                dataUpdatedCallback?.onDataUpdate()
+                transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+                val end = System.currentTimeMillis()
+                Timber.tag("Alex").d("loadTransactions time is ${end - start} ms, ${end - start2}, ${end - start3}")
+
+                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
+                    .removeEventListener(singleInstance.firstLoadListener!!)
+                singleInstance.firstLoadListener = null
+                Log.d("Alex", "number of transactions is now ${singleInstance.transactions.size}")
+                loadTransactionsOngoing()
+            }
+
+            override fun onCancelled(dataSnapshot: DatabaseError) {
+                MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 108.")
+            }
+        }
+        expDBRef.addValueEventListener(firstLoadListener as ValueEventListener)
+    }
+    fun loadTransactionsOngoing() {
+        val TAG = "Alex"
+
+        val childEventListener = object : ChildEventListener {
+            override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                // this function is called on startup, and when a transaction is added
+                val transaction = dataSnapshot.getValue<Transaction>()
+                if (transaction != null) {
+                    transaction.mykey = dataSnapshot.key!!
+                    transaction.amount /= 100.0
+                    addTransactionLocal(transaction)
+                } else {
+                    Log.d("Alex", "onChildAdded couldn't convert ${dataSnapshot.key.toString()}")
+                }
+            }
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                val transaction = dataSnapshot.getValue<Transaction>()
+                if (transaction != null) {
+                    transaction.mykey = dataSnapshot.key!!
+                    transaction.amount /= 100.0
+                    updateTransactionLocal(transaction)
+                }
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                deleteTransactionLocal(dataSnapshot.key!!)
+            }
+
+            override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.key!!)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.w(TAG, "loadTransactions:onCancelled", databaseError.toException())
+            }
+        }
+        MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/TransactionsNew")
+            .addChildEventListener(childEventListener)
+        childListener = childEventListener
+
     }
 }

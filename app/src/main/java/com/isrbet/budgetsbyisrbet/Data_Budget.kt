@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -908,6 +909,7 @@ class BudgetViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        Log.d("Alex", "WHY IS BUDGET onCleared being called??")
         super.onCleared()
         if (budgetListener != null) {
             MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/BudgetNew")

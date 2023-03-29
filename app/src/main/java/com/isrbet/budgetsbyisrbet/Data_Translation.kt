@@ -32,7 +32,7 @@ class TranslationViewModel : ViewModel() {
             singleInstance.translations.forEach {
                 Log.d("Alex", "Translation is '" + it.before + "' to '" + it.after + "'")
             }
-        } */
+        }
         fun exists(iString: String): Boolean {
             if (::singleInstance.isInitialized) {
                 singleInstance.translations.forEach {
@@ -41,7 +41,7 @@ class TranslationViewModel : ViewModel() {
                 }
             }
             return false
-        }
+        } */
         fun getTranslation(iBefore: String): Translation? {
             if (::singleInstance.isInitialized) {
                 // first look for exact matches

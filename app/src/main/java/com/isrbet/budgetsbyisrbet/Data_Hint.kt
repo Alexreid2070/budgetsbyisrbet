@@ -25,7 +25,7 @@ data class Hint(
     }
 }
 
-data class HintLastShown(val fragment: String, var id: Int, var date: String)
+data class HintLastShown(val fragment: String, var id: Int, var date: MyDate)
 
 class HintViewModel : ViewModel() {
     private var hintListener: ValueEventListener? = null
@@ -67,7 +67,7 @@ class HintViewModel : ViewModel() {
         fun getNextHint(iFragment: String, iStartPosition: Int = -1) : Hint? {
             var hls = singleInstance.hintsLastShown.find {it.fragment == iFragment}
             if (hls == null)
-                hls = HintLastShown(iFragment, -1, "1999-01-01")
+                hls = HintLastShown(iFragment, -1, MyDate("1999-01-01"))
             val startPosition = if (iStartPosition == -1) hls.id else iStartPosition
 
             singleInstance.hints.forEach {
@@ -89,7 +89,7 @@ class HintViewModel : ViewModel() {
                         .child("LastShownDate")
                         .setValue(giveMeMyDateFormat(dateNow))
                     hls.id = it.id
-                    hls.date = giveMeMyDateFormat(dateNow)
+                    hls.date = MyDate(dateNow)
                     singleInstance.hintsLastShown.add(hls)
                     return it
                 }
@@ -99,7 +99,7 @@ class HintViewModel : ViewModel() {
         fun getPreviousHint(iFragment: String, iStartPosition: Int = 99999) : Hint? {
             var hls = singleInstance.hintsLastShown.find {it.fragment == iFragment}
             if (hls == null)
-                hls = HintLastShown(iFragment, 99999, "1999-01-01")
+                hls = HintLastShown(iFragment, 99999, MyDate("1999-01-01"))
             val startPosition = if (iStartPosition == 99999) hls.id else iStartPosition
 
             singleInstance.hints.asReversed().forEach {
@@ -122,7 +122,7 @@ class HintViewModel : ViewModel() {
                         .child("LastShownDate")
                         .setValue(giveMeMyDateFormat(dateNow))
                     hls.id = it.id
-                    hls.date = giveMeMyDateFormat(dateNow)
+                    hls.date = MyDate(dateNow)
                     singleInstance.hintsLastShown.add(hls)
                     return it
                 }
@@ -183,11 +183,11 @@ class HintViewModel : ViewModel() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (element in dataSnapshot.children.toMutableList()) { // for each fragment hint grouping
                     val tFragmentName = element.key.toString()
-                    var lastShownDate = "1999-01-01"
+                    var lastShownDate = MyDate("1999-01-01")
                     var lastShownID = -1
                     for (child in element.children) {
                         when (child.key.toString()) {
-                            "LastShownDate" -> lastShownDate = child.value.toString()
+                            "LastShownDate" -> lastShownDate = MyDate(child.value.toString())
                             "LastShownID" -> lastShownID = child.value.toString().toInt()
                         }
                     }

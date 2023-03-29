@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -372,7 +373,8 @@ class TransactionFragment : Fragment() {
 
     private fun deleteTransaction(iTransactionID: String) {
         fun yesClicked() {
-            TransactionViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
+            TransactionViewModel.deleteTransactionLocal(iTransactionID)
+            TransactionViewModel.deleteTransactionDatabase(iTransactionID)
             Toast.makeText(activity, getString(R.string.transaction_deleted), Toast.LENGTH_SHORT).show()
 //            requireActivity().onBackPressed()
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -671,7 +673,6 @@ class TransactionFragment : Fragment() {
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 binding.slider.value.toInt()
             )
-            TransactionViewModel.addTransaction(transactionOut)
             binding.editTextAmount.setText("")
             binding.editTextAmount.requestFocus()
             binding.editTextWhere.setText("")
@@ -682,14 +683,19 @@ class TransactionFragment : Fragment() {
                 MyDate(binding.editTextDate.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 true)
+            Log.d("Alex", "Getting budget")
+            var budgetMonth = MyDate(binding.editTextDate.text.toString())
+            budgetMonth.day = 1
             val budget = BudgetViewModel.getCalculatedBudgetAmount(DateRangeEnum.MONTH,
-                MyDate(binding.editTextDate.text.toString()),
+                budgetMonth,
                 chosenCatID,
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()))
+            TransactionViewModel.addTransactionDatabase(transactionOut)
 
             Toast.makeText(activity, String.format(getString(R.string.transaction_added),
                 radioButtonBoughtFor.text.toString(),
-                gDecWithCurrency(actuals), gDecWithCurrency(budget)), Toast.LENGTH_LONG).show()
+                gDecWithCurrency(actuals + amountD), // have to add amountD because the new amount isn't in the db yet
+                gDecWithCurrency(budget)), Toast.LENGTH_LONG).show()
 
             if (CustomNotificationListenerService.getExpenseNotificationCount() != 0) {
                 binding.buttonLoadTransactionFromTdmyspend.isEnabled = true
@@ -707,7 +713,7 @@ class TransactionFragment : Fragment() {
                 binding.transactionType.text.toString()
             )
 
-           TransactionViewModel.updateTransaction(editingKey, transactionOut)
+           TransactionViewModel.updateTransactionDatabase(editingKey, transactionOut)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, getString(R.string.transaction_updated), Toast.LENGTH_SHORT).show()
         }

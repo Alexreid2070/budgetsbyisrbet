@@ -271,7 +271,7 @@ class ScheduledPaymentViewModel : ViewModel() {
                     val nextDate = getNextBusinessDate(it.nextdate)
                     val nextDayIsBusinessDay = it.nextdate == nextDate
                     it.nextdate = giveMeMyDateFormat(newNextDate)
-                    TransactionViewModel.addTransaction(TransactionOut(nextDate,
+                    TransactionViewModel.addTransactionDatabase(TransactionOut(nextDate,
                         round(it.amount*100).toInt(),
                         it.category, it.name, "", it.paidby, it.boughtfor,
                         it.split1, cTRANSACTION_TYPE_SCHEDULED))

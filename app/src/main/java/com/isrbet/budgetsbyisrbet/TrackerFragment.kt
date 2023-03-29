@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -68,6 +69,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initCurrentBudgetMonth()
         if (currentBudgetMonth.year == 0) {
             currentBudgetMonth = MyDate(
                 gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
@@ -319,7 +321,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
         createBarChart(getBarChartData())
         if (hackActualTotal == 0.0 && hackBudgetTotal == 0.0) {
             hideBarChart()
-            binding.chartSummaryText.text = getString(R.string.no_tracker_data)
+            binding.chartSummaryText.text = getString(R.string.no_tracker_data) + " " +
+                    TransactionViewModel.getCount()
         }
     }
 

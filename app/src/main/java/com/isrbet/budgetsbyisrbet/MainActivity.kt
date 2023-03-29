@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
                 return@setOnItemSelectedListener true
 
             MyApplication.transactionSearchText = ""
+            MyApplication.transactionFirstInList = cLAST_ROW
             homePageExpansionAreaExpanded = false
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
                 navHostFragment.childFragmentManager.popBackStack()

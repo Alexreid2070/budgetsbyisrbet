@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.icu.util.Calendar
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
 import timber.log.Timber
 
 data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
@@ -50,10 +51,10 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notification = sbn.notification
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
-                        Timber.tag("Alex").d("notification text: $notificationText")
+                        Log.d("Alex","notification text: $notificationText")
                         val dateNow = gCurrentDate
                         val key = dateNow.get(Calendar.YEAR).toString() + "-" +
-                                dateNow.get(Calendar.MONTH).toString() + "-" +
+                                (dateNow.get(Calendar.MONTH)+1).toString() + "-" +
                                 dateNow.get(Calendar.DATE).toString() + "-" +
                                 dateNow.get(Calendar.HOUR).toString() + "-" +
                                 dateNow.get(Calendar.MINUTE).toString() + "-" +

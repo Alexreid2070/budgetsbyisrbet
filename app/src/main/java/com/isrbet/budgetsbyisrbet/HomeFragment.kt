@@ -477,7 +477,8 @@ class HomeFragment : Fragment(), CoroutineScope {
 
         if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
             && ScheduledPaymentViewModel.isLoaded()
-            && TransactionViewModel.isLoaded() && BudgetViewModel.isLoaded() &&
+            && TransactionViewModel.isLoaded()
+            && BudgetViewModel.isLoaded() &&
             DefaultsViewModel.isLoaded() && HintViewModel.isLoaded() &&
             RetirementViewModel.isLoaded()
         ) {

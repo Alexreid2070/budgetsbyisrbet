@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -10,6 +11,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -51,23 +53,16 @@ class TransactionViewAllFragment : Fragment() {
 //        enterTransition = inflater.inflateTransition(R.transition.slide_right)
 //        returnTransition = null
 //        exitTransition = inflater.inflateTransition(R.transition.slide_left)
+/*        val transactionListObserver = Observer<MutableList<Transaction>> { newValue ->
+            Log.d("Alex", "list has changed!!")
+            setupRecycler()
+        }
+        TransactionViewModel.observeList(this, transactionListObserver) */
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentTransactionViewAllBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
-        inflater.inflate(R.layout.fragment_transaction_view_all, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(itemView, savedInstanceState)
-
-        val recyclerView: FastScrollRecyclerView =
-            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
+    fun setupRecycler() {
+        val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
+//            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         recyclerView.apply {
             // set a LinearLayoutManager to handle Android RecyclerView behavior
             val linearLayoutManager =
@@ -81,7 +76,7 @@ class TransactionViewAllFragment : Fragment() {
                 }
             recyclerView.layoutManager = linearLayoutManager
             val expList = TransactionViewModel.getCopyOfTransactions()
-            expList.sortBy { it.date }
+//            expList.sortBy { it.date }
             if (expList.size == 0) {
                 binding.noInformationText.visibility = View.VISIBLE
                 binding.noInformationText.text = getString(R.string.you_have_not_yet_entered_any_transactions)
@@ -107,7 +102,26 @@ class TransactionViewAllFragment : Fragment() {
                         this@TransactionViewAllFragment.findNavController().navigate(action)
                     }
                 }
+            binding.totalAmount.text = gDecWithCurrency((recyclerView.adapter as TransactionRecyclerAdapter).currentTotal)
         }
+        goToCorrectRow()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentTransactionViewAllBinding.inflate(inflater, container, false)
+        // Inflate the layout for this fragment
+        inflater.inflate(R.layout.fragment_transaction_view_all, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(itemView, savedInstanceState)
+        setupRecycler()
+        val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
+//            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         loadCategoryRadioButtons()
         if (SpenderViewModel.singleUser()) {
@@ -479,9 +493,9 @@ class TransactionViewAllFragment : Fragment() {
             setViewsToDefault()
             goToCorrectRow()
         }
-        adapter.filterTheList(transactionSearchText)
-        adapter.notifyDataSetChanged()
-        goToCorrectRow()
+  //      adapter.filterTheList(transactionSearchText)
+    //    adapter.notifyDataSetChanged()
+      //  goToCorrectRow()
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
         val constraintLayout = binding.constraintLayout

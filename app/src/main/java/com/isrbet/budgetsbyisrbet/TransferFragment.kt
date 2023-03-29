@@ -258,7 +258,7 @@ class TransferFragment : Fragment() {
 
     private fun deleteTransfer(iTransactionID: String) {
         fun yesClicked() {
-            TransactionViewModel.deleteTransaction(binding.editTextDate.text.toString(), iTransactionID)
+            TransactionViewModel.deleteTransactionDatabase(iTransactionID)
             Toast.makeText(activity, getString(R.string.transfer_deleted), Toast.LENGTH_SHORT).show()
             requireActivity().onBackPressed()
             MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -361,10 +361,10 @@ class TransferFragment : Fragment() {
                 SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
                 binding.splitSlider.value.toInt(),
-                "",
+                binding.editTextNote.text.toString(),
                 binding.editTextNote.text.toString()
             )
-            TransactionViewModel.addTransaction(transfer)
+            TransactionViewModel.addTransfer(transfer)
             binding.editTextAmount.setText("")
             binding.editTextAmount.requestFocus()
             binding.editTextNote.setText("")
@@ -378,11 +378,11 @@ class TransferFragment : Fragment() {
                 SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
                 binding.splitSlider.value.toInt(),
-                "",
+                binding.editTextNote.text.toString(),
                 binding.editTextNote.text.toString()
             )
 
-            TransactionViewModel.updateTransaction(editingKey, transfer)
+            TransactionViewModel.updateTransfer(editingKey, transfer)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, getString(R.string.transfer_updated), Toast.LENGTH_SHORT).show()
         }
