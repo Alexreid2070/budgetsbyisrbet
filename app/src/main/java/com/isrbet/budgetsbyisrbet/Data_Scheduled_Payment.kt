@@ -296,6 +296,22 @@ class ScheduledPaymentViewModel : ViewModel() {
                 }
             }
         }
+        fun getScheduledPaymentsInNextDays(iDays: Int) : String {
+            val tDate = MyDate(gCurrentDate)
+            tDate.increment(cPeriodDay, iDays)
+            var tReply = ""
+
+            singleInstance.scheduledPayments.forEach() { sp ->
+                if (sp.nextdate <= tDate.toString()) {
+                    val myDate = MyDate(sp.nextdate)
+                    if (tReply == "")
+                        tReply = "\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myDate.month)} ${myDate.day}."
+                    else
+                        tReply = "$tReply\n\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myDate.month)} ${myDate.day}."
+                }
+            }
+            return tReply
+        }
     }
 
     init {

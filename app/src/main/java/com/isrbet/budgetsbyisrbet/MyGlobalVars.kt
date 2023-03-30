@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.LocaleList
 import android.text.SpannableString
 import android.text.TextUtils
+import android.text.format.DateFormat
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.util.ArrayMap
@@ -56,6 +57,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
+const val cLOOKAHEAD_PERIOD = 2
 const val cMODE_VIEW = 0
 const val cMODE_EDIT = 1
 const val cMODE_ADD = 2
@@ -66,6 +68,7 @@ const val cDiscTypeDiscretionary = "Discretionary"
 const val cDiscTypeNondiscretionary = "Non-Discretionary"
 const val cDiscTypeAll = "All"
 
+const val cPeriodDay = "Day"
 const val cPeriodWeek = "Week"
 const val cPeriodMonth = "Month"
 const val cPeriodQuarter = "Quarter"
@@ -133,6 +136,10 @@ val gCurrentDate = android.icu.util.Calendar.getInstance()
 fun gMonthName(iMonth: Int) : String {
     val month = Month.of(iMonth)
     return month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+}
+fun gShortMonthName(iMonth: Int) : String {
+    val month = Month.of(iMonth)
+    return month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
 }
 
  fun gDecM(iDouble: Double): String {
@@ -313,6 +320,7 @@ data class MyDate(
         cal.set(Calendar.MONTH, month-1)
         cal.set(Calendar.DAY_OF_MONTH, day)
         when (iPeriod) {
+            cPeriodDay -> cal.add(Calendar.DATE, iRegularity)
             cPeriodWeek -> cal.add(Calendar.DATE, 7 * iRegularity)
             cPeriodMonth -> cal.add(Calendar.MONTH, 1 * iRegularity)
             cPeriodYear -> cal.add(Calendar.YEAR, 1 * iRegularity)

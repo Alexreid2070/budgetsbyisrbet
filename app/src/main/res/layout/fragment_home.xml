@@ -164,17 +164,14 @@
                 android:layout_gravity="center" />
 
             <TextView
-                android:id="@+id/quote_label"
-                android:layout_width="match_parent"
+                android:id="@+id/scheduled_payment_field"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:background="?attr/colorSecondary"
-                android:paddingStart="5dp"
-                android:paddingTop="35dp"
-                android:paddingEnd="5dp"
-                android:text="@string/quote_of_the_day"
-                android:visibility="gone"/>
-
+                android:layout_gravity="center"
+                android:background="?attr/colorSecondaryVariant"
+                android:padding="20dp"
+                android:visibility="gone"
+                android:textSize="16sp"/>
             <TextView
                 android:id="@+id/quote_field"
                 android:layout_width="match_parent"
@@ -184,6 +181,7 @@
                 android:fontFamily="cursive"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
+                android:paddingTop="10dp"
                 android:paddingBottom="20dp"
                 android:textSize="20sp" />
             <FrameLayout

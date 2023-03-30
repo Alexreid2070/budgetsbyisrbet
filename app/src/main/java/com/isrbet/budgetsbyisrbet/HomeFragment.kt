@@ -127,7 +127,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                         MyApplication.userAccount = account.account
                         firebaseAuthWithGoogle(account.idToken!!)
                     } catch (e: ApiException) {
-                        // Google Sign In failed, update UI appropriately
+                         // Google Sign In failed, update UI appropriately
                         Log.w("Alex", "Google sign in failed", e)
                     }
                 } else
@@ -206,7 +206,6 @@ class HomeFragment : Fragment(), CoroutineScope {
             binding.expandButton.isEnabled = false
             binding.signInButton.visibility = View.VISIBLE
             binding.quoteField.text = ""
-            binding.quoteLabel.visibility = View.GONE
             binding.transactionAddFab.visibility = View.GONE
             binding.expandButton.visibility = View.GONE
             binding.homeScreenMessage.visibility = View.VISIBLE
@@ -216,8 +215,9 @@ class HomeFragment : Fragment(), CoroutineScope {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
+            setScheduledPaymentText()
+
             if (DefaultsViewModel.getDefaultQuote()) {
-                binding.quoteLabel.visibility = View.VISIBLE
                 if (MyApplication.userEmail != MyApplication.currentUserEmail)
                     binding.quoteField.text =
                         "Currently impersonating " + MyApplication.currentUserEmail
@@ -266,6 +266,16 @@ class HomeFragment : Fragment(), CoroutineScope {
         set.clone(constraintLayout)
         set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
+    }
+
+    private fun setScheduledPaymentText() {
+        val spText = ScheduledPaymentViewModel.getScheduledPaymentsInNextDays(cLOOKAHEAD_PERIOD)
+        if (spText == "") {
+            binding.scheduledPaymentField.visibility = View.GONE
+        } else {
+            binding.scheduledPaymentField.visibility = View.VISIBLE
+        }
+        binding.scheduledPaymentField.text = spText
     }
 
     private fun setupDataCallbacks() {
@@ -409,8 +419,8 @@ class HomeFragment : Fragment(), CoroutineScope {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
+            setScheduledPaymentText()
             if (DefaultsViewModel.getDefaultQuote()) {
-                binding.quoteLabel.visibility = View.VISIBLE
                 binding.quoteField.text = getQuote()
                 if (account.uid == "null")
                     binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
@@ -491,8 +501,8 @@ class HomeFragment : Fragment(), CoroutineScope {
             } else {
                 (activity as MainActivity).setLoggedOutMode(false)
                 binding.expandButton.isEnabled = true
+                setScheduledPaymentText()
                 if (DefaultsViewModel.getDefaultQuote()) {
-                    binding.quoteLabel.visibility = View.VISIBLE
                     binding.quoteField.visibility = View.VISIBLE
                     binding.quoteField.text = getQuote()
                 }
@@ -586,7 +596,7 @@ class HomeFragment : Fragment(), CoroutineScope {
         binding.signInButton.visibility = View.VISIBLE
         binding.signInButton.setSize(SignInButton.SIZE_WIDE)
         binding.quoteField.text = ""
-        binding.quoteLabel.visibility = View.GONE
+        binding.scheduledPaymentField.visibility = View.GONE
         val trackerFragment: TrackerFragment =
             childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
         trackerFragment.hideBarChart()
