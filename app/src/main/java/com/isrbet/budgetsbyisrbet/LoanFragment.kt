@@ -48,7 +48,7 @@ class LoanFragment : Fragment() {
                     sp.loanPaymentRegularity,
                     sp.loanInterestRate / 100.0,
                     sp.loanAmount,
-                    sp.amount)
+                    if (sp.actualPayment > 0.0) sp.actualPayment else sp.amount)
             }
         } else
             setupLoanSpinner()
@@ -84,7 +84,7 @@ class LoanFragment : Fragment() {
                         binding.loanAmount.setText(gDec(sp.loanAmount))
                         binding.amortizationPeriod.setText(gDec(sp.loanAmortization))
                         binding.interestRate.setText(gDec(sp.loanInterestRate))
-                        binding.acceleratedPaymentAmount.setText(gDec(sp.amount))
+                        binding.acceleratedPaymentAmount.setText(gDec(if (sp.actualPayment > 0.0) sp.actualPayment else sp.amount))
                         when (sp.loanPaymentRegularity) {
                             LoanPaymentRegularity.WEEKLY -> binding.buttonWeekly.isChecked = true
                             LoanPaymentRegularity.BIWEEKLY -> binding.buttonBiweekly.isChecked = true
@@ -116,8 +116,7 @@ class LoanFragment : Fragment() {
         binding.acceleratedPaymentAmount.setText("")
         val myList: MutableList<LoanPayment> = ArrayList()
         val adapter = LoanAdapter(requireContext(), myList)
-        val listView: ListView = requireActivity().findViewById(R.id.loan_list_view)
-        listView.adapter = adapter
+        binding.loanListView.adapter = adapter
     }
 
     private fun setupLoanSpinner(iSelection: String = "") {
@@ -227,8 +226,8 @@ class LoanFragment : Fragment() {
                     else calcPayment-interestOwingForThisPeriod,
                     owingAtEndOfPeriod))
             when (iPaymentRegularity) {
-                LoanPaymentRegularity.WEEKLY -> iFirstPaymentDate.add(Calendar.DATE, 7)
-                LoanPaymentRegularity.BIWEEKLY -> iFirstPaymentDate.add(Calendar.DATE, 14)
+                LoanPaymentRegularity.WEEKLY -> iFirstPaymentDate.add(Calendar.DAY_OF_MONTH, 7)
+                LoanPaymentRegularity.BIWEEKLY -> iFirstPaymentDate.add(Calendar.DAY_OF_MONTH, 14)
                 LoanPaymentRegularity.MONTHLY -> iFirstPaymentDate.add(Calendar.MONTH, 1)
             }
         }

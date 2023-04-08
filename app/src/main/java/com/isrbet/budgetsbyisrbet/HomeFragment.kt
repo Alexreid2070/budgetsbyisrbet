@@ -86,6 +86,9 @@ class HomeFragment : Fragment(), CoroutineScope {
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
 
+        if (inDarkMode(requireContext()))
+            binding.constraintLayout.setBackgroundColor(R.color.black)
+
         gestureDetector = GestureDetectorCompat(requireActivity(), object :
             GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
@@ -152,6 +155,9 @@ class HomeFragment : Fragment(), CoroutineScope {
         }
         auth = Firebase.auth
 
+        binding.scheduledPaymentField.setOnClickListener {
+            findNavController().navigate(R.id.ScheduledPaymentFragment)
+        }
         binding.transactionAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransactionFragment)
         }
@@ -180,8 +186,7 @@ class HomeFragment : Fragment(), CoroutineScope {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val scrollView = view.findViewById<NestedScrollView>(R.id.scroll_view)
-        scrollView.setOnTouchListener(object : View.OnTouchListener {
+        binding.scrollView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 if (p1 != null) {
                     try {
@@ -332,26 +337,12 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun expandTop() {
-/*        binding.expandButtonLayout.setBackgroundColor(
-            MaterialColors.getColor(
-                requireContext(),
-                R.attr.colorPrimary,
-                Color.BLACK
-            )
-        ) */
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
         binding.expansionAreaLayout.visibility = View.VISIBLE
         homePageExpansionAreaExpanded = true
     }
 
     private fun retractTop() {
-/*        binding.expandButtonLayout.setBackgroundColor(
-            MaterialColors.getColor(
-                requireContext(),
-                R.attr.colorSecondary,
-                Color.BLACK
-            )
-        ) */
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
         binding.expansionAreaLayout.visibility = View.GONE
         homePageExpansionAreaExpanded = false

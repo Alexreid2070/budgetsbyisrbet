@@ -2,6 +2,8 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import android.widget.Filterable
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -166,9 +169,20 @@ class TransactionRecyclerAdapter(
         val data = filteredList[position]
 
         holder.vtfdate.text = data.date
-        if (groupList[position] == 0) { // ie first transaction on this date
+        if (groupList[position] == -100) { // ie first transaction for this year
+            Log.d("Alex", "found change in year")
             holder.vtfdate.isVisible = true
             holder.vtfdate.paint.isUnderlineText = true
+            holder.vtfdate.setTypeface(null, Typeface.BOLD)
+            val hexColor = getColorInHex(MaterialColors.getColor(context, R.attr.colorSecondary, Color.BLACK), cOpacity)
+            holder.vtfdate.setBackgroundColor(Color.parseColor(hexColor))
+        } else if (groupList[position] == -10) { // ie first transaction for this month
+            holder.vtfdate.isVisible = true
+            holder.vtfdate.paint.isUnderlineText = true
+            holder.vtfdate.setTypeface(null, Typeface.BOLD)
+        } else if (groupList[position] == 0) { // ie first transaction on this date
+            holder.vtfdate.isVisible = true
+//            holder.vtfdate.paint.isUnderlineText = true
         } else {
             holder.vtfdate.isVisible = false
         }
@@ -292,7 +306,12 @@ class TransactionRecyclerAdapter(
                     j++
                 } else {
                     j = 0
-                    tgroupList.add(c, j)
+                    if (filteredList[i].date.substring(0,4) != filteredList[i-1].date.substring(0,4))
+                        tgroupList.add(c, -100) // -10 symbolizes change in year
+                    else if (filteredList[i].date.substring(5,7) != filteredList[i-1].date.substring(5,7))
+                        tgroupList.add(c, -10) // -10 symbolizes change in month
+                    else
+                        tgroupList.add(c, j)
                     c++
                     j++
                 }

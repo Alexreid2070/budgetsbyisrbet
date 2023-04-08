@@ -9,7 +9,7 @@
             android:topRightRadius="0dp" />
         <stroke
             android:width="3dp"
-            android:color="#FFFFFF" />
+            android:color="?attr/colorPrimary" />
         <solid android:color="#33FFFFFF" />
     </shape>
 

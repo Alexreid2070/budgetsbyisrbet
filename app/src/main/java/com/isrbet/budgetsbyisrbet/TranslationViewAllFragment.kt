@@ -23,12 +23,10 @@ class TranslationViewAllFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         val adapter = TranslationAdapter(requireContext(), TranslationViewModel.getTranslations())
 
-        val listView: ListView = requireActivity().findViewById(R.id.translation_list_view)
-        listView.adapter = adapter
-
-        listView.onItemClickListener =
+        binding.translationListView.adapter = adapter
+        binding.translationListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val itemValue = listView.getItemAtPosition(position) as Translation
+                val itemValue = binding.translationListView.getItemAtPosition(position) as Translation
                 val cdf = TranslationEditDialogFragment.newInstance(itemValue.before,
                     itemValue.after,
                     itemValue.category,
@@ -36,7 +34,7 @@ class TranslationViewAllFragment : Fragment() {
                 cdf.setTranslationEditDialogFragmentListener(object: TranslationEditDialogFragment.TranslationEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = TranslationAdapter(requireContext(), TranslationViewModel.getTranslations())
-                        listView.adapter = myAdapter
+                        binding.translationListView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
                 })

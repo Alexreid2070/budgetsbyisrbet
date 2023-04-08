@@ -100,7 +100,6 @@
             android:id="@+id/restartHintButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:contentDescription="@string/restart_hints"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"

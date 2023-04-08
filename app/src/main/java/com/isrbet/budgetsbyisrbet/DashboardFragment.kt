@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.os.Bundle
+import android.text.TextUtils
+import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.*
@@ -11,9 +13,8 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -467,16 +468,31 @@ class DashboardFragment : Fragment() {
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
 
             val cat = DefaultsViewModel.getCategoryDetail(iCategory)
-            if (cat.color != 0) {
+//            if (cat.color != 0) {
                 if (Build.VERSION.SDK_INT >= 29) {
-                    tr.setBackgroundResource(R.drawable.row_left_border)
-                    tr.background.colorFilter =
-                        BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+                    if (cat.color == 0) {
+                        tr.setBackgroundResource(R.drawable.row_left_border_no_fill)
+                        val hexColor = MaterialColors.getColor(
+                            requireContext(),
+                            R.attr.colorPrimary,
+                            Color.BLACK
+                        )
+                        tr.background.colorFilter =
+                            BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
+                    } else {
+                        if (inDarkMode(requireContext()))
+                            tr.setBackgroundResource(R.drawable.row_left_border_no_fill)
+                        else
+                            tr.setBackgroundResource(R.drawable.row_left_border)
+                        tr.background.colorFilter =
+                            BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+                    }
                 } else {
-                    tr.setBackgroundColor(cat.color)
+                    if (cat.color != 0)
+                        tr.setBackgroundColor(cat.color)
                     tr.background.alpha = 44
                 }
-            }
+//            }
         }
         else if (iRowType == cHEADER) {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -504,6 +520,18 @@ class DashboardFragment : Fragment() {
                     tr.setBackgroundColor(cat.color)
 //                    tr.background.alpha = 44
                 }
+            } else if (Build.VERSION.SDK_INT >= 29) {
+                tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
+                val hexColor = MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK)
+                tr.background.colorFilter =
+                    BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
+            }
+            if (inDarkMode(requireContext())) {
+                tv1.setTextColor(R.color.black)
+                tv2.setTextColor(R.color.black)
+                tv3.setTextColor(R.color.black)
+                tv4.setTextColor(R.color.black)
+                tv5.setTextColor(R.color.black)
             }
         }
         else if (iRowType == cGRANDTOTAL) {
@@ -552,9 +580,9 @@ class DashboardFragment : Fragment() {
                 val catID = it.tag.toString()
                 // go to Budget
                 val action =
-                    DashboardFragmentDirections.actionDashboardFragmentToBudgetViewAllFragment()
+                    DashboardTabsFragmentDirections.actionDashboardTabsFragmentToBudgetViewAllFragment()
                 action.categoryID = catID
-                findNavController().navigate(action)
+                view?.findNavController()?.navigate(action)
             }
 
             tv3.setOnClickListener {
@@ -677,17 +705,15 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setActionBarTitle() {
-        binding.dashboardTitle.text =
-                when (DefaultsViewModel.getDefaultViewPeriodDashboard()) {
-                    cPeriodAllTime -> getString(R.string.dashboard) + " - " +
-                            getString(R.string.all_time)
-                    cPeriodYTD -> getString(R.string.dashboard) + " - " +
-                            getString(R.string.ytd)
-                    cPeriodYear -> getString(R.string.dashboard) + " - " +
-                            currentBudgetMonth.year
-                    else -> getString(R.string.dashboard) + " - " +
-                        gMonthName(currentBudgetMonth.month) + " " + currentBudgetMonth.year
-                }
+        var title =
+            when (DefaultsViewModel.getDefaultViewPeriodDashboard()) {
+                cPeriodAllTime -> getString(R.string.all_time)
+                cPeriodYTD -> getString(R.string.ytd)
+                cPeriodYear -> currentBudgetMonth.year.toString()
+                else -> gMonthName(currentBudgetMonth.month) + " " + currentBudgetMonth.year
+            }
+        title = "$title "
+
         var currentFilterIndicator = ""
         if (DefaultsViewModel.getDefaultFilterDiscDashboard() != "") {
             when (DefaultsViewModel.getDefaultFilterDiscDashboard()) {
@@ -699,12 +725,23 @@ class DashboardFragment : Fragment() {
             currentFilterIndicator = currentFilterIndicator +
                     (if (currentFilterIndicator == "") "" else " ") +
                     SpenderViewModel.getSpenderName(DefaultsViewModel.getDefaultFilterWhoDashboard().toInt())
-        if (currentFilterIndicator == "")
-            binding.dashboardSubtitle.visibility = View.GONE
+        val subtitle = if (currentFilterIndicator == "")
+            ""
         else {
-            binding.dashboardSubtitle.visibility = View.VISIBLE
-            binding.dashboardSubtitle.text = String.format("($currentFilterIndicator)")
+            String.format("($currentFilterIndicator)")
         }
+
+        val textCol = MaterialColors.getColor(requireContext(), R.attr.textOnBackground, Color.BLACK)
+        val sTitle = title.setFontSizeForPath(title.length, 65, textCol)
+        val sSubtitle = subtitle.setFontSizeForPath(subtitle.length, 50,
+            MaterialColors.getColor(
+                requireContext(),
+                R.attr.colorPrimary,
+                Color.BLACK
+            ))
+        sTitle.setSpan(StyleSpan(Typeface.BOLD), 0, sTitle.length, 0)
+        sSubtitle.setSpan(StyleSpan(Typeface.BOLD), 0, sSubtitle.length, 0)
+        binding.dashboardTitle.text = TextUtils.concat(sTitle, sSubtitle)
     }
 
     private fun moveBackward() {

@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="textOnBackground" format="color"/>
+    <attr name="menuColor" format="color"/>
+
+    <attr name="pageHeadingFontColor" format="color"/>
+    <attr name="pageHeadingBackgroundColor" format="color"/>
+    <attr name="pageHeadingFontSize" format="integer"/>
 </resources>

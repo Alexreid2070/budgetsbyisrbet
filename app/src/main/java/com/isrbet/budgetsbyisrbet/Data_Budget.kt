@@ -362,6 +362,8 @@ class BudgetViewModel : ViewModel() {
                 getOriginalBudgetAmount(iCategoryID, iBudgetMonth, 2)
             else
                 BudgetPeriod(MyDate(gCurrentDate))
+            if (iCategoryID == 1001)
+                Log.d("Alex", "1 $budgetForPeriodUser0 $budgetForPeriodUser1 $budgetForPeriodUser2")
 
             val actualsForUser0PriorMonths = if (iWhoToLookup != 1 &&
                     iBudgetMonth.month != 1 &&
@@ -466,6 +468,8 @@ class BudgetViewModel : ViewModel() {
         }
 
         fun getOriginalBudgetAmount(iCategoryID: Int, iBudgetMonth: MyDate, iWho: Int): BudgetPeriod {
+            if (iCategoryID == 1001)
+                Log.d("Alex", "looking for budget for $iBudgetMonth $iWho")
             val tResponse = BudgetPeriod(MyDate(gCurrentDate))
             tResponse.applicableDate = iBudgetMonth
             tResponse.who = iWho
@@ -490,8 +494,9 @@ class BudgetViewModel : ViewModel() {
             val myBudget = singleInstance.budgets.find { it.categoryID == iCategoryID }
             if (myBudget != null) {
                 val tList = myBudget.budgetPeriodList.filter { it.who == iWho &&
-                        it.startDate <= iBudgetMonth }
+                        it.startDate.getMMYY() <= iBudgetMonth.getMMYY()}
                 if (tList.isNotEmpty()) {
+                    var foundRecurringBudget = false
                     for (i in tList.size - 1 downTo 0) {
                         if ((tList[i].occurence == 1 &&
                             ((tList[i].period != cPeriodYear && tList[i].startDate.year == iBudgetMonth.year && tList[i].startDate.month == iBudgetMonth.month) ||
@@ -501,19 +506,29 @@ class BudgetViewModel : ViewModel() {
 //                        val end = System.currentTimeMillis()
                             //                      Timber.tag("Alex").d("getBudgetAmount time is ${end - start} ms")
                             val tAmount = tList[i].getBudgetAmount(iBudgetMonth)
-                            if (tAmount != null) {
-                                tUserBudgets[iWho].amount = tAmount
+                            if (iCategoryID == 1001)
+                                Log.d("Alex", "found amount $tAmount $iBudgetMonth $iWho $foundRecurringBudget ${tList[i].occurence}")
+                            if (tAmount != null &&
+                                ((!foundRecurringBudget && tList[i].occurence == 0) ||
+                                        tList[i].occurence == 1)) {
+                                tUserBudgets[iWho].amount += tAmount
                                 tUserBudgets[iWho].applicableDate = tList[i].startDate
                                 tUserBudgets[iWho].startDate = tList[i].startDate
                                 tUserBudgets[iWho].occurence = tList[i].occurence
                                 tUserBudgets[iWho].regularity = tList[i].regularity
                                 tUserBudgets[iWho].period = tList[i].period
-                                break // for
+                                if (tList[i].startDate.day == 1)
+                                    break // for
                             }
+                            if (tList[i].occurence == 0 &&
+                                tList[i].startDate < iBudgetMonth) // ie if it's a weekly budget, need to keep looking for possible monthly
+                                foundRecurringBudget = true
                         }
                     }
                 }
-            }
+            } else
+                if (iCategoryID == 1001)
+                    Log.d("Alex", "Nothing found")
 /*            tList?.forEach() {
 //            myBudget?.budgetPeriodList?.forEach {
                 val start = System.currentTimeMillis()
@@ -539,6 +554,8 @@ class BudgetViewModel : ViewModel() {
             tResponse.occurence = tUserBudgets[iWho].occurence
             tResponse.regularity = tUserBudgets[iWho].regularity
             tResponse.period = tUserBudgets[iWho].period
+            if (iCategoryID == 1001)
+                Log.d("Alex", "returning ${tResponse}")
 
             if (tResponse.applicableDate.month == 0)
                 tResponse.applicableDate.month = 1
@@ -556,8 +573,7 @@ class BudgetViewModel : ViewModel() {
                             if (budget.budgetPeriodList[i].who == userIndex) {
                                 if (budget.budgetPeriodList[i].startDate <= iBudgetMonth ||
                                     (budget.budgetPeriodList[i].period == cPeriodWeek &&
-                                            budget.budgetPeriodList[i].startDate.year <= iBudgetMonth.year &&
-                                            budget.budgetPeriodList[i].startDate.month <= iBudgetMonth.month)) {
+                                            budget.budgetPeriodList[i].startDate.getMMYY() <= iBudgetMonth.getMMYY())) {
                                     //                                val tAmt = budget.getBudgetPeriodForMonth(DateRange(iBudgetMonth, MyDate(iBudgetMonth.year, iBudgetMonth.month, 31)))
                                     if (budget.budgetPeriodList[i].getEndDate() > iBudgetMonth) {
                                         myList.add(

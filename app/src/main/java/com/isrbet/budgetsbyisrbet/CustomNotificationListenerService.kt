@@ -55,7 +55,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
                         val dateNow = gCurrentDate
                         val key = dateNow.get(Calendar.YEAR).toString() + "-" +
                                 (dateNow.get(Calendar.MONTH)+1).toString() + "-" +
-                                dateNow.get(Calendar.DATE).toString() + "-" +
+                                dateNow.get(Calendar.DAY_OF_MONTH).toString() + "-" +
                                 dateNow.get(Calendar.HOUR).toString() + "-" +
                                 dateNow.get(Calendar.MINUTE).toString() + "-" +
                                 dateNow.get(Calendar.SECOND).toString()

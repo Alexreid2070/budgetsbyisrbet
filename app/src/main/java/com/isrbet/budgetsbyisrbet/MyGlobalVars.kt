@@ -28,6 +28,7 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
+import android.widget.TableRow
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
@@ -100,7 +101,6 @@ const val cBudgetDateView = "Date"
 const val cBudgetCategoryView = "Category"
 const val cOpacity = "1F"
 const val NOT_ROUNDED = false
-const val cDEFAULT_COLOUR_WHITE = "#FFFFFF"
 
 const val cHINT_BUDGET = "Budget"
 const val cHINT_DASHBOARD = "Dashboard"
@@ -131,7 +131,11 @@ var homePageExpansionAreaExpanded = false
 val gNumberFormat: NumberFormat = NumberFormat.getInstance()
 var gRetirementScenario:RetirementData? = null
 var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
-val gCurrentDate = android.icu.util.Calendar.getInstance()
+var gCurrentDate: Calendar = Calendar.getInstance()
+var gActualRow: YOYTableRow? = null // these 4 are hacks to support the YOYDialog
+var gBudgetRow: YOYTableRow? = null
+var gAverageRow: YOYTableRow? = null
+var gDeltaRow: YOYTableRow? = null
 
 fun gMonthName(iMonth: Int) : String {
     val month = Month.of(iMonth)
@@ -306,6 +310,9 @@ data class MyDate(
         else
             1
     }
+    fun getMMYY(): String {
+        return "%04d-%02d".format(year, month)
+    }
 
     fun getFirstOfMonth() : String {
         return "%04d-%02d-01".format(year, month)
@@ -320,8 +327,8 @@ data class MyDate(
         cal.set(Calendar.MONTH, month-1)
         cal.set(Calendar.DAY_OF_MONTH, day)
         when (iPeriod) {
-            cPeriodDay -> cal.add(Calendar.DATE, iRegularity)
-            cPeriodWeek -> cal.add(Calendar.DATE, 7 * iRegularity)
+            cPeriodDay -> cal.add(Calendar.DAY_OF_MONTH, iRegularity)
+            cPeriodWeek -> cal.add(Calendar.DAY_OF_MONTH, 7 * iRegularity)
             cPeriodMonth -> cal.add(Calendar.MONTH, 1 * iRegularity)
             cPeriodYear -> cal.add(Calendar.YEAR, 1 * iRegularity)
         }
@@ -343,9 +350,9 @@ fun giveMeMyDateFormat(cal: Calendar) : String {
     if (cal.get(Calendar.MONTH)+1 < 10)
         tempString += "0"
     tempString = tempString + (cal.get(Calendar.MONTH)+1).toString() + "-"
-    if (cal.get(Calendar.DATE) < 10)
+    if (cal.get(Calendar.DAY_OF_MONTH) < 10)
         tempString += "0"
-    tempString += cal.get(Calendar.DATE).toString()
+    tempString += cal.get(Calendar.DAY_OF_MONTH).toString()
     return tempString
 }
 
@@ -570,10 +577,10 @@ fun getNextBusinessDate(iDate: String) : String {
     val thisDate = gCurrentDate.clone() as Calendar // Calendar.getInstance()
     thisDate.set(year, month-1, day)
     if(Calendar.SATURDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
-        thisDate.add(Calendar.DATE, 2)
+        thisDate.add(Calendar.DAY_OF_MONTH, 2)
         return giveMeMyDateFormat(thisDate)
     } else if(Calendar.SUNDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
-        thisDate.add(Calendar.DATE, 1)
+        thisDate.add(Calendar.DAY_OF_MONTH, 1)
         return giveMeMyDateFormat(thisDate)
     }
 

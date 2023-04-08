@@ -3,14 +3,11 @@ package com.isrbet.budgetsbyisrbet
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.graphics.Color
+import android.icu.util.Calendar
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
-import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
 import androidx.navigation.findNavController
@@ -66,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.TransactionViewAllFragment)
                 }
                 R.id.DashboardFragment-> {
-                    navController.navigate(R.id.DashboardFragment)
+                    navController.navigate(R.id.DashboardTabsFragment)
                 }
                 R.id.AccountingFragment-> {
                     navController.navigate(R.id.AccountingFragment)
@@ -111,6 +108,13 @@ class MainActivity : AppCompatActivity() {
         navMenu.forEach {
             it.isEnabled = !loggedOut
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("Alex", "RESUMING")
+        gCurrentDate = Calendar.getInstance()
+        homePageExpansionAreaExpanded = false
     }
 
     override fun onDestroy() {

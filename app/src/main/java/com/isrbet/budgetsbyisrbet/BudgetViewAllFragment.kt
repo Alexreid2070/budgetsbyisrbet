@@ -59,9 +59,8 @@ class BudgetViewAllFragment : Fragment() {
                 setCategoryType()
                 val currentCategory = Category(0,selection as String)
                 loadRows(currentCategory.id, 0, 0)
-                val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
-                listView.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
-                listView.setSelection(listView.adapter.count - 1)
+                binding.budgetListView.transcriptMode = ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL
+                binding.budgetListView.setSelection(binding.budgetListView.adapter.count - 1)
             }
         }
         if (SpenderViewModel.singleUser()) {
@@ -142,6 +141,8 @@ class BudgetViewAllFragment : Fragment() {
         arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
         binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.budgetCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
+
         if (args.categoryID != "") {
             categorySpinner.setSelection(
                 arrayAdapter.getPosition(
@@ -199,11 +200,10 @@ class BudgetViewAllFragment : Fragment() {
             BudgetViewModel.getBudgetInputRows(iCategoryID)
         }
         val adapter = BudgetAdapter(requireContext(), rows)
-        val listView: ListView = requireActivity().findViewById(R.id.budget_list_view)
-        listView.adapter = adapter
-        listView.onItemClickListener =
+        binding.budgetListView.adapter = adapter
+        binding.budgetListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
-                val itemValue = listView.getItemAtPosition(position) as BudgetInputRow
+                val itemValue = binding.budgetListView.getItemAtPosition(position) as BudgetInputRow
                 val bmDateApplicable = MyDate(itemValue.dateApplicable)
 //                val bmDateStart = MyDate(itemValue.dateStarted)
                 if (itemValue.dateApplicable == itemValue.dateStarted ||
@@ -237,7 +237,7 @@ class BudgetViewAllFragment : Fragment() {
                             }
                             val tadapter = BudgetAdapter(requireContext(), trows)
 
-                            listView.adapter = tadapter
+                            binding.budgetListView.adapter = tadapter
                             tadapter.notifyDataSetChanged()
                         }
                     })

@@ -64,6 +64,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         binding.loanAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         binding.amortizationPeriod.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         binding.interestRate.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.actualLoanPaymentAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         return binding.root
     }
 
@@ -205,6 +206,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 binding.loanAmount.setText(oldSP?.loanAmount?.let { gDec(it) })
                 binding.amortizationPeriod.setText(oldSP?.loanAmortization?.let { gDec(it) })
                 binding.interestRate.setText(oldSP?.loanInterestRate?.let { gDec(it) })
+                binding.actualLoanPaymentAmount.setText(oldSP?.actualPayment?.let { gDec(it) })
                 when (oldSP?.loanPaymentRegularity) {
                     LoanPaymentRegularity.WEEKLY -> binding.buttonWeekly.isChecked = true
                     LoanPaymentRegularity.BIWEEKLY -> binding.buttonBiweekly.isChecked = true
@@ -222,6 +224,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 binding.loanAmount.isEnabled = false
                 binding.amortizationPeriod.isEnabled = false
                 binding.interestRate.isEnabled = false
+                binding.actualLoanPaymentAmount.isEnabled = false
                 binding.buttonWeekly.isEnabled = false
                 binding.buttonBiweekly.isEnabled = false
                 binding.buttonMonthly.isEnabled = false
@@ -573,6 +576,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             binding.loanAmount.isEnabled = true
             binding.amortizationPeriod.isEnabled = true
             binding.interestRate.isEnabled = true
+            binding.actualLoanPaymentAmount.isEnabled = true
             binding.buttonWeekly.isEnabled = true
             binding.buttonBiweekly.isEnabled = true
             binding.buttonMonthly.isEnabled = true
@@ -682,6 +686,16 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
+                amountDouble = gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()
+                amountInt = round(amountDouble * 100).toInt()
+                if (oldSP?.actualPayment != amountDouble) {
+                    ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
+                        oldName,
+                        "actualPayment",
+                        amountDouble
+                    )
+                    somethingChanged = true
+                }
                 if (oldSP?.loanPaymentRegularity != freq) {
                     ScheduledPaymentViewModel.updateScheduledPaymentStringField(
                         oldName, "loanPaymentRegularity",
@@ -707,6 +721,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
                     if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
                     if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
+                    if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
                     freq
                 )
                 if (listener != null)
@@ -725,6 +740,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 amountDouble,
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
                 binding.editNewNextDate.text.toString(),
+                "",
                 CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
                 binding.editNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
@@ -735,6 +751,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
                 freq
                 )
             ScheduledPaymentViewModel.addScheduledPayment(sp)
@@ -748,6 +765,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
                 binding.editNewNextDate.text.toString(),
+                "",
                 CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
                 binding.editNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
@@ -758,6 +776,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
                 freq
                 )
             ScheduledPaymentViewModel.addScheduledPayment(sp)

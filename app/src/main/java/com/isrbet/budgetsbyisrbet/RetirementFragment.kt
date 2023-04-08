@@ -88,8 +88,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
                     loadRetirementInfoFromWorking = true
                     val userDefault = RetirementViewModel.getUserDefault(binding.userID.text.toString().toInt())
                     if (userDefault != null) {
-                        val listView: ListView =
-                            requireActivity().findViewById(R.id.assets_list_view)
                         val myAdapter = AssetAdapter(requireContext(),
                             userDefault.investmentGrowthRate,
                             userDefault.propertyGrowthRate,
@@ -99,8 +97,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
                             { item ->
                                 moveAsset(item.distributionOrder, 1)
                             })
-                        listView.adapter = myAdapter
-                        setListViewHeightBasedOnChildren(listView)
+                        binding.assetsListView.adapter = myAdapter
+                        setListViewHeightBasedOnChildren(binding.assetsListView)
                         binding.assetsExpandButton.text =
                             String.format(getString(R.string.assets), myAdapter.count)
                         myAdapter.notifyDataSetChanged()
@@ -115,10 +113,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
             cdf.setRetirementPensionDialogFragmentListener(object: RetirementPensionDialogFragment.RetirementPensionDialogFragmentListener {
                 override fun onNewDataSaved() {
                     loadRetirementInfoFromWorking = true
-                    val listView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
                     val myAdapter = PensionAdapter(requireContext())
-                    listView.adapter = myAdapter
-                    setListViewHeightBasedOnChildren(listView)
+                    binding.pensionsListView.adapter = myAdapter
+                    setListViewHeightBasedOnChildren(binding.pensionsListView)
                     binding.pensionsExpandButton.text =
                         String.format(getString(R.string.pensions), myAdapter.count)
                     myAdapter.notifyDataSetChanged()
@@ -145,15 +142,19 @@ class RetirementFragment : Fragment(), CoroutineScope {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
                 binding.scenarioNameInput.setText(getStrippedScenarioName(selection.toString()))
+                Log.d("Alex", "Just chose scenario ${selection.toString()}")
                 binding.scenarioNameInput.error = null
                 binding.scenarioNameEntireLayout.visibility = View.GONE
                 if (previousSpinnerSelection != position) { // a new scenario has been chosen
+                    Log.d("Alex", "One $position ${SpenderViewModel.getNumberOfUsers()}")
                     loadRetirementInfoFromWorking = false
                     previousSpinnerSelection = position
                     setSummaryFields(View.GONE)
                     if (position < SpenderViewModel.getNumberOfUsers()) {
-                        val userDefault = RetirementViewModel.getUserDefault(position) ?: return
+                        Log.d("Alex", "One A")
+                        val userDefault = RetirementViewModel.getUserDefault(position) // ?: return
                         binding.userID.text = position.toString()
+                        Log.d("Alex", "One B")
                         loadScreen(userDefault)
                         if (!inDefaultMode)
                             binding.buttonUpdateDefaults.visibility = View.GONE
@@ -165,6 +166,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         binding.buttonDeleteScenario.visibility = View.VISIBLE
                     }
                 } else { // returned to the screen from See Details
+                    Log.d("Alex", "Two")
                     loadScreen(null, true)
                 }
             }
@@ -358,8 +360,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             myMaximumMonthlyBudget = 0
             myLastRow = null
             binding.calculationResponse.text = ""
-            val listView: ListView = requireActivity().findViewById(R.id.results_list_view)
-            listView.adapter = null
+            binding.resultsListView.adapter = null
             binding.lifetimeTaxes.text = ""
             binding.lifetimeSurplus.text = ""
             binding.endingNetWorth.text = ""
@@ -742,6 +743,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
 
     private fun loadScreen(iRetirementData: RetirementData?, iJustResetAdaptersFromWorking: Boolean = false) {
+        Log.d("Alex", "loading screen for $iRetirementData $iJustResetAdaptersFromWorking")
         if (iJustResetAdaptersFromWorking) {
             val inv = binding.investmentGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
             val prop = binding.propertyGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()

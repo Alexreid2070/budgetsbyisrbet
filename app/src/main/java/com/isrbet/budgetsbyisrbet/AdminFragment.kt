@@ -31,10 +31,10 @@ class AdminFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         binding.adminCurrentUser.text = MyApplication.currentUserEmail
-        view?.findViewById<Button>(R.id.button_dosomething)?.setOnClickListener { _: View ->
+        binding.buttonDosomething.setOnClickListener { _: View ->
             doSomething()
         }
-        view?.findViewById<Button>(R.id.button_load_users)?.setOnClickListener { _: View ->
+        binding.buttonLoadUsers.setOnClickListener { _: View ->
             AppUserViewModel.loadUsers()
             AppUserViewModel.setCallback(object: DataUpdatedCallback {
                 override fun onDataUpdate() {
@@ -48,7 +48,7 @@ class AdminFragment : Fragment() {
     private fun addUsersToList() {
         val adapter = UserAdapter(requireContext(), AppUserViewModel.getUsers())
 
-        val listView: ListView = requireActivity().findViewById(R.id.user_list)
+        val listView: ListView = binding.userList
         listView.adapter = adapter
 
         listView.onItemClickListener =

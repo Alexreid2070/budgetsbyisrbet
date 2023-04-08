@@ -36,7 +36,6 @@
             android:padding="10dp"
             android:paddingBottom="15dp"
             android:textAlignment="viewStart"
-            android:textColor="@color/white"
             android:textSize="18sp"/>
 
         <TextView

@@ -3,6 +3,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.icu.util.Calendar
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -17,6 +18,7 @@ data class ScheduledPayment(
     var period: String = "",
     var regularity: Int = 1,
     var nextdate: String = "",
+    var lastDate: String = "",
     var category: Int = 0,
     var paidby: Int = -1,
     var boughtfor: Int = -1,
@@ -26,6 +28,7 @@ data class ScheduledPayment(
     var loanAmount: Double = 0.0,
     var loanAmortization: Double = 0.0,
     var loanInterestRate: Double = 0.0,
+    var actualPayment: Double = 0.0,
     var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
     ) {
     fun setValue(key: String, value: String) {
@@ -33,6 +36,7 @@ data class ScheduledPayment(
             "name" -> name = value.trim()
             "amount" -> amount = value.toDouble()
             "nextdate" -> nextdate = value.trim()
+            "lastDate" -> lastDate = value.trim()
             "period" -> period = value.trim()
             "regularity" -> regularity = value.toInt()
             "category" -> category = value.toInt()
@@ -44,6 +48,7 @@ data class ScheduledPayment(
             "loanAmount" -> loanAmount = value.toDouble()
             "loanAmortization" -> loanAmortization = value.toDouble()
             "loanInterestRate" -> loanInterestRate = value.toDouble()
+            "actualPayment" -> actualPayment = value.toDouble()
             "loanPaymentRegularity" ->
 //                loanPaymentRegularity = if (isNumber(value))
                     loanPaymentRegularity = if (value.toIntOrNull() != null)
@@ -74,8 +79,8 @@ data class ScheduledPayment(
                 val interestInThisPeriod = principalOwing * (loanInterestRate / 100.0 / paymentsPerYear)
                 principalOwing -= (amount - interestInThisPeriod)
                 when (loanPaymentRegularity) {
-                    LoanPaymentRegularity.WEEKLY -> paymentDate.add(Calendar.DATE, 7)
-                    LoanPaymentRegularity.BIWEEKLY -> paymentDate.add(Calendar.DATE, 14)
+                    LoanPaymentRegularity.WEEKLY -> paymentDate.add(Calendar.DAY_OF_MONTH, 7)
+                    LoanPaymentRegularity.BIWEEKLY -> paymentDate.add(Calendar.DAY_OF_MONTH, 14)
                     LoanPaymentRegularity.MONTHLY -> paymentDate.add(Calendar.MONTH, 1)
                 }
             } while (principalOwing > 0.0 && paymentDate < iDate)
@@ -92,6 +97,7 @@ data class ScheduledPaymentOut(
     var period: String = "",
     var regularity: Int = 1,
     var nextdate: String = "",
+    var lastDate: String = "",
     var category: Int = 0,
     var paidby: Int = -1,
     var boughtfor: Int = -1,
@@ -101,13 +107,15 @@ data class ScheduledPaymentOut(
     var loanAmount: Int = 0,
     var loanAmortization: Int = 0,
     var loanInterestRate: Int = 0,
+    var actualPayment: Int = 0,
     var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
 ) {
     constructor(sp: ScheduledPayment) : this(
         sp.name, round(sp.amount*100).toInt(), sp.period, sp.regularity,
-        sp.nextdate, sp.category, sp.paidby, sp.boughtfor, sp.split1,
+        sp.nextdate, sp.lastDate, sp.category, sp.paidby, sp.boughtfor, sp.split1,
         sp.activeLoan, sp.loanFirstPaymentDate, round(sp.loanAmount*100).toInt(),
         round(sp.loanAmortization*100).toInt(),round(sp.loanInterestRate*100).toInt(),
+        round(sp.actualPayment*100).toInt(),
         sp.loanPaymentRegularity)
 }
 
@@ -194,6 +202,7 @@ class ScheduledPaymentViewModel : ViewModel() {
                                        iCategoryID: Int, iPaidBy: Int, iBoughtFor: Int,
                                         iSplit1: Int, iActiveLoan: Boolean, iLoanStartDate: String,
                                         iLoanAmount: Double, iLoanAmortization: Double, iLoanInterestRate: Double,
+                                        iActualPayment: Double,
                                         iLoanPaymentRegularity: LoanPaymentRegularity) {
             val mySP = singleInstance.scheduledPayments.find{ it.name == iName }
             if (mySP != null) {
@@ -210,6 +219,7 @@ class ScheduledPaymentViewModel : ViewModel() {
                 mySP.loanAmount = iLoanAmount
                 mySP.loanAmortization = iLoanAmortization
                 mySP.loanInterestRate = iLoanInterestRate
+                mySP.actualPayment = iActualPayment
                 mySP.loanPaymentRegularity = iLoanPaymentRegularity
             }
         }
@@ -245,10 +255,14 @@ class ScheduledPaymentViewModel : ViewModel() {
         }
         fun generateScheduledPayments(mainActivity: MainActivity) {
             // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
+            Log.d("Alex", "generateScheduledPayments")
             val dateNow = giveMeMyDateFormat(gCurrentDate)
             singleInstance.scheduledPayments.forEach {
+                Log.d("Alex", "comparing ${it.name} nextdate ${it.nextdate} $dateNow")
                 while (it.nextdate <= dateNow) {
                     val newNextDate = gCurrentDate.clone() as Calendar // Calendar.getInstance()
+                    it.lastDate = it.nextdate
+                    Log.d("Alex", "in while setting lastdate to ${it.lastDate}")
                     newNextDate.set(it.nextdate.substring(0,4).toInt(), it.nextdate.substring(5,7).toInt()-1, it.nextdate.substring(8,10).toInt())
                     // Reset nextDate
                     when (it.period) {
@@ -267,6 +281,8 @@ class ScheduledPaymentViewModel : ViewModel() {
                     }
                     MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
                         .child(it.name).child("nextdate").setValue(giveMeMyDateFormat(newNextDate))
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
+                        .child(it.name).child("lastDate").setValue(it.lastDate)
                     // add transaction
                     val nextDate = getNextBusinessDate(it.nextdate)
                     val nextDayIsBusinessDay = it.nextdate == nextDate
@@ -293,21 +309,30 @@ class ScheduledPaymentViewModel : ViewModel() {
                             if (outstandingLoanAmount > 0) " Outstanding loan amount ${
                                 gDecWithCurrency(outstandingLoanAmount)}" else "",
                             Toast.LENGTH_SHORT).show()
+                    Log.d("Alex", "last date now ${it.lastDate} and next date now ${it.nextdate}")
                 }
             }
         }
         fun getScheduledPaymentsInNextDays(iDays: Int) : String {
+            val today = MyDate(gCurrentDate).toString()
             val tDate = MyDate(gCurrentDate)
             tDate.increment(cPeriodDay, iDays)
             var tReply = ""
 
-            singleInstance.scheduledPayments.forEach() { sp ->
-                if (sp.nextdate <= tDate.toString()) {
-                    val myDate = MyDate(sp.nextdate)
-                    if (tReply == "")
-                        tReply = "\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myDate.month)} ${myDate.day}."
-                    else
-                        tReply = "$tReply\n\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myDate.month)} ${myDate.day}."
+            singleInstance.scheduledPayments.forEach { sp ->
+                Log.d("Alex", "Comparing ${sp.name} ${sp.lastDate} ${today} ${sp.lastDate == today} ${sp.nextdate} ${tDate.toString()} ${sp.nextdate <= tDate.toString()}")
+                if (sp.lastDate == today) {
+                    tReply = if (tReply == "") {
+                        "\$${gDecM(sp.amount)} for ${sp.name} due today."
+                    } else {
+                        "\$${gDecM(sp.amount)} for ${sp.name} due today.\n$tReply"
+                    }
+                } else if (sp.nextdate <= tDate.toString()) {
+                    val myNextDate = MyDate(sp.nextdate)
+                    tReply = if (tReply == "") {
+                        "\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myNextDate.month)} ${myNextDate.day}."
+                    } else
+                        "$tReply\n\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myNextDate.month)} ${myNextDate.day}."
                 }
             }
             return tReply
@@ -361,6 +386,10 @@ class ScheduledPaymentViewModel : ViewModel() {
                                 (child.value.toString().toInt() / 100.0).toString()
                             )
                             "loanInterestRate" -> tScheduledPayment.setValue(
+                                child.key.toString(),
+                                (child.value.toString().toInt() / 100.0).toString()
+                            )
+                            "actualPayment" -> tScheduledPayment.setValue(
                                 child.key.toString(),
                                 (child.value.toString().toInt() / 100.0).toString()
                             )

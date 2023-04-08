@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -11,7 +10,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -539,8 +537,7 @@ class TransactionViewAllFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun setFiltersToAccounting() {
         resetFilters()
-        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
-        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        val adapter: TransactionRecyclerAdapter = binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
         adapter.setAccountingFilter(accountingMode)
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
@@ -549,8 +546,7 @@ class TransactionViewAllFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun setCategoryFilter(iCategoryID: Int) {
-        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
-        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        val adapter: TransactionRecyclerAdapter = binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
         adapter.setCategoryIDFilter(iCategoryID)
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
@@ -582,10 +578,8 @@ class TransactionViewAllFragment : Fragment() {
     }
 
     private fun resetFilters() {
-        val recyclerView: FastScrollRecyclerView =
-            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter =
-            recyclerView.adapter as TransactionRecyclerAdapter
+            binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
         adapter.setCategoryIDFilter(0)
         binding.categorySpinner.setSelection(0)
         adapter.setCategoryFilter("")
@@ -603,10 +597,8 @@ class TransactionViewAllFragment : Fragment() {
 
     private fun closeSearch() {
         if (binding.transactionSearch.visibility == View.VISIBLE) {
-            val recyclerView: FastScrollRecyclerView =
-                requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
             val adapter: TransactionRecyclerAdapter =
-                recyclerView.adapter as TransactionRecyclerAdapter
+                binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
             binding.transactionSearch.visibility = View.GONE
             adapter.filter.filter("")
             // clear filter
@@ -619,10 +611,9 @@ class TransactionViewAllFragment : Fragment() {
         }
     }
     private fun updateView() {
-        val recyclerView: FastScrollRecyclerView = requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
-        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
-        recyclerView.adapter = null
-        recyclerView.adapter = adapter
+        val adapter: TransactionRecyclerAdapter = binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
+        binding.transactionViewAllRecyclerView.adapter = null
+        binding.transactionViewAllRecyclerView.adapter = adapter
         goToCorrectRow()
     }
 

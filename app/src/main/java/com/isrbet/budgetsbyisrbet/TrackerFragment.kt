@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.util.Log
@@ -321,8 +322,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         createBarChart(getBarChartData())
         if (hackActualTotal == 0.0 && hackBudgetTotal == 0.0) {
             hideBarChart()
-            binding.chartSummaryText.text = getString(R.string.no_tracker_data) + " " +
-                    TransactionViewModel.getCount()
+            binding.chartSummaryText.text = getString(R.string.no_tracker_data)
         }
     }
 
@@ -513,7 +513,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 currentBudgetMonth.month == gCurrentDate.get(Calendar.MONTH)+1) {
                 daysInMonth = getDaysInMonth(gCurrentDate)
                 totalBudgetToDate =
-                    totalBudget * gCurrentDate.get(Calendar.DATE) / daysInMonth
+                    totalBudget * gCurrentDate.get(Calendar.DAY_OF_MONTH) / daysInMonth
             } else if (currentBudgetMonth.year > gCurrentDate.get(Calendar.YEAR) ||
                     (currentBudgetMonth.year == gCurrentDate.get(Calendar.YEAR) &&
                             currentBudgetMonth.month > gCurrentDate.get(Calendar.MONTH)+1)) {
@@ -531,7 +531,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             daysInMonth = getDaysInMonth(gCurrentDate)
             val thisMonthBudget =
-                totalCurrentBudget * gCurrentDate.get(Calendar.DATE) / daysInMonth
+                totalCurrentBudget * gCurrentDate.get(Calendar.DAY_OF_MONTH) / daysInMonth
             totalBudgetToDate = totalBudget - totalCurrentBudget + thisMonthBudget
         } else if (viewPeriod == DateRangeEnum.YEAR) {
             val thisMonth = MyDate(currentBudgetMonth.year, gCurrentDate.get(Calendar.MONTH)+1, 1)
@@ -549,7 +549,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             daysInMonth = getDaysInMonth(gCurrentDate)
             val thisMonthBudget =
-                totalCurrentBudget * gCurrentDate.get(Calendar.DATE) / daysInMonth
+                totalCurrentBudget * gCurrentDate.get(Calendar.DAY_OF_MONTH) / daysInMonth
             totalBudgetToDate = totalYTDBudget - totalCurrentBudget + thisMonthBudget
         } else { // all-time, don't show this row
 
@@ -593,7 +593,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         if (viewPeriod != DateRangeEnum.ALLTIME) {
             tList.add(
                 DataObject(
-                    0, getString(R.string.budget_to_date) + " (" + gCurrentDate.get(Calendar.DATE) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
+                    0, getString(R.string.budget_to_date) + " (" + gCurrentDate.get(Calendar.DAY_OF_MONTH) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
                     totalBudgetToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.medium_gray)
                 )
@@ -639,7 +639,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 //          binding.chartSummaryText.text = lab
         else {
             val remainingBudget = totalBudget - totalActualsToDate
-            val daysRemaining = daysInMonth - gCurrentDate.get(Calendar.DATE) + 1
+            val daysRemaining = daysInMonth - gCurrentDate.get(Calendar.DAY_OF_MONTH) + 1
 
             binding.chartSummaryText.text = String.format(getString(R.string.keeping_x_expenses_below),
                 lab, gDecWithCurrency(remainingBudget / daysRemaining), lab2)
@@ -689,7 +689,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
             if (DefaultsViewModel.getDefaultShowTotalsTracker() == "%")
                 binding.chartTitle.text = String.format(getString(R.string.allocation_x_of_budget_and_actual), "%")
             else
-                binding.chartTitle.text = String.format(getString(R.string.allocation_x_of_budget_and_actual), getLocalCurrencySymbol())
+                binding.chartTitle.text = String.format(getString(R.string.allocation_x_of_budget_and_actual), getLocalCurrencySymbol(true))
         }
         binding.chartTitle.text = binding.chartTitle.text.toString() +
             when (DefaultsViewModel.getDefaultViewByTracker()) {
@@ -847,9 +847,15 @@ class TrackerFragment : Fragment(), CoroutineScope {
         pieChart.isHighlightPerTapEnabled = true
         //adding animation so the entries pop up from 0 degree
         pieChart.animateY(1400, Easing.EaseInOutQuad)
-        //setting the color of the hole in the middle, default white
-        pieChart.setHoleColor(Color.parseColor(cDEFAULT_COLOUR_WHITE))
-        pieChart.setEntryLabelColor(Color.BLACK)
+        //setting the color of the hole in the middle
+        pieChart.setHoleColor(MaterialColors.getColor(
+            requireContext(),
+            R.attr.background,
+            Color.BLACK))
+        pieChart.setEntryLabelColor(MaterialColors.getColor(
+            requireContext(),
+            R.attr.textOnBackground,
+            Color.BLACK))
         pieChart.legend.isEnabled = false
         pieChart.legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
 
@@ -867,7 +873,15 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         currentCategory = catName.toString()
                         loadPieChart(currentCategory)
                     } else { // ie clicking into subcategory
-                        MyApplication.transactionSearchText = "$currentCategory $catName"
+                        MyApplication.transactionSearchText = "$currentCategory $catName ${currentBudgetMonth.year}"
+                        if (currentBudgetMonth.month != 0) {
+                            if (currentBudgetMonth.month < 10)
+                                MyApplication.transactionSearchText =
+                                    MyApplication.transactionSearchText + "-0" + currentBudgetMonth.month
+                            else
+                                MyApplication.transactionSearchText =
+                                    MyApplication.transactionSearchText + "-" + currentBudgetMonth.month
+                        }
                         view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
                     }
                 }
@@ -910,29 +924,41 @@ class TrackerFragment : Fragment(), CoroutineScope {
 //        pieChart.centerText = iDescription
 //        pieChart.setCenterTextSize(14F)
         val dm = activity?.resources?.displayMetrics
-        val valFontSize = if (dm?.widthPixels!! <= 600)
+        val labelFontSize = 40
+        val amountLabelFontSize = if (dm?.widthPixels!! <= 600)
             18
         else
             35
-        val s = if (iDescription == getString(R.string.budget))
-            ("$iDescription\n" + gDecWithCurrency(hackBudgetTotal)).setFontSizeForPath(iDescription.length, valFontSize)
+        val textColor = MaterialColors.getColor(
+            requireContext(),
+            R.attr.textOnBackground,
+            Color.BLACK
+        )
+        val label = "$iDescription\n".setFontSizeForPath(0, labelFontSize, textColor)
+        val amountLabel = if (iDescription == getString(R.string.budget))
+            gDecWithCurrency(hackBudgetTotal).setFontSizeForPath(0, amountLabelFontSize, textColor)
         else {
-                val col = if (hackActualTotal > hackBudgetTotal)
-                    ContextCompat.getColor(requireContext(), R.color.red)
-                else
-                    ContextCompat.getColor(requireContext(), R.color.green)
-            ("$iDescription\n" + gDecWithCurrency(hackActualTotal)).setFontSizeForPath(
-                iDescription.length,
-                valFontSize,
+            val col = if (hackActualTotal > hackBudgetTotal)
+                ContextCompat.getColor(requireContext(), R.color.red)
+            else
+                ContextCompat.getColor(requireContext(), R.color.green)
+            gDecWithCurrency(hackActualTotal).setFontSizeForPath(
+                0,
+                amountLabelFontSize,
                 col
             )
         }
-        if (dm.widthPixels <= 600)
-            s.setSpan(RelativeSizeSpan(1f), 0, s.length, 0)
-        else
-            s.setSpan(RelativeSizeSpan(1.3f), 0, s.length, 0)
-        s.setSpan(StyleSpan(Typeface.BOLD), 0, s.length, 0)
-        pieChart.centerText = s
+        if (dm.widthPixels <= 600) {
+            label.setSpan(RelativeSizeSpan(1f), 0, label.length, 0)
+            amountLabel.setSpan(RelativeSizeSpan(1f), 0, amountLabel.length, 0)
+        } else {
+            label.setSpan(RelativeSizeSpan(1.3f), 0, label.length, 0)
+            amountLabel.setSpan(RelativeSizeSpan(1.3f), 0, amountLabel.length, 0)
+        }
+        label.setSpan(StyleSpan(Typeface.BOLD), 0, label.length, 0)
+        amountLabel.setSpan(StyleSpan(Typeface.BOLD), 0, amountLabel.length, 0)
+        val overallLabel = TextUtils.concat(label, amountLabel)
+        pieChart.centerText = overallLabel
 
         binding.chartSummaryText.text = ""
         val selectedId = binding.numericTypeRadioGroup.checkedRadioButtonId

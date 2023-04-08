@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementPensionDialogBinding
 import java.util.*
 
@@ -200,6 +202,9 @@ class RetirementPensionDialogFragment : DialogFragment() {
             binding.pensionTypeSpinner.setSelection(0)
         else
             binding.pensionTypeSpinner.setSelection(pensionArrayAdapter.getPosition(iSelection))
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
+        binding.pensionTypeSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.pensionTypeSpinner.setPopupBackgroundResource(R.drawable.spinner)
         pensionArrayAdapter.notifyDataSetChanged()
     }
 

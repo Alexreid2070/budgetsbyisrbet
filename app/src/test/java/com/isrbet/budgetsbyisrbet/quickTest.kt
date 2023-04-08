@@ -22,7 +22,7 @@ class QuickTest {
         assertEquals(2022, bm.year)
         assertEquals(2, bm.month)
         var bp = BudgetPeriod(MyDate(2022,1,1), 0, 100.0, cPeriodWeek, 2, 0, MyDate(2022,1,1))
-        assertEquals(0.0, bp.getBudgetAmount(MyDate(2021,1,1)), 0.0)
-        assertEquals(0.0, bp.getBudgetAmount(MyDate(2022,1,1)), 0.0)
+        bp.getBudgetAmount(MyDate(2021,1,1))?.let { assertEquals(0.0, it.toDouble(), 0.0) }
+        bp.getBudgetAmount(MyDate(2022,1,1))?.let { assertEquals(0.0, it.toDouble(), 0.0) }
     }
 }

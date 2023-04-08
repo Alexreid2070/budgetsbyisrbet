@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementAssetDialogBinding
 import java.util.*
 
@@ -61,7 +63,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+        val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 cal.set(Calendar.YEAR, year)
@@ -154,7 +156,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     AssetType.LIRA_Annuity -> {
                         binding.annuityStartDateLayout.visibility = View.VISIBLE
                         binding.annualAmountLayout.visibility = View.VISIBLE
-                        binding.annuityStartDate.setText((asset as LIRA_ANNUITY).pensionStartDate)
+                        binding.annuityStartDate.setText((asset as LIRA_ANNUITY).pensionStartDate.toString())
                         binding.annualAnnuityAmount.setText(asset.annualAmount.toString())
                     }
                     AssetType.SAVINGS -> {
@@ -174,30 +176,36 @@ class RetirementAssetDialogFragment : DialogFragment() {
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
-                if (selection == AssetType.getText(AssetType.PROPERTY)) {
-                    binding.propertyFields.visibility = View.VISIBLE
-                    binding.annualContributionLayout.visibility = View.GONE
-                } else if (selection == AssetType.getText(AssetType.LIRA_LIF) ||
-                        selection == AssetType.getText(AssetType.LIRA_Annuity)) {
-                    binding.annualContributionLayout.visibility = View.GONE
-                    binding.propertyFields.visibility = View.GONE
-                } else {
-                    binding.annualContributionLayout.visibility = View.VISIBLE
-                    binding.propertyFields.visibility = View.GONE
+                when (selection) {
+                    AssetType.getText(AssetType.PROPERTY) -> {
+                        binding.propertyFields.visibility = View.VISIBLE
+                        binding.annualContributionLayout.visibility = View.GONE
+                    }
+                    AssetType.getText(AssetType.LIRA_LIF), AssetType.getText(AssetType.LIRA_Annuity) -> {
+                        binding.annualContributionLayout.visibility = View.GONE
+                        binding.propertyFields.visibility = View.GONE
+                    }
+                    else -> {
+                        binding.annualContributionLayout.visibility = View.VISIBLE
+                        binding.propertyFields.visibility = View.GONE
+                    }
                 }
-                if (selection == AssetType.getText(AssetType.RRSP) ||
-                    selection == AssetType.getText(AssetType.LIRA_LIF)) {
-                    binding.willSellLayout.visibility = View.GONE
-                    binding.switchWillSellToFinanceRetirement.isChecked = true
-                    binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
-                } else if (selection == AssetType.getText(AssetType.LIRA_Annuity)) {
-                    binding.willSellLayout.visibility = View.GONE
-                    binding.switchWillSellToFinanceRetirement.isChecked = true
-                    binding.minimizeRRSPTaxLayout.visibility = View.GONE
-                } else {
-                    if (inDefaultMode)
-                        binding.willSellLayout.visibility = View.VISIBLE
-                    binding.minimizeRRSPTaxLayout.visibility = View.GONE
+                when (selection) {
+                    AssetType.getText(AssetType.RRSP), AssetType.getText(AssetType.LIRA_LIF) -> {
+                        binding.willSellLayout.visibility = View.GONE
+                        binding.switchWillSellToFinanceRetirement.isChecked = true
+                        binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
+                    }
+                    AssetType.getText(AssetType.LIRA_Annuity) -> {
+                        binding.willSellLayout.visibility = View.GONE
+                        binding.switchWillSellToFinanceRetirement.isChecked = true
+                        binding.minimizeRRSPTaxLayout.visibility = View.GONE
+                    }
+                    else -> {
+                        if (inDefaultMode)
+                            binding.willSellLayout.visibility = View.VISIBLE
+                        binding.minimizeRRSPTaxLayout.visibility = View.GONE
+                    }
                 }
                 if (selection == AssetType.getText(AssetType.LIRA_Annuity)) {
                     binding.annualAmountLayout.visibility = View.VISIBLE
@@ -259,6 +267,9 @@ class RetirementAssetDialogFragment : DialogFragment() {
             binding.assetTypeSpinner.setSelection(0)
         else
             binding.assetTypeSpinner.setSelection(assetArrayAdapter.getPosition(iSelection))
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
+        binding.assetTypeSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.assetTypeSpinner.setPopupBackgroundResource(R.drawable.spinner)
         assetArrayAdapter.notifyDataSetChanged()
     }
 

@@ -44,9 +44,9 @@
                 android:stateListAnimator="@animator/anim"
                 android:layout_below="@id/horizontalScrollLayout"
                 android:layout_gravity="center"
-                android:background="@color/white"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
+                android:background="?attr/background"
                 android:src="@drawable/ic_baseline_save_24"
                 android:tooltipText="Save details" />
         </LinearLayout>
@@ -79,7 +79,7 @@
             android:id="@+id/viewRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSecondaryVariant"
+            android:background="?attr/menuColor"
             android:checkedButton="@+id/allRadioButton"
             android:gravity="start"
             android:orientation="vertical"
@@ -152,7 +152,7 @@
             android:id="@+id/sticky_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSecondaryVariant"
+            android:background="?attr/menuColor"
             android:gravity="center"
             android:paddingTop="5dp"
             android:text="@string/these_settings_are_sticky"

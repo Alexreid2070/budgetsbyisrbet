@@ -69,9 +69,6 @@
         <action
             android:id="@+id/action_DashboardFragment_to_TransactionViewAllFragment"
             app:destination="@id/TransactionViewAllFragment" />
-        <action
-            android:id="@+id/action_DashboardFragment_to_BudgetViewAllFragment"
-            app:destination="@id/BudgetViewAllFragment" />
     </fragment>
     <fragment
         android:id="@+id/AdminFragment"
@@ -206,4 +203,18 @@
             app:argType="integer"
             android:defaultValue='0'/>
     </fragment>
+    <fragment
+        android:id="@+id/DashboardTabsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.DashboardTabsFragment"
+        android:label="fragment_dashboard_tabs"
+        tools:layout="@layout/fragment_dashboard_tabs">
+        <action
+            android:id="@+id/action_DashboardTabsFragment_to_BudgetViewAllFragment"
+            app:destination="@id/BudgetViewAllFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/YearOverYearFragment"
+        android:name="com.isrbet.budgetsbyisrbet.YearOverYearFragment"
+        android:label="YearOverYearFragment"
+        tools:layout="@layout/fragment_year_over_year" />
 </navigation>

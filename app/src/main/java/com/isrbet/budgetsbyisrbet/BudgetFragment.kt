@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
+import android.util.Log
 import android.view.*
 import android.view.View.*
 import android.widget.*
@@ -152,6 +153,46 @@ class BudgetFragment : Fragment() {
                 // Do nothing
             }
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (binding.periodSpinner.selectedItem.toString()) {
+                    getString(R.string.month) -> {
+                        val startOfPeriod = MyDate(binding.startDate.text.toString())
+                        if (startOfPeriod.day != 1) {
+                            val lDate = MyDate(startOfPeriod.year, startOfPeriod.month, 1)
+                            binding.startDate.setText(lDate.toString())
+
+                            val dateSetListener =
+                                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                                    binding.startDate.setText(lDate.toString())
+                                }
+
+                            binding.startDate.setOnClickListener {
+                                DatePickerDialog(
+                                    requireContext(), dateSetListener,
+                                    lDate.year, lDate.month-1, lDate.day
+                                ).show()
+                            }
+                        }
+                    }
+                    getString(R.string.year) -> {
+                        val startOfPeriod = MyDate(binding.startDate.text.toString())
+                        if (startOfPeriod.day != 1 || startOfPeriod.month != 1) {
+                            val lDate = MyDate(startOfPeriod.year, 1, 1)
+                            binding.startDate.setText(lDate.toString())
+
+                            val dateSetListener =
+                                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                                    binding.startDate.setText(lDate.toString())
+                                }
+
+                            binding.startDate.setOnClickListener {
+                                DatePickerDialog(
+                                    requireContext(), dateSetListener,
+                                    lDate.year, lDate.month-1, lDate.day
+                                ).show()
+                            }
+                        }
+                    }
+                }
                 updateInformationFields()
             }
         }
@@ -281,8 +322,7 @@ class BudgetFragment : Fragment() {
 
     private fun loadCategoryRadioButtons() {
         var ctr = 100
-        val radioGroup = requireActivity().findViewById<RadioGroup>(R.id.budgetAddCategoryRadioGroup)
-        radioGroup?.removeAllViews()
+        binding.budgetAddCategoryRadioGroup.removeAllViews()
 
         val categoryNames = CategoryViewModel.getCategoryNames()
 
@@ -292,15 +332,15 @@ class BudgetFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = it
             newRadioButton.id = ctr++
-            radioGroup.addView(newRadioButton)
+            binding.budgetAddCategoryRadioGroup.addView(newRadioButton)
         }
         var somethingChecked = false
-        for (i in 0 until radioGroup.childCount) {
-            val o = radioGroup.getChildAt(i)
+        for (i in 0 until binding.budgetAddCategoryRadioGroup.childCount) {
+            val o = binding.budgetAddCategoryRadioGroup.getChildAt(i)
             if (o is RadioButton && o.text == CategoryViewModel.getCategory(args.categoryID.toInt())?.categoryName) {
                 o.isChecked = true
                 somethingChecked = true
@@ -308,7 +348,7 @@ class BudgetFragment : Fragment() {
             }
         }
         if (!somethingChecked) {
-            val o = radioGroup.getChildAt(0)
+            val o = binding.budgetAddCategoryRadioGroup.getChildAt(0)
             if (o is RadioButton) {
                 o.isChecked = true
                 addSubCategories(o.text.toString())
@@ -317,19 +357,16 @@ class BudgetFragment : Fragment() {
     }
 
     private fun addSubCategories(iCategory: String) {
-        val subCategorySpinner =
-            requireActivity().findViewById<Spinner>(R.id.budgetAddSubCategorySpinner)
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
-        subCategorySpinner.adapter = arrayAdapter
+        binding.budgetAddSubCategorySpinner.adapter = arrayAdapter
         arrayAdapter.notifyDataSetChanged()
         if (args.categoryID != "")
-            subCategorySpinner.setSelection(arrayAdapter.getPosition(CategoryViewModel.getCategory(args.categoryID.toInt())?.subcategoryName))
+            binding.budgetAddSubCategorySpinner.setSelection(arrayAdapter.getPosition(CategoryViewModel.getCategory(args.categoryID.toInt())?.subcategoryName))
     }
 
     private fun loadSpenderRadioButtons() {
         var ctr = 200
-        val whoRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.budgetAdd_whoRadioGroup)
-        whoRadioGroup?.removeAllViews()
+        binding.budgetAddWhoRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
@@ -338,11 +375,11 @@ class BudgetFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
-            whoRadioGroup.addView(newRadioButton)
+            binding.budgetAddWhoRadioGroup.addView(newRadioButton)
             if (i == SpenderViewModel.getActiveCount()-1)  // ie check the last one
                 newRadioButton.isChecked = true
         }
@@ -350,26 +387,25 @@ class BudgetFragment : Fragment() {
 
     private fun loadOccurenceRadioButtons() {
         var ctr = 300
-        val occurenceRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.budgetAdd_occurenceRadioGroup)
-        occurenceRadioGroup?.removeAllViews()
+        binding.budgetAddOccurenceRadioGroup.removeAllViews()
 
         var newRadioButton = RadioButton(requireContext())
         newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         newRadioButton.text = getString(R.string.once)
         newRadioButton.id = ctr++
-        newRadioButton.buttonTintList=
-            ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        occurenceRadioGroup.addView(newRadioButton)
+//        newRadioButton.buttonTintList=
+  //          ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.budgetAddOccurenceRadioGroup.addView(newRadioButton)
 
         newRadioButton = RadioButton(requireContext())
         newRadioButton.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         newRadioButton.text = getString(R.string.recurring)
         newRadioButton.id = ctr
-        newRadioButton.buttonTintList=
-            ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
-        occurenceRadioGroup.addView(newRadioButton)
+//        newRadioButton.buttonTintList=
+  //          ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+        binding.budgetAddOccurenceRadioGroup.addView(newRadioButton)
 
-        val o = occurenceRadioGroup.getChildAt(1) // ie check Recurring
+        val o = binding.budgetAddOccurenceRadioGroup.getChildAt(1) // ie check Recurring
         if (o is RadioButton) {
             o.isChecked = true
         }

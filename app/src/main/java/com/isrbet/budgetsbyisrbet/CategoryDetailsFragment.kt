@@ -46,8 +46,7 @@ class CategoryDetailsFragment : Fragment() {
                     resetColor(item.name) }
             )
 
-        val listView: RecyclerView = requireActivity().findViewById(R.id.recycler_view)
-        listView.adapter = adapter
+        binding.recyclerView.adapter = adapter
 
         val callback = object :
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.DOWN or ItemTouchHelper.UP, 0) {

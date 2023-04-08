@@ -533,4 +533,9 @@
     <string name="annual_budgets_must_start_on_Jan_1">Annual budgets must start on Jan 1.</string>
     <string name="monthly_budgets_must_start_on_1">Monthly budgets must start on the 1st of the month.</string>
     <string name="regularity_must_be_positive">Regularity must be greater than 0</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="year_over_year">Year Over Year</string>
+    <string name="average">Average</string>
+    <string name="payment_amount_that_is_loan">Payment amount that is loan (if different)</string>
 </resources>

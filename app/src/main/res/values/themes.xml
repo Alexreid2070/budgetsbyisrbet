@@ -11,12 +11,18 @@
         <item name="background">@color/white</item>
         <item name="colorOnBackground">@color/black</item>
         <item name="textOnBackground">@color/black</item>
+        <item name="menuColor">@color/sedona_opac</item>
         <!-- used for dashboard rows -->
         <item name="colorOnPrimary">@color/lightestgray</item>
         <item name="colorOnSecondary">@color/lighter_gray</item>
         <item name="colorSecondaryVariant">@color/sedona_opac</item>
         <item name="android:editTextBackground">@color/sedona</item>
         <item name="colorOnSurface">@color/sedona</item>
+
+        <item name="pageHeadingFontColor">@color/red</item>
+        <item name="pageHeadingBackgroundColor">@color/clickableBlue</item>
+        <item name="pageHeadingFontSize">16</item>
+
     </style>
 
     <style name="Theme.BudgetsByISRBET.NoActionBar">

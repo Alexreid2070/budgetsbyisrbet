@@ -44,6 +44,7 @@ class TransactionFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         newTransactionMode = args.transactionID == ""
+        Log.d("Alex", "cal is $cal")
     }
 
     override fun onCreateView(
@@ -62,6 +63,7 @@ class TransactionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.currencySymbol.text = String.format("${getLocalCurrencySymbol()} ")
         binding.editTextDate.setText(giveMeMyDateFormat(cal))
+        Log.d("Alex", "date is ${cal.get(Calendar.DAY_OF_MONTH)} and day_of_month is ${cal.get(Calendar.DAY_OF_MONTH)}")
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
@@ -89,14 +91,16 @@ class TransactionFragment : Fragment() {
             when {
                 radioButton.text.toString() == getString(R.string.joint) -> {
                     binding.slider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
-                    if (newTransactionMode)
+//                    if (newTransactionMode)
                         binding.slider.isEnabled = true
                 }
                 radioButton.text.toString() == SpenderViewModel.getSpenderName(0) -> {
                     binding.slider.value = 100.0F
+                    binding.slider.isEnabled = false
                 }
                 else -> {
                     binding.slider.value = 0.0F
+                    binding.slider.isEnabled = false
                 }
             }
             binding.splitText.text = getSplitText(binding.slider.value.toInt(), binding.editTextAmount.text.toString())
@@ -263,16 +267,17 @@ class TransactionFragment : Fragment() {
             }
             binding.slider.isEnabled = false
             viewTransaction(args.transactionID)
-            binding.editTextDate.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.editTextAmount.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.editTextWhere.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.editTextNote.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.categoryRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.inputSubcategorySpinner.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.paidByRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.boughtForRadioGroup.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.slider.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
-            binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+            val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
+            binding.editTextDate.setBackgroundColor(Color.parseColor(hexColor))
+            binding.editTextAmount.setBackgroundColor(Color.parseColor(hexColor))
+            binding.editTextWhere.setBackgroundColor(Color.parseColor(hexColor))
+            binding.editTextNote.setBackgroundColor(Color.parseColor(hexColor))
+            binding.categoryRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+            binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+            binding.paidByRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+            binding.boughtForRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+            binding.slider.setBackgroundColor(Color.parseColor(hexColor))
+//            binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
 
         gestureDetector = GestureDetectorCompat(requireActivity(), object:
@@ -429,17 +434,14 @@ class TransactionFragment : Fragment() {
                 binding.transactionTypeLayout.visibility = View.VISIBLE
             }
 
-            val categoryGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
-            for (i in 0 until categoryGroup.childCount) {
-                val o = categoryGroup.getChildAt(i)
+            for (i in 0 until binding.categoryRadioGroup.childCount) {
+                val o = binding.categoryRadioGroup.getChildAt(i)
                 if (o is RadioButton &&
                     o.text == CategoryViewModel.getCategory(thisTransaction.category)?.categoryName) {
                     o.isChecked = true
                 }
             }
 
-            val subCategorySpinner =
-                requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
             val subCategoryList: MutableList<String> = ArrayList()
             subCategoryList.add(CategoryViewModel.getCategory(thisTransaction.category)?.subcategoryName.toString())
             val arrayAdapter = ArrayAdapter(
@@ -448,8 +450,8 @@ class TransactionFragment : Fragment() {
                 subCategoryList
             )
 
-            subCategorySpinner.adapter = arrayAdapter
-            subCategorySpinner.setSelection(arrayAdapter.getPosition(
+            binding.inputSubcategorySpinner.adapter = arrayAdapter
+            binding.inputSubcategorySpinner.setSelection(arrayAdapter.getPosition(
                 CategoryViewModel.getCategory(thisTransaction.category)?.subcategoryName))
 
             binding.editTextDate.setText(thisTransaction.date)
@@ -465,9 +467,8 @@ class TransactionFragment : Fragment() {
                 binding.scheduledPaymentLabel.visibility = View.INVISIBLE
             }
 
-            val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
-            for (i in 0 until pbRadioGroup.childCount) {
-                val o = pbRadioGroup.getChildAt(i)
+            for (i in 0 until binding.paidByRadioGroup.childCount) {
+                val o = binding.paidByRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == SpenderViewModel.getSpenderName(thisTransaction.paidby)) {
                         o.isChecked = true
@@ -740,8 +741,8 @@ class TransactionFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = it
             newRadioButton.id = ctr++
             radioGroup.addView(newRadioButton)
@@ -774,8 +775,8 @@ class TransactionFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             paidByRadioGroup.addView(newRadioButton)
@@ -794,8 +795,8 @@ class TransactionFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
             boughtForRadioGroup.addView(newRadioButton)

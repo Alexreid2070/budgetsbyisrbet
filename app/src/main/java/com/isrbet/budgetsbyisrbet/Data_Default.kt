@@ -24,9 +24,13 @@ const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL = "ShowTypeinViewAll"
 const val cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL = "ShowRunningTotalinViewAll"
 const val cDEFAULT_VIEW_PERIOD_DASHBOARD = "ViewPeriodDashboard"
 const val cDEFAULT_FILTER_DISC_DASHBOARD = "FilterDiscDashboard"
+const val cDEFAULT_FILTER_DISC_YOY = "FilterDiscYOY"
 const val cDEFAULT_FILTER_WHO_DASHBOARD = "FilterWhoDashboard"
+const val cDEFAULT_FILTER_WHO_YOY = "FilterWhoYOY"
 const val cDEFAULT_DELTA_DASHBOARD = "DeltaDashboard"
+const val cDEFAULT_DELTA_YOY = "DeltaYOY"
 const val cDEFAULT_ROUND_DASHBOARD = "RoundDashboard"
+const val cDEFAULT_ROUND_YOY = "RoundYOY"
 const val cDEFAULT_SHOW_DISC_DASHBOARD = "ShowDiscDashboard"
 const val cDEFAULT_BUDGET_VIEW = "BudgetView"
 const val cDEFAULT_FILTER_DISC_TRACKER = "FilterDiscTracker"
@@ -35,6 +39,7 @@ const val cDEFAULT_VIEW_BY_TRACKER = "ViewByTracker"
 const val cDEFAULT_SHOW_TOTALS_TRACKER = "ShowTotalsTracker"
 const val cDEFAULT_SHOW_CURRENCY_SYMBOL = "ShowCurrencySymbol"
 const val cDEFAULT_VIEW_IN_RETIREMENT_DETAILS = "ViewInRetirementDetails"
+const val cDEFAULT_VIEW_ROWS_YOY = "ViewRowsYoy"
 
 const val cDEFAULT_CATEGORY_VALUE = 0
 const val cDEFAULT_SPENDER_VALUE = -1
@@ -50,10 +55,15 @@ const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE = true
 const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE = true
 const val cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL_VALUE = true
 const val cDEFAULT_VIEW_PERIOD_DASHBOARD_VALUE = cPeriodMonth
+val cDEFAULT_VIEW_ROWS_YOY_VALUE = YoyView.ALL
 const val cDEFAULT_FILTER_DISC_DASHBOARD_VALUE = ""
+const val cDEFAULT_FILTER_DISC_YOY_VALUE = ""
 const val cDEFAULT_FILTER_WHO_DASHBOARD_VALUE = ""
+const val cDEFAULT_FILTER_WHO_YOY_VALUE = ""
 const val cDEFAULT_DELTA_DASHBOARD_VALUE = "#"
+const val cDEFAULT_DELTA_YOY_VALUE = "#"
 const val cDEFAULT_ROUND_DASHBOARD_VALUE = false
+const val cDEFAULT_ROUND_YOY_VALUE = true
 const val cDEFAULT_SHOW_DISC_DASHBOARD_VALUE = true
 const val cDEFAULT_BUDGET_VIEW_VALUE = cBudgetDateView
 const val cDEFAULT_FILTER_DISC_TRACKER_VALUE = cDiscTypeAll
@@ -80,10 +90,15 @@ class DefaultsViewModel : ViewModel() {
     var defaultShowTypeInViewAll: Boolean = cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE
     var defaultShowRunningTotalInViewAll: Boolean = cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL_VALUE
     var defaultViewPeriodDashboard: String = cDEFAULT_VIEW_PERIOD_DASHBOARD_VALUE
+    var defaultViewRowsYoy: YoyView = cDEFAULT_VIEW_ROWS_YOY_VALUE
     var defaultFilterDiscDashboard: String = cDEFAULT_FILTER_DISC_DASHBOARD_VALUE
+    var defaultFilterDiscYOY: String = cDEFAULT_FILTER_DISC_YOY_VALUE
     var defaultFilterWhoDashboard: String = cDEFAULT_FILTER_WHO_DASHBOARD_VALUE
+    var defaultFilterWhoYOY: String = cDEFAULT_FILTER_WHO_YOY_VALUE
     var defaultDeltaDashboard: String = cDEFAULT_DELTA_DASHBOARD_VALUE
+    var defaultDeltaYOY: String = cDEFAULT_DELTA_YOY_VALUE
     var defaultRoundDashboard: Boolean = cDEFAULT_ROUND_DASHBOARD_VALUE
+    var defaultRoundYOY: Boolean = cDEFAULT_ROUND_YOY_VALUE
     var defaultShowDiscDashboard: Boolean = cDEFAULT_SHOW_DISC_DASHBOARD_VALUE
     var defaultBudgetView: String = cDEFAULT_BUDGET_VIEW_VALUE
     var defaultFilterDiscTracker = cDEFAULT_FILTER_DISC_TRACKER_VALUE
@@ -139,6 +154,9 @@ class DefaultsViewModel : ViewModel() {
         fun getDefaultShowRed(): Int {
             return singleInstance.defaultShowRed
         }
+        fun getDefaultViewRowsYoy(): YoyView {
+            return singleInstance.defaultViewRowsYoy
+        }
         fun getDefaultIntegrateWithTDSpend(): Boolean {
             return singleInstance.defaultIntegrateWithTDSpend
         }
@@ -175,14 +193,26 @@ class DefaultsViewModel : ViewModel() {
         fun getDefaultFilterDiscDashboard(): String {
             return singleInstance.defaultFilterDiscDashboard
         }
+        fun getDefaultFilterDiscYOY(): String {
+            return singleInstance.defaultFilterDiscYOY
+        }
         fun getDefaultFilterWhoDashboard(): String {
             return singleInstance.defaultFilterWhoDashboard
+        }
+        fun getDefaultFilterWhoYOY(): String {
+            return singleInstance.defaultFilterWhoYOY
         }
         fun getDefaultDeltaDashboard(): String {
             return singleInstance.defaultDeltaDashboard
         }
+        fun getDefaultDeltaYOY(): String {
+            return singleInstance.defaultDeltaYOY
+        }
         fun getDefaultRoundDashboard(): Boolean {
             return singleInstance.defaultRoundDashboard
+        }
+        fun getDefaultRoundYOY(): Boolean {
+            return singleInstance.defaultRoundYOY
         }
         fun getDefaultShowDiscDashboard(): Boolean {
             return singleInstance.defaultShowDiscDashboard
@@ -259,10 +289,15 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultShowTypeInViewAll = cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowRunningTotalInViewAll = cDEFAULT_SHOW_RUNNING_TOTAL_IN_VIEW_ALL_VALUE
             singleInstance.defaultViewPeriodDashboard = cDEFAULT_VIEW_PERIOD_DASHBOARD_VALUE
+            singleInstance.defaultViewRowsYoy = cDEFAULT_VIEW_ROWS_YOY_VALUE
             singleInstance.defaultFilterDiscDashboard = cDEFAULT_FILTER_DISC_DASHBOARD_VALUE
+            singleInstance.defaultFilterDiscYOY = cDEFAULT_FILTER_DISC_YOY_VALUE
             singleInstance.defaultFilterWhoDashboard = cDEFAULT_FILTER_WHO_DASHBOARD_VALUE
+            singleInstance.defaultFilterWhoYOY = cDEFAULT_FILTER_WHO_YOY_VALUE
             singleInstance.defaultDeltaDashboard = cDEFAULT_DELTA_DASHBOARD_VALUE
+            singleInstance.defaultDeltaYOY = cDEFAULT_DELTA_YOY_VALUE
             singleInstance.defaultRoundDashboard = cDEFAULT_ROUND_DASHBOARD_VALUE
+            singleInstance.defaultRoundYOY = cDEFAULT_ROUND_YOY_VALUE
             singleInstance.defaultShowDiscDashboard = cDEFAULT_SHOW_DISC_DASHBOARD_VALUE
             singleInstance.defaultBudgetView = cDEFAULT_BUDGET_VIEW_VALUE
             singleInstance.defaultFilterDiscTracker = cDEFAULT_FILTER_DISC_TRACKER_VALUE
@@ -408,11 +443,20 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_FILTER_DISC_DASHBOARD -> {
                 singleInstance.defaultFilterDiscDashboard = iValue
             }
+            cDEFAULT_FILTER_DISC_YOY -> {
+                singleInstance.defaultFilterDiscYOY = iValue
+            }
             cDEFAULT_FILTER_WHO_DASHBOARD -> {
                 singleInstance.defaultFilterWhoDashboard = iValue
             }
+            cDEFAULT_FILTER_WHO_YOY -> {
+                singleInstance.defaultFilterWhoYOY = iValue
+            }
             cDEFAULT_DELTA_DASHBOARD -> {
                 singleInstance.defaultDeltaDashboard = iValue
+            }
+            cDEFAULT_DELTA_YOY -> {
+                singleInstance.defaultDeltaYOY = iValue
             }
             cDEFAULT_BUDGET_VIEW -> {
                 singleInstance.defaultBudgetView = iValue
@@ -451,6 +495,9 @@ class DefaultsViewModel : ViewModel() {
                     RetirementDetailsViews.ALL
                 }
             }
+            cDEFAULT_VIEW_ROWS_YOY -> {
+                singleInstance.defaultViewRowsYoy = YoyView.getByValue(iValue)!!
+            }
         }
     }
     fun setLocalBoolean(whichOne: String, iValue: Boolean) {
@@ -488,6 +535,9 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_ROUND_DASHBOARD -> {
                 singleInstance.defaultRoundDashboard = iValue
             }
+            cDEFAULT_ROUND_YOY -> {
+                singleInstance.defaultRoundYOY = iValue
+            }
             cDEFAULT_SHOW_DISC_DASHBOARD -> {
                 singleInstance.defaultShowDiscDashboard = iValue
             }
@@ -504,11 +554,20 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_FILTER_DISC_DASHBOARD -> {
                 singleInstance.defaultFilterDiscDashboard = iValue
             }
+            cDEFAULT_FILTER_DISC_YOY -> {
+                singleInstance.defaultFilterDiscYOY = iValue
+            }
             cDEFAULT_FILTER_WHO_DASHBOARD -> {
                 singleInstance.defaultFilterWhoDashboard = iValue
             }
+            cDEFAULT_FILTER_WHO_YOY -> {
+                singleInstance.defaultFilterWhoYOY = iValue
+            }
             cDEFAULT_DELTA_DASHBOARD -> {
                 singleInstance.defaultDeltaDashboard = iValue
+            }
+            cDEFAULT_DELTA_YOY -> {
+                singleInstance.defaultDeltaYOY = iValue
             }
             cDEFAULT_BUDGET_VIEW -> {
                 singleInstance.defaultBudgetView = iValue
@@ -532,6 +591,9 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SPENDER -> {
                 if (iValue.toIntOrNull() != null)
                     singleInstance.defaultSpender = iValue.toInt()
+            }
+            cDEFAULT_VIEW_ROWS_YOY -> {
+                singleInstance.defaultViewRowsYoy = YoyView.getByValue(iValue.toInt())!!
             }
             cDEFAULT_INTEGRATEWITHTDSPEND -> {
                 singleInstance.defaultIntegrateWithTDSpend = (iValue == cTRUE)
@@ -565,6 +627,9 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_ROUND_DASHBOARD -> {
                 singleInstance.defaultRoundDashboard = (iValue == cTRUE)
+            }
+            cDEFAULT_ROUND_YOY -> {
+                singleInstance.defaultRoundYOY = (iValue == cTRUE)
             }
             cDEFAULT_SHOW_DISC_DASHBOARD -> {
                 singleInstance.defaultShowDiscDashboard = (iValue == cTRUE)
@@ -603,10 +668,12 @@ class DefaultsViewModel : ViewModel() {
                             }
                         }
                     } else if (defaultRow.key.toString() == "Retirement") {
+                        Log.d("Alex", "retirement # of children: ${defaultRow.children.count()}")
                         for (retUser in defaultRow.children.toMutableList()) {
 //                            val userId = retUser.key.toString().toInt()
                             val retData = RetirementData.create(retUser.children.toMutableList())
                             RetirementViewModel.updateRetirementDefault(retData, true)
+                            Log.d("Alex", "created default: $retData")
                         }
                     } else
                         setLocal(defaultRow.key.toString(), defaultRow.value.toString())

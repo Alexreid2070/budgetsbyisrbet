@@ -298,18 +298,16 @@ class TransferFragment : Fragment() {
             } else {
                 binding.splitLayout.visibility = View.GONE
             }
-            val pbRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
-            for (i in 0 until pbRadioGroup.childCount) {
-                val o = pbRadioGroup.getChildAt(i)
+            for (i in 0 until binding.fromRadioGroup.childCount) {
+                val o = binding.fromRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == SpenderViewModel.getSpenderName(thisTransaction.paidby)) {
                         o.isChecked = true
                     }
                 }
             }
-            val bfRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.toRadioGroup)
-            for (i in 0 until bfRadioGroup.childCount) {
-                val o = bfRadioGroup.getChildAt(i)
+            for (i in 0 until binding.toRadioGroup.childCount) {
+                val o = binding.toRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == SpenderViewModel.getSpenderName(thisTransaction.boughtfor)) {
                         o.isChecked = true
@@ -339,12 +337,10 @@ class TransferFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
             return
         }
-        val fromRadioGroup = requireActivity().findViewById(R.id.fromRadioGroup) as RadioGroup
-        val fromRadioButtonChecked = fromRadioGroup.checkedRadioButtonId
+        val fromRadioButtonChecked = binding.fromRadioGroup.checkedRadioButtonId
         val fromRadioButton = requireActivity().findViewById(fromRadioButtonChecked) as RadioButton
 
-        val toRadioGroup = requireActivity().findViewById(R.id.toRadioGroup) as RadioGroup
-        val toRadioGroupChecked = toRadioGroup.checkedRadioButtonId
+        val toRadioGroupChecked = binding.toRadioGroup.checkedRadioButtonId
         val toRadioButton = requireActivity().findViewById(toRadioGroupChecked) as RadioButton
         if (fromRadioButton.text.toString() == toRadioButton.text.toString()) {
             binding.editTextNote.error = getString(R.string.toFromCantBeSame)
@@ -392,8 +388,7 @@ class TransferFragment : Fragment() {
 
     private fun loadSpenderRadioButtons() {
         var ctr = 200
-        val fromRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.fromRadioGroup)
-        fromRadioGroup?.removeAllViews()
+        binding.fromRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
@@ -402,18 +397,17 @@ class TransferFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
-            fromRadioGroup.addView(newRadioButton)
+            binding.fromRadioGroup.addView(newRadioButton)
             if (newTransferMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
-                fromRadioGroup.check(newRadioButton.id)
+                binding.fromRadioGroup.check(newRadioButton.id)
             }
         }
         ctr = 200
-        val toRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.toRadioGroup)
-        toRadioGroup?.removeAllViews()
+        binding.toRadioGroup.removeAllViews()
 
         for (i in 0 until SpenderViewModel.getActiveCount()) {
             val spender = SpenderViewModel.getSpender(i)
@@ -422,13 +416,13 @@ class TransferFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = spender?.name
             newRadioButton.id = ctr++
-            toRadioGroup.addView(newRadioButton)
+            binding.toRadioGroup.addView(newRadioButton)
             if (newTransferMode && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
-                toRadioGroup.check(newRadioButton.id)
+                binding.toRadioGroup.check(newRadioButton.id)
             }
         }
     }

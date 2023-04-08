@@ -25,22 +25,21 @@ class CategoryFragment : Fragment() {
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
 
-        val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
-        listView.adapter = adapter
+        binding.categoryListView.adapter = adapter
 /*        if (SpenderViewModel.twoDistinctUsers())
             binding.privacyHeading.visibility = View.VISIBLE
         else
             binding.privacyHeading.visibility = View.GONE
 */
 
-        listView.onItemClickListener =
+        binding.categoryListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val itemValue = listView.getItemAtPosition(position) as Category
+                val itemValue = binding.categoryListView.getItemAtPosition(position) as Category
                 val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString())
                 cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
-                        listView.adapter = myAdapter
+                        binding.categoryListView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
                 })
@@ -83,8 +82,7 @@ class CategoryFragment : Fragment() {
         cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
             override fun onNewDataSaved() {
                 val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
-                val listView: ListView = requireActivity().findViewById(R.id.category_list_view)
-                listView.adapter = adapter
+                binding.categoryListView.adapter = adapter
                 adapter.notifyDataSetChanged()
             }
         })

@@ -1,128 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".TrackerFragment">
-
-    <TextView
-        android:id="@+id/chartTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/barChart"/>
-    <TextView
-        android:id="@+id/chartSubTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:paddingBottom="10dp"
-        android:textColor="?attr/colorPrimary"
-        app:layout_constraintTop_toBottomOf="@id/chartTitle"
-        app:layout_constraintBottom_toTopOf="@id/barChart"/>
-    <com.github.mikephil.charting.charts.HorizontalBarChart
-        android:id="@+id/barChart"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        app:layout_constraintTop_toBottomOf="@id/chartSubTitle"
-        app:layout_constraintBottom_toTopOf="@id/budgetPieChart"/>
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/budgetPieChart"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:paddingBottom="5dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/barChart"
-        app:layout_constraintBottom_toTopOf="@id/actualPieChart"/>
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/actualPieChart"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/budgetPieChart"
-        app:layout_constraintBottom_toTopOf="@id/chartSummaryText"/>
-    <TextView
-        android:id="@+id/chartSummaryText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="start"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:paddingBottom="5dp"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/chart_button_layout"
-        app:layout_constraintTop_toBottomOf="@id/actualPieChart" />
+    tools:context=".YearOverYearFragment">
 
     <LinearLayout
-        android:id="@+id/chart_button_layout"
+        android:id="@+id/title_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/button_layout"
-        app:layout_constraintStart_toStartOf="parent">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/show_chart"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal">
 
-        <HorizontalScrollView
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fadeScrollbars="false"
-            android:scrollbarThumbHorizontal="?attr/colorSecondary">
-            <RadioGroup
-                android:id="@+id/chartRadioGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkedButton="@+id/button_bar"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/button_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/expense_tracker"/>
-
-                <RadioButton
-                    android:id="@+id/button_pie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/budget_actual_comparison"/>
-            </RadioGroup>
-        </HorizontalScrollView>
+            android:layout_gravity="center"
+            android:gravity="center"/>
     </LinearLayout>
+
     <LinearLayout
-        android:id="@+id/button_layout"
+        android:id="@+id/linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:layout_below="@id/title_layout"
+        android:layout_above="@id/button_layout">
+
+        <ScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
+
+            <TableLayout
+                android:id="@+id/table_rows"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:padding="0dp"
+                android:stretchColumns="*" />
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@id/button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:gravity="center">
         <LinearLayout
             android:id="@+id/expansion_layout"
             android:layout_width="match_parent"
@@ -144,7 +76,8 @@
                 android:text="@string/navigate"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/expand_view"
@@ -155,7 +88,8 @@
                 android:text="@string/view"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/expand_filter"
@@ -166,7 +100,8 @@
                 android:text="@string/filter"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/expand_options"
@@ -177,7 +112,8 @@
                 android:text="@string/options"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
+                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
+                android:maxLines="1"/>
 
             <Space
                 android:layout_width="5dp"
@@ -243,7 +179,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/view_by"
+                    android:text="@string/view"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingStart="5dp"
@@ -254,43 +190,50 @@
                     android:layout_height="wrap_content"
                     android:fadeScrollbars="false"
                     android:scrollbarThumbHorizontal="?attr/colorSecondary">
-                <RadioGroup
-                    android:id="@+id/viewRadioGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkedButton="@+id/allDiscRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    <RadioGroup
+                        android:id="@+id/viewGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/button_view_all"
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/button_view_month"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/month"/>
+                        <RadioButton
+                            android:id="@+id/button_view_all"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/all"/>
 
-                    <RadioButton
-                        android:id="@+id/button_view_ytd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ytd"/>
-                    <RadioButton
-                        android:id="@+id/button_view_year"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/year"/>
-                    <RadioButton
-                        android:id="@+id/button_view_all_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/all_time"/>
-                </RadioGroup>
+                        <RadioButton
+                            android:id="@+id/button_view_actuals"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/actual"/>
+
+                        <RadioButton
+                            android:id="@+id/button_view_budgets"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/budget"/>
+                        <RadioButton
+                            android:id="@+id/button_view_average"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/average"/>
+                        <RadioButton
+                            android:id="@+id/button_view_delta"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/delta"/>
+                    </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/these_settings_are_sticky"/>
+                android:paddingBottom="5dp"
+                android:text="@string/these_settings_are_sticky" />
         </LinearLayout>
 
         <LinearLayout
@@ -313,7 +256,6 @@
                     android:text="@string/type"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
-
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -323,9 +265,9 @@
                         android:id="@+id/filterDiscRadioGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:checkedButton="@+id/allDiscRadioButton"
                         android:gravity="center"
                         android:orientation="horizontal">
-
                         <RadioButton
                             android:id="@+id/allDiscRadioButton"
                             android:layout_width="wrap_content"
@@ -336,6 +278,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/discretionary"/>
+
                         <RadioButton
                             android:id="@+id/nonDiscRadioButton"
                             android:layout_width="wrap_content"
@@ -346,7 +289,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/who_layout"
+                android:id="@+id/filter_who_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
@@ -356,7 +299,6 @@
                     android:text="@string/who"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
-
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -369,7 +311,6 @@
                         android:checkedButton="@+id/whoAllRadioButton"
                         android:gravity="center"
                         android:orientation="horizontal">
-
                         <RadioButton
                             android:id="@+id/whoAllRadioButton"
                             android:layout_width="wrap_content"
@@ -400,6 +341,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:paddingBottom="5dp"
                 android:text="@string/these_settings_are_sticky"/>
         </LinearLayout>
 
@@ -423,36 +365,65 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/show_totals_as"
+                    android:text="@string/show_delta_as"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/showDeltaRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/dollarRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/dollarRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <RadioButton
+                            android:id="@+id/percentageRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/percentage_short"/>
+                    </RadioGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/show_rounded_to_nearest_dollar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/round_to_nearest_dollar"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
-                <RadioGroup
-                    android:id="@+id/numericTypeRadioGroup"
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_round_to_nearest_dollar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checkedButton="@+id/showPercentageRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/showPercentageRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/percentage_short"/>
-                    <RadioButton
-                        android:id="@+id/showDollarRadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="#"/>
-                </RadioGroup>
+                    android:layout_gravity="center"
+                    android:textOn="@string/on"
+                    android:textOff="@string/off"
+                    android:checked="false"/>
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:paddingBottom="5dp"
                 android:text="@string/these_settings_are_sticky"/>
         </LinearLayout>
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

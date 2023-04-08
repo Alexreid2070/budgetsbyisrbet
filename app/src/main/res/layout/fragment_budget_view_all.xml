@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginStart="5dp"
-                android:background="@android:color/transparent"
+                android:background="?attr/editTextBackground"
                 android:gravity="end"
                 android:spinnerMode="dropdown" />
 
@@ -307,7 +307,7 @@
         android:id="@+id/nav_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSecondaryVariant"
+        android:background="?attr/menuColor"
         android:orientation="horizontal"
         android:visibility="visible"
         android:weightSum="6"

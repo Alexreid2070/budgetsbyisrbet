@@ -128,8 +128,8 @@ class SettingsFragment : Fragment() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            newRadioButton.buttonTintList=
-                ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
+//            newRadioButton.buttonTintList=
+  //              ColorStateList.valueOf(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK))
             newRadioButton.text = spender
             newRadioButton.id = ctr++
             spenderRadioGroup.addView(newRadioButton)

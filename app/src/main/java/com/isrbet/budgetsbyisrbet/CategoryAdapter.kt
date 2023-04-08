@@ -58,6 +58,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         if (groupList[pos] == 0) { // ie first row of this category
             viewHolder.vhCategory.isVisible = true
             viewHolder.vhCategory.text = cData.categoryName
+            viewHolder.vhCategory.setTextColor(R.color.black)
         } else {
             viewHolder.vhCategory.isVisible = false
         }
@@ -92,26 +93,33 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
             viewHolder.vhDiscType.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         }
         val cat = DefaultsViewModel.getCategoryDetail(cData.categoryName)
-        if (cat.color != 0) {
-            viewHolder.vhCategory.setBackgroundColor(cat.color)
-            if (Build.VERSION.SDK_INT >= 29) {
-                viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border)
-                viewHolder.vhDetail.background.colorFilter =
-                    BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
-            } else {
-                viewHolder.vhDetail.setBackgroundColor(cat.color)
-                viewHolder.vhDetail.background.alpha = 44
-            }
-            viewHolder.vhDetail.setPadding(30, 5, 5, 5)
-
-            val trParams = TableLayout.LayoutParams(
-                TableLayout.LayoutParams.MATCH_PARENT,
-                TableLayout.LayoutParams.WRAP_CONTENT
-            )
-            trParams.setMargins(15, 0, 10, 0)
-            viewHolder.vhCategory.layoutParams = trParams
-            viewHolder.vhDetail.layoutParams = trParams
+        val colorToUse = if (cat.color == 0) {
+            MaterialColors.getColor(myContext, R.attr.colorPrimary, Color.BLACK)
+        } else {
+            cat.color
         }
+
+        viewHolder.vhCategory.setBackgroundColor(colorToUse)
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (inDarkMode(myContext))
+                viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border_no_fill)
+            else
+                viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border)
+            viewHolder.vhDetail.background.colorFilter =
+                BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+        } else {
+            viewHolder.vhDetail.setBackgroundColor(colorToUse)
+            viewHolder.vhDetail.background.alpha = 44
+        }
+        viewHolder.vhDetail.setPadding(30, 5, 5, 5)
+
+        val trParams = TableLayout.LayoutParams(
+            TableLayout.LayoutParams.MATCH_PARENT,
+            TableLayout.LayoutParams.WRAP_CONTENT
+        )
+        trParams.setMargins(15, 0, 10, 0)
+        viewHolder.vhCategory.layoutParams = trParams
+        viewHolder.vhDetail.layoutParams = trParams
 
         return myConvertView
     }

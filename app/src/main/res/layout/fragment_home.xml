@@ -25,7 +25,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:background="?attr/colorPrimary"
                 android:orientation="vertical"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp">
@@ -62,7 +61,8 @@
                     android:text="@string/sign_out"/>
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp">
                     <TextView
                         android:id="@+id/settingsButton"
                         android:layout_width="wrap_content"
@@ -109,6 +109,12 @@
                         android:text="@string/admin"
                         android:src="@drawable/ic_baseline_admin_panel_settings_24"/>
                 </LinearLayout>
+                <View
+                    android:id="@+id/line1"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:background="?attr/colorPrimary"
+                    android:padding="10dp"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/expand_button_layout"
@@ -125,8 +131,7 @@
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/colorSecondary">
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/iconView"
@@ -152,7 +157,6 @@
                 android:id="@+id/homeScreenMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorSecondary"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:textAlignment="center"/>
@@ -168,7 +172,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="?attr/colorSecondaryVariant"
+                android:background="@drawable/row_frame"
                 android:padding="20dp"
                 android:visibility="gone"
                 android:textSize="16sp"/>
@@ -177,12 +181,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="?attr/colorSecondary"
                 android:fontFamily="cursive"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="20dp"
+                android:paddingTop="20dp"
                 android:textSize="20sp" />
             <FrameLayout
                 android:layout_width="match_parent"

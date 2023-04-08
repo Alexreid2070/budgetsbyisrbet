@@ -90,7 +90,10 @@ data class RetirementData(
             for (data in iData) {
                 when (data.key.toString()) {
                     "userID" -> retData.userID = data.value.toString().toInt()
-                    "birthDate" -> retData.birthDate = data.value.toString()
+                    "birthDate" -> {
+                        retData.birthDate = data.value.toString()
+                        Log.d("Alex", "Just set birthdate to ${retData.birthDate}")
+                    }
                     "cppAge" -> retData.cppAge = data.value.toString().toInt()
                     "inflationRate" -> retData.inflationRate =
                         data.value.toString().toDouble()
@@ -441,9 +444,10 @@ data class RetirementData(
         }
     }
     fun getAgeAtStartOfYear(iYear: Int) : Int {
-        val birthYear = birthDate.substring(0,4)
-        return if (birthYear.toIntOrNull() != null)
-            iYear - birthYear.toInt() - 1
+        val birthYear = if (birthDate.substring(0,4).toIntOrNull() != null)
+            birthDate.substring(0,4).toInt() else 0
+        return if (birthYear != 0)
+            iYear - birthYear - 1
         else
             99
     }
@@ -680,7 +684,7 @@ class LIRA_ANNUITY (
     Asset(id, AssetType.LIRA_Annuity, name, value, useDefaultGrowthPct, estimatedGrowthPct,
         0, true, monthsOfGrowthThisYear, distributionOrder) {
     init {
-        withdrawalAmount = if (pensionStartDate.length < 10)
+        withdrawalAmount = if (pensionStartDate.substring(0,4).toInt() == 0)
             0
         else if (currentYear < pensionStartDate.substring(0,4).toInt())
             0
@@ -1168,12 +1172,10 @@ data class Salary(
     var estimatedGrowthPct: Double) {
 
     fun getSalary(iRetirementDate: String, iForYear: Int) : Int {
-        val retirementYear = iRetirementDate.subSequence(0,4).toString().toInt()
-
-        if (iForYear > retirementYear)
+        if (iForYear > iRetirementDate.substring(0,4).toInt())
             return 0
 
-        val multiplier = if (iForYear == retirementYear) {
+        val multiplier = if (iForYear == iRetirementDate.substring(0,4).toInt()) {
             iRetirementDate.substring(5,7).toInt() / 12.0
         } else
             1.0
@@ -1189,9 +1191,7 @@ data class CPP(
 
     // this section is called for the very first row, so data needs to be loaded from scenario / current balances
     fun getCPPIncome(tookAtAge: Int, iBirthDate: String, inflationRate: Double, forYear: Int): Int {
-        val birthYear = iBirthDate.substring(0,4).toInt()
-        val birthMonth = iBirthDate.substring(5,7).toInt()
-        if (forYear < birthYear + tookAtAge)
+        if (forYear < iBirthDate.substring(0,4).toInt() + tookAtAge)
             return 0
         else {
             var originalAmount = 0
@@ -1199,19 +1199,19 @@ data class CPP(
             when (tookAtAge) {
                 60 -> {
                     originalAmount = annualValueAt60
-                    yearsToCompound = forYear - (birthYear + 60)
+                    yearsToCompound = forYear - (iBirthDate.substring(0,4).toInt() + 60)
                 }
                 65 -> {
                     originalAmount = annualValueAt65
-                    yearsToCompound = forYear - (birthYear + 65)
+                    yearsToCompound = forYear - (iBirthDate.substring(0,4).toInt() + 65)
                 }
                 70 -> {
                     originalAmount = annualValueAt70
-                    yearsToCompound = forYear - (birthYear + 70)
+                    yearsToCompound = forYear - (iBirthDate.substring(0,4).toInt() + 70)
                 }
             }
-            val multiplier = if (forYear == birthYear + tookAtAge)
-                (12 - birthMonth + 1) / 12.0
+            val multiplier = if (forYear == iBirthDate.substring(0,4).toInt() + tookAtAge)
+                (12 - iBirthDate.substring(5,7).toInt() + 1) / 12.0
             else
                 1.0
             return round(originalAmount * (1 + inflationRate/100.0).pow(yearsToCompound) * multiplier).toInt()
@@ -1223,13 +1223,11 @@ data class OAS(
 
     // I am adjusting the supplied OAS amount for inflation.  The amount on the website is adjusted for inflation quarterly
     fun getOASIncome(iBirthDate: String, inflationRate: Double, forYear: Int): Int {
-        val birthYear = iBirthDate.substring(0,4).toInt()
-        val birthMonth = iBirthDate.substring(5,7).toInt()
-        if (forYear < birthYear + 67)
+        if (forYear < iBirthDate.substring(0,4).toInt() + 67)
             return 0
 
-        val firstYearMultiplier = if (forYear == birthYear + 67)
-            (12 - birthMonth + 1) / 12.0
+        val firstYearMultiplier = if (forYear == iBirthDate.substring(0,4).toInt() + 67)
+            (12 - iBirthDate.substring(5,7).toInt() + 1) / 12.0
         else
             1.0
         return round((currentAnnualValue) * (1 + inflationRate/100.0).pow(forYear - gCurrentDate.get(Calendar.YEAR)) * firstYearMultiplier).toInt()
@@ -1269,6 +1267,7 @@ class RetirementViewModel : ViewModel() {
         }
 
         fun updateRetirementDefault(iRetirementData: RetirementData, iLocalOnly: Boolean) : RetirementData{
+            Log.d("Alex", "updating retirement default $iRetirementData")
             val scenario = getUserDefault(iRetirementData.userID)
             if (scenario != null) {
                 singleInstance.userDefaults.remove(scenario)

@@ -727,6 +727,31 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:hint="@string/payment_amount_that_is_loan"
+                        android:minWidth="@dimen/custom_med_width"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        app:endIconMode="clear_text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/actual_loan_payment_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:gravity="start"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+                <LinearLayout
                     android:id="@+id/paymentFrequencyLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -793,7 +818,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/white"
                     android:contentDescription="@string/cancel"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
@@ -812,7 +836,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/white"
                     android:contentDescription="@string/save"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
@@ -831,7 +854,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/white"
                     android:contentDescription="@string/delete"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"

@@ -106,4 +106,7 @@ dependencies {
     }
     implementation 'com.google.guava:guava:27.0.1-android'
     implementation 'nl.dionsegijn:konfetti:1.2.2'
+
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }

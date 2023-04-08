@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -74,7 +75,11 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
             viewHolder.vhLabel.text =
                 CategoryViewModel.getCategory(bData.categoryID)?.subcategoryName ?: ""
         } else {
-            viewHolder.vhLabel.text = bData.dateStarted
+            viewHolder.vhLabel.text = when (bData.period) {
+                cPeriodMonth -> bData.dateStarted.substring(0,7)
+                cPeriodYear -> bData.dateStarted.substring(0,4)
+                else -> bData.dateStarted
+            }
             viewHolder.vhCategory.isVisible = false
         }
         viewHolder.vhWho.text = SpenderViewModel.getSpenderName(bData.who)
