@@ -1,42 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".TrackerFragment">
+
+    <LinearLayout
+        android:id="@+id/page_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/pageHeadingBackgroundColor"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/expense_tracker"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textSize="@dimen/pageHeadingFontSize"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/chartTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="center"
-        android:textStyle="bold"
+        android:gravity="center"
         android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/barChart"/>
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/page_title_layout" />
+
     <TextView
         android:id="@+id/chartSubTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="center"
-        android:textSize="14sp"
-        android:textStyle="bold"
+        android:gravity="center"
         android:paddingBottom="10dp"
         android:textColor="?attr/colorPrimary"
-        app:layout_constraintTop_toBottomOf="@id/chartTitle"
-        app:layout_constraintBottom_toTopOf="@id/barChart"/>
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/chartTitle" />
+
     <com.github.mikephil.charting.charts.HorizontalBarChart
         android:id="@+id/barChart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        app:layout_constraintTop_toBottomOf="@id/chartSubTitle"
-        app:layout_constraintBottom_toTopOf="@id/budgetPieChart"/>
+        app:layout_constraintBottom_toTopOf="@id/budgetPieChart"
+        app:layout_constraintTop_toBottomOf="@id/chartSubTitle" />
+
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/budgetPieChart"
         android:layout_width="match_parent"
@@ -45,8 +68,9 @@
         android:paddingEnd="5dp"
         android:paddingBottom="5dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/barChart"
-        app:layout_constraintBottom_toTopOf="@id/actualPieChart"/>
+        app:layout_constraintBottom_toTopOf="@id/actualPieChart"
+        app:layout_constraintTop_toBottomOf="@id/barChart" />
+
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/actualPieChart"
         android:layout_width="match_parent"
@@ -54,8 +78,9 @@
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/budgetPieChart"
-        app:layout_constraintBottom_toTopOf="@id/chartSummaryText"/>
+        app:layout_constraintBottom_toTopOf="@id/chartSummaryText"
+        app:layout_constraintTop_toBottomOf="@id/budgetPieChart" />
+
     <TextView
         android:id="@+id/chartSummaryText"
         android:layout_width="match_parent"
@@ -80,19 +105,21 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/button_layout"
         app:layout_constraintStart_toStartOf="parent">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/show_chart"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:text="@string/show"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false"
             android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
             <RadioGroup
                 android:id="@+id/chartRadioGroup"
                 android:layout_width="wrap_content"
@@ -105,220 +132,171 @@
                     android:id="@+id/button_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/expense_tracker"/>
+                    android:text="@string/bar_chart" />
 
                 <RadioButton
                     android:id="@+id/button_pie"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/budget_actual_comparison"/>
+                    android:text="@string/pie_chart" />
             </RadioGroup>
         </HorizontalScrollView>
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/button_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:background="?attr/menuColor"
         android:gravity="center"
-        android:visibility="gone"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent">
-        <LinearLayout
-            android:id="@+id/expansion_layout"
+
+        <View
+            android:id="@+id/view1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:paddingTop="5dp">
-
-            <Space
-                android:layout_width="5dp"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/expand_nav"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:text="@string/navigate"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
-
-            <TextView
-                android:id="@+id/expand_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:text="@string/view"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
-
-            <TextView
-                android:id="@+id/expand_filter"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:text="@string/filter"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
-
-            <TextView
-                android:id="@+id/expand_options"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:text="@string/options"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"/>
-
-            <Space
-                android:layout_width="5dp"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+            android:layout_height="1dp"
+            android:background="?attr/colorPrimary"/>
 
         <LinearLayout
             android:id="@+id/nav_button_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/menuColor"
             android:orientation="horizontal"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:visibility="gone">
+            android:padding="5dp">
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/button_backward"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="50dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                app:drawableStartCompat="@drawable/ic_baseline_arrow_back_24"/>
+                android:layout_gravity="center"
+                android:contentDescription="@string/navigate"
+                android:scaleType="center"
+                android:src="@drawable/ic_baseline_keyboard_arrow_left_24" />
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/button_forward"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="50dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                app:drawableStartCompat="@drawable/ic_baseline_arrow_forward_24"/>
+                android:layout_gravity="center"
+                android:contentDescription="@string/navigate"
+                android:scaleType="center"
+                android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/button_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/settings"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:src="@drawable/ic_baseline_settings_24_orange" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/view_button_linear_layout"
+            android:id="@+id/options_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="?attr/menuColor"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:text="@string/view_by"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"/>
+                    android:textStyle="bold" />
 
                 <HorizontalScrollView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fadeScrollbars="false"
                     android:scrollbarThumbHorizontal="?attr/colorSecondary">
-                <RadioGroup
-                    android:id="@+id/viewRadioGroup"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkedButton="@+id/allDiscRadioButton"
-                    android:gravity="center"
-                    android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/button_view_month"
+                    <RadioGroup
+                        android:id="@+id/viewRadioGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/month"/>
+                        android:checkedButton="@+id/allDiscRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/button_view_ytd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ytd"/>
-                    <RadioButton
-                        android:id="@+id/button_view_year"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/year"/>
-                    <RadioButton
-                        android:id="@+id/button_view_all_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/all_time"/>
-                </RadioGroup>
+                        <RadioButton
+                            android:id="@+id/button_view_month"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/month" />
+
+                        <RadioButton
+                            android:id="@+id/button_view_ytd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ytd" />
+
+                        <RadioButton
+                            android:id="@+id/button_view_year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/year" />
+
+                        <RadioButton
+                            android:id="@+id/button_view_all_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/all_time" />
+                    </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/these_settings_are_sticky"/>
-        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/filter_button_linear_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/menuColor"
-            android:orientation="vertical"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:visibility="gone">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorPrimary"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/type"
+                    android:text="@string/filter_by_type"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fadeScrollbars="false"
                     android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
                     <RadioGroup
                         android:id="@+id/filterDiscRadioGroup"
                         android:layout_width="wrap_content"
@@ -330,17 +308,19 @@
                             android:id="@+id/allDiscRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/all"/>
+                            android:text="@string/all" />
+
                         <RadioButton
                             android:id="@+id/discRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/discretionary"/>
+                            android:text="@string/discretionary" />
+
                         <RadioButton
                             android:id="@+id/nonDiscRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/non_discretionary"/>
+                            android:text="@string/non_discretionary" />
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
@@ -348,20 +328,24 @@
             <LinearLayout
                 android:id="@+id/who_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/who"
+                    android:text="@string/filter_by_who"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fadeScrollbars="false"
                     android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
                     <RadioGroup
                         android:id="@+id/filterWhoRadioGroup"
                         android:layout_width="wrap_content"
@@ -374,50 +358,32 @@
                             android:id="@+id/whoAllRadioButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/all"/>
+                            android:text="@string/all" />
+
                         <RadioButton
                             android:id="@+id/name1RadioButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
+
                         <RadioButton
                             android:id="@+id/name2RadioButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/resetFilterButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_gravity="center"
-                android:text="@string/reset_all_filters"
-                android:minWidth="50dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/these_settings_are_sticky"/>
-        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/options_button_linear_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/menuColor"
-            android:orientation="vertical"
-            android:visibility="gone">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorPrimary"/>
 
             <LinearLayout
                 android:id="@+id/show_delta_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:paddingTop="5dp">
+                android:paddingEnd="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -425,7 +391,7 @@
                     android:layout_gravity="center"
                     android:text="@string/show_totals_as"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <RadioGroup
                     android:id="@+id/numericTypeRadioGroup"
@@ -439,19 +405,15 @@
                         android:id="@+id/showPercentageRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/percentage_short"/>
+                        android:text="@string/percentage_short" />
+
                     <RadioButton
                         android:id="@+id/showDollarRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="#"/>
+                        android:text="@string/pound" />
                 </RadioGroup>
             </LinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/these_settings_are_sticky"/>
         </LinearLayout>
     </LinearLayout>
 

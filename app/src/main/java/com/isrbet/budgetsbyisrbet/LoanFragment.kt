@@ -1,7 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.app.DatePickerDialog
-import android.icu.util.Calendar
+import android.icu.text.NumberFormat
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.view.*
@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.isrbet.budgetsbyisrbet.databinding.FragmentLoanBinding
+import timber.log.Timber
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.round
@@ -17,7 +18,6 @@ class LoanFragment : Fragment() {
     private var _binding: FragmentLoanBinding? = null
     private val binding get() = _binding!!
     private val args: LoanFragmentArgs by navArgs()
-    private var cal = gCurrentDate.clone() as Calendar // Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,9 +41,8 @@ class LoanFragment : Fragment() {
             setupLoanSpinner(args.loanID)
             val sp = ScheduledPaymentViewModel.getScheduledPayment(args.loanID)
             if (sp != null) {
-                cal.set(sp.loanFirstPaymentDate.substring(0,4).toInt(), sp.loanFirstPaymentDate.substring(5,7).toInt()-1, sp.loanFirstPaymentDate.substring(8,10).toInt())
                 loadRows(
-                    cal,
+                    sp.loanFirstPaymentDate,
                     sp.loanAmortization,
                     sp.loanPaymentRegularity,
                     sp.loanInterestRate / 100.0,
@@ -52,21 +51,22 @@ class LoanFragment : Fragment() {
             }
         } else
             setupLoanSpinner()
-        binding.loanStartDate.setText(giveMeMyDateFormat(cal))
+        binding.loanStartDate.setText(gCurrentDate.toString())
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(java.util.Calendar.YEAR, year)
-                cal.set(java.util.Calendar.MONTH, monthOfYear)
-                cal.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.loanStartDate.setText(giveMeMyDateFormat(cal))
+                binding.loanStartDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.loanStartDate.setOnClickListener {
+            var localDate = MyDate()
+            if (binding.loanStartDate.text.toString() != "") {
+                localDate = MyDate(binding.loanStartDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(java.util.Calendar.YEAR),
-                cal.get(java.util.Calendar.MONTH),
-                cal.get(java.util.Calendar.DAY_OF_MONTH)
+                localDate.getYear(),
+                localDate.getMonth()-1,
+                localDate.getDay()
             ).show()
         }
 
@@ -79,8 +79,7 @@ class LoanFragment : Fragment() {
                 if (position > 0) {
                     val sp = ScheduledPaymentViewModel.getScheduledPayment(selection as String)
                     if (sp != null) {
-                        binding.loanStartDate.setText(sp.loanFirstPaymentDate)
-                        cal.set(sp.loanFirstPaymentDate.substring(0,4).toInt(), sp.loanFirstPaymentDate.substring(5,7).toInt()-1, sp.loanFirstPaymentDate.substring(8,10).toInt())
+                        binding.loanStartDate.setText(sp.loanFirstPaymentDate.toString())
                         binding.loanAmount.setText(gDec(sp.loanAmount))
                         binding.amortizationPeriod.setText(gDec(sp.loanAmortization))
                         binding.interestRate.setText(gDec(sp.loanInterestRate))
@@ -107,7 +106,7 @@ class LoanFragment : Fragment() {
 
     private fun reset() {
         binding.LoanSpinner.setSelection(0)
-        binding.loanStartDate.setText(giveMeMyDateFormat(gCurrentDate))
+        binding.loanStartDate.setText(gCurrentDate.toString())
         binding.loanAmount.setText("")
         binding.amortizationPeriod.setText("")
         binding.interestRate.setText("")
@@ -161,75 +160,28 @@ class LoanFragment : Fragment() {
             else -> LoanPaymentRegularity.MONTHLY
         }
 
-        val dt = binding.loanStartDate.text.toString()
-        cal.set(dt.substring(0,4).toInt(), dt.substring(5,7).toInt()-1, dt.substring(8,10).toInt())
-
-        val loanAmountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
+        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+        val loanAmountDouble = lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
         val accAmountDouble = binding.acceleratedPaymentAmount.text.toString().replace(',', '.').toDoubleOrNull()
-//        val accAmountDouble = if (isNumber(binding.acceleratedPaymentAmount.text.toString()))
-  //              gNumberFormat.parse(binding.acceleratedPaymentAmount.text.toString()).toDouble()
-    //        else 0.0
-        loadRows(cal,
-            gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble(),
-//            getDoubleValue(binding.amortizationPeriod.text.toString()),
+        loadRows(MyDate(binding.loanStartDate.text.toString()),
+            lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble(),
             freq,
-            gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()/100.0,
-//            getDoubleValue(binding.interestRate.text.toString())/100.0,
+            lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()/100.0,
             loanAmountDouble,
             accAmountDouble)
     }
 
-    private fun loadRows(iFirstPaymentDate: Calendar, iAmortizationYears: Double,
+
+    private fun loadRows(iFirstPaymentDate: MyDate, iAmortizationYears: Double,
                             iPaymentRegularity: LoanPaymentRegularity,
                             iInterestRate: Double, iPrincipal: Double,
                             iAccAmount: Double?) {
-        val myList: MutableList<LoanPayment> = ArrayList()
-
-        val iPaymentsPerYear = when (iPaymentRegularity) {
-            LoanPaymentRegularity.WEEKLY -> 52
-            LoanPaymentRegularity.BIWEEKLY -> 26
-            LoanPaymentRegularity.MONTHLY -> 12
-        }
-
-        val calcPayment =  if (iInterestRate == 0.0)
-            iPrincipal / iAmortizationYears / iPaymentsPerYear
-        else
-            iPrincipal * (iInterestRate / iPaymentsPerYear) * (1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear * iAmortizationYears) /
-                ((1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear*iAmortizationYears) - 1)
-        binding.calculatedPaymentAmount.text = gDecWithCurrency(calcPayment)
-        binding.calculatedPaymentText.visibility = View.VISIBLE
-
-        var owingAtEndOfPeriod = iPrincipal
-        val extraPayment = if (iAccAmount == null) 0.0 else iAccAmount - calcPayment
-        for (i in 1..(round(iAmortizationYears * iPaymentsPerYear).toInt())) {
-            val interestOwingForThisPeriod = owingAtEndOfPeriod * iInterestRate / iPaymentsPerYear
-            owingAtEndOfPeriod = if (iInterestRate == 0.0)
-                owingAtEndOfPeriod - calcPayment
-            else
-                (1 + iInterestRate/iPaymentsPerYear).pow(i)*iPrincipal - (((1+iInterestRate/iPaymentsPerYear).pow(i) - 1)/(iInterestRate/iPaymentsPerYear)*calcPayment) - (extraPayment*i)
-            if (iAccAmount != null && iAccAmount > owingAtEndOfPeriod) { // ie last payment
-                myList.add(
-                    LoanPayment(
-                        iFirstPaymentDate.clone() as Calendar,
-                        owingAtEndOfPeriod,
-                        interestOwingForThisPeriod,
-                        owingAtEndOfPeriod - interestOwingForThisPeriod,
-                        0.0
-                    )
-                )
-                break
-            } else
-                myList.add(LoanPayment(iFirstPaymentDate.clone() as Calendar,
-                    if (iAccAmount != null) iAccAmount else calcPayment,
-                    interestOwingForThisPeriod,
-                    if (iAccAmount != null) iAccAmount-interestOwingForThisPeriod
-                    else calcPayment-interestOwingForThisPeriod,
-                    owingAtEndOfPeriod))
-            when (iPaymentRegularity) {
-                LoanPaymentRegularity.WEEKLY -> iFirstPaymentDate.add(Calendar.DAY_OF_MONTH, 7)
-                LoanPaymentRegularity.BIWEEKLY -> iFirstPaymentDate.add(Calendar.DAY_OF_MONTH, 14)
-                LoanPaymentRegularity.MONTHLY -> iFirstPaymentDate.add(Calendar.MONTH, 1)
-            }
+        val myList = getPaymentList(iFirstPaymentDate, iAmortizationYears, iPaymentRegularity,
+            iInterestRate, iPrincipal, iAccAmount)
+        if (myList.size > 0) {
+            binding.calculatedPaymentAmount.text =
+                gDecWithCurrency(myList[0].calculatedPaymentAmount)
+            binding.calculatedPaymentText.visibility = View.VISIBLE
         }
         val adapter = LoanAdapter(requireContext(), myList)
         val listView: ListView = requireActivity().findViewById(R.id.loan_list_view)
@@ -254,4 +206,65 @@ class LoanFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+}
+
+fun getPaymentList(iFirstPaymentDate: MyDate, iAmortizationYears: Double,
+                   iPaymentRegularity: LoanPaymentRegularity,
+                   iInterestRate: Double, iPrincipal: Double,
+                   iAccAmount: Double?): MutableList<LoanPayment> {
+    val myList: MutableList<LoanPayment> = ArrayList()
+    val wDate = MyDate(iFirstPaymentDate)
+
+    val iPaymentsPerYear = when (iPaymentRegularity) {
+        LoanPaymentRegularity.WEEKLY -> 52
+        LoanPaymentRegularity.BIWEEKLY -> 26
+        LoanPaymentRegularity.MONTHLY -> 12
+    }
+
+    val calcPayment =  if (iInterestRate == 0.0)
+        iPrincipal / iAmortizationYears / iPaymentsPerYear
+    else
+        iPrincipal * (iInterestRate / iPaymentsPerYear) * (1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear * iAmortizationYears) /
+                ((1 + iInterestRate / iPaymentsPerYear).pow(iPaymentsPerYear*iAmortizationYears) - 1)
+
+    var owingAtEndOfPeriod = iPrincipal
+    val extraPayment = if (iAccAmount == null) 0.0 else iAccAmount - calcPayment
+    for (i in 1..(round(iAmortizationYears * iPaymentsPerYear).toInt())) {
+        val interestOwingForThisPeriod = owingAtEndOfPeriod * iInterestRate / iPaymentsPerYear
+        owingAtEndOfPeriod = if (iInterestRate == 0.0)
+            owingAtEndOfPeriod - calcPayment
+        else
+            (1 + iInterestRate/iPaymentsPerYear).pow(i)*iPrincipal - (((1+iInterestRate/iPaymentsPerYear).pow(i) - 1)/(iInterestRate/iPaymentsPerYear)*calcPayment) - (extraPayment*i)
+        if (iAccAmount != null && iAccAmount > owingAtEndOfPeriod) { // ie last payment
+            myList.add(
+                LoanPayment(
+                    wDate,
+                    owingAtEndOfPeriod,
+                    calcPayment,
+                    interestOwingForThisPeriod,
+                    owingAtEndOfPeriod - interestOwingForThisPeriod,
+                    0.0
+                )
+            )
+            break
+        } else {
+            val tLoanPayment = LoanPayment(
+                MyDate(wDate),
+                iAccAmount ?: calcPayment,
+                calcPayment,
+                interestOwingForThisPeriod,
+                if (iAccAmount != null) iAccAmount - interestOwingForThisPeriod
+                else calcPayment - interestOwingForThisPeriod,
+                owingAtEndOfPeriod
+            )
+
+            myList.add(tLoanPayment)
+        }
+        when (iPaymentRegularity) {
+            LoanPaymentRegularity.WEEKLY -> wDate.increment(cPeriodWeek, 1)
+            LoanPaymentRegularity.BIWEEKLY -> wDate.increment(cPeriodWeek, 2)
+            LoanPaymentRegularity.MONTHLY -> wDate.increment(cPeriodMonth, 1)
+        }
+    }
+    return myList
 }

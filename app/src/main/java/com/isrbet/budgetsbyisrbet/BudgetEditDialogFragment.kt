@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
+import android.icu.text.NumberFormat
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.view.LayoutInflater
@@ -14,8 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class BudgetEditDialogFragment : DialogFragment() {
@@ -40,7 +39,7 @@ class BudgetEditDialogFragment : DialogFragment() {
         private const val KEY_AMOUNT_VALUE = "KEY_AMOUNT_VALUE"
         private const val KEY_OCCURENCE_VALUE = "KEY_OCCURENCE_VALUE"
         private const val KEY_KEY_VALUE = "KEY_KEY_VALUE"
-        private var oldDate: MyDate = MyDate(0,0,0)
+        private var oldDate: MyDate = MyDate()
         private var oldPeriod: String = ""
         private var oldRegularity: Int = 1
         private var oldWho: Int = -1
@@ -175,26 +174,22 @@ class BudgetEditDialogFragment : DialogFragment() {
         val cat = CategoryViewModel.getCategory(categoryID.toString().toInt())
         binding.budgetDialogCategoryID.text = cat?.id.toString()
         binding.budgetDialogCategorySubcategory.text = String.format("${cat?.categoryName}-${cat?.subcategoryName}")
-        binding.startDate.setText(arguments?.getString(KEY_DATE_VALUE))
-        val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-        val tOldDate = LocalDate.parse(binding.startDate.text, DateTimeFormatter.ISO_DATE)
-        cal.set(Calendar.YEAR, tOldDate.year)
-        cal.set(Calendar.MONTH, tOldDate.monthValue-1)
-        cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
+        binding.startDate.setText(oldDate.toString())
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.startDate.setText(giveMeMyDateFormat(cal))
+                binding.startDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.startDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.startDate.text.toString() != "") {
+                lcal = MyDate(binding.startDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
 
@@ -251,7 +246,8 @@ class BudgetEditDialogFragment : DialogFragment() {
                 binding.budgetDialogOccurenceRadioGroup.visibility = View.VISIBLE
                 binding.occurenceField.visibility = View.GONE
             } else { // we're in edit mode, so need to save
-                val amountDouble = gNumberFormat.parse(binding.budgetDialogNewAmount.text.toString()).toDouble()
+                val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+                val amountDouble = lNumberFormat.parse(binding.budgetDialogNewAmount.text.toString()).toDouble()
                 var newWho = -1
                 for (i in 0 until binding.budgetDialogNewWhoRadioGroup.childCount) {
                     val o = binding.budgetDialogNewWhoRadioGroup.getChildAt(i)

@@ -1,10 +1,10 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.icu.util.Calendar
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import timber.log.Timber
+import java.time.LocalTime
 
 data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
 
@@ -25,10 +25,8 @@ class CustomNotificationListenerService : NotificationListenerService() {
             return if (activeNotificationCount > 0) {
                 for (count in 0 until activeNotificationCount) {
                     val sbn = singleInstance.activeNotifications[count]
-                    Timber.tag("Alex").d("Package name is ${sbn.packageName}")
                     if (sbn.packageName == "com.td.myspend") {
                         tCount++
-                        Timber.tag("Alex").d("tcount is now $tCount")
                     }
                 }
                 tCount
@@ -43,7 +41,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
             val tNote: String
 
             if (cFAKING_TD)
-                return TransactionDataFromTD(123.45, "mty Bulk Barn # 145", "Groceries")
+                return TransactionDataFromTD(123.45, "mty Valumart # 145", "Groceries")
 
             for (count in 0 until singleInstance.activeNotifications.size) {
                 val sbn = singleInstance.activeNotifications[count]
@@ -51,14 +49,14 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notification = sbn.notification
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
-                        Log.d("Alex","notification text: $notificationText")
-                        val dateNow = gCurrentDate
-                        val key = dateNow.get(Calendar.YEAR).toString() + "-" +
-                                (dateNow.get(Calendar.MONTH)+1).toString() + "-" +
-                                dateNow.get(Calendar.DAY_OF_MONTH).toString() + "-" +
-                                dateNow.get(Calendar.HOUR).toString() + "-" +
-                                dateNow.get(Calendar.MINUTE).toString() + "-" +
-                                dateNow.get(Calendar.SECOND).toString()
+                        Timber.tag("Alex").d("notification text: $notificationText")
+                        val timeNow = LocalTime.now()
+                        val key = "%04d-%02d-%02d-%02d-%02d-%02d".format(gCurrentDate.getYear(),
+                                gCurrentDate.getMonth(),
+                                gCurrentDate.getDay(),
+                                timeNow.hour,
+                                timeNow.minute,
+                                timeNow.second)
 
                         try {
                             val dollarSign = notificationText.indexOf("$")
@@ -112,7 +110,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
         super.onListenerConnected()
         singleInstance = this
 
-        fetchCurrentNotifications()
+//        fetchCurrentNotifications()
     }
 
     // this is called when a new notification is created

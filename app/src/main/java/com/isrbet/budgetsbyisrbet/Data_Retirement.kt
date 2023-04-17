@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -92,7 +93,6 @@ data class RetirementData(
                     "userID" -> retData.userID = data.value.toString().toInt()
                     "birthDate" -> {
                         retData.birthDate = data.value.toString()
-                        Log.d("Alex", "Just set birthdate to ${retData.birthDate}")
                     }
                     "cppAge" -> retData.cppAge = data.value.toString().toInt()
                     "inflationRate" -> retData.inflationRate =
@@ -271,7 +271,7 @@ data class RetirementData(
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
-                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.getMonth(),
                                         distributionOrder,
                                         0,
                                         minimizeTax
@@ -286,35 +286,35 @@ data class RetirementData(
                                         estimatedGrowthPct,
                                         annualContribution,
                                         willSellToFinanceRetirement,
-                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.getMonth(),
                                         distributionOrder
                                     )
                                 }
                                 AssetType.LIRA_LIF -> {
-                                    newAsset = LIRA_LIF(
+                                    newAsset = LIRALIF(
                                         assetID,
                                         name,
                                         value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
-                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.getMonth(),
                                         distributionOrder,
                                         0,
                                         minimizeTax
                                     )
                                 }
                                 AssetType.LIRA_Annuity -> {
-                                    newAsset = LIRA_ANNUITY(
+                                    newAsset = LIRAANNUITY(
                                         assetID,
                                         name,
                                         value,
                                         pensionStartDate,
-                                        gCurrentDate.get(Calendar.YEAR),
+                                        gCurrentDate.getYear(),
                                         annualAmount,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
-                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.getMonth(),
                                         distributionOrder
                                     )
                                 }
@@ -327,7 +327,7 @@ data class RetirementData(
                                         estimatedGrowthPct,
                                         annualContribution,
                                         willSellToFinanceRetirement,
-                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.getMonth(),
                                         distributionOrder,
                                         taxSheltered
                                     )
@@ -340,7 +340,7 @@ data class RetirementData(
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         willSellToFinanceRetirement,
-                                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                                        12 - gCurrentDate.getMonth(),
                                         distributionOrder,
                                         useDefaultGrowthPctAsSavings,
                                         estimatedGrowthPctAfterSale,
@@ -590,7 +590,7 @@ open class RRSP (
         } else {
             val inflationRate = iRetirementData?.inflationRate ?: 0.0
             round(gMinimizeTaxAmount *
-                    (1 + inflationRate/100.0).pow(iYear - gCurrentDate.get(Calendar.YEAR))).toInt()
+                    (1 + inflationRate/100.0).pow(iYear - gCurrentDate.getYear())).toInt()
         }
         var minWithdrawal1 = min(getAvailableValue(), iAmount)
         minWithdrawal1 = min(minWithdrawal1, currentMinimalTaxAmount - iTaxableIncomeAlreadyMade) // at this point minWithdrawal1 is the minimum of...
@@ -621,7 +621,7 @@ open class RRSP (
     }
 }
 
-class LIRA_LIF (
+class LIRALIF (
     id: Int,
     name: String,
     value: Int,
@@ -642,13 +642,13 @@ class LIRA_LIF (
     }
 
     override fun copy(): Asset {
-        val liraLif = LIRA_LIF(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
+        val liraLif = LIRALIF(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
             monthsOfGrowthThisYear, distributionOrder, ageAtStartOfYear, minimizeTax)
         liraLif.additionalGrowthThisYear = additionalGrowthThisYear
         return liraLif
     }
     override fun getNextYear(iAmIRetired: Boolean): Asset {
-        return LIRA_LIF(
+        return LIRALIF(
             id,
             name,
             getEndingBalance(),
@@ -670,7 +670,7 @@ class LIRA_LIF (
     }
 }
 
-class LIRA_ANNUITY (
+class LIRAANNUITY (
     id: Int,
     name: String,
     value: Int,
@@ -697,17 +697,18 @@ class LIRA_ANNUITY (
     }
 
     override fun copy(): Asset {
-        val liraAnnuity = LIRA_ANNUITY(id, name, getValue(), pensionStartDate, currentYear,
+        return LIRAANNUITY(
+            id, name, getValue(), pensionStartDate, currentYear,
             annualAmount, useDefaultGrowthPct, estimatedGrowthPct,
-            monthsOfGrowthThisYear, distributionOrder)
-        return liraAnnuity
+            monthsOfGrowthThisYear, distributionOrder
+        )
     }
     override fun computeGrowth() {
         growthThisYear = round(getValue() *
                     (getGrowthPct() / 100 * monthsOfGrowthThisYear / 12) ).toInt()
     }
     override fun getNextYear(iAmIRetired: Boolean): Asset {
-        return LIRA_ANNUITY(
+        return LIRAANNUITY(
             id,
             name,
             getEndingBalance(),
@@ -915,18 +916,14 @@ class Property(
         if (willSellToFinanceRetirement) {
             if (soldInYear == 0) {
                 soldInYear = iYear
-                val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-                cal.set(Calendar.YEAR, iYear)
-                cal.set(Calendar.MONTH, 0)
-                cal.set(Calendar.DAY_OF_MONTH, 1)
-                val outstandingLoanAmount = getOutstandingLoanAmount(cal)
+                val outstandingLoanAmount = getOutstandingLoanAmount(MyDate(iYear, 1, 1))
                 if (outstandingLoanAmount > 0) {
                     setValue(getValue() - outstandingLoanAmount)
                 }
-                if (primaryResidence) {
-                    withdrawalAmount = min(iAmount, getAvailableValue())
+                withdrawalAmount = if (primaryResidence) {
+                    min(iAmount, getAvailableValue())
                 } else {
-                    withdrawalAmount = min(iAmount, getAvailableValue()) + (getValue() * .25).toInt()
+                    min(iAmount, getAvailableValue()) + (getValue() * .25).toInt()
                 }
             } else
                 withdrawalAmount = min(iAmount, getAvailableValue())
@@ -945,12 +942,9 @@ class Property(
         else
             0
     }
-    private fun getOutstandingLoanAmount(iDate: android.icu.util.Calendar): Int {
+    private fun getOutstandingLoanAmount(iDate: MyDate): Int {
         val sp = ScheduledPaymentViewModel.getScheduledPayment(scheduledPaymentName)
-        return if (sp != null) {
-            sp.getOutstandingLoanAmount(iDate, ownershipPct)
-        } else
-            0
+        return sp?.getOutstandingLoanAmount(iDate, ownershipPct) ?: 0
     }
 }
 
@@ -1179,7 +1173,7 @@ data class Salary(
             iRetirementDate.substring(5,7).toInt() / 12.0
         } else
             1.0
-        val inflationMultiplier = (1 + estimatedGrowthPct/100.0).pow(iForYear - gCurrentDate.get(Calendar.YEAR))
+        val inflationMultiplier = (1 + estimatedGrowthPct/100.0).pow(iForYear - gCurrentDate.getYear())
         return round(annualValueAfterTax * multiplier * inflationMultiplier).toInt()
     }
 }
@@ -1230,7 +1224,7 @@ data class OAS(
             (12 - iBirthDate.substring(5,7).toInt() + 1) / 12.0
         else
             1.0
-        return round((currentAnnualValue) * (1 + inflationRate/100.0).pow(forYear - gCurrentDate.get(Calendar.YEAR)) * firstYearMultiplier).toInt()
+        return round((currentAnnualValue) * (1 + inflationRate/100.0).pow(forYear - gCurrentDate.getYear()) * firstYearMultiplier).toInt()
     }
 }
 
@@ -1240,9 +1234,6 @@ class RetirementViewModel : ViewModel() {
     private var loaded: Boolean = false
     private val userDefaults: MutableList<RetirementData> = ArrayList()
     private val scenarios: MutableList<RetirementData> = ArrayList()
-//    private val workingAssetList: MutableList<Asset> = ArrayList()
-  //  private val workingPensionList: MutableList<Pension> = ArrayList()
-    //private val workingAdditionalList: MutableList<AdditionalItem> = ArrayList()
 
     companion object {
         lateinit var singleInstance: RetirementViewModel // used to track static single instance of self
@@ -1267,7 +1258,6 @@ class RetirementViewModel : ViewModel() {
         }
 
         fun updateRetirementDefault(iRetirementData: RetirementData, iLocalOnly: Boolean) : RetirementData{
-            Log.d("Alex", "updating retirement default $iRetirementData")
             val scenario = getUserDefault(iRetirementData.userID)
             if (scenario != null) {
                 singleInstance.userDefaults.remove(scenario)
@@ -1340,7 +1330,7 @@ class RetirementViewModel : ViewModel() {
 
         fun getEarliestRetirementYear(iRetirementScenario: RetirementData) : Int {
             val retirementDateSaver = iRetirementScenario.retirementDate
-            var yearToTryToRetire = min(gCurrentDate.get(Calendar.YEAR) - 1, iRetirementScenario.retirementDate.substring(0,4).toInt())
+            var yearToTryToRetire = min(gCurrentDate.getYear() - 1, iRetirementScenario.retirementDate.substring(0,4).toInt())
             val retUser = getUserDefault(iRetirementScenario.userID)
             val endYear = if (retUser == null)
                 yearToTryToRetire
@@ -1408,13 +1398,13 @@ class RetirementViewModel : ViewModel() {
         fun getCalculationRows(iRetirementScenario: RetirementData, iLogOutput: Boolean = false)
         : MutableList<RetirementCalculationRow> {
             val tList: MutableList<RetirementCalculationRow> = ArrayList()
-            var calcRow = RetirementCalculationRow(iRetirementScenario, gCurrentDate.get(Calendar.YEAR),
+            var calcRow = RetirementCalculationRow(iRetirementScenario, gCurrentDate.getYear(),
                 iRetirementScenario.inflationRate, iRetirementScenario.investmentGrowthRate,
                 iRetirementScenario.propertyGrowthRate)
             calcRow.ensureIncomeIsAdequate()
             calcRow.ensureIncomeIsAdequate2()
             if (iLogOutput) {
-                Log.d("Alex", "Year TgIncom MaxTaxA Taxable GrossIn     Tax NetInco  Salary     CPP     OAS RRSPWit RRSPBal TFSAWit TFSABal SaviWit SaviBal TotSavi PropWit PropBal NetWort")
+                Timber.tag("Alex").d("Year TgIncom MaxTaxA Taxable GrossIn     Tax NetInco  Salary     CPP     OAS RRSPWit RRSPBal TFSAWit TFSABal SaviWit SaviBal TotSavi PropWit PropBal NetWort")
                 calcRow.logRow()
             }
             val retUser = getUserDefault(iRetirementScenario.userID) ?: return tList
@@ -1438,18 +1428,18 @@ class RetirementViewModel : ViewModel() {
         } */
 
         fun getWorkingAssetListCount(iAssetType: AssetType = AssetType.ALL) : Int {
-            if (gRetirementScenario == null) {
-                return 0
+            return if (gRetirementScenario == null) {
+                0
             } else {
                 if (iAssetType == AssetType.ALL)
-                    return gRetirementScenario!!.assets.size
+                    gRetirementScenario!!.assets.size
                 else {
                     var cnt = 0
                     gRetirementScenario!!.assets.forEach {
                         if (it.assetType == iAssetType)
                             cnt += 1
                     }
-                    return cnt
+                    cnt
                 }
             }
         }
@@ -1474,7 +1464,7 @@ class RetirementViewModel : ViewModel() {
             if (gRetirementScenario != null) {
                 val ind = gRetirementScenario!!.assets.indexOfFirst { it.name == iOldAssetName }
                 if (ind == -1)
-                    Log.d("Alex", "WHY can't I find asset $iOldAssetName????")
+                    Timber.tag("Alex").d("WHY can't I find asset $iOldAssetName????")
                 else
                     gRetirementScenario!!.assets[ind] = iAsset
                 updateDistributionOrderAsRequired()
@@ -1510,10 +1500,10 @@ class RetirementViewModel : ViewModel() {
             }
         } */
         fun getWorkingPensionListCount() : Int {
-            if (gRetirementScenario == null)
-                return 0
+            return if (gRetirementScenario == null)
+                0
             else
-                return gRetirementScenario!!.pensions.size
+                gRetirementScenario!!.pensions.size
         }
         fun getWorkingPension(iPensionName: String) : Pension? {
             return gRetirementScenario?.pensions?.find {it.name == iPensionName}
@@ -1535,7 +1525,7 @@ class RetirementViewModel : ViewModel() {
                 val ind =
                     gRetirementScenario!!.pensions.indexOfFirst { it.name == iOldPensionName }
                 if (ind == -1)
-                    Log.d("Alex", "WHY can't I find pension $iOldPensionName????")
+                    Timber.tag("Alex").d("WHY can't I find pension $iOldPensionName????")
                 else
                     gRetirementScenario!!.pensions[ind] = iPension
             }
@@ -1547,10 +1537,10 @@ class RetirementViewModel : ViewModel() {
             }
         } */
         fun getWorkingAdditionalListCount(iType: AdditionalType? = null) : Int {
-            if (gRetirementScenario == null) {
-                return 0
+            return if (gRetirementScenario == null) {
+                0
             } else {
-                return if (iType == null)
+                if (iType == null)
                     gRetirementScenario!!.additionalItems.size
                 else {
                     var count = 0
@@ -1683,7 +1673,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
-                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         it.distributionOrder,
                         getAgeAtStartOfYear(forYear),
                         (it as RRSP).minimizeTax)
@@ -1698,35 +1688,35 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
                         it.willSellToFinanceRetirement,
-                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         it.distributionOrder)
                     tfsa.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(tfsa)
                 }
                 AssetType.LIRA_LIF -> {
-                    val lira = LIRA_LIF(it.id,
+                    val lira = LIRALIF(it.id,
                         it.name,
                         it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
-                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         it.distributionOrder,
                         getAgeAtStartOfYear(forYear),
-                        (it as LIRA_LIF).minimizeTax)
+                        (it as LIRALIF).minimizeTax)
                     lira.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(lira)
                 }
                 AssetType.LIRA_Annuity -> {
-                    val lira = LIRA_ANNUITY(it.id,
+                    val lira = LIRAANNUITY(it.id,
                         it.name,
                         it.getValue(),
-                        (it as LIRA_ANNUITY).pensionStartDate,
+                        (it as LIRAANNUITY).pensionStartDate,
                         it.currentYear,
                         it.annualAmount,
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
-                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         it.distributionOrder)
                     lira.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(lira)
@@ -1739,7 +1729,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
                         if (amRetired) 0 else it.annualContribution,
                         it.willSellToFinanceRetirement,
-                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         it.distributionOrder,
                         (it as Savings).taxSheltered)
                     sav.additionalGrowthThisYear = additionalGrowth
@@ -1752,7 +1742,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) propertyGrowthRate else it.estimatedGrowthPct,
                         it.willSellToFinanceRetirement,
-                        12 - gCurrentDate.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         it.distributionOrder,
                         (it as Property).useDefaultGrowthPctAsSavings,
                         if (it.useDefaultGrowthPctAsSavings) investmentGrowthRate else it.estimatedGrowthPctAsSavings,
@@ -1764,7 +1754,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                     assetIncomes.add(prop)
                 }
                 else -> {
-                    Log.d("Alex", "What is this??")
+                    Timber.tag("Alex").d("What is this??")
                 }
             }
         }
@@ -1791,7 +1781,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun logRow() {
-        val currentYear = gCurrentDate.get(Calendar.YEAR)
+        val currentYear = gCurrentDate.getYear()
         val multiplier = (1 + inflationRate/100.0).pow(year - currentYear)
         val outputString =  String.format("%4d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d",
             year,
@@ -1822,7 +1812,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun getMaximumTaxableIncome() : Int {
-        val currentYear = gCurrentDate.get(Calendar.YEAR)
+        val currentYear = gCurrentDate.getYear()
         val multiplier = (1 + inflationRate/100.0).pow(year - currentYear)
         return round(gMinimizeTaxAmount*multiplier).toInt()
     }
@@ -1891,7 +1881,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun getTotalTax(): Int {
-        val yearsInFuture = year - gCurrentDate.get(Calendar.YEAR)
+        val yearsInFuture = year - gCurrentDate.getYear()
         val birthYear = if (parentScenario == null)
             9999
         else
@@ -1905,7 +1895,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
     }
 
     fun getTotalAvailableIncome() : Int {
-        val yearsInFuture = year - gCurrentDate.get(Calendar.YEAR)
+        val yearsInFuture = year - gCurrentDate.getYear()
         val taxableIncome = getTaxableIncome(year)
         val birthYear = if (parentScenario == null)
             9999
@@ -1978,7 +1968,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         }
 
         // Federal senior age tax credit
-        val age = gCurrentDate.get(Calendar.YEAR) - iBirthYear + iYearsInTheFuture
+        val age = gCurrentDate.getYear() - iBirthYear + iYearsInTheFuture
         val minThreshold = 39826 * inflationMultiplier // as of 2022
         val maxThreshold = 92479 * inflationMultiplier // as of 2022
         val seniorAgeTaxCredit = 7898 * inflationMultiplier // as of 2022
@@ -2023,7 +2013,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         }
 
         // Ontario senior age tax credit
-        val age = gCurrentDate.get(Calendar.YEAR) - iBirthYear + iYearsInTheFuture
+        val age = gCurrentDate.getYear() - iBirthYear + iYearsInTheFuture
         val minThreshold = 40495 * inflationMultiplier // as of 2022
         val maxThreshold = 76762 * inflationMultiplier // as of 2022
         val seniorAgeTaxCredit = 5440 * inflationMultiplier // as of 2022
@@ -2070,7 +2060,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.withdraw(
                             howMuchGrossDoINeed(netWithdrawalAmountNeeded, getTaxableIncome(year),
                                 getTotalTax(),
-                                netWithdrawalAmountNeeded, year - gCurrentDate.get(Calendar.YEAR)),
+                                netWithdrawalAmountNeeded, year - gCurrentDate.getYear()),
                             getTaxableIncome(year), // tell the RRSP class how much taxable income already exists this year
                             year,
                             parentScenario
@@ -2094,7 +2084,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.withdrawExtra(
                             howMuchGrossDoINeed(netWithdrawalAmountNeeded, getTaxableIncome(year),
                                 getTotalTax(),
-                                netWithdrawalAmountNeeded, year - gCurrentDate.get(Calendar.YEAR)),
+                                netWithdrawalAmountNeeded, year - gCurrentDate.getYear()),
                             getTaxableIncome(year), // tell the RRSP class how much taxable income already exists this year
                             year,
                             parentScenario

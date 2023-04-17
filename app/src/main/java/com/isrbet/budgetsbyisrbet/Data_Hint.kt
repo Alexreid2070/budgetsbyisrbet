@@ -80,16 +80,15 @@ class HintViewModel : ViewModel() {
                         .child(iFragment)
                         .child("LastShownID")
                         .setValue(it.id)
-                    val dateNow = gCurrentDate
                     MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                         .child("Info")
                         .child(SpenderViewModel.myIndex().toString())
                         .child("Hints")
                         .child(iFragment)
                         .child("LastShownDate")
-                        .setValue(giveMeMyDateFormat(dateNow))
+                        .setValue(gCurrentDate.toString())
                     hls.id = it.id
-                    hls.date = MyDate(dateNow)
+                    hls.date = MyDate(gCurrentDate)
                     singleInstance.hintsLastShown.add(hls)
                     return it
                 }
@@ -105,7 +104,6 @@ class HintViewModel : ViewModel() {
             singleInstance.hints.asReversed().forEach {
                 if (it.fragment == iFragment &&
                     it.id < startPosition) {
-                    Log.d("Alex", "returning ${it.id}")
                     MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                         .child("Info")
                         .child(SpenderViewModel.myIndex().toString())
@@ -113,16 +111,15 @@ class HintViewModel : ViewModel() {
                         .child(iFragment)
                         .child("LastShownID")
                         .setValue(it.id)
-                    val dateNow = gCurrentDate
                     MyApplication.databaseref.child("Users/" + MyApplication.userUID)
                         .child("Info")
                         .child(SpenderViewModel.myIndex().toString())
                         .child("Hints")
                         .child(iFragment)
                         .child("LastShownDate")
-                        .setValue(giveMeMyDateFormat(dateNow))
+                        .setValue(gCurrentDate.toString())
                     hls.id = it.id
-                    hls.date = MyDate(dateNow)
+                    hls.date = MyDate(gCurrentDate)
                     singleInstance.hintsLastShown.add(hls)
                     return it
                 }

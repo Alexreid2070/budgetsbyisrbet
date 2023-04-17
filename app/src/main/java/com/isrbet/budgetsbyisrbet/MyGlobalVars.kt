@@ -16,9 +16,9 @@ import android.os.Bundle
 import android.os.LocaleList
 import android.text.SpannableString
 import android.text.TextUtils
-import android.text.format.DateFormat
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.UnderlineSpan
 import android.util.ArrayMap
 import android.util.AttributeSet
 import android.util.Log
@@ -28,7 +28,6 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
-import android.widget.TableRow
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
@@ -46,6 +45,7 @@ import com.google.firebase.ktx.Firebase
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.DateTimeFormatter
@@ -58,7 +58,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
-const val cLOOKAHEAD_PERIOD = 2
 const val cMODE_VIEW = 0
 const val cMODE_EDIT = 1
 const val cMODE_ADD = 2
@@ -100,7 +99,6 @@ const val cLAST_ROW = 9999999
 const val cBudgetDateView = "Date"
 const val cBudgetCategoryView = "Category"
 const val cOpacity = "1F"
-const val NOT_ROUNDED = false
 
 const val cHINT_BUDGET = "Budget"
 const val cHINT_DASHBOARD = "Dashboard"
@@ -127,11 +125,10 @@ const val cTODAY = 4
 
 val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
 var goToPie = false
-var homePageExpansionAreaExpanded = false
-val gNumberFormat: NumberFormat = NumberFormat.getInstance()
+var gHomePageExpansionAreaExpanded = false
 var gRetirementScenario:RetirementData? = null
 var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
-var gCurrentDate: Calendar = Calendar.getInstance()
+var gCurrentDate: MyDate = MyDate() // ie current date
 var gActualRow: YOYTableRow? = null // these 4 are hacks to support the YOYDialog
 var gBudgetRow: YOYTableRow? = null
 var gAverageRow: YOYTableRow? = null
@@ -193,6 +190,13 @@ enum class DateRangeEnum(val code: Int) {
     YTD(2),
     YEAR(3),
     ALLTIME(4)
+}
+
+fun underlined(iString: String) : SpannableString {
+    val text = iString
+    val content = SpannableString(text)
+    content.setSpan(UnderlineSpan(), 0, text.length, 0)
+    return content
 }
 
 class MyApplication : Application() {
@@ -274,12 +278,16 @@ class MyApplication : Application() {
 
 data class DataObject(var id: Int, var label: String, var value: Double, var priority: String, var color: Int)
 
-data class MyDate(
-    var year: Int,
-    var month: Int,
-    var day: Int) {
-    constructor(iDate: String) : this(iDate.substring(0,4).toInt(), 1, 1) {
+data class MyDate(var representsYear: Boolean = false) {
+    lateinit var theDate: LocalDate
+    constructor() : this (false) {
+        theDate = LocalDate.now()
+    }
+    constructor(iDate: String) : this (false) {
         // might get "2022-02-23", or might get "2022-2-23" or might get "2022-01"
+        val year = iDate.substring(0,4).toInt()
+        var month = 1
+        var day = 1
         val dash1 = iDate.indexOf("-")
         val dash2 = iDate.indexOf("-", dash1+1)
         if (dash1 != -1)
@@ -295,12 +303,26 @@ data class MyDate(
         }
         if (month == 0)
             month = 1
+        theDate = LocalDate.of(year, month, day)
     }
-    constructor(iMyDate: MyDate) : this(iMyDate.year, iMyDate.month, iMyDate.day)
-    constructor(iCal: Calendar) : this(iCal.get(Calendar.YEAR), iCal.get(Calendar.MONTH)+1, iCal.get(Calendar.DAY_OF_MONTH))
+    constructor(iMyDate: MyDate) : this (false) {
+        theDate = LocalDate.of(iMyDate.theDate.year, iMyDate.theDate.month, iMyDate.theDate.dayOfMonth)
+    }
+    constructor(iYear: Int, iMonth: Int, iDay: Int) : this (false) {
+        theDate = LocalDate.of(iYear, iMonth, iDay)
+    }
+    constructor(iYear: Int) : this(true) {
+        theDate = LocalDate.of(iYear, 1, 1)
+    }
+    constructor(iLocalDate: LocalDate) : this(iLocalDate.year, iLocalDate.monthValue, iLocalDate.dayOfMonth)
+    companion object {
+        fun now() : MyDate {
+            return MyDate(LocalDate.now())
+        }
+    }
 
     override fun toString(): String {
-        return "%04d-%02d-%02d".format(year, month, day)
+        return "%04d-%02d-%02d".format(theDate.year, theDate.monthValue, theDate.dayOfMonth)
     }
     operator fun compareTo(iDate: MyDate): Int {
         return if (this.toString() == iDate.toString())
@@ -310,65 +332,57 @@ data class MyDate(
         else
             1
     }
-    fun getMMYY(): String {
-        return "%04d-%02d".format(year, month)
+    override fun equals(other: Any?) : Boolean {
+        if (this === other) return true
+        if (other !is MyDate) return false
+
+        return this.toString() == other.toString()
+    }
+    fun setDay(iNewDay: Int) {
+        theDate = LocalDate.of(theDate.year, theDate.month, iNewDay)
+    }
+    fun setMonth(iNewMonth: Int) {
+        theDate = LocalDate.of(theDate.year, iNewMonth, theDate.dayOfMonth)
+    }
+    fun getYear(): Int {
+        return theDate.year
+    }
+    fun getMonth(): Int {
+        return theDate.monthValue
+    }
+    fun getDay(): Int {
+        return theDate.dayOfMonth
+    }
+    fun getDayOfWeek(): DayOfWeek {
+        return theDate.dayOfWeek
+    }
+    fun getYYYYMM(): String {
+        return "%04d-%02d".format(theDate.year, theDate.monthValue)
     }
 
-    fun getFirstOfMonth() : String {
-        return "%04d-%02d-01".format(year, month)
+    fun getFirstOfMonth() : MyDate {
+        return MyDate(theDate.year, theDate.monthValue, 1)
     }
 
-    fun getLastDayOfMonth() : String {
-        return "%04d-%02d-31".format(year, month)
+    fun getLastDayOfMonth() : MyDate {
+        return MyDate(theDate.year, theDate.monthValue, theDate.lengthOfMonth())
     }
     fun increment(iPeriod: String, iRegularity: Int) : MyDate {
-        val cal = gCurrentDate.clone() as Calendar // Calendar.getInstance()
-        cal.set(Calendar.YEAR, year)
-        cal.set(Calendar.MONTH, month-1)
-        cal.set(Calendar.DAY_OF_MONTH, day)
-        when (iPeriod) {
-            cPeriodDay -> cal.add(Calendar.DAY_OF_MONTH, iRegularity)
-            cPeriodWeek -> cal.add(Calendar.DAY_OF_MONTH, 7 * iRegularity)
-            cPeriodMonth -> cal.add(Calendar.MONTH, 1 * iRegularity)
-            cPeriodYear -> cal.add(Calendar.YEAR, 1 * iRegularity)
+        theDate =
+            when (iPeriod) {
+            cPeriodDay -> theDate.plusDays(iRegularity.toLong())
+            cPeriodWeek -> theDate.plusWeeks(iRegularity.toLong())
+            cPeriodMonth -> theDate.plusMonths(iRegularity.toLong())
+            cPeriodYear -> theDate.plusYears(iRegularity.toLong())
+            else -> theDate
         }
-        year = cal.get(Calendar.YEAR)
-        month = cal.get(Calendar.MONTH) + 1
-        day = cal.get(Calendar.DAY_OF_MONTH)
         return  this
     }
     fun get2DigitMonth(): String {
-        return if (month < 10)
-            "0$month"
-        else
-            month.toString()
+        return "%02d".format(theDate.monthValue)
     }
 }
 
-fun giveMeMyDateFormat(cal: Calendar) : String {
-    var tempString: String = cal.get(Calendar.YEAR).toString() + "-"
-    if (cal.get(Calendar.MONTH)+1 < 10)
-        tempString += "0"
-    tempString = tempString + (cal.get(Calendar.MONTH)+1).toString() + "-"
-    if (cal.get(Calendar.DAY_OF_MONTH) < 10)
-        tempString += "0"
-    tempString += cal.get(Calendar.DAY_OF_MONTH).toString()
-    return tempString
-}
-
-fun giveMeMyTimeFormat(cal: Calendar) : String {
-    var tempString = ""
-    if (cal.get(Calendar.HOUR_OF_DAY) < 10)
-        tempString = "0"
-    tempString = tempString + cal.get(Calendar.HOUR_OF_DAY).toString() + ":"
-    if (cal.get(Calendar.MINUTE) < 10)
-        tempString += "0"
-    tempString = tempString + (cal.get(Calendar.MINUTE)).toString() + ":"
-    if (cal.get(Calendar.SECOND) < 10)
-        tempString += "0"
-    tempString += cal.get(Calendar.SECOND).toString()
-    return tempString
-}
 fun hideKeyboard(context: Context, view: View) {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
@@ -444,10 +458,8 @@ fun focusAndOpenSoftKeyboard(context: Context, view: View) {
     }
 }*/
 
-fun getDaysInMonth(cal: Calendar): Int {
-    val month = cal.get(Calendar.MONTH)+1
-    val year = cal.get(Calendar.YEAR)
-    return getDaysInMonth(year, month)
+fun getDaysInMonth(cal: MyDate): Int {
+    return getDaysInMonth(cal.getYear(), cal.getMonth())
 }
 /* fun getDaysInMonth(bm: BudgetMonth): Int {
     return getDaysInMonth(bm.year, bm.month)
@@ -570,21 +582,15 @@ fun getLocalCurrencySymbol(iAlways: Boolean = false) : String {
     }
 }
 
-fun getNextBusinessDate(iDate: String) : String {
-    val year = iDate.substring(0,4).toInt()
-    val month = iDate.substring(5,7).toInt()
-    val day = iDate.substring(8,10).toInt()
-    val thisDate = gCurrentDate.clone() as Calendar // Calendar.getInstance()
-    thisDate.set(year, month-1, day)
-    if(Calendar.SATURDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
-        thisDate.add(Calendar.DAY_OF_MONTH, 2)
-        return giveMeMyDateFormat(thisDate)
-    } else if(Calendar.SUNDAY == thisDate.get(Calendar.DAY_OF_WEEK)) {
-        thisDate.add(Calendar.DAY_OF_MONTH, 1)
-        return giveMeMyDateFormat(thisDate)
+fun getNextBusinessDate(iDate: MyDate) : MyDate {
+    var tDate = MyDate(iDate)
+    if(iDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
+        tDate.increment(cPeriodDay, 2)
+    } else if(iDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+        tDate.increment(cPeriodDay, 1)
     }
 
-    return iDate
+    return tDate
 }
 
 fun textIsAlphaOrSpace(string: String): Boolean {
@@ -773,7 +779,10 @@ fun getSplitText (iSplit1: Int, iAmount: String): String {
 
     val amount = if (iAmount == "") 0.0
     else if (iAmount == "-") 0.0
-    else gNumberFormat.parse(iAmount).toDouble()
+    else  {
+        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+        lNumberFormat.parse(iAmount).toDouble()
+    }
     val amount1 = round(amount * iSplit1) / 100.0
     val amount2 = round(amount * split2) / 100.0
 
@@ -830,7 +839,7 @@ object LangUtils {
 
             override fun onActivityStarted(@NonNull activity: Activity) {
                 if (mLastLocales[activity.componentName] != getFromPreference(activity)) {
-                    Log.d("LangUtils", "Locale changed in activity " + activity.componentName)
+                    Timber.tag("Alex").d("Locale changed in activity " + activity.componentName)
                     ActivityCompat.recreate(activity)
                 }
             }

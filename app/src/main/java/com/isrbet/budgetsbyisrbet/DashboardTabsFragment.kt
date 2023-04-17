@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardTabsBinding
+import timber.log.Timber
 
 
 class DashboardTabsFragment : Fragment() {
@@ -42,7 +43,7 @@ class DashboardTabsFragment : Fragment() {
         adapter.addFragment(YearOverYearFragment(), "Year Over Year")
 
         binding.viewPager.adapter = adapter
-        binding.viewPager.currentItem = 0
+        binding.viewPager.currentItem = DefaultsViewModel.getDefaultLastDashboardTab()
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = adapter.getTabTitle(position)
         }.attach()
@@ -60,6 +61,10 @@ class DashboardTabsFragment : Fragment() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null) {
+                    if (tab.text.toString() == "Dashboard")
+                        DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 0)
+                    else
+                        DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 1)
                     setTabActive(tab)
                 }
 //                tab?.customView = createCustomTabView(tab?.text.toString(), 15, android.R.color.black)

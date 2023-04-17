@@ -112,7 +112,6 @@
     <string name="ytd">Année à ce jour</string>
     <string name="year">Année</string>
     <string name="all_time">Toutes les données</string>
-    <string name="these_settings_are_sticky">Ces paramètres sont collants.</string>
     <string name="reset">Réinitialiser</string>
     <string name="paint">Colorier</string>
     <string name="drag_the_categories">Faites glisser les catégories ci-dessus pour les déplacer dans l\'ordre souhaité. Cliquez sur l\'icône Réinitialiser pour supprimer la couleur. Cliquez sur l\'icône Peindre pour appliquer une couleur à la catégorie.</string>
@@ -154,8 +153,8 @@
     <string name="view_all">Afficher tout</string>
     <string name="indicates_if_category_is_private_or_not">Indique si la catégorie est privée ou non.</string>
     <string name="touch_screen_anywhere_to_dismiss">(touchez l\'écran n\'importe où pour ignorer)</string>
-    <string name="translated_to">Traduit en</string>
-    <string name="translated_from">Traduit de</string>
+    <string name="translated_to">A</string>
+    <string name="translated_from">De</string>
     <string name="after">Après</string>
     <string name="before">Avant</string>
     <string name="delete_transaction">Supprimer le transaction</string>
@@ -178,7 +177,7 @@
     <string name="reset_the_category_s_colour">Réinitialiser la couleur de la catégorie</string>
     <string name="paint_the_category">Colorie la catégorie</string>
     <string name="occurs">Se produit</string>
-    <string name="enter_new_budget_amount">Entrer le nouveau montant du budget</string>
+    <string name="budget_amount">Montant du budget</string>
     <string name="amt">Montant</string>
     <string name="annual_short_question">A?</string>
     <string name="annual_short">A</string>
@@ -235,7 +234,6 @@
     <string name="refresh">Rafraîchir</string>
     <string name="show_quote_of_the_day">Afficher la citation du jour</string>
     <string name="show_currency_symbol">Afficher le symbole monétaire</string>
-    <string name="show_red_at">Afficher le rouge à</string>
     <string name="show_totals_as">Afficher les totaux comme</string>
     <string name="show_split_amount_columns">Afficher les colonnes montant fractionné?</string>
     <string name="show_category_column">Afficher la colonne Catégorie?</string>
@@ -331,7 +329,7 @@
     <string name="there_are_no_previous_hints_to_show">Il n\'y a pas d\'indices précédents à afficher.</string>
     <string name="there_are_no_more_hints_to_show">Il n\'y a plus d\'indices à afficher.</string>
     <string name="you_must_sign_in">Vous devez vous connecter avec votre compte Google pour continuer. Cliquez ci-dessous pour continuer.</string>
-    <string name="are_you_sure_that_you_want_to_sign_out">Voulez-vous vraiment vous déconnecter?</string>
+    <string name="are_you_sure_that_you_want_to_sign_out">%1$s %2$s, voulez-vous vraiment vous déconnecter?</string>
     <string name="choose_existing_loan"><![CDATA[<Choisissez un prêt existant>]]></string>
     <string name="payment_of">paiement de</string>
     <string name="every">chaque</string>
@@ -525,7 +523,6 @@
     <string name="primary_residence">Primary residence?</string>
     <string name="expand_all">Expand all</string>
     <string name="no_tracker_data">There is no data matching your current filters, so Tracker is not shown at this time.</string>
-    <string name="creating_file">Creating file</string>
     <string name="annuity_start_date">Annuity start date</string>
     <string name="annual_annuity_amount">Annuity amount (annual)</string>
     <string name="category_has_been_updated">Category has been updated using previous setting.</string>
@@ -537,5 +534,22 @@
     <string name="year_over_year">Year Over Year</string>
     <string name="average">Average</string>
     <string name="payment_amount_that_is_loan">Payment amount that is loan (if different)</string>
+    <string name="retirement_details">Retirement Annual Details</string>
+    <string name="loan_calculation">Loan Calculation</string>
+    <string name="filter_by_who">Filter by Who</string>
+    <string name="filter_by_type">Filter by Type</string>
+    <string name="show_hide_columns">Show/Hide Columns</string>
+    <string name="filters">Filters</string>
+    <string name="pound">#</string>
+    <string name="sp_lookahead">Scheduled Payment Lookahead (days)</string>
+    <string name="days">days</string>
+    <string name="show_red_at">Afficher rouge (%1$s %%)</string>
+    <string name="creating_file">Creating file (which will be found at your Google Drive documents root).</string>
+    <string name="there_is_no_data_before_date">"There is no data before %1$d"</string>
+    <string name="there_is_no_data_after_date">"There is no data after %1$d"</string>
+    <string name="bar_chart">Bar chart</string>
+    <string name="pie_chart">Pie chart</string>
+    <string name="show">Show</string>
+    <string name="dashboards">Dashboards</string>
 </resources>
 

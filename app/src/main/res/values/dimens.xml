@@ -6,4 +6,5 @@
     <dimen name="custom_max_width">230dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="button_size">50dp</dimen>
+    <dimen name="pageHeadingFontSize">18sp</dimen>
 </resources>

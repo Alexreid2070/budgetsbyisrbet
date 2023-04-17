@@ -8,7 +8,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
 data class Translation(var before: String, var after: String,
-                       var category: Int, var key: String)
+                       var category: Int, var key: String) {
+    fun contains(iSubString: String): Boolean {
+        val lc = iSubString.lowercase()
+        return before.lowercase().contains(lc) ||
+                after.lowercase().contains(lc) ||
+                CategoryViewModel.getFullCategoryName(category).lowercase().contains(lc)
+    }
+}
 data class TranslationOut(var before: String, var after: String, var category: Int)
 
 class TranslationViewModel : ViewModel() {
@@ -44,7 +51,6 @@ class TranslationViewModel : ViewModel() {
         } */
         fun getTranslation(iBefore: String): Translation? {
             if (::singleInstance.isInitialized) {
-                // first look for exact matches
                 singleInstance.translations.forEach {
                     if (it.before == iBefore)
                         return it
@@ -67,7 +73,9 @@ class TranslationViewModel : ViewModel() {
         }
         fun updateTranslation(iKey: String, iBefore: String, iAfter: String, iCategory: Int) {
             if (::singleInstance.isInitialized) {
-                    singleInstance.translations.forEach {
+                if (iCategory == 0)
+                    MyApplication.displayToast("Why is category 0 when updating Translation?")
+                singleInstance.translations.forEach {
                     if (it.key == iKey || iBefore == it.before) {
                         it.after = iAfter
                         it.category = iCategory

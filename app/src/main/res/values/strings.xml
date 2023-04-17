@@ -110,7 +110,6 @@
     <string name="ytd">YTD</string>
     <string name="year">Year</string>
     <string name="all_time">All-Time</string>
-    <string name="these_settings_are_sticky">These settings are sticky.</string>
     <string name="reset">Reset</string>
     <string name="paint">Paint</string>
     <string name="drag_the_categories">Drag the categories above to move them into the desired order. Click the Reset icon to remove colour. Click the Paint icon to apply a colour to the category.</string>
@@ -152,8 +151,8 @@
     <string name="view_all">View all</string>
     <string name="indicates_if_category_is_private_or_not">Indicates if category is private or not.</string>
     <string name="touch_screen_anywhere_to_dismiss">(touch screen anywhere to dismiss)</string>
-    <string name="translated_to">Translated To</string>
-    <string name="translated_from">Translated From</string>
+    <string name="translated_to">To</string>
+    <string name="translated_from">From</string>
     <string name="after">After</string>
     <string name="before">Before</string>
     <string name="delete_transaction">Delete transaction</string>
@@ -176,7 +175,7 @@
     <string name="reset_the_category_s_colour">Reset the category\'s colour</string>
     <string name="paint_the_category">Paint the category</string>
     <string name="occurs">Occurs</string>
-    <string name="enter_new_budget_amount">Enter new budget amount</string>
+    <string name="budget_amount">Budget Amount</string>
     <string name="amt">Amt</string>
     <string name="annual_short_question">A?</string>
     <string name="annual_short">A</string>
@@ -215,7 +214,7 @@
     <string name="all">All</string>
     <string name="reset_all_filters">Reset all filters</string>
     <string name="show_delta_as">Show Delta as</string>
-    <string name="round_to_nearest_dollar">Round amount?</string>
+    <string name="round_to_nearest_dollar">Round amounts?</string>
     <string name="email_the_address_below_with_any_support_issues_all_feedback_is_welcome">Email the address below with any support issues. All feedback is welcome.</string>
     <string name="calculated_payment">Calculated Payment</string>
     <string name="pmt_date">Pmt Date</string>
@@ -233,7 +232,6 @@
     <string name="refresh">Refresh</string>
     <string name="show_quote_of_the_day">Show Quote of the Day</string>
     <string name="show_currency_symbol">Show Currency Symbol</string>
-    <string name="show_red_at">Show red at</string>
     <string name="show_totals_as">Show totals as</string>
     <string name="show_split_amount_columns">Show Split Amount columns?</string>
     <string name="show_category_column">Show Category column?</string>
@@ -329,7 +327,7 @@
     <string name="there_are_no_previous_hints_to_show">There are no previous hints to show.</string>
     <string name="there_are_no_more_hints_to_show">There are no more hints to show.</string>
     <string name="you_must_sign_in">You must sign in using your Google account to proceed.  Click below to continue.</string>
-    <string name="are_you_sure_that_you_want_to_sign_out">Are you sure that you want to sign out?</string>
+    <string name="are_you_sure_that_you_want_to_sign_out">%1$s %2$s, are you sure that you want to sign out?</string>
     <string name="choose_existing_loan"><![CDATA[<Choose existing loan>]]></string>
     <string name="payment_of">payment of</string>
     <string name="every">every</string>
@@ -524,7 +522,6 @@
     <string name="primary_residence">Primary residence?</string>
     <string name="expand_all">Expand all</string>
     <string name="no_tracker_data">There is no data matching your current filters, so Tracker is not shown at this time.</string>
-    <string name="creating_file">Creating file</string>
     <string name="annuity_start_date">Annuity start date</string>
     <string name="annual_annuity_amount">Annuity amount (annual)</string>
     <string name="category_has_been_updated">Category has been updated using previous setting.</string>
@@ -533,9 +530,24 @@
     <string name="annual_budgets_must_start_on_Jan_1">Annual budgets must start on Jan 1.</string>
     <string name="monthly_budgets_must_start_on_1">Monthly budgets must start on the 1st of the month.</string>
     <string name="regularity_must_be_positive">Regularity must be greater than 0</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="year_over_year">Year Over Year</string>
     <string name="average">Average</string>
     <string name="payment_amount_that_is_loan">Payment amount that is loan (if different)</string>
+    <string name="retirement_details">Retirement Annual Details</string>
+    <string name="loan_calculation">Loan Calculation</string>
+    <string name="filter_by_who">Filter by Who</string>
+    <string name="filter_by_type">Filter by Type</string>
+    <string name="show_hide_columns">Show/Hide Columns</string>
+    <string name="filters">Filters</string>
+    <string name="pound">#</string>
+    <string name="sp_lookahead">Scheduled Payment Lookahead (%1$s days)</string>
+    <string name="days">days</string>
+    <string name="show_red_at">Show Red (%1$s %%)</string>
+    <string name="creating_file">Creating file (which will be found at your Google Drive documents root).</string>
+    <string name="there_is_no_data_before_date">"There is no data before %1$d"</string>
+    <string name="there_is_no_data_after_date">"There is no data after %1$d"</string>
+    <string name="bar_chart">Bar chart</string>
+    <string name="pie_chart">Pie chart</string>
+    <string name="show">Show</string>
+    <string name="dashboards">Dashboards</string>
 </resources>

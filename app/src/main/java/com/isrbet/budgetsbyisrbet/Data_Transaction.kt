@@ -2,8 +2,6 @@
 
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.ChildEventListener
@@ -18,7 +16,7 @@ import kotlin.math.round
 import kotlin.math.roundToInt
 
 data class Transaction(
-    var date: String = "",
+    var date: MyDate = MyDate(),
     var amount: Double = 0.0,
     var category: Int = 0,
     var note: String = "",
@@ -29,11 +27,24 @@ data class Transaction(
     var bfname1split: Int = 0,
     var mykey: String = ""
 ) {
+    constructor(iTransactionOut: TransactionOut, iKey: String) : this(
+        MyDate(iTransactionOut.date),
+        iTransactionOut.amount / 100.0,
+        iTransactionOut.category,
+        iTransactionOut.note,
+        iTransactionOut.note2,
+        iTransactionOut.paidby,
+        iTransactionOut.boughtfor,
+        iTransactionOut.type,
+        iTransactionOut.bfname1split,
+        iKey
+    )
+
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     fun setValue(key: String, value: String) {
         when (key) {
             "key" -> mykey = value.trim()
-            "date" -> date = value.trim()
+            "date" -> date = MyDate(value.trim())
             "amount" -> amount = value.toDouble()
             "category" -> category = value.toInt()
             "paidby" -> paidby = value.toInt()
@@ -44,7 +55,7 @@ data class Transaction(
             "type" -> type = value.trim()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
             else -> {
-                if (key != "bfname2split") Log.d("Alex", "Unknown field in Transactions $key $value $this")
+                if (key != "bfname2split") Timber.tag("Alex").d("Unknown field in Transactions $key $value $this")
             }
         }
     }
@@ -57,12 +68,9 @@ data class Transaction(
                 SpenderViewModel.getSpenderName(boughtfor).lowercase().contains(lc) ||
                 note.lowercase().contains(lc) ||
                 note2.lowercase().contains(lc) ||
-                date.contains(lc) ||
+                date.toString().contains(lc) ||
                 type.lowercase().contains(lc) ||
                 (MyApplication.adminMode && mykey.lowercase().contains(lc))
-    }
-    fun getSplit2(): Int {
-        return 100 - bfname1split
     }
     fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
         when (iWho) {
@@ -110,6 +118,29 @@ data class TransactionOut(
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
         }
     } */
+    fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
+        Timber.tag("Alex").d("getAmountByUser who $iWho rnd $iRound boughtfor$boughtfor amt $amount split $bfname1split")
+        when (iWho) {
+            0 -> {
+                when (boughtfor) {
+                    0 -> return amount/100.0
+                    1 -> return 0.0
+                    2 -> return if (iRound) round(amount/100.0 * bfname1split) / 100.0
+                    else amount/100.0 * bfname1split / 100.0
+                }
+            }
+            1 -> {
+                when (boughtfor) {
+                    0 -> return 0.0
+                    1 -> return amount/100.0
+                    2 -> return if (iRound) amount - round(amount/100.0 * bfname1split) / 100.0
+                    else amount / 100.0 - (amount / 100.0 * bfname1split / 100.0)
+                }
+            }
+            else -> return amount/100.0
+        }
+        return 0.0
+    }
 }
 
 data class TransferOut(
@@ -142,6 +173,7 @@ class TransactionViewModel : ViewModel() {
     val transactionsLiveData = MutableLiveData<MutableList<Transaction>>()
     private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
+    val actualsSummary: MutableList<ActualRow> = mutableListOf()
 
     companion object {
         lateinit var singleInstance: TransactionViewModel // used to track static single instance of self
@@ -151,7 +183,7 @@ class TransactionViewModel : ViewModel() {
         } */
         fun doSomething() {
             singleInstance.transactions.forEach {
-                val transactionOut = TransactionOut(it.date,
+                val transactionOut = TransactionOut(it.date.toString(),
                     round(it.amount*100).toInt(),
                     it.category,
                     it.note,
@@ -169,6 +201,10 @@ class TransactionViewModel : ViewModel() {
         }
         fun isLoaded():Boolean {
             return singleInstance.loaded
+        }
+
+        fun getTransaction(iTransactionID: String): Transaction? {
+            return singleInstance.transactions.find { it.mykey == iTransactionID }
         }
 
         fun transactionExistsUsingCategory(iCategoryID: Int): Int {
@@ -206,18 +242,18 @@ class TransactionViewModel : ViewModel() {
             return copy
         }
 
-        fun getTotalActualsForRange(iStartMonth: String, iEndMonth: String,
+        fun getTotalActualsForRange(iStartMonth: MyDate, iEndMonth: MyDate,
                                     iDiscType: String, iWho: Int) : Double {
             var tmpTotal = 0.0
-            val subList = singleInstance.transactions.filter { it.date in iStartMonth..iEndMonth && it.type != cTRANSACTION_TYPE_TRANSFER}
 
-//            singleInstance.transactions.forEach {
-            subList.forEach {
-                val cat = CategoryViewModel.getCategory(it.category)
-                if ((cat?.discType == iDiscType || iDiscType == cDiscTypeAll) &&
-                    (it.boughtfor == iWho || it.boughtfor == 2 || iWho == 2 || iWho == -1) &&
-                        cat?.iAmAllowedToSeeThisCategory() == true) {
-                        tmpTotal += it.getAmountByUser(iWho)
+            for (category in CategoryViewModel.getCategories(true)) {
+                if ((category.discType == iDiscType || iDiscType == cDiscTypeAll)
+                    && category.iAmAllowedToSeeThisCategory()) {
+                        tmpTotal += getActualsForPeriod(
+                            category.id,
+                            iStartMonth,
+                            iEndMonth,
+                            iWho)
                 }
             }
             return (tmpTotal * 100.0).roundToInt() / 100.0
@@ -226,95 +262,51 @@ class TransactionViewModel : ViewModel() {
         fun getCategoryActuals(iMonth: MyDate, iPeriod: DateRangeEnum,
                                iDiscFlag: String, iWhoFlag: Int) : ArrayList<DataObject> {
             val tList: ArrayList<DataObject> = ArrayList()
-//            val ttList: ArrayList<DataObject> = ArrayList()
-            val startDate: String
-            val endDate: String
-            if (iPeriod == DateRangeEnum.ALLTIME) {
-                startDate = "0000-00-00"
-                endDate = "9999-99-99"
-            } else if (iPeriod == DateRangeEnum.YTD) {
-                startDate = iMonth.year.toString() + "-00-00"
-                endDate = if (iMonth.month < 10) {
-                    iMonth.year.toString() + "-0" + iMonth.month.toString() + "-99"
-                } else {
-                    iMonth.year.toString() + "-" + iMonth.month.toString() + "-99"
+            val startDate: MyDate
+            val endDate: MyDate
+            when (iPeriod) {
+                DateRangeEnum.ALLTIME -> {
+                    startDate = MyDate(getEarliestYear(),1,1)
+                    endDate = MyDate(getLatestYear(),12,31)
                 }
-            } else if (iPeriod == DateRangeEnum.YEAR) {
-                startDate = iMonth.year.toString() + "-00-00"
-                endDate = iMonth.year.toString() + "-99-99"
-            } else { // iPeriod == DateRangeEnum.MONTH
-                if (iMonth.month < 10) {
-                    startDate =
-                        iMonth.year.toString() + "-0" + iMonth.month.toString() + "-00"
-                    endDate =
-                        iMonth.year.toString() + "-0" + iMonth.month.toString() + "-99"
-                } else {
-                    startDate =
-                        iMonth.year.toString() + "-" + iMonth.month.toString() + "-00"
-                    endDate = iMonth.year.toString() + "-" + iMonth.month.toString() + "-99"
+                DateRangeEnum.YTD -> {
+                    startDate = MyDate(iMonth.getYear(),1,1)
+                    endDate = iMonth.getLastDayOfMonth()
+                }
+                DateRangeEnum.YEAR -> {
+                    startDate = MyDate(iMonth.getYear(),1,1)
+                    endDate = MyDate(iMonth.getYear(),12,31)
+                }
+                else -> { // iPeriod == DateRangeEnum.MONTH
+                    startDate = iMonth.getFirstOfMonth()
+                    endDate = iMonth.getLastDayOfMonth()
                 }
             }
 
-/*            Timber.tag("Alex").d("starting tList")
-            for (i in 0 until getCount()) {
-                val transaction = getTransaction(i)
-                val cat = CategoryViewModel.getCategory(transaction.category)
-                if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                        if (transaction.date > startDate && transaction.date < endDate) {
-                            if (transaction.type != cTRANSACTION_TYPE_TRANSFER) {
-                                val expDiscIndicator =
-                                    CategoryViewModel.getCategory(transaction.category)?.discType
-                                if (iDiscFlag == "" ||
-                                    iDiscFlag == MyApplication.getString(R.string.all) ||
-                                    iDiscFlag == expDiscIndicator) {
-                                    if (iWhoFlag == 2 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
-                                        // this is a transaction to add to our subtotal
-                                        val amountToAdd = transaction.getAmountByUser(iWhoFlag)
-                                        val dobj: DataObject? = tList.find { it.id == cat.id }
-                                        if (dobj == null) {
-                                            val pri = CategoryViewModel.getCategoryPriority(transaction.category).toString() +
-                                                    CategoryViewModel.getCategory(transaction.category)?.subcategoryName
-                                            val col = CategoryViewModel.getCategoryColour(transaction.category)
-                                            tList.add(DataObject(cat.id, cat.categoryName,
-                                                amountToAdd, pri,col))
-                                        } else
-                                            dobj.value += amountToAdd
-                                    }
-                                }
-                            }
+            for (category in CategoryViewModel.getCategories(true)) {
+                if ((category.discType == iDiscFlag || iDiscFlag == cDiscTypeAll ||
+                            iDiscFlag == "")
+                    && category.iAmAllowedToSeeThisCategory()) {
+                    val tempTotal = getActualsForPeriod(
+                        category.id,
+                        startDate,
+                        endDate,
+                        iWhoFlag)
+
+                    if (tempTotal != 0.0) {
+                        val dobj: DataObject? = tList.find { it.id == category.id }
+                        if (dobj == null) {
+                            val pri = CategoryViewModel.getCategoryPriority(category.id).toString() +
+                                    CategoryViewModel.getCategory(category.id)?.subcategoryName
+                            val col = CategoryViewModel.getCategoryColour(category.id)
+                            tList.add(DataObject(category.id, category.categoryName,
+                                tempTotal, pri,col))
+                        } else
+                            dobj.value += tempTotal
                     }
                 }
             }
-            tList.sortWith(compareBy { it.priority })
-            Timber.tag("Alex").d("ending tList") */
 
-            val subList = singleInstance.transactions.filter { it.date > startDate && it.date < endDate && it.type != cTRANSACTION_TYPE_TRANSFER}
-
-            for (i in 0 until subList.size) {
-                val transaction = subList[i]
-                val cat = CategoryViewModel.getCategory(transaction.category)
-                if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                            val expDiscIndicator =
-                                CategoryViewModel.getCategory(transaction.category)?.discType
-                            if (iDiscFlag == "" ||
-                                iDiscFlag == MyApplication.getString(R.string.all) ||
-                                iDiscFlag == expDiscIndicator) {
-                                if (iWhoFlag == 2 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
-                                    // this is a transaction to add to our subtotal
-                                    val amountToAdd = transaction.getAmountByUser(iWhoFlag)
-                                    val dobj: DataObject? = tList.find { it.id == cat.id }
-                                    if (dobj == null) {
-                                        val pri = CategoryViewModel.getCategoryPriority(transaction.category).toString() +
-                                                CategoryViewModel.getCategory(transaction.category)?.subcategoryName
-                                        val col = CategoryViewModel.getCategoryColour(transaction.category)
-                                        tList.add(DataObject(cat.id, cat.categoryName,
-                                            amountToAdd, pri,col))
-                                    } else
-                                        dobj.value += amountToAdd
-                                }
-                            }
-                }
-            }
             tList.sortWith(compareBy { it.priority })
 
             tList.forEach {
@@ -325,153 +317,70 @@ class TransactionViewModel : ViewModel() {
                     it.value = td / 100.0
                 } else
                     it.value = round(it.value * 100.0) / 100.0
-//                val cat = CategoryViewModel.getCategory(it.id)
-//                Log.d("Alex", "tList: ${it.label} ${cat?.subcategoryName} ${it.value}")
             }
-
             return tList
         }
 
         data class AnnualCategoryTotal(var catID: Int, var year: Int, var value: Double)
         fun getAnnualCategoryActuals(iDiscFlag: String, iWhoFlag: Int) : ArrayList<AnnualCategoryTotal> {
-            val dateNow = MyDate(gCurrentDate)
             val tList: ArrayList<AnnualCategoryTotal> = ArrayList()
-            val subList = singleInstance.transactions.filter { it.type != cTRANSACTION_TYPE_TRANSFER &&
-                it.date <= dateNow.toString()} as ArrayList
-            subList.sortWith(compareBy({ it.category }, { it.date }))
-            Log.d("Alex", "there are ${subList.size} filtered items")
 
-            var currentCat = 0
-            var currentYear = 0
-            var tCurrentCategoryActual = AnnualCategoryTotal(0, 0, 0.0)
-            for (i in 0 until subList.size) {
-                val transaction = subList[i]
-                val cat = CategoryViewModel.getCategory(transaction.category)
-                if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                    val expDiscIndicator =
-                        CategoryViewModel.getCategory(transaction.category)?.discType
-                    if (iDiscFlag == "" ||
-                        iDiscFlag == MyApplication.getString(R.string.all) ||
-                        iDiscFlag == expDiscIndicator) {
-                        if (iWhoFlag == 2 || transaction.boughtfor == iWhoFlag || transaction.boughtfor == 2) {
-                            // this is a transaction to add to our subtotal
-                            val amountToAdd = transaction.getAmountByUser(iWhoFlag)
-                            val transactionYear = transaction.date.substring(0,4).toInt()
-
-                            if (currentCat == transaction.category &&
-                                    currentYear == transactionYear) {
-                                tCurrentCategoryActual.value += amountToAdd
-                            } else {
-                                if (tCurrentCategoryActual.catID == 0) { // ie it's the first one
-                                    tCurrentCategoryActual.catID = transaction.category
-                                    tCurrentCategoryActual.year = transactionYear
-                                    tCurrentCategoryActual.value = amountToAdd
-                                } else {
-                                    tList.add(tCurrentCategoryActual)
-                                    tCurrentCategoryActual = AnnualCategoryTotal(
-                                        transaction.category,
-                                        transaction.date.substring(0,4).toInt(),
-                                        amountToAdd
-                                    )
+            val categories = CategoryViewModel.getCategories(true)
+            for (category in categories) {
+                if (category.iAmAllowedToSeeThisCategory() &&
+                    category.discType == iDiscFlag || iDiscFlag == "" || iDiscFlag == cDiscTypeAll) {
+                    for (year in getEarliestYear() until getLatestYear() + 1) {
+                        var tempTotal = 0.0
+                        for (userID in 0 until 2) {
+                            if (iWhoFlag == userID || iWhoFlag == 2) {
+                                val userActual = singleInstance.actualsSummary.find {
+                                    category.id == it.categoryID &&
+                                            year == it.year &&
+                                            it.who == userID
                                 }
-                                currentCat = transaction.category
-                                currentYear = transactionYear
+                                if (userActual != null) {
+                                    tempTotal += userActual.getAnnualAmount()
+                                }
+                            }
+                        }
+                        tList.add(AnnualCategoryTotal(category.id, year, tempTotal))
+                    }
+                }
+            }
+            return tList
+        }
+
+        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: MyDate, iEndPeriod: MyDate, iWho: Int): Double {
+            var tempTotal = 0.0
+            val cat = CategoryViewModel.getCategory(iCategoryID)
+            if (cat?.iAmAllowedToSeeThisCategory() == true) {
+                for (year in iStartPeriod.getYear() until iEndPeriod.getYear() + 1) {
+                    for (userID in 0 until 2) {
+                        if (iWho == userID || iWho == 2) {
+                            val userActual = singleInstance.actualsSummary.find {
+                                it.categoryID == iCategoryID &&
+                                        it.year == year &&
+                                        it.who == userID
+                            }
+                            if (userActual != null) {
+                                tempTotal += if (iStartPeriod.getYear() == iEndPeriod.getYear()) {
+                                    userActual.getRangeTotal(
+                                        iStartPeriod.getMonth(),
+                                        iEndPeriod.getMonth()
+                                    )
+                                } else if (year == iStartPeriod.getYear()) {
+                                    userActual.getRangeTotal(iStartPeriod.getMonth(), 12)
+                                } else if (year == iEndPeriod.getYear()) {
+                                    userActual.getRangeTotal(1, iEndPeriod.getMonth())
+                                } else {
+                                    userActual.getAnnualAmount()
+                                }
                             }
                         }
                     }
                 }
             }
-            if (currentCat != 0) {
-                tList.add(AnnualCategoryTotal(
-                    currentCat,
-                    currentYear,
-                    tCurrentCategoryActual.value
-                ))
-            }
-
-            tList.forEach {
-                if (iWhoFlag == 0) {
-                    // this below will round up the total for user 0, and down for user 1 so that no cents are missing
-                    val t = ((it.value + .001) * 1000).toInt()
-                    val td = (t / 10.0).roundToInt()
-                    it.value = td / 100.0
-                } else
-                    it.value = round(it.value * 100.0) / 100.0
-            }
-
-            Log.d("Alex", "returning ${tList.size} values")
-            return tList
-        }
-
-        fun getActualsForPeriod(iCategoryID: Int, iStartPeriod: MyDate, iEndPeriod: MyDate, iWho: Int, includeRelated: Boolean): Double {
-            var tTotal = 0.0
-            val firstDay = iStartPeriod.getFirstOfMonth()
-            val  lastDay = iEndPeriod.getLastDayOfMonth()
-            val subList = singleInstance.transactions.filter { it.date >= firstDay &&
-                    it.date < lastDay &&
-                    it.type != cTRANSACTION_TYPE_TRANSFER &&
-                    it.category == iCategoryID }
-            loop@ for (transaction in subList) {
-                val cat = CategoryViewModel.getCategory(transaction.category)
-                if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                    if (transaction.boughtfor == iWho ||
-                                (iWho == 2 && includeRelated) ||  // this picks up that we're looking for all Joint expenses and for a specific individual
-                                (transaction.boughtfor == 2 && includeRelated)  // this picks up that we want all joint expenses regardless of who they're bought for
-                    ) {
-                        tTotal += when (iWho) {
-                            0 -> transaction.getAmountByUser(0)
-                            1 -> transaction.getAmountByUser(1)
-                            else -> transaction.getAmountByUser(2)
-                        }
-                    }
-                }
-            }
-            return (tTotal * 100.0).roundToInt() / 100.0
-        }
-
-        fun addTransactionLocal(iTransaction: Transaction, iNotifyLive: Boolean = true) {
-            val transaction = getTransaction(iTransaction.mykey)
-            if (transaction != null &&
-                transaction == iTransaction) {
-                return
-            }
-            updateTransactionLocal(iTransaction, iNotifyLive)
-//            singleInstance.transactions.add(iTransaction)
-  //          singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
-    //        singleInstance.transactionsLiveData.value = singleInstance.transactions
-        }
-        fun addTransactionDatabase(iTransactionOut: TransactionOut) {
-            val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
-                iTransactionOut.note + iTransactionOut.date + "R"
-            else
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                    .push().key.toString()
-            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                .child(key)
-                .setValue(iTransactionOut)
-//            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
-        }
-
-        fun addTransfer(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
-            if (iLocalOnly) {
-                singleInstance.transactions.add(
-                    Transaction(iTransfer.date,
-                    iTransfer.amount/100.0, cTRANSFER_CODE, "", "", iTransfer.paidby,
-                    iTransfer.boughtfor, iTransfer.type, iTransfer.bfname1split,
-                        cTRANSACTION_TYPE_TRANSFER)
-                )
-            } else {
-                val bm = MyDate(iTransfer.date)
-                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-//                        "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
-                        .push().key.toString()
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-//                    .child(bm.year.toString())
-//                    .child(bm.get2DigitMonth())
-                    .child(key)
-                    .setValue(iTransfer)
-            }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            return tempTotal
         }
         fun refresh() {
             singleInstance.loadTransactions()
@@ -488,6 +397,7 @@ class TransactionViewModel : ViewModel() {
                 singleInstance.childListener = null
             }
             singleInstance.transactions.clear()
+            singleInstance.actualsSummary.clear()
             singleInstance.loaded = false
         }
 
@@ -546,47 +456,76 @@ class TransactionViewModel : ViewModel() {
             return iKey
         }
 
-        fun deleteTransactionDatabase(iTransactionID: String) {
+        fun addTransactionLocal(iTransaction: Transaction, iNotifyLive: Boolean = true) {
+            val transaction = getTransaction(iTransaction.mykey)
+            if (transaction != null &&
+                transaction == iTransaction) {
+                return
+            }
+            updateTransactionLocal(iTransaction, iNotifyLive)
+//            singleInstance.transactions.add(iTransaction)
+            //          singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            //        singleInstance.transactionsLiveData.value = singleInstance.transactions
+        }
+        fun addTransactionDatabase(iTransactionOut: TransactionOut) {
+            Timber.tag("Alex").d("addTransactionDatabase $iTransactionOut")
+            adjustActualsSummary(MyDate(iTransactionOut.date), iTransactionOut.category, 0, iTransactionOut.getAmountByUser(0, false))
+            adjustActualsSummary(MyDate(iTransactionOut.date), iTransactionOut.category, 1, iTransactionOut.getAmountByUser(1, false))
+            val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
+                iTransactionOut.note + iTransactionOut.date + "R"
+            else
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .push().key.toString()
+            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                .child(key)
+                .setValue(iTransactionOut)
+//            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+        }
+
+        fun deleteTransactionDatabase(iKey: String) {
 //            val bm = MyDate(date)
+            val trans =
+                getTransaction(iKey) // this block below ensures that the viewAll view is updated immediately
+            if (trans != null) {
+                adjustActualsSummary(trans.date, trans.category, 0, -trans.getAmountByUser(0, false))
+                adjustActualsSummary(trans.date, trans.category, 1, -trans.getAmountByUser(1, false))
+            }
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TransactionsNew")
 //                .child(bm.year.toString())
 //                .child(bm.get2DigitMonth())
-                .child(iTransactionID).removeValue()
+                .child(iKey).removeValue()
 /*            val trans =
                 getTransaction(iTransactionID) // this block below ensures that the viewAll view is updated immediately
             val ind = singleInstance.transactions.indexOf(trans)
             singleInstance.transactions.removeAt(ind) */
         }
-        fun deleteTransactionLocal(iTransactionID: String) {
+        fun deleteTransactionLocal(iKey: String) {
 //            val bm = MyDate(date)
 //            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Transactions")
 //                .child(bm.year.toString())
 //                .child(bm.get2DigitMonth())
 //                .child(iTransactionID).removeValue()
             val trans =
-                getTransaction(iTransactionID) // this block below ensures that the viewAll view is updated immediately
-            val ind = singleInstance.transactions.indexOf(trans)
-            if (ind != -1) {
-                singleInstance.transactions.removeAt(ind)
-                singleInstance.transactionsLiveData.value = singleInstance.transactions
+                getTransaction(iKey) // this block below ensures that the viewAll view is updated immediately
+            if (trans != null) {
+                val ind = singleInstance.transactions.indexOf(trans)
+                if (ind != -1) {
+                    singleInstance.transactions.removeAt(ind)
+                    singleInstance.transactionsLiveData.value = singleInstance.transactions
+                }
             }
-        }
-
-        fun getTransaction(iTransactionID: String): Transaction? {
-            return singleInstance.transactions.find { it.mykey == iTransactionID }
         }
 
         fun updateTransactionLocal(iTransaction: Transaction, iNotifyLive: Boolean = true) {
             // this is new one
             val transaction = getTransaction(iTransaction.mykey)
             if (transaction == iTransaction) { // ie all contents are structurally equal
-                Log.d("Alex", "updateTransactionLocal: is the same")
                 return
             }
             if (transaction == null) {
                 singleInstance.transactions.add(iTransaction)
             } else {
-                transaction.date = iTransaction.date
+                transaction.date = MyDate(iTransaction.date)
                 transaction.note = iTransaction.note
                 transaction.note2 = iTransaction.note2
                 transaction.category = iTransaction.category
@@ -596,22 +535,27 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransaction.bfname1split
                 transaction.type = iTransaction.type
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
             if (iNotifyLive)
                 singleInstance.transactionsLiveData.value = singleInstance.transactions
         }
 
-        fun updateTransactionDatabase(iTransactionID: String, iTransactionOut: TransactionOut) {
+        fun updateTransactionDatabase(iKey: String, iTransactionOut: TransactionOut) {
 //            val bm = MyDate(iTransactionOut.date)
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TransactionsNew")
 //                .child(bm.year.toString())
 //                .child(bm.get2DigitMonth())
-                .child(iTransactionID)
+                .child(iKey)
                 .setValue(iTransactionOut)
             val transaction =
-                getTransaction(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
+                getTransaction(iKey)  // this block below ensures that the viewAll view is updated immediately
             if (transaction != null) {
-                transaction.date = iTransactionOut.date
+                adjustActualsSummary(transaction.date, transaction.category, 0, -transaction.getAmountByUser(0, false))
+                adjustActualsSummary(transaction.date, transaction.category, 1, -transaction.getAmountByUser(1, false))
+                adjustActualsSummary(MyDate(iTransactionOut.date), iTransactionOut.category, 0, iTransactionOut.getAmountByUser(0, false))
+                adjustActualsSummary(MyDate(iTransactionOut.date), iTransactionOut.category, 1, iTransactionOut.getAmountByUser(1, false))
+
+                transaction.date = MyDate(iTransactionOut.date)
                 transaction.note = iTransactionOut.note
                 transaction.note2 = iTransactionOut.note2
                 transaction.category = iTransactionOut.category
@@ -621,8 +565,29 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransactionOut.bfname1split
                 transaction.type = iTransactionOut.type
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
             singleInstance.transactionsLiveData.value = singleInstance.transactions
+        }
+        fun addTransfer(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
+            if (iLocalOnly) {
+                singleInstance.transactions.add(
+                    Transaction(MyDate(iTransfer.date),
+                        iTransfer.amount/100.0, cTRANSFER_CODE, "", "", iTransfer.paidby,
+                        iTransfer.boughtfor, iTransfer.type, iTransfer.bfname1split,
+                        cTRANSACTION_TYPE_TRANSFER)
+                )
+            } else {
+//                val bm = MyDate(iTransfer.date)
+                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+//                        "/" + bm.year.toString() + "/" + bm.get2DigitMonth())
+                    .push().key.toString()
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+//                    .child(bm.year.toString())
+//                    .child(bm.get2DigitMonth())
+                    .child(key)
+                    .setValue(iTransfer)
+            }
+            singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
         }
         fun updateTransfer(iTransactionID: String, iTransfer: TransferOut) {
 //            val bm = MyDate(iTransfer.date)
@@ -634,38 +599,57 @@ class TransactionViewModel : ViewModel() {
             val transaction =
                 getTransaction(iTransactionID)  // this block below ensures that the viewAll view is updated immediately
             if (transaction != null) {
-                transaction.date = iTransfer.date
+                transaction.date = MyDate(iTransfer.date)
                 transaction.amount = iTransfer.amount/100.0
                 transaction.paidby = iTransfer.paidby
                 transaction.boughtfor = iTransfer.boughtfor
                 transaction.bfname1split = iTransfer.bfname1split
                 transaction.note2 = iTransfer.note2
             }
-            singleInstance.transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+            singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
         }
         fun getEarliestYear() : Int {
             // since we know that this table is sorted on date, we simply return the first date
             return if (singleInstance.transactions.size == 0) {
-                gCurrentDate.get(Calendar.YEAR)
-            } else singleInstance.transactions[0].date.substring(0,4).toInt()
+                gCurrentDate.getYear()
+            } else singleInstance.transactions[0].date.getYear()
         }
         fun getEarliestMonth() : Int {
             // since we know that this table is sorted on date, we simply return the first date
             return if (singleInstance.transactions.size == 0) {
-                gCurrentDate.get(Calendar.MONTH) + 1
-            } else singleInstance.transactions[0].date.substring(5,7).toInt()
+                gCurrentDate.getMonth()
+            } else singleInstance.transactions[0].date.getMonth()
         }
         fun getLatestYear() : Int {
             // since we know that this table is sorted on date, we simply return the last date
             return if (singleInstance.transactions.size == 0) {
-                gCurrentDate.get(Calendar.YEAR)
-            } else singleInstance.transactions[singleInstance.transactions.size-1].date.substring(0,4).toInt()
+                gCurrentDate.getYear()
+            } else singleInstance.transactions[singleInstance.transactions.size-1].date.getYear()
         }
-        fun getLatestMonth() : Int {
+/*        fun getLatestMonth() : Int {
             // since we know that this table is sorted on date, we simply return the last date
             return if (singleInstance.transactions.size == 0) {
-                gCurrentDate.get(Calendar.MONTH) + 1
-            } else singleInstance.transactions[singleInstance.transactions.size-1].date.substring(5,7).toInt()
+                gCurrentDate.getMonth()
+            } else singleInstance.transactions[singleInstance.transactions.size-1].date.getMonth()
+        } */
+        fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAdjustment: Double) {
+            val actualRow = singleInstance.actualsSummary.find {
+                it.categoryID == iCategoryID &&
+                it.year == iDate.getYear() &&
+                it.who == iWho
+            }
+            if (actualRow == null) {
+                Timber.tag("Alex").d("adjustActualsSummary: added new actualsSummary row $iDate $iCategoryID $iWho $iAdjustment")
+                val newActualRow = ActualRow(
+                    iDate.getYear(),
+                    iCategoryID,
+                    iWho)
+                newActualRow.amounts[iDate.getMonth()-1] = iAdjustment
+                singleInstance.actualsSummary.add(newActualRow)
+            } else {
+                Timber.tag("Alex").d("adjustActualsSummary: adjusted $iAdjustment to $iDate $iCategoryID $iWho")
+                actualRow.amounts[iDate.getMonth()-1] += iAdjustment
+            }
         }
     }
 
@@ -674,7 +658,6 @@ class TransactionViewModel : ViewModel() {
     }
 
     override fun onCleared() {
-        Log.d("Alex", "WHY IS TRANSACTION onCleared being called??")
         super.onCleared()
         if (firstLoadListener != null) {
             MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/TransactionsNew")
@@ -697,7 +680,7 @@ class TransactionViewModel : ViewModel() {
         dataUpdatedCallback = null
     }
 
-    fun loadTransactionsbkp() {
+/*    fun loadTransactionsbkp() {
         // Do an asynchronous operation to fetch transactions
         val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
@@ -727,7 +710,7 @@ class TransactionViewModel : ViewModel() {
                 val start3 = System.currentTimeMillis()
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
-                transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+                transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
                 val end = System.currentTimeMillis()
                 Timber.tag("Alex").d("loadTransactions time is ${end - start} ms, ${end - start2}, ${end - start3}")
             }
@@ -737,37 +720,34 @@ class TransactionViewModel : ViewModel() {
             }
         }
         expDBRef.addValueEventListener(firstLoadListener as ValueEventListener)
-    }
+    } */
     fun loadTransactions() {
         // Do an asynchronous operation to fetch transactions
         val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
         firstLoadListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val start2 = System.currentTimeMillis()
-
                 transactions.clear()
-                Log.d("Alex", "Found ${dataSnapshot.childrenCount} transactions")
+                Timber.tag("Alex").d("Found ${dataSnapshot.childrenCount} transactions")
                 for (element in dataSnapshot.children.toMutableList()) {
-                    val transaction = element.getValue<Transaction>()
-                    if (transaction != null) {
-                        transaction.mykey = element.key!!
-                        transaction.amount /= 100.0
-                        transactions.add(transaction)
+                    val transactionOut = element.getValue<TransactionOut>()
+                    if (transactionOut != null) {
+                        val myTr = Transaction(transactionOut, element.key!!)
+                        transactions.add(myTr)
                     }
                 }
-                val start3 = System.currentTimeMillis()
                 singleInstance.loaded = true
                 dataUpdatedCallback?.onDataUpdate()
-                transactions.sortWith(compareBy({ it.date }, { it.note }, {it.type}))
+                transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
                 val end = System.currentTimeMillis()
-                Timber.tag("Alex").d("loadTransactions time is ${end - start} ms, ${end - start2}, ${end - start3}")
+                Timber.tag("Alex").d("loadTransactions time is ${end - start} ms")
 
                 MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
                     .removeEventListener(singleInstance.firstLoadListener!!)
                 singleInstance.firstLoadListener = null
-                Log.d("Alex", "number of transactions is now ${singleInstance.transactions.size}")
+                Timber.tag("Alex").d("number of transactions is now ${singleInstance.transactions.size}")
                 loadTransactionsOngoing()
+                createActualsTable()
             }
 
             override fun onCancelled(dataSnapshot: DatabaseError) {
@@ -777,27 +757,23 @@ class TransactionViewModel : ViewModel() {
         expDBRef.addValueEventListener(firstLoadListener as ValueEventListener)
     }
     fun loadTransactionsOngoing() {
-        val TAG = "Alex"
-
         val childEventListener = object : ChildEventListener {
             override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 // this function is called on startup, and when a transaction is added
-                val transaction = dataSnapshot.getValue<Transaction>()
-                if (transaction != null) {
-                    transaction.mykey = dataSnapshot.key!!
-                    transaction.amount /= 100.0
-                    addTransactionLocal(transaction)
+                val transactionOut = dataSnapshot.getValue<TransactionOut>()
+                if (transactionOut != null) {
+                        val myTr = Transaction(transactionOut, dataSnapshot.key!!)
+                        addTransactionLocal(myTr)
                 } else {
-                    Log.d("Alex", "onChildAdded couldn't convert ${dataSnapshot.key.toString()}")
+                    Timber.tag("Alex").d( "onChildAdded couldn't convert ${dataSnapshot.key.toString()}")
                 }
             }
 
             override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
-                val transaction = dataSnapshot.getValue<Transaction>()
-                if (transaction != null) {
-                    transaction.mykey = dataSnapshot.key!!
-                    transaction.amount /= 100.0
-                    updateTransactionLocal(transaction)
+                val transactionOut = dataSnapshot.getValue<TransactionOut>()
+                if (transactionOut != null) {
+                    val myTr = Transaction(transactionOut, dataSnapshot.key!!)
+                    updateTransactionLocal(myTr)
                 }
             }
 
@@ -806,16 +782,73 @@ class TransactionViewModel : ViewModel() {
             }
 
             override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
-                Log.d(TAG, "onChildMoved:" + dataSnapshot.key!!)
+                Timber.tag("Alex").d("onChildMoved:%s", dataSnapshot.key!!)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.w(TAG, "loadTransactions:onCancelled", databaseError.toException())
+                Timber.tag("Alex").d("loadTransactions:onCancelled ${databaseError.toException()}")
             }
         }
         MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/TransactionsNew")
             .addChildEventListener(childEventListener)
         childListener = childEventListener
 
+    }
+
+    data class ActualRow(val year:Int, val categoryID: Int, val who: Int) {
+        val amounts = DoubleArray(12) {0.0}
+        fun getAnnualAmount(): Double {
+            return amounts.sum()
+        }
+        fun getRangeTotal(iStartMonth: Int, iEndMonth: Int) : Double {
+            var tDouble = 0.0
+            for (i in iStartMonth-1 until iEndMonth)
+                tDouble += amounts[i]
+            return tDouble
+        }
+    }
+
+    fun createActualsTable() {
+        Timber.tag("Alex").d("CreateActualsTable start")
+        actualsSummary.clear()
+        var firstOne = true
+
+        for (transaction in singleInstance.transactions) {
+            if (transaction.type != cTRANSACTION_TYPE_TRANSFER) {
+                if (firstOne) {
+                    for (user in 0 until 2) {
+                        if (transaction.boughtfor == user || transaction.boughtfor == 2) {
+                            val actualRow = ActualRow(
+                                transaction.date.getYear(),
+                                transaction.category,
+                                user)
+                            actualRow.amounts[transaction.date.getMonth()-1] = transaction.getAmountByUser(user)
+                            actualsSummary.add(actualRow)
+                        }
+                    }
+                    firstOne = false
+                } else {
+                    for (user in 0 until 2) {
+                        if (transaction.boughtfor == user || transaction.boughtfor == 2) {
+                            val oldActualRow = actualsSummary.find {
+                                transaction.category == it.categoryID &&
+                                    transaction.date.getYear() == it.year &&
+                                    it.who == user
+                            }
+                            if (oldActualRow == null) {
+                                val newActualRow = ActualRow(
+                                    transaction.date.getYear(),
+                                    transaction.category,
+                                    user)
+                                newActualRow.amounts[transaction.date.getMonth()-1] = transaction.getAmountByUser(user)
+                                actualsSummary.add(newActualRow)
+                            } else {
+                                oldActualRow.amounts[transaction.date.getMonth()-1] += transaction.getAmountByUser(user)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

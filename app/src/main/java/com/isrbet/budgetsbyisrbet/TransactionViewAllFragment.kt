@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -15,9 +16,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.l4digital.fastscroll.FastScrollRecyclerView
+import timber.log.Timber
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -28,12 +31,34 @@ class PreviousFilters : ViewModel() {
     var prevTypeFilter = ""
 }
 
+enum class TransactionSortOrder {
+    DATE_ASCENDING,
+    DATE_DESCENDING,
+    AMOUNT_ASCENDING,
+    AMOUNT_DESCENDING,
+    CATEGORY_ASCENDING,
+    CATEGORY_DESCENDING,
+    WHO_ASCENDING,
+    WHO_DESCENDING,
+    NOTE_ASCENDING,
+    NOTE_DESCENDING,
+    TYPE_ASCENDING,
+    TYPE_DESCENDING;
+}
+
+enum class SortOrderDirection() {
+    ASCENDING,
+    DESCENDING,
+    OFF
+}
+
 class TransactionViewAllFragment : Fragment() {
     private var _binding: FragmentTransactionViewAllBinding? = null
     private val binding get() = _binding!!
     private val args: TransactionViewAllFragmentArgs by navArgs()
     private val filters: PreviousFilters by viewModels()
     private var accountingMode = false
+    private var currentSortOrder = TransactionSortOrder.DATE_ASCENDING
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +110,7 @@ class TransactionViewAllFragment : Fragment() {
 
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
             recyclerView.adapter =
-                TransactionRecyclerAdapter(requireContext(), expList, filters) { item ->
+                TransactionRecyclerAdapter(requireContext(), expList, filters, currentSortOrder) { item ->
                     MyApplication.transactionFirstInList =
                         (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                     if (item.type == cTRANSACTION_TYPE_TRANSFER) {
@@ -133,6 +158,7 @@ class TransactionViewAllFragment : Fragment() {
         }
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                Timber.tag("Alex").d("Got here")
                 return false
             }
 
@@ -141,10 +167,12 @@ class TransactionViewAllFragment : Fragment() {
                     recyclerView.adapter as TransactionRecyclerAdapter
                 ladapter.filter.filter(newText)
                 if (newText != "") {
+                    Timber.tag("Alex").d("binding.transactionSearch.setOnQueryTextListener totalLayout.visibility = View.Visible")
                     binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
                     binding.transactionSearch.visibility = View.VISIBLE
                 }
+                transactionSearchText = newText.toString()
                 return true
             }
         })
@@ -165,6 +193,7 @@ class TransactionViewAllFragment : Fragment() {
                     val selection = parent?.getItemAtPosition(position).toString()
                     addSubCategories(selection, filters.prevSubcategoryFilter)
                     val categoryFilter = if (selection == getString(R.string.all)) "" else selection
+                    Timber.tag("Alex").d("binding.categorySpinner.onItemSelectedListener totalLayout.visibility = View.Visible")
                     binding.totalLayout.visibility = View.VISIBLE
                     if (categoryFilter != filters.prevCategoryFilter) {
                         val ladapter: TransactionRecyclerAdapter =
@@ -195,6 +224,7 @@ class TransactionViewAllFragment : Fragment() {
                         ""
                     else
                         selection
+                    Timber.tag("Alex").d("binding.subcategorySpinner.onItemSelectedListener totalLayout.visibility = View.Visible")
                     binding.totalLayout.visibility = View.VISIBLE
                     if (subcategoryFilter != filters.prevSubcategoryFilter) {
                         val ladapter: TransactionRecyclerAdapter =
@@ -214,6 +244,7 @@ class TransactionViewAllFragment : Fragment() {
                 getString(R.string.non_disc) -> cDiscTypeNondiscretionary
                 else -> ""
             }
+            Timber.tag("Alex").d("binding.filterDiscRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
             binding.totalLayout.visibility = View.VISIBLE
             if (discretionaryFilter != filters.prevDiscretionaryFilter) {
                 val ladapter: TransactionRecyclerAdapter =
@@ -231,6 +262,7 @@ class TransactionViewAllFragment : Fragment() {
                 -1
             else
                 SpenderViewModel.getSpenderIndex(radioButton.text.toString())
+            Timber.tag("Alex").d("binding.filterPaidByRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
             binding.totalLayout.visibility = View.VISIBLE
             if (paidbyFilter != filters.prevPaidbyFilter) {
                 val ladapter: TransactionRecyclerAdapter =
@@ -249,6 +281,7 @@ class TransactionViewAllFragment : Fragment() {
             else
                 SpenderViewModel.getSpenderIndex(radioButton.text.toString())
             if (boughtforFilter != filters.prevBoughtForFilter) {
+                Timber.tag("Alex").d("binding.filterBoughtForRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
                 binding.totalLayout.visibility = View.VISIBLE
                 val ladapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
@@ -269,6 +302,7 @@ class TransactionViewAllFragment : Fragment() {
                 else -> ""
             }
             if (typeFilter != filters.prevTypeFilter) {
+                Timber.tag("Alex").d("binding.filterTypeRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
                 binding.totalLayout.visibility = View.VISIBLE
                 val ladapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
@@ -279,7 +313,6 @@ class TransactionViewAllFragment : Fragment() {
                 goToCorrectRow()
             }
         }
-        // for some reason "binding.buttonToday.setOnClickListener doesn't work, but the following does
         binding.buttonYearForward.setOnClickListener {
             val getNewPosition = adapter.getPositionOf(
                 (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
@@ -287,13 +320,6 @@ class TransactionViewAllFragment : Fragment() {
             )
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 getNewPosition,
-                0
-            )
-        }
-
-        binding.buttonToday.setOnClickListener {
-            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                adapter.getCount() - 1,
                 0
             )
         }
@@ -308,6 +334,7 @@ class TransactionViewAllFragment : Fragment() {
         }
 
         binding.buttonMonthBackward.setOnClickListener {
+
             (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
                 adapter.getPositionOf(
                     (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition(),
@@ -325,7 +352,50 @@ class TransactionViewAllFragment : Fragment() {
             )
         }
 
-        binding.RecyclerLinearLayout.setOnTouchListener(object :
+        binding.buttonSettings.setOnClickListener {
+            if (binding.expandedLabelLayout.visibility == View.GONE &&
+                    binding.expandedViewColumnLayout.visibility == View.GONE &&
+                    binding.expandedFilterLayout.visibility == View.GONE) {
+                binding.expandedLabelLayout.visibility = View.VISIBLE
+                binding.expandedViewColumnLayout.visibility = View.VISIBLE
+                val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
+                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor))
+                binding.expandedViewColumnLabel.setBackgroundResource(R.drawable.rounded_top_corners)
+                val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
+                binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor2))
+                binding.expandedFilterLayout.visibility = View.GONE
+                binding.navButtonLinearLayout.visibility = View.GONE
+            } else {
+                binding.expandedLabelLayout.visibility = View.GONE
+                binding.expandedViewColumnLayout.visibility = View.GONE
+                binding.expandedFilterLayout.visibility = View.GONE
+                binding.navButtonLinearLayout.visibility = View.VISIBLE
+            }
+        }
+
+        binding.expandedViewColumnLabel.setOnClickListener {
+            if (binding.expandedViewColumnLayout.visibility == View.GONE) {
+                binding.expandedViewColumnLayout.visibility = View.VISIBLE
+                val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
+                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor))
+                binding.expandedViewColumnLabel.setBackgroundResource(R.drawable.rounded_top_corners)
+                val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
+                binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor2))
+                binding.expandedFilterLayout.visibility = View.GONE
+            }
+        }
+        binding.expandedFilterLabel.setOnClickListener {
+            if (binding.expandedFilterLayout.visibility == View.GONE) {
+                binding.expandedFilterLayout.visibility = View.VISIBLE
+                val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
+                binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor))
+                binding.expandedFilterLabel.setBackgroundResource(R.drawable.rounded_top_corners)
+                val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
+                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor2))
+                binding.expandedViewColumnLayout.visibility = View.GONE
+            }
+        }
+        binding.columnHeadingLayout.setOnTouchListener(object :
             OnSwipeTouchListener(requireContext()) {
             //        view?.setOnTouchListener(object : OnSwipeTouchListener(requireContext()) {
             override fun onSwipeLeft() {
@@ -349,6 +419,25 @@ class TransactionViewAllFragment : Fragment() {
             }
         })
 
+        binding.expandedViewColumnLayout.setOnTouchListener(object :
+            OnSwipeTouchListener(requireContext()) {
+            override fun onSwipeBottom() {
+                super.onSwipeBottom()
+                binding.expandedLabelLayout.visibility = View.GONE
+                binding.expandedViewColumnLayout.visibility = View.GONE
+                binding.navButtonLinearLayout.visibility = View.VISIBLE
+            }
+        })
+        binding.expandedFilterLayout.setOnTouchListener(object :
+            OnSwipeTouchListener(requireContext()) {
+            override fun onSwipeBottom() {
+                super.onSwipeBottom()
+                binding.expandedLabelLayout.visibility = View.GONE
+                binding.expandedFilterLayout.visibility = View.GONE
+                binding.navButtonLinearLayout.visibility = View.VISIBLE
+            }
+        })
+
         if (transactionSearchText == "")
             binding.transactionSearch.visibility = View.GONE
         else {
@@ -358,24 +447,13 @@ class TransactionViewAllFragment : Fragment() {
         if (SpenderViewModel.singleUser()) {
             binding.whoHeading.visibility = View.GONE
         }
-        binding.expandNav.setOnClickListener {
-            onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
-        }
-        binding.expandView.setOnClickListener {
-            onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
-        }
-        binding.expandFilter.setOnClickListener {
-            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
-            if (SpenderViewModel.singleUser()) {
-                binding.transferTypeRadioButton.visibility = View.GONE
-            }
-        }
-        binding.search.setOnClickListener {
+        binding.searchButton.setOnClickListener {
             if (binding.transactionSearch.visibility == View.GONE) {
-                resetLayout(binding.expandNav, binding.navButtonLinearLayout)
-                resetLayout(binding.expandView, binding.viewButtonLinearLayout)
-                resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
+                binding.expandedLabelLayout.visibility = View.GONE
+                binding.expandedViewColumnLayout.visibility = View.GONE
+                binding.expandedFilterLayout.visibility = View.GONE
                 binding.transactionSearch.visibility = View.VISIBLE
+                binding.navButtonLinearLayout.visibility = View.VISIBLE
                 val searchView = binding.transactionSearch
                 focusAndOpenSoftKeyboard(requireContext(), searchView)
             } else {
@@ -483,7 +561,11 @@ class TransactionViewAllFragment : Fragment() {
         binding.resetFilterButton.setOnClickListener {
             resetFilters()
             accountingMode = false
-            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+            binding.expandedViewColumnLayout.visibility = View.GONE
+            binding.transactionSearch.visibility = View.GONE
+            binding.navButtonLinearLayout.visibility = View.VISIBLE
+            binding.expandedFilterLayout.visibility = View.GONE
+            binding.expandedLabelLayout.visibility = View.GONE
             binding.totalLayout.visibility = View.GONE
             adapter.setAccountingFilter(accountingMode)
             adapter.filterTheList(transactionSearchText)
@@ -491,7 +573,124 @@ class TransactionViewAllFragment : Fragment() {
             setViewsToDefault()
             goToCorrectRow()
         }
-  //      adapter.filterTheList(transactionSearchText)
+
+        binding.dateHeading.setOnClickListener {
+            if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_DESCENDING
+                adjustColumnHeadings(SortOrderDirection.DESCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING) {
+                currentSortOrder = TransactionSortOrder.AMOUNT_DESCENDING
+                adjustColumnHeadings(SortOrderDirection.DESCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING){
+                currentSortOrder = TransactionSortOrder.AMOUNT_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING) {
+                currentSortOrder = TransactionSortOrder.CATEGORY_DESCENDING
+                adjustColumnHeadings(SortOrderDirection.DESCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING){
+                currentSortOrder = TransactionSortOrder.CATEGORY_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING) {
+                currentSortOrder = TransactionSortOrder.WHO_DESCENDING
+                adjustColumnHeadings(SortOrderDirection.DESCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.WHO_DESCENDING){
+                currentSortOrder = TransactionSortOrder.WHO_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING) {
+                currentSortOrder = TransactionSortOrder.NOTE_DESCENDING
+                adjustColumnHeadings(SortOrderDirection.DESCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.NOTE_DESCENDING){
+                currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING) {
+                currentSortOrder = TransactionSortOrder.TYPE_DESCENDING
+                adjustColumnHeadings(SortOrderDirection.DESCENDING)
+            } else if (currentSortOrder == TransactionSortOrder.TYPE_DESCENDING){
+                currentSortOrder = TransactionSortOrder.TYPE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            }
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+        }
+        binding.amountHeading.setOnClickListener {
+            if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
+                    currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else {
+                currentSortOrder = TransactionSortOrder.AMOUNT_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            }
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+        }
+        binding.categoryHeading.setOnClickListener {
+            if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else {
+                currentSortOrder = TransactionSortOrder.CATEGORY_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            }
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+        }
+        binding.whoHeading.setOnClickListener {
+            if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.WHO_DESCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else {
+                currentSortOrder = TransactionSortOrder.WHO_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            }
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+        }
+        binding.noteHeading.setOnClickListener {
+            if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else {
+                currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            }
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+        }
+        binding.typeHeading.setOnClickListener {
+            if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.TYPE_DESCENDING) {
+                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            } else {
+                currentSortOrder = TransactionSortOrder.TYPE_ASCENDING
+                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            }
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
+            (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
+            (recyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(0, 0)
+        }
+        if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.WHO_ASCENDING)
+            adjustColumnHeadings(SortOrderDirection.ASCENDING)
+        else
+            adjustColumnHeadings(SortOrderDirection.DESCENDING)
+        //      adapter.filterTheList(transactionSearchText)
     //    adapter.notifyDataSetChanged()
       //  goToCorrectRow()
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
@@ -501,6 +700,50 @@ class TransactionViewAllFragment : Fragment() {
         set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
         HintViewModel.showHint(parentFragmentManager, cHINT_TRANSACTION_VIEW_ALL)
+    }
+
+    private fun adjustColumnHeadings(iSortOrderDirection: SortOrderDirection) {
+        when (iSortOrderDirection) {
+            SortOrderDirection.ASCENDING -> {
+                binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null)
+            }
+            SortOrderDirection.DESCENDING -> {
+                binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null)
+            }
+            else -> {
+                binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+            }
+        }
+        binding.dateHeading.text = getString(R.string.date)
+        binding.amountHeading.text = getString(R.string.amt)
+        binding.categoryHeading.text = getString(R.string.category)
+        binding.whoHeading.text = getString(R.string.who)
+        binding.noteHeading.text = getString(R.string.where)
+        binding.typeHeading.text = getString(R.string.type)
+
+        when (currentSortOrder) {
+            TransactionSortOrder.CATEGORY_ASCENDING, TransactionSortOrder.CATEGORY_DESCENDING -> {
+                binding.dateHeading.text = getString(R.string.category)
+                binding.categoryHeading.text = getString(R.string.date)
+            }
+            TransactionSortOrder.WHO_ASCENDING, TransactionSortOrder.WHO_DESCENDING -> {
+                binding.dateHeading.text = getString(R.string.who)
+                binding.whoHeading.text = getString(R.string.date)
+            }
+            TransactionSortOrder.NOTE_ASCENDING, TransactionSortOrder.NOTE_DESCENDING -> {
+                binding.dateHeading.text = getString(R.string.where)
+                binding.noteHeading.text = getString(R.string.date)
+            }
+            TransactionSortOrder.TYPE_ASCENDING, TransactionSortOrder.TYPE_DESCENDING -> {
+                binding.dateHeading.text = getString(R.string.type)
+                binding.typeHeading.text = getString(R.string.date)
+            }
+            TransactionSortOrder.AMOUNT_ASCENDING, TransactionSortOrder.AMOUNT_DESCENDING -> {
+                binding.dateHeading.text = getString(R.string.amount)
+                binding.amountHeading.text = getString(R.string.date)
+            }
+            else -> {}
+        }
     }
 
     private fun setViewsToDefault() {
@@ -632,7 +875,7 @@ class TransactionViewAllFragment : Fragment() {
             )
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+/*    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 /*        val navController = findNavController()
             return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
 
@@ -659,7 +902,7 @@ class TransactionViewAllFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         return true
-    }
+    } */
 
     private fun loadCategoryRadioButtons() {
         val radioGroup = requireActivity().findViewById<RadioGroup>(R.id.categoryRadioGroup)
@@ -687,28 +930,6 @@ class TransactionViewAllFragment : Fragment() {
         else {
             binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
         }
-    }
-
-    private fun onExpandClicked(button: TextView, layout: LinearLayout) {
-        if (layout.visibility == View.GONE) { // ie expand the section
-            // first hide all other possible expansions
-//            closeSearch()
-            resetLayout(binding.expandNav, binding.navButtonLinearLayout)
-            resetLayout(binding.expandView, binding.viewButtonLinearLayout)
-            resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
-            button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
-            button.textSize = 16F
-            button.setBackgroundResource(R.drawable.rounded_top_corners)
-            layout.visibility = View.VISIBLE
-        } else { // ie retract the section
-            resetLayout(button, layout)
-        }
-    }
-    private fun resetLayout(button: TextView, layout: LinearLayout) {
-        button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
-        button.textSize = 14F
-        button.setBackgroundResource(android.R.color.transparent)
-        layout.visibility = View.GONE
     }
 
     override fun onPause() {

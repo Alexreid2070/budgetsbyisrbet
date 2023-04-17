@@ -56,7 +56,7 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
         viewHolder.vhName.text = rtData.name
         val formattedAmount = rtData.amount
         viewHolder.vhAmount.text = gDecWithCurrency(formattedAmount)
-        viewHolder.vhNextDate.text = rtData.nextdate
+        viewHolder.vhNextDate.text = rtData.nextdate.toString()
         viewHolder.vhPeriod.text = rtData.period
         viewHolder.vhRegularity.text = rtData.regularity.toString()
         viewHolder.vhCategory.text = CategoryViewModel.getCategory(rtData.category)?.categoryName

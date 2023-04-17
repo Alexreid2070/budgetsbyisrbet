@@ -5,53 +5,90 @@
     android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="5dp"
-    android:paddingEnd="5dp"
     tools:context=".TransactionViewAllFragment">
 
+    <LinearLayout
+        android:id="@+id/page_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/pageHeadingBackgroundColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:padding="12dp"
+            android:text="@string/view_all_transactions"
+            android:textStyle="bold"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textSize="@dimen/pageHeadingFontSize"/>
+        <ImageView
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="10dp"
+            android:contentDescription="@string/search"
+            android:src="@drawable/ic_baseline_search_24"/>
+    </LinearLayout>
     <androidx.appcompat.widget.SearchView
         android:id="@+id/transaction_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSecondaryVariant"
+        android:background="@drawable/row_header"
         android:textCursorDrawable="@null"
         android:theme="@style/WhiteCursorSearchView"
         app:iconifiedByDefault="false"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/page_title_layout"
         app:queryBackground="@null" />
-    <View
-        android:id="@+id/blankArea"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/transaction_search"/>
-
     <LinearLayout
-        android:id="@+id/RecyclerLinearLayout"
+        android:id="@+id/column_heading_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/row_header"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/blankArea">
+        app:layout_constraintTop_toBottomOf="@+id/transaction_search">
 
-        <TextView
-            android:id="@+id/amountHeading"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/amount"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:tooltipText="@string/toolTipAmount"
-            android:maxLines="1"/>
-
-        <TextView
+            android:padding="5dp"
+            android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/dateHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:gravity="start"
+                android:text="@string/date"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:tooltipText="@string/toolTipAmount"
+                android:maxLines="1"
+                app:drawableRightCompat="@drawable/ic_baseline_expand_more_24"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/amountHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:gravity="end"
+                android:text="@string/amt"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:tooltipText="@string/toolTipAmount"
+                android:maxLines="1"/>
+        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/percentage1Heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:gravity="end"
             android:text="@string/amt1"
@@ -60,11 +97,11 @@
             android:tooltipText="@string/toolTipAmt1"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/percentage2Heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:gravity="end"
             android:text="@string/amt2"
@@ -73,12 +110,12 @@
             android:tooltipText="@string/toolTipAmt2"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/categoryHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_weight="1.5"
+            android:layout_gravity="bottom"
+            android:layout_weight="1.4"
             android:gravity="start"
             android:text="@string/category"
             android:textSize="16sp"
@@ -86,23 +123,23 @@
             android:tooltipText="@string/toolTipCategorySubCategory"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/whoHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:text="@string/who"
-            android:textAlignment="center"
             android:textSize="16sp"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipWhoView"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/noteHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:gravity="start"
             android:text="@string/where"
@@ -111,11 +148,11 @@
             android:tooltipText="@string/toolTipWhere"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/discHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="bottom"
             android:layout_weight=".5"
             android:gravity="center"
             android:paddingLeft="2dp"
@@ -126,11 +163,11 @@
             android:tooltipText="@string/toolTipDisc"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/typeHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="bottom"
             android:layout_weight=".5"
             android:gravity="end"
             android:text="@string/type_short"
@@ -139,11 +176,11 @@
             android:tooltipText="@string/toolTipType"
             android:maxLines="1"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/runningTotalHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="bottom"
             android:layout_weight=".8"
             android:gravity="end"
             android:text="@string/owes"
@@ -152,6 +189,13 @@
             android:tooltipText="@string/toolTipRunningTotal"
             android:maxLines="1"/>
     </LinearLayout>
+
+    <View
+        android:id="@+id/view1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorSecondaryVariant"
+        app:layout_constraintTop_toBottomOf="@id/column_heading_layout"/>
 
     <com.l4digital.fastscroll.FastScrollRecyclerView
         android:id="@+id/transaction_view_all_recycler_view"
@@ -163,10 +207,11 @@
         app:bubbleTextColor="?attr/textOnBackground"
         app:handleColor="?attr/colorPrimary"
         app:hideScrollbar="false"
+        android:padding="5dp"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/total_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/column_heading_layout" />
 
     <TextView
         android:id="@+id/noInformationText"
@@ -179,7 +224,7 @@
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/total_layout"
-        app:layout_constraintTop_toBottomOf="@+id/RecyclerLinearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/column_heading_layout" />
 
     <LinearLayout
         android:id="@+id/total_layout"
@@ -187,7 +232,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout">
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout"
+        app:layout_constraintTop_toBottomOf="@+id/transaction_view_all_recycler_view">
 
         <View
             android:layout_width="match_parent"
@@ -199,8 +247,9 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/total_for_this_selection_is"/>
 
             <TextView
@@ -215,188 +264,163 @@
             android:background="@android:color/darker_gray" />
     </LinearLayout>
 
-    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
-        android:id="@+id/transaction_add_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:contentDescription="@string/app_name"
-        android:paddingBottom="10dp"
-        android:src="@drawable/ic_fas_plus"
-        android:tooltipText="Add Expense"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout"/>
     <LinearLayout
-        android:id="@+id/expansion_layout"
+        android:id="@+id/fab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/nav_button_linear_layout"
-        app:layout_constraintTop_toBottomOf="@+id/transaction_view_all_recycler_view">
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/expanded_label_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" >
 
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/expand_nav"
-            android:layout_width="0dp"
+        <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+            android:id="@+id/transaction_add_fab"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/navigate"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:maxLines="1"/>
-
+            android:layout_gravity="bottom|center"
+            android:contentDescription="@string/app_name"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_fas_plus"
+            android:tooltipText="Add Expense"/>
         <TextView
-            android:id="@+id/expand_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/view"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/expand_filter"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/filter"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/search"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/search"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_search_24"
-            android:maxLines="1"/>
-
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/nav_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/menuColor"
         android:orientation="horizontal"
-        android:visibility="gone"
-        android:paddingStart="5dp"
+        android:background="?attr/menuColor"
         android:weightSum="6"
-        app:layout_constraintBottom_toTopOf="@+id/view_button_linear_layout"
-        app:layout_constraintTop_toBottomOf="@+id/expansion_layout">
+        android:padding="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/expanded_label_layout"
+        app:layout_constraintTop_toBottomOf="@+id/total_layout">
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <com.google.android.material.button.MaterialButton
+        <ImageView
             android:id="@+id/button_year_backward"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSecondary"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="@string/back_year_short"/>
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_double_arrow_left_24"/>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1.5" />
 
-        <com.google.android.material.button.MaterialButton
+        <ImageView
             android:id="@+id/button_month_backward"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="@string/back_month_short"/>
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"/>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_today"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="@string/today"/>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <com.google.android.material.button.MaterialButton
+        <ImageView
             android:id="@+id/button_month_forward"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="@string/forward_month_short"/>
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"/>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <com.google.android.material.button.MaterialButton
+        <ImageView
             android:id="@+id/button_year_forward"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="@string/forward_year_short"/>
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_double_arrow_right_24"/>
 
         <Space
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight=".5" />
+        <ImageView
+            android:id="@+id/button_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="10dp"
+            android:contentDescription="@string/settings"
+            android:src="@drawable/ic_baseline_settings_24_orange"/>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/view_button_linear_layout"
+        android:id="@+id/expanded_label_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/expanded_view_column_layout"
+        app:layout_constraintTop_toBottomOf="@+id/nav_button_linear_layout">
+        <TextView
+            android:id="@+id/expanded_view_column_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_top_corners"
+            android:text="@string/show_hide_columns"/>
+
+        <TextView
+            android:id="@+id/expanded_filter_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:background="?attr/menuColor"
+            android:text="@string/filters"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/expanded_view_column_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/menuColor"
         android:orientation="vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="5dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/filter_button_linear_layout"
-        app:layout_constraintTop_toBottomOf="@+id/nav_button_linear_layout">
+        app:layout_constraintBottom_toTopOf="@+id/expanded_filter_layout"
+        app:layout_constraintTop_toBottomOf="@+id/expanded_label_layout">
 
         <Space
             android:layout_width="0dp"
@@ -416,7 +440,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_split_amount_columns"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -441,7 +465,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_category_column"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -467,7 +491,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_who_column"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -492,7 +516,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_where_column"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -517,7 +541,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_discretionary_indicator_column"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -542,7 +566,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_type_column"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -568,7 +592,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_running_total_column"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -585,25 +609,19 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/these_settings_are_sticky"/>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/filter_button_linear_layout"
+        android:id="@+id/expanded_filter_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/menuColor"
         android:orientation="vertical"
-        android:paddingStart="5dp"
+        android:paddingStart="10dp"
         android:paddingEnd="5dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_button_linear_layout">
+        app:layout_constraintTop_toBottomOf="@+id/expanded_view_column_layout">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -617,7 +635,7 @@
                 android:layout_gravity="start"
                 android:layout_marginBottom="5dp"
                 android:text="@string/category"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <RelativeLayout
@@ -661,7 +679,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:text="@string/subcategory"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <RelativeLayout
@@ -704,10 +722,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/discretionary_question"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
             <HorizontalScrollView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fadeScrollbars="false"
                 android:scrollbarThumbHorizontal="?attr/colorSecondary">
@@ -749,10 +767,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/paid_by"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
             <HorizontalScrollView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fadeScrollbars="false"
                 android:scrollbarThumbHorizontal="?attr/colorSecondary">
@@ -795,11 +813,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/bought_for"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <HorizontalScrollView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fadeScrollbars="false"
                 android:scrollbarThumbHorizontal="?attr/colorSecondary">
@@ -842,12 +860,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/type"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"/>
 
             <HorizontalScrollView
                 android:id="@+id/radioGroupScroll"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fadeScrollbars="false"
                 android:scrollbarThumbHorizontal="?attr/colorSecondary">

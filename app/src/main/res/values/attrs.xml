@@ -5,5 +5,4 @@
 
     <attr name="pageHeadingFontColor" format="color"/>
     <attr name="pageHeadingBackgroundColor" format="color"/>
-    <attr name="pageHeadingFontSize" format="integer"/>
 </resources>

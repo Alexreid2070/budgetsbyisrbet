@@ -14,7 +14,7 @@
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/DashboardFragment"
-        android:title="@string/dashboard"
+        android:title="@string/dashboards"
         android:icon="@drawable/ic_baseline_dashboard_24"
         app:showAsAction="ifRoom"/>
     <item

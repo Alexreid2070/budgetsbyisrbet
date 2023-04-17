@@ -7,23 +7,66 @@
     tools:context=".TranslationViewAllFragment">
 
     <LinearLayout
-        android:id="@+id/TranslationLinearLayout"
+        android:id="@+id/page_title_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingTop="10dp"
+        android:orientation="horizontal"
+        android:background="?attr/pageHeadingBackgroundColor"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/view_translations"
+            android:textStyle="bold"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textSize="@dimen/pageHeadingFontSize"/>
+        <ImageView
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="10dp"
+            android:contentDescription="@string/search"
+            android:src="@drawable/ic_baseline_search_24"/>
+    </LinearLayout>
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/translation_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/row_header"
+        android:textCursorDrawable="@null"
+        android:theme="@style/WhiteCursorSearchView"
+        app:iconifiedByDefault="false"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/page_title_layout"
+        app:queryBackground="@null" />
+    <LinearLayout
+        android:id="@+id/translationLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/translation_search">
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/beforeHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
+            android:paddingStart="5dp"
+            android:paddingEnd="0dp"
             android:text="@string/translated_from"
             android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            app:drawableRightCompat="@drawable/ic_baseline_expand_more_24"/>
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/afterHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,7 +74,7 @@
             android:text="@string/translated_to"
             android:textSize="16sp"
             android:textStyle="bold"/>
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/categoryHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -40,19 +83,24 @@
             android:textSize="16sp"
             android:textStyle="bold"/>
     </LinearLayout>
+    <View
+        android:id="@+id/view1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorSecondaryVariant"
+        app:layout_constraintTop_toBottomOf="@id/translationLinearLayout"/>
 
     <ListView
         android:id="@+id/translation_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layoutDirection="ltr"
         android:layout_gravity="start"
         android:gravity="start"
-        app:layout_constraintTop_toBottomOf="@+id/TranslationLinearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/translationLinearLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         android:textSize="14sp"
-        android:paddingTop="30dp"
-        android:paddingBottom="5dp"
+        android:padding="5dp"
         android:fadeScrollbars="false">
     </ListView>
 </androidx.constraintlayout.widget.ConstraintLayout>

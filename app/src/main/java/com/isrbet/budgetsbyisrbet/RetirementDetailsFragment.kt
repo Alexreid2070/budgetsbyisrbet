@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.color.MaterialColors
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.json.jackson2.JacksonFactory
@@ -146,6 +148,13 @@ class RetirementDetailsFragment : Fragment() {
             RetirementDetailsViews.PROPERTY -> binding.showPropertyDetailsButton.isChecked = true
             else -> binding.showAllColumnsButton.isChecked = true
         }
+        binding.expansionLayout.setOnTouchListener(object :
+            OnSwipeTouchListener(requireContext()) {
+            override fun onSwipeBottom() {
+                super.onSwipeBottom()
+                binding.viewRadioGroup.visibility = View.GONE
+            }
+        })
     }
 
     private fun addHeaderCell(iTableRow: TableRow, iHeaderString: String,
@@ -168,13 +177,11 @@ class RetirementDetailsFragment : Fragment() {
     private fun onViewClicked(iAlwaysClose: Boolean) {
         if (binding.viewRadioGroup.visibility == View.GONE && !iAlwaysClose) { // ie expand the section
             binding.viewRadioGroup.visibility = View.VISIBLE
-            binding.stickyLabel.visibility = View.VISIBLE
             binding.expandView.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
             binding.expandView.textSize = 16F
             binding.expandView.setBackgroundResource(R.drawable.rounded_top_corners)
         } else { // ie retract the section
             binding.viewRadioGroup.visibility = View.GONE
-            binding.stickyLabel.visibility = View.GONE
             binding.expandView.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
             binding.expandView.setBackgroundResource(android.R.color.transparent)
             binding.expandView.textSize = 14F
@@ -184,6 +191,12 @@ class RetirementDetailsFragment : Fragment() {
     private fun createTableHeader(iWhichView: RetirementDetailsViews) {
         binding.retirementTableRows.removeAllViews()
         val tr = TableRow(requireContext())
+        val hexColor = MaterialColors.getColor(
+            requireContext(),
+            R.attr.colorSecondaryVariant,
+            Color.BLACK
+        )
+        tr.setBackgroundColor(hexColor)
 //        tr.id = iTemp
 //        tr.tag = "Test"
         val trParams = TableLayout.LayoutParams(
@@ -462,7 +475,6 @@ class RetirementDetailsFragment : Fragment() {
             gRetirementDetailsList)
         GlobalScope.launch {
             val disposable = service.spreadsheets().create(spreadsheet).execute()
-            Log.d("Alex", "ID: ${disposable.spreadsheetId}")
         }
         MyApplication.displayToast(getString(R.string.creating_file))
     }

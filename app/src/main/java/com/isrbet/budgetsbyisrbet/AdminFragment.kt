@@ -15,6 +15,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ktx.getValue
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAdminBinding
+import timber.log.Timber
 
 class AdminFragment : Fragment() {
     private var _binding: FragmentAdminBinding? = null
@@ -75,7 +76,7 @@ class AdminFragment : Fragment() {
     private fun doSomething() {
 //        BudgetViewModel.migrateBudgets()
         val TAG = "Alex"
-        Log.d(TAG, "doSomething")
+        Timber.tag(TAG).d("doSomething")
         TransactionViewModel.doSomething()
     }
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import timber.log.Timber
 import java.util.*
 
 const val cDEFAULT_CATEGORY_ID = "Category"
@@ -40,6 +41,8 @@ const val cDEFAULT_SHOW_TOTALS_TRACKER = "ShowTotalsTracker"
 const val cDEFAULT_SHOW_CURRENCY_SYMBOL = "ShowCurrencySymbol"
 const val cDEFAULT_VIEW_IN_RETIREMENT_DETAILS = "ViewInRetirementDetails"
 const val cDEFAULT_VIEW_ROWS_YOY = "ViewRowsYoy"
+const val cDEFAULT_SP_LOOKAHEAD = "ScheduledPaymentLookahead"
+const val cDEFAULT_LAST_DASHBOARD_TAB = "LastDashboardTab"
 
 const val cDEFAULT_CATEGORY_VALUE = 0
 const val cDEFAULT_SPENDER_VALUE = -1
@@ -67,10 +70,12 @@ const val cDEFAULT_ROUND_YOY_VALUE = true
 const val cDEFAULT_SHOW_DISC_DASHBOARD_VALUE = true
 const val cDEFAULT_BUDGET_VIEW_VALUE = cBudgetDateView
 const val cDEFAULT_FILTER_DISC_TRACKER_VALUE = cDiscTypeAll
-const val cDEFAULT_FILTER_WHO_TRACKER_VALUE = ""
+const val cDEFAULT_FILTER_WHO_TRACKER_VALUE = 0
 const val cDEFAULT_VIEW_BY_TRACKER_VALUE = cPeriodMonth
 const val cDEFAULT_SHOW_TOTALS_TRACKER_VALUE = "#"
 const val cDEFAULT_SHOW_CURRENCY_SYMBOL_VALUE = true
+const val cDEFAULT_SP_LOOKAHEAD_VALUE = 3
+const val cDEFAULT_LAST_DASHBOARD_TAB_VALUE = 0
 
 class DefaultsViewModel : ViewModel() {
     private var defaultsListener: ValueEventListener? = null
@@ -108,6 +113,8 @@ class DefaultsViewModel : ViewModel() {
     var defaultShowCurrencySymbol: Boolean = cDEFAULT_SHOW_CURRENCY_SYMBOL_VALUE
     var defaultViewInRetirementDetails = RetirementDetailsViews.ALL
     val defaultCategoryDetails: MutableList<CategoryDetail> = ArrayList()
+    var defaultSPLookahead: Int = cDEFAULT_SP_LOOKAHEAD_VALUE
+    var defaultLastDashboardTab: Int = cDEFAULT_LAST_DASHBOARD_TAB_VALUE
 
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
@@ -153,6 +160,12 @@ class DefaultsViewModel : ViewModel() {
         }
         fun getDefaultShowRed(): Int {
             return singleInstance.defaultShowRed
+        }
+        fun getDefaultFilterWhoTracker(): Int {
+            return singleInstance.defaultFilterWhoTracker
+        }
+        fun getDefaultLastDashboardTab(): Int {
+            return singleInstance.defaultLastDashboardTab
         }
         fun getDefaultViewRowsYoy(): YoyView {
             return singleInstance.defaultViewRowsYoy
@@ -223,9 +236,6 @@ class DefaultsViewModel : ViewModel() {
         fun getDefaultFilterDiscTracker(): String {
             return singleInstance.defaultFilterDiscTracker
         }
-        fun getDefaultFilterWhoTracker(): String {
-            return singleInstance.defaultFilterWhoTracker
-        }
         fun getDefaultViewByTracker(): String {
             return singleInstance.defaultViewByTracker
         }
@@ -237,6 +247,9 @@ class DefaultsViewModel : ViewModel() {
         }
         fun getDefaultViewInRetirementDetails(): RetirementDetailsViews {
             return singleInstance.defaultViewInRetirementDetails
+        }
+        fun getDefaultSPLookahead(): Int {
+            return singleInstance.defaultSPLookahead
         }
 
         fun isLoaded():Boolean {
@@ -307,6 +320,8 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultShowCurrencySymbol = cDEFAULT_SHOW_CURRENCY_SYMBOL_VALUE
             singleInstance.defaultViewInRetirementDetails = RetirementDetailsViews.ALL
             singleInstance.defaultCategoryDetails.clear()
+            singleInstance.defaultSPLookahead = cDEFAULT_SP_LOOKAHEAD_VALUE
+            singleInstance.defaultLastDashboardTab = cDEFAULT_LAST_DASHBOARD_TAB_VALUE
         }
 
         fun getCategoryDetails(): MutableList<CategoryDetail> {
@@ -418,7 +433,7 @@ class DefaultsViewModel : ViewModel() {
     }
 
     override fun onCleared() {
-        Log.d("Alex", "WHY IS DEFAULT onCleared being called??")
+        Timber.tag("Alex").d("WHY IS DEFAULT onCleared being called??")
         super.onCleared()
         if (defaultsListener != null) {
             MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
@@ -465,9 +480,6 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_FILTER_DISC_TRACKER -> {
                 singleInstance.defaultFilterDiscTracker = iValue
             }
-            cDEFAULT_FILTER_WHO_TRACKER -> {
-                singleInstance.defaultFilterWhoTracker = iValue
-            }
             cDEFAULT_VIEW_BY_TRACKER -> {
                 singleInstance.defaultViewByTracker = iValue
             }
@@ -497,6 +509,16 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_VIEW_ROWS_YOY -> {
                 singleInstance.defaultViewRowsYoy = YoyView.getByValue(iValue)!!
+            }
+            cDEFAULT_SP_LOOKAHEAD -> {
+                if (iValue.toString().toIntOrNull() != null)
+                    singleInstance.defaultSPLookahead = iValue
+            }
+            cDEFAULT_LAST_DASHBOARD_TAB -> {
+                singleInstance.defaultLastDashboardTab = iValue
+            }
+            cDEFAULT_FILTER_WHO_TRACKER -> {
+                singleInstance.defaultFilterWhoTracker = iValue
             }
         }
     }
@@ -575,14 +597,14 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_FILTER_DISC_TRACKER -> {
                 singleInstance.defaultFilterDiscTracker = iValue
             }
-            cDEFAULT_FILTER_WHO_TRACKER -> {
-                singleInstance.defaultFilterWhoTracker = iValue
-            }
             cDEFAULT_VIEW_BY_TRACKER -> {
                 singleInstance.defaultViewByTracker = iValue
             }
             cDEFAULT_SHOW_TOTALS_TRACKER -> {
                 singleInstance.defaultShowTotalsTracker = iValue
+            }
+            cDEFAULT_LAST_DASHBOARD_TAB -> {
+                singleInstance.defaultLastDashboardTab = iValue.toInt()
             }
             cDEFAULT_CATEGORY_ID -> {
                 if (iValue.toIntOrNull() != null)
@@ -592,8 +614,15 @@ class DefaultsViewModel : ViewModel() {
                 if (iValue.toIntOrNull() != null)
                     singleInstance.defaultSpender = iValue.toInt()
             }
+            cDEFAULT_FILTER_WHO_TRACKER -> {
+                singleInstance.defaultFilterWhoTracker = iValue.toInt()
+            }
             cDEFAULT_VIEW_ROWS_YOY -> {
                 singleInstance.defaultViewRowsYoy = YoyView.getByValue(iValue.toInt())!!
+            }
+            cDEFAULT_SP_LOOKAHEAD -> {
+                if (iValue.toIntOrNull() != null)
+                    singleInstance.defaultSPLookahead = iValue.toInt()
             }
             cDEFAULT_INTEGRATEWITHTDSPEND -> {
                 singleInstance.defaultIntegrateWithTDSpend = (iValue == cTRUE)
@@ -668,12 +697,10 @@ class DefaultsViewModel : ViewModel() {
                             }
                         }
                     } else if (defaultRow.key.toString() == "Retirement") {
-                        Log.d("Alex", "retirement # of children: ${defaultRow.children.count()}")
                         for (retUser in defaultRow.children.toMutableList()) {
 //                            val userId = retUser.key.toString().toInt()
                             val retData = RetirementData.create(retUser.children.toMutableList())
                             RetirementViewModel.updateRetirementDefault(retData, true)
-                            Log.d("Alex", "created default: $retData")
                         }
                     } else
                         setLocal(defaultRow.key.toString(), defaultRow.value.toString())

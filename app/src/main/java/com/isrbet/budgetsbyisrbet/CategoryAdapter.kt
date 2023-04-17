@@ -100,17 +100,17 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         }
 
         viewHolder.vhCategory.setBackgroundColor(colorToUse)
-        if (Build.VERSION.SDK_INT >= 29) {
+//        if (Build.VERSION.SDK_INT >= 29) {
             if (inDarkMode(myContext))
                 viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border_no_fill)
             else
                 viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border)
             viewHolder.vhDetail.background.colorFilter =
                 BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
-        } else {
+/*        } else {
             viewHolder.vhDetail.setBackgroundColor(colorToUse)
             viewHolder.vhDetail.background.alpha = 44
-        }
+        } */
         viewHolder.vhDetail.setPadding(30, 5, 5, 5)
 
         val trParams = TableLayout.LayoutParams(

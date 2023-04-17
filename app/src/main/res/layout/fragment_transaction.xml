@@ -5,16 +5,38 @@
     android:id="@+id/transaction_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="5dp"
     tools:context=".TransactionFragment">
+
+    <LinearLayout
+        android:id="@+id/page_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/pageHeadingBackgroundColor"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/page_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/add_expense"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textSize="@dimen/pageHeadingFontSize"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
+        android:padding="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:fadeScrollbars="false">
+        app:layout_constraintTop_toBottomOf="@+id/page_title_layout">
 
         <RelativeLayout
             android:id="@+id/relativeLayout"
@@ -23,28 +45,9 @@
             tools:layout_editor_absoluteY="56dp">
 
             <LinearLayout
-                android:id="@+id/page_title_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/page_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:paddingBottom="20dp"
-                    android:text="@string/add_expense"
-                    android:textSize="24sp"
-                    android:textStyle="bold"/>
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/dateHeadingLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/page_title_layout">
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:layout_width="0dp"
@@ -52,7 +55,7 @@
                     android:layout_weight="1"
                     android:text="@string/date"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -60,30 +63,30 @@
                     android:layout_weight=".8"
                     android:text="@string/amount"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linearlayoutDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="5dp"
                 android:layout_below="@id/dateHeadingLayout"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:paddingBottom="5dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dateLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/date"
                     android:layout_gravity="start"
-                    android:minWidth="@dimen/custom_med_width"
                     android:layout_weight="1"
-                    app:endIconMode="clear_text"
-                    android:tooltipText="@string/toolTipDate">
+                    android:hint="@string/date"
+                    android:minWidth="@dimen/custom_med_width"
+                    android:tooltipText="@string/toolTipDate"
+                    app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextDate"
+                        android:id="@+id/transactionDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
@@ -108,24 +111,25 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/amountLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="@string/amount"
                         android:layout_gravity="end"
+                        android:hint="@string/amount"
                         android:minWidth="@dimen/custom_med_width"
-                        app:endIconMode="clear_text"
-                        android:tooltipText="@string/toolTipAmount">
+                        android:tooltipText="@string/toolTipAmount"
+                        app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextAmount"
+                            android:id="@+id/transactionAmount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
-                            android:inputType="numberDecimal|numberSigned"/>
+                            android:inputType="numberDecimal|numberSigned" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -142,23 +146,23 @@
                 android:text="@string/category"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:tooltipText="@string/toolTipCategory"/>
+                android:tooltipText="@string/toolTipCategory" />
 
             <HorizontalScrollView
                 android:id="@+id/radioGroupScroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/inputCategoryLabel"
                 android:fadeScrollbars="false"
-                android:scrollbarThumbHorizontal="?attr/colorSecondary"
-                android:layout_below="@id/inputCategoryLabel">
+                android:scrollbarThumbHorizontal="?attr/colorSecondary">
 
                 <RadioGroup
                     android:id="@+id/categoryRadioGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="end"
                     android:checkedButton="@+id/radio_category1"
                     android:gravity="center"
-                    android:layout_gravity="end"
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
@@ -177,7 +181,7 @@
                     android:text="@string/subcategory"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipSubCategory"/>
+                    android:tooltipText="@string/toolTipSubCategory" />
 
                 <RelativeLayout
                     android:id="@+id/inputSpinnerRelativeLayout"
@@ -206,52 +210,93 @@
                         android:layout_centerVertical="true"
                         android:layout_gravity="center"
                         android:contentDescription="@string/click_to_select"
-                        android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24" />
                 </RelativeLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/transaction_where_layout"
+                android:id="@+id/where_note_heading_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/input_spinner_layout"
-                android:orientation="horizontal"
-                android:paddingTop="10dp">
+                android:paddingTop="10dp"
+                android:layout_below="@id/input_spinner_layout">
 
                 <TextView
-                    android:id="@+id/inputWhereLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:text="@string/where"
+                    android:text="@string/vendor_name"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:tooltipText="@string/toolTipWhere" />
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/note"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:tooltipText="@string/toolTipNote" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayoutWhereNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/where_note_heading_layout"
+                android:baselineAligned="false"
+                android:paddingBottom="5dp">
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/whereLayout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="start"
                     android:hint="@string/vendor_name"
-                    android:minWidth="@dimen/custom_max_width"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="5dp"
+                    android:minWidth="@dimen/custom_med_width"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextWhere"
+                        android:id="@+id/where"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
                         android:inputType="textCapSentences" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/noteLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/note_optional"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:layout_gravity="end"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/note"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="textCapSentences" />
+                </com.google.android.material.textfield.TextInputLayout>
+
             </LinearLayout>
 
             <TextView
                 android:id="@+id/translatedWhereMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/transaction_where_layout"
+                android:layout_below="@id/linearLayoutWhereNote"
                 android:layout_gravity="center"
                 android:gravity="end"
                 android:textSize="14sp"
@@ -259,47 +304,10 @@
                 android:visibility="gone" />
 
             <LinearLayout
-                android:id="@+id/transaction_note_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/translatedWhereMessage"
-                android:orientation="horizontal"
-                android:paddingTop="10dp">
-
-                <TextView
-                    android:id="@+id/inputNoteLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/note"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="@string/toolTipNote"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/noteLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/note_optional"
-                    android:minWidth="@dimen/custom_max_width"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextNote"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:gravity="start"
-                        android:inputType="textCapSentences" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/transaction_paid_by_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/transaction_note_layout"
+                android:layout_below="@id/translatedWhereMessage"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
 
@@ -311,15 +319,16 @@
                     android:text="@string/paid_by"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipPaidBy"/>
+                    android:tooltipText="@string/toolTipPaidBy" />
 
                 <HorizontalScrollView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:fadeScrollbars="false"
-                    android:layout_weight="1"
                     android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:fadeScrollbars="false"
                     android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
                     <RadioGroup
                         android:id="@+id/paidByRadioGroup"
                         android:layout_width="wrap_content"
@@ -329,13 +338,14 @@
                         android:gravity="center"
                         android:orientation="horizontal" />
                 </HorizontalScrollView>
+
                 <ImageView
                     android:id="@+id/transaction_expand_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:contentDescription="@string/click_to_expand"
-                    android:src="@drawable/ic_baseline_expand_more_24"/>
+                    android:src="@drawable/ic_baseline_expand_more_24" />
 
             </LinearLayout>
 
@@ -355,21 +365,22 @@
                     android:text="@string/bought_for"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipBoughtFor"/>
+                    android:tooltipText="@string/toolTipBoughtFor" />
 
                 <HorizontalScrollView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:fadeScrollbars="false"
                     android:layout_weight="1"
+                    android:fadeScrollbars="false"
                     android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
                     <RadioGroup
                         android:id="@+id/boughtForRadioGroup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="end"
                         android:checkedButton="@+id/radio_person3"
                         android:gravity="center"
-                        android:layout_gravity="end"
                         android:orientation="horizontal"
                         android:padding="1dp" />
                 </HorizontalScrollView>
@@ -389,7 +400,7 @@
                     android:text="@string/split"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:tooltipText="@string/toolTipSplit"/>
+                    android:tooltipText="@string/toolTipSplit" />
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/slider"
@@ -404,9 +415,10 @@
                 android:id="@+id/split_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/slider_layout"
                 android:layout_gravity="center"
-                android:gravity="center"
-                android:layout_below="@id/slider_layout"/>
+                android:gravity="center" />
+
             <LinearLayout
                 android:id="@+id/scheduled_payment_label_layout"
                 android:layout_width="match_parent"
@@ -431,6 +443,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/scheduled_payment_label_layout"
+                android:paddingBottom="10dp"
                 android:gravity="center"
                 android:visibility="gone">
 
@@ -441,9 +454,11 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
+
                 <Space
                     android:layout_width="10dp"
                     android:layout_height="wrap_content" />
+
                 <TextView
                     android:id="@+id/transaction_id"
                     android:layout_width="wrap_content"
@@ -479,12 +494,12 @@
                 android:id="@+id/button_linear_layout_transaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/transaction_id_layout"
                 android:gravity="center"
-                android:orientation="vertical"
-                android:layout_below="@+id/transaction_id_layout">
+                android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/button_linear_layout"
+                    android:id="@+id/button_save_linear_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -495,56 +510,123 @@
                         android:id="@+id/button_cancel_transaction"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
                         android:contentDescription="@string/cancel"
+                        android:gravity="center"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
                         android:text="@string/cancel"
-                        android:textSize="16sp"
-                        android:tooltipText="Cancel"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="Cancel"
+                        app:drawableTopCompat="@drawable/ic_baseline_cancel_24"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:drawableTopCompat="@drawable/ic_baseline_cancel_24" />
+                        app:layout_constraintStart_toStartOf="parent" />
+
                     <TextView
                         android:id="@+id/button_save_transaction"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
                         android:contentDescription="@string/save"
+                        android:gravity="center"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
                         android:text="@string/save"
-                        android:tooltipText="@string/save"
-                        android:textSize="16sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="@string/save"
+                        app:drawableTopCompat="@drawable/ic_baseline_save_24"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:drawableTopCompat="@drawable/ic_baseline_save_24" />
+                        app:layout_constraintStart_toStartOf="parent" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/button_load_transaction_from_tdmyspend"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:contentDescription="@string/load_from_td_myspend"
+                    android:gravity="center"
                     android:paddingLeft="4dp"
                     android:paddingRight="4dp"
                     android:text="@string/load_from_td_myspend"
-                    android:tooltipText="@string/load_from_td_myspend"
+                    android:textColor="?attr/colorPrimary"
                     android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:tooltipText="@string/load_from_td_myspend"
+                    app:drawableTopCompat="@drawable/ic_baseline_notifications_24" />
+                <LinearLayout
+                    android:id="@+id/button_view_linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary"
-                    app:drawableTopCompat="@drawable/ic_baseline_notifications_24" />
+                    android:visibility="gone"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/button_edit"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/edit_transaction"
+                        android:gravity="center"
+                        android:paddingLeft="4dp"
+                        android:paddingRight="4dp"
+                        android:text="@string/edit"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="@string/edit_transaction"
+                        app:drawableTopCompat="@drawable/ic_baseline_edit_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/button_credit"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/credit_transaction"
+                        android:gravity="center"
+                        android:paddingLeft="4dp"
+                        android:paddingRight="4dp"
+                        android:text="@string/credit"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="Create a credit for this transaction"
+                        app:drawableTopCompat="@drawable/ic_baseline_backspace_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/button_delete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/delete_transaction"
+                        android:gravity="center"
+                        android:paddingLeft="4dp"
+                        android:paddingRight="4dp"
+                        android:text="@string/delete"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="Delete transaction"
+                        app:drawableTopCompat="@drawable/ic_baseline_delete_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+                </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
     </ScrollView>
@@ -554,10 +636,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
         android:paddingStart="5dp"
+        android:paddingTop="5dp"
         android:paddingEnd="5dp"
+        android:paddingBottom="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -569,12 +651,12 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="?attr/background"
-            android:tooltipText="@string/toolTipPrevious"
+            android:contentDescription="@string/go_to_previous_transaction"
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:contentDescription="@string/go_to_previous_transaction"
-            android:src="@drawable/ic_baseline_arrow_back_24"/>
+            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+            android:tooltipText="@string/toolTipPrevious" />
 
         <ImageButton
             android:id="@+id/button_next_transaction"
@@ -583,54 +665,13 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:background="?attr/background"
-            android:tooltipText="@string/toolTipNext"
-            android:gravity="center"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
             android:contentDescription="@string/go_to_next_transaction"
-            android:src="@drawable/ic_baseline_arrow_forward_24"/>
-
-        <ImageButton
-            android:id="@+id/button_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="?attr/background"
-            android:tooltipText="@string/edit_transaction"
             android:gravity="center"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:contentDescription="@string/edit_transaction"
-            android:src="@drawable/ic_baseline_edit_24"/>
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            android:tooltipText="@string/toolTipNext" />
 
-        <ImageButton
-            android:id="@+id/button_credit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="?attr/background"
-            android:tooltipText="Create a credit for this transaction"
-            android:gravity="center"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:contentDescription="@string/credit_transaction"
-            android:src="@drawable/ic_baseline_backspace_24"/>
-
-        <ImageButton
-            android:id="@+id/button_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="?attr/background"
-            android:tooltipText="Delete transaction"
-            android:gravity="center"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:contentDescription="@string/delete_transaction"
-            android:src="@drawable/ic_baseline_delete_24"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

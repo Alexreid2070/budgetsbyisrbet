@@ -157,8 +157,8 @@ class BudgetViewAllFragment : Fragment() {
         binding.categoryTypeLayout.visibility = View.GONE
         binding.yearLayout.visibility = View.VISIBLE
         if (args.year == "") {
-            binding.budgetAddYear.progress = gCurrentDate.get(Calendar.YEAR)
-            binding.budgetAddMonth.progress = gCurrentDate.get(Calendar.MONTH) + 1
+            binding.budgetAddYear.progress = gCurrentDate.getYear()
+            binding.budgetAddMonth.progress = gCurrentDate.getMonth()
         } else {
             binding.budgetAddYear.progress = args.year.toInt()
             binding.budgetAddMonth.progress = args.month.toInt()
@@ -207,7 +207,7 @@ class BudgetViewAllFragment : Fragment() {
                 val bmDateApplicable = MyDate(itemValue.dateApplicable)
 //                val bmDateStart = MyDate(itemValue.dateStarted)
                 if (itemValue.dateApplicable == itemValue.dateStarted ||
-                    (bmDateApplicable.month == 1 && itemValue.period == cPeriodYear) //bmDateStart.month == 0)
+                    (bmDateApplicable.getMonth() == 1 && itemValue.period == cPeriodYear) //bmDateStart.month == 0)
                 ) {// ie only allow edits on "real" entries
                     val amountToSend = itemValue.amount.toDouble()
                     val rtdf = BudgetEditDialogFragment.newInstance(

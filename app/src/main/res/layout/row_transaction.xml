@@ -16,10 +16,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="0dp" />
-
         <TextView
             android:id="@+id/vtf_key"
             android:layout_width="wrap_content"
@@ -33,8 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_weight=".8"
             android:textAlignment="textEnd"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp">
+            android:paddingStart="0dp"
+            android:paddingEnd="4dp">
         </TextView>
 
         <TextView
@@ -68,7 +64,7 @@
             android:id="@+id/vtf_category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.5"
+            android:layout_weight="1.4"
             android:textAlignment="textStart"
             android:ellipsize="end"
             android:singleLine="true">

@@ -5,13 +5,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="5dp"
     tools:context=".RetirementDetailsFragment">
 
+    <LinearLayout
+        android:id="@+id/page_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/pageHeadingBackgroundColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/retirement_details"
+            android:textStyle="bold"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textSize="@dimen/pageHeadingFontSize"/>
+    </LinearLayout>
     <ScrollView
         android:id="@+id/scroll_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/page_title_layout"
         android:layout_above="@id/expansion_layout"
         android:fadeScrollbars="true">
         <LinearLayout
@@ -28,7 +48,6 @@
                     android:id="@+id/retirement_table_rows"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dp"
                     android:stretchColumns="*" />
 
             </HorizontalScrollView>
@@ -73,7 +92,7 @@
             android:textAlignment="center"
             android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24" />
+            app:drawableStartCompat="@drawable/ic_baseline_expand_more_24" />
 
         <RadioGroup
             android:id="@+id/viewRadioGroup"
@@ -148,14 +167,5 @@
                 android:text="@string/show_property_details" />
         </RadioGroup>
 
-        <TextView
-            android:id="@+id/sticky_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/menuColor"
-            android:gravity="center"
-            android:paddingTop="5dp"
-            android:text="@string/these_settings_are_sticky"
-            android:visibility="gone" />
     </LinearLayout>
 </RelativeLayout>

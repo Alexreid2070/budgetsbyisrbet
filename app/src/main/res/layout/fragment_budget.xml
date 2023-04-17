@@ -299,7 +299,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="start"
-                    android:text="@string/enter_new_budget_amount"
+                    android:text="@string/amount"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:tooltipText="Budget amount for the indicated period." />
@@ -340,64 +340,10 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/budgetAddPercentage_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddAmount_layout"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp">
-
-                <TextView
-                    android:id="@+id/budgetAdd_or_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:text="@string/or_add_percentage_to_current_budget_amount"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="If there is a previous budget amount, you can increase it by a specified %." />
-
-                <LinearLayout
-                    android:id="@+id/budgetAddPercentage_entire_input_amount_area"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/percentageLayout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/percentage_short"
-                        android:minWidth="@dimen/custom_min_width"
-                        app:endIconMode="clear_text">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/budgetAddPercentage"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:gravity="start"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <Space
-                android:id="@+id/budgetAdd_space3"
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_below="@id/budgetAddPercentage_layout" />
-
-            <LinearLayout
                 android:id="@+id/budgetAdd_button_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAdd_space3"
+                android:layout_below="@id/budgetAddAmount_layout"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:paddingTop="20dp"
@@ -442,47 +388,6 @@
                     app:layout_constraintStart_toStartOf="parent" />
             </LinearLayout>
 
-            <Space
-                android:id="@+id/budgetAdd_space2"
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_below="@id/budgetAdd_button_linear_layout" />
-
-            <View
-                android:id="@+id/budgetAdd_view2"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_below="@id/budgetAdd_space2"
-                android:background="@android:color/darker_gray"
-                android:paddingBottom="10dp" />
-
-            <TextView
-                android:id="@+id/budgetAddPreviousAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAdd_view2"
-                android:gravity="start" />
-
-            <TextView
-                android:id="@+id/budgetAddActualAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddPreviousAmount"
-                android:gravity="start" />
-
-            <TextView
-                android:id="@+id/budgetAddTotalAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddActualAmount"
-                android:gravity="start" />
-
-            <TextView
-                android:id="@+id/budgetAddAverageAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/budgetAddTotalAmount"
-                android:gravity="start" />
         </RelativeLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

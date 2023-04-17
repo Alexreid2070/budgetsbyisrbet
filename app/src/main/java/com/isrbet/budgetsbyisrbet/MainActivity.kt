@@ -4,10 +4,9 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.icu.util.Calendar
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
 import androidx.navigation.findNavController
@@ -17,6 +16,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
             MyApplication.transactionSearchText = ""
             MyApplication.transactionFirstInList = cLAST_ROW
-            homePageExpansionAreaExpanded = false
+            gHomePageExpansionAreaExpanded = false
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
                 navHostFragment.childFragmentManager.popBackStack()
             }
@@ -112,13 +112,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.d("Alex", "RESUMING")
-        gCurrentDate = Calendar.getInstance()
-        homePageExpansionAreaExpanded = false
+        Timber.tag("Alex").d("Resuming Main Activity")
+        gCurrentDate = MyDate()
+        gHomePageExpansionAreaExpanded = false
     }
 
     override fun onDestroy() {
+        Timber.tag("Alex").d("main activity onDestroy")
         super.onDestroy()
         MyApplication.releaseResources()
+        gHomePageExpansionAreaExpanded = false
     }
 }

@@ -5,14 +5,12 @@ import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
@@ -24,6 +22,7 @@ import androidx.transition.TransitionInflater
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.Slider
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsBinding
+import timber.log.Timber
 
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
@@ -47,14 +46,14 @@ class SettingsFragment : Fragment() {
                 ActivityResultContracts.RequestPermission()
             ) { isGranted: Boolean ->
                 if (isGranted) {
-                    Log.d("Alex", "Permission is granted")
+                    Timber.tag("Alex").d("Permission is granted")
                 } else {
                     // Explain to the user that the feature is unavailable because the
                     // features requires a permission that the user has denied. At the
                     // same time, respect the user's decision. Don't link to system
                     // settings in an effort to convince the user to change their
                     // decision.
-                    Log.d("Alex", "Feature won't be available.")
+                    Timber.tag("Alex").d( "Feature won't be available.")
                 }
             }
     }
@@ -64,10 +63,13 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val spenderOne = SpenderViewModel.getSpender(0)
         val spenderTwo = SpenderViewModel.getSpender(1)
-        if (spenderOne == null)
-            binding.settingsFirstUserName.setText(MyApplication.userGivenName)
-        else
-            binding.settingsFirstUserName.setText(spenderOne.name)
+        if (spenderOne == null) {
+            if (binding.settingsFirstUserName.text.toString() != MyApplication.userGivenName)
+                binding.settingsFirstUserName.setText(MyApplication.userGivenName)
+        } else {
+            if (binding.settingsFirstUserName.text.toString() != spenderOne.name)
+                binding.settingsFirstUserName.setText(spenderOne.name)
+        }
         binding.firstUserEmail.text = spenderOne?.email
         if (spenderTwo != null) {
             if (spenderTwo.isActive == 1) {
@@ -174,6 +176,9 @@ class SettingsFragment : Fragment() {
         binding.switchSound.isChecked = DefaultsViewModel.getDefaultSound()
         binding.switchQuote.isChecked = DefaultsViewModel.getDefaultQuote()
         binding.switchCurrency.isChecked = DefaultsViewModel.getDefaultShowCurrencySymbol()
+        binding.spLookaheadText.text =
+            String.format(getString(R.string.sp_lookahead), DefaultsViewModel.getDefaultSPLookahead())
+        binding.spLookaheadSlider.value = DefaultsViewModel.getDefaultSPLookahead().toFloat()
         if (DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
             val isGranted = isNotificationServiceEnabled(requireContext())
             if (!isGranted) {
@@ -189,7 +194,8 @@ class SettingsFragment : Fragment() {
         else
             binding.manageTranslationsLayout.visibility = View.GONE
         binding.redPercentageSlider.value = DefaultsViewModel.getDefaultShowRed().toFloat()
-        binding.redPercentage.text = DefaultsViewModel.getDefaultShowRed().toString()
+        binding.redPercentageText.text =
+            String.format(getString(R.string.show_red_at), binding.redPercentageSlider.value.toInt())
 
         if (binding.settingsSecondUserName.text.toString() == "") {
             binding.splitSlider.isEnabled = false
@@ -308,6 +314,7 @@ class SettingsFragment : Fragment() {
                 binding.settingsQuoteLayout.visibility = View.GONE
                 binding.settingsRedPercentageLayout.visibility = View.GONE
                 binding.settingsCurrencyLayout.visibility = View.GONE
+                binding.settingsSpLookaheadLayout.visibility = View.GONE
                 binding.line1.visibility = View.GONE
                 binding.line2.visibility = View.GONE
                 binding.line3.visibility = View.GONE
@@ -336,6 +343,7 @@ class SettingsFragment : Fragment() {
                 binding.settingsQuoteLayout.visibility = View.VISIBLE
                 binding.settingsRedPercentageLayout.visibility = View.VISIBLE
                 binding.settingsCurrencyLayout.visibility = View.VISIBLE
+                binding.settingsSpLookaheadLayout.visibility = View.VISIBLE
                 binding.line1.visibility = View.VISIBLE
                 binding.line2.visibility = View.VISIBLE
                 binding.line3.visibility = View.VISIBLE
@@ -353,7 +361,12 @@ class SettingsFragment : Fragment() {
         }
 
         binding.redPercentageSlider.addOnChangeListener { _, _, _ ->
-            binding.redPercentage.text = binding.redPercentageSlider.value.toInt().toString()
+            binding.redPercentageText.text =
+                String.format(getString(R.string.show_red_at), binding.redPercentageSlider.value.toInt())
+        }
+        binding.spLookaheadSlider.addOnChangeListener { _, _, _ ->
+            binding.spLookaheadText.text =
+                String.format(getString(R.string.sp_lookahead), binding.spLookaheadSlider.value.toInt())
         }
 
         binding.settingsFirstUserName.addTextChangedListener(object : TextWatcher {
@@ -466,13 +479,26 @@ class SettingsFragment : Fragment() {
             }
         })
 
+        binding.spLookaheadSlider.addOnSliderTouchListener( object : Slider.OnSliderTouchListener {
+            @SuppressLint("RestrictedApi")
+            override fun onStartTrackingTouch(slider: Slider) {
+            }
+
+            @SuppressLint("RestrictedApi")
+            override fun onStopTrackingTouch(slider: Slider) {
+                if (binding.spLookaheadSlider.value.toInt() != DefaultsViewModel.getDefaultSPLookahead()) {
+                    DefaultsViewModel.updateDefaultInt(cDEFAULT_SP_LOOKAHEAD, binding.spLookaheadSlider.value.toInt())
+                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                }
+            }
+        })
         binding.switchIntegrateWithTD.setOnCheckedChangeListener { _, _ ->
             if (binding.switchIntegrateWithTD.isChecked) {
                 binding.manageTranslationsLayout.visibility = View.VISIBLE
                 // adding request for permission
                 if (isNotificationServiceEnabled(requireContext())) {
                         // You can use the API that requires the permission.
-                        Log.d("Alex", "Success")
+                        Timber.tag("Alex").d("Success")
                     }
                 else {
                     // You can directly ask for the permission.

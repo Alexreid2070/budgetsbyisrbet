@@ -116,14 +116,14 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
             val cat = DefaultsViewModel.getCategoryDetail(bData.category.toString())
             if (cat.color != 0) {
                 viewHolder.vhCategory.setBackgroundColor(cat.color)
-                if (Build.VERSION.SDK_INT >= 29) {
+//                if (Build.VERSION.SDK_INT >= 29) {
                     viewHolder.vhDetail.setBackgroundResource(R.drawable.row_left_border)
                     viewHolder.vhDetail.background.colorFilter =
                         BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
-                } else {
+/*                } else {
                     viewHolder.vhDetail.setBackgroundColor(cat.color)
                     viewHolder.vhDetail.background.alpha = 44
-                }
+                } */
                 viewHolder.vhDetail.setPadding(30, 5, 5, 5)
 
                 val trParams = TableLayout.LayoutParams(

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.icu.text.NumberFormat
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,10 +14,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class TransferFragment : Fragment() {
@@ -25,8 +23,6 @@ class TransferFragment : Fragment() {
     private val args: TransferFragmentArgs by navArgs()
     private var newTransferMode: Boolean = true
     private var editingKey: String = ""
-
-    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +34,7 @@ class TransferFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransferBinding.inflate(inflater, container, false)
-        binding.editTextAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.transferAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         // Inflate the layout for this fragment
         inflater.inflate(R.layout.fragment_transfer, container, false)
         return binding.root
@@ -46,23 +42,24 @@ class TransferFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.editTextDate.setText(giveMeMyDateFormat(cal))
+        binding.transferDate.setText(gCurrentDate.toString())
         binding.currencySymbol.text = getLocalCurrencySymbol() + " "
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.editTextDate.setText(giveMeMyDateFormat(cal))
+                binding.transferDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
-        binding.editTextDate.setOnClickListener {
+        binding.transferDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.transferDate.text.toString() != "") {
+                lcal = MyDate(binding.transferDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
 
@@ -74,27 +71,27 @@ class TransferFragment : Fragment() {
         }
 
         binding.splitSlider.addOnChangeListener { _, _, _ ->
-            binding.splitText.text = getSplitText(binding.splitSlider.value.toInt(), binding.editTextAmount.text.toString())
+            binding.splitText.text = getSplitText(binding.splitSlider.value.toInt(), binding.transferAmount.text.toString())
         }
         loadSpenderRadioButtons()
-        binding.editTextAmount.addTextChangedListener(object : TextWatcher {
+        binding.transferAmount.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun afterTextChanged(arg0: Editable) {
-                val str = binding.editTextAmount.text.toString()
+                val str = binding.transferAmount.text.toString()
                 if (str.isEmpty()) return
                 val str2: String = perfectDecimal(str, gMaxNumbersBeforeDecimalPlace, gMaxNumbersAfterDecimalPlace)
                 if (str2 != str) {
-                    binding.editTextAmount.setText(str2)
-                    binding.editTextAmount.setSelection(str2.length)
+                    binding.transferAmount.setText(str2)
+                    binding.transferAmount.setSelection(str2.length)
                 }
-                binding.splitText.text = getSplitText(binding.splitSlider.value.toInt(), binding.editTextAmount.text.toString())
+                binding.splitText.text = getSplitText(binding.splitSlider.value.toInt(), binding.transferAmount.text.toString())
             }
         })
 
         if (SpenderViewModel.multipleUsers()) {
             binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
-            binding.splitText.text = getSplitText((SpenderViewModel.getSpenderSplit(0)*100).toInt(), binding.editTextAmount.text.toString())
+            binding.splitText.text = getSplitText((SpenderViewModel.getSpenderSplit(0)*100).toInt(), binding.transferAmount.text.toString())
         }
         if (newTransferMode) {
             binding.pageTitle.text = getString(R.string.add_transfer)
@@ -112,16 +109,16 @@ class TransferFragment : Fragment() {
                 when {
                     radioButton.text.toString() == getString(R.string.joint) -> {
                         binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
-                        binding.splitText.text = getSplitText((SpenderViewModel.getSpenderSplit(0)*100).toInt(), binding.editTextAmount.text.toString())
+                        binding.splitText.text = getSplitText((SpenderViewModel.getSpenderSplit(0)*100).toInt(), binding.transferAmount.text.toString())
                     }
                     radioButton.text.toString() == SpenderViewModel.getSpenderName(0) -> {
                         binding.splitSlider.value = 100.0F
-                        binding.splitText.text = getSplitText(100, binding.editTextAmount.text.toString())
+                        binding.splitText.text = getSplitText(100, binding.transferAmount.text.toString())
                         binding.splitSlider.isEnabled = false
                     }
                     else -> {
                         binding.splitSlider.value = 0.0F
-                        binding.splitText.text = getSplitText(0, binding.editTextAmount.text.toString())
+                        binding.splitText.text = getSplitText(0, binding.transferAmount.text.toString())
                         binding.splitSlider.isEnabled = false
                     }
                 }
@@ -130,10 +127,11 @@ class TransferFragment : Fragment() {
             binding.pageTitle.text = getString(R.string.view_transfer)
             binding.buttonSave.visibility = View.GONE
             binding.buttonCancel.visibility = View.GONE
-            binding.editTextDate.isEnabled = false
-            binding.editTextAmount.isEnabled = false
-            binding.editTextNote.isEnabled = false
+            binding.transferDate.isEnabled = false
+            binding.transferAmount.isEnabled = false
+            binding.transferNote.isEnabled = false
             binding.splitSlider.isEnabled = false
+            binding.buttonViewLinearLayout.visibility = View.VISIBLE
             for (i in 0 until binding.fromRadioGroup.childCount) {
                 (binding.fromRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
@@ -141,19 +139,19 @@ class TransferFragment : Fragment() {
                 (binding.toRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
             viewTransfer(args.transactionID)
-            binding.editTextDate.setBackgroundColor(
+            binding.transferDate.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.light_gray
                 )
             )
-            binding.editTextAmount.setBackgroundColor(
+            binding.transferAmount.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.light_gray
                 )
             )
-            binding.editTextNote.setBackgroundColor(
+            binding.transferNote.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
                     R.color.light_gray
@@ -179,7 +177,7 @@ class TransferFragment : Fragment() {
             )
             binding.splitText.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
         }
-        binding.editTextAmount.requestFocus()
+        binding.transferAmount.requestFocus()
 
 //        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
 //        binding.splitText.setBackgroundColor(Color.parseColor(hexColor))
@@ -188,15 +186,15 @@ class TransferFragment : Fragment() {
             when {
                 radioButton.text.toString() == getString(R.string.joint) -> {
                     binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
-                    binding.splitText.text = getSplitText(binding.splitSlider.value.toInt(), binding.editTextAmount.text.toString())
+                    binding.splitText.text = getSplitText(binding.splitSlider.value.toInt(), binding.transferAmount.text.toString())
                 }
                 radioButton.text.toString() == SpenderViewModel.getSpenderName(0) -> {
                     binding.splitSlider.value = 100.0F
-                    binding.splitText.text = getSplitText(100, binding.editTextAmount.text.toString())
+                    binding.splitText.text = getSplitText(100, binding.transferAmount.text.toString())
                 }
                 else -> {
                     binding.splitSlider.value = 0.0F
-                    binding.splitText.text = getSplitText(0, binding.editTextAmount.text.toString())
+                    binding.splitText.text = getSplitText(0, binding.transferAmount.text.toString())
                 }
             }
             if (radioButton.text == getString(R.string.joint)) {
@@ -235,14 +233,9 @@ class TransferFragment : Fragment() {
         binding.buttonDelete.visibility = View.GONE
         binding.buttonCancel.visibility = View.VISIBLE
         binding.buttonSave.visibility = View.VISIBLE
-        binding.editTextDate.isEnabled = true
-        val tOldDate = LocalDate.parse(binding.editTextDate.text, DateTimeFormatter.ISO_DATE)
-        cal.set(Calendar.YEAR, tOldDate.year)
-        cal.set(Calendar.MONTH, tOldDate.monthValue-1)
-        cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
-
-        binding.editTextAmount.isEnabled = true
-        binding.editTextNote.isEnabled = true
+        binding.transferDate.isEnabled = true
+        binding.transferAmount.isEnabled = true
+        binding.transferNote.isEnabled = true
         for (i in 0 until binding.fromRadioGroup.childCount) {
             (binding.fromRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
         }
@@ -288,9 +281,9 @@ class TransferFragment : Fragment() {
 
 //            val iAmount = thisTransaction.amount
 //            val formattedAmount = (iAmount/100).toDouble() + (iAmount % 100).toDouble()/100
-            binding.editTextAmount.setText(gDec(thisTransaction.amount))
-            binding.editTextDate.setText(thisTransaction.date)
-            binding.editTextNote.setText(thisTransaction.note2)
+            binding.transferAmount.setText(gDec(thisTransaction.amount))
+            binding.transferDate.setText(thisTransaction.date.toString())
+            binding.transferNote.setText(thisTransaction.note2)
             binding.splitSlider.value = thisTransaction.bfname1split.toFloat()
             binding.splitText.text = getSplitText(thisTransaction.bfname1split, thisTransaction.amount.toString())
             if (thisTransaction.boughtfor == 2) {
@@ -318,23 +311,23 @@ class TransferFragment : Fragment() {
     }
 
     private fun onSaveButtonClicked () {
-        if (!textIsSafeForValue(binding.editTextNote.text.toString())) {
+        if (!textIsSafeForValue(binding.transferNote.text.toString())) {
 //            showErrorMessage(getParentFragmentManager(), "The text contains unsafe characters.  They must be removed.")
-            binding.editTextNote.error = getString(R.string.field_has_invalid_character)
-            focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
+            binding.transferNote.error = getString(R.string.field_has_invalid_character)
+            focusAndOpenSoftKeyboard(requireContext(), binding.transferNote)
             return
         }
         // need to reject if all the fields aren't entered
-        if (binding.editTextAmount.text.toString() == "") {
+        if (binding.transferAmount.text.toString() == "") {
 //            showErrorMessage(getParentFragmentManager(), getString(R.string.missingAmountError))
-            binding.editTextAmount.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.editTextAmount)
+            binding.transferAmount.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.transferAmount)
             return
         }
-        if (binding.editTextNote.text.toString() == "") {
+        if (binding.transferNote.text.toString() == "") {
 //            showErrorMessage(getParentFragmentManager(), getString(R.string.missingNoteError))
-            binding.editTextNote.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
+            binding.transferNote.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.transferNote)
             return
         }
         val fromRadioButtonChecked = binding.fromRadioGroup.checkedRadioButtonId
@@ -343,39 +336,40 @@ class TransferFragment : Fragment() {
         val toRadioGroupChecked = binding.toRadioGroup.checkedRadioButtonId
         val toRadioButton = requireActivity().findViewById(toRadioGroupChecked) as RadioButton
         if (fromRadioButton.text.toString() == toRadioButton.text.toString()) {
-            binding.editTextNote.error = getString(R.string.toFromCantBeSame)
-            focusAndOpenSoftKeyboard(requireContext(), binding.editTextNote)
+            binding.transferNote.error = getString(R.string.toFromCantBeSame)
+            focusAndOpenSoftKeyboard(requireContext(), binding.transferNote)
             return
         }
 
-        val amountDouble = gNumberFormat.parse(binding.editTextAmount.text.toString()).toDouble()
+        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+        val amountDouble = lNumberFormat.parse(binding.transferAmount.text.toString()).toDouble()
 
         if (newTransferMode) {
             val transfer = TransferOut(
-                binding.editTextDate.text.toString(),
+                binding.transferDate.text.toString(),
                 (amountDouble * 100.0).toInt(),
                 SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
                 binding.splitSlider.value.toInt(),
-                binding.editTextNote.text.toString(),
-                binding.editTextNote.text.toString()
+                binding.transferNote.text.toString(),
+                binding.transferNote.text.toString()
             )
             TransactionViewModel.addTransfer(transfer)
-            binding.editTextAmount.setText("")
-            binding.editTextAmount.requestFocus()
-            binding.editTextNote.setText("")
+            binding.transferAmount.setText("")
+            binding.transferAmount.requestFocus()
+            binding.transferNote.setText("")
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, getString(R.string.transfer_added), Toast.LENGTH_SHORT).show()
 
         } else {
             val transfer = TransferOut(
-                binding.editTextDate.text.toString(),
+                binding.transferDate.text.toString(),
                 (amountDouble * 100.0).toInt(),
                 SpenderViewModel.getSpenderIndex(fromRadioButton.text.toString()),
                 SpenderViewModel.getSpenderIndex(toRadioButton.text.toString()),
                 binding.splitSlider.value.toInt(),
-                binding.editTextNote.text.toString(),
-                binding.editTextNote.text.toString()
+                binding.transferNote.text.toString(),
+                binding.transferNote.text.toString()
             )
 
             TransactionViewModel.updateTransfer(editingKey, transfer)

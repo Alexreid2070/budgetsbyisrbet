@@ -63,21 +63,21 @@ class RetirementAssetDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.annuityStartDate.setText(giveMeMyDateFormat(cal))
+                binding.annuityStartDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.annuityStartDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.annuityStartDate.text.toString() != "") {
+                lcal = MyDate(binding.annuityStartDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
 
@@ -145,7 +145,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         }
                     }
                     AssetType.LIRA_LIF -> {
-                        val liraLif = asset as LIRA_LIF
+                        val liraLif = asset as LIRALIF
                         binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
                         when (liraLif.minimizeTax) {
                             MinimizeTaxEnum.DO_NOT_MINIMIZE -> binding.minimizeRRSPNever.isChecked = true
@@ -156,7 +156,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     AssetType.LIRA_Annuity -> {
                         binding.annuityStartDateLayout.visibility = View.VISIBLE
                         binding.annualAmountLayout.visibility = View.VISIBLE
-                        binding.annuityStartDate.setText((asset as LIRA_ANNUITY).pensionStartDate.toString())
+                        binding.annuityStartDate.setText((asset as LIRAANNUITY).pensionStartDate)
                         binding.annualAnnuityAmount.setText(asset.annualAmount.toString())
                     }
                     AssetType.SAVINGS -> {
@@ -309,7 +309,6 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
             if (assetName == "" && RetirementViewModel.getWorkingAsset(binding.assetName.text.toString()) != null) {
-                Log.d("Alex", "name already exists ${binding.assetName.text}")
                 binding.assetName.error = getString(R.string.name_already_exists)
                 focusAndOpenSoftKeyboard(requireContext(), binding.assetName)
                 return@setOnClickListener
@@ -336,7 +335,6 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     return@setOnClickListener
                 }
             }
-            val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
             val oldAsset = RetirementViewModel.getWorkingAsset(assetName)
             val distributionOrder = oldAsset?.distributionOrder ?: RetirementViewModel.getWorkingAssetListCount()
 
@@ -357,7 +355,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         distributionOrder,
                         0,
                         minRRSPVal
@@ -370,30 +368,30 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         MinimizeTaxEnum.MINIMIZE_WHEN_POSSIBLE
                     else
                         MinimizeTaxEnum.ALWAYS_MINIMIZE
-                    asset = LIRA_LIF(
+                    asset = LIRALIF(
                         RetirementViewModel.getWorkingAssetListCount(),
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         distributionOrder,
                         0,
                         minTaxVal
                     )
                 }
                 AssetType.getText(AssetType.LIRA_Annuity) -> {
-                    asset = LIRA_ANNUITY(
+                    asset = LIRAANNUITY(
                         RetirementViewModel.getWorkingAssetListCount(),
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.annuityStartDate.text.toString(),
-                        cal.get(Calendar.YEAR),
+                        gCurrentDate.getYear(),
                         binding.annualAnnuityAmount.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         distributionOrder
                     )
                 }
@@ -406,7 +404,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
                         binding.switchWillSellToFinanceRetirement.isChecked,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         distributionOrder
                     )
                 }
@@ -419,7 +417,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
                         binding.switchWillSellToFinanceRetirement.isChecked,
-                        12 - cal.get(Calendar.MONTH) - 1,
+                        12 - gCurrentDate.getMonth(),
                         distributionOrder,
                         binding.switchTaxSheltered.isChecked
                     )

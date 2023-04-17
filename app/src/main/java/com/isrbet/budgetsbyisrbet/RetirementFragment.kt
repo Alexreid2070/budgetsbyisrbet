@@ -20,13 +20,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.models.Shape
 import nl.dionsegijn.konfetti.models.Size
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class RetirementFragment : Fragment(), CoroutineScope {
     private var _binding: FragmentRetirementBinding? = null
     private val binding get() = _binding!!
-    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
     private var lRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
     private var myCalculationResponse = ""
     private var myCalculationResponse2 = ""
@@ -142,19 +140,15 @@ class RetirementFragment : Fragment(), CoroutineScope {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
                 binding.scenarioNameInput.setText(getStrippedScenarioName(selection.toString()))
-                Log.d("Alex", "Just chose scenario ${selection.toString()}")
                 binding.scenarioNameInput.error = null
                 binding.scenarioNameEntireLayout.visibility = View.GONE
                 if (previousSpinnerSelection != position) { // a new scenario has been chosen
-                    Log.d("Alex", "One $position ${SpenderViewModel.getNumberOfUsers()}")
                     loadRetirementInfoFromWorking = false
                     previousSpinnerSelection = position
                     setSummaryFields(View.GONE)
                     if (position < SpenderViewModel.getNumberOfUsers()) {
-                        Log.d("Alex", "One A")
                         val userDefault = RetirementViewModel.getUserDefault(position) // ?: return
                         binding.userID.text = position.toString()
-                        Log.d("Alex", "One B")
                         loadScreen(userDefault)
                         if (!inDefaultMode)
                             binding.buttonUpdateDefaults.visibility = View.GONE
@@ -166,7 +160,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         binding.buttonDeleteScenario.visibility = View.VISIBLE
                     }
                 } else { // returned to the screen from See Details
-                    Log.d("Alex", "Two")
                     loadScreen(null, true)
                 }
             }
@@ -234,50 +227,38 @@ class RetirementFragment : Fragment(), CoroutineScope {
         if (myEarliestRetirementYear == 0) {
             setSummaryFields(View.GONE)
         }
-        binding.birthDate.setText(giveMeMyDateFormat(cal))
+        binding.birthDate.setText(gCurrentDate.toString())
         val birthDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-                lcal.set(Calendar.YEAR, year)
-                lcal.set(Calendar.MONTH, monthOfYear)
-                lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.birthDate.setText(giveMeMyDateFormat(lcal))
+                binding.birthDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
         binding.birthDate.setOnClickListener {
-            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+            var lcal = MyDate()
             if (binding.birthDate.text.toString() != "") {
-                lcal.set(Calendar.YEAR, binding.birthDate.text.toString().substring(0,4).toInt())
-                lcal.set(Calendar.MONTH, binding.birthDate.text.toString().substring(5,7).toInt()-1)
-                lcal.set(Calendar.DAY_OF_MONTH, binding.birthDate.text.toString().substring(8,10).toInt())
+                lcal = MyDate(binding.birthDate.text.toString())
             }
-            DatePickerDialog( // this is fired when user clicks into date field
+            DatePickerDialog(
                 requireContext(), birthDateSetListener,
-                lcal.get(Calendar.YEAR),
-                lcal.get(Calendar.MONTH),
-                lcal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
-        binding.retirementDate.setText(giveMeMyDateFormat(cal))
+        binding.retirementDate.setText(com.isrbet.budgetsbyisrbet.gCurrentDate.toString())
         val retDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-                lcal.set(Calendar.YEAR, year)
-                lcal.set(Calendar.MONTH, monthOfYear)
-                lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.retirementDate.setText(giveMeMyDateFormat(lcal))
+                binding.retirementDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
         binding.retirementDate.setOnClickListener {
-            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+            var lcal = MyDate()
             if (binding.retirementDate.text.toString() != "") {
-                lcal.set(Calendar.YEAR, binding.retirementDate.text.toString().substring(0,4).toInt())
-                lcal.set(Calendar.MONTH, binding.retirementDate.text.toString().substring(5,7).toInt()-1)
-                lcal.set(Calendar.DAY_OF_MONTH, binding.retirementDate.text.toString().substring(8,10).toInt())
+                lcal = MyDate(binding.retirementDate.text.toString())
             }
-            DatePickerDialog( // this is fired when user clicks into date field
+            DatePickerDialog(
                 requireContext(), retDateSetListener,
-                lcal.get(Calendar.YEAR),
-                lcal.get(Calendar.MONTH),
-                lcal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
         binding.userID.text = SpenderViewModel.myIndex().toString()
@@ -370,7 +351,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
         if (!checkThatAllFieldsAreOK())
             return
 
-        MyApplication.displayToast(getString(R.string.calculating))
         setSummaryFields(View.GONE)
         binding.scenarioNameInput.error = null
         binding.scenarioNameEntireLayout.visibility = View.GONE
@@ -743,7 +723,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
 
     private fun loadScreen(iRetirementData: RetirementData?, iJustResetAdaptersFromWorking: Boolean = false) {
-        Log.d("Alex", "loading screen for $iRetirementData $iJustResetAdaptersFromWorking")
         if (iJustResetAdaptersFromWorking) {
             val inv = binding.investmentGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
             val prop = binding.propertyGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()

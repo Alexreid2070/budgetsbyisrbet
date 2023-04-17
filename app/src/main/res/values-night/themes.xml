@@ -19,8 +19,7 @@
         <item name="android:editTextBackground">@color/pastel_orange</item>
         <item name="colorOnSurface">@color/sedona</item>
 
-        <item name="pageHeadingFontColor">@color/darker_gray</item>
-        <item name="pageHeadingBackgroundColor">@color/darker_gray</item>
-        <item name="pageHeadingFontSize">16</item>
+        <item name="pageHeadingFontColor">@color/pastel_orange</item>
+        <item name="pageHeadingBackgroundColor">@color/sedona</item>
     </style>
 </resources>

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
-import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RadioButton
@@ -36,6 +35,7 @@ import kotlinx.coroutines.Job
 import java.text.DecimalFormat
 import java.util.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
 class TrackerFragment : Fragment(), CoroutineScope {
@@ -62,20 +62,17 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
     fun initCurrentBudgetMonth() {
         currentBudgetMonth = MyDate(
-            gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
-                android.icu.util.Calendar.MONTH) + 1, 1)
+            gCurrentDate.getYear(), gCurrentDate.getMonth(), 1)
         if (DefaultsViewModel.getDefaultViewByTracker() == cPeriodYear) {
-            currentBudgetMonth.month = 0
+            currentBudgetMonth.representsYear = true
         }
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initCurrentBudgetMonth()
-        if (currentBudgetMonth.year == 0) {
+        if (currentBudgetMonth.representsYear) {
             currentBudgetMonth = MyDate(
-                gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
-                    android.icu.util.Calendar.MONTH
-                ) + 1, 1
+                gCurrentDate.getYear(), gCurrentDate.getMonth(), 1
             )
         }
         when (DefaultsViewModel.getDefaultFilterDiscTracker()) {
@@ -90,8 +87,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
             }
         }
         when (DefaultsViewModel.getDefaultFilterWhoTracker()) {
-            "0" -> binding.name1RadioButton.isChecked = true
-            "1" -> binding.name2RadioButton.isChecked = true
+            0 -> binding.name1RadioButton.isChecked = true
+            1 -> binding.name2RadioButton.isChecked = true
             else -> binding.whoAllRadioButton.isChecked = true
         }
         if (SpenderViewModel.singleUser()) {
@@ -105,7 +102,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
             cPeriodMonth -> binding.buttonViewMonth.isChecked = true
             cPeriodYear -> {
                 binding.buttonViewYear.isChecked = true
-                currentBudgetMonth.month = 0
+                currentBudgetMonth.representsYear = true
             }
             cPeriodYTD -> binding.buttonViewYtd.isChecked = true
             else -> binding.buttonViewAllTime.isChecked = true
@@ -113,28 +110,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
         binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
         binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
 
-        if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
-            if ((parentFragment !is HomeFragment) && goToPie) {
-                hideBarChart()
-                loadPieChart(currentCategory)
-            } else {
-                hidePieChart()
-                launch {
-                    loadBarChart()
-                }
-                goToPie = false
-            }
-        }
-/*        if (TransactionViewModel.getCount() > 1 && CategoryViewModel.getCount() > 1) {
-            if (!(parentFragment is HomeFragment) && goToPie) {
-                hideBarChart()
-                loadPieChart(currentCategory)
-            } else {
-                hidePieChart()
-                loadBarChart(1)
-                goToPie = false
-            }
-        } */
         if (parentFragment is HomeFragment) { // ie on home page
             // remove top padding
             binding.constraintLayout.setPadding(
@@ -143,14 +118,35 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 binding.constraintLayout.paddingRight,
                 binding.constraintLayout.paddingBottom
             )
+/*            launch {
+                if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
+                    Timber.tag("PERF").d("Loading bar chart 1a")
+                    loadBarChart()
+                }
+            } */
+            binding.pageTitleLayout.visibility = View.GONE
+            binding.buttonLayout.visibility = View.GONE
         } else { // ie on Tracker page
             binding.buttonLayout.visibility = View.VISIBLE
             binding.chartButtonLayout.visibility = View.VISIBLE
+            binding.buttonLayout.visibility = View.VISIBLE
             binding.buttonBar.setOnClickListener {
                 goToPie = false
                 hidePieChart()
                 loadBarChart()
             }
+            binding.buttonSettings.setOnClickListener {
+                binding.optionsLinearLayout.visibility = View.VISIBLE
+                binding.navButtonLinearLayout.visibility = View.GONE
+            }
+            binding.optionsLinearLayout.setOnTouchListener(object :
+                OnSwipeTouchListener(requireContext()) {
+                override fun onSwipeBottom() {
+                    super.onSwipeBottom()
+                    binding.optionsLinearLayout.visibility = View.GONE
+                    binding.navButtonLinearLayout.visibility = View.VISIBLE
+                }
+            })
             binding.buttonPie.setOnClickListener {
                 goToPie = true
                 hideBarChart()
@@ -163,27 +159,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 binding.actualPieChart.invalidate()
                 binding.budgetPieChart.invalidate()
             }
-            binding.expandNav.setOnClickListener {
-                onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
-            }
-            binding.expandOptions.setOnClickListener {
-                onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
-            }
-            binding.expandView.setOnClickListener {
-                onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
-            }
-            binding.expandFilter.setOnClickListener {
-                onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
-            }
-            binding.resetFilterButton.setOnClickListener {
-                binding.chartSubTitle.text = ""
-                currentCategory = ""
-                DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_DISC_TRACKER, cDiscTypeAll)
-                binding.allDiscRadioButton.isChecked = true
-                DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_TRACKER, "-1")
-                binding.whoAllRadioButton.isChecked = true
-                onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
-            }
             binding.buttonBackward.setOnClickListener {
                 moveOneMonthBackward()
             }
@@ -193,27 +168,24 @@ class TrackerFragment : Fragment(), CoroutineScope {
             binding.buttonViewMonth.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodMonth)
                 currentBudgetMonth = MyDate(
-                    gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
-                    android.icu.util.Calendar.MONTH) + 1, 1)
+                    gCurrentDate.getYear(), gCurrentDate.getMonth(), 1)
                 startLoadData()
             }
             binding.buttonViewYear.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodYear)
-                currentBudgetMonth.month = 0
+                currentBudgetMonth.representsYear = true
                 startLoadData()
             }
             binding.buttonViewYtd.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodYTD)
                 currentBudgetMonth = MyDate(
-                    gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
-                    android.icu.util.Calendar.MONTH) + 1, 1)
+                    gCurrentDate.getYear(), gCurrentDate.getMonth(), 1)
                 startLoadData()
             }
             binding.buttonViewAllTime.setOnClickListener {
                 DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_BY_TRACKER, cPeriodAllTime)
                 currentBudgetMonth = MyDate(
-                    gCurrentDate.get(android.icu.util.Calendar.YEAR), gCurrentDate.get(
-                    android.icu.util.Calendar.MONTH) + 1, 1)
+                    gCurrentDate.getYear(), gCurrentDate.getMonth(), 1)
                 startLoadData()
             }
             binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, optionId ->
@@ -235,27 +207,39 @@ class TrackerFragment : Fragment(), CoroutineScope {
             binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
                 when (optionId) {
                     R.id.name1RadioButton -> {
-                        DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_TRACKER, "0")
+                        DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_WHO_TRACKER, 0)
                         startLoadData()
                     }
                     R.id.name2RadioButton -> {
-                        DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_TRACKER, "1")
+                        DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_WHO_TRACKER, 1)
                         startLoadData()
                     }
                     R.id.whoAllRadioButton -> {
-                        DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_TRACKER, "-1")
+                        DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_WHO_TRACKER, 2)
                         startLoadData()
                     }
                 }
             }
-        HintViewModel.showHint(parentFragmentManager, cHINT_TRACKER)
+            HintViewModel.showHint(parentFragmentManager, cHINT_TRACKER)
+            if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
+                if (goToPie) {
+                    hideBarChart()
+                    loadPieChart(currentCategory)
+                } else {
+                    hidePieChart()
+                    launch {
+                        loadBarChart()
+                    }
+                    goToPie = false
+                }
+            }
         }
     }
     private fun moveOneMonthBackward() {
         if (DefaultsViewModel.getDefaultViewByTracker() != cPeriodYTD &&
             DefaultsViewModel.getDefaultViewByTracker() != cPeriodAllTime) {
-            if (currentBudgetMonth.month == 0)
-                currentBudgetMonth.year--
+            if (currentBudgetMonth.representsYear)
+                currentBudgetMonth.increment(cPeriodYear, -1)
             else
                 currentBudgetMonth.increment(cPeriodMonth, -1)
             startLoadData()
@@ -264,41 +248,19 @@ class TrackerFragment : Fragment(), CoroutineScope {
     private fun moveOneMonthForward() {
         if (DefaultsViewModel.getDefaultViewByTracker() != cPeriodYTD &&
             DefaultsViewModel.getDefaultViewByTracker() != cPeriodAllTime) {
-            if (currentBudgetMonth.month == 0)
-                currentBudgetMonth.year++
+            if (currentBudgetMonth.representsYear)
+                currentBudgetMonth.increment(cPeriodYear, 1)
             else
                 currentBudgetMonth.increment(cPeriodMonth, 1)
             startLoadData()
         }
     }
     private fun startLoadData() {
-        if (binding.barChart.visibility == View.VISIBLE)
+        if (binding.barChart.visibility == View.VISIBLE) {
             loadBarChart()
-        else
+        } else
             loadPieChart(currentCategory)
     }
-    private fun onExpandClicked(button: TextView, layout: LinearLayout) {
-        if (layout.visibility == View.GONE) { // ie expand the section
-            // first hide all other possible expansions
-            resetLayout(binding.expandNav, binding.navButtonLinearLayout)
-            resetLayout(binding.expandView, binding.viewButtonLinearLayout)
-            resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
-            resetLayout(binding.expandOptions, binding.optionsButtonLinearLayout)
-            button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
-            button.textSize = 16F
-            button.setBackgroundResource(R.drawable.rounded_top_corners)
-            layout.visibility = View.VISIBLE
-        } else { // ie retract the section
-            resetLayout(button, layout)
-        }
-    }
-    private fun resetLayout(button: TextView, layout: LinearLayout) {
-        button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
-        button.textSize = 14F
-        button.setBackgroundResource(android.R.color.transparent)
-        layout.visibility = View.GONE
-    }
-
     private fun setPieGraphNumericStyle(pieChart: PieChart, iStyle: String) {
         when (iStyle) {
             "%" -> {
@@ -319,9 +281,11 @@ class TrackerFragment : Fragment(), CoroutineScope {
         binding.barChart.visibility = View.VISIBLE
         binding.chartSummaryText.visibility = View.VISIBLE
         initializeBarChart()
-        createBarChart(getBarChartData())
+        val bcd: ArrayList<DataObject> = getBarChartData()
+        createBarChart(bcd)
         if (hackActualTotal == 0.0 && hackBudgetTotal == 0.0) {
             hideBarChart()
+            binding.chartSummaryText.visibility = View.VISIBLE
             binding.chartSummaryText.text = getString(R.string.no_tracker_data)
         }
     }
@@ -330,7 +294,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         binding.chartTitle.visibility = View.GONE
         binding.chartSubTitle.visibility = View.GONE
         binding.barChart.visibility = View.GONE
-//        binding.chartSummaryText.visibility = View.GONE
+        binding.chartSummaryText.visibility = View.GONE
     }
 
     private fun loadPieChart(iSpecificCategory: String = "") {
@@ -339,7 +303,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         binding.budgetPieChart.visibility = View.VISIBLE
         binding.numericTypeRadioGroup.visibility = View.VISIBLE
         binding.chartSummaryText.visibility = View.VISIBLE
-        binding.expandOptions.visibility = View.VISIBLE
+        binding.showDeltaLayout.visibility = View.VISIBLE
         initializePieChart(getString(R.string.actual), binding.actualPieChart)
         initializePieChart(getString(R.string.budget), binding.budgetPieChart)
         // budget pie must be created first so that totals comparisons work
@@ -350,9 +314,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
             if (binding.chartSubTitle.text == "")
                 binding.chartSubTitle.text = "($iSpecificCategory)"
             else
-                binding.chartSubTitle.text =
-                    binding.chartSubTitle.text.toString().substring(0,binding.chartSubTitle.text.toString().length-1) +
-                            " " + iSpecificCategory + ")"
+                binding.chartSubTitle.text = "${binding.chartSubTitle.text.toString().substring(0,binding.chartSubTitle.text.toString().length-1)} $iSpecificCategory)"
         }
     }
 
@@ -360,7 +322,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         binding.chartTitle.visibility = View.GONE
         binding.actualPieChart.visibility = View.GONE
         binding.budgetPieChart.visibility = View.GONE
-        binding.expandOptions.visibility = View.GONE
+        binding.showDeltaLayout.visibility = View.GONE
         binding.chartSummaryText.visibility = View.GONE
     }
 
@@ -408,33 +370,28 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         // Budget this month
                         val action =
                             TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
-                        action.year = currentBudgetMonth.year.toString()
-                        if (currentBudgetMonth.month != 0)
-                            action.month = currentBudgetMonth.month.toString()
+                        action.year = currentBudgetMonth.getYear().toString()
+                        if (!currentBudgetMonth.representsYear)
+                            action.month = currentBudgetMonth.getMonth().toString()
                         findNavController().navigate(action)
                     }
                     1F -> {
                         // Budget to date
                         val action =
                             TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
-                        action.year = currentBudgetMonth.year.toString()
-                        if (currentBudgetMonth.month != 0)
-                            action.month = currentBudgetMonth.month.toString()
+                        action.year = currentBudgetMonth.getYear().toString()
+                        if (!currentBudgetMonth.representsYear)
+                            action.month = currentBudgetMonth.getMonth().toString()
                         else {
-                            action.month = (gCurrentDate.get(Calendar.MONTH)+1).toString()
+                            action.month = (gCurrentDate.getMonth()).toString()
                         }
                         findNavController().navigate(action)
                     }
                     2F -> {
                         // Actuals
-                        MyApplication.transactionSearchText = currentBudgetMonth.year.toString()
-                        if (currentBudgetMonth.month != 0) {
-                            if (currentBudgetMonth.month < 10)
-                                MyApplication.transactionSearchText =
-                                    MyApplication.transactionSearchText + "-0" + currentBudgetMonth.month
-                            else
-                                MyApplication.transactionSearchText =
-                                    MyApplication.transactionSearchText + "-" + currentBudgetMonth.month
+                        MyApplication.transactionSearchText = currentBudgetMonth.getYear().toString()
+                        if (!currentBudgetMonth.representsYear) {
+                            MyApplication.transactionSearchText = "${MyApplication.transactionSearchText}-%02d".format(currentBudgetMonth.getMonth())
                         }
                         view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
                     }
@@ -489,8 +446,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         val tList = ArrayList<DataObject>()
 
         val discFilter = DefaultsViewModel.getDefaultFilterDiscTracker()
-        val whoFilter = if (DefaultsViewModel.getDefaultFilterWhoTracker().toIntOrNull() != null)
-            DefaultsViewModel.getDefaultFilterWhoTracker().toInt() else 2
+        val whoFilter = DefaultsViewModel.getDefaultFilterWhoTracker()
 
         val viewPeriod = when (DefaultsViewModel.getDefaultViewByTracker()) {
             cPeriodAllTime -> DateRangeEnum.ALLTIME
@@ -499,8 +455,14 @@ class TrackerFragment : Fragment(), CoroutineScope {
             else -> DateRangeEnum.MONTH
         }
 //        val totalBudget = BudgetViewModel.getTotalCalculatedBudgetForMonth(currentBudgetMonth, discFilter, whoFilter)
-        val catBudgets = BudgetViewModel.getCategoryBudgets(viewPeriod, currentBudgetMonth, discFilter, whoFilter, "")
         var totalBudget = 0.0
+        val catBudgets = BudgetViewModel.getCategoryBudgets(
+            viewPeriod,
+            currentBudgetMonth,
+            discFilter,
+            whoFilter,
+            ""
+        )
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
@@ -509,14 +471,14 @@ class TrackerFragment : Fragment(), CoroutineScope {
         var daysInMonth = 1
 
         if (viewPeriod == DateRangeEnum.MONTH) {
-            if (currentBudgetMonth.year == gCurrentDate.get(Calendar.YEAR) &&
-                currentBudgetMonth.month == gCurrentDate.get(Calendar.MONTH)+1) {
+            if (currentBudgetMonth.getYear() == gCurrentDate.getYear() &&
+                currentBudgetMonth.getMonth() == gCurrentDate.getMonth()) {
                 daysInMonth = getDaysInMonth(gCurrentDate)
                 totalBudgetToDate =
-                    totalBudget * gCurrentDate.get(Calendar.DAY_OF_MONTH) / daysInMonth
-            } else if (currentBudgetMonth.year > gCurrentDate.get(Calendar.YEAR) ||
-                    (currentBudgetMonth.year == gCurrentDate.get(Calendar.YEAR) &&
-                            currentBudgetMonth.month > gCurrentDate.get(Calendar.MONTH)+1)) {
+                    totalBudget * gCurrentDate.getDay() / daysInMonth
+            } else if (currentBudgetMonth.getYear() > gCurrentDate.getYear() ||
+                    (currentBudgetMonth.getYear() == gCurrentDate.getYear() &&
+                            currentBudgetMonth.getMonth() > gCurrentDate.getMonth())) {
                 // looking at a future month
                 totalBudgetToDate = 0.0
             } else { // looking at a past month
@@ -531,10 +493,10 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             daysInMonth = getDaysInMonth(gCurrentDate)
             val thisMonthBudget =
-                totalCurrentBudget * gCurrentDate.get(Calendar.DAY_OF_MONTH) / daysInMonth
+                totalCurrentBudget * gCurrentDate.getDay() / daysInMonth
             totalBudgetToDate = totalBudget - totalCurrentBudget + thisMonthBudget
         } else if (viewPeriod == DateRangeEnum.YEAR) {
-            val thisMonth = MyDate(currentBudgetMonth.year, gCurrentDate.get(Calendar.MONTH)+1, 1)
+            val thisMonth = MyDate(currentBudgetMonth.getYear(), gCurrentDate.getMonth(), 1)
             val ytdBudgets = BudgetViewModel.getCategoryBudgets(DateRangeEnum.YTD, thisMonth, discFilter, whoFilter, "")
             var totalYTDBudget = 0.0
             for (budget in ytdBudgets) {
@@ -549,40 +511,29 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             daysInMonth = getDaysInMonth(gCurrentDate)
             val thisMonthBudget =
-                totalCurrentBudget * gCurrentDate.get(Calendar.DAY_OF_MONTH) / daysInMonth
+                totalCurrentBudget * gCurrentDate.getDay() / daysInMonth
             totalBudgetToDate = totalYTDBudget - totalCurrentBudget + thisMonthBudget
         } else { // all-time, don't show this row
 
         }
 
         val startDate = when (DefaultsViewModel.getDefaultViewByTracker()) {
-            cPeriodAllTime -> "0000-00-00"
-            cPeriodYTD -> "${currentBudgetMonth.year}-00-00"
-            cPeriodYear -> "${currentBudgetMonth.year}-00-00"
-            else -> {
-                if (currentBudgetMonth.month < 10)
-                    "${currentBudgetMonth.year}-0${currentBudgetMonth.month}-00"
-                else
-                    "${currentBudgetMonth.year}-${currentBudgetMonth.month}-00"
-            }
+            cPeriodAllTime -> MyDate(TransactionViewModel.getEarliestYear(), 1, 1)
+            cPeriodYTD, cPeriodYear -> MyDate(currentBudgetMonth.getYear(), 1, 1)
+            else -> currentBudgetMonth.getFirstOfMonth()
         }
 
         val endDate = when (DefaultsViewModel.getDefaultViewByTracker()) {
-            cPeriodAllTime -> "9999-99-99"
-            cPeriodYear -> "${currentBudgetMonth.year}-99-99"
-            else -> {
-                if (currentBudgetMonth.month < 10)
-                    "${currentBudgetMonth.year}-0${currentBudgetMonth.month}-99"
-                else
-                    "${currentBudgetMonth.year}-${currentBudgetMonth.month}-99"
-            }
+            cPeriodAllTime -> MyDate(TransactionViewModel.getLatestYear(), 12, 31)
+            cPeriodYear -> MyDate(currentBudgetMonth.getYear(), 12, 31)
+            else -> currentBudgetMonth.getLastDayOfMonth()
         }
 
-        val totalActualsToDate =
-            TransactionViewModel.getTotalActualsForRange(startDate, endDate,
-            discFilter, whoFilter)
+        val totalActualsToDate: Double = TransactionViewModel.getTotalActualsForRange(
+                MyDate(startDate), MyDate(endDate),
+                discFilter, whoFilter
+            )
         hackActualTotal = totalActualsToDate
-
         tList.add(
             DataObject(
                 0, getString(R.string.budget_this_period) + " " + gDecWithCurrency(totalBudget),
@@ -593,7 +544,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         if (viewPeriod != DateRangeEnum.ALLTIME) {
             tList.add(
                 DataObject(
-                    0, getString(R.string.budget_to_date) + " (" + gCurrentDate.get(Calendar.DAY_OF_MONTH) + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
+                    0, getString(R.string.budget_to_date) + " (" + gCurrentDate.getDay() + "/" + daysInMonth + ") "+ gDecWithCurrency(totalBudgetToDate),
                     totalBudgetToDate, "",
                     ContextCompat.getColor(requireContext(), R.color.medium_gray)
                 )
@@ -639,7 +590,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 //          binding.chartSummaryText.text = lab
         else {
             val remainingBudget = totalBudget - totalActualsToDate
-            val daysRemaining = daysInMonth - gCurrentDate.get(Calendar.DAY_OF_MONTH) + 1
+            val daysRemaining = daysInMonth - gCurrentDate.getDay() + 1
 
             binding.chartSummaryText.text = String.format(getString(R.string.keeping_x_expenses_below),
                 lab, gDecWithCurrency(remainingBudget / daysRemaining), lab2)
@@ -683,33 +634,24 @@ class TrackerFragment : Fragment(), CoroutineScope {
     }
 
     private fun setChartTitle() {
-        if (binding.barChart.visibility == View.VISIBLE) {
-            binding.chartTitle.text = getString(R.string.expense_tracker)
-        } else {
-            if (DefaultsViewModel.getDefaultShowTotalsTracker() == "%")
-                binding.chartTitle.text = String.format(getString(R.string.allocation_x_of_budget_and_actual), "%")
-            else
-                binding.chartTitle.text = String.format(getString(R.string.allocation_x_of_budget_and_actual), getLocalCurrencySymbol(true))
-        }
-        binding.chartTitle.text = binding.chartTitle.text.toString() +
-            when (DefaultsViewModel.getDefaultViewByTracker()) {
-                cPeriodAllTime -> " - " + getString(R.string.all_time)
-                cPeriodYTD -> " - " + getString(R.string.ytd)
-                cPeriodYear -> " - ${currentBudgetMonth.year}"
-                else -> " - " + gMonthName(currentBudgetMonth.month) + " " + currentBudgetMonth.year
+        binding.chartTitle.text = when (DefaultsViewModel.getDefaultViewByTracker()) {
+                cPeriodAllTime -> getString(R.string.all_time)
+                cPeriodYTD -> getString(R.string.ytd)
+                cPeriodYear -> "${currentBudgetMonth.getYear()}"
+                else -> gMonthName(currentBudgetMonth.getMonth()) + " " + currentBudgetMonth.getYear()
             }
         var currentFilterIndicator = ""
         if (DefaultsViewModel.getDefaultFilterDiscTracker() != cDiscTypeAll) {
-            if (DefaultsViewModel.getDefaultFilterDiscTracker() == cDiscTypeDiscretionary)
-                currentFilterIndicator = getString(R.string.discretionary)
+            currentFilterIndicator = if (DefaultsViewModel.getDefaultFilterDiscTracker() == cDiscTypeDiscretionary)
+                getString(R.string.discretionary)
             else
-                currentFilterIndicator = getString(R.string.non_discretionary)
+                getString(R.string.non_discretionary)
         }
-        if (DefaultsViewModel.getDefaultFilterWhoTracker() != "" &&
-            DefaultsViewModel.getDefaultFilterWhoTracker() != "-1")
+        if (DefaultsViewModel.getDefaultFilterWhoTracker() != 2) {
             currentFilterIndicator = currentFilterIndicator +
-                    (if (currentFilterIndicator == "") "" else " ") +
-                    SpenderViewModel.getSpenderName(DefaultsViewModel.getDefaultFilterWhoTracker().toInt())
+                (if (currentFilterIndicator == "") "" else " ") +
+                SpenderViewModel.getSpenderName(DefaultsViewModel.getDefaultFilterWhoTracker())
+    }
         if (currentFilterIndicator == "") {
             binding.chartSubTitle.visibility = View.GONE
             binding.chartSubTitle.text = ""
@@ -721,8 +663,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
     private fun getActualPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefaultFilterDiscTracker()
-        val whoFilter = if (DefaultsViewModel.getDefaultFilterWhoTracker().toIntOrNull() != null)
-            DefaultsViewModel.getDefaultFilterWhoTracker().toInt() else -1
+        val whoFilter = DefaultsViewModel.getDefaultFilterWhoTracker()
 
         val viewPeriod = when (DefaultsViewModel.getDefaultViewByTracker()) {
             cPeriodMonth -> DateRangeEnum.MONTH
@@ -732,6 +673,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
         }
 
         val catActuals = TransactionViewModel.getCategoryActuals(currentBudgetMonth, viewPeriod, discFilter, whoFilter)
+        Timber.tag("Alex").d("cat totals size ${catActuals.size}")
         val pieEntries: ArrayList<PieEntry> = ArrayList()
 
         //initializing colors for the entries
@@ -791,8 +733,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
     private fun getBudgetPieChartData(iSpecificCategory: String): PieDataSet {
         val discFilter = DefaultsViewModel.getDefaultFilterDiscTracker()
-        val whoFilter = if (DefaultsViewModel.getDefaultFilterWhoTracker().toIntOrNull() != null)
-            DefaultsViewModel.getDefaultFilterWhoTracker().toInt() else -1
+        val whoFilter = DefaultsViewModel.getDefaultFilterWhoTracker()
         val viewPeriod = when (DefaultsViewModel.getDefaultViewByTracker()) {
             cPeriodAllTime -> DateRangeEnum.ALLTIME
             cPeriodYTD -> DateRangeEnum.YTD
@@ -873,14 +814,9 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         currentCategory = catName.toString()
                         loadPieChart(currentCategory)
                     } else { // ie clicking into subcategory
-                        MyApplication.transactionSearchText = "$currentCategory $catName ${currentBudgetMonth.year}"
-                        if (currentBudgetMonth.month != 0) {
-                            if (currentBudgetMonth.month < 10)
-                                MyApplication.transactionSearchText =
-                                    MyApplication.transactionSearchText + "-0" + currentBudgetMonth.month
-                            else
-                                MyApplication.transactionSearchText =
-                                    MyApplication.transactionSearchText + "-" + currentBudgetMonth.month
+                        MyApplication.transactionSearchText = "$currentCategory $catName ${currentBudgetMonth.getYear()}"
+                        if (!currentBudgetMonth.representsYear) {
+                            MyApplication.transactionSearchText = "${MyApplication.transactionSearchText}-%02d".format(currentBudgetMonth.getMonth())
                         }
                         view?.findNavController()?.navigate(R.id.TransactionViewAllFragment)
                     }

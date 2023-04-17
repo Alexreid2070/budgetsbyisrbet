@@ -2,13 +2,10 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.content.res.ColorStateList
 import android.graphics.Color
+import android.icu.text.NumberFormat
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.*
 import android.view.View.*
 import android.widget.*
@@ -17,21 +14,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
-import timber.log.Timber
 import java.util.*
 
 class BudgetFragment : Fragment() {
     private var _binding: FragmentBudgetBinding? = null
     private val binding get() = _binding!!
     private val args: BudgetFragmentArgs by navArgs()
-    private var prevBudgetAmt = 0.0
-    private var cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentBudgetBinding.inflate(inflater, container, false)
 
         binding.budgetAddAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
@@ -43,24 +36,25 @@ class BudgetFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.currencySymbol.text = "${getLocalCurrencySymbol()} "
-        cal.set(Calendar.DAY_OF_MONTH, 1)
-        binding.startDate.setText(giveMeMyDateFormat(cal))
+        val startOfMonth = MyDate()
+        startOfMonth.setDay(1)
+        binding.startDate.setText(startOfMonth.toString())
         binding.regularity.setText("1")
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.startDate.setText(giveMeMyDateFormat(cal))
-                updateInformationFields()
+                binding.startDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.startDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.startDate.text.toString() != "") {
+                lcal = MyDate(binding.startDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
 
@@ -94,50 +88,6 @@ class BudgetFragment : Fragment() {
             binding.budgetAddWhoLabel.visibility = GONE
             binding.budgetAddWhoRadioGroup.visibility = GONE
         }
-
-        binding.budgetAddSubCategorySpinner.onItemSelectedListener = object:
-            AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateInformationFields()
-                setOrPercentageLayout()
-            }
-        }
-
-        binding.budgetAddWhoRadioGroup.setOnCheckedChangeListener { _, _ ->
-            updateInformationFields()
-        }
-
-        binding.budgetAddPercentage.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
-                setAmountBasedOnPercentage()
-            }
-            override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
-            override fun afterTextChanged(arg0: Editable) {}
-        })
-        setOrPercentageLayout()
-    }
-
-    private fun setOrPercentageLayout() {
-        val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
-        val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
-        val catText = catRadioButton.text.toString()
-        val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
-
-        if (BudgetViewModel.budgetExistsUsingCategory(CategoryViewModel.getID(catText, subCatText)) == 0)
-            binding.budgetAddPercentageLayout.visibility = GONE
-        else
-            binding.budgetAddPercentageLayout.visibility = VISIBLE
-    }
-
-    fun setAmountBasedOnPercentage() {
-        if (binding.budgetAddPercentage.text.toString() != "") {
-            val pctDouble = gNumberFormat.parse(binding.budgetAddPercentage.text.toString()).toDouble()
-            prevBudgetAmt *= (1 + pctDouble / 100)
-        }
-        binding.budgetAddAmount.setText(gDec(prevBudgetAmt))
     }
 
     private fun setupForEdit() {
@@ -156,8 +106,8 @@ class BudgetFragment : Fragment() {
                 when (binding.periodSpinner.selectedItem.toString()) {
                     getString(R.string.month) -> {
                         val startOfPeriod = MyDate(binding.startDate.text.toString())
-                        if (startOfPeriod.day != 1) {
-                            val lDate = MyDate(startOfPeriod.year, startOfPeriod.month, 1)
+                        if (startOfPeriod.getDay() != 1) {
+                            val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
                             binding.startDate.setText(lDate.toString())
 
                             val dateSetListener =
@@ -168,15 +118,15 @@ class BudgetFragment : Fragment() {
                             binding.startDate.setOnClickListener {
                                 DatePickerDialog(
                                     requireContext(), dateSetListener,
-                                    lDate.year, lDate.month-1, lDate.day
+                                    lDate.getYear(), lDate.getMonth()-1, lDate.getDay()
                                 ).show()
                             }
                         }
                     }
                     getString(R.string.year) -> {
                         val startOfPeriod = MyDate(binding.startDate.text.toString())
-                        if (startOfPeriod.day != 1 || startOfPeriod.month != 1) {
-                            val lDate = MyDate(startOfPeriod.year, 1, 1)
+                        if (startOfPeriod.getDay() != 1 || startOfPeriod.getMonth() != 1) {
+                            val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
                             binding.startDate.setText(lDate.toString())
 
                             val dateSetListener =
@@ -187,19 +137,14 @@ class BudgetFragment : Fragment() {
                             binding.startDate.setOnClickListener {
                                 DatePickerDialog(
                                     requireContext(), dateSetListener,
-                                    lDate.year, lDate.month-1, lDate.day
+                                    lDate.getYear(), lDate.getMonth()-1, lDate.getDay()
                                 ).show()
                             }
                         }
                     }
                 }
-                updateInformationFields()
             }
         }
-        binding.regularity.setOnClickListener {
-            updateInformationFields()
-        }
-
         binding.budgetAddButtonSave.setOnClickListener {
             onSaveButtonClicked()
         }
@@ -217,107 +162,6 @@ class BudgetFragment : Fragment() {
             (binding.budgetAddOccurenceRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
         }
         binding.budgetAddAmount.isEnabled = true
-        binding.budgetAddOrLabel.visibility = VISIBLE
-        binding.budgetAddPercentageLayout.visibility = VISIBLE
-        binding.budgetAddPreviousAmount.visibility = VISIBLE
-        binding.budgetAddActualAmount.visibility = VISIBLE
-        binding.budgetAddAverageAmount.visibility = VISIBLE
-        binding.budgetAddAmountLabel.text = getString(R.string.enter_new_budget_amount)
-    }
-
-    fun updateInformationFields() {
-        val prevMonth = MyDate(binding.startDate.text.toString())
-//        prevMonth.decrementMonth()
-        val whoSelectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
-        val whoRadioButton = requireActivity().findViewById(whoSelectedId) as RadioButton
-        val whoId = SpenderViewModel.getSpenderIndex(whoRadioButton.text.toString())
-        val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
-        val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
-        val catText = catRadioButton.text.toString()
-        val subCatText = binding.budgetAddSubCategorySpinner.selectedItem.toString()
-
-        val toCheckAnnual = MyDate(binding.startDate.text.toString())
-        val annualBudget = BudgetViewModel.budgetExistsForExactPeriod(
-            CategoryViewModel.getID(catText, subCatText),
-            toCheckAnnual,
-            whoId
-        )
-        if (annualBudget != 0.0) {
-            binding.budgetAddPreviousAmount.text = String.format(
-                "{getString(R.string.current_budget_amount_is)} ${
-                    gDecWithCurrency(annualBudget)
-                } ${getString(R.string.which_was_set)} ${toCheckAnnual.year} ${getString(R.string.pAp)}."
-            )
-            prevBudgetAmt = annualBudget
-        } else {
-            val tmpPrevAmt = BudgetViewModel.getOriginalBudgetAmount(
-                CategoryViewModel.getID(
-                    catText,
-                    subCatText
-                ), prevMonth, whoId
-            )
-            binding.budgetAddPreviousAmount.text = gDecWithCurrency(tmpPrevAmt.amount)
-            prevBudgetAmt = tmpPrevAmt.amount
-            if (tmpPrevAmt.startDate.year == 9999) { // never explicitly set
-                binding.budgetAddPreviousAmount.text = getString(R.string.there_is_no_amount)
-            } else {
-                binding.budgetAddPreviousAmount.text = String.format(
-                    "${getString(R.string.current_budget_amount_is)} ${
-                        gDecWithCurrency(tmpPrevAmt.amount)
-                    } ${getString(R.string.which_was_set)}"
-                )
-                prevBudgetAmt = tmpPrevAmt.amount
-                if (tmpPrevAmt.isAnnualBudget()) // is an annual amount
-                    binding.budgetAddPreviousAmount.text = String.format(
-                        "${binding.budgetAddPreviousAmount.text} ${tmpPrevAmt.startDate.year} ${
-                            getString(R.string.pAp)
-                        }."
-                    )
-                else
-                    binding.budgetAddPreviousAmount.text =
-                        String.format("${binding.budgetAddPreviousAmount.text} ${tmpPrevAmt.startDate}.")
-            }
-        }
-        val startOfPeriod = MyDate(binding.startDate.text.toString())
-        val endOfPeriod = MyDate(binding.startDate.text.toString())
-        Timber.tag("Alex").d("regularity is %s", binding.regularity.text)
-        when (binding.periodSpinner.selectedItem.toString()) {
-            getString(R.string.week) -> {
-                endOfPeriod.increment(cPeriodWeek, -1 * binding.regularity.text.toString().toInt())
-            }
-            getString(R.string.month) -> {
-                endOfPeriod.increment(cPeriodMonth, -1 * binding.regularity.text.toString().toInt())
-            }
-            getString(R.string.year) -> {
-                startOfPeriod.year -= 1
-                startOfPeriod.month = 1
-                endOfPeriod.year -= 1
-                endOfPeriod.month = 12
-            }
-        }
-        binding.budgetAddActualAmount.text = String.format("${getString(R.string.actual_amount_spent_in_previous_period_is)}  ${
-                        gDecWithCurrency(
-                            TransactionViewModel.getActualsForPeriod(
-                                CategoryViewModel.getID(catText, subCatText),
-                                startOfPeriod, endOfPeriod, whoId, false
-                            )
-                        )
-                    }.")
-
-        val annualActuals = TransactionViewModel.getActualsForPeriod(
-            CategoryViewModel.getID(catText, subCatText),
-            startOfPeriod,
-            endOfPeriod,
-            whoId, false
-        )
-        binding.budgetAddTotalAmount.text = gDecWithCurrency(annualActuals)
-        binding.budgetAddTotalAmount.text = String.format("${getString(R.string.total_spent_in_previous_12_months_is)} ${
-                gDecWithCurrency(annualActuals)}.")
-        binding.budgetAddAverageAmount.text = String.format("${getString(R.string.average_spent_in_previous_12_months_is)} ${
-                gDecWithCurrency(annualActuals / 12)}.")
-
-        if (binding.budgetAddPercentage.text.toString() != "")
-            setAmountBasedOnPercentage()
     }
 
     private fun loadCategoryRadioButtons() {
@@ -412,7 +256,8 @@ class BudgetFragment : Fragment() {
     }
 
     private fun onSaveButtonClicked () {
-        val amountDouble = gNumberFormat.parse(binding.budgetAddAmount.text.toString()).toDouble()
+        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+        val amountDouble = lNumberFormat.parse(binding.budgetAddAmount.text.toString()).toDouble()
         val selectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
         val whoId = if (SpenderViewModel.singleUser())
             0

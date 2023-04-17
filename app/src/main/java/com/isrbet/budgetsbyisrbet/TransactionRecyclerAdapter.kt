@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,15 +11,18 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 
 class TransactionRecyclerAdapter(
     private val context: Context, private var list: MutableList<Transaction>,
     filters: PreviousFilters,
+    iSortOrder: TransactionSortOrder = TransactionSortOrder.DATE_ASCENDING,
     private val listener: (Transaction) -> Unit = {}
 ) : RecyclerView.Adapter<TransactionRecyclerAdapter.ViewHolder>(),
     Filterable, FastScroller.SectionIndexer {
@@ -37,6 +39,7 @@ class TransactionRecyclerAdapter(
     private var boughtforFilter = -1
     private var typeFilter = ""
     private var accountingFilter = false
+    private var currentSortOrder = iSortOrder
 
     init {
         categoryFilter = filters.prevCategoryFilter
@@ -47,11 +50,30 @@ class TransactionRecyclerAdapter(
         typeFilter = filters.prevTypeFilter
         filterTheList(MyApplication.transactionSearchText)
         currentTotal = getTotal()
+        sortBy(iSortOrder)
     }
 
     fun reset(iList: MutableList<Transaction>) {
         list = iList
         filterTheList("")
+    }
+    fun sortBy(iSortOrder: TransactionSortOrder) {
+        currentSortOrder = iSortOrder
+        when (currentSortOrder) {
+            TransactionSortOrder.DATE_ASCENDING -> filteredList.sortBy { it.date.toString() }
+            TransactionSortOrder.DATE_DESCENDING -> filteredList.sortByDescending { it.date.toString() }
+            TransactionSortOrder.AMOUNT_ASCENDING -> filteredList.sortBy { it.amount }
+            TransactionSortOrder.AMOUNT_DESCENDING -> filteredList.sortByDescending { it.amount }
+            TransactionSortOrder.CATEGORY_ASCENDING -> filteredList.sortBy { CategoryViewModel.getFullCategoryName(it.category) }
+            TransactionSortOrder.CATEGORY_DESCENDING -> filteredList.sortByDescending { CategoryViewModel.getFullCategoryName(it.category) }
+            TransactionSortOrder.WHO_ASCENDING -> filteredList.sortBy { SpenderViewModel.getSpenderName(it.paidby)+SpenderViewModel.getSpenderName(it.boughtfor) }
+            TransactionSortOrder.WHO_DESCENDING -> filteredList.sortByDescending { SpenderViewModel.getSpenderName(it.paidby)+SpenderViewModel.getSpenderName(it.boughtfor) }
+            TransactionSortOrder.NOTE_ASCENDING -> filteredList.sortBy { it.note.lowercase() }
+            TransactionSortOrder.NOTE_DESCENDING -> filteredList.sortByDescending { it.note.lowercase() }
+            TransactionSortOrder.TYPE_ASCENDING -> filteredList.sortBy { it.type }
+            TransactionSortOrder.TYPE_DESCENDING -> filteredList.sortByDescending { it.type }
+        }
+        setGroupList()
     }
 
     override fun getItemCount(): Int {
@@ -168,48 +190,109 @@ class TransactionRecyclerAdapter(
 
         val data = filteredList[position]
 
-        holder.vtfdate.text = data.date
-        if (groupList[position] == -100) { // ie first transaction for this year
-            Log.d("Alex", "found change in year")
-            holder.vtfdate.isVisible = true
-            holder.vtfdate.paint.isUnderlineText = true
-            holder.vtfdate.setTypeface(null, Typeface.BOLD)
-            val hexColor = getColorInHex(MaterialColors.getColor(context, R.attr.colorSecondary, Color.BLACK), cOpacity)
-            holder.vtfdate.setBackgroundColor(Color.parseColor(hexColor))
-        } else if (groupList[position] == -10) { // ie first transaction for this month
-            holder.vtfdate.isVisible = true
-            holder.vtfdate.paint.isUnderlineText = true
-            holder.vtfdate.setTypeface(null, Typeface.BOLD)
-        } else if (groupList[position] == 0) { // ie first transaction on this date
-            holder.vtfdate.isVisible = true
-//            holder.vtfdate.paint.isUnderlineText = true
-        } else {
-            holder.vtfdate.isVisible = false
+        if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
+            holder.vtfdate.text = data.date.toString()
+            holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            if (data.paidby == data.boughtfor)
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
+            else
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+            holder.vtfnote.text = data.note
+            holder.vtftype.text = data.type
+            holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
-        holder.vtfamount.text = gDecWithCurrency(data.amount)
+        if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
+            holder.vtfdate.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtfcategory.text = data.date.toString()
+            if (data.paidby == data.boughtfor)
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
+            else
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+            holder.vtfnote.text = data.note
+            holder.vtftype.text = data.type
+            holder.vtfamount.text = gDecWithCurrency(data.amount)
+        }
+        if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.WHO_DESCENDING) {
+            if (data.paidby == data.boughtfor)
+                holder.vtfdate.text = SpenderViewModel.getSpenderName(data.paidby)
+            else
+                holder.vtfdate.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+            holder.vtfwho.text = data.date.toString()
+            holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtfnote.text = data.note
+            holder.vtftype.text = data.type
+            holder.vtfamount.text = gDecWithCurrency(data.amount)
+        }
+        if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
+            holder.vtfdate.text = data.note
+            holder.vtfnote.text = data.date.toString()
+            if (data.paidby == data.boughtfor)
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
+            else
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+            holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtftype.text = data.type
+            holder.vtfamount.text = gDecWithCurrency(data.amount)
+        }
+        if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.TYPE_DESCENDING) {
+            holder.vtfdate.text = data.type
+            holder.vtftype.text = data.date.toString()
+            if (data.paidby == data.boughtfor)
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
+            else
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+            holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtfnote.text = data.note
+            holder.vtfamount.text = gDecWithCurrency(data.amount)
+        }
+        if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING) {
+            holder.vtfdate.text = gDecWithCurrency(data.amount)
+            holder.vtfamount.text = data.date.toString()
+            holder.vtftype.text = data.date.toString()
+            if (data.paidby == data.boughtfor)
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
+            else
+                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
+                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+            holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtfnote.text = data.note
+        }
+        if (position < groupList.size) {
+            if (groupList[position] == -100) { // ie first transaction for this year
+                holder.vtfdate.isVisible = true
+                holder.vtfdate.paint.isUnderlineText = true
+                holder.vtfdate.setTypeface(null, Typeface.BOLD)
+                val hexColor = getColorInHex(MaterialColors.getColor(context, R.attr.colorSecondary, Color.BLACK), cOpacity)
+                holder.vtfdate.setBackgroundColor(Color.parseColor(hexColor))
+            } else if (groupList[position] == -10) { // ie first transaction for this month
+                holder.vtfdate.isVisible = true
+                holder.vtfdate.paint.isUnderlineText = true
+                holder.vtfdate.setTypeface(null, Typeface.BOLD)
+            } else holder.vtfdate.isVisible = groupList[position] == 0
+        }
         val percentage1 = data.amount * data.bfname1split / 100
         val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
         holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
         val percentage2 = data.amount - rounded.toDouble()
         holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
-        holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
+        if (position < runningTotalList.size)
+            holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
         holder.vtfCategoryID.text = data.category.toString()
-        holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
-        if (data.paidby == data.boughtfor)
-            holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
-        else
-            holder.vtfwho.text = String.format("%s:%s",
-                SpenderViewModel.getSpenderName(data.paidby).subSequence(0, 2).toString(),
-                SpenderViewModel.getSpenderName(data.boughtfor).subSequence(0, 2).toString())
-        holder.vtfnote.text = data.note
         if (CategoryViewModel.getCategory(data.category)?.discType == cDiscTypeDiscretionary)
             holder.vtfdisc.text = MyApplication.getString(R.string.disc_short)
         else
             holder.vtfdisc.text = MyApplication.getString(R.string.non_disc_short)
-        if (data.type.isNotEmpty())
-            holder.vtftype.text = data.type.substring(0, 1)
-        else
-            holder.vtftype.text = ""
         if (holder.vtftype.text == "R") holder.vtftype.text = MyApplication.getString(R.string.scheduled_payment_short)  // now called Scheduled payment rather than Recurring transaction
         holder.itemView.setOnClickListener { listener(data) }
         if (SpenderViewModel.singleUser()) {
@@ -266,6 +349,7 @@ class TransactionRecyclerAdapter(
     }
 
     private fun setGroupList() {
+
         val tgroupList: MutableList<Int> = mutableListOf()
         tgroupList.clear()
         val trunningTotalList: MutableList<Double> = mutableListOf()
@@ -296,25 +380,75 @@ class TransactionRecyclerAdapter(
                 trunningTotalList.add(previousRunningTotal)
             }
             if (tgroupList.size == 0) {
-                tgroupList.add(c, j)
+                tgroupList.add(c, -100)
                 c++
                 j++
-            } else {
-                if (filteredList[i].date == filteredList[i - 1].date) {
+            } else if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
+                if (filteredList[i].date.toString() == filteredList[i - 1].date.toString()) {
                     tgroupList.add(c, j)
-                    c++
-                    j++
                 } else {
                     j = 0
-                    if (filteredList[i].date.substring(0,4) != filteredList[i-1].date.substring(0,4))
-                        tgroupList.add(c, -100) // -10 symbolizes change in year
-                    else if (filteredList[i].date.substring(5,7) != filteredList[i-1].date.substring(5,7))
+                    if (filteredList[i].date.getYear() != filteredList[i - 1].date.getYear())
+                        tgroupList.add(c, -100) // -100 symbolizes change in year
+                    else if (filteredList[i].date.getMonth() != filteredList[i - 1].date.getMonth()) {
                         tgroupList.add(c, -10) // -10 symbolizes change in month
-                    else
+                    } else
                         tgroupList.add(c, j)
-                    c++
-                    j++
                 }
+                c++
+                j++
+            } else if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING) {
+                if (filteredList[i].amount == filteredList[i - 1].amount) {
+                    tgroupList.add(c, j)
+                } else {
+                    j = 0
+                    tgroupList.add(c, -100) // -10 symbolizes change
+                }
+                c++
+                j++
+            } else if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
+                if (filteredList[i].category == filteredList[i - 1].category) {
+                    tgroupList.add(c, j)
+                } else {
+                    j = 0
+                    tgroupList.add(c, -100) // -10 symbolizes change
+                }
+                c++
+                j++
+            } else if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.WHO_DESCENDING) {
+                if (filteredList[i].paidby == filteredList[i - 1].paidby &&
+                        filteredList[i].boughtfor == filteredList[i-1].boughtfor) {
+                    tgroupList.add(c, j)
+                } else {
+                    j = 0
+                    tgroupList.add(c, -100) // -10 symbolizes change
+                }
+                c++
+                j++
+            } else if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
+                if (filteredList[i].note == filteredList[i - 1].note) {
+                    tgroupList.add(c, j)
+                } else {
+                    j = 0
+                    tgroupList.add(c, -100) // -10 symbolizes change
+                }
+                c++
+                j++
+            } else if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.TYPE_DESCENDING) {
+                if (filteredList[i].type == filteredList[i - 1].type) {
+                    tgroupList.add(c, j)
+                } else {
+                    j = 0
+                    tgroupList.add(c, -100) // -10 symbolizes change
+                }
+                c++
+                j++
             }
         }
         groupList = tgroupList
@@ -327,84 +461,215 @@ class TransactionRecyclerAdapter(
 
     fun getPositionOf(currentTopPosition: Int, jump: Int): Int {
         var newPosition: Int
-        when (jump) {
-            cPREV_YEAR -> {
-                if (currentTopPosition == 0) return 0
-                newPosition = currentTopPosition - 1
-                val targetYear: String = if (filteredList[currentTopPosition].date.substring(
-                        0,
-                        4
-                    ) == filteredList[currentTopPosition - 1].date.substring(0, 4)
-                )
-                // we're not at beginning of current year, so aim for that
-                    filteredList[currentTopPosition].date.substring(0, 4)
-                else
-                //we're already at beginning of current year, so aim for previous year
-                    filteredList[currentTopPosition - 1].date.substring(0, 4)
-                while (newPosition >= 0 && filteredList[newPosition].date.substring(
-                        0,
-                        4
-                    ) >= targetYear
-                ) {
-                    newPosition--
-                }
-                newPosition++
-                return newPosition
-            }
-            cPREV_MONTH -> {
-                if (currentTopPosition == 0) return 0
-                newPosition = currentTopPosition - 1
-                val targetYearMonth: String = if (filteredList[currentTopPosition].date.substring(
-                        0,
-                        7
-                    ) == filteredList[currentTopPosition - 1].date.substring(0, 7)
-                )
-                // we're not at beginning of current month, so aim for that
-                    filteredList[currentTopPosition].date.substring(0, 7)
-                else
-                //we're already at beginning of current month, so aim for previous month
-                    filteredList[currentTopPosition - 1].date.substring(0, 7)
-                while (newPosition >= 0 && filteredList[newPosition].date.substring(0, 7)
-                    >= targetYearMonth
-                ) {
-                    newPosition--
-                }
-                newPosition++
-                return newPosition
-            }
-            cTODAY -> {
-                val currentDate = giveMeMyDateFormat(gCurrentDate)
-                newPosition = 0
-                while (newPosition < filteredList.size && filteredList[newPosition].date < currentDate) {
+        if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING ||
+                currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
+            when (jump) {
+                cPREV_YEAR -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val targetYear = if (filteredList[currentTopPosition].date.getYear()
+                        == filteredList[currentTopPosition - 1].date.getYear())
+                    // we're not at beginning of current year, so aim for that
+                        filteredList[currentTopPosition].date.getYear()
+                    else
+                    //we're already at beginning of current year, so aim for previous year
+                        filteredList[currentTopPosition - 1].date.getYear()
+                    while (newPosition >= 0 && filteredList[newPosition].date.getYear() >= targetYear
+                    ) {
+                        newPosition--
+                    }
                     newPosition++
+                    return newPosition
                 }
-                return (newPosition - 1)
-            }
-            cNEXT_MONTH -> {
-                newPosition = currentTopPosition + 1
-                val currentYearMonth: String = filteredList[currentTopPosition].date.substring(0, 7)
-                while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
-                        0,
-                        7
-                    ) == currentYearMonth
-                ) {
+                cPREV_MONTH -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val targetYearMonth: String = if (filteredList[currentTopPosition].date.getYYYYMM()
+                        == filteredList[currentTopPosition - 1].date.getYYYYMM()
+                    )
+                    // we're not at beginning of current month, so aim for that
+                        filteredList[currentTopPosition].date.getYYYYMM()
+                    else
+                    //we're already at beginning of current month, so aim for previous month
+                        filteredList[currentTopPosition - 1].date.getYYYYMM()
+                    while (newPosition >= 0 && filteredList[newPosition].date.getYYYYMM()
+                        >= targetYearMonth
+                    ) {
+                        newPosition--
+                    }
                     newPosition++
+                    return newPosition
                 }
-                return newPosition
+                cNEXT_MONTH -> {
+                    newPosition = currentTopPosition + 1
+                    val currentYearMonth: String = filteredList[currentTopPosition].date.getYYYYMM()
+                    while (newPosition < filteredList.size && filteredList[newPosition].date.getYYYYMM() == currentYearMonth
+                    ) {
+                        newPosition++
+                    }
+                    return newPosition
+                }
+                cNEXT_YEAR -> {
+                    newPosition = currentTopPosition + 1
+                    val currentYear = filteredList[currentTopPosition].date.getYear()
+                    while (newPosition < filteredList.size && filteredList[newPosition].date.getYear() == currentYear
+                    ) {
+                        newPosition++
+                    }
+                    if (newPosition >= filteredList.size)
+                        newPosition = filteredList.size - 1
+                    return newPosition
+                }
             }
-            cNEXT_YEAR -> {
-                newPosition = currentTopPosition + 1
-                val currentYear: String = filteredList[currentTopPosition].date.substring(0, 4)
-                while (newPosition < filteredList.size && filteredList[newPosition].date.substring(
-                        0,
-                        4
-                    ) == currentYear
-                ) {
+        } else if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
+            when (jump) {
+                cPREV_YEAR, cPREV_MONTH -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val target = if (filteredList[currentTopPosition].category
+                        == filteredList[currentTopPosition - 1].category)
+                    // we're not at beginning of current target, so aim for that
+                        filteredList[currentTopPosition].category
+                    else
+                    //we're already at beginning of current target, so aim for previous year
+                        filteredList[currentTopPosition - 1].category
+                    while (newPosition >= 0 && filteredList[newPosition].category >= target
+                    ) {
+                        newPosition--
+                    }
                     newPosition++
+                    return newPosition
                 }
-                if (newPosition >= filteredList.size)
-                    newPosition = filteredList.size - 1
-                return newPosition
+                cNEXT_MONTH, cNEXT_YEAR -> {
+                    newPosition = currentTopPosition + 1
+                    val currentTarget = filteredList[currentTopPosition].category
+                    while (newPosition < filteredList.size && filteredList[newPosition].category == currentTarget
+                    ) {
+                        newPosition++
+                    }
+                    return newPosition
+                }
+            }
+        } else if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING) {
+            when (jump) {
+                cPREV_YEAR, cPREV_MONTH -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val target = if (filteredList[currentTopPosition].amount
+                        == filteredList[currentTopPosition - 1].amount)
+                    // we're not at beginning of current target, so aim for that
+                        filteredList[currentTopPosition].amount
+                    else
+                    //we're already at beginning of current target, so aim for previous year
+                        filteredList[currentTopPosition - 1].amount
+                    while (newPosition >= 0 && filteredList[newPosition].amount >= target
+                    ) {
+                        newPosition--
+                    }
+                    newPosition++
+                    return newPosition
+                }
+                cNEXT_MONTH, cNEXT_YEAR -> {
+                    newPosition = currentTopPosition + 1
+                    val currentTarget = filteredList[currentTopPosition].amount
+                    while (newPosition < filteredList.size && filteredList[newPosition].amount == currentTarget
+                    ) {
+                        newPosition++
+                    }
+                    return newPosition
+                }
+            }
+        } else if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.TYPE_DESCENDING) {
+            when (jump) {
+                cPREV_YEAR, cPREV_MONTH -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val target = if (filteredList[currentTopPosition].type
+                        == filteredList[currentTopPosition - 1].type)
+                    // we're not at beginning of current target, so aim for that
+                        filteredList[currentTopPosition].type
+                    else
+                    //we're already at beginning of current target, so aim for previous year
+                        filteredList[currentTopPosition - 1].type
+                    while (newPosition >= 0 && filteredList[newPosition].type >= target
+                    ) {
+                        newPosition--
+                    }
+                    newPosition++
+                    return newPosition
+                }
+                cNEXT_MONTH, cNEXT_YEAR -> {
+                    newPosition = currentTopPosition + 1
+                    val currentTarget = filteredList[currentTopPosition].type
+                    while (newPosition < filteredList.size && filteredList[newPosition].type == currentTarget
+                    ) {
+                        newPosition++
+                    }
+                    return newPosition
+                }
+            }
+        } else if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
+            when (jump) {
+                cPREV_YEAR, cPREV_MONTH -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val target = if (filteredList[currentTopPosition].note
+                        == filteredList[currentTopPosition - 1].note)
+                    // we're not at beginning of current target, so aim for that
+                        filteredList[currentTopPosition].note
+                    else
+                    //we're already at beginning of current target, so aim for previous year
+                        filteredList[currentTopPosition - 1].note
+                    while (newPosition >= 0 && filteredList[newPosition].note >= target
+                    ) {
+                        newPosition--
+                    }
+                    newPosition++
+                    return newPosition
+                }
+                cNEXT_MONTH, cNEXT_YEAR -> {
+                    newPosition = currentTopPosition + 1
+                    val currentTarget = filteredList[currentTopPosition].note
+                    while (newPosition < filteredList.size && filteredList[newPosition].note == currentTarget
+                    ) {
+                        newPosition++
+                    }
+                    return newPosition
+                }
+            }
+        } else if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING ||
+            currentSortOrder == TransactionSortOrder.WHO_DESCENDING) {
+            when (jump) {
+                cPREV_YEAR, cPREV_MONTH -> {
+                    if (currentTopPosition == 0) return 0
+                    newPosition = currentTopPosition - 1
+                    val target = if ((filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
+                        == (filteredList[currentTopPosition-1].paidby.toString() + filteredList[currentTopPosition-1].boughtfor.toString()))
+                    // we're not at beginning of current target, so aim for that
+                        (filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
+                    else
+                    //we're already at beginning of current target, so aim for previous year
+                        (filteredList[currentTopPosition-1].paidby.toString() + filteredList[currentTopPosition-1].boughtfor.toString())
+                    while (newPosition >= 0 && (filteredList[newPosition].paidby.toString() + filteredList[newPosition].boughtfor.toString()) >= target
+                    ) {
+                        newPosition--
+                    }
+                    newPosition++
+                    return newPosition
+                }
+                cNEXT_MONTH, cNEXT_YEAR -> {
+                    newPosition = currentTopPosition + 1
+                    val currentTarget = (filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
+                    while (newPosition < filteredList.size && (filteredList[newPosition].paidby.toString() + filteredList[newPosition].boughtfor.toString()) == currentTarget
+                    ) {
+                        newPosition++
+                    }
+                    return newPosition
+                }
             }
         }
         return 0
@@ -412,7 +677,25 @@ class TransactionRecyclerAdapter(
 
     override fun getSectionText(position: Int): CharSequence {
         return if (position >= 0)
-            filteredList[position].date
+            when (currentSortOrder) {
+                TransactionSortOrder.DATE_ASCENDING, TransactionSortOrder.DATE_DESCENDING ->
+                    filteredList[position].date.toString()
+                TransactionSortOrder.CATEGORY_ASCENDING, TransactionSortOrder.CATEGORY_DESCENDING ->
+                    CategoryViewModel.getFullCategoryName(filteredList[position].category)
+                TransactionSortOrder.WHO_ASCENDING, TransactionSortOrder.WHO_DESCENDING -> {
+                    if (filteredList[position].paidby == filteredList[position].boughtfor)
+                        SpenderViewModel.getSpenderName(filteredList[position].paidby)
+                    else
+                        SpenderViewModel.getSpenderName(filteredList[position].paidby) + ":" +
+                            SpenderViewModel.getSpenderName(filteredList[position].boughtfor)
+                }
+                TransactionSortOrder.NOTE_ASCENDING, TransactionSortOrder.NOTE_DESCENDING ->
+                    filteredList[position].note
+                TransactionSortOrder.TYPE_ASCENDING, TransactionSortOrder.TYPE_DESCENDING ->
+                    filteredList[position].type
+                TransactionSortOrder.AMOUNT_ASCENDING, TransactionSortOrder.AMOUNT_DESCENDING ->
+                    gDecWithCurrency(filteredList[position].amount)
+            }
         else
             ""
     }

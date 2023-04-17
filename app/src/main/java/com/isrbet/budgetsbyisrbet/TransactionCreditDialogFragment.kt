@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.app.DatePickerDialog
+import android.icu.text.NumberFormat
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.view.LayoutInflater
@@ -44,30 +45,30 @@ class TransactionCreditDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val cal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
         super.onViewCreated(view, savedInstanceState)
 
         setupClickListeners()
         val thisTransaction = TransactionViewModel.getTransaction(oldID) ?: return
 
         binding.creditAmount.setText(gDecM(-1 * thisTransaction.amount))
-        binding.creditDate.setText(giveMeMyDateFormat(cal))
+        binding.creditDate.setText(gCurrentDate.toString())
         binding.creditNote.setText(getString(R.string.CREDIT))
         binding.currencySymbol.text = String.format("${getLocalCurrencySymbol()} ")
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.creditDate.setText(giveMeMyDateFormat(cal))
+                binding.creditDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.creditDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.creditDate.text.toString() != "") {
+                lcal = MyDate(binding.creditDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
     }
@@ -89,7 +90,8 @@ class TransactionCreditDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.creditAmount)
                 return@setOnClickListener
             }
-            val amount = gNumberFormat.parse(binding.creditAmount.text.toString()).toDouble()
+            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+            val amount = lNumberFormat.parse(binding.creditAmount.text.toString()).toDouble()
             if (amount > 0.0) {
                 binding.creditAmount.error=getString(R.string.amountNotNegative)
                 focusAndOpenSoftKeyboard(requireContext(), binding.creditAmount)

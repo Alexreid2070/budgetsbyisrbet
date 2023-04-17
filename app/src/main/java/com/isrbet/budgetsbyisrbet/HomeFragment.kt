@@ -4,15 +4,12 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.icu.util.Calendar
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.GestureDetectorCompat
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -31,7 +28,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
@@ -124,19 +120,18 @@ class HomeFragment : Fragment(), CoroutineScope {
                     try {
                         // Google Sign In was successful, authenticate with Firebase
                         val account = task.getResult(ApiException::class.java)!!
-                        Log.d("Alex", "firebaseAuthWithGoogle:" + account.id)
+                        Timber.tag("Alex").d("firebaseAuthWithGoogle:%s", account.id)
                         MyApplication.userGivenName = account.givenName.toString()
                         MyApplication.userFamilyName = account.familyName.toString()
                         MyApplication.userAccount = account.account
                         firebaseAuthWithGoogle(account.idToken!!)
                     } catch (e: ApiException) {
                          // Google Sign In failed, update UI appropriately
-                        Log.w("Alex", "Google sign in failed", e)
+                        Timber.tag("Alex").d("Google sign in failed %s", e.toString())
                     }
                 } else
-                    Log.d(
-                        "Alex",
-                        "in registerforactivityresult, result was not OK " + result.resultCode
+                    Timber.tag("Alex").d(
+                        "in registerforactivityresult, result was not OK %s", result.resultCode
                     )
             }
 
@@ -241,7 +236,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.imgProfilePic)
-            binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
         }
         setAdminMode(account?.email == "alexreid2070@gmail.com")
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -250,21 +244,16 @@ class HomeFragment : Fragment(), CoroutineScope {
         binding.imgProfilePic.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.are_you_sure))
-                .setMessage(getString(R.string.are_you_sure_that_you_want_to_sign_out))
+                .setMessage(String.format(getString(R.string.are_you_sure_that_you_want_to_sign_out),
+                    MyApplication.userGivenName, MyApplication.userFamilyName))
                 .setPositiveButton(getString(R.string.sign_out)) { _, _ -> signout() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
                 .show()
         }
-        binding.signoutText.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.are_you_sure))
-                .setMessage(getString(R.string.are_you_sure_that_you_want_to_sign_out))
-                .setPositiveButton(getString(R.string.sign_out)) { _, _ -> signout() }
-                .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
-                .show()
-        }
-        if (homePageExpansionAreaExpanded)
+        if (gHomePageExpansionAreaExpanded) {
+            Timber.tag("Alex").d("in Home Fragment, gHomePageExpansionAreaExpanded is true")
             expandTop()
+        }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
         val constraintLayout = binding.constraintLayout
@@ -274,7 +263,7 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun setScheduledPaymentText() {
-        val spText = ScheduledPaymentViewModel.getScheduledPaymentsInNextDays(cLOOKAHEAD_PERIOD)
+        val spText = ScheduledPaymentViewModel.getScheduledPaymentsInNextDays(DefaultsViewModel.getDefaultSPLookahead())
         if (spText == "") {
             binding.scheduledPaymentField.visibility = View.GONE
         } else {
@@ -286,6 +275,10 @@ class HomeFragment : Fragment(), CoroutineScope {
     private fun setupDataCallbacks() {
         DefaultsViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
+                if (DefaultsViewModel.getDefaultQuote()) {
+                    binding.quoteField.visibility = View.VISIBLE
+                    binding.quoteField.text = getQuote()
+                }
                 alignPageWithDataState("DefaultViewModel")
             }
         })
@@ -317,6 +310,7 @@ class HomeFragment : Fragment(), CoroutineScope {
         })
         ScheduledPaymentViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
+                setScheduledPaymentText()
                 alignPageWithDataState("ScheduledPaymentViewModel")
                 ScheduledPaymentViewModel.generateScheduledPayments(activity as MainActivity)
             }
@@ -339,13 +333,13 @@ class HomeFragment : Fragment(), CoroutineScope {
     private fun expandTop() {
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
         binding.expansionAreaLayout.visibility = View.VISIBLE
-        homePageExpansionAreaExpanded = true
+        gHomePageExpansionAreaExpanded = true
     }
 
     private fun retractTop() {
         binding.expandButton.setImageResource(R.drawable.ic_baseline_expand_more_24)
         binding.expansionAreaLayout.visibility = View.GONE
-        homePageExpansionAreaExpanded = false
+        gHomePageExpansionAreaExpanded = false
     }
 
     private fun getQuote(): String {
@@ -356,7 +350,6 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
-        Log.d("Alex", "onSignIn")
         val signInIntent: Intent = mGoogleSignInClient.signInIntent
         mainActivityResultLauncher.launch(signInIntent)
     }
@@ -368,12 +361,11 @@ class HomeFragment : Fragment(), CoroutineScope {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     val user = auth.currentUser
-                    Log.d("Alex", "signInWithCredential:success.  User is " + user.toString())
                     // this code is only hit when a user signs in successfully.
                     signIn(user)
                 } else {
                     // If sign in fails, display a message to the user.
-                    Log.w("Alex", "signInWithCredential:failure", task.exception)
+                    Timber.tag("Alex").d("signInWithCredential:failure + task.exception")
                     signIn(null)
                 }
             }
@@ -395,7 +387,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                 .crossFade()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(binding.imgProfilePic)
-            binding.userName.text = MyApplication.userGivenName + " " + MyApplication.userFamilyName
         }
         if (account == null) {
             binding.transactionAddFab.visibility = View.GONE
@@ -423,7 +414,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                 val joinListener = object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         if (dataSnapshot.value != null) {  // found the JoinUser node
-                            Log.d("Alex", "dataSnapshot.value is " + dataSnapshot.value)
                             MyApplication.userUID = dataSnapshot.value.toString()
                         }
                         loadEverything()
@@ -462,15 +452,16 @@ class HomeFragment : Fragment(), CoroutineScope {
             .child(SpenderViewModel.myIndex().toString())
             .child("LastSignIn")
             .child("date")
-            .setValue(giveMeMyDateFormat(gCurrentDate))
+            .setValue(gCurrentDate.toString())
         MyApplication.database.getReference("Users/" + MyApplication.userUID)
             .child("Info")
             .child(SpenderViewModel.myIndex().toString())
             .child("LastSignIn")
-            .child("time").setValue(giveMeMyTimeFormat(gCurrentDate))
+            .child("time").setValue(gCurrentDate.toString())
     }
 
     private fun alignPageWithDataState(iTag: String)  {
+        Timber.tag("Alex").d("alignpage: $iTag")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -484,7 +475,6 @@ class HomeFragment : Fragment(), CoroutineScope {
             RetirementViewModel.isLoaded()
         ) {
             if (thisIsANewUser()) {
-                Log.d("Alex", "This is a new user")
                 binding.quoteField.visibility = View.VISIBLE
                 binding.quoteField.text = "THIS IS A NEW USER.  NEED TO DO SETUP BEFORE PROCEEDING."
 //                binding.transactionAddFab.isEnabled = false
@@ -492,11 +482,11 @@ class HomeFragment : Fragment(), CoroutineScope {
             } else {
                 (activity as MainActivity).setLoggedOutMode(false)
                 binding.expandButton.isEnabled = true
-                setScheduledPaymentText()
-                if (DefaultsViewModel.getDefaultQuote()) {
-                    binding.quoteField.visibility = View.VISIBLE
-                    binding.quoteField.text = getQuote()
-                }
+//                setScheduledPaymentText()
+//                if (DefaultsViewModel.getDefaultQuote()) {
+//                    binding.quoteField.visibility = View.VISIBLE
+//                    binding.quoteField.text = getQuote()
+//                }
                 binding.homeScreenMessage.text = ""
                 binding.homeScreenMessage.visibility = View.GONE
                 val trackerFragment: TrackerFragment =
@@ -563,7 +553,6 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun signout() {
-        Log.d("Alex", "sign out attempted")
         BudgetViewModel.clear()
         CategoryViewModel.clear()
         DefaultsViewModel.clear()

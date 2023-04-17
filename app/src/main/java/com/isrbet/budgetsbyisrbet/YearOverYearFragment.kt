@@ -3,20 +3,20 @@ package com.isrbet.budgetsbyisrbet
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
-import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.text.style.StyleSpan
-import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
-import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentYearOverYearBinding
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 private const val cDETAIL = 0
@@ -70,11 +70,14 @@ class YearOverYearFragment : Fragment() {
         return binding.root
     }
 
+    private fun getLatestYear() : Int {
+        return TransactionViewModel.getLatestYear() + 1 // this allows space for the average column
+    }
     private fun setYearVisibility() {
         maxYearColumns = getAppropriateMaxColumns()
         for (i in 0 until yearVisibility.size)
             yearVisibility.removeAt(0)
-        for (i in 0 until (TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear() + 1)) {
+        for (i in 0 until (getLatestYear() - TransactionViewModel.getEarliestYear() + 1)) {
             if (i+1 <= maxYearColumns)
                 yearVisibility.add(0, View.VISIBLE)
             else
@@ -85,24 +88,12 @@ class YearOverYearFragment : Fragment() {
         val ind = iYear - TransactionViewModel.getEarliestYear()
         return yearVisibility[ind]
     }
-    private fun getIndexOfFirstYearVisible(): Int {
-        for (i in 0 until yearVisibility.size)
-            if (yearVisibility[i] == View.VISIBLE)
-                return i
-        return 0
-    }
-    private fun getIndexOfLastYearVisible(): Int {
-        for (i in yearVisibility.size - 1 downTo  0)
-            if (yearVisibility[i] == View.VISIBLE)
-                return i
-        return yearVisibility.size - 1
-    }
     private fun getAppropriateMaxColumns() : Int {
         val orientation = resources.configuration.orientation
         val roundingOn = DefaultsViewModel.getDefaultRoundYOY()
         return if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // In landscape
-            5 + if (roundingOn) 1 else 0
+            6 + if (roundingOn) 1 else 0
         } else {
             // In portrait
             3 + if (roundingOn) 1 else 0
@@ -114,6 +105,7 @@ class YearOverYearFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+
         setYearVisibility()
         binding.dollarRadioButton.text = getLocalCurrencySymbol(true)
         mTableLayout = binding.tableRows
@@ -143,7 +135,6 @@ class YearOverYearFragment : Fragment() {
                 binding.switchRoundToNearestDollar.isChecked = false
             }
         }
-        loadRows(true)
         binding.name1RadioButton.text = SpenderViewModel.getSpenderName(0)
         binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
 
@@ -178,17 +169,8 @@ class YearOverYearFragment : Fragment() {
             setActionBarTitle()
             loadRows(false)
         }
-        binding.expandNav.setOnClickListener {
-            onExpandClicked(binding.expandNav, binding.navButtonLinearLayout)
-        }
-        binding.expandOptions.setOnClickListener {
-            onExpandClicked(binding.expandOptions, binding.optionsButtonLinearLayout)
-        }
-        binding.expandView.setOnClickListener {
-            onExpandClicked(binding.expandView, binding.viewButtonLinearLayout)
-        }
-        binding.expandFilter.setOnClickListener {
-            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
+        binding.buttonSettings.setOnClickListener {
+            onExpandClicked(binding.optionsLinearLayout)
         }
         binding.showDeltaRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
@@ -261,13 +243,14 @@ class YearOverYearFragment : Fragment() {
             YoyView.BUDGET -> binding.buttonViewBudgets.isChecked = true
             else -> binding.buttonViewDelta.isChecked = true
         }
-        binding.resetFilterButton.setOnClickListener {
-            DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_DISC_YOY, "")
-            binding.allDiscRadioButton.isChecked = true
-            DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_YOY, "")
-            binding.whoAllRadioButton.isChecked = true
-            onExpandClicked(binding.expandFilter, binding.filterButtonLinearLayout)
-        }
+        binding.optionsLinearLayout.setOnTouchListener(object :
+            OnSwipeTouchListener(requireContext()) {
+            override fun onSwipeBottom() {
+                super.onSwipeBottom()
+                binding.optionsLinearLayout.visibility = View.GONE
+                binding.navButtonLinearLayout.visibility = View.VISIBLE
+            }
+        })
 /*        binding.scrollView.setLeftSwipeCallback(object: DataUpdatedCallback {
             override fun onDataUpdate() {
                 moveForward()
@@ -278,40 +261,51 @@ class YearOverYearFragment : Fragment() {
                 moveBackward()
             }
         }) */
+        loadRows(true)
         setActionBarTitle()
     }
 
-    private fun loadRows(iRefreshRows: Boolean = false) {
-        val viewRows = DefaultsViewModel.getDefaultViewRowsYoy()
-        if (iRefreshRows) {
-            val yoyRows = YearOverYearRows()
-            val defWho = if (DefaultsViewModel.getDefaultFilterWhoYOY().toIntOrNull() != null)
-                DefaultsViewModel.getDefaultFilterWhoYOY().toInt() else 2
-            myRows = yoyRows.getRows(
-                DefaultsViewModel.getDefaultFilterDiscYOY(),
-                defWho
-            )
-        }
-//        binding.tableHeaderRow.removeAllViews()
-        mTableLayout!!.removeAllViews()
-        var lastCategory = ""
-        var lastCategoryID = 0
-        val lastCategoryTotals: MutableList<Double> = mutableListOf()
-        val grandTotals: MutableList<Double> = mutableListOf()
-        for (i in TransactionViewModel.getEarliestYear() until TransactionViewModel.getLatestYear() + 1) {
-            lastCategoryTotals.add(0.0)
-            grandTotals.add(0.0)
-        }
+    private fun loadRows(iRefreshRows: Boolean = false) = runBlocking {
+        launch {
+            val viewRows = DefaultsViewModel.getDefaultViewRowsYoy()
+            if (iRefreshRows) {
+                val yoyRows = YearOverYearRows()
+                val defWho = if (DefaultsViewModel.getDefaultFilterWhoYOY().toIntOrNull() != null)
+                    DefaultsViewModel.getDefaultFilterWhoYOY().toInt() else 2
+                myRows = yoyRows.getRows(
+                    DefaultsViewModel.getDefaultFilterDiscYOY(),
+                    defWho
+                )
+            }
+            binding.tableHeader.removeAllViews()
+            mTableLayout!!.removeAllViews()
+            var lastCategory = ""
+            var lastCategoryID = 0
+            val lastCategoryTotals: MutableList<Double> = mutableListOf()
+            val grandTotals: MutableList<Double> = mutableListOf()
+            for (i in TransactionViewModel.getEarliestYear() until getLatestYear() + 1) {
+                lastCategoryTotals.add(0.0)
+                grandTotals.add(0.0)
+            }
 
-        // -1 means heading row
-        var i = -1
-        // do header row
-        createViewRow(cHEADER, i++, viewRows, YoyView.ALL, 0, "", "", null)
+            // -1 means heading row
+            var i = -1
+            // do header row
+            createViewRow(cHEADER, i++, viewRows, YoyView.ALL, 0, "", "", null)
 
-        for (row in myRows) {
+            for (row in myRows) {
                 if (lastCategory != "" && row.category != lastCategory) {
                     // sub-total row
-                    createViewRow(cSUBTOTAL, i, viewRows, row.yoyEnum, lastCategoryID, lastCategory, "", lastCategoryTotals)
+                    createViewRow(
+                        cSUBTOTAL,
+                        i,
+                        viewRows,
+                        row.yoyEnum,
+                        lastCategoryID,
+                        lastCategory,
+                        "",
+                        lastCategoryTotals
+                    )
                     for (c in 0 until row.amounts.size) {
                         grandTotals[c] += lastCategoryTotals[c]
                         lastCategoryTotals[c] = 0.0
@@ -321,50 +315,81 @@ class YearOverYearFragment : Fragment() {
                 lastCategory = row.category
                 lastCategoryID = row.categoryID
                 val catID = CategoryViewModel.getID(row.category, row.subcategory)
-                createViewRow(cDETAIL, i, viewRows, row.yoyEnum, catID,
-                    row.category, row.subcategory, row.amounts)
-            if (row.yoyEnum == viewRows && !isExcluded(catID)) {
-                for (c in 0 until row.amounts.size) {
-                    lastCategoryTotals[c] += row.amounts[c]
+                createViewRow(
+                    cDETAIL, i, viewRows, row.yoyEnum, catID,
+                    row.category, row.subcategory, row.amounts
+                )
+                if (row.yoyEnum == viewRows && !isExcluded(catID)) {
+                    for (c in 0 until row.amounts.size) {
+                        lastCategoryTotals[c] += row.amounts[c]
+                    }
+                    i++
                 }
-                i++
             }
-        }
 
-        createViewRow(cSUBTOTAL, i++, viewRows, viewRows, lastCategoryID, lastCategory, "", lastCategoryTotals)
-        for (c in 0 until grandTotals.size) {
-            grandTotals[c] += lastCategoryTotals[c]
-        }
-        if (viewRows != YoyView.ALL)
-            createViewRow(cGRANDTOTAL, i, viewRows, viewRows, 0, getString(R.string.total), "", grandTotals)
- /*       val run = Runnable {
-            val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as TableRow
-            val tableDashboardRow = binding.tableRows.getChildAt(0) as TableRow
-            for (ind in 0 until tableHeaderRow.childCount) {
-                if (tableHeaderRow.getChildAt(ind).visibility == View.VISIBLE) {
-                    val maxWidth = max(tableDashboardRow.getChildAt(ind).measuredWidth,
-                    tableHeaderRow.getChildAt(ind).measuredWidth)
-                    tableHeaderRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
-                        tableDashboardRow.getChildAt(ind).measuredWidth,
-                        tableDashboardRow.getChildAt(ind).measuredHeight)
+            createViewRow(
+                cSUBTOTAL,
+                i++,
+                viewRows,
+                viewRows,
+                lastCategoryID,
+                lastCategory,
+                "",
+                lastCategoryTotals
+            )
+            for (c in 0 until grandTotals.size) {
+                grandTotals[c] += lastCategoryTotals[c]
+            }
+            if (viewRows != YoyView.ALL)
+                createViewRow(
+                    cGRANDTOTAL,
+                    i++,
+                    viewRows,
+                    viewRows,
+                    0,
+                    getString(R.string.total),
+                    "",
+                    grandTotals
+                )
+            // add spacer row.  For some reason the bottom row rightmost cell doesn't display without this
+            val tr = YOYTableRow(requireContext())
+            for (i in 0 until 8)
+                tr.addView(TextView(requireContext()))
+            binding.tableRows.addView(tr)
+
+           val run = Runnable {
+               val tableHeaderRow = binding.tableHeader.getChildAt(0) as TableRow
+               var firstVisibleRow = -1
+               for (ind in 0 until binding.tableRows.childCount) {
+                   val tRow = binding.tableRows.getChildAt(ind) as TableRow
+                   if (tRow.isVisible)
+                       firstVisibleRow = ind
+               }
+
+               if (firstVisibleRow > -1) {
+                   val tableRow = binding.tableRows.getChildAt(firstVisibleRow) as TableRow
+                    for (ind in 0 until tableHeaderRow.childCount) {
+                        if (tableHeaderRow.getChildAt(ind).visibility == View.VISIBLE) {
+                            if (tableHeaderRow.getChildAt(ind).measuredWidth > tableRow.getChildAt(ind).measuredWidth) {
+                                tableRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
+                                    tableHeaderRow.getChildAt(ind).measuredWidth,
+                                    tableRow.getChildAt(ind).measuredHeight)
+                            } else {
+                                tableHeaderRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
+                                    tableRow.getChildAt(ind).measuredWidth,
+                                    tableHeaderRow.getChildAt(ind).measuredHeight)
+                            }
+                        }
+                    }
                 }
             }
+           binding.tableRows.post(run)
         }
-        binding.tableRows.post(run) */
     }
 
     private fun createViewRow(iRowType: Int, iRowNo: Int, defaultsView: YoyView, iYoyType: YoyView,
                               iCategoryID: Int, iCategory: String,
                               iSubcategory: String, iAmounts: MutableList<Double>?) {
-
-        // summary of row tags
-        //   tv1.tag = YOYTYPE (actuals, budget, etc)
-        //   tv2.tag = EXPANDED
-        //   tv3.tag = Include/Exclude in totals
-        //   row.tag = iRowType (detail, sub-total, etc)
-
-        //I need tv3.tag to be the category ID
-
         val leftRowMargin = 0
         val topRowMargin = 0
         val rightRowMargin = 0
@@ -384,7 +409,8 @@ class YearOverYearFragment : Fragment() {
             TableRow.LayoutParams.WRAP_CONTENT,
             TableRow.LayoutParams.WRAP_CONTENT
         )
-        tv2.gravity = if (iRowType == cDETAIL) Gravity.START else Gravity.END
+        tv2.gravity = if (iRowType == cDETAIL) (Gravity.START or Gravity.CENTER_VERTICAL)
+            else (Gravity.END or Gravity.CENTER_VERTICAL)
         tv2.setPadding(15, 15, 0, 15)
 //        tv2.tag = if (isCollapsed(iCategory)) getString(R.string.collapsed) else getString(R.string.expanded)
         if (iRowType == cHEADER) {
@@ -397,18 +423,6 @@ class YearOverYearFragment : Fragment() {
         } else {
             when (iRowType) {
                 cDETAIL -> {
-/*                    if (defaultsView == YoyView.ALL) {
-                        when (iYoyType) {
-                            YoyView.ALL -> tv2.text = iSubcategory
-                            YoyView.ACTUALS -> tv2.text = cACTUALS
-                            YoyView.AVERAGE -> tv2.text = cAVERAGE
-                            YoyView.BUDGET -> tv2.text = cBUDGETS
-                            YoyView.DELTA -> tv2.text = cDELTA
-                        }
-                    } else {
-                        tv2.text = iSubcategory
-                    } */
-
                     if ((defaultsView == YoyView.ALL && iYoyType == YoyView.ALL) ||
                                 defaultsView != YoyView.ALL) {
                         tv2.text = iSubcategory
@@ -434,22 +448,39 @@ class YearOverYearFragment : Fragment() {
         }
 
         val tvAmounts: MutableList<TextView> = arrayListOf()
-        for (i in 0 until (TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear() + 1)) {
+        for (i in 0 until (getLatestYear() - TransactionViewModel.getEarliestYear() + 1)) {
             tvAmounts.add(TextView(requireContext()))
-            tvAmounts[i].layoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT
-            )
-            tvAmounts[i].gravity = Gravity.END
+            if (i == getLatestYear() - TransactionViewModel.getEarliestYear() &&
+                    iRowType != cHEADER) {
+                tvAmounts[i].layoutParams = TableRow.LayoutParams(
+                    0,
+                    //TableRow.LayoutParams.WRAP_CONTENT,
+                    TableRow.LayoutParams.WRAP_CONTENT,
+                    1F
+                )
+                tvAmounts[i].setPadding(5, 15, 40, 15)
+            } else {
+                tvAmounts[i].layoutParams = TableRow.LayoutParams(
+                    0,
+//                    TableRow.LayoutParams.WRAP_CONTENT,
+                    TableRow.LayoutParams.WRAP_CONTENT,
+                    1F
+                )
+                tvAmounts[i].setPadding(5, 15, 20, 15)
+            }
+            tvAmounts[i].gravity = (Gravity.END or Gravity.CENTER_VERTICAL)
             if (iRowType == cHEADER) {
-                tvAmounts[i].text = String.format("%d",TransactionViewModel.getEarliestYear() + i)
-                if (i == getIndexOfFirstYearVisible() && i != 0) {
+                if (i == getLatestYear() - TransactionViewModel.getEarliestYear()) // ie it's the last column, Average
+                    tvAmounts[i].text = underlined("Avg")
+                else
+                    tvAmounts[i].text = underlined(String.format("%d",TransactionViewModel.getEarliestYear() + i))
+/*                if (i == getIndexOfFirstYearVisible() && i != 0) {
                     tvAmounts[i].setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.ic_baseline_arrow_left_24, 0, 0, 0)
                     tvAmounts[i].setOnClickListener {
                         moveBackward()
                     }
-                } else if (i == getIndexOfLastYearVisible() && i != TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear()) {
+                } else if (i == getIndexOfLastYearVisible() && i != getLatestYear() - TransactionViewModel.getEarliestYear()) {
                     tvAmounts[i].setCompoundDrawablesWithIntrinsicBounds(
                         0, 0, R.drawable.ic_baseline_arrow_right_24, 0)
                     tvAmounts[i].setOnClickListener {
@@ -458,10 +489,9 @@ class YearOverYearFragment : Fragment() {
                 } else {
                     tvAmounts[i].setCompoundDrawablesWithIntrinsicBounds(
                         0, 0, 0, 0)
-                }
+                } */
             } else {
-                tvAmounts[i].setPadding(5, 15, 0, 15)
-                if (iYoyType == YoyView.DELTA && DefaultsViewModel.getDefaultDeltaYOY() == "%") {
+                if (defaultsView == YoyView.DELTA && DefaultsViewModel.getDefaultDeltaYOY() == "%") {
                     val percentFormat = java.text.DecimalFormat("# %")
                     when {
                         (iAmounts?.get(i) ?: 0.0) == 0.0 -> tvAmounts[i].text = "0 %"
@@ -495,7 +525,6 @@ class YearOverYearFragment : Fragment() {
             } else if (iRowType == cDETAIL && (iYoyType == YoyView.ACTUALS || iYoyType == YoyView.AVERAGE)) {
                 tvAmounts[i].setOnClickListener {
                     val myParent = (it as TextView).parent as YOYTableRow
-                    Log.d("Alex", "clicked on row with catid ${myParent.categoryID}")
                     val year = it.tag.toString().toInt()
                     val cat = CategoryViewModel.getCategory(myParent.categoryID)
                     // go to ViewAll with the SubCategory as the search term
@@ -527,18 +556,19 @@ class YearOverYearFragment : Fragment() {
             TableLayout.LayoutParams.MATCH_PARENT,
             TableLayout.LayoutParams.WRAP_CONTENT
         )
+        tvAmounts[tvAmounts.size - 1].setTypeface(null, Typeface.BOLD)
         when (iRowType) {
             cSUBTOTAL -> {
                 trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, 20)
-                tr.setPadding(5, 0, 0, 0)
+                tr.setPadding(5, 15, 5, 15)
             }
             cGRANDTOTAL -> {
                 trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, 50)
-                tr.setPadding(5, 0, 5, 0)
+                tr.setPadding(5, 15, 5, 15)
             }
             else -> {
                 trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin, bottomRowMargin)
-                tr.setPadding(5, 0, 0, 0)
+                tr.setPadding(5, 15, 5, 15)
             }
         }
         tr.layoutParams = trParams
@@ -562,8 +592,12 @@ class YearOverYearFragment : Fragment() {
         else if (iRowType == cHEADER) {
             tv1.setTypeface(null, Typeface.BOLD)
             tv2.setTypeface(null, Typeface.BOLD)
-            for (i in 0 until tvAmounts.size)
+            for (i in 0 until tvAmounts.size) {
                 tvAmounts[i].setTypeface(null, Typeface.BOLD)
+                tvAmounts[i].setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
+            }
+            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
+            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
         }
         else if (iRowType == cSUBTOTAL) {
             tv1.setTypeface(null, Typeface.BOLD)
@@ -575,15 +609,16 @@ class YearOverYearFragment : Fragment() {
 
             val cat = DefaultsViewModel.getCategoryDetail(iCategory)
             if (cat.color != 0) {
-                if (Build.VERSION.SDK_INT >= 29) {
-                    tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
-                    tr.background.colorFilter =
-                        BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
-                } else {
+//                if (Build.VERSION.SDK_INT >= 29) {
+                tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
+                tr.background.colorFilter =
+                    BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+/*                } else {
                     tr.setBackgroundColor(cat.color)
 //                    tr.background.alpha = 44
                 }
-            } else if (Build.VERSION.SDK_INT >= 29) {
+            } else if (Build.VERSION.SDK_INT >= 29) { */
+            } else {
                 tr.setBackgroundResource(R.drawable.row_left_and_bottom_border)
                 val hexColor = MaterialColors.getColor(requireContext(), R.attr.colorPrimary, Color.BLACK)
                 tr.background.colorFilter =
@@ -607,14 +642,14 @@ class YearOverYearFragment : Fragment() {
                 R.attr.colorOnBackground,
                 Color.BLACK
             )
-            if (Build.VERSION.SDK_INT >= 29) {
+//            if (Build.VERSION.SDK_INT >= 29) {
                 tr.setBackgroundResource(R.drawable.row_frame)
                 tr.background.colorFilter =
                     BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
-            } else {
+/*            } else {
                 tr.setBackgroundColor(hexColor)
                 tr.background.alpha = 44
-            }
+            } */
 
         }
 
@@ -662,12 +697,12 @@ class YearOverYearFragment : Fragment() {
             mTableLayout!!.addView(tr,1)
         else {
             if (iRowType == cHEADER) {
-//                binding.tableHeaderRow.addView(tr)
-                mTableLayout!!.addView(tr)
+                binding.tableHeader.addView(tr)
+//                mTableLayout!!.addView(tr)
             } else
                 mTableLayout!!.addView(tr)
         }
-        if (iRowType != cHEADER) {
+/*        if (iRowType != cHEADER) {
             // add separator row
             val trSep = YOYTableRow(requireContext())
             val trParamsSep = TableLayout.LayoutParams(
@@ -681,7 +716,7 @@ class YearOverYearFragment : Fragment() {
                 bottomRowMargin
             )
             trSep.layoutParams = trParamsSep
-        }
+        } */
         if (iRowType == cDETAIL) {
             tr.setOnClickListener { ltr ->
                 val myRow: YOYTableRow = ltr as YOYTableRow
@@ -693,18 +728,14 @@ class YearOverYearFragment : Fragment() {
                 loadRows(false)
             }
             tr.setOnLongClickListener { thistr ->
-                Log.d("Alex", "Long click")
                 val myTr:YOYTableRow = thistr as YOYTableRow
                 val thisCategoryTV = myTr.getChildAt(0) as TextView
                 val thisCategory = thisCategoryTV.text.toString().toInt()
-                Log.d("Alex", "This category is $thisCategory ${CategoryViewModel.getFullCategoryName(thisCategory)}")
                 val myTable = binding.tableRows
                 for (i in 0 until myTable.size) {
                     val ltr = myTable.getChildAt(i) as YOYTableRow
                     val ltv = ltr.getChildAt(0) as TextView
-                    Log.d("Alex", "row $i text is ${ltv.text}")
                     if (ltv.text.toString().toInt() == thisCategory) {
-                        Log.d("Alex", "We have a match ${ltv.text.toString().toInt()} $thisCategory")
                         gActualRow = myTable.getChildAt(i+1) as YOYTableRow
                         gAverageRow = myTable.getChildAt(i+2) as YOYTableRow
                         gBudgetRow = myTable.getChildAt(i+3) as YOYTableRow
@@ -731,41 +762,42 @@ class YearOverYearFragment : Fragment() {
                 R.attr.background,
                 Color.BLACK
             )
-            if (Build.VERSION.SDK_INT >= 29) {
-                iRow.setBackgroundResource(R.drawable.row_left_border)
+//            if (Build.VERSION.SDK_INT >= 29) {
+                iRow.setBackgroundResource(R.drawable.row_left_and_right_border)
                 iRow.background.colorFilter =
-                    BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
+                    BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)/*
             } else {R.color.medium_gray
                 iRow.setBackgroundColor(hexColor)
                 iRow.background.alpha = 44
-            }
+            } */
         } else {
             iRow.isIncludedInTotals = true
 //            tv3.tag = cINCLUDE
             val cat = DefaultsViewModel.getCategoryDetail(categ.categoryName)
-            if (Build.VERSION.SDK_INT >= 29) {
+            val hexColor = if (cat.color == 0)
+                MaterialColors.getColor(
+                    requireContext(),
+                    R.attr.colorPrimary,
+                    Color.BLACK
+                )
+            else
+                cat.color
+//            if (Build.VERSION.SDK_INT >= 29) {
                 if (cat.color == 0) {
                     iRow.setBackgroundResource(R.drawable.row_left_border_no_fill)
-                    val hexColor = MaterialColors.getColor(
-                        requireContext(),
-                        R.attr.colorPrimary,
-                        Color.BLACK
-                    )
-                    iRow.background.colorFilter =
-                        BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
                 } else {
                     if (inDarkMode(requireContext()))
                         iRow.setBackgroundResource(R.drawable.row_left_border_no_fill)
                     else
                         iRow.setBackgroundResource(R.drawable.row_left_border)
-                    iRow.background.colorFilter =
-                        BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
                 }
-            } else {
+            iRow.background.colorFilter =
+                BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
+/*            } else {
                 if (cat.color != 0)
                     iRow.setBackgroundColor(cat.color)
                 iRow.background.alpha = 44
-            }
+            } */
         }
     }
 
@@ -816,25 +848,17 @@ class YearOverYearFragment : Fragment() {
             currentlyCollapsed.add(iCategory)
     }
 
-    private fun onExpandClicked(button: TextView, layout: LinearLayout) {
+    private fun onExpandClicked(layout: LinearLayout) {
         if (layout.visibility == View.GONE) { // ie expand the section
             // first hide all other possible expansions
-            resetLayout(binding.expandNav, binding.navButtonLinearLayout)
-            resetLayout(binding.expandView, binding.viewButtonLinearLayout)
-            resetLayout(binding.expandFilter, binding.filterButtonLinearLayout)
-            resetLayout(binding.expandOptions, binding.optionsButtonLinearLayout)
-            button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
-            button.textSize = 16F
-            button.setBackgroundResource(R.drawable.rounded_top_corners)
+            resetLayout(binding.navButtonLinearLayout)
+            resetLayout(binding.optionsLinearLayout)
             layout.visibility = View.VISIBLE
         } else { // ie retract the section
-            resetLayout(button, layout)
+            resetLayout(layout)
         }
     }
-    private fun resetLayout(button: TextView, layout: LinearLayout) {
-        button.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
-        button.textSize = 14F
-        button.setBackgroundResource(android.R.color.transparent)
+    private fun resetLayout(layout: LinearLayout) {
         layout.visibility = View.GONE
     }
 
@@ -859,10 +883,14 @@ class YearOverYearFragment : Fragment() {
             currentFilterIndicator = currentFilterIndicator +
                     (if (currentFilterIndicator == "") "" else " ") +
                     SpenderViewModel.getSpenderName(DefaultsViewModel.getDefaultFilterWhoYOY().toInt())
+        val sep =  if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            ""
+        else
+            "\n"
         val subtitle = if (currentFilterIndicator == "")
             ""
         else {
-            String.format("($currentFilterIndicator)")
+            String.format("$sep($currentFilterIndicator)")
         }
 
         val textCol = MaterialColors.getColor(requireContext(), R.attr.textOnBackground, Color.BLACK)
@@ -886,7 +914,10 @@ class YearOverYearFragment : Fragment() {
                 break
             }
         }
-        if (firstYear != 0) {
+        if (firstYear == 0) {
+            Toast.makeText(requireActivity(), String.format(getString(R.string.there_is_no_data_before_date), TransactionViewModel.getEarliestYear())
+                , Toast.LENGTH_SHORT).show()
+        } else {
             yearVisibility[firstYear + maxYearColumns - 1] = View.GONE
             for (i in firstYear-1 until firstYear-1+maxYearColumns) {
                 if (i < yearVisibility.size)
@@ -904,7 +935,10 @@ class YearOverYearFragment : Fragment() {
                 break
             }
         }
-        if (lastYear != yearVisibility.size-1) {
+        if (lastYear == yearVisibility.size-1) {
+            Toast.makeText(requireActivity(), String.format(getString(R.string.there_is_no_data_after_date), TransactionViewModel.getLatestYear())
+                , Toast.LENGTH_SHORT).show()
+        } else {
             yearVisibility[lastYear - maxYearColumns + 1] = View.GONE
             for (i in lastYear+1 downTo lastYear-maxYearColumns+2) {
                 if (i >= 0)
@@ -945,8 +979,8 @@ class YearOverYearRows {
     ): MutableList<YearOverYearData> {
         val firstYear = TransactionViewModel.getEarliestYear()
         val firstMonth = TransactionViewModel.getEarliestMonth()
-        val lastYear = gCurrentDate.get(Calendar.YEAR)
-        val lastMonth = gCurrentDate.get(Calendar.MONTH)+1
+        val lastYear = gCurrentDate.getYear() + 1
+        val lastMonth = gCurrentDate.getMonth()
         val data: MutableList<YearOverYearData> = mutableListOf()
         val categories = CategoryViewModel.getCategories(true)
         categories.forEach {
@@ -979,21 +1013,38 @@ class YearOverYearRows {
             when (dataRow.yoyEnum) {
                 YoyView.ACTUALS -> {
                     lastActuals = dataRow.amounts
+                    var tempTotal = 0.0
+                    var tempNumOfMonths = 0.0
+                    for (c in 0 until dataRow.amounts.size-1) {
+                        if (c == 0)
+                            tempNumOfMonths += ((12 - firstMonth + 1)/12.0)
+                        else if (c == dataRow.amounts.size - 2)
+                            tempNumOfMonths += (lastMonth/12.0)
+                        else
+                            tempNumOfMonths += 12/12.0
+                        tempTotal += dataRow.amounts[c]
+                    }
+                    dataRow.amounts[dataRow.amounts.size-1] = tempTotal / tempNumOfMonths
                 }
                 YoyView.BUDGET -> {
-                    for (year in 0 until (lastYear - firstYear + 1)) {
+                    var tempTotal = 0.0
+                    for (year in 0 until (lastYear - firstYear )) {
                         // iPeriod: DateRangeEnum, iBudgetMonth: MyDate, iCategoryID: Int, iWhoToLookup: Int
+
                         dataRow.amounts[year] = BudgetViewModel.getCalculatedBudgetAmount(
                             DateRangeEnum.YEAR,
-                            MyDate(year + firstYear, 0, 0),
+                            MyDate(year + firstYear),
                             dataRow.categoryID,
                             iBoughtForFlag)
+                        tempTotal += dataRow.amounts[year]
                     }
+                    dataRow.amounts[dataRow.amounts.size-1] = tempTotal /  (lastYear - firstYear)
                     lastBudgets = dataRow.amounts
                 }
                 YoyView.DELTA -> {
-                    for (year in 0 until (lastYear - firstYear + 1)) {
-        //                    if (lastActuals != null && lastBudgets != null) {
+                    var tempTotal = 0.0
+                    var tempNumOfMonths = 0.0
+                    for (year in 0 until (lastYear - firstYear )) {
                         if (DefaultsViewModel.getDefaultDeltaYOY() == "%") {
                             if (lastBudgets[year] == 0.0)
                                 dataRow.amounts[year] = 0.0
@@ -1003,18 +1054,28 @@ class YearOverYearRows {
                         } else {
                             dataRow.amounts[year] = lastBudgets[year] - lastActuals[year]
                         }
-                        //                  }
+                        if (year == 0)
+                            tempNumOfMonths += ((12 - firstMonth + 1)/12.0)
+                        else if (year == dataRow.amounts.size - 2)
+                            tempNumOfMonths += (lastMonth/12.0)
+                        else
+                            tempNumOfMonths += 12/12.0
+                        tempTotal += dataRow.amounts[year]
                     }
+                    dataRow.amounts[dataRow.amounts.size-1] = tempTotal / tempNumOfMonths
                 }
                 YoyView.AVERAGE -> {
-                    for (year in 0 until (lastYear - firstYear + 1)) {
+                    var tempTotal = 0.0
+                    for (year in 0 until (lastYear - firstYear)) {
                         dataRow.amounts[year] =
                             when (year + firstYear) {
                                 firstYear -> lastActuals[year] / (12 - firstMonth + 1)
                                 lastYear -> lastActuals[year] / lastMonth
                                 else -> lastActuals[year] / 12
                             }
+                        tempTotal += dataRow.amounts[year]
                     }
+                    dataRow.amounts[dataRow.amounts.size-1] = tempTotal / (lastYear - firstYear)
                 }
                 else -> {
                 }

@@ -97,47 +97,34 @@ class RetirementPensionDialogFragment : DialogFragment() {
 //            val cal = android.icu.util.Calendar.getInstance()
         val pensionStartDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-                lcal.set(Calendar.YEAR, year)
-                lcal.set(Calendar.MONTH, monthOfYear)
-                lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.pensionStartDate.setText(giveMeMyDateFormat(lcal))
+                binding.pensionStartDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
         binding.pensionStartDate.setOnClickListener {
-            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+            var lcal = MyDate()
             if (binding.pensionStartDate.text.toString() != "") {
-                lcal.set(Calendar.YEAR, binding.pensionStartDate.text.toString().substring(0,4).toInt())
-                lcal.set(Calendar.MONTH, binding.pensionStartDate.text.toString().substring(5,7).toInt()-1)
-                lcal.set(Calendar.DAY_OF_MONTH, binding.pensionStartDate.text.toString().substring(8,10).toInt())
+                lcal = MyDate(binding.pensionStartDate.text.toString())
             }
             DatePickerDialog( // this is fired when user clicks into date field
                 requireContext(), pensionStartDateSetListener,
-                lcal.get(Calendar.YEAR),
-                lcal.get(Calendar.MONTH),
-                lcal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
-//            binding.workStartDate.setText(giveMeMyDateFormat(cal))
         val workStartDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-                lcal.set(Calendar.YEAR, year)
-                lcal.set(Calendar.MONTH, monthOfYear)
-                lcal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.workStartDate.setText(giveMeMyDateFormat(lcal))
+                binding.workStartDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
         binding.workStartDate.setOnClickListener {
-            val lcal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
+            var lcal = MyDate()
             if (binding.workStartDate.text.toString() != "") {
-                lcal.set(Calendar.YEAR, binding.workStartDate.text.toString().substring(0,4).toInt())
-                lcal.set(Calendar.MONTH, binding.workStartDate.text.toString().substring(5,7).toInt()-1)
-                lcal.set(Calendar.DAY_OF_MONTH, binding.workStartDate.text.toString().substring(8,10).toInt())
+                lcal = MyDate(binding.workStartDate.text.toString())
             }
             DatePickerDialog( // this is fired when user clicks into date field
                 requireContext(), workStartDateSetListener,
-                lcal.get(Calendar.YEAR),
-                lcal.get(Calendar.MONTH),
-                lcal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
 

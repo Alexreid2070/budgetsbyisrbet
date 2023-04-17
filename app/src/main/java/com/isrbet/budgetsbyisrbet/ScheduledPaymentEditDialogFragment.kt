@@ -3,6 +3,7 @@ package com.isrbet.budgetsbyisrbet
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
+import android.icu.text.NumberFormat
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -18,9 +19,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentScheduledPaymentEditDialogBinding
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.math.round
 
 class ScheduledPaymentEditDialogFragment : DialogFragment() {
@@ -30,8 +28,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
     }
     private var listener: ScheduledPaymentEditDialogFragmentListener? = null
     private var initialLoad = true
-    private var cal: android.icu.util.Calendar = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
-    private var lCal = gCurrentDate.clone() as android.icu.util.Calendar // Calendar.getInstance()
     private var currentMode = cMODE_VIEW
 
     companion object {
@@ -98,6 +94,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         boughtForSpinner.adapter = boughtForArrayAdapter
 
         if (oldSP == null) {
+            binding.editNewNextDate.setText(gCurrentDate.toString())
             binding.editNewAmount.setText("")
             binding.editOldRegularity.text = ""
             binding.editNewRegularity.setText("1")
@@ -105,6 +102,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             paidBySpinner.setSelection(paidByArrayAdapter.getPosition(SpenderViewModel.getDefaultSpenderName()))
             boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(SpenderViewModel.getDefaultSpenderName()))
         } else {
+            binding.editNewNextDate.setText(oldSP?.nextdate.toString())
             if (oldSP?.amount == 0.0) {
                 binding.editNewAmount.setText("")
             } else {
@@ -135,7 +133,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             }))
         }
         binding.editOldPeriod.text = oldSP?.period?.let { getTranslationForPeriod(it) }
-        binding.editOldNextDate.text = oldSP?.nextdate
+        binding.editOldNextDate.text = oldSP?.nextdate.toString()
         binding.editOldCategory.text = oldSP?.category?.let {
             CategoryViewModel.getCategory(
                 it
@@ -189,20 +187,11 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             binding.editOldPaidBy.visibility = View.GONE
             binding.editOldBoughtFor.visibility = View.GONE
             binding.dialogButtonDelete.visibility = View.GONE
+            binding.loanStartDate.setText(gCurrentDate.toString())
         } else { // ie it's an edit
             binding.title.visibility = View.GONE
-            val tOldDate = LocalDate.parse(oldSP?.nextdate, DateTimeFormatter.ISO_DATE)
-            cal.set(Calendar.YEAR, tOldDate.year)
-            cal.set(Calendar.MONTH, tOldDate.monthValue-1)
-            cal.set(Calendar.DAY_OF_MONTH, tOldDate.dayOfMonth)
             if (oldSP?.activeLoan == true) {
-                val tOldLoanDate = LocalDate.parse(oldSP?.loanFirstPaymentDate, DateTimeFormatter.ISO_DATE)
-                lCal.set(Calendar.YEAR, tOldLoanDate.year)
-                lCal.set(Calendar.MONTH, tOldLoanDate.monthValue - 1)
-                lCal.set(Calendar.DAY_OF_MONTH, tOldLoanDate.dayOfMonth)
-                binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
-
-
+                binding.loanStartDate.setText(oldSP?.loanFirstPaymentDate.toString())
                 binding.loanAmount.setText(oldSP?.loanAmount?.let { gDec(it) })
                 binding.amortizationPeriod.setText(oldSP?.loanAmortization?.let { gDec(it) })
                 binding.interestRate.setText(oldSP?.loanInterestRate?.let { gDec(it) })
@@ -231,23 +220,24 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             } else
                 binding.loanDetailsLayout.visibility = View.GONE
         }
-        binding.editNewNextDate.setText(giveMeMyDateFormat(cal))
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.editNewNextDate.setText(giveMeMyDateFormat(cal))
+                binding.editNewNextDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.editNewNextDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.editNewNextDate.text.toString() != "") {
+                lcal = MyDate(binding.editNewNextDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
+
         }
 
         binding.loanLink.setOnClickListener {
@@ -338,13 +328,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 }
             }
         binding.splitSlider.addOnChangeListener { _, _, _ ->
-/*            binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
-                binding.splitSlider.value.toInt(),
-                amount1,
-                SpenderViewModel.getSpenderName(0),
-                100 - binding.splitSlider.value.toInt(),
-                amount2,
-                SpenderViewModel.getSpenderName(1)) */
             binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.editNewAmount.text.toString())
         }
         if (oldSP == null)
@@ -378,28 +361,23 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             binding.paidBySpinnerRelativeLayout.visibility = View.GONE
             binding.boughtForSpinnerRelativeLayout.visibility = View.GONE
             binding.splitSlider.visibility = View.GONE
-/*            binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
-                oldSplit1,
-                SpenderViewModel.getSpenderName(0),
-                100 - oldSplit1,
-                SpenderViewModel.getSpenderName(1)) */
         }
 
-        binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
         val loanDateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                lCal.set(Calendar.YEAR, year)
-                lCal.set(Calendar.MONTH, monthOfYear)
-                lCal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.loanStartDate.setText(giveMeMyDateFormat(lCal))
+                binding.loanStartDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
         binding.loanStartDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.loanStartDate.text.toString() != "") {
+                lcal = MyDate(binding.loanStartDate.text.toString())
+            }
             DatePickerDialog(
                 requireContext(), loanDateSetListener,
-                lCal.get(Calendar.YEAR),
-                lCal.get(Calendar.MONTH),
-                lCal.get(Calendar.DAY_OF_MONTH)
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
             ).show()
         }
         when (binding.editNewBoughtFor.selectedItem.toString()) {
@@ -503,6 +481,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
     }
 
     private fun onSaveButtonClicked() {
+        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
         if (!textIsSafeForKey(binding.editNewName.text.toString())) {
             showErrorMessage(parentFragmentManager, getString(R.string.the_text_contains_unsafe_characters))
             focusAndOpenSoftKeyboard(requireContext(), binding.editNewName)
@@ -518,7 +497,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.editNewAmount)
             return
         }
-        if (gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble() == 0.0) {
+        if (lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble() == 0.0) {
             showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_zero))
             focusAndOpenSoftKeyboard(requireContext(), binding.editNewAmount)
             return
@@ -548,7 +527,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         }
         val rtSpinner:Spinner = binding.editNewPeriodSpinner
         var somethingChanged = false
-        var amountDouble = gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble()
+        var amountDouble = lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble()
         var amountInt: Int = round(amountDouble * 100).toInt()
 
         if (currentMode == cMODE_VIEW) { // change to "edit"
@@ -605,7 +584,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 ScheduledPaymentViewModel.updateScheduledPaymentStringField(oldName, "period", chosenPeriod)
                 somethingChanged = true
             }
-            if (oldSP?.nextdate != binding.editNewNextDate.text.toString()) {
+            if (oldSP?.nextdate.toString() != binding.editNewNextDate.text.toString()) {
                 ScheduledPaymentViewModel.updateScheduledPaymentStringField(oldName, "nextdate", binding.editNewNextDate.text.toString())
                 somethingChanged = true
             }
@@ -648,7 +627,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 somethingChanged = true
             }
             if (binding.loanSwitch.isChecked) {
-                if (oldSP?.loanFirstPaymentDate != binding.loanStartDate.text.toString()) {
+                if (oldSP?.loanFirstPaymentDate.toString() != binding.loanStartDate.text.toString()) {
                     ScheduledPaymentViewModel.updateScheduledPaymentStringField(
                         oldName,
                         "loanFirstPaymentDate",
@@ -656,7 +635,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountDouble = gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
+                amountDouble = lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
                 amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.loanAmount != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
@@ -666,7 +645,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountDouble = gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()
+                amountDouble = lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()
                 amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.loanAmortization != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
@@ -676,7 +655,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountDouble = gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()
+                amountDouble = lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()
                 amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.loanInterestRate != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
@@ -686,7 +665,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     )
                     somethingChanged = true
                 }
-                amountDouble = gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()
+                amountDouble = lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()
                 amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.actualPayment != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
@@ -705,11 +684,12 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 }
             }
             if (somethingChanged) {
+                val lNumberFormat: NumberFormat = NumberFormat.getInstance()
                 ScheduledPaymentViewModel.updateScheduledPayment(
                     oldName,
-                    round(gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble()),
+                    lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
                     chosenPeriod,
-                    binding.editNewNextDate.text.toString(),
+                    MyDate(binding.editNewNextDate.text.toString()),
                     binding.editNewRegularity.text.toString().toInt(),
                     CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
                     binding.editNewSubcategory.selectedItem.toString()),
@@ -717,11 +697,11 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()),
                     binding.splitSlider.value.toInt(),
                     binding.loanSwitch.isChecked,
-                    if (binding.loanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                    if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
-                    if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
-                    if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
-                    if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
+                    if (binding.loanSwitch.isChecked) MyDate(binding.loanStartDate.text.toString()) else MyDate(),
+                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
+                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
+                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
+                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
                     freq
                 )
                 if (listener != null)
@@ -736,22 +716,23 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.editNewName)
                 return
             }
+            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
             val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
                 amountDouble,
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
-                binding.editNewNextDate.text.toString(),
-                "",
+                MyDate(binding.editNewNextDate.text.toString()),
+                MyDate(),
                 CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
                 binding.editNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()),
                 binding.splitSlider.value.toInt(),
                 binding.loanSwitch.isChecked,
-                if (binding.loanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) MyDate(binding.loanStartDate.text.toString()) else MyDate(),
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
                 freq
                 )
             ScheduledPaymentViewModel.addScheduledPayment(sp)
@@ -761,22 +742,23 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         } else if (oldName != binding.editNewName.text.toString()) {
+            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
             val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
-                gNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
+                lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
-                binding.editNewNextDate.text.toString(),
-                "",
+                MyDate(binding.editNewNextDate.text.toString()),
+                MyDate(),
                 CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
                 binding.editNewSubcategory.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
                 SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()),
                 binding.splitSlider.value.toInt(),
                 binding.loanSwitch.isChecked,
-                if (binding.loanSwitch.isChecked) binding.loanStartDate.text.toString() else "",
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
-                if (binding.loanSwitch.isChecked) (gNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) MyDate(binding.loanStartDate.text.toString()) else MyDate(),
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
+                if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
                 freq
                 )
             ScheduledPaymentViewModel.addScheduledPayment(sp)
