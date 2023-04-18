@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
@@ -10,12 +11,10 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -45,6 +44,7 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         binding.dollarRadioButton.text = getLocalCurrencySymbol(true)
@@ -250,10 +250,10 @@ class DashboardFragment : Fragment() {
         var grandActualTotal = 0.0
 
         // -1 means heading row
-        var i = -1
         // do header row
-        createViewRow(cHEADER, i++, 0, "", "", "", 0.0, 0.0)
+        createViewRow(cHEADER, -1, 0, "", "", "", 0.0, 0.0)
 
+        var i = 0
         while (i < rows) {
             var row: DashboardData? = null
             if (i > -1) row = data[i] else {
@@ -465,31 +465,23 @@ class DashboardFragment : Fragment() {
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
 
             val cat = DefaultsViewModel.getCategoryDetail(iCategory)
-//            if (cat.color != 0) {
-//                if (Build.VERSION.SDK_INT >= 29) {
-                    if (cat.color == 0) {
-                        tr.setBackgroundResource(R.drawable.row_left_border_no_fill)
-                        val hexColor = MaterialColors.getColor(
-                            requireContext(),
-                            R.attr.colorPrimary,
-                            Color.BLACK
-                        )
-                        tr.background.colorFilter =
-                            BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
-                    } else {
-                        if (inDarkMode(requireContext()))
-                            tr.setBackgroundResource(R.drawable.row_left_border_no_fill)
-                        else
-                            tr.setBackgroundResource(R.drawable.row_left_border)
-                        tr.background.colorFilter =
-                            BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
-                    }
-/*                } else {
-                    if (cat.color != 0)
-                        tr.setBackgroundColor(cat.color)
-                    tr.background.alpha = 44
-                } */
-//            }
+            if (cat.color == 0) {
+                tr.setBackgroundResource(R.drawable.row_left_border_no_fill)
+                val hexColor = MaterialColors.getColor(
+                    requireContext(),
+                    R.attr.colorPrimary,
+                    Color.BLACK
+                )
+                tr.background.colorFilter =
+                    BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
+            } else {
+                if (inDarkMode(requireContext()))
+                    tr.setBackgroundResource(R.drawable.row_left_border_no_fill)
+                else
+                    tr.setBackgroundResource(R.drawable.row_left_border)
+                tr.background.colorFilter =
+                    BlendModeColorFilter(cat.color, BlendMode.SRC_ATOP)
+            }
         }
         else if (iRowType == cHEADER) {
             tv1.setTypeface(null, Typeface.BOLD)

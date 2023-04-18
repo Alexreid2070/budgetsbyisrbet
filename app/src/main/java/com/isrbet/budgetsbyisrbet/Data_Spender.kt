@@ -37,9 +37,9 @@ class SpenderViewModel : ViewModel() {
             } else
                 null
         }
-        fun getCurrentSpender(): Spender? {
+/*        fun getCurrentSpender(): Spender? {
             return singleInstance.spenders.find { it.email == MyApplication.currentUserEmail }
-        }
+        } */
 
         fun getSpenderName(index:Int): String {
             return if (index >= 0 && index  < singleInstance.spenders.size)
@@ -66,9 +66,9 @@ class SpenderViewModel : ViewModel() {
                 else -> 2
             }
         }
-        fun getDefaultSpender(): Int {
+/*        fun getDefaultSpender(): Int {
             return DefaultsViewModel.getDefaultSpender()
-        }
+        } */
         fun getDefaultSpenderName() : String {
             val ind = DefaultsViewModel.getDefaultSpender()
             return getSpenderName(ind)

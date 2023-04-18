@@ -111,7 +111,7 @@ class BudgetFragment : Fragment() {
                             binding.startDate.setText(lDate.toString())
 
                             val dateSetListener =
-                                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                                DatePickerDialog.OnDateSetListener { _, _, _, _ ->
                                     binding.startDate.setText(lDate.toString())
                                 }
 
@@ -130,7 +130,7 @@ class BudgetFragment : Fragment() {
                             binding.startDate.setText(lDate.toString())
 
                             val dateSetListener =
-                                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                                DatePickerDialog.OnDateSetListener { _, _, _, _ ->
                                     binding.startDate.setText(lDate.toString())
                                 }
 

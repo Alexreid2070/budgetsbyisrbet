@@ -60,7 +60,8 @@
                     android:layout_gravity="center"
                     android:text="@string/pension_type"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground" />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -101,7 +102,8 @@
                     android:layout_weight="1"
                     android:text="@string/pension_name"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/catLayout"
@@ -133,7 +135,8 @@
                     android:layout_weight="1"
                     android:text="@string/annual_value"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="wrap_content"
@@ -163,7 +166,8 @@
                     android:layout_gravity="center"
                     android:text="@string/pension_date"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
@@ -201,7 +205,8 @@
                     android:layout_gravity="center"
                     android:text="@string/work_start_date"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
@@ -240,7 +245,8 @@
                     android:layout_weight="1"
                     android:text="@string/best5"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="wrap_content"
@@ -271,7 +277,8 @@
                     android:layout_weight="1"
                     android:text="@string/pension_start_delay"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="wrap_content"

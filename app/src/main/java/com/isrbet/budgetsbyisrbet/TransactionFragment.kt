@@ -487,7 +487,7 @@ class TransactionFragment : Fragment() {
             binding.scheduledPaymentLabel.visibility = View.VISIBLE
             binding.transactionTypeLayout.visibility = View.VISIBLE
             binding.transactionType.setText(thisTransaction.type)
-            if (thisTransaction.type == MyApplication.getString(R.string.scheduled)) {
+            if (thisTransaction.type == getString(R.string.scheduled)) {
                 binding.scheduledPaymentLabel.text = getString(R.string.this_expense_was_automatically_generated)
                 binding.scheduledPaymentLabel.visibility = View.VISIBLE
             } else {

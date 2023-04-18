@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.Color
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,7 +57,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         if (groupList[pos] == 0) { // ie first row of this category
             viewHolder.vhCategory.isVisible = true
             viewHolder.vhCategory.text = cData.categoryName
-            viewHolder.vhCategory.setTextColor(R.color.black)
+            viewHolder.vhCategory.setTextColor(ContextCompat.getColor(myContext, R.color.black))
         } else {
             viewHolder.vhCategory.isVisible = false
         }

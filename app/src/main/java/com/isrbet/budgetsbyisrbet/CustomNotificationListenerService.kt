@@ -2,7 +2,6 @@ package com.isrbet.budgetsbyisrbet
 
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import timber.log.Timber
 import java.time.LocalTime
 
@@ -123,7 +122,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
         super.onNotificationRemoved(sbn)
     }
 
-     private fun fetchCurrentNotifications() {
+/*     private fun fetchCurrentNotifications() {
         val activeNotnCount = this@CustomNotificationListenerService.activeNotifications.size
 
         if (activeNotnCount > 0) {
@@ -141,5 +140,5 @@ class CustomNotificationListenerService : NotificationListenerService() {
         } else {
             Timber.tag("Alex").d("No active Notn found")
         }
-   }
+   } */
 }

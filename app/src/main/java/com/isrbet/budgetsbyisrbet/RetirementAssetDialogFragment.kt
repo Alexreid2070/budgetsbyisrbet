@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -106,10 +105,10 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         asset.willSellToFinanceRetirement
                 }
                 if (asset.assetType == AssetType.SAVINGS) {
-                    binding.taxShelteredLayout.visibility = View.VISIBLE
+                    binding.switchTaxSheltered.visibility = View.VISIBLE
                     binding.switchTaxSheltered.isChecked = (asset as Savings).taxSheltered
                 } else {
-                    binding.taxShelteredLayout.visibility = View.GONE
+                    binding.switchTaxSheltered.visibility = View.GONE
                 }
                 if (binding.switchUseDefaultGrowth.isChecked) {
                     if (asset.assetType == AssetType.PROPERTY)
@@ -153,14 +152,14 @@ class RetirementAssetDialogFragment : DialogFragment() {
                             else -> binding.minimizeRRSPAlways.isChecked = true
                         }
                     }
-                    AssetType.LIRA_Annuity -> {
+                    AssetType.LIRA_ANNUITY -> {
                         binding.annuityStartDateLayout.visibility = View.VISIBLE
                         binding.annualAmountLayout.visibility = View.VISIBLE
                         binding.annuityStartDate.setText((asset as LIRAANNUITY).pensionStartDate)
                         binding.annualAnnuityAmount.setText(asset.annualAmount.toString())
                     }
                     AssetType.SAVINGS -> {
-                        binding.taxShelteredLayout.visibility = View.VISIBLE
+                        binding.switchTaxSheltered.visibility = View.VISIBLE
                     }
                     else -> {}
                 }
@@ -181,7 +180,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.propertyFields.visibility = View.VISIBLE
                         binding.annualContributionLayout.visibility = View.GONE
                     }
-                    AssetType.getText(AssetType.LIRA_LIF), AssetType.getText(AssetType.LIRA_Annuity) -> {
+                    AssetType.getText(AssetType.LIRA_LIF), AssetType.getText(AssetType.LIRA_ANNUITY) -> {
                         binding.annualContributionLayout.visibility = View.GONE
                         binding.propertyFields.visibility = View.GONE
                     }
@@ -192,22 +191,22 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 }
                 when (selection) {
                     AssetType.getText(AssetType.RRSP), AssetType.getText(AssetType.LIRA_LIF) -> {
-                        binding.willSellLayout.visibility = View.GONE
+                        binding.switchWillSellToFinanceRetirement.visibility = View.GONE
                         binding.switchWillSellToFinanceRetirement.isChecked = true
                         binding.minimizeRRSPTaxLayout.visibility = View.VISIBLE
                     }
-                    AssetType.getText(AssetType.LIRA_Annuity) -> {
-                        binding.willSellLayout.visibility = View.GONE
+                    AssetType.getText(AssetType.LIRA_ANNUITY) -> {
+                        binding.switchWillSellToFinanceRetirement.visibility = View.GONE
                         binding.switchWillSellToFinanceRetirement.isChecked = true
                         binding.minimizeRRSPTaxLayout.visibility = View.GONE
                     }
                     else -> {
                         if (inDefaultMode)
-                            binding.willSellLayout.visibility = View.VISIBLE
+                            binding.switchWillSellToFinanceRetirement.visibility = View.VISIBLE
                         binding.minimizeRRSPTaxLayout.visibility = View.GONE
                     }
                 }
-                if (selection == AssetType.getText(AssetType.LIRA_Annuity)) {
+                if (selection == AssetType.getText(AssetType.LIRA_ANNUITY)) {
                     binding.annualAmountLayout.visibility = View.VISIBLE
                     binding.annuityStartDateLayout.visibility = View.VISIBLE
                 } else {
@@ -215,9 +214,9 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     binding.annuityStartDateLayout.visibility = View.GONE
                 }
                 if (selection == AssetType.getText(AssetType.SAVINGS))
-                    binding.taxShelteredLayout.visibility = View.VISIBLE
+                    binding.switchTaxSheltered.visibility = View.VISIBLE
                 else
-                    binding.taxShelteredLayout.visibility = View.GONE
+                    binding.switchTaxSheltered.visibility = View.GONE
                 setDefaultGrowthRates()
                 binding.title.text = String.format("$selection: ${binding.assetName.text.toString()}")
             }
@@ -253,7 +252,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
         val assetTypeList: MutableList<String> = ArrayList()
         assetTypeList.add(AssetType.getText(AssetType.RRSP))
         assetTypeList.add(AssetType.getText(AssetType.LIRA_LIF))
-        assetTypeList.add(AssetType.getText(AssetType.LIRA_Annuity))
+        assetTypeList.add(AssetType.getText(AssetType.LIRA_ANNUITY))
         assetTypeList.add(AssetType.getText(AssetType.TFSA))
         assetTypeList.add(AssetType.getText(AssetType.SAVINGS))
         assetTypeList.add(AssetType.getText(AssetType.PROPERTY))
@@ -381,7 +380,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         minTaxVal
                     )
                 }
-                AssetType.getText(AssetType.LIRA_Annuity) -> {
+                AssetType.getText(AssetType.LIRA_ANNUITY) -> {
                     asset = LIRAANNUITY(
                         RetirementViewModel.getWorkingAssetListCount(),
                         binding.assetName.text.toString(),

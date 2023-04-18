@@ -45,16 +45,6 @@ class CategoryFragment : Fragment() {
                 })
                 cdf.show(parentFragmentManager, getString(R.string.edit_category))
             }
-        binding.expandSettings.setOnClickListener {
-            findNavController().navigate(R.id.SettingsFragment)
-        }
-        binding.expandBudgets.setOnClickListener {
-            findNavController().navigate(R.id.BudgetViewAllFragment)
-        }
-        binding.expandScheduledPayments.setOnClickListener {
-            findNavController().navigate(R.id.ScheduledPaymentFragment)
-        }
-
         binding.categoryFab.setMenuListener(object : SimpleMenuListenerAdapter() {
             override fun onMenuItemSelected(menuItem: MenuItem?): Boolean {
                 return when (menuItem?.itemId) {

@@ -12,7 +12,6 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
 import it.sephiroth.android.library.numberpicker.doOnProgressChanged
-import java.util.*
 
 class BudgetViewAllFragment : Fragment() {
     private var _binding: FragmentBudgetViewAllBinding? = null
@@ -66,15 +65,6 @@ class BudgetViewAllFragment : Fragment() {
         if (SpenderViewModel.singleUser()) {
             binding.rowBudgetWhoHeading.visibility = View.GONE
         }
-        binding.expandSettings.setOnClickListener {
-            findNavController().navigate(R.id.SettingsFragment)
-        }
-        binding.expandCategories.setOnClickListener {
-            findNavController().navigate(R.id.CategoryFragment)
-        }
-        binding.expandScheduledPayments.setOnClickListener {
-            findNavController().navigate(R.id.ScheduledPaymentFragment)
-        }
         binding.buttonBackward.setOnClickListener {
             if (binding.buttonViewByDate.isChecked)
                 moveDates(-1)
@@ -91,7 +81,7 @@ class BudgetViewAllFragment : Fragment() {
         binding.budgetAddFab.setOnClickListener {
             val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
             val action =
-                BudgetViewAllFragmentDirections.actionBudgetViewAllFragmentToBudgetFragment()
+                SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()
             action.categoryID = currentCategory.id.toString()
             findNavController().navigate(action)
         }

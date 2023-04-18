@@ -10,7 +10,7 @@
     <string name="categories">Categories</string>
     <string name="accounting">Accounting</string>
     <string name="help">Help</string>
-    <string name="add_payment_schedule">Add Payment Schedule</string>
+    <string name="add_payment_schedule">Add Scheduled Payment</string>
     <string name="view_all_transactions">View All Transactions</string>
 
     <string name="date">Date</string>
@@ -187,7 +187,8 @@
     <string name="amt2">Amt2</string>
     <string name="discretionary_short_question">D?</string>
     <string name="type_short">Typ</string>
-    <string name="owes">Owes</string>
+    <string name="owes">%1$s owes %2$s %3$s</string>
+    <string name="owes2">(%1$s - %2$s)</string>
     <string name="total_for_this_selection_is">Total for this selection is:</string>
     <string name="search">Search</string>
     <string name="back_year_short">-Yr</string>
@@ -246,13 +247,13 @@
     <string name="amountNotNegative">Credit amount must be negative.</string>
     <string name="credit_created">Credit has been created.</string>
     <string name="these_are_the_transactions">These are the transactions that result in the amount owing.</string>
-    <string name="JTdash">Jt-</string>
+    <string name="JTdash">Jt-%1$s</string>
     <string name="sub_total">Sub-total</string>
     <string name="nobody_owes_anybody">Nobody owes anybody!</string>
-    <string name="transferred_to">%1$s transferred to %2$s</string>
+    <string name="transferred_to">%1$s transferred to %2$s:  </string>
     <string name="total">Total</string>
-    <string name="total_funds_used_for">Total %1$s\'s funds used for %2$s</string>
-    <string name="paid_for">%1$s paid for %2$s</string>
+    <string name="total_funds_used_for">Total %1$s\'s funds used for %2$s:  </string>
+    <string name="paid_for">%1$s paid for %2$s:  </string>
     <string name="recurring">Recurring</string>
     <string name="once">Once</string>
     <string name="user_authorization_failed">User authorization failed</string>
@@ -324,14 +325,14 @@
     <string name="scheduled_payment_was_added_for">Scheduled payment was added for</string>
     <string name="on_next_business_day">on next business day</string>
     <string name="unknown">Unknown</string>
-    <string name="there_are_no_previous_hints_to_show">There are no previous hints to show.</string>
-    <string name="there_are_no_more_hints_to_show">There are no more hints to show.</string>
+    <string name="there_are_no_previous_hints_to_show">%1$s\n\n There are no previous hints to show.</string>
+    <string name="there_are_no_more_hints_to_show">%1$s\n\nThere are no more hints to show.</string>
     <string name="you_must_sign_in">You must sign in using your Google account to proceed.  Click below to continue.</string>
     <string name="are_you_sure_that_you_want_to_sign_out">%1$s %2$s, are you sure that you want to sign out?</string>
     <string name="choose_existing_loan"><![CDATA[<Choose existing loan>]]></string>
     <string name="payment_of">payment of</string>
     <string name="every">every</string>
-    <string name="next_payment_due">Next payment due</string>
+    <string name="next_payment_due">Next payment due %1$s, %2$s, %3$s %4$s</string>
     <string name="forr">for</string>
     <string name="the_text_contains_unsafe_characters">The text contains unsafe characters.  They must be removed.</string>
     <string name="value_cannot_be_blank">Value cannot be blank.</string>
@@ -347,7 +348,7 @@
     <string name="transaction_added">Transaction added.  Actuals for period for %1$s are %2$s, budget is %3$s.)</string>
     <string name="transaction_updated">Transaction updated</string>
     <string name="credit_expense">Credit Expense</string>
-    <string name="share_this_authorization_key_with">Share this authorization key with</string>
+    <string name="share_this_authorization_key_with">Share this authorization key with %1$s:</string>
     <string name="new_user">New User</string>
     <string name="authorization_key_has_been_copied_to_your_clipboard">Authorization key has been copied to your clipboard</string>
     <string name="joining_user">Joining user.</string>
@@ -379,7 +380,6 @@
     <string name="french">French</string>
     <string name="default_language">Language</string>
     <string name="language_has_been_changed_please_restart">Language has been changed.  Restart application to see changes.</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="user">User</string>
     <string name="target_monthly_income">Target Monthly Income</string>
     <string name="retirement_date">Retirement date</string>
@@ -440,7 +440,7 @@
     <string name="annual_increase">% growth annually</string>
     <string name="inflationRate">Inflation rate</string>
     <string name="calculate_retirement">Retirement Calculations</string>
-    <string name="retirement_defaults">Retirement Calculation Defaults</string>
+    <string name="retirement_defaults">Update Retirement Scenario Defaults</string>
     <string name="birth_date">Birth Date</string>
     <string name="basics">Basics</string>
     <string name="oas_amount">Current annual OAS amount</string>
@@ -537,8 +537,8 @@
     <string name="loan_calculation">Loan Calculation</string>
     <string name="filter_by_who">Filter by Who</string>
     <string name="filter_by_type">Filter by Type</string>
-    <string name="show_hide_columns">Show/Hide Columns</string>
-    <string name="filters">Filters</string>
+    <string name="show_hide_columns">" Show/Hide Columns"</string>
+    <string name="filters">" Filters"</string>
     <string name="pound">#</string>
     <string name="sp_lookahead">Scheduled Payment Lookahead (%1$s days)</string>
     <string name="days">days</string>
@@ -550,4 +550,17 @@
     <string name="pie_chart">Pie chart</string>
     <string name="show">Show</string>
     <string name="dashboards">Dashboards</string>
+    <string name="exclude_row">"   X %1$s"</string>
+    <string name="trailing_space">"%1$s "</string>
+    <string name="currently_impersonating">"Currently impersonating "</string>
+    <string name="something_went_wrong">SOMETHING WENT WRONG.  Please sign out and back in.</string>
+    <string name="need_to_do_setup">THIS IS A NEW USER.  NEED TO DO SETUP BEFORE PROCEEDING.</string>
+    <string name="avg_per_month">Avg per Month</string>
+    <string name="actuals">Actuals</string>
+    <string name="payment_of_occurs_every">%1$s payment of %2$s occurs every %3$s %4$s</string>
+    <string name="bracketed">(%1$s)</string>
+    <string name="bracketed2">(%1$s %2$s)</string>
+    <string name="coloned">%1$s:%2$s</string>
+    <string name="n_arrow_n"><![CDATA[%1$s->%2$s]]></string>
+    <string name="today_is">Today is %1$s %2$s.\n</string>
 </resources>

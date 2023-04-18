@@ -3,7 +3,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot

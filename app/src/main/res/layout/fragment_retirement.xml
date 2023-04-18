@@ -42,8 +42,10 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:scaleType="center"
+            android:paddingStart="0dp"
             android:paddingEnd="10dp"
-            android:src="@drawable/ic_baseline_settings_24_orange"/>
+            android:src="@drawable/ic_baseline_settings_24_orange"
+            android:contentDescription="@string/defaultt" />
     </LinearLayout>
     <ScrollView
         android:layout_width="match_parent"
@@ -86,7 +88,8 @@
                     android:paddingEnd="5dp"
                     android:text="@string/scenario"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground" />
 
                 <RelativeLayout
                     android:id="@+id/scenario_spinner_relative_layout"
@@ -109,7 +112,6 @@
                         android:spinnerMode="dropdown" />
 
                     <ImageView
-                        android:id="@+id/UserImageView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -775,8 +777,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
-                            android:inputType="number"
-                            tools:ignore="TooManyViews" />
+                            android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -879,8 +880,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="@string/confirm_scenario_name"
-                    tools:ignore="TooManyViews" />
+                    android:text="@string/confirm_scenario_name"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="wrap_content"
@@ -908,8 +908,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                tools:ignore="TooManyViews">
+                android:paddingBottom="10dp">
 
                 <ImageButton
                     android:id="@+id/button_cancel"
@@ -925,8 +924,7 @@
                     android:src="@drawable/ic_baseline_cancel_24"
                     android:stateListAnimator="@animator/anim"
                     android:tooltipText="Go back to calculations"
-                    android:visibility="gone"
-                    tools:ignore="TooManyViews" />
+                    android:visibility="gone"/>
 
                 <ImageButton
                     android:id="@+id/button_update_defaults"

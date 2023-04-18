@@ -78,20 +78,20 @@ class SettingsFragment : Fragment() {
                 binding.settingsSecondUserName.setText(spenderTwo.name)
                 binding.secondUserEmail.setText(spenderTwo.email)
                 if (iAmPrimaryUser()) {
-                    binding.switchSecondUserLayout.visibility = View.VISIBLE
+                    binding.switchSecondUserActive.visibility = View.VISIBLE
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
                     binding.authorizationKey.text = MyApplication.userUID
                     if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString()) {
                         binding.shareUIDLayout.visibility = View.VISIBLE
-                        binding.shareKeyText.text = getString(R.string.share_this_authorization_key_with) + " ${binding.settingsSecondUserName.text}: "
+                        binding.shareKeyText.text = String.format(getString(R.string.share_this_authorization_key_with),binding.settingsSecondUserName.text)
                     }
                 } else {
                     binding.switchJoinOtherUserLayout.visibility = View.GONE
-                    binding.switchSecondUserLayout.visibility = View.GONE
+                    binding.switchSecondUserActive.visibility = View.GONE
                     binding.shareUIDLayout.visibility = View.GONE
                     binding.settingsFirstUserName.isEnabled = false
                     binding.secondUserEmail.isEnabled = false
-                    binding.switchDisconnectLayout.visibility = View.VISIBLE
+                    binding.switchDisconnect.visibility = View.VISIBLE
                 }
             } else {
                 binding.switchSecondUserActive.isChecked = false
@@ -215,7 +215,7 @@ class SettingsFragment : Fragment() {
                     if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
                         secondSwipeUp++
                         if (secondSwipeUp == 2)
-                            activity?.onBackPressed()
+                            activity?.onBackPressedDispatcher?.onBackPressed()
                     }
                 }
                 else
@@ -243,22 +243,12 @@ class SettingsFragment : Fragment() {
             onSaveButtonClicked()
         }
         binding.settingsCancelButton.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
         binding.copyButton.setOnClickListener {
             requireContext().copyToClipboard("Auth key", binding.authorizationKey.text.toString())
             Toast.makeText(activity, getString(R.string.authorization_key_has_been_copied_to_your_clipboard), Toast.LENGTH_SHORT).show()
         }
-        binding.expandCategories.setOnClickListener {
-            findNavController().navigate(R.id.CategoryFragment)
-        }
-        binding.expandBudgets.setOnClickListener {
-            findNavController().navigate(R.id.BudgetViewAllFragment)
-        }
-        binding.expandScheduledPayments.setOnClickListener {
-            findNavController().navigate(R.id.ScheduledPaymentFragment)
-        }
-
         binding.buttonEditTranslations.setOnClickListener {
             findNavController().navigate(R.id.ViewTranslationsFragment)
         }
@@ -305,15 +295,15 @@ class SettingsFragment : Fragment() {
                 binding.splitSliderLayout.visibility = View.GONE
                 binding.splitLayout.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
-                binding.switchSecondUserLayout.visibility = View.GONE
+                binding.switchSecondUserActive.visibility = View.GONE
                 binding.shareUIDLayout.visibility = View.GONE
                 binding.settingsCategorySpinnerLayout.visibility = View.GONE
-                binding.settingsIntegrationWithTdLayout.visibility = View.GONE
+                binding.switchIntegrateWithTD.visibility = View.GONE
                 binding.manageTranslationsLayout.visibility = View.GONE
-                binding.settingsSoundEffectsLayout.visibility = View.GONE
-                binding.settingsQuoteLayout.visibility = View.GONE
+                binding.switchSound.visibility = View.GONE
+                binding.switchQuote.visibility = View.GONE
                 binding.settingsRedPercentageLayout.visibility = View.GONE
-                binding.settingsCurrencyLayout.visibility = View.GONE
+                binding.switchCurrency.visibility = View.GONE
                 binding.settingsSpLookaheadLayout.visibility = View.GONE
                 binding.line1.visibility = View.GONE
                 binding.line2.visibility = View.GONE
@@ -329,20 +319,20 @@ class SettingsFragment : Fragment() {
                 binding.splitSliderLayout.visibility = View.GONE
                 binding.splitLayout.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
-                binding.switchSecondUserLayout.visibility = View.VISIBLE
+                binding.switchSecondUserActive.visibility = View.VISIBLE
 //                binding.shareUIDLayout.visibility = View.VISIBLE
                 binding.authorizationKey.text = MyApplication.userUID
                 binding.settingsCategorySpinnerLayout.visibility = View.VISIBLE
-                binding.settingsIntegrationWithTdLayout.visibility = View.VISIBLE
+                binding.switchIntegrateWithTD.visibility = View.VISIBLE
                 if (binding.switchIntegrateWithTD.isChecked) {
                     binding.manageTranslationsLayout.visibility = View.VISIBLE
                 } else {
                     binding.manageTranslationsLayout.visibility = View.GONE
                 }
-                binding.settingsSoundEffectsLayout.visibility = View.VISIBLE
-                binding.settingsQuoteLayout.visibility = View.VISIBLE
+                binding.switchSound.visibility = View.VISIBLE
+                binding.switchQuote.visibility = View.VISIBLE
                 binding.settingsRedPercentageLayout.visibility = View.VISIBLE
-                binding.settingsCurrencyLayout.visibility = View.VISIBLE
+                binding.switchCurrency.visibility = View.VISIBLE
                 binding.settingsSpLookaheadLayout.visibility = View.VISIBLE
                 binding.line1.visibility = View.VISIBLE
                 binding.line2.visibility = View.VISIBLE
@@ -545,10 +535,14 @@ class SettingsFragment : Fragment() {
         }
 
         binding.languageRadioGroup.setOnCheckedChangeListener { _, _ ->
-            val selectedId = binding.languageRadioGroup.checkedRadioButtonId
-            val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-            val userChosenLanguage = radioButton.text.toString()
-            var currentSavedLanguage = MyApplication.prefs.getString("lang", null)
+            val userChosenLanguage = if (binding.buttonFrench.isChecked)
+                getString(R.string.french)
+            else
+                getString(R.string.english)
+//            val selectedId = binding.languageRadioGroup.checkedRadioButtonId
+ //           val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+   //         val userChosenLanguage = radioButton.text.toString()
+            val currentSavedLanguage = MyApplication.prefs.getString("lang", null)
             if ((userChosenLanguage == getString(R.string.english) &&
                 currentSavedLanguage != "en-US") ||
                 (userChosenLanguage == getString(R.string.french) &&
@@ -567,12 +561,11 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        var lang = MyApplication.prefs.getString("lang", null)
-        val desiredButton = if (lang == "fr-CA")
-            requireActivity().findViewById(R.id.button_french) as RadioButton
+        val lang = MyApplication.prefs.getString("lang", null)
+        if (lang == "fr-CA")
+            binding.buttonFrench.isChecked = true
         else
-            requireActivity().findViewById(R.id.button_english) as RadioButton
-        desiredButton.isChecked = true
+            binding.buttonEnglish.isChecked = true
 
         binding.settingsFirstUserName.requestFocus()
         HintViewModel.showHint(parentFragmentManager, cHINT_PREFERENCES)
@@ -656,13 +649,13 @@ class SettingsFragment : Fragment() {
         // update existing Spenders to add new info
 
         if (binding.switchDisconnect.isChecked) {
-            binding.switchDisconnectLayout.visibility = View.GONE
+            binding.switchDisconnect.visibility = View.GONE
             binding.switchDisconnect.isChecked = false // prepare for next time
             binding.secondUserLayout.visibility = View.GONE
             binding.splitSliderLayout.visibility = View.GONE
             binding.splitLayout.visibility = View.GONE
             binding.spenderLayout.visibility = View.GONE
-            binding.switchSecondUserLayout.visibility = View.GONE
+            binding.switchSecondUserActive.visibility = View.GONE
             binding.shareUIDLayout.visibility = View.GONE
             binding.uidLayout.visibility = View.VISIBLE
             binding.secondUserEmail.setText("")
@@ -675,7 +668,7 @@ class SettingsFragment : Fragment() {
             AppUserViewModel.removePrimary()
             switchTo(MyApplication.userUID)
             Toast.makeText(activity, getString(R.string.leaving_other_user), Toast.LENGTH_SHORT).show()
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         } else if (!binding.switchSecondUserActive.isChecked && !binding.switchJoinOtherUser.isChecked) { // ie single mode
             SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), 100, 1))
             DefaultsViewModel.updateDefaultInt(cDEFAULT_SPENDER,0)
@@ -688,7 +681,7 @@ class SettingsFragment : Fragment() {
             }
             AppUserViewModel.removePrimary()
             AppUserViewModel.removeSecondary()
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         } else if (binding.switchSecondUserActive.isChecked) {
             SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), splitSliderValue, 1))
             if (SpenderViewModel.getTotalCount() > 1) {
@@ -707,8 +700,8 @@ class SettingsFragment : Fragment() {
             if (binding.firstUserEmail.text.toString() != binding.secondUserEmail.text.toString()) {
                 binding.authorizationKey.text = MyApplication.userUID
                 binding.shareUIDLayout.visibility = View.VISIBLE
-                binding.shareKeyText.text = getString(R.string.share_this_authorization_key_with) +
-                        " ${binding.settingsSecondUserName.text}: "
+                binding.shareKeyText.text = String.format(getString(R.string.share_this_authorization_key_with),
+                        binding.settingsSecondUserName.text)
                 AppUserViewModel.addSecondary(binding.secondUserEmail.text.toString())
             }
         } else { // binding.switchJoinUser isChecked
@@ -719,7 +712,7 @@ class SettingsFragment : Fragment() {
             Toast.makeText(activity, getString(R.string.joining_user), Toast.LENGTH_SHORT).show()
             switchTo(binding.joinUid.text.toString())
             AppUserViewModel.addPrimary(binding.joinUid.text.toString())
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)

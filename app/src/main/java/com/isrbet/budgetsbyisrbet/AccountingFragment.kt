@@ -78,10 +78,10 @@ class AccountingFragment : Fragment() {
         binding.accountingSecondRowName.text = secondName
         binding.accountingTTofRowName.text = firstName
         binding.accountingTTosRowName.text = secondName
-        binding.accountingJfrowName.text = getString(R.string.JTdash) + firstName
-        binding.accountingJsrowName.text = getString(R.string.JTdash) + secondName
-        binding.accountingTToj1RowName.text = getString(R.string.JTdash) + firstName
-        binding.accountingTToj2RowName.text = getString(R.string.JTdash) + secondName
+        binding.accountingJfrowName.text = String.format(getString(R.string.JTdash), firstName)
+        binding.accountingJsrowName.text = String.format(getString(R.string.JTdash), secondName)
+        binding.accountingTToj1RowName.text = String.format(getString(R.string.JTdash), firstName)
+        binding.accountingTToj2RowName.text = String.format(getString(R.string.JTdash), secondName)
 
         for (i in 0 until TransactionViewModel.getCount()) {
             val exp = TransactionViewModel.getTransaction(i)
@@ -154,14 +154,12 @@ class AccountingFragment : Fragment() {
             }
         }
         binding.accountingFf.text = gDecWithCurrency(totals[cFIRST_NAME][cFIRST_NAME])
-//        if (totals[cFIRST_NAME][cFIRST_NAME] == 0.0)
-            binding.accountingFf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.accountingFf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingSf.text = gDecWithCurrency(totals[cFIRST_NAME][cSECOND_NAME])
         if (totals[cFIRST_NAME][cSECOND_NAME] == 0.0)
             binding.accountingSf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingJff.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT_NAME])
-//        if (totals[cFIRST_NAME][cJOINT_NAME] == 0.0)
-            binding.accountingJff.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.accountingJff.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingJsf.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT_NAME+1])
         if (totals[cFIRST_NAME][cJOINT_NAME+1] == 0.0)
             binding.accountingJsf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
@@ -169,14 +167,12 @@ class AccountingFragment : Fragment() {
         if (totals[cSECOND_NAME][cFIRST_NAME] == 0.0)
             binding.accountingFs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingSs.text = gDecWithCurrency(totals[cSECOND_NAME][cSECOND_NAME])
-//        if (totals[cSECOND_NAME][cSECOND_NAME] == 0.0)
-            binding.accountingSs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.accountingSs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingJfs.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT_NAME])
         if (totals[cSECOND_NAME][cJOINT_NAME] == 0.0)
             binding.accountingJfs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingJss.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT_NAME+1])
-//        if (totals[cSECOND_NAME][cJOINT_NAME+1] == 0.0)
-            binding.accountingJss.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.accountingJss.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
         binding.accountingFj.text = gDecWithCurrency(totals[cJOINT_NAME][cFIRST_NAME])
         if (totals[cJOINT_NAME][cFIRST_NAME] == 0.0)
             binding.accountingFj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
@@ -366,12 +362,18 @@ class AccountingFragment : Fragment() {
         when {
             oneOwesTwo == 0.0 -> binding.accountingSummary.text = getString(R.string.nobody_owes_anybody)
             oneOwesTwo > 0 -> {
-                binding.accountingSummary.text = firstName + " " + getString(R.string.owes) +  " " + secondName +  " " + gDecWithCurrency(oneOwesTwo)
-                binding.accountingSummary2.text = " (" + gDecWithCurrency(subtotal2) + " - " + gDecWithCurrency(subtotal) + ")"
+                binding.accountingSummary.text = String.format(getString(R.string.owes), firstName,
+                    secondName, gDecWithCurrency(oneOwesTwo))
+                binding.accountingSummary2.text = String.format(getString(R.string.owes2),
+                    gDecWithCurrency(subtotal2), gDecWithCurrency(subtotal))
             }
             else -> {
-                binding.accountingSummary.text = secondName + " " + getString(R.string.owes) + " " + firstName + " " + gDecWithCurrency(oneOwesTwo*-1)
-                binding.accountingSummary2.text = " (" + gDecWithCurrency(subtotal) + " - " + gDecWithCurrency(subtotal2) + ")"
+                binding.accountingSummary.text = String.format(getString(R.string.owes),
+                    secondName, firstName,
+                    gDecWithCurrency(oneOwesTwo*-1))
+                binding.accountingSummary2.text = String.format(getString(R.string.owes2),
+                    gDecWithCurrency(subtotal),
+                    gDecWithCurrency(subtotal2))
             }
         }
 
@@ -387,15 +389,15 @@ class AccountingFragment : Fragment() {
         val titleText = TextView(context)
         val amountText = TextView(context)
         when (iTransfer) {
-            cTRANSACTION_TYPE_TRANSFER -> titleText.text = String.format(getString(R.string.transferred_to), iName1, iName2)  + ":  "
+            cTRANSACTION_TYPE_TRANSFER -> titleText.text = String.format(getString(R.string.transferred_to), iName1, iName2)
             getString(R.string.sub_total) -> {
                 paramsT.topMargin = 10
                 paramsT.bottomMargin = 40
                 titleText.setTypeface(null, Typeface.BOLD)
                 amountText.setTypeface(null, Typeface.BOLD)
-                titleText.text = String.format(getString(R.string.total_funds_used_for), iName1, iName2) + ":  "
+                titleText.text = String.format(getString(R.string.total_funds_used_for), iName1, iName2)
             }
-            else -> titleText.text = String.format(getString(R.string.paid_for), iName1, iName2) + ":  "
+            else -> titleText.text = String.format(getString(R.string.paid_for), iName1, iName2)
         }
         titleText.layoutParams = paramsT
         iGridLayout.addView(titleText,0)

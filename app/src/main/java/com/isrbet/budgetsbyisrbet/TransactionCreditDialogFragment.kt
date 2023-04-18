@@ -11,7 +11,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionCreditDialogBinding
-import java.util.*
 import kotlin.math.round
 
 class TransactionCreditDialogFragment : DialogFragment() {

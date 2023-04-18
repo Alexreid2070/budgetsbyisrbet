@@ -67,33 +67,22 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
             viewHolder.vhPaidby.text = SpenderViewModel.getSpenderName(rtData.paidby)
             viewHolder.vhBoughtfor.text = SpenderViewModel.getSpenderName(rtData.boughtfor)
         }
-        viewHolder.vhDescription.text = rtData.name + " " +
-                MyApplication.getString(R.string.payment_of) + " " +
-                gDecWithCurrency(formattedAmount) + " " + MyApplication.getString(R.string.occurs).lowercase() + " " +
-                MyApplication.getString(R.string.every) + " "
-        if (rtData.regularity == 1)
-            viewHolder.vhDescription.text = viewHolder.vhDescription.text.toString() +
-                    getTranslationForPeriod(rtData.period).lowercase()
-        else
-            viewHolder.vhDescription.text = viewHolder.vhDescription.text.toString() +
-                    rtData.regularity.toString() + " " + getTranslationForPeriod(rtData.period).lowercase() +
-                    MyApplication.getString(R.string.s)
-
-        viewHolder.vhDescription2.text = MyApplication.getString(R.string.next_payment_due) +
-                " " + rtData.nextdate + ", " +
-                CategoryViewModel.getCategory(rtData.category)?.fullCategoryName() + ", "
-        if (rtData.paidby == rtData.boughtfor)
-            viewHolder.vhDescription2.text = viewHolder.vhDescription2.text.toString() +
-                    SpenderViewModel.getSpenderName(rtData.paidby)
-        else
-            viewHolder.vhDescription2.text = viewHolder.vhDescription2.text.toString() + " " +
-                    MyApplication.getString(R.string.paid_by).lowercase() + " " +
+        viewHolder.vhDescription.text =
+            String.format(MyApplication.getString(R.string.payment_of_occurs_every),
+                rtData.name,
+                gDecWithCurrency(formattedAmount),
+                if (rtData.regularity == 1) "" else rtData.regularity,
+                getTranslationForPeriod(rtData.regularity, rtData.period).lowercase())
+        viewHolder.vhDescription2.text = String.format(MyApplication.getString(R.string.next_payment_due),
+                rtData.nextdate,
+                CategoryViewModel.getCategory(rtData.category)?.fullCategoryName(),
+                if (rtData.paidby == rtData.boughtfor) SpenderViewModel.getSpenderName(rtData.paidby)
+                else MyApplication.getString(R.string.paid_by).lowercase() + " " +
                     SpenderViewModel.getSpenderName(rtData.paidby) + " " +
                     MyApplication.getString(R.string.forr) + " " +
-                    SpenderViewModel.getSpenderName(rtData.boughtfor)
-        if (rtData.boughtfor == 2) {
-            viewHolder.vhDescription2.text = viewHolder.vhDescription2.text.toString() + " " + rtData.split1 + ":" + rtData.getSplit2()
-        }
+                    SpenderViewModel.getSpenderName(rtData.boughtfor),
+                if (rtData.boughtfor == 2) String.format("${rtData.split1}:${rtData.getSplit2()}")
+                else "")
 
         return myConvertView
     }

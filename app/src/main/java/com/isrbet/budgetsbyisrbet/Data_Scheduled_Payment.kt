@@ -2,7 +2,6 @@
 
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -148,12 +147,12 @@ class ScheduledPaymentViewModel : ViewModel() {
             }
             return ctr
         }
-        fun showMe() {
+  /*      fun showMe() {
             singleInstance.scheduledPayments.forEach {
                 Timber.tag("Alex").d("SM Scheduled Payment is " + it.name + " amount " + it.amount + " regularity " + it.regularity + " period " + it.period + " lg " + it.nextdate +
                 " loanAmount " + it.loanAmount + " firDt " + it.loanFirstPaymentDate)
             }
-        }
+        } */
 
         private fun getScheduledPayments(): MutableList<ScheduledPayment> {
             return singleInstance.scheduledPayments
@@ -251,7 +250,7 @@ class ScheduledPaymentViewModel : ViewModel() {
             // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
             singleInstance.scheduledPayments.forEach {
                 while (it.nextdate <= gCurrentDate) {
-                    var newNextDate = MyDate(it.nextdate)
+                    val newNextDate = MyDate(it.nextdate)
                     it.lastDate = MyDate(it.nextdate)
                     // Reset nextDate
                     when (it.period) {
@@ -309,25 +308,38 @@ class ScheduledPaymentViewModel : ViewModel() {
             val tDate = MyDate(gCurrentDate)
             tDate.increment(cPeriodDay, iDays)
             var tReply = ""
+            var firstOne = true
 
             singleInstance.scheduledPayments.forEach { sp ->
                 if (sp.lastDate.toString() == today ||
                         sp.nextdate.toString() == today) {
+                    if (firstOne) {
+                        tReply = String.format(MyApplication.getString(R.string.today_is),
+                            gShortMonthName(gCurrentDate.getMonth()),
+                            gCurrentDate.getDay())
+                        firstOne = false
+                    }
                     tReply = if (tReply == "") {
                         "\$${gDecM(sp.amount)} for ${sp.name} due today."
                     } else {
                         "\$${gDecM(sp.amount)} for ${sp.name} due today.\n$tReply"
                     }
                 } else if (sp.nextdate.toString() <= tDate.toString()) {
+                    if (firstOne) {
+                        tReply = String.format(MyApplication.getString(R.string.today_is),
+                            gShortMonthName(gCurrentDate.getMonth()),
+                            gCurrentDate.getDay())
+                        firstOne = false
+                    }
                     val myNextDate = MyDate(sp.nextdate)
                     tReply = if (tReply == "") {
                         "\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}"
                     } else
                         "$tReply\n\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}"
-                    if (sp.activeLoan) {
-                        tReply = "$tReply\n  (loan balance will be \$${sp.getOutstandingLoanAmount(tDate)} after payment)."
+                    tReply = if (sp.activeLoan) {
+                        "$tReply\n  (loan balance will be \$${sp.getOutstandingLoanAmount(tDate)} after payment)."
                     } else {
-                        tReply = "$tReply."
+                        "$tReply."
                     }
                 }
             }

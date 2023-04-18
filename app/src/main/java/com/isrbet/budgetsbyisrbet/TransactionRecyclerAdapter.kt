@@ -11,11 +11,9 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -143,14 +141,10 @@ class TransactionRecyclerAdapter(
                         if (accountingFilter) {
                             if (row.paidby == row.boughtfor && row.paidby != 2)
                                 false
-                            else if (row.paidby == 2 && row.boughtfor == 2 &&
-                                row.bfname1split == (SpenderViewModel.getSpenderSplit(0)*100).toInt()
-                            )
-                                false
-                            else
-                                found
+                            else !(row.paidby == 2 && row.boughtfor == 2 &&
+                                    row.bfname1split == (SpenderViewModel.getSpenderSplit(0)*100).toInt())
                         } else
-                            found
+                            true
                     } else
                         false
                 }
@@ -197,8 +191,9 @@ class TransactionRecyclerAdapter(
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
-                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+                holder.vtfwho.text = String.format(MyApplication.getString(R.string.coloned),
+                    SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
+                    SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfnote.text = data.note
             holder.vtftype.text = data.type
             holder.vtfamount.text = gDecWithCurrency(data.amount)
@@ -210,8 +205,9 @@ class TransactionRecyclerAdapter(
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
-                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+                holder.vtfwho.text = String.format(MyApplication.getString(R.string.coloned),
+                    SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
+                    SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfnote.text = data.note
             holder.vtftype.text = data.type
             holder.vtfamount.text = gDecWithCurrency(data.amount)
@@ -221,8 +217,9 @@ class TransactionRecyclerAdapter(
             if (data.paidby == data.boughtfor)
                 holder.vtfdate.text = SpenderViewModel.getSpenderName(data.paidby)
             else
-                holder.vtfdate.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+                holder.vtfdate.text = String.format(MyApplication.getString(R.string.coloned),
+                    SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
+                    SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfwho.text = data.date.toString()
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtfnote.text = data.note
@@ -236,8 +233,9 @@ class TransactionRecyclerAdapter(
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
-                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+                holder.vtfwho.text = String.format(MyApplication.getString(R.string.coloned),
+                    SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
+                    SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtftype.text = data.type
             holder.vtfamount.text = gDecWithCurrency(data.amount)
@@ -249,8 +247,9 @@ class TransactionRecyclerAdapter(
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
-                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+                holder.vtfwho.text = String.format(MyApplication.getString(R.string.coloned),
+                    SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
+                    SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtfnote.text = data.note
             holder.vtfamount.text = gDecWithCurrency(data.amount)
@@ -263,8 +262,9 @@ class TransactionRecyclerAdapter(
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
-                holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby).substring(0,2) +
-                        ":" + SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2)
+                holder.vtfwho.text = String.format(MyApplication.getString(R.string.coloned),
+                    SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
+                    SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtfnote.text = data.note
         }
@@ -461,214 +461,215 @@ class TransactionRecyclerAdapter(
 
     fun getPositionOf(currentTopPosition: Int, jump: Int): Int {
         var newPosition: Int
-        if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING ||
-                currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
-            when (jump) {
-                cPREV_YEAR -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val targetYear = if (filteredList[currentTopPosition].date.getYear()
-                        == filteredList[currentTopPosition - 1].date.getYear())
-                    // we're not at beginning of current year, so aim for that
-                        filteredList[currentTopPosition].date.getYear()
-                    else
-                    //we're already at beginning of current year, so aim for previous year
-                        filteredList[currentTopPosition - 1].date.getYear()
-                    while (newPosition >= 0 && filteredList[newPosition].date.getYear() >= targetYear
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cPREV_MONTH -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val targetYearMonth: String = if (filteredList[currentTopPosition].date.getYYYYMM()
-                        == filteredList[currentTopPosition - 1].date.getYYYYMM()
-                    )
-                    // we're not at beginning of current month, so aim for that
-                        filteredList[currentTopPosition].date.getYYYYMM()
-                    else
-                    //we're already at beginning of current month, so aim for previous month
-                        filteredList[currentTopPosition - 1].date.getYYYYMM()
-                    while (newPosition >= 0 && filteredList[newPosition].date.getYYYYMM()
-                        >= targetYearMonth
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cNEXT_MONTH -> {
-                    newPosition = currentTopPosition + 1
-                    val currentYearMonth: String = filteredList[currentTopPosition].date.getYYYYMM()
-                    while (newPosition < filteredList.size && filteredList[newPosition].date.getYYYYMM() == currentYearMonth
-                    ) {
+        when (currentSortOrder) {
+            TransactionSortOrder.DATE_ASCENDING, TransactionSortOrder.DATE_DESCENDING -> {
+                when (jump) {
+                    cPREV_YEAR -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val targetYear = if (filteredList[currentTopPosition].date.getYear()
+                            == filteredList[currentTopPosition - 1].date.getYear())
+                        // we're not at beginning of current year, so aim for that
+                            filteredList[currentTopPosition].date.getYear()
+                        else
+                        //we're already at beginning of current year, so aim for previous year
+                            filteredList[currentTopPosition - 1].date.getYear()
+                        while (newPosition >= 0 && filteredList[newPosition].date.getYear() >= targetYear
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    return newPosition
-                }
-                cNEXT_YEAR -> {
-                    newPosition = currentTopPosition + 1
-                    val currentYear = filteredList[currentTopPosition].date.getYear()
-                    while (newPosition < filteredList.size && filteredList[newPosition].date.getYear() == currentYear
-                    ) {
+                    cPREV_MONTH -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val targetYearMonth: String = if (filteredList[currentTopPosition].date.getYYYYMM()
+                            == filteredList[currentTopPosition - 1].date.getYYYYMM()
+                        )
+                        // we're not at beginning of current month, so aim for that
+                            filteredList[currentTopPosition].date.getYYYYMM()
+                        else
+                        //we're already at beginning of current month, so aim for previous month
+                            filteredList[currentTopPosition - 1].date.getYYYYMM()
+                        while (newPosition >= 0 && filteredList[newPosition].date.getYYYYMM()
+                            >= targetYearMonth
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    if (newPosition >= filteredList.size)
-                        newPosition = filteredList.size - 1
-                    return newPosition
+                    cNEXT_MONTH -> {
+                        newPosition = currentTopPosition + 1
+                        val currentYearMonth: String = filteredList[currentTopPosition].date.getYYYYMM()
+                        while (newPosition < filteredList.size && filteredList[newPosition].date.getYYYYMM() == currentYearMonth
+                        ) {
+                            newPosition++
+                        }
+                        return newPosition
+                    }
+                    cNEXT_YEAR -> {
+                        newPosition = currentTopPosition + 1
+                        val currentYear = filteredList[currentTopPosition].date.getYear()
+                        while (newPosition < filteredList.size && filteredList[newPosition].date.getYear() == currentYear
+                        ) {
+                            newPosition++
+                        }
+                        if (newPosition >= filteredList.size)
+                            newPosition = filteredList.size - 1
+                        return newPosition
+                    }
                 }
             }
-        } else if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
-            currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
-            when (jump) {
-                cPREV_YEAR, cPREV_MONTH -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val target = if (filteredList[currentTopPosition].category
-                        == filteredList[currentTopPosition - 1].category)
-                    // we're not at beginning of current target, so aim for that
-                        filteredList[currentTopPosition].category
-                    else
-                    //we're already at beginning of current target, so aim for previous year
-                        filteredList[currentTopPosition - 1].category
-                    while (newPosition >= 0 && filteredList[newPosition].category >= target
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cNEXT_MONTH, cNEXT_YEAR -> {
-                    newPosition = currentTopPosition + 1
-                    val currentTarget = filteredList[currentTopPosition].category
-                    while (newPosition < filteredList.size && filteredList[newPosition].category == currentTarget
-                    ) {
+            TransactionSortOrder.CATEGORY_ASCENDING, TransactionSortOrder.CATEGORY_DESCENDING -> {
+                when (jump) {
+                    cPREV_YEAR, cPREV_MONTH -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val target = if (filteredList[currentTopPosition].category
+                            == filteredList[currentTopPosition - 1].category)
+                        // we're not at beginning of current target, so aim for that
+                            filteredList[currentTopPosition].category
+                        else
+                        //we're already at beginning of current target, so aim for previous year
+                            filteredList[currentTopPosition - 1].category
+                        while (newPosition >= 0 && filteredList[newPosition].category >= target
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    return newPosition
+                    cNEXT_MONTH, cNEXT_YEAR -> {
+                        newPosition = currentTopPosition + 1
+                        val currentTarget = filteredList[currentTopPosition].category
+                        while (newPosition < filteredList.size && filteredList[newPosition].category == currentTarget
+                        ) {
+                            newPosition++
+                        }
+                        return newPosition
+                    }
                 }
             }
-        } else if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
-            currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING) {
-            when (jump) {
-                cPREV_YEAR, cPREV_MONTH -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val target = if (filteredList[currentTopPosition].amount
-                        == filteredList[currentTopPosition - 1].amount)
-                    // we're not at beginning of current target, so aim for that
-                        filteredList[currentTopPosition].amount
-                    else
-                    //we're already at beginning of current target, so aim for previous year
-                        filteredList[currentTopPosition - 1].amount
-                    while (newPosition >= 0 && filteredList[newPosition].amount >= target
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cNEXT_MONTH, cNEXT_YEAR -> {
-                    newPosition = currentTopPosition + 1
-                    val currentTarget = filteredList[currentTopPosition].amount
-                    while (newPosition < filteredList.size && filteredList[newPosition].amount == currentTarget
-                    ) {
+            TransactionSortOrder.AMOUNT_ASCENDING, TransactionSortOrder.AMOUNT_DESCENDING -> {
+                when (jump) {
+                    cPREV_YEAR, cPREV_MONTH -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val target = if (filteredList[currentTopPosition].amount
+                            == filteredList[currentTopPosition - 1].amount)
+                        // we're not at beginning of current target, so aim for that
+                            filteredList[currentTopPosition].amount
+                        else
+                        //we're already at beginning of current target, so aim for previous year
+                            filteredList[currentTopPosition - 1].amount
+                        while (newPosition >= 0 && filteredList[newPosition].amount >= target
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    return newPosition
+                    cNEXT_MONTH, cNEXT_YEAR -> {
+                        newPosition = currentTopPosition + 1
+                        val currentTarget = filteredList[currentTopPosition].amount
+                        while (newPosition < filteredList.size && filteredList[newPosition].amount == currentTarget
+                        ) {
+                            newPosition++
+                        }
+                        return newPosition
+                    }
                 }
             }
-        } else if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
-            currentSortOrder == TransactionSortOrder.TYPE_DESCENDING) {
-            when (jump) {
-                cPREV_YEAR, cPREV_MONTH -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val target = if (filteredList[currentTopPosition].type
-                        == filteredList[currentTopPosition - 1].type)
-                    // we're not at beginning of current target, so aim for that
-                        filteredList[currentTopPosition].type
-                    else
-                    //we're already at beginning of current target, so aim for previous year
-                        filteredList[currentTopPosition - 1].type
-                    while (newPosition >= 0 && filteredList[newPosition].type >= target
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cNEXT_MONTH, cNEXT_YEAR -> {
-                    newPosition = currentTopPosition + 1
-                    val currentTarget = filteredList[currentTopPosition].type
-                    while (newPosition < filteredList.size && filteredList[newPosition].type == currentTarget
-                    ) {
+            TransactionSortOrder.TYPE_ASCENDING, TransactionSortOrder.TYPE_DESCENDING -> {
+                when (jump) {
+                    cPREV_YEAR, cPREV_MONTH -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val target = if (filteredList[currentTopPosition].type
+                            == filteredList[currentTopPosition - 1].type)
+                        // we're not at beginning of current target, so aim for that
+                            filteredList[currentTopPosition].type
+                        else
+                        //we're already at beginning of current target, so aim for previous year
+                            filteredList[currentTopPosition - 1].type
+                        while (newPosition >= 0 && filteredList[newPosition].type >= target
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    return newPosition
+                    cNEXT_MONTH, cNEXT_YEAR -> {
+                        newPosition = currentTopPosition + 1
+                        val currentTarget = filteredList[currentTopPosition].type
+                        while (newPosition < filteredList.size && filteredList[newPosition].type == currentTarget
+                        ) {
+                            newPosition++
+                        }
+                        return newPosition
+                    }
                 }
             }
-        } else if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
-            currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
-            when (jump) {
-                cPREV_YEAR, cPREV_MONTH -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val target = if (filteredList[currentTopPosition].note
-                        == filteredList[currentTopPosition - 1].note)
-                    // we're not at beginning of current target, so aim for that
-                        filteredList[currentTopPosition].note
-                    else
-                    //we're already at beginning of current target, so aim for previous year
-                        filteredList[currentTopPosition - 1].note
-                    while (newPosition >= 0 && filteredList[newPosition].note >= target
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cNEXT_MONTH, cNEXT_YEAR -> {
-                    newPosition = currentTopPosition + 1
-                    val currentTarget = filteredList[currentTopPosition].note
-                    while (newPosition < filteredList.size && filteredList[newPosition].note == currentTarget
-                    ) {
+            TransactionSortOrder.NOTE_ASCENDING, TransactionSortOrder.NOTE_DESCENDING -> {
+                when (jump) {
+                    cPREV_YEAR, cPREV_MONTH -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val target = if (filteredList[currentTopPosition].note
+                            == filteredList[currentTopPosition - 1].note)
+                        // we're not at beginning of current target, so aim for that
+                            filteredList[currentTopPosition].note
+                        else
+                        //we're already at beginning of current target, so aim for previous year
+                            filteredList[currentTopPosition - 1].note
+                        while (newPosition >= 0 && filteredList[newPosition].note >= target
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    return newPosition
+                    cNEXT_MONTH, cNEXT_YEAR -> {
+                        newPosition = currentTopPosition + 1
+                        val currentTarget = filteredList[currentTopPosition].note
+                        while (newPosition < filteredList.size && filteredList[newPosition].note == currentTarget
+                        ) {
+                            newPosition++
+                        }
+                        return newPosition
+                    }
                 }
             }
-        } else if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING ||
-            currentSortOrder == TransactionSortOrder.WHO_DESCENDING) {
-            when (jump) {
-                cPREV_YEAR, cPREV_MONTH -> {
-                    if (currentTopPosition == 0) return 0
-                    newPosition = currentTopPosition - 1
-                    val target = if ((filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
-                        == (filteredList[currentTopPosition-1].paidby.toString() + filteredList[currentTopPosition-1].boughtfor.toString()))
-                    // we're not at beginning of current target, so aim for that
-                        (filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
-                    else
-                    //we're already at beginning of current target, so aim for previous year
-                        (filteredList[currentTopPosition-1].paidby.toString() + filteredList[currentTopPosition-1].boughtfor.toString())
-                    while (newPosition >= 0 && (filteredList[newPosition].paidby.toString() + filteredList[newPosition].boughtfor.toString()) >= target
-                    ) {
-                        newPosition--
-                    }
-                    newPosition++
-                    return newPosition
-                }
-                cNEXT_MONTH, cNEXT_YEAR -> {
-                    newPosition = currentTopPosition + 1
-                    val currentTarget = (filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
-                    while (newPosition < filteredList.size && (filteredList[newPosition].paidby.toString() + filteredList[newPosition].boughtfor.toString()) == currentTarget
-                    ) {
+            TransactionSortOrder.WHO_ASCENDING, TransactionSortOrder.WHO_DESCENDING -> {
+                when (jump) {
+                    cPREV_YEAR, cPREV_MONTH -> {
+                        if (currentTopPosition == 0) return 0
+                        newPosition = currentTopPosition - 1
+                        val target = if ((filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
+                            == (filteredList[currentTopPosition-1].paidby.toString() + filteredList[currentTopPosition-1].boughtfor.toString()))
+                        // we're not at beginning of current target, so aim for that
+                            (filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
+                        else
+                        //we're already at beginning of current target, so aim for previous year
+                            (filteredList[currentTopPosition-1].paidby.toString() + filteredList[currentTopPosition-1].boughtfor.toString())
+                        while (newPosition >= 0 && (filteredList[newPosition].paidby.toString() + filteredList[newPosition].boughtfor.toString()) >= target
+                        ) {
+                            newPosition--
+                        }
                         newPosition++
+                        return newPosition
                     }
-                    return newPosition
+                    cNEXT_MONTH, cNEXT_YEAR -> {
+                        newPosition = currentTopPosition + 1
+                        val currentTarget = (filteredList[currentTopPosition].paidby.toString() + filteredList[currentTopPosition].boughtfor.toString())
+                        while (newPosition < filteredList.size && (filteredList[newPosition].paidby.toString() + filteredList[newPosition].boughtfor.toString()) == currentTarget
+                        ) {
+                            newPosition++
+                        }
+                        return newPosition
+                    }
                 }
             }
         }

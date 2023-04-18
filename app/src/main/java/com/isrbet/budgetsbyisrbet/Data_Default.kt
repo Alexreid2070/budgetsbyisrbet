@@ -2,7 +2,6 @@
 
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

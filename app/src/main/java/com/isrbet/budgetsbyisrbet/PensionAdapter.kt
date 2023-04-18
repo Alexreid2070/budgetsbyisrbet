@@ -72,8 +72,8 @@ class PensionAdapter (context: Context): BaseAdapter() {
         viewHolder.vhPensionType.text = pension.pensionType.toString()
         viewHolder.vhName.text = pension.name
         viewHolder.vhValue.text = pension.value.toString()
-        viewHolder.vhWorkStartDate.text = pension.workStartDate.toString()
-        viewHolder.vhPensionStartDate.text = pension.pensionStartDate.toString()
+        viewHolder.vhWorkStartDate.text = pension.workStartDate
+        viewHolder.vhPensionStartDate.text = pension.pensionStartDate
         viewHolder.vhBest5.text = pension.best5YearsSalary.toString()
 
         return myConvertView

@@ -2,7 +2,6 @@
 
 package com.isrbet.budgetsbyisrbet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -19,7 +18,7 @@ const val gMinimizeTaxAmount = 46226
 enum class AssetType(val code: Int) {
     RRSP(1),
     LIRA_LIF(2),
-    LIRA_Annuity(3),
+    LIRA_ANNUITY(3),
     TFSA(4),
     SAVINGS(5),
     PROPERTY(6),
@@ -29,7 +28,7 @@ enum class AssetType(val code: Int) {
             return when (iValue) {
                 RRSP -> "RRSP"
                 LIRA_LIF -> "LIRA (LIF)"
-                LIRA_Annuity -> "LIRA (Annuity)"
+                LIRA_ANNUITY -> "LIRA (Annuity)"
                 TFSA -> "TFSA"
                 SAVINGS -> "Savings"
                 PROPERTY -> "Property"
@@ -304,7 +303,7 @@ data class RetirementData(
                                         minimizeTax
                                     )
                                 }
-                                AssetType.LIRA_Annuity -> {
+                                AssetType.LIRA_ANNUITY -> {
                                     newAsset = LIRAANNUITY(
                                         assetID,
                                         name,
@@ -681,7 +680,7 @@ class LIRAANNUITY (
     estimatedGrowthPct: Double,
     monthsOfGrowthThisYear: Int,
     distributionOrder: Int) :
-    Asset(id, AssetType.LIRA_Annuity, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+    Asset(id, AssetType.LIRA_ANNUITY, name, value, useDefaultGrowthPct, estimatedGrowthPct,
         0, true, monthsOfGrowthThisYear, distributionOrder) {
     init {
         withdrawalAmount = if (pensionStartDate.substring(0,4).toInt() == 0)
@@ -692,7 +691,7 @@ class LIRAANNUITY (
             annualAmount * round((12 - pensionStartDate.substring(5,7).toInt() + 1)/12.0).toInt()
         else
             annualAmount
-        assetType = AssetType.LIRA_Annuity
+        assetType = AssetType.LIRA_ANNUITY
         computeGrowth()
     }
 
@@ -1707,7 +1706,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                     lira.additionalGrowthThisYear = additionalGrowth
                     assetIncomes.add(lira)
                 }
-                AssetType.LIRA_Annuity -> {
+                AssetType.LIRA_ANNUITY -> {
                     val lira = LIRAANNUITY(it.id,
                         it.name,
                         it.getValue(),
@@ -2117,7 +2116,7 @@ fun getMinimumRRIFWithdrawalPercentage(ageAtStartOfYear: Int): Double {
     // minimum withdrawal from RRIF is this percentage below * value at start of year
     // You must convert your RRSP to an RRIF by December 31 of the year you turn 71
     // You must begin withdrawing money from your RRIF the year after your 71st birthday. (for me 2036 5.28%)
-    if (ageAtStartOfYear < 71)
+    if (ageAtStartOfYear < 70)
         return 0.0
     return when (ageAtStartOfYear) {
         70 -> .0500

@@ -9,6 +9,7 @@ import android.view.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -83,7 +84,7 @@ class HomeFragment : Fragment(), CoroutineScope {
 //        inflater.inflate(R.layout.fragment_home, container, false)
 
         if (inDarkMode(requireContext()))
-            binding.constraintLayout.setBackgroundColor(R.color.black)
+            binding.constraintLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
 
         gestureDetector = GestureDetectorCompat(requireActivity(), object :
             GestureDetector.SimpleOnGestureListener() {
@@ -99,7 +100,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                         if (binding.expansionAreaLayout.visibility == View.GONE)
                             onExpandClicked()
                         else // already expanded and user swiped down, so open Settings
-                            findNavController().navigate(R.id.SettingsFragment)
+                            findNavController().navigate(R.id.SettingsTabsFragment)
                     }
                 } else if (event2.y < event1.y) {
                     if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
@@ -164,7 +165,7 @@ class HomeFragment : Fragment(), CoroutineScope {
             onExpandClicked()
         }
         binding.settingsButton.setOnClickListener {
-            findNavController().navigate(R.id.SettingsFragment)
+            findNavController().navigate(R.id.SettingsTabsFragment)
         }
         binding.loanButton.setOnClickListener {
             findNavController().navigate(R.id.LoanFragment)
@@ -219,8 +220,7 @@ class HomeFragment : Fragment(), CoroutineScope {
 
             if (DefaultsViewModel.getDefaultQuote()) {
                 if (MyApplication.userEmail != MyApplication.currentUserEmail)
-                    binding.quoteField.text =
-                        "Currently impersonating " + MyApplication.currentUserEmail
+                    binding.quoteField.text = String.format(getString(R.string.currently_impersonating), MyApplication.currentUserEmail)
                 else
                     binding.quoteField.text = getQuote()
             }
@@ -405,7 +405,7 @@ class HomeFragment : Fragment(), CoroutineScope {
             if (DefaultsViewModel.getDefaultQuote()) {
                 binding.quoteField.text = getQuote()
                 if (account.uid == "null")
-                    binding.quoteField.text = "SOMETHING WENT WRONG.  Please sign out and back in."
+                    binding.quoteField.text = getString(R.string.something_went_wrong)
             }
             if (account.email == "alexreid2070@gmail.com")
                 setAdminMode(true)
@@ -420,7 +420,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                   }
 
                     override fun onCancelled(dataSnapshot: DatabaseError) {
-                        MyApplication.displayToast(MyApplication.getString(R.string.user_authorization_failed) + " 112.")
+                        MyApplication.displayToast(getString(R.string.user_authorization_failed) + " 112.")
                     }
                 }
                 val dbRef =
@@ -476,7 +476,7 @@ class HomeFragment : Fragment(), CoroutineScope {
         ) {
             if (thisIsANewUser()) {
                 binding.quoteField.visibility = View.VISIBLE
-                binding.quoteField.text = "THIS IS A NEW USER.  NEED TO DO SETUP BEFORE PROCEEDING."
+                binding.quoteField.text = getString(R.string.need_to_do_setup)
 //                binding.transactionAddFab.isEnabled = false
                 setupNewUser()
             } else {

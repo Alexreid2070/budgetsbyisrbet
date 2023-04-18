@@ -71,6 +71,24 @@
             app:destination="@id/TransactionViewAllFragment" />
     </fragment>
     <fragment
+        android:id="@+id/SettingsTabsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.SettingsTabsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings_tabs">
+        <action
+            android:id="@+id/action_SettingsTabsFragment_to_BudgetViewAllFragment"
+            app:destination="@id/BudgetViewAllFragment" />
+        <action
+            android:id="@+id/action_SettingsTabFragment_to_BudgetFragment"
+            app:destination="@id/BudgetFragment" />
+        <action
+            android:id="@+id/action_SettingsTabFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
+        <action
+            android:id="@+id/action_SettingsTabFragment_to_LoanFragment"
+            app:destination="@id/LoanFragment" />
+    </fragment>
+    <fragment
         android:id="@+id/AdminFragment"
         android:name="com.isrbet.budgetsbyisrbet.AdminFragment"
         android:label="@string/admin"

@@ -69,8 +69,8 @@ class HintDialogFragment : DialogFragment() {
         binding.prevButton.setOnClickListener {
             val tHint = HintViewModel.getPreviousHint(myFragment, currentHintID)
             if (tHint == null) { // no hint to show
-                binding.hintText.text = "$currentHintText\n\n" +
-                        getString(R.string.there_are_no_previous_hints_to_show)
+                binding.hintText.text = String.format(
+                    getString(R.string.there_are_no_previous_hints_to_show), currentHintText)
             } else {
                 currentHintID = tHint.id
                 currentHintText = tHint.text
@@ -81,8 +81,8 @@ class HintDialogFragment : DialogFragment() {
         binding.nextButton.setOnClickListener {
             val tHint = HintViewModel.getNextHint(myFragment, currentHintID)
             if (tHint == null) { // no hint to show
-                binding.hintText.text = "$currentHintText\n\n" +
-                        getString(R.string.there_are_no_more_hints_to_show)
+                binding.hintText.text = String.format(
+                    getString(R.string.there_are_no_more_hints_to_show), currentHintText)
             } else {
                 currentHintID = tHint.id
                 currentHintText = tHint.text

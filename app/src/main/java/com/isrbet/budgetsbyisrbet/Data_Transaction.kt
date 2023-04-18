@@ -632,7 +632,7 @@ class TransactionViewModel : ViewModel() {
                 gCurrentDate.getMonth()
             } else singleInstance.transactions[singleInstance.transactions.size-1].date.getMonth()
         } */
-        fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAdjustment: Double) {
+private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAdjustment: Double) {
             val actualRow = singleInstance.actualsSummary.find {
                 it.categoryID == iCategoryID &&
                 it.year == iDate.getYear() &&

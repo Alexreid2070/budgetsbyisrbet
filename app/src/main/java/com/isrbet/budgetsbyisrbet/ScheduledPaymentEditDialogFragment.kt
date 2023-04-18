@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentScheduledPaymentEditDialogBinding
-import kotlin.math.round
 
 class ScheduledPaymentEditDialogFragment : DialogFragment() {
     interface ScheduledPaymentEditDialogFragmentListener {
@@ -66,8 +64,9 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.currencySymbol.setText(getLocalCurrencySymbol() + " ")
-        binding.editOldName.setText(oldName)
+        binding.currencySymbol.text =
+            String.format(getString(R.string.trailing_space), getLocalCurrencySymbol())
+        binding.editOldName.text = oldName
         binding.editNewName.setText(oldName)
 
         val categorySpinner:Spinner = binding.editNewCategory
@@ -106,10 +105,10 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             if (oldSP?.amount == 0.0) {
                 binding.editNewAmount.setText("")
             } else {
-                binding.editOldAmount.setText(oldSP?.amount?.let { gDec(it) })
+                binding.editOldAmount.text = oldSP?.amount?.let { gDec(it) }
                 binding.editNewAmount.setText(oldSP?.amount?.let { gDec(it) })
             }
-            binding.editOldRegularity.setText(oldSP?.regularity.toString())
+            binding.editOldRegularity.text = oldSP?.regularity.toString()
             binding.editNewRegularity.setText(oldSP?.regularity.toString())
             if (oldSP?.category == 0)
                 categorySpinner.setSelection(0)
@@ -132,7 +131,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 )
             }))
         }
-        binding.editOldPeriod.text = oldSP?.period?.let { getTranslationForPeriod(it) }
+        binding.editOldPeriod.text = oldSP?.period?.let { getTranslationForPeriod(1, it) }
         binding.editOldNextDate.text = oldSP?.nextdate.toString()
         binding.editOldCategory.text = oldSP?.category?.let {
             CategoryViewModel.getCategory(
@@ -242,7 +241,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
 
         binding.loanLink.setOnClickListener {
             val action =
-                ScheduledPaymentFragmentDirections.actionScheduledPaymentFragmentToLoanFragment()
+                SettingsTabsFragmentDirections.actionSettingsTabFragmentToLoanFragment()
             action.loanID = binding.editOldName.text.toString()
             findNavController().navigate(action)
             dismiss()
@@ -528,7 +527,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         val rtSpinner:Spinner = binding.editNewPeriodSpinner
         var somethingChanged = false
         var amountDouble = lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble()
-        var amountInt: Int = round(amountDouble * 100).toInt()
 
         if (currentMode == cMODE_VIEW) { // change to "edit"
             binding.viewHeader.visibility = View.GONE
@@ -636,7 +634,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     somethingChanged = true
                 }
                 amountDouble = lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
-                amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.loanAmount != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
                         oldName,
@@ -646,7 +643,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     somethingChanged = true
                 }
                 amountDouble = lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()
-                amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.loanAmortization != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
                         oldName,
@@ -656,7 +652,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     somethingChanged = true
                 }
                 amountDouble = lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()
-                amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.loanInterestRate != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
                         oldName,
@@ -666,7 +661,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                     somethingChanged = true
                 }
                 amountDouble = lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()
-                amountInt = round(amountDouble * 100).toInt()
                 if (oldSP?.actualPayment != amountDouble) {
                     ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
                         oldName,
@@ -684,7 +678,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 }
             }
             if (somethingChanged) {
-                val lNumberFormat: NumberFormat = NumberFormat.getInstance()
                 ScheduledPaymentViewModel.updateScheduledPayment(
                     oldName,
                     lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
@@ -716,7 +709,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.editNewName)
                 return
             }
-            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
             val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
                 amountDouble,
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
@@ -742,7 +734,6 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         } else if (oldName != binding.editNewName.text.toString()) {
-            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
             val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
                 lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
                 chosenPeriod, binding.editNewRegularity.text.toString().toInt(),

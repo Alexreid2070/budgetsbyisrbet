@@ -48,7 +48,8 @@
                     android:layout_gravity="center"
                     android:text="@string/type"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -91,7 +92,8 @@
                     android:layout_weight="1"
                     android:text="@string/asset_name"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/catLayout"
@@ -123,7 +125,8 @@
                     android:layout_weight="1"
                     android:text="@string/value"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="wrap_content"
@@ -157,7 +160,8 @@
                     android:layout_weight="1"
                     android:text="@string/annuity_start_date"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
@@ -199,7 +203,8 @@
                     android:layout_weight="1"
                     android:text="@string/annual_annuity_amount"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
                 <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -232,30 +237,24 @@
                     android:layout_gravity="start"
                     android:text="@string/annual_growth"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:paddingStart="15dp"
-                        android:paddingEnd="0dp"
-                        android:text="@string/Use_default"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:tooltipText="Switch on to use the default.  Switch off to set specific growth rate for this asset.">
-                    </TextView>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_use_default_growth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="start"
                         android:textOn="@string/on"
                         android:textOff="@string/off"
-                        android:checked="true"/>
+                        android:checked="true"
+                        android:text="@string/Use_default"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="Switch on to use the default.  Switch off to set specific growth rate for this asset."/>
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -289,30 +288,26 @@
                     android:layout_gravity="start"
                     android:text="@string/annual_growth_after_sale"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:paddingStart="15dp"
-                        android:paddingEnd="0dp"
-                        android:text="@string/Use_default"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:tooltipText="Switch on to use the default.  Switch off to set specific growth rate for this asset.">
-                    </TextView>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_use_default_growth_after_sale"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
+                        android:layout_gravity="start"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="0dp"
                         android:textOn="@string/on"
                         android:textOff="@string/off"
-                        android:checked="true"/>
+                        android:checked="true"
+                        android:text="@string/Use_default"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:tooltipText="Switch on to use the default.  Switch off to set specific growth rate for this asset."/>
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -343,7 +338,8 @@
                         android:layout_gravity="center"
                         android:text="@string/ownership_percentage"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
@@ -373,7 +369,8 @@
                         android:layout_gravity="center"
                         android:text="@string/mortgage_details"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
@@ -391,35 +388,18 @@
                             android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/primary_residence_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:text="@string/primary_residence"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_primary_residence"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="@dimen/custom_med_width">
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/switch_primary_residence"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:textOn="@string/on"
-                            android:textOff="@string/off"
-                            android:checked="true"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
+                        android:layout_gravity="start"
+                        android:textOn="@string/on"
+                        android:textOff="@string/off"
+                        android:checked="true"
+                        android:text="@string/primary_residence"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"/>
             </LinearLayout>
 
             <LinearLayout
@@ -435,7 +415,8 @@
                     android:layout_weight="1"
                     android:text="@string/annual_contribution"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="wrap_content"
@@ -453,66 +434,31 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/tax_sheltered_layout"
-                android:layout_width="match_parent"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_tax_sheltered"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:layout_gravity="start"
+                android:textOn="@string/on"
+                android:textOff="@string/off"
+                android:checked="false"
+                android:text="@string/tax_sheltered"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"/>
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/tax_sheltered"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="@dimen/custom_med_width">
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_tax_sheltered"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textOn="@string/on"
-                        android:textOff="@string/off"
-                        android:checked="false"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/will_sell_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/will_sell"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minWidth="@dimen/custom_med_width">
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_will_sell_to_finance_retirement"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textOn="@string/on"
-                        android:textOff="@string/off"
-                        android:checked="true"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_will_sell_to_finance_retirement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:textOn="@string/on"
+                android:textOff="@string/off"
+                android:checked="true"
+                android:text="@string/will_sell"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/minimizeRRSPTaxLayout"
@@ -526,6 +472,7 @@
                     android:text="@string/minimizeRRSPTax"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/minimize_rrsp_tooltip" />
 
                 <HorizontalScrollView

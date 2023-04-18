@@ -1,8 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
-import android.icu.util.Calendar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

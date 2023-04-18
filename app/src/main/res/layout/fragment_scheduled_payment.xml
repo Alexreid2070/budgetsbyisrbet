@@ -11,7 +11,7 @@
         android:id="@+id/scheduled_payment_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:fadeScrollbars="false"/>
@@ -27,88 +27,30 @@
         android:paddingTop="30dp"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
-
-    <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
-        android:id="@+id/add_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom|center"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_fas_plus"
-        android:tooltipText="Add Scheduled Payment"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <LinearLayout
-        android:id="@+id/expansion_layout"
+        android:id="@+id/fab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="5dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scheduled_payment_list_view">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" >
 
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/expand_settings"
-            android:layout_width="0dp"
+        <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+            android:id="@+id/add_fab"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/preferences"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
+            android:layout_gravity="bottom|center"
+            android:contentDescription="@string/app_name"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_fas_plus"
+            android:tooltipText="Add Scheduled Payment"/>
         <TextView
-            android:id="@+id/expand_categories"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/categories"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/expand_budgets"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/budgets"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/expand_scheduled_payments"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@drawable/rounded_top_corners"
-            android:gravity="center"
-            android:text="@string/scheduled_payments"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="16sp"
-            android:ellipsize="end"
-            android:maxLines="2"/>
-
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

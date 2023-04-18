@@ -9,7 +9,6 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.isrbet.budgetsbyisrbet.databinding.FragmentLoanBinding
-import timber.log.Timber
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.round

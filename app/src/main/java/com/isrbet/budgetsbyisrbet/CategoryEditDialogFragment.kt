@@ -88,7 +88,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 id: Long
             ) {
                 if (binding.editCategoryNewNameSpinner.selectedItem.toString() ==
-                    MyApplication.getString(R.string.add_new_category_name)) {
+                    getString(R.string.add_new_category_name)) {
                     binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
 //                    binding.editCategoryNewName.requestFocus()
                     focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
@@ -119,9 +119,9 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.categoryDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
             currentMode = cMODE_ADD
             if (SpenderViewModel.twoDistinctUsers())
-                binding.newPrivacyLayout.visibility = View.VISIBLE
+                binding.privacySwitch.visibility = View.VISIBLE
             else
-                binding.newPrivacyLayout.visibility = View.GONE
+                binding.privacySwitch.visibility = View.GONE
         } else { // ie this is an edit
             setupCategorySpinner(oldCat?.categoryName ?: getString(R.string.lcfirst))
             binding.privacySwitch.isChecked = oldCat?.private != 2
@@ -146,7 +146,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 dtSpinner.setSelection(arrayAdapter.getPosition(getString(R.string.discretionary)))
             else
                 dtSpinner.setSelection(arrayAdapter.getPosition(getString(R.string.non_discretionary)))
-            binding.categoryDialogLinearLayoutBudget.visibility = View.GONE
+            binding.switchEnterBudget.visibility = View.GONE
             budgetCtr = BudgetViewModel.budgetExistsUsingCategory(oldCategoryID)
             expenseCtr = TransactionViewModel.transactionExistsUsingCategory(oldCategoryID)
             spCtr = ScheduledPaymentViewModel.scheduledPaymentExistsUsingCategory(
@@ -159,16 +159,16 @@ class CategoryEditDialogFragment : DialogFragment() {
             else
                 binding.messageTransaction.text = String.format("$expenseCtr ${getString(R.string.transaction_psp)}")
             if (budgetCtr == 0)
-                binding.messageBudgetLayout.visibility = View.GONE
+                binding.messageBudget.visibility = View.GONE
             else
                 binding.messageBudget.text = if (budgetCtr == 0) "" else "$budgetCtr " + getString(R.string.budget_psp)
             if (spCtr == 0)
-                binding.messageLayout.visibility = View.GONE
+                binding.messageScheduledPayment.visibility = View.GONE
             else
                 binding.messageScheduledPayment.text =
                     if (spCtr == 0) "" else "$spCtr " + getString(R.string.scheduled_payment_template_psp)
             if (oldCategoryID != DefaultsViewModel.getDefaultCategory())
-                binding.messageDefaultCategoryLayout.visibility = View.GONE
+                binding.messageDefaultCategory.visibility = View.GONE
             if (currentMode == cMODE_VIEW) {
                 binding.editCategoryOldNameHeader.text = CategoryViewModel.getFullCategoryName(binding.categoryId.text.toString().toInt())
                 binding.categoryDialogNewHeaderLinearLayout.visibility = View.GONE
@@ -176,8 +176,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout3.visibility = View.GONE
                 binding.categoryDialogLinearLayout4.visibility = View.GONE
                 binding.categoryDialogLinearLayout5.visibility = View.GONE
-                binding.newPrivacyLayout.visibility = View.GONE
-                binding.categoryDialogLinearLayout7.visibility = View.GONE
+                binding.privacySwitch.visibility = View.GONE
+                binding.stateSwitch.visibility = View.GONE
                 binding.categoryLayout.visibility = View.GONE
                 binding.subcategoryLayout.visibility = View.GONE
             }
@@ -197,7 +197,7 @@ class CategoryEditDialogFragment : DialogFragment() {
 
     private fun setupCategorySpinner(iSelection: String) {
         val categoryList: MutableList<String> = ArrayList()
-        categoryList.add(MyApplication.getString(R.string.add_new_category_name))
+        categoryList.add(getString(R.string.add_new_category_name))
         CategoryViewModel.getCategoryNames(true).forEach {
             categoryList.add(it)
         }
@@ -226,10 +226,10 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
                 binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
                 if (SpenderViewModel.twoDistinctUsers())
-                    binding.newPrivacyLayout.visibility = View.VISIBLE
+                    binding.privacySwitch.visibility = View.VISIBLE
                 else
-                    binding.newPrivacyLayout.visibility = View.GONE
-                binding.categoryDialogLinearLayout7.visibility = View.VISIBLE
+                    binding.privacySwitch.visibility = View.GONE
+                binding.stateSwitch.visibility = View.VISIBLE
                 binding.categoryDialogButtonDelete.visibility = View.GONE
 
                 currentMode = cMODE_EDIT
@@ -301,7 +301,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 dismiss()
                 if (binding.switchEnterBudget.isChecked) {
                     val action =
-                        CategoryFragmentDirections.actionCategoryFragmentToBudgetFragment()
+                        SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()
                     action.categoryID = cat.id.toString()
                     findNavController().navigate(action)
                 }
@@ -390,14 +390,14 @@ class CategoryEditDialogFragment : DialogFragment() {
             dismiss()
         }
         binding.messageBudget.setOnClickListener {
-            val action = CategoryFragmentDirections.actionCategoryFragmentToBudgetViewAllFragment()
+            val action = SettingsTabsFragmentDirections.actionSettingsTabsFragmentToBudgetViewAllFragment()
             action.categoryID = oldCategoryID.toString()
             dismiss()
             findNavController().navigate(action)
         }
         binding.messageTransaction.setOnClickListener {
             val action =
-                CategoryFragmentDirections.actionCategoryFragmentToTransactionViewAllFragment()
+                SettingsTabsFragmentDirections.actionSettingsTabFragmentToTransactionViewAllFragment()
             action.categoryID = oldCategoryID.toString()
             dismiss()
             findNavController().navigate(action)

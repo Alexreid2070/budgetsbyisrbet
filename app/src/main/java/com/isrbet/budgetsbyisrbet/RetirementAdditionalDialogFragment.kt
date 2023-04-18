@@ -2,13 +2,11 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
 import androidx.fragment.app.DialogFragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementAdditionalDialogBinding
 import java.util.*
@@ -16,10 +14,6 @@ import java.util.*
 enum class AdditionalType(val code: Int) {
     DEPOSIT(1),
     EXPENSE(2);
-
-    companion object {
-        fun fromInt(value: Int) = values().first { it.code == value }
-    }
 }
 
 class RetirementAdditionalDialogFragment : DialogFragment() {
@@ -33,7 +27,6 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
 
     companion object {
         private const val KEY_ID = "1"
-        private var type: AdditionalType = AdditionalType.DEPOSIT
         private var itemID: Int = -1
         fun newInstance(
             itemIDIn: Int

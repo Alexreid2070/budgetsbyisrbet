@@ -153,17 +153,6 @@ class RetirementPensionDialogFragment : DialogFragment() {
                 binding.title.text = String.format("${selection.toString()}: ${binding.pensionName.text.toString()}")
             }
         }
-        if (false) { // (!inDefaultMode) {
-            binding.pensionTypeSpinner.isEnabled = false
-            binding.pensionName.isEnabled = false
-            binding.pensionValue.isEnabled = false
-            binding.pensionStartDate.isEnabled = false
-            binding.workStartDate.isEnabled = false
-            binding.best5YearsSalary.isEnabled = false
-            binding.pensionStartDelay.isEnabled = false
-            binding.saveButton.visibility = View.GONE
-            binding.deleteButton.visibility = View.GONE
-        }
     }
 
     override fun onStart() {

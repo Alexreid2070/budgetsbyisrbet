@@ -208,7 +208,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/BudgetLinearLayout"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"
+        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout"
         android:fadeScrollbars="false"/>
 
     <TextView
@@ -222,7 +222,7 @@
         android:paddingTop="30dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/BudgetLinearLayout"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
+        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout"/>
 
     <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
         android:id="@+id/budget_add_fab"
@@ -234,75 +234,7 @@
         android:src="@drawable/ic_fas_plus"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/expansion_layout"/>
-    <LinearLayout
-        android:id="@+id/expansion_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/budget_list_view"
-        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout">
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/expand_settings"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/preferences"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/expand_categories"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/categories"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/expand_budgets"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:text="@string/budgets"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="16sp"
-            android:background="@drawable/rounded_top_corners"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/expand_scheduled_payments"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/scheduled_payments"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            app:drawableStartCompat="@drawable/ic_baseline_expand_less_24"
-            android:ellipsize="end"
-            android:maxLines="2"/>
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
+        app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout"/>
     <LinearLayout
         android:id="@+id/nav_button_linear_layout"
         android:layout_width="match_parent"
@@ -311,53 +243,29 @@
         android:orientation="horizontal"
         android:visibility="visible"
         android:weightSum="6"
-        app:layout_constraintTop_toBottomOf="@+id/expansion_layout"
+        app:layout_constraintTop_toBottomOf="@+id/budget_list_view"
         app:layout_constraintBottom_toBottomOf="parent">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/button_backward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingStart="30dp"
+            android:paddingEnd="40dp"
             android:layout_gravity="center"
-            app:drawableStartCompat="@drawable/ic_baseline_arrow_back_24"/>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            app:drawableStartCompat="@drawable/ic_baseline_keyboard_arrow_left_24"/>
 
         <TextView
             android:id="@+id/button_forward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="30dp"
             android:layout_gravity="center"
-            app:drawableStartCompat="@drawable/ic_baseline_arrow_forward_24"/>
+            app:drawableStartCompat="@drawable/ic_baseline_keyboard_arrow_right_24"/>
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <View
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:background="?attr/colorPrimary"/>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -367,9 +275,11 @@
             android:paddingEnd="5dp"
             android:text="@string/view_by"/>
         <HorizontalScrollView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fadeScrollbars="false"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:scrollbarThumbHorizontal="?attr/colorSecondary">
             <RadioGroup
                 android:id="@+id/viewRadioGroup"
@@ -395,9 +305,5 @@
                     android:checked="true"/>
             </RadioGroup>
         </HorizontalScrollView>
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

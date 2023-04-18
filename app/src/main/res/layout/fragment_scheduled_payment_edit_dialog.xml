@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -27,6 +26,7 @@
                 android:text="@string/add_payment_schedule"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <LinearLayout
@@ -88,6 +88,7 @@
                     android:text="@string/name"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="Label/name of this scheduled payment (e.g. use the vendor name that you pay...)"/>
 
                 <TextView
@@ -135,6 +136,7 @@
                     android:text="@string/amount"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="Amount of the regular scheduled payment."/>
 
                     <TextView
@@ -189,6 +191,7 @@
                     android:text="@string/next_payment_date"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="Date of the next scheduled payment."/>
 
                 <TextView
@@ -236,6 +239,7 @@
                     android:text="@string/regularity"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="Indicates if payment is every period (1), every second period (2), etc."/>
 
                 <TextView
@@ -281,7 +285,8 @@
                     android:layout_weight="1"
                     android:text="@string/period"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground" />
 
                 <TextView
                     android:id="@+id/edit_old_period"
@@ -335,6 +340,7 @@
                     android:text="@string/category"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipCategorySubCategory"/>
 
                 <TextView
@@ -389,6 +395,7 @@
                     android:text="@string/subcategory"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipCategorySubCategory" />
 
                 <TextView
@@ -444,6 +451,7 @@
                     android:text="@string/paid_by"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipPaidBy"/>
 
                 <TextView
@@ -506,6 +514,7 @@
                     android:text="@string/bought_for"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipBoughtFor"/>
 
                 <TextView
@@ -561,6 +570,7 @@
                     android:text="@string/split"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipSplit"/>
 
                 <com.google.android.material.slider.Slider
@@ -589,22 +599,19 @@
                 android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@+id/dialog_split">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="@string/is_this_a_loan"
-                    android:textSize="16sp"
-                    android:tooltipText="If this payment is for a loan, enter loan details to enable loan calculator."/>
-
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/loan_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_gravity="start"
                     android:checked="false"
                     android:textOff="@string/off"
-                    android:textOn="@string/on"/>
+                    android:textOn="@string/on"
+                    android:text="@string/is_this_a_loan"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
+                    android:tooltipText="If this payment is for a loan, enter loan details to enable loan calculator."/>
                 <TextView
                     android:id="@+id/loan_link"
                     android:layout_width="wrap_content"
@@ -644,8 +651,7 @@
                         android:minWidth="@dimen/custom_med_width"
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"
-                        app:endIconMode="clear_text"
-                        tools:ignore="TooManyViews">
+                        app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/loan_amount"
@@ -721,8 +727,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="start"
                             android:gravity="start"
-                            android:inputType="numberDecimal"
-                            tools:ignore="TooManyViews" />
+                            android:inputType="numberDecimal"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -766,7 +771,8 @@
                         android:layout_gravity="center_vertical"
                         android:text="@string/payment_frequency"
                         android:textSize="16sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground" />
                     <HorizontalScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

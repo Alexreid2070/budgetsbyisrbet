@@ -43,6 +43,7 @@
             android:text="@string/loan"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:textColor="?attr/textOnBackground"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             android:tooltipText="If you have set up a scheduled payment and indicated that it is a loan, you can select it here."/>
@@ -199,6 +200,7 @@
                 android:text="@string/payment_frequency"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
                 android:tooltipText="How often do you make loan payments?"/>
             <HorizontalScrollView
                 android:layout_width="match_parent"

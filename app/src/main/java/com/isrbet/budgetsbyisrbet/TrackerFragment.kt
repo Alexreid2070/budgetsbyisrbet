@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -7,9 +8,7 @@ import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.view.*
-import android.widget.LinearLayout
 import android.widget.RadioButton
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -67,6 +66,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
             currentBudgetMonth.representsYear = true
         }
     }
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initCurrentBudgetMonth()
@@ -312,9 +312,10 @@ class TrackerFragment : Fragment(), CoroutineScope {
         if (iSpecificCategory != "") {
             binding.chartSubTitle.visibility = View.VISIBLE
             if (binding.chartSubTitle.text == "")
-                binding.chartSubTitle.text = "($iSpecificCategory)"
+                binding.chartSubTitle.text = String.format(getString(R.string.bracketed), iSpecificCategory)
             else
-                binding.chartSubTitle.text = "${binding.chartSubTitle.text.toString().substring(0,binding.chartSubTitle.text.toString().length-1)} $iSpecificCategory)"
+                binding.chartSubTitle.text = String.format(getString(R.string.bracketed2),
+                    binding.chartSubTitle.text, iSpecificCategory)
         }
     }
 
@@ -657,7 +658,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
             binding.chartSubTitle.text = ""
         } else {
             binding.chartSubTitle.visibility = View.VISIBLE
-            binding.chartSubTitle.text = "($currentFilterIndicator)"
+            binding.chartSubTitle.text = String.format(getString(R.string.bracketed), currentFilterIndicator)
         }
     }
 

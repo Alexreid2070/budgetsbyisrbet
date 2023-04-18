@@ -10,24 +10,34 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardTabsBinding
+import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsTabsBinding
+import timber.log.Timber
 
-class DashboardTabsFragment : Fragment() {
-    private var _binding: FragmentDashboardTabsBinding? = null
+class SettingsTabsFragment : Fragment() {
+    private var _binding: FragmentSettingsTabsBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentDashboardTabsBinding.inflate(inflater, container, false)
+        _binding = FragmentSettingsTabsBinding.inflate(inflater, container, false)
 
         val adapter = DashboardTabsAdapter(activity)
-        adapter.addFragment(DashboardFragment(), "Dashboard")
-        adapter.addFragment(YearOverYearFragment(), "Year Over Year")
+        adapter.addFragment(SettingsFragment(), "Settings")
+        adapter.addFragment(CategoryFragment(), "Categories")
+        val budFra = BudgetViewAllFragment().apply {
+            arguments = Bundle().apply {
+                putString("categoryID", "")
+            }
+        }
+        adapter.addFragment(budFra, "Budgets")
+        adapter.addFragment(ScheduledPaymentFragment(), "Scheduled Payments")
+        val f1 = ScheduledPaymentFragment()
+        f1.arguments = this.arguments
 
         binding.viewPager.adapter = adapter
-        binding.viewPager.currentItem = DefaultsViewModel.getDefaultLastDashboardTab()
+        binding.viewPager.currentItem = 0
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = adapter.getTabTitle(position)
         }.attach()
@@ -45,20 +55,15 @@ class DashboardTabsFragment : Fragment() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null) {
-                    if (tab.text.toString() == "Dashboard")
-                        DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 0)
-                    else
-                        DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 1)
+                    Timber.tag("Alex").d("Chose ${tab.text}")
                     setTabActive(tab)
                 }
-//                tab?.customView = createCustomTabView(tab?.text.toString(), 15, android.R.color.black)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 if (tab != null) {
                     setTabInactive(tab)
                 }
-//                tab?.customView = createCustomTabView(tab?.text.toString(), 10, android.R.color.darker_gray)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
@@ -67,7 +72,7 @@ class DashboardTabsFragment : Fragment() {
         })
 
         // Inflate the layout for this fragment
-        inflater.inflate(R.layout.fragment_dashboard_tabs, container, false)
+        inflater.inflate(R.layout.fragment_settings_tabs, container, false)
         return binding.root
     }
 

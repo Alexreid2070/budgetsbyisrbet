@@ -53,12 +53,12 @@ class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() 
             viewHolder.vhPrimary.visibility = View.VISIBLE
             viewHolder.vhSecondary.visibility = View.VISIBLE
             if (rtData.primary == "") { // this user is the primary
-                viewHolder.vhPrimary.text =
-                    MyApplication.getString(R.string.secondary) + ": "
+                viewHolder.vhPrimary.text = String.format(MyApplication.getString(R.string.coloned),
+                    MyApplication.getString(R.string.secondary), "")
                 viewHolder.vhSecondary.text = rtData.secondary
             } else {  // this user is the seconary
-                viewHolder.vhPrimary.text =
-                    MyApplication.getString(R.string.primary) + ": "
+                viewHolder.vhPrimary.text = String.format(MyApplication.getString(R.string.coloned),
+                    MyApplication.getString(R.string.primary), "")
                 viewHolder.vhSecondary.text = AppUserViewModel.getPrimaryEmail(rtData.primary)
             }
         }

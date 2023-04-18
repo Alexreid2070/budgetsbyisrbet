@@ -13,7 +13,6 @@
     <string name="help">Aider</string>
     <string name="add_payment_schedule">Ajouter un Calendrier de Paiement</string>
     <string name="view_all_transactions">Afficher Toutes les Transactions</string>
-
     <string name="date">Date</string>
     <string name="amount">Montant</string>
     <string name="category">Catégorie</string>
@@ -189,7 +188,8 @@
     <string name="amt2">Mont2</string>
     <string name="discretionary_short_question">D?</string>
     <string name="type_short">Srt.</string>
-    <string name="owes">doit</string>
+    <string name="owes">%1$s owes %2$s %3$s</string>
+    <string name="owes2">(%1$s - %2$s)</string>
     <string name="total_for_this_selection_is">Le total pour cette sélection est:</string>
     <string name="search">Chercher</string>
     <string name="back_year_short">-An</string>
@@ -248,13 +248,13 @@
     <string name="amountNotNegative">Le montant du crédit doit être négatif.</string>
     <string name="credit_created">Le crédit a été créé.</string>
     <string name="these_are_the_transactions">Ce sont les transactions qui donnent lieu au montant dû.</string>
-    <string name="JTdash">Jt-</string>
+    <string name="JTdash">Jt-%1$s</string>
     <string name="sub_total">Sous-total</string>
     <string name="nobody_owes_anybody">Personne ne doit personne!</string>
-    <string name="transferred_to">%1$s a transféré à %2$s</string>
+    <string name="transferred_to">%1$s a transféré à %2$s:  </string>
     <string name="total">Total</string>
-    <string name="total_funds_used_for">Total des fonds de %1$s utilisés pour %2$s</string>
-    <string name="paid_for">%1$s a payé pour %2$s</string>
+    <string name="total_funds_used_for">Total des fonds de %1$s utilisés pour %2$s:  </string>
+    <string name="paid_for">%1$s a payé pour %2$s:  </string>
     <string name="recurring">Récurrent</string>
     <string name="once">Une fois</string>
     <string name="user_authorization_failed">L\'autorisation de l\'utilisateur a échoué</string>
@@ -326,14 +326,14 @@
     <string name="scheduled_payment_was_added_for">Le paiement programmé a été ajouté pour</string>
     <string name="on_next_business_day">le jour ouvrable suivant</string>
     <string name="unknown">Inconnu</string>
-    <string name="there_are_no_previous_hints_to_show">Il n\'y a pas d\'indices précédents à afficher.</string>
-    <string name="there_are_no_more_hints_to_show">Il n\'y a plus d\'indices à afficher.</string>
+    <string name="there_are_no_previous_hints_to_show">%1$s\n\n Il n\'y a pas d\'indices précédents à afficher.</string>
+    <string name="there_are_no_more_hints_to_show">%1$s\n\nIl n\'y a plus d\'indices à afficher.</string>
     <string name="you_must_sign_in">Vous devez vous connecter avec votre compte Google pour continuer. Cliquez ci-dessous pour continuer.</string>
     <string name="are_you_sure_that_you_want_to_sign_out">%1$s %2$s, voulez-vous vraiment vous déconnecter?</string>
     <string name="choose_existing_loan"><![CDATA[<Choisissez un prêt existant>]]></string>
     <string name="payment_of">paiement de</string>
     <string name="every">chaque</string>
-    <string name="next_payment_due">Prochain paiement dû</string>
+    <string name="next_payment_due">Prochain paiement dû %1$s, %2$s, %3$s %4$s</string>
     <string name="forr">pour</string>
     <string name="the_text_contains_unsafe_characters">Le texte contient des caractères dangereux. Ils doivent être supprimés.</string>
     <string name="value_cannot_be_blank">La valeur ne peut pas être vide.</string>
@@ -349,7 +349,7 @@
     <string name="transaction_added">Transaction added.  (Montant réel pour période pour %1$s est %2$s, budget est %3$s.)</string>
     <string name="transaction_updated">Transaction actualisé</string>
     <string name="credit_expense">Créditer la dépense</string>
-    <string name="share_this_authorization_key_with">Partagez cette clé d\'autorisation avec</string>
+    <string name="share_this_authorization_key_with">Partagez cette clé d\'autorisation avec %1$s:</string>
     <string name="new_user">Nouvel utilisateur</string>
     <string name="authorization_key_has_been_copied_to_your_clipboard">La clé d\'autorisation a été copiée dans votre presse-papiers</string>
     <string name="joining_user">Rejoindre l\'utilisateur.</string>
@@ -441,7 +441,7 @@
     <string name="annual_increase">% growth annually</string>
     <string name="inflationRate">Inflation rate</string>
     <string name="calculate_retirement">Retirement Calculations</string>
-    <string name="retirement_defaults">Retirement Calculation Defaults</string>
+    <string name="retirement_defaults">Update Retirement Scenario Defaults</string>
     <string name="birth_date">Birth Date</string>
     <string name="basics">Basics</string>
     <string name="oas_amount">Current annual OAS amount</string>
@@ -538,8 +538,8 @@
     <string name="loan_calculation">Loan Calculation</string>
     <string name="filter_by_who">Filter by Who</string>
     <string name="filter_by_type">Filter by Type</string>
-    <string name="show_hide_columns">Show/Hide Columns</string>
-    <string name="filters">Filters</string>
+    <string name="show_hide_columns">" Show/Hide Columns"</string>
+    <string name="filters">" Filters"</string>
     <string name="pound">#</string>
     <string name="sp_lookahead">Scheduled Payment Lookahead (days)</string>
     <string name="days">days</string>
@@ -551,5 +551,17 @@
     <string name="pie_chart">Pie chart</string>
     <string name="show">Show</string>
     <string name="dashboards">Dashboards</string>
+    <string name="exclude_row">"   X %1$s"</string>
+    <string name="trailing_space">"%1$s "</string>
+    <string name="currently_impersonating">"Currently impersonating "</string>
+    <string name="something_went_wrong">SOMETHING WENT WRONG.  Please sign out and back in.</string>
+    <string name="need_to_do_setup">THIS IS A NEW USER.  NEED TO DO SETUP BEFORE PROCEEDING.</string>
+    <string name="avg_per_month">Avg per Month</string>
+    <string name="actuals">Actuals</string>
+    <string name="payment_of_occurs_every">%1$s payment of %2$s occurs every %3$s %4$s</string>
+    <string name="bracketed">(%1$s)</string>
+    <string name="bracketed2">(%1$s %2$s)</string>
+    <string name="coloned">%1$s:%2$s</string>
+    <string name="n_arrow_n"><![CDATA[%1$s->%2$s]]></string>
+    <string name="today_is">Today is %1$s %2$s.\n</string>
 </resources>
-

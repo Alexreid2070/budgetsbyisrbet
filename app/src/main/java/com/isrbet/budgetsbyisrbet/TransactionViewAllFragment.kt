@@ -46,10 +46,9 @@ enum class TransactionSortOrder {
     TYPE_DESCENDING;
 }
 
-enum class SortOrderDirection() {
+enum class SortOrderDirection {
     ASCENDING,
-    DESCENDING,
-    OFF
+    DESCENDING
 }
 
 class TransactionViewAllFragment : Fragment() {
@@ -83,7 +82,7 @@ class TransactionViewAllFragment : Fragment() {
         TransactionViewModel.observeList(this, transactionListObserver) */
     }
 
-    fun setupRecycler() {
+    private fun setupRecycler() {
         val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
 //            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         recyclerView.apply {
@@ -140,6 +139,7 @@ class TransactionViewAllFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
         setupRecycler()
@@ -148,9 +148,9 @@ class TransactionViewAllFragment : Fragment() {
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         loadCategoryRadioButtons()
         if (SpenderViewModel.singleUser()) {
-            binding.showSplitsLayout.visibility = View.GONE
-            binding.showWhoLayout.visibility = View.GONE
-            binding.showRunningTotalLayout.visibility = View.GONE
+            binding.showIndividualAmountsColumns.visibility = View.GONE
+            binding.showWhoColumn.visibility = View.GONE
+            binding.showRunningTotalColumn.visibility = View.GONE
         }
 
         binding.transactionAddFab.setOnClickListener {
@@ -375,24 +375,12 @@ class TransactionViewAllFragment : Fragment() {
 
         binding.expandedViewColumnLabel.setOnClickListener {
             if (binding.expandedViewColumnLayout.visibility == View.GONE) {
-                binding.expandedViewColumnLayout.visibility = View.VISIBLE
-                val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
-                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor))
-                binding.expandedViewColumnLabel.setBackgroundResource(R.drawable.rounded_top_corners)
-                val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
-                binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor2))
-                binding.expandedFilterLayout.visibility = View.GONE
+                showExpandedViewColumnArea()
             }
         }
         binding.expandedFilterLabel.setOnClickListener {
             if (binding.expandedFilterLayout.visibility == View.GONE) {
-                binding.expandedFilterLayout.visibility = View.VISIBLE
-                val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
-                binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor))
-                binding.expandedFilterLabel.setBackgroundResource(R.drawable.rounded_top_corners)
-                val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
-                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor2))
-                binding.expandedViewColumnLayout.visibility = View.GONE
+                showExpandedFilterArea()
             }
         }
         binding.columnHeadingLayout.setOnTouchListener(object :
@@ -427,6 +415,16 @@ class TransactionViewAllFragment : Fragment() {
                 binding.expandedViewColumnLayout.visibility = View.GONE
                 binding.navButtonLinearLayout.visibility = View.VISIBLE
             }
+
+            override fun onSwipeRight() {
+                super.onSwipeRight()
+                showExpandedFilterArea()
+            }
+
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                showExpandedFilterArea()
+            }
         })
         binding.expandedFilterLayout.setOnTouchListener(object :
             OnSwipeTouchListener(requireContext()) {
@@ -435,6 +433,16 @@ class TransactionViewAllFragment : Fragment() {
                 binding.expandedLabelLayout.visibility = View.GONE
                 binding.expandedFilterLayout.visibility = View.GONE
                 binding.navButtonLinearLayout.visibility = View.VISIBLE
+            }
+
+            override fun onSwipeRight() {
+                super.onSwipeRight()
+                showExpandedViewColumnArea()
+            }
+
+            override fun onSwipeLeft() {
+                super.onSwipeLeft()
+                showExpandedViewColumnArea()
             }
         })
 
@@ -479,8 +487,9 @@ class TransactionViewAllFragment : Fragment() {
             if (SpenderViewModel.getSpenderName(0).substring(0,1) == SpenderViewModel.getSpenderName(1).substring(0,1))
                 binding.runningTotalHeading.text = "1->2"
             else
-                binding.runningTotalHeading.text =
-                    SpenderViewModel.getSpenderName(0).substring(0,1) + "->" + SpenderViewModel.getSpenderName(1).substring(0,1)
+                binding.runningTotalHeading.text = String.format(getString(R.string.n_arrow_n),
+                    SpenderViewModel.getSpenderName(0).substring(0,1),
+                    SpenderViewModel.getSpenderName(1).substring(0,1))
         } else {
             setViewsToDefault()
             if (args.categoryID != "")
@@ -575,42 +584,55 @@ class TransactionViewAllFragment : Fragment() {
         }
 
         binding.dateHeading.setOnClickListener {
-            if (currentSortOrder == TransactionSortOrder.DATE_ASCENDING) {
-                currentSortOrder = TransactionSortOrder.DATE_DESCENDING
-                adjustColumnHeadings(SortOrderDirection.DESCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
-                currentSortOrder = TransactionSortOrder.DATE_ASCENDING
-                adjustColumnHeadings(SortOrderDirection.ASCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING) {
-                currentSortOrder = TransactionSortOrder.AMOUNT_DESCENDING
-                adjustColumnHeadings(SortOrderDirection.DESCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING){
-                currentSortOrder = TransactionSortOrder.AMOUNT_ASCENDING
-                adjustColumnHeadings(SortOrderDirection.ASCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING) {
-                currentSortOrder = TransactionSortOrder.CATEGORY_DESCENDING
-                adjustColumnHeadings(SortOrderDirection.DESCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING){
-                currentSortOrder = TransactionSortOrder.CATEGORY_ASCENDING
-                adjustColumnHeadings(SortOrderDirection.ASCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING) {
-                currentSortOrder = TransactionSortOrder.WHO_DESCENDING
-                adjustColumnHeadings(SortOrderDirection.DESCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.WHO_DESCENDING){
-                currentSortOrder = TransactionSortOrder.WHO_ASCENDING
-                adjustColumnHeadings(SortOrderDirection.ASCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING) {
-                currentSortOrder = TransactionSortOrder.NOTE_DESCENDING
-                adjustColumnHeadings(SortOrderDirection.DESCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.NOTE_DESCENDING){
-                currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
-                adjustColumnHeadings(SortOrderDirection.ASCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING) {
-                currentSortOrder = TransactionSortOrder.TYPE_DESCENDING
-                adjustColumnHeadings(SortOrderDirection.DESCENDING)
-            } else if (currentSortOrder == TransactionSortOrder.TYPE_DESCENDING){
-                currentSortOrder = TransactionSortOrder.TYPE_ASCENDING
-                adjustColumnHeadings(SortOrderDirection.ASCENDING)
+            when (currentSortOrder) {
+                TransactionSortOrder.DATE_ASCENDING -> {
+                    currentSortOrder = TransactionSortOrder.DATE_DESCENDING
+                    adjustColumnHeadings(SortOrderDirection.DESCENDING)
+                }
+                TransactionSortOrder.DATE_DESCENDING -> {
+                    currentSortOrder = TransactionSortOrder.DATE_ASCENDING
+                    adjustColumnHeadings(SortOrderDirection.ASCENDING)
+                }
+                TransactionSortOrder.AMOUNT_ASCENDING -> {
+                    currentSortOrder = TransactionSortOrder.AMOUNT_DESCENDING
+                    adjustColumnHeadings(SortOrderDirection.DESCENDING)
+                }
+                TransactionSortOrder.AMOUNT_DESCENDING -> {
+                    currentSortOrder = TransactionSortOrder.AMOUNT_ASCENDING
+                    adjustColumnHeadings(SortOrderDirection.ASCENDING)
+                }
+                TransactionSortOrder.CATEGORY_ASCENDING -> {
+                    currentSortOrder = TransactionSortOrder.CATEGORY_DESCENDING
+                    adjustColumnHeadings(SortOrderDirection.DESCENDING)
+                }
+                TransactionSortOrder.CATEGORY_DESCENDING -> {
+                    currentSortOrder = TransactionSortOrder.CATEGORY_ASCENDING
+                    adjustColumnHeadings(SortOrderDirection.ASCENDING)
+                }
+                TransactionSortOrder.WHO_ASCENDING -> {
+                    currentSortOrder = TransactionSortOrder.WHO_DESCENDING
+                    adjustColumnHeadings(SortOrderDirection.DESCENDING)
+                }
+                TransactionSortOrder.WHO_DESCENDING -> {
+                    currentSortOrder = TransactionSortOrder.WHO_ASCENDING
+                    adjustColumnHeadings(SortOrderDirection.ASCENDING)
+                }
+                TransactionSortOrder.NOTE_ASCENDING -> {
+                    currentSortOrder = TransactionSortOrder.NOTE_DESCENDING
+                    adjustColumnHeadings(SortOrderDirection.DESCENDING)
+                }
+                TransactionSortOrder.NOTE_DESCENDING -> {
+                    currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
+                    adjustColumnHeadings(SortOrderDirection.ASCENDING)
+                }
+                TransactionSortOrder.TYPE_ASCENDING -> {
+                    currentSortOrder = TransactionSortOrder.TYPE_DESCENDING
+                    adjustColumnHeadings(SortOrderDirection.DESCENDING)
+                }
+                TransactionSortOrder.TYPE_DESCENDING -> {
+                    currentSortOrder = TransactionSortOrder.TYPE_ASCENDING
+                    adjustColumnHeadings(SortOrderDirection.ASCENDING)
+                }
             }
             (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).sortBy(currentSortOrder)
             (binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter).notifyDataSetChanged()
@@ -702,6 +724,24 @@ class TransactionViewAllFragment : Fragment() {
         HintViewModel.showHint(parentFragmentManager, cHINT_TRANSACTION_VIEW_ALL)
     }
 
+    private fun showExpandedViewColumnArea() {
+        binding.expandedViewColumnLayout.visibility = View.VISIBLE
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
+        binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor))
+        binding.expandedViewColumnLabel.setBackgroundResource(R.drawable.rounded_top_corners)
+        val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
+        binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor2))
+        binding.expandedFilterLayout.visibility = View.GONE
+    }
+    private fun showExpandedFilterArea() {
+        binding.expandedFilterLayout.visibility = View.VISIBLE
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
+        binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor))
+        binding.expandedFilterLabel.setBackgroundResource(R.drawable.rounded_top_corners)
+        val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
+        binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor2))
+        binding.expandedViewColumnLayout.visibility = View.GONE
+    }
     private fun adjustColumnHeadings(iSortOrderDirection: SortOrderDirection) {
         when (iSortOrderDirection) {
             SortOrderDirection.ASCENDING -> {
@@ -709,9 +749,6 @@ class TransactionViewAllFragment : Fragment() {
             }
             SortOrderDirection.DESCENDING -> {
                 binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null)
-            }
-            else -> {
-                binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
             }
         }
         binding.dateHeading.text = getString(R.string.date)

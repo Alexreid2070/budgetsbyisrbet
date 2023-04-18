@@ -1,10 +1,9 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
-import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
@@ -44,7 +43,7 @@ enum class RetirementDetailsViews(val code: Int) {
             5 -> iAssetType == AssetType.TFSA
             6 -> iAssetType == AssetType.SAVINGS
             7 -> iAssetType == AssetType.PROPERTY
-            9 -> iAssetType == AssetType.LIRA_LIF || iAssetType == AssetType.LIRA_Annuity
+            9 -> iAssetType == AssetType.LIRA_LIF || iAssetType == AssetType.LIRA_ANNUITY
             else -> false
         }
     }
@@ -93,7 +92,7 @@ class RetirementDetailsFragment : Fragment() {
         else
             binding.showTfsaDetailsButton.visibility = View.GONE
         if (RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_LIF) +
-            RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_Annuity)> 0)
+            RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_ANNUITY)> 0)
             binding.showLiraDetailsButton.visibility = View.VISIBLE
         else
             binding.showLiraDetailsButton.visibility = View.GONE
@@ -108,11 +107,12 @@ class RetirementDetailsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.expandView.setOnClickListener {
-            onViewClicked(false)
+        binding.buttonSettings.setOnClickListener {
+            onViewClicked()
         }
         binding.viewRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.viewRadioGroup.checkedRadioButtonId
@@ -134,7 +134,6 @@ class RetirementDetailsFragment : Fragment() {
                 DefaultsViewModel.updateDefaultInt(cDEFAULT_VIEW_IN_RETIREMENT_DETAILS, whichView.ordinal)
             createTableHeader(whichView)
             createTableRows(whichView)
-            onViewClicked(true)
         }
         when (DefaultsViewModel.getDefaultViewInRetirementDetails()) {
             RetirementDetailsViews.SUMMARY -> binding.showSummaryColumnsButton.isChecked = true
@@ -148,11 +147,12 @@ class RetirementDetailsFragment : Fragment() {
             RetirementDetailsViews.PROPERTY -> binding.showPropertyDetailsButton.isChecked = true
             else -> binding.showAllColumnsButton.isChecked = true
         }
-        binding.expansionLayout.setOnTouchListener(object :
+        binding.viewRadioGroup.setOnTouchListener(object :
             OnSwipeTouchListener(requireContext()) {
             override fun onSwipeBottom() {
                 super.onSwipeBottom()
                 binding.viewRadioGroup.visibility = View.GONE
+                binding.settingsButtonLinearLayout.visibility = View.VISIBLE
             }
         })
     }
@@ -174,17 +174,13 @@ class RetirementDetailsFragment : Fragment() {
         iTableRow.addView(tv0)
     }
 
-    private fun onViewClicked(iAlwaysClose: Boolean) {
-        if (binding.viewRadioGroup.visibility == View.GONE && !iAlwaysClose) { // ie expand the section
+    private fun onViewClicked() {
+        if (binding.viewRadioGroup.visibility == View.GONE) { // ie expand the section
             binding.viewRadioGroup.visibility = View.VISIBLE
-            binding.expandView.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null, null, null)
-            binding.expandView.textSize = 16F
-            binding.expandView.setBackgroundResource(R.drawable.rounded_top_corners)
+            binding.settingsButtonLinearLayout.visibility = View.GONE
         } else { // ie retract the section
             binding.viewRadioGroup.visibility = View.GONE
-            binding.expandView.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null, null, null)
-            binding.expandView.setBackgroundResource(android.R.color.transparent)
-            binding.expandView.textSize = 14F
+            binding.settingsButtonLinearLayout.visibility = View.VISIBLE
         }
     }
 
@@ -227,7 +223,7 @@ class RetirementDetailsFragment : Fragment() {
         if (iWhichView == RetirementDetailsViews.ALL ||
             iWhichView == RetirementDetailsViews.INCOME ||
             iWhichView == RetirementDetailsViews.TAX) {
-            addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_pension),
+            addHeaderCell(tr, String.format(getString(R.string.s_pension),
                 getString(R.string.cpp)), true)
         }
         var minAlreadyShown = false
@@ -236,7 +232,7 @@ class RetirementDetailsFragment : Fragment() {
                 iWhichView == RetirementDetailsViews.INCOME ||
                 iWhichView == RetirementDetailsViews.PENSION ||
                 iWhichView == RetirementDetailsViews.TAX)
-                addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_pension),
+                addHeaderCell(tr, String.format(getString(R.string.s_pension),
                     it.name), true)
         }
         if (iWhichView == RetirementDetailsViews.ALL ||
@@ -259,88 +255,88 @@ class RetirementDetailsFragment : Fragment() {
                         iWhichView == RetirementDetailsViews.INCOME ||
                         iWhichView == RetirementDetailsViews.RRSP ||
                         iWhichView == RetirementDetailsViews.TAX) {
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
+                        addHeaderCell(tr, String.format(getString(R.string.s_withdrawal),
                             getString(R.string.rrsp) + ": " + it.name), true)
                     }
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.RRSP)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                        addHeaderCell(tr, String.format(getString(R.string.s_growth),
                             it.getGrowthPct(),
                             getString(R.string.rrsp) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
                         iWhichView == RetirementDetailsViews.RRSP)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
+                        addHeaderCell(tr, String.format(getString(R.string.s_balance),
                             getString(R.string.rrsp) + ": " + it.name), true)
                 }
-                AssetType.LIRA_LIF, AssetType.LIRA_Annuity -> {
+                AssetType.LIRA_LIF, AssetType.LIRA_ANNUITY -> {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.INCOME ||
                         iWhichView == RetirementDetailsViews.LIRA)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
+                        addHeaderCell(tr, String.format(getString(R.string.s_withdrawal),
                             getString(R.string.lira) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.LIRA)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                        addHeaderCell(tr, String.format(getString(R.string.s_growth),
                             it.getGrowthPct(),
                             getString(R.string.lira) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
                         iWhichView == RetirementDetailsViews.LIRA)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
+                        addHeaderCell(tr, String.format(getString(R.string.s_balance),
                             getString(R.string.lira) + ": " + it.name), true)
                 }
                 AssetType.TFSA -> {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.INCOME ||
                         iWhichView == RetirementDetailsViews.TFSA)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
+                        addHeaderCell(tr, String.format(getString(R.string.s_withdrawal),
                             getString(R.string.tfsa) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.TFSA)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                        addHeaderCell(tr, String.format(getString(R.string.s_growth),
                             it.getGrowthPct(),
                             getString(R.string.tfsa) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
                         iWhichView == RetirementDetailsViews.TFSA)
-                    addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
+                    addHeaderCell(tr, String.format(getString(R.string.s_balance),
                         getString(R.string.tfsa) + ": " + it.name), true)
                 }
                 AssetType.SAVINGS -> {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.INCOME ||
                         iWhichView == RetirementDetailsViews.SAVINGS)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
+                        addHeaderCell(tr, String.format(getString(R.string.s_withdrawal),
                             getString(R.string.savings) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SAVINGS ||
                         (iWhichView == RetirementDetailsViews.TAX &&
                                 it.growthIsTaxable()))
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                        addHeaderCell(tr, String.format(getString(R.string.s_growth),
                             it.getGrowthPct(),
                             getString(R.string.savings) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
                         iWhichView == RetirementDetailsViews.SAVINGS)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
+                        addHeaderCell(tr, String.format(getString(R.string.s_balance),
                             getString(R.string.savings) + ": " + it.name), true)
                 }
                 AssetType.PROPERTY -> {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.INCOME ||
                         iWhichView == RetirementDetailsViews.PROPERTY)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_withdrawal),
+                        addHeaderCell(tr, String.format(getString(R.string.s_withdrawal),
                             getString(R.string.property) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.PROPERTY)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_growth),
+                        addHeaderCell(tr, String.format(getString(R.string.s_growth),
                             it.getGrowthPct(),
                             getString(R.string.property) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
                         iWhichView == RetirementDetailsViews.PROPERTY)
-                        addHeaderCell(tr, String.format(MyApplication.getString(R.string.s_balance),
+                        addHeaderCell(tr, String.format(getString(R.string.s_balance),
                             getString(R.string.property) + ": " + it.name), true)
                 }
                 else -> {} // do nothing
@@ -474,7 +470,7 @@ class RetirementDetailsFragment : Fragment() {
             "Sheet1",
             gRetirementDetailsList)
         GlobalScope.launch {
-            val disposable = service.spreadsheets().create(spreadsheet).execute()
+            service.spreadsheets().create(spreadsheet).execute()
         }
         MyApplication.displayToast(getString(R.string.creating_file))
     }
@@ -486,13 +482,13 @@ class RetirementDetailsFragment : Fragment() {
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         // GoogleNetHttpTransport.newTrustedTransport()
-        val httpTransport =  AndroidHttp.newCompatibleTransport()
+        val httpTransport =  NetHttpTransport()
         val service = Sheets.Builder(httpTransport, jsonFactory, credential)
             .setApplicationName(getString(R.string.app_name))
             .build()
         createSpreadsheet(service, iFileName)
     }
-    private fun saveFile(uri: Uri) {
+/*    private fun saveFile(uri: Uri) {
             requireContext().contentResolver.openOutputStream(uri)?.writer()?.run {
                 write("\"${getString(R.string.year)}\"")
                 write(",\"${getString(R.string.target_income)}\"")
@@ -502,9 +498,9 @@ class RetirementDetailsFragment : Fragment() {
                 write(",\"${getString(R.string.gross_income)}\"")
                 write(",\"${getString(R.string.tax)}\"")
                 write(",\"${getString(R.string.salary)}\"")
-                write(",\"${String.format(MyApplication.getString(R.string.s_pension), getString(R.string.cpp))}\"")
+                write(",\"${String.format(getString(R.string.s_pension), getString(R.string.cpp))}\"")
                 gRetirementDetailsList[1].pensionIncomes.forEach {
-                    write(",\"${String.format(MyApplication.getString(R.string.s_pension), it.name)}\"")
+                    write(",\"${String.format(getString(R.string.s_pension), it.name)}\"")
                 }
                 write(",\"${getString(R.string.oas)}\"")
                 var minAlreadyShown = false
@@ -515,33 +511,33 @@ class RetirementDetailsFragment : Fragment() {
                                 write(",\"${getString(R.string.minimum_rrif_withdrawal)}\"")
                                 minAlreadyShown = true
                             }
-                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.rrsp) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.rrsp) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.rrsp) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_withdrawal), getString(R.string.rrsp) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.rrsp) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_balance), getString(R.string.rrsp) + ": " + it.name)}\"")
                         }
-                        AssetType.LIRA_LIF, AssetType.LIRA_Annuity -> {
-                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.lira) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.lira) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.lira) + ": " + it.name)}\"")
+                        AssetType.LIRA_LIF, AssetType.LIRA_ANNUITY -> {
+                            write(",\"${String.format(getString(R.string.s_withdrawal), getString(R.string.lira) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.lira) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_balance), getString(R.string.lira) + ": " + it.name)}\"")
                         }
                         AssetType.TFSA -> {
-                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.tfsa) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.tfsa) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.tfsa) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_withdrawal), getString(R.string.tfsa) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_growth), it.getGrowthPct(), getString(R.string.tfsa) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_balance), getString(R.string.tfsa) + ": " + it.name)}\"")
                         }
                         AssetType.SAVINGS -> {
-                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.savings) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_growth),
+                            write(",\"${String.format(getString(R.string.s_withdrawal), getString(R.string.savings) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_growth),
                                 it.getGrowthPct(),
                                 getString(R.string.savings) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.savings) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_balance), getString(R.string.savings) + ": " + it.name)}\"")
                         }
                         AssetType.PROPERTY -> {
-                            write(",\"${String.format(MyApplication.getString(R.string.s_withdrawal), getString(R.string.property) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_growth),
+                            write(",\"${String.format(getString(R.string.s_withdrawal), getString(R.string.property) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_growth),
                                 it.getGrowthPct(),
                                 getString(R.string.property) + ": " + it.name)}\"")
-                            write(",\"${String.format(MyApplication.getString(R.string.s_balance), getString(R.string.property) + ": " + it.name)}\"")
+                            write(",\"${String.format(getString(R.string.s_balance), getString(R.string.property) + ": " + it.name)}\"")
                         }
                         else -> {} // do nothing
                     }
@@ -582,5 +578,5 @@ class RetirementDetailsFragment : Fragment() {
                 flush()
                 close()
             }
-        }
+        } */
 }

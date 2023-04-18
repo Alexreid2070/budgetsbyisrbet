@@ -6,7 +6,6 @@ import android.widget.AdapterView
 import android.widget.ListView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentScheduledPaymentBinding
 
 class ScheduledPaymentFragment : Fragment() {
@@ -28,17 +27,16 @@ class ScheduledPaymentFragment : Fragment() {
         val rows = ScheduledPaymentViewModel.getCopyOfScheduledPayments()
         val adapter = ScheduledPaymentAdapter(requireContext(), rows)
 
-        val listView: ListView = requireActivity().findViewById(R.id.scheduled_payment_list_view)
-        listView.adapter = adapter
+        binding.scheduledPaymentListView.adapter = adapter
 
-        listView.onItemClickListener =
+        binding.scheduledPaymentListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val itemValue = listView.getItemAtPosition(position) as ScheduledPayment
+                val itemValue = binding.scheduledPaymentListView.getItemAtPosition(position) as ScheduledPayment
                 val rtdf = ScheduledPaymentEditDialogFragment.newInstance(itemValue.name)
                 rtdf.setDialogFragmentListener(object: ScheduledPaymentEditDialogFragment.ScheduledPaymentEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = ScheduledPaymentAdapter(requireContext(), ScheduledPaymentViewModel.getCopyOfScheduledPayments())
-                        listView.adapter = myAdapter
+                        binding.scheduledPaymentListView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
                 })
@@ -49,15 +47,6 @@ class ScheduledPaymentFragment : Fragment() {
             binding.noInformationText.text = getString(R.string.you_have_not_yet_entered_any_scheduled_payments)
         } else {
             binding.noInformationText.visibility = View.GONE
-        }
-        binding.expandSettings.setOnClickListener {
-            findNavController().navigate(R.id.SettingsFragment)
-        }
-        binding.expandCategories.setOnClickListener {
-            findNavController().navigate(R.id.CategoryFragment)
-        }
-        binding.expandBudgets.setOnClickListener {
-            findNavController().navigate(R.id.BudgetViewAllFragment)
         }
         binding.addFab.setOnClickListener {
             addScheduledPayment()

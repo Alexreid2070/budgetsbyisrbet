@@ -135,6 +135,7 @@
                     android:text="@string/view"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnMenuColor"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"/>
 
@@ -198,7 +199,8 @@
                     android:layout_gravity="center"
                     android:text="@string/filter_by_type"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnMenuColor"/>
                 <HorizontalScrollView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -243,7 +245,8 @@
                     android:layout_gravity="center"
                     android:text="@string/filter_by_who"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnMenuColor" />
                 <HorizontalScrollView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -290,7 +293,8 @@
                     android:layout_gravity="center"
                     android:text="@string/show_delta_as"
                     android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnMenuColor" />
                 <HorizontalScrollView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -317,30 +321,20 @@
                     </RadioGroup>
                 </HorizontalScrollView>
             </LinearLayout>
-            <LinearLayout
-                android:id="@+id/show_rounded_to_nearest_dollar_layout"
-                android:layout_width="match_parent"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_round_to_nearest_dollar"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
                 android:paddingStart="5dp"
-                android:paddingEnd="5dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/round_to_nearest_dollar"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_round_to_nearest_dollar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textOn="@string/on"
-                    android:textOff="@string/off"
-                    android:checked="false"/>
-            </LinearLayout>
+                android:paddingEnd="5dp"
+                android:text="@string/round_to_nearest_dollar"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnMenuColor"
+                android:textOn="@string/on"
+                android:textOff="@string/off"
+                android:checked="false"/>
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

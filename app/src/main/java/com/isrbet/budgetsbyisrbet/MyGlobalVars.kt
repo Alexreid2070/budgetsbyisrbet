@@ -9,9 +9,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
 import android.icu.text.NumberFormat
-import android.icu.util.Calendar
 import android.media.MediaPlayer
-import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
 import android.text.SpannableString
@@ -21,7 +19,6 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.UnderlineSpan
 import android.util.ArrayMap
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -29,9 +26,6 @@ import android.view.View.OnTouchListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
@@ -48,7 +42,6 @@ import java.text.DecimalFormatSymbols
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
 import kotlin.collections.HashMap
@@ -79,14 +72,18 @@ const val cPeriodAllTime = "All-Time"
 const val gMaxNumbersBeforeDecimalPlace = 5
 const val gMaxNumbersAfterDecimalPlace = 2
 
-fun getTranslationForPeriod(iPeriod: String) : String {
+fun getTranslationForPeriod(iRegularity: Int, iPeriod: String) : String {
+    val suffix = if (iRegularity == 1)
+        ""
+    else
+        "s"
     return when (iPeriod) {
-        cPeriodWeek -> MyApplication.getString(R.string.week)
-        cPeriodMonth -> MyApplication.getString(R.string.month)
-        cPeriodQuarter -> MyApplication.getString(R.string.quarter)
-        cPeriodYear -> MyApplication.getString(R.string.year)
-        cPeriodYTD -> MyApplication.getString(R.string.ytd)
-        cPeriodAllTime -> MyApplication.getString(R.string.all_time)
+        cPeriodWeek -> MyApplication.getString(R.string.week) + suffix
+        cPeriodMonth -> MyApplication.getString(R.string.month) + suffix
+        cPeriodQuarter -> MyApplication.getString(R.string.quarter) + suffix
+        cPeriodYear -> MyApplication.getString(R.string.year) + suffix
+        cPeriodYTD -> MyApplication.getString(R.string.ytd) + suffix
+        cPeriodAllTime -> MyApplication.getString(R.string.all_time) + suffix
         else -> ""
     }
 }
@@ -121,7 +118,6 @@ const val cNEXT_YEAR = 0
 const val cPREV_YEAR = 1
 const val cNEXT_MONTH = 2
 const val cPREV_MONTH = 3
-const val cTODAY = 4
 
 val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
 var goToPie = false
@@ -193,9 +189,8 @@ enum class DateRangeEnum(val code: Int) {
 }
 
 fun underlined(iString: String) : SpannableString {
-    val text = iString
-    val content = SpannableString(text)
-    content.setSpan(UnderlineSpan(), 0, text.length, 0)
+    val content = SpannableString(iString)
+    content.setSpan(UnderlineSpan(), 0, iString.length, 0)
     return content
 }
 
@@ -377,9 +372,6 @@ data class MyDate(var representsYear: Boolean = false) {
             else -> theDate
         }
         return  this
-    }
-    fun get2DigitMonth(): String {
-        return "%02d".format(theDate.monthValue)
     }
 }
 
@@ -583,7 +575,7 @@ fun getLocalCurrencySymbol(iAlways: Boolean = false) : String {
 }
 
 fun getNextBusinessDate(iDate: MyDate) : MyDate {
-    var tDate = MyDate(iDate)
+    val tDate = MyDate(iDate)
     if(iDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
         tDate.increment(cPeriodDay, 2)
     } else if(iDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -667,12 +659,6 @@ fun switchTo(iUID: String) {
     ScheduledPaymentViewModel.refresh()
 }
 
-fun daysDiff(iStartDate: String, iEndDate: String) : Int {
-    val startDate = LocalDate.parse(iStartDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-    val endDate = LocalDate.parse(iEndDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-
-    return endDate.dayOfYear - startDate.dayOfYear
-}
 /*
 fun getDoubleValue(iNumberToParse: String): Double {
     var numberToParse = iNumberToParse
@@ -777,11 +763,13 @@ class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
 fun getSplitText (iSplit1: Int, iAmount: String): String {
     val split2 = 100 - iSplit1
 
-    val amount = if (iAmount == "") 0.0
-    else if (iAmount == "-") 0.0
-    else  {
-        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
-        lNumberFormat.parse(iAmount).toDouble()
+    val amount = when (iAmount) {
+        "" -> 0.0
+        "-" -> 0.0
+        else -> {
+            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+            lNumberFormat.parse(iAmount).toDouble()
+        }
     }
     val amount1 = round(amount * iSplit1) / 100.0
     val amount2 = round(amount * split2) / 100.0
@@ -824,41 +812,41 @@ fun getSplitText (iSplit1: Int, iAmount: String): String {
 }
 
 object LangUtils {
-    const val LANG_AUTO = "auto"
-    const val LANG_DEFAULT = "en-US"
+    private const val LANG_AUTO = "auto"
+    private const val LANG_DEFAULT = "en-US"
     private var sLocaleMap: ArrayMap<String, Locale>? = null
-    fun init(@NonNull application: Application) {
+    fun init(application: Application) {
         application.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             private val mLastLocales: HashMap<ComponentName, Locale> = HashMap()
             override fun onActivityCreated(
-                @NonNull activity: Activity,
-                @Nullable savedInstanceState: Bundle?
+                activity: Activity,
+                savedInstanceState: Bundle?
             ) {
                 mLastLocales[activity.componentName] = applyLocaleToActivity(activity)
             }
 
-            override fun onActivityStarted(@NonNull activity: Activity) {
+            override fun onActivityStarted(activity: Activity) {
                 if (mLastLocales[activity.componentName] != getFromPreference(activity)) {
-                    Timber.tag("Alex").d("Locale changed in activity " + activity.componentName)
+                    Timber.tag("Alex").d("Locale changed in activity %s", activity.componentName)
                     ActivityCompat.recreate(activity)
                 }
             }
 
-            override fun onActivityResumed(@NonNull activity: Activity) {}
-            override fun onActivityPaused(@NonNull activity: Activity) {}
-            override fun onActivityStopped(@NonNull activity: Activity) {}
+            override fun onActivityResumed(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {}
             override fun onActivitySaveInstanceState(
-                @NonNull activity: Activity,
-                @NonNull outState: Bundle
+                activity: Activity,
+                outState: Bundle
             ) {
             }
 
-            override fun onActivityDestroyed(@NonNull activity: Activity) {
+            override fun onActivityDestroyed(activity: Activity) {
                 mLastLocales.remove(activity.componentName)
             }
         })
         application.registerComponentCallbacks(object : ComponentCallbacks {
-            override fun onConfigurationChanged(@NonNull newConfig: Configuration) {
+            override fun onConfigurationChanged(newConfig: Configuration) {
                 applyLocale(application)
             }
 
@@ -867,32 +855,32 @@ object LangUtils {
         applyLocale(application)
     }
 
-    fun setAppLanguages(@NonNull context: Context) {
+    private fun setAppLanguages(context: Context) {
         if (sLocaleMap == null) sLocaleMap = ArrayMap()
         val res = context.resources
         val conf = res.configuration
         // Assume that there is an array called language_key which contains all the supported language tags
         val locales = context.resources.getStringArray(R.array.languages_key)
-        var langTag = MyApplication.prefs.getString("lang", null)
+        val langTag = MyApplication.prefs.getString("lang", null)
         for (locale in locales) {
             if (LANG_AUTO == locale) {
-                sLocaleMap!!.put(LANG_AUTO, null)
+                sLocaleMap!![LANG_AUTO] = null
             } else if (LANG_DEFAULT == langTag) {
-                sLocaleMap!!.put(LANG_DEFAULT, Locale.forLanguageTag(LANG_DEFAULT))
+                sLocaleMap!![LANG_DEFAULT] = Locale.forLanguageTag(LANG_DEFAULT)
             } else {
                 conf.setLocale(Locale.forLanguageTag(locale))
-                val ctx = context.createConfigurationContext(conf)
-                sLocaleMap!!.put(locale, ConfigurationCompat.getLocales(conf)[0])
+//                val ctx = context.createConfigurationContext(conf)
+                sLocaleMap!![locale] = ConfigurationCompat.getLocales(conf)[0]
             }
         }
     }
 
-    private fun getAppLanguages(@NonNull context: Context): ArrayMap<String, Locale>? {
+    private fun getAppLanguages(context: Context): ArrayMap<String, Locale>? {
         if (sLocaleMap == null) setAppLanguages(context)
         return sLocaleMap
     }
 
-    fun getFromPreference(@NonNull context: Context): Locale {
+    fun getFromPreference(context: Context): Locale {
         getAppLanguages(context)
         val language: String? = MyApplication.prefs.getString("lang", null)
         val locale: Locale? = sLocaleMap?.get(language)
@@ -901,7 +889,7 @@ object LangUtils {
         }
         // Load from system configuration
         val conf = Resources.getSystem().configuration
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) conf.locales[0] else conf.locale
+        return conf.locales[0]
     }
 
     fun applyLocaleToActivity(activity: Activity): Locale {
@@ -924,7 +912,7 @@ object LangUtils {
         return applyLocale(context, getFromPreference(context))
     }
 
-    private fun applyLocale(@NonNull context: Context, @NonNull locale: Locale): Locale {
+    private fun applyLocale(context: Context, locale: Locale): Locale {
         updateResources(context, locale)
         val appContext = context.applicationContext
         if (appContext !== context) {
@@ -933,26 +921,21 @@ object LangUtils {
         return locale
     }
 
-    private fun updateResources(@NonNull context: Context, @NonNull locale: Locale) {
+    private fun updateResources(context: Context, locale: Locale) {
         Locale.setDefault(locale)
         val res = context.resources
         var conf = res.configuration
         val current =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) conf.locales[0] else conf.locale
+            conf.locales[0]
         if (current === locale) {
             return
         }
         conf = Configuration(conf)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            setLocaleApi24(conf, locale)
-        } else {
-            conf.setLocale(locale)
-        }
+        setLocaleApi24(conf, locale)
         res.updateConfiguration(conf, res.displayMetrics)
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun setLocaleApi24(@NonNull config: Configuration, @NonNull locale: Locale) {
+    private fun setLocaleApi24(config: Configuration, locale: Locale) {
         val defaultLocales = LocaleList.getDefault()
         val locales: LinkedHashSet<Locale?> = LinkedHashSet(defaultLocales.size() + 1)
         // Bring the target locale to the front of the list

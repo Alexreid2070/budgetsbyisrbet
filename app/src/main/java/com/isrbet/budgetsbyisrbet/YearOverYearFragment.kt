@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
@@ -103,6 +104,7 @@ class YearOverYearFragment : Fragment() {
         return currentlyExcluded.contains(iCategoryID)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
 
@@ -288,11 +290,10 @@ class YearOverYearFragment : Fragment() {
                 grandTotals.add(0.0)
             }
 
-            // -1 means heading row
-            var i = -1
             // do header row
-            createViewRow(cHEADER, i++, viewRows, YoyView.ALL, 0, "", "", null)
+            createViewRow(cHEADER, -1, viewRows, YoyView.ALL, 0, "", "", null)
 
+            var i = 0
             for (row in myRows) {
                 if (lastCategory != "" && row.category != lastCategory) {
                     // sub-total row
@@ -352,8 +353,9 @@ class YearOverYearFragment : Fragment() {
                     grandTotals
                 )
             // add spacer row.  For some reason the bottom row rightmost cell doesn't display without this
+            val tempTableHeaderRow = binding.tableHeader.getChildAt(0) as TableRow
             val tr = YOYTableRow(requireContext())
-            for (i in 0 until 8)
+            for (c in 0 until tempTableHeaderRow.childCount)
                 tr.addView(TextView(requireContext()))
             binding.tableRows.addView(tr)
 
@@ -625,9 +627,10 @@ class YearOverYearFragment : Fragment() {
                     BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
             }
             if (inDarkMode(requireContext())) {
-                tv2.setTextColor(R.color.black)
+                val hexColor = MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK)
+                tv2.setTextColor(hexColor)
                 for (i in 0 until tvAmounts.size)
-                    tvAmounts[i].setTextColor(R.color.black)
+                    tvAmounts[i].setTextColor(hexColor)
             }
         }
         else if (iRowType == cGRANDTOTAL) {
@@ -642,15 +645,9 @@ class YearOverYearFragment : Fragment() {
                 R.attr.colorOnBackground,
                 Color.BLACK
             )
-//            if (Build.VERSION.SDK_INT >= 29) {
-                tr.setBackgroundResource(R.drawable.row_frame)
-                tr.background.colorFilter =
-                    BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
-/*            } else {
-                tr.setBackgroundColor(hexColor)
-                tr.background.alpha = 44
-            } */
-
+            tr.setBackgroundResource(R.drawable.row_frame)
+            tr.background.colorFilter =
+                BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
         }
 
         if (isCollapsed(iCategory)) {
@@ -754,25 +751,18 @@ class YearOverYearFragment : Fragment() {
         val categ = CategoryViewModel.getCategory(iCategoryID) ?: return
         if (isExcluded(iCategoryID)) {
             iRow.isIncludedInTotals = false
-//            tv3.tag = cEXCLUDE
             val tv2 = iRow.getChildAt(1) as TextView
-            tv2.text = "   X ${tv2.text}"
+            tv2.text = String.format(getString(R.string.exclude_row), tv2.text)
             val hexColor = MaterialColors.getColor(
                 requireContext(),
                 R.attr.background,
                 Color.BLACK
             )
-//            if (Build.VERSION.SDK_INT >= 29) {
-                iRow.setBackgroundResource(R.drawable.row_left_and_right_border)
-                iRow.background.colorFilter =
-                    BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)/*
-            } else {R.color.medium_gray
-                iRow.setBackgroundColor(hexColor)
-                iRow.background.alpha = 44
-            } */
+            iRow.setBackgroundResource(R.drawable.row_left_and_right_border)
+            iRow.background.colorFilter =
+                BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
         } else {
             iRow.isIncludedInTotals = true
-//            tv3.tag = cINCLUDE
             val cat = DefaultsViewModel.getCategoryDetail(categ.categoryName)
             val hexColor = if (cat.color == 0)
                 MaterialColors.getColor(
@@ -782,7 +772,6 @@ class YearOverYearFragment : Fragment() {
                 )
             else
                 cat.color
-//            if (Build.VERSION.SDK_INT >= 29) {
                 if (cat.color == 0) {
                     iRow.setBackgroundResource(R.drawable.row_left_border_no_fill)
                 } else {
@@ -793,11 +782,6 @@ class YearOverYearFragment : Fragment() {
                 }
             iRow.background.colorFilter =
                 BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
-/*            } else {
-                if (cat.color != 0)
-                    iRow.setBackgroundColor(cat.color)
-                iRow.background.alpha = 44
-            } */
         }
     }
 
@@ -813,20 +797,17 @@ class YearOverYearFragment : Fragment() {
             val catID = catIDTV.text.toString().toInt()
             val cat = CategoryViewModel.getCategory(catID)?.categoryName
         } while (tableRow != null && !(tableRow.rowType == cSUBTOTAL && cat == iCategory))
-//      } while (tableRow != null && !(tableRow.tag == cSUBTOTAL && cat == iCategory))
         if (tableRow == null) // no detail rows found
             return
         // found sub-total row, now work backwards
         lastDetailLine -= 1
         tableRow = mTableLayout!!.getChildAt(lastDetailLine) as YOYTableRow
-//        if (tableRow.tag != cDETAIL)  // ie no details for this category
         if (tableRow.rowType != cDETAIL)  // ie no details for this category
             return
         firstDetailLine = lastDetailLine
         do {
             firstDetailLine -= 1
             tableRow = mTableLayout!!.getChildAt(firstDetailLine) as YOYTableRow
-//        } while (tableRow != null && tableRow.tag == cDETAIL)
         } while (tableRow != null && tableRow.rowType == cDETAIL)
         firstDetailLine += 1
         // now check if section should be expanded or collapsed
@@ -835,9 +816,9 @@ class YearOverYearFragment : Fragment() {
             tableRow = mTableLayout!!.getChildAt(i) as YOYTableRow
             if (iVisibility == View.VISIBLE) {
                 if (defView == YoyView.ALL) {
-                    tableRow.visibility = iVisibility
+                    tableRow.visibility = View.VISIBLE
                 } else if (tableRow.yoyView == defView){
-                    tableRow.visibility = iVisibility
+                    tableRow.visibility = View.VISIBLE
                 }
             } else
                 tableRow.visibility = iVisibility
@@ -1016,12 +997,11 @@ class YearOverYearRows {
                     var tempTotal = 0.0
                     var tempNumOfMonths = 0.0
                     for (c in 0 until dataRow.amounts.size-1) {
-                        if (c == 0)
-                            tempNumOfMonths += ((12 - firstMonth + 1)/12.0)
-                        else if (c == dataRow.amounts.size - 2)
-                            tempNumOfMonths += (lastMonth/12.0)
-                        else
-                            tempNumOfMonths += 12/12.0
+                        tempNumOfMonths += when (c) {
+                            0 -> ((12 - firstMonth + 1)/12.0)
+                            dataRow.amounts.size - 2 -> (lastMonth/12.0)
+                            else -> 12/12.0
+                        }
                         tempTotal += dataRow.amounts[c]
                     }
                     dataRow.amounts[dataRow.amounts.size-1] = tempTotal / tempNumOfMonths
@@ -1054,12 +1034,11 @@ class YearOverYearRows {
                         } else {
                             dataRow.amounts[year] = lastBudgets[year] - lastActuals[year]
                         }
-                        if (year == 0)
-                            tempNumOfMonths += ((12 - firstMonth + 1)/12.0)
-                        else if (year == dataRow.amounts.size - 2)
-                            tempNumOfMonths += (lastMonth/12.0)
-                        else
-                            tempNumOfMonths += 12/12.0
+                        tempNumOfMonths += when (year) {
+                            0 -> ((12 - firstMonth + 1)/12.0)
+                            dataRow.amounts.size - 2 -> (lastMonth/12.0)
+                            else -> 12/12.0
+                        }
                         tempTotal += dataRow.amounts[year]
                     }
                     dataRow.amounts[dataRow.amounts.size-1] = tempTotal / tempNumOfMonths

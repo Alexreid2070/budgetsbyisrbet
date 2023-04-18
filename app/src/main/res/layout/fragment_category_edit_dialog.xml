@@ -42,7 +42,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="@string/current_details"
-                        android:textColor="@color/black"
+                        android:textColor="?attr/textOnBackground"
                         android:textSize="24sp"
                         android:textStyle="bold"/>
                 </LinearLayout>
@@ -60,6 +60,7 @@
                         android:text="@string/category"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"
                         android:tooltipText="@string/toolTipCategory"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
@@ -96,6 +97,7 @@
                         android:text="@string/subcategory"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"
                         android:tooltipText="@string/toolTipSubCategory"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
@@ -122,6 +124,7 @@
                         android:text="@string/type"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"
                         android:tooltipText="@string/toolTipDisc"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
@@ -149,6 +152,7 @@
                         android:text="@string/private_question"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"
                         android:tooltipText="@string/toolTipPrivacy"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
@@ -176,6 +180,7 @@
                         android:text="@string/in_use"
                         android:textSize="16sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/textOnBackground"
                         android:tooltipText="@string/toolTipCatState"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
@@ -196,72 +201,56 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:text="@string/this_category_is_used_in"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/message_transaction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:drawablePadding="4dp"
+                    app:drawableEndCompat="@drawable/ic_baseline_link_24"
+                    app:drawableTint="@color/clickableBlue"/>
 
-                    <TextView
-                        android:id="@+id/message_transaction"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:drawablePadding="4dp"
-                        app:drawableEndCompat="@drawable/ic_baseline_link_24"
-                        app:drawableTint="@color/clickableBlue"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/message_budget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:drawablePadding="4dp"
+                    app:drawableEndCompat="@drawable/ic_baseline_link_24"
+                    app:drawableTint="@color/clickableBlue"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/message_budget_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/message_scheduled_payment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:drawablePadding="4dp"
+                    app:drawableEndCompat="@drawable/ic_baseline_link_24"
+                    app:drawableTint="@color/clickableBlue"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/message_budget"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:drawablePadding="4dp"
-                        app:drawableEndCompat="@drawable/ic_baseline_link_24"
-                        app:drawableTint="@color/clickableBlue"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/message_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/message_scheduled_payment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:drawablePadding="4dp"
-                        app:drawableEndCompat="@drawable/ic_baseline_link_24"
-                        app:drawableTint="@color/clickableBlue"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/message_default_category_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/this_category_is_the_default_for_new_transactions"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/message_default_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/this_category_is_the_default_for_new_transactions"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
             </LinearLayout>
 
             <LinearLayout
@@ -282,7 +271,8 @@
                     android:paddingTop="20dp"
                     android:text="@string/change_to"
                     android:textSize="24sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
             </LinearLayout>
 
             <LinearLayout
@@ -300,6 +290,7 @@
                     android:text="@string/category"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipCategory"/>
 
                 <RelativeLayout
@@ -382,6 +373,7 @@
                     android:text="@string/subcategory"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipSubCategory"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -417,6 +409,7 @@
                     android:text="@string/type"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipDisc"/>
 
                 <RelativeLayout
@@ -450,85 +443,55 @@
                 </RelativeLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/new_privacy_layout"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/privacy_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:textOff="@string/off"
+                android:textOn="@string/on"
+                android:text="@string/private_question"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
+                android:tooltipText="@string/toolTipPrivacy"
+                android:paddingBottom="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout5"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/state_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingBottom="10dp"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:textOff="@string/off"
+                android:textOn="@string/on"
+                android:text="@string/in_use"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
+                android:tooltipText="Marking a category as Not in Use will not change the visibility of any existing data in that category.  Rather, you will no longer have the option to add new transactions or budgets to this category."
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout5">
+                app:layout_constraintTop_toBottomOf="@+id/new_privacy_layout"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/private_question"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="@string/toolTipPrivacy"/>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/privacy_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:checked="false"
-                    android:textOff="@string/off"
-                    android:textOn="@string/on"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/category_dialog_linear_layout7"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_enter_budget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="true"
+                android:textOff="@string/off"
+                android:textOn="@string/on"
+                android:text="@string/enter_budget_for_this_new_category"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
+                android:tooltipText="On = go to Add New Budget page after hitting save.  Off = do not..."
                 android:paddingBottom="10dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/new_privacy_layout">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/in_use"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="Marking a category as Not in Use will not change the visibility of any existing data in that category.  Rather, you will no longer have the option to add new transactions or budgets to this category." />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/state_switch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:checked="false"
-                    android:textOff="@string/off"
-                    android:textOn="@string/on"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/category_dialog_linear_layout_budget"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout7">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/enter_budget_for_this_new_category"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="On = go to Add New Budget page after hitting save.  Off = do not..." />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_enter_budget"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:checked="true"
-                    android:textOff="@string/off"
-                    android:textOn="@string/on"/>
-            </LinearLayout>
+                app:layout_constraintTop_toBottomOf="@+id/category_dialog_linear_layout7"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

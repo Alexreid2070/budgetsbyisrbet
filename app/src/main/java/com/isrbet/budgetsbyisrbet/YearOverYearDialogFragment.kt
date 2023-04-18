@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.isrbet.budgetsbyisrbet.databinding.FragmentYearOverYearDialogBinding
 
@@ -53,7 +54,7 @@ class YearOverYearDialogFragment : DialogFragment() {
         if (cat != null) {
             binding.title.setBackgroundColor(DefaultsViewModel.getCategoryDetail(cat.categoryName).color)
             if (inDarkMode(requireContext()))
-                binding.title.setTextColor(R.color.black)
+                binding.title.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
         binding.cancelButton.setOnClickListener {
             dismiss()
@@ -68,34 +69,34 @@ class YearOverYearDialogFragment : DialogFragment() {
             TableRow.LayoutParams.WRAP_CONTENT
         )
 
-        val yearTV = TextView(requireContext())
+        var yearTV = TextView(requireContext())
         yearTV.gravity = Gravity.CENTER
         yearTV.layoutParams = tvParams
         val averageTV = TextView(requireContext())
-        averageTV.text = "Avg per Month"
+        averageTV.text = getString(R.string.avg_per_month)
         averageTV.setTypeface(null, Typeface.BOLD)
         averageTV.setPadding(15, 0, 15, 0)
         averageTV.gravity = Gravity.CENTER
         averageTV.layoutParams = tvParams
         val actualTV = TextView(requireContext())
-        actualTV.text = "Actuals"
+        actualTV.text = getString(R.string.actuals)
         actualTV.setTypeface(null, Typeface.BOLD)
         actualTV.setPadding(15, 0, 15, 0)
         actualTV.gravity = Gravity.CENTER
         actualTV.layoutParams = tvParams
         val budgetTV = TextView(requireContext())
-        budgetTV.text = "Budget"
+        budgetTV.text = getString(R.string.budget)
         budgetTV.setTypeface(null, Typeface.BOLD)
         budgetTV.setPadding(15, 0, 15, 0)
         budgetTV.gravity = Gravity.CENTER
         budgetTV.layoutParams = tvParams
         val deltaTV = TextView(requireContext())
-        deltaTV.text = "Delta"
+        deltaTV.text = getString(R.string.delta)
         deltaTV.setTypeface(null, Typeface.BOLD)
         deltaTV.setPadding(15, 0, 15, 0)
         deltaTV.gravity = Gravity.CENTER
         deltaTV.layoutParams = tvParams
-        val tr = TableRow(requireContext())
+        var tr = TableRow(requireContext())
         tr.addView(yearTV)
         tr.addView(averageTV)
         tr.addView(actualTV)
@@ -106,9 +107,10 @@ class YearOverYearDialogFragment : DialogFragment() {
         binding.tableRows.addView(tr)
 
         for (yr in 0 until (TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear() + 1)) {
-            val tr = TableRow(requireContext())
-            val yearTV = TextView(requireContext())
-            yearTV.text = (TransactionViewModel.getEarliestYear() + yr).toString()
+            tr = TableRow(requireContext())
+            yearTV = TextView(requireContext())
+            val yearToShow = TransactionViewModel.getEarliestYear() + yr
+            yearTV.text = yearToShow.toString()
             yearTV.setPadding(0, 0, 15, 0)
             yearTV.gravity = Gravity.START
             yearTV.layoutParams = tvParams
