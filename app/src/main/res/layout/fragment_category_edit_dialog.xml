@@ -201,6 +201,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:text="@string/this_category_is_used_in"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 

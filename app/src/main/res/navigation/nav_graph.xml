@@ -177,6 +177,10 @@
         <action
             android:id="@+id/action_TrackerFragment_to_BudgetViewAllFragment"
             app:destination="@id/BudgetViewAllFragment" />
+        <argument
+            android:name="type"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
     <fragment
         android:id="@+id/ViewTranslationsFragment"
@@ -235,4 +239,9 @@
         android:name="com.isrbet.budgetsbyisrbet.YearOverYearFragment"
         android:label="YearOverYearFragment"
         tools:layout="@layout/fragment_year_over_year" />
+    <fragment
+        android:id="@+id/TrackerTabsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.TrackerTabsFragment"
+        android:label="TrackerTabsFragment"
+        tools:layout="@layout/fragment_tracker_tabs" />
 </navigation>

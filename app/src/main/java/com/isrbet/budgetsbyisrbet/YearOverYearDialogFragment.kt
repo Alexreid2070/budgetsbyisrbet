@@ -106,15 +106,21 @@ class YearOverYearDialogFragment : DialogFragment() {
         tr.layoutParams = trParams
         binding.tableRows.addView(tr)
 
-        for (yr in 0 until (TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear() + 1)) {
+        for (yr in 0 until (TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear() + 2)) {
+            val avgRow = (yr == (TransactionViewModel.getLatestYear() - TransactionViewModel.getEarliestYear() + 1))
             tr = TableRow(requireContext())
             yearTV = TextView(requireContext())
             val yearToShow = TransactionViewModel.getEarliestYear() + yr
-            yearTV.text = yearToShow.toString()
+            if (avgRow)
+                yearTV.text = getString(R.string.average)
+            else
+                yearTV.text = yearToShow.toString()
             yearTV.setPadding(0, 0, 15, 0)
             yearTV.gravity = Gravity.START
             yearTV.layoutParams = tvParams
             tr.layoutParams = trParams
+            if (avgRow)
+                yearTV.setTypeface(null, Typeface.BOLD)
             tr.addView(yearTV)
 
             var ttv = gAverageRow?.getChildAt(2+yr) as TextView
@@ -123,6 +129,10 @@ class YearOverYearDialogFragment : DialogFragment() {
             tvToAdd.setPadding(15, 0, 15, 0)
             tvToAdd.gravity = Gravity.CENTER
             tvToAdd.layoutParams = tvParams
+            if (avgRow)
+                tvToAdd.setTypeface(null, Typeface.BOLD)
+            else
+                tvToAdd.setTypeface(null, Typeface.NORMAL)
             tr.addView(tvToAdd)
 
             ttv = gActualRow?.getChildAt(2+yr) as TextView
@@ -131,14 +141,21 @@ class YearOverYearDialogFragment : DialogFragment() {
             tvToAdd.setPadding(15, 0, 15, 0)
             tvToAdd.gravity = Gravity.CENTER
             tvToAdd.layoutParams = tvParams
+            if (avgRow)
+                tvToAdd.setTypeface(null, Typeface.BOLD)
+            else
+                tvToAdd.setTypeface(null, Typeface.NORMAL)
             tr.addView(tvToAdd)
 
             ttv = gBudgetRow?.getChildAt(2+yr) as TextView
             tvToAdd = TextView(requireContext())
             tvToAdd.text = ttv.text
-            tvToAdd.setPadding(15, 0, 15, 0)
             tvToAdd.gravity = Gravity.CENTER
             tvToAdd.layoutParams = tvParams
+            if (avgRow)
+                tvToAdd.setTypeface(null, Typeface.BOLD)
+            else
+                tvToAdd.setTypeface(null, Typeface.NORMAL)
             tr.addView(tvToAdd)
 
             ttv = gDeltaRow?.getChildAt(2+yr) as TextView
@@ -147,6 +164,10 @@ class YearOverYearDialogFragment : DialogFragment() {
             tvToAdd.setPadding(15, 0, 15, 0)
             tvToAdd.gravity = Gravity.CENTER
             tvToAdd.layoutParams = tvParams
+            if (avgRow)
+                tvToAdd.setTypeface(null, Typeface.BOLD)
+            else
+                tvToAdd.setTypeface(null, Typeface.NORMAL)
             tr.addView(tvToAdd)
             binding.tableRows.addView(tr)
         }

@@ -764,22 +764,23 @@ class YearOverYearFragment : Fragment() {
         } else {
             iRow.isIncludedInTotals = true
             val cat = DefaultsViewModel.getCategoryDetail(categ.categoryName)
-            val hexColor = if (cat.color == 0)
+            val hexColor = if (cat.color == 0) {
                 MaterialColors.getColor(
                     requireContext(),
                     R.attr.colorPrimary,
                     Color.BLACK
                 )
-            else
+            } else {
                 cat.color
-                if (cat.color == 0) {
+            }
+            if (cat.color == 0) {
                     iRow.setBackgroundResource(R.drawable.row_left_border_no_fill)
-                } else {
-                    if (inDarkMode(requireContext()))
-                        iRow.setBackgroundResource(R.drawable.row_left_border_no_fill)
-                    else
-                        iRow.setBackgroundResource(R.drawable.row_left_border)
-                }
+            } else {
+                if (inDarkMode(requireContext()))
+                    iRow.setBackgroundResource(R.drawable.row_left_border_no_fill)
+                else
+                    iRow.setBackgroundResource(R.drawable.row_left_border)
+            }
             iRow.background.colorFilter =
                 BlendModeColorFilter(hexColor, BlendMode.SRC_ATOP)
         }

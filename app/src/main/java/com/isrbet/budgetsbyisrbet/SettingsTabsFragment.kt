@@ -23,7 +23,7 @@ class SettingsTabsFragment : Fragment() {
     ): View {
         _binding = FragmentSettingsTabsBinding.inflate(inflater, container, false)
 
-        val adapter = DashboardTabsAdapter(activity)
+        val adapter = TabsAdapter(activity)
         adapter.addFragment(SettingsFragment(), "Settings")
         adapter.addFragment(CategoryFragment(), "Categories")
         val budFra = BudgetViewAllFragment().apply {

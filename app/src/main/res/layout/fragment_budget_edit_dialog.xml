@@ -41,7 +41,8 @@
             android:layout_gravity="center"
             android:text="@string/start_date"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="?attr/textOnBackground"/>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/dateLayout"
             android:layout_width="0dp"
@@ -79,6 +80,7 @@
             android:text="@string/regularity"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:textColor="?attr/textOnBackground"
             android:tooltipText="Indicates if payment is every period (1), every second period (2), etc." />
 
         <com.google.android.material.textfield.TextInputLayout

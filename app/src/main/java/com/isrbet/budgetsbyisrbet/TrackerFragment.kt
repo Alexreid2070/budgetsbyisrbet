@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -46,6 +47,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
     private var currentCategory = ""
     private var subcategoryColours: MutableList<SubCategoryColour> = ArrayList()
     private var job: Job = Job()
+    private val args: TrackerFragmentArgs by navArgs()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -124,17 +126,10 @@ class TrackerFragment : Fragment(), CoroutineScope {
                     loadBarChart()
                 }
             } */
-            binding.pageTitleLayout.visibility = View.GONE
             binding.buttonLayout.visibility = View.GONE
         } else { // ie on Tracker page
             binding.buttonLayout.visibility = View.VISIBLE
-            binding.chartButtonLayout.visibility = View.VISIBLE
             binding.buttonLayout.visibility = View.VISIBLE
-            binding.buttonBar.setOnClickListener {
-                goToPie = false
-                hidePieChart()
-                loadBarChart()
-            }
             binding.buttonSettings.setOnClickListener {
                 binding.optionsLinearLayout.visibility = View.VISIBLE
                 binding.navButtonLinearLayout.visibility = View.GONE
@@ -147,11 +142,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
                     binding.navButtonLinearLayout.visibility = View.VISIBLE
                 }
             })
-            binding.buttonPie.setOnClickListener {
-                goToPie = true
-                hideBarChart()
-                loadPieChart()
-            }
             binding.numericTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
                 val radioButton = requireActivity().findViewById(checkedId) as RadioButton
                 setPieGraphNumericStyle(binding.actualPieChart, radioButton.text.toString())
@@ -222,7 +212,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
             }
             HintViewModel.showHint(parentFragmentManager, cHINT_TRACKER)
             if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
-                if (goToPie) {
+                if (args.type == "Pie") {
                     hideBarChart()
                     loadPieChart(currentCategory)
                 } else {
@@ -230,7 +220,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
                     launch {
                         loadBarChart()
                     }
-                    goToPie = false
                 }
             }
         }
@@ -363,7 +352,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             override fun onValueSelected(e: Entry?, h: Highlight?) {
                 if (parentFragment is HomeFragment) {
-                    view?.findNavController()?.navigate(R.id.TrackerFragment)
+                    findNavController().popBackStack()
+                    view?.findNavController()?.navigate(R.id.TrackerTabsFragment)
                     return
                 }
                 when (e?.x) {
@@ -421,7 +411,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             override fun onChartSingleTapped(me: MotionEvent?) {
                 if (parentFragment is HomeFragment) {
-                    view?.findNavController()?.navigate(R.id.TrackerFragment)
+                    findNavController().popBackStack()
+                    view?.findNavController()?.navigate(R.id.TrackerTabsFragment)
                 }
             }
 

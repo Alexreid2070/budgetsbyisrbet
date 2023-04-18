@@ -120,7 +120,6 @@ const val cNEXT_MONTH = 2
 const val cPREV_MONTH = 3
 
 val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
-var goToPie = false
 var gHomePageExpansionAreaExpanded = false
 var gRetirementScenario:RetirementData? = null
 var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()

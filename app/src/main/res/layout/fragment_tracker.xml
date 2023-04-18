@@ -7,28 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".TrackerFragment">
 
-    <LinearLayout
-        android:id="@+id/page_title_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/pageHeadingBackgroundColor"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:padding="12dp"
-            android:text="@string/expense_tracker"
-            android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"
-            android:textStyle="bold" />
-    </LinearLayout>
-
     <TextView
         android:id="@+id/chartTitle"
         android:layout_width="match_parent"
@@ -37,7 +15,8 @@
         android:gravity="center"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/page_title_layout" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/chartSubTitle"
@@ -91,57 +70,8 @@
         android:paddingEnd="5dp"
         android:paddingBottom="5dp"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/chart_button_layout"
-        app:layout_constraintTop_toBottomOf="@id/actualPieChart" />
-
-    <LinearLayout
-        android:id="@+id/chart_button_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/button_layout"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/show"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fadeScrollbars="false"
-            android:scrollbarThumbHorizontal="?attr/colorSecondary">
-
-            <RadioGroup
-                android:id="@+id/chartRadioGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkedButton="@+id/button_bar"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/button_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/bar_chart" />
-
-                <RadioButton
-                    android:id="@+id/button_pie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pie_chart" />
-            </RadioGroup>
-        </HorizontalScrollView>
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@id/actualPieChart" />
 
     <LinearLayout
         android:id="@+id/button_layout"

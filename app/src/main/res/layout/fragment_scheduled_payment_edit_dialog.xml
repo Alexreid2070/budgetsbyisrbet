@@ -96,6 +96,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:textSize="14sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -247,6 +248,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_gravity="center"
                     android:textSize="14sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
