@@ -25,6 +25,7 @@ data class Transaction(
     var boughtfor: Int = -1,
     var type: String = cTRANSACTION_TYPE_EXPENSE,
     var bfname1split: Int = 0,
+    var rtkey: String = "",
     var mykey: String = ""
 ) {
     constructor(iTransactionOut: TransactionOut, iKey: String) : this(
@@ -37,6 +38,7 @@ data class Transaction(
         iTransactionOut.boughtfor,
         iTransactionOut.type,
         iTransactionOut.bfname1split,
+        iTransactionOut.rtkey,
         iKey
     )
 
@@ -50,6 +52,7 @@ data class Transaction(
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
             "bfname1split" -> bfname1split = value.toInt()
+            "rtkey" -> rtkey = value.trim()
             "note" -> note = value.trim()
             "note2" -> note2 = value.trim()
             "type" -> type = value.trim()
@@ -70,6 +73,7 @@ data class Transaction(
                 note2.lowercase().contains(lc) ||
                 date.toString().contains(lc) ||
                 type.lowercase().contains(lc) ||
+                rtkey.lowercase().contains(lc) ||
                 (MyApplication.adminMode && mykey.lowercase().contains(lc))
     }
     fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
@@ -100,7 +104,8 @@ data class TransactionOut(
     var date: String = "", var amount: Int = 0, var category: Int = 0,
     var note: String = "", var note2: String = "", var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var bfname1split: Int = 0, var type: String = cTRANSACTION_TYPE_EXPENSE
+    var bfname1split: Int = 0, var type: String = cTRANSACTION_TYPE_EXPENSE,
+    var rtkey: String = ""
 ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -119,7 +124,6 @@ data class TransactionOut(
         }
     } */
     fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
-        Timber.tag("Alex").d("getAmountByUser who $iWho rnd $iRound boughtfor$boughtfor amt $amount split $bfname1split")
         when (iWho) {
             0 -> {
                 when (boughtfor) {
@@ -191,7 +195,8 @@ class TransactionViewModel : ViewModel() {
                     it.paidby,
                     it.boughtfor,
                     it.bfname1split,
-                    it.type)
+                    it.type,
+                    it.rtkey)
                 val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
                     .push().key.toString()
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
@@ -199,8 +204,57 @@ class TransactionViewModel : ViewModel() {
                     .setValue(transactionOut)
             }
         }
+        fun doSomething2() {
+            var tList = singleInstance.transactions.filter { it.rtkey == "" && it.note == "Mom's Hyundai" && it.type == "Recurring"}
+            tList.forEach {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .child(it.mykey)
+                    .child("rtkey")
+                    .setValue("Mom's Hyundai")
+            }
+            tList = singleInstance.transactions.filter { it.rtkey == "" && it.note == "PC Mobile Alex" && it.type == "Recurring"}
+            tList.forEach {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .child(it.mykey)
+                    .child("rtkey")
+                    .setValue("PC Mobile Alex")
+            }
+            tList = singleInstance.transactions.filter { it.rtkey == "" && it.note == "PC Mobile Brent" && it.type == "Recurring"}
+            tList.forEach {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .child(it.mykey)
+                    .child("rtkey")
+                    .setValue("PC Mobile Brent")
+            }
+            tList = singleInstance.transactions.filter { it.rtkey == "" && it.category == 1003 && it.note == "Northbridge" && it.type == "Recurring"}
+            tList.forEach {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
+                    .child(it.mykey)
+                    .child("rtkey")
+                    .setValue("NorthbridgeCondo")
+            }
+            tList = singleInstance.transactions.filter { (it.rtkey == "") && it.type == "Recurring"}
+            var myData: MutableList<String> = arrayListOf()
+            tList.forEach{
+                if (!myData.contains(it.note))
+                    myData.add(it.note)
+            }
+            Timber.tag("Alex").d("Remaining to do: $myData")
+        }
+        fun doSomething3() {
+            val tList = singleInstance.transactions.filter { (it.rtkey == "") && it.type == "Recurring"}
+            var myData: MutableList<String> = arrayListOf()
+            tList.forEach{
+                if (!myData.contains(it.note))
+                    myData.add(it.note)
+            }
+            Timber.tag("Alex").d("Remaining to do: $myData")
+        }
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun getTransaction(iTransactionID: String): Transaction? {
@@ -225,6 +279,9 @@ class TransactionViewModel : ViewModel() {
                 singleInstance.transactions.size
             else
                 0
+        }
+        fun getRTCount(iRTKey: String): Int {
+            return singleInstance.transactions.filter { it.rtkey == iRTKey }.size
         }
 
         fun getCopyOfTransactions(): MutableList<Transaction> {
@@ -468,7 +525,6 @@ class TransactionViewModel : ViewModel() {
             //        singleInstance.transactionsLiveData.value = singleInstance.transactions
         }
         fun addTransactionDatabase(iTransactionOut: TransactionOut) {
-            Timber.tag("Alex").d("addTransactionDatabase $iTransactionOut")
             adjustActualsSummary(MyDate(iTransactionOut.date), iTransactionOut.category, 0, iTransactionOut.getAmountByUser(0, false))
             adjustActualsSummary(MyDate(iTransactionOut.date), iTransactionOut.category, 1, iTransactionOut.getAmountByUser(1, false))
             val key: String = if (iTransactionOut.type == cTRANSACTION_TYPE_SCHEDULED)
@@ -534,6 +590,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.boughtfor = iTransaction.boughtfor
                 transaction.bfname1split = iTransaction.bfname1split
                 transaction.type = iTransaction.type
+                transaction.rtkey = iTransaction.rtkey
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
             if (iNotifyLive)
@@ -564,6 +621,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.boughtfor = iTransactionOut.boughtfor
                 transaction.bfname1split = iTransactionOut.bfname1split
                 transaction.type = iTransactionOut.type
+                transaction.rtkey = iTransactionOut.rtkey
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
             singleInstance.transactionsLiveData.value = singleInstance.transactions
@@ -639,7 +697,6 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
                 it.who == iWho
             }
             if (actualRow == null) {
-                Timber.tag("Alex").d("adjustActualsSummary: added new actualsSummary row $iDate $iCategoryID $iWho $iAdjustment")
                 val newActualRow = ActualRow(
                     iDate.getYear(),
                     iCategoryID,
@@ -647,7 +704,6 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
                 newActualRow.amounts[iDate.getMonth()-1] = iAdjustment
                 singleInstance.actualsSummary.add(newActualRow)
             } else {
-                Timber.tag("Alex").d("adjustActualsSummary: adjusted $iAdjustment to $iDate $iCategoryID $iWho")
                 actualRow.amounts[iDate.getMonth()-1] += iAdjustment
             }
         }
@@ -728,7 +784,6 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
         firstLoadListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 transactions.clear()
-                Timber.tag("Alex").d("Found ${dataSnapshot.childrenCount} transactions")
                 for (element in dataSnapshot.children.toMutableList()) {
                     val transactionOut = element.getValue<TransactionOut>()
                     if (transactionOut != null) {
@@ -740,12 +795,11 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
                 dataUpdatedCallback?.onDataUpdate()
                 transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
                 val end = System.currentTimeMillis()
-                Timber.tag("Alex").d("loadTransactions time is ${end - start} ms")
+                Timber.tag("Alex").d("it took ${end - start} ms to load ${singleInstance.transactions.size} transactions")
 
                 MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
                     .removeEventListener(singleInstance.firstLoadListener!!)
                 singleInstance.firstLoadListener = null
-                Timber.tag("Alex").d("number of transactions is now ${singleInstance.transactions.size}")
                 loadTransactionsOngoing()
                 createActualsTable()
             }
@@ -809,7 +863,6 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
     }
 
     fun createActualsTable() {
-        Timber.tag("Alex").d("CreateActualsTable start")
         actualsSummary.clear()
         var firstOne = true
 

@@ -20,27 +20,27 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentScheduledPaymentEditDialogBinding
 
 class ScheduledPaymentEditDialogFragment : DialogFragment() {
-    interface ScheduledPaymentEditDialogFragmentListener {
+/*    interface ScheduledPaymentEditDialogFragmentListener {
 
         fun onNewDataSaved()
-    }
-    private var listener: ScheduledPaymentEditDialogFragmentListener? = null
+    } */
+//    private var listener: ScheduledPaymentEditDialogFragmentListener? = null
     private var initialLoad = true
     private var currentMode = cMODE_VIEW
 
     companion object {
         private const val KEY_NAME = "0"
-        private var oldName: String = ""
+        private var oldKey: String = ""
         private var oldSP: ScheduledPayment? = null
         fun newInstance(
-            name: String
+            key: String
         ): ScheduledPaymentEditDialogFragment {
             val args = Bundle()
-            args.putString(KEY_NAME, name)
+            args.putString(KEY_NAME, key)
             val fragment = ScheduledPaymentEditDialogFragment()
             fragment.arguments = args
-            oldName = name
-            oldSP = ScheduledPaymentViewModel.getScheduledPayment(oldName)
+            oldKey = key
+            oldSP = ScheduledPaymentViewModel.getScheduledPayment(oldKey)
             return fragment
         }
     }
@@ -54,7 +54,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentScheduledPaymentEditDialogBinding.inflate(inflater, container, false)
-        binding.editNewAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
+        binding.newAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         binding.loanAmount.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         binding.amortizationPeriod.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
         binding.interestRate.keyListener = DigitsKeyListener.getInstance("-0123456789$gDecimalSeparator")
@@ -66,10 +66,8 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.currencySymbol.text =
             String.format(getString(R.string.trailing_space), getLocalCurrencySymbol())
-        binding.editOldName.text = oldName
-        binding.editNewName.setText(oldName)
 
-        val categorySpinner:Spinner = binding.editNewCategory
+        val categorySpinner:Spinner = binding.newCategory
         val catArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -77,14 +75,14 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         )
         categorySpinner.adapter = catArrayAdapter
 
-        val paidBySpinner:Spinner = binding.editNewPaidBy
+        val paidBySpinner:Spinner = binding.newPaidBy
         val paidByArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
             SpenderViewModel.getActiveSpenders()
         )
         paidBySpinner.adapter = paidByArrayAdapter
-        val boughtForSpinner:Spinner = binding.editNewBoughtFor
+        val boughtForSpinner:Spinner = binding.newBoughtFor
         val boughtForArrayAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
@@ -93,23 +91,53 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         boughtForSpinner.adapter = boughtForArrayAdapter
 
         if (oldSP == null) {
-            binding.editNewNextDate.setText(gCurrentDate.toString())
-            binding.editNewAmount.setText("")
-            binding.editOldRegularity.text = ""
-            binding.editNewRegularity.setText("1")
+            binding.linkLayout.visibility = View.GONE
+            binding.lastPaymentLayout.visibility = View.GONE
+            binding.newNextDate.setText(gCurrentDate.toString())
+            binding.newAmount.setText("")
+            binding.oldRegularity.text = ""
+            binding.newRegularity.setText("1")
             categorySpinner.setSelection(0)
             paidBySpinner.setSelection(paidByArrayAdapter.getPosition(SpenderViewModel.getDefaultSpenderName()))
             boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(SpenderViewModel.getDefaultSpenderName()))
         } else {
-            binding.editNewNextDate.setText(oldSP?.nextdate.toString())
-            if (oldSP?.amount == 0.0) {
-                binding.editNewAmount.setText("")
-            } else {
-                binding.editOldAmount.text = oldSP?.amount?.let { gDec(it) }
-                binding.editNewAmount.setText(oldSP?.amount?.let { gDec(it) })
+            val numberOfGenerated = TransactionViewModel.getRTCount(oldSP?.mykey.toString())
+            binding.linkMessage.setText(String.format(getString(R.string.there_are_recurring_transactions),
+                numberOfGenerated))
+            if (numberOfGenerated > 0) {
+                binding.dialogButtonDelete.visibility = View.GONE
             }
-            binding.editOldRegularity.text = oldSP?.regularity.toString()
-            binding.editNewRegularity.setText(oldSP?.regularity.toString())
+            binding.linkMessage.setOnClickListener {
+                val action =
+                    SettingsTabsFragmentDirections.actionSettingsTabFragmentToTransactionViewAllFragment()
+                action.filterMode = cSCHEDULED_PAYMENT_FILTER
+                action.rtKey = oldSP?.mykey.toString()
+                findNavController().navigate(action)
+                dismiss()
+                MyApplication.displayToast(String.format(getString(R.string.these_are_the_scheduled_transactions),
+                    oldSP?.vendor.toString()))
+            }
+            binding.oldVendor.text = oldSP?.vendor
+            binding.newVendor.setText(oldSP?.vendor)
+            binding.oldNote.text = oldSP?.note
+            binding.newNote.setText(oldSP?.note)
+            binding.oldLastDate.text = oldSP?.lastDate.toString()
+            binding.oldNextDate.text = oldSP?.nextdate.toString()
+            binding.newNextDate.setText(oldSP?.nextdate.toString())
+            binding.oldExpirationDate.text = oldSP?.expirationDate.toString()
+            if (oldSP?.isExpired() == true) {
+                binding.expirationDateLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+                binding.oldExpirationDate.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+            }
+            binding.newExpirationDate.setText(oldSP?.expirationDate.toString())
+            if (oldSP?.amount == 0.0) {
+                binding.newAmount.setText("")
+            } else {
+                binding.oldAmount.text = oldSP?.amount?.let { gDec(it) }
+                binding.newAmount.setText(oldSP?.amount?.let { gDec(it) })
+            }
+            binding.oldRegularity.text = oldSP?.regularity.toString()
+            binding.newRegularity.setText(oldSP?.regularity.toString())
             if (oldSP?.category == 0)
                 categorySpinner.setSelection(0)
             else {
@@ -131,32 +159,33 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 )
             }))
         }
-        binding.editOldPeriod.text = oldSP?.period?.let { getTranslationForPeriod(1, it) }
-        binding.editOldNextDate.text = oldSP?.nextdate.toString()
-        binding.editOldCategory.text = oldSP?.category?.let {
+        binding.oldPeriod.text = oldSP?.period?.let { getTranslationForPeriod(1, it) }
+        binding.oldExpirationDate.text = oldSP?.expirationDate.toString()
+        binding.oldNextDate.text = oldSP?.nextdate.toString()
+        binding.oldCategory.text = oldSP?.category?.let {
             CategoryViewModel.getCategory(
                 it
             )?.categoryName
         }
-        binding.editOldSubcategory.text = oldSP?.category?.let {
+        binding.oldSubcategory.text = oldSP?.category?.let {
             CategoryViewModel.getCategory(
                 it
             )?.subcategoryName
         }
-        binding.editOldPaidBy.text = oldSP?.paidby?.let { SpenderViewModel.getSpenderName(it) }
-        binding.editOldBoughtFor.text = oldSP?.boughtfor?.let { SpenderViewModel.getSpenderName(it) }
+        binding.oldPaidBy.text = oldSP?.paidby?.let { SpenderViewModel.getSpenderName(it) }
+        binding.oldBoughtFor.text = oldSP?.boughtfor?.let { SpenderViewModel.getSpenderName(it) }
         binding.splitSlider.value = oldSP?.split1?.toFloat() ?: 0.0F
         setupClickListeners()
-        binding.editNewName.requestFocus()
-        binding.editNewAmount.addTextChangedListener(object : TextWatcher {
+        binding.newVendor.requestFocus()
+        binding.newAmount.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
-                binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.editNewAmount.text.toString())
+                binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.newAmount.text.toString())
             }
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
             override fun afterTextChanged(arg0: Editable) {}
         })
 
-        val pSpinner:Spinner = binding.editNewPeriodSpinner
+        val pSpinner:Spinner = binding.newPeriodSpinner
         val periodValues = listOf(
             getString(R.string.week),
             getString(R.string.month),
@@ -175,16 +204,19 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             else -> pSpinner.setSelection(arrayAdapter.getPosition(getString(R.string.month)))
         }
 
-        if (oldName == "") { // ie this is an add, not an edit
+        if (oldKey == "") { // ie this is an add, not an edit
             currentMode = cMODE_ADD
             binding.dialogLinearLayout1.visibility = View.GONE
-            binding.editOldAmount.visibility = View.GONE
-            binding.editOldPeriod.visibility = View.GONE
-            binding.editOldRegularity.visibility = View.GONE
-            binding.editOldNextDate.visibility = View.GONE
+            binding.oldVendor.visibility = View.GONE
+            binding.oldNote.visibility = View.GONE
+            binding.oldAmount.visibility = View.GONE
+            binding.oldPeriod.visibility = View.GONE
+            binding.oldRegularity.visibility = View.GONE
+            binding.oldNextDate.visibility = View.GONE
+            binding.oldExpirationDate.visibility = View.GONE
             binding.currentValueHeader.visibility = View.GONE
-            binding.editOldPaidBy.visibility = View.GONE
-            binding.editOldBoughtFor.visibility = View.GONE
+            binding.oldPaidBy.visibility = View.GONE
+            binding.oldBoughtFor.visibility = View.GONE
             binding.dialogButtonDelete.visibility = View.GONE
             binding.loanStartDate.setText(gCurrentDate.toString())
         } else { // ie it's an edit
@@ -222,13 +254,13 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                binding.editNewNextDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
+                binding.newNextDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
 
-        binding.editNewNextDate.setOnClickListener {
+        binding.newNextDate.setOnClickListener {
             var lcal = MyDate()
-            if (binding.editNewNextDate.text.toString() != "") {
-                lcal = MyDate(binding.editNewNextDate.text.toString())
+            if (binding.newNextDate.text.toString() != "") {
+                lcal = MyDate(binding.newNextDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), dateSetListener,
@@ -236,13 +268,29 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 lcal.getMonth()-1,
                 lcal.getDay()
             ).show()
-
         }
 
+        val expDateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                binding.newExpirationDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
+            }
+
+        binding.newExpirationDate.setOnClickListener {
+            var lcal = MyDate()
+            if (binding.newExpirationDate.text.toString() != "") {
+                lcal = MyDate(binding.newExpirationDate.text.toString())
+            }
+            DatePickerDialog(
+                requireContext(), expDateSetListener,
+                lcal.getYear(),
+                lcal.getMonth()-1,
+                lcal.getDay()
+            ).show()
+        }
         binding.loanLink.setOnClickListener {
             val action =
                 SettingsTabsFragmentDirections.actionSettingsTabFragmentToLoanFragment()
-            action.loanID = binding.editOldName.text.toString()
+            action.loanID = oldKey
             findNavController().navigate(action)
             dismiss()
         }
@@ -251,20 +299,20 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         }
 
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.editNewPeriodSpinner.setBackgroundColor(Color.parseColor(hexColor))
-        binding.editNewPeriodSpinner.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editNewCategory.setBackgroundColor(Color.parseColor(hexColor))
-        binding.editNewCategory.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editNewSubcategory.setBackgroundColor(Color.parseColor(hexColor))
-        binding.editNewSubcategory.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editNewPaidBy.setBackgroundColor(Color.parseColor(hexColor))
-        binding.editNewPaidBy.setPopupBackgroundResource(R.drawable.spinner)
-        binding.editNewBoughtFor.setBackgroundColor(Color.parseColor(hexColor))
-        binding.editNewBoughtFor.setPopupBackgroundResource(R.drawable.spinner)
+        binding.newPeriodSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.newPeriodSpinner.setPopupBackgroundResource(R.drawable.spinner)
+        binding.newCategory.setBackgroundColor(Color.parseColor(hexColor))
+        binding.newCategory.setPopupBackgroundResource(R.drawable.spinner)
+        binding.newSubcategory.setBackgroundColor(Color.parseColor(hexColor))
+        binding.newSubcategory.setPopupBackgroundResource(R.drawable.spinner)
+        binding.newPaidBy.setBackgroundColor(Color.parseColor(hexColor))
+        binding.newPaidBy.setPopupBackgroundResource(R.drawable.spinner)
+        binding.newBoughtFor.setBackgroundColor(Color.parseColor(hexColor))
+        binding.newBoughtFor.setPopupBackgroundResource(R.drawable.spinner)
 
-        binding.editNewCategory.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
+        binding.newCategory.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                addSubCategories(binding.editNewCategory.selectedItem.toString())
+                addSubCategories(binding.newCategory.selectedItem.toString())
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -279,22 +327,15 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             binding.expandButton.visibility = View.GONE
             setExpansionFields(View.GONE)
         }
-        binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.editNewAmount.text.toString())
-/*        binding.dialogSplit.text = String.format(getString(R.string.split_is_x_pct_d_for_name1_and_z_pct_d_for_name2),
-            SpenderViewModel.getSpenderSplit(0),
-            0,
-            SpenderViewModel.getSpenderName(0),
-            SpenderViewModel.getSpenderSplit(1),
-            0,
-            SpenderViewModel.getSpenderName(1)) */
-        binding.editNewBoughtFor.onItemSelectedListener = object:
+        binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.newAmount.text.toString())
+        binding.newBoughtFor.onItemSelectedListener = object:
             AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val boughtFor = binding.editNewBoughtFor.selectedItem.toString()
+                val boughtFor = binding.newBoughtFor.selectedItem.toString()
                 when (boughtFor) {
                     getString(R.string.joint) -> {
 //                        if (!initialLoad)
@@ -308,12 +349,12 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                         binding.splitSlider.value = 0.0F
                     }
                 }
-                binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.editNewAmount.text.toString())
+                binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.newAmount.text.toString())
                 initialLoad = false
                 binding.splitSlider.isEnabled = boughtFor == getString(R.string.joint)
             }
         }
-        binding.editNewPaidBy.onItemSelectedListener = object:
+        binding.newPaidBy.onItemSelectedListener = object:
             AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     // Do nothing
@@ -321,19 +362,19 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
 
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     if (binding.boughtForLabel.visibility == View.GONE) { // need to keep both values in sync
-                        val paidByName = binding.editNewPaidBy.selectedItem.toString()
+                        val paidByName = binding.newPaidBy.selectedItem.toString()
                         boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(paidByName))
                     }
                 }
             }
         binding.splitSlider.addOnChangeListener { _, _, _ ->
-            binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.editNewAmount.text.toString())
+            binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.newAmount.text.toString())
         }
         if (oldSP == null)
             binding.splitSlider.value = 0.0F
         else
             binding.splitSlider.value = oldSP?.split1?.toFloat()!!
-        binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.editNewAmount.text.toString())
+        binding.dialogSplit.text = getSplitText(binding.splitSlider.value.toInt(), binding.newAmount.text.toString())
 
         if ((oldSP?.boughtfor == 2 && binding.splitSlider.value.toInt() != (SpenderViewModel.getSpenderSplit(0) * 100).toInt()) ||
             oldSP?.paidby != oldSP?.boughtfor) {
@@ -342,17 +383,22 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         else {
             setExpansionFields(View.GONE)
         }
-        if (oldName != "" && currentMode == cMODE_VIEW) {
+        if (oldKey != "" && currentMode == cMODE_VIEW) {
             binding.dialogButtonSave.text = getString(R.string.edit)
             binding.dialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_edit_24), null, null)
-            binding.viewHeader.text = oldName
+            if (oldSP?.isExpired() == true) {
+                binding.spHeader.text = String.format(getString(R.string.expired), oldSP?.vendor)
+                binding.spHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+            } else
+                binding.spHeader.text = oldSP?.vendor
+            binding.newVendor.visibility = View.GONE
+            binding.newNote.visibility = View.GONE
             binding.currentValueHeader.visibility = View.GONE
             binding.headerPrefix.visibility = View.GONE
-            binding.dialogLinearLayout2.visibility = View.GONE
             binding.newValueHeader.visibility = View.GONE
-            binding.nameLayout.visibility = View.GONE
             binding.amountLayout.visibility = View.GONE
             binding.dateLayout.visibility = View.GONE
+            binding.expirationDateLayout.visibility = View.GONE
             binding.regularityLayout.visibility = View.GONE
             binding.periodSpinnerRelativeLayout.visibility = View.GONE
             binding.categorySpinnerRelativeLayout.visibility = View.GONE
@@ -379,7 +425,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 lcal.getDay()
             ).show()
         }
-        when (binding.editNewBoughtFor.selectedItem.toString()) {
+        when (binding.newBoughtFor.selectedItem.toString()) {
             getString(R.string.joint) -> {
                 binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0) * 100).toFloat()
                 binding.splitSlider.isEnabled = true
@@ -426,7 +472,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
     }
 
     private fun addSubCategories(iCategory: String) {
-        val subCategorySpinner = binding.editNewSubcategory
+        val subCategorySpinner = binding.newSubcategory
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
         subCategorySpinner.adapter = arrayAdapter
         if (oldSP?.category?.let { CategoryViewModel.getCategory(it)?.subcategoryName } == "")
@@ -454,10 +500,10 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         }
         binding.dialogButtonDelete.setOnClickListener {
             fun yesClicked() {
-                ScheduledPaymentViewModel.deleteScheduledPaymentFromFirebase(binding.editOldName.text.toString())
-                if (listener != null) {
+                ScheduledPaymentViewModel.deleteScheduledPayment(oldKey)
+/*                if (listener != null) {
                     listener?.onNewDataSaved()
-                }
+                } */
                 MyApplication.playSound(context, R.raw.short_springy_gun)
                 dismiss()
             }
@@ -468,7 +514,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 .setTitle(getString(R.string.are_you_sure))
                 .setMessage(String.format(
                     getString(R.string.are_you_sure_that_you_want_to_delete_this_item),
-                    binding.editOldName.text.toString()))
+                    binding.newVendor.text.toString()))
                 .setPositiveButton(android.R.string.ok) { _, _ -> yesClicked() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
                 .show()
@@ -481,29 +527,24 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
 
     private fun onSaveButtonClicked() {
         val lNumberFormat: NumberFormat = NumberFormat.getInstance()
-        if (!textIsSafeForKey(binding.editNewName.text.toString())) {
-            showErrorMessage(parentFragmentManager, getString(R.string.the_text_contains_unsafe_characters))
-            focusAndOpenSoftKeyboard(requireContext(), binding.editNewName)
-            return
-        }
-        if (binding.editNewName.text.toString() == "") {
+        if (binding.newVendor.text.toString() == "") {
             showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
-            focusAndOpenSoftKeyboard(requireContext(), binding.editNewName)
+            focusAndOpenSoftKeyboard(requireContext(), binding.newVendor)
             return
         }
-        if (binding.editNewAmount.text.toString() == "") {
+        if (binding.newAmount.text.toString() == "") {
             showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
-            focusAndOpenSoftKeyboard(requireContext(), binding.editNewAmount)
+            focusAndOpenSoftKeyboard(requireContext(), binding.newAmount)
             return
         }
-        if (lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble() == 0.0) {
+        if (lNumberFormat.parse(binding.newAmount.text.toString()).toDouble() == 0.0) {
             showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_zero))
-            focusAndOpenSoftKeyboard(requireContext(), binding.editNewAmount)
+            focusAndOpenSoftKeyboard(requireContext(), binding.newAmount)
             return
         }
-        if (binding.editNewRegularity.text.toString() == "") {
+        if (binding.newRegularity.text.toString() == "") {
             showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_zero))
-            focusAndOpenSoftKeyboard(requireContext(), binding.editNewAmount)
+            focusAndOpenSoftKeyboard(requireContext(), binding.newAmount)
             return
         }
 
@@ -524,19 +565,21 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 return
             }
         }
-        val rtSpinner:Spinner = binding.editNewPeriodSpinner
-        var somethingChanged = false
-        var amountDouble = lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble()
+        val rtSpinner:Spinner = binding.newPeriodSpinner
+//        var somethingChanged = false
+        val amountDouble = lNumberFormat.parse(binding.newAmount.text.toString()).toDouble()
 
         if (currentMode == cMODE_VIEW) { // change to "edit"
-            binding.viewHeader.visibility = View.GONE
+            binding.spHeader.visibility = View.GONE
+            binding.linkLayout.visibility = View.GONE
+            binding.newVendor.visibility = View.VISIBLE
+            binding.newNote.visibility = View.VISIBLE
             binding.currentValueHeader.visibility = View.VISIBLE
             binding.headerPrefix.visibility = View.VISIBLE
-            binding.dialogLinearLayout2.visibility = View.VISIBLE
             binding.newValueHeader.visibility = View.VISIBLE
-            binding.nameLayout.visibility = View.VISIBLE
             binding.amountLayout.visibility = View.VISIBLE
             binding.dateLayout.visibility = View.VISIBLE
+            binding.expirationDateLayout.visibility = View.VISIBLE
             binding.regularityLayout.visibility = View.VISIBLE
             binding.periodSpinnerRelativeLayout.visibility = View.VISIBLE
             binding.categorySpinnerRelativeLayout.visibility = View.VISIBLE
@@ -559,7 +602,27 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             binding.buttonMonthly.isEnabled = true
             currentMode = cMODE_EDIT
             return
-        }  // else, continue below already in edit, so save...
+        }  else { // else, continue below already in edit, so save...
+            if (binding.newNextDate.text.toString() == "" &&
+                binding.newExpirationDate.text.toString() == "") {
+                showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
+                focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
+                return
+            }
+            if (binding.newNextDate.text.toString() != "" &&
+                binding.newExpirationDate.text.toString() != "" &&
+                binding.newExpirationDate.text.toString() < gCurrentDate.toString()) {
+                showErrorMessage(parentFragmentManager, getString(R.string.cannot_be_set_if_expired))
+                focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
+                return
+            }
+            if (binding.newNextDate.text.toString() == "" &&
+                binding.newExpirationDate.text.toString() > gCurrentDate.toString()) {
+                showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
+                focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
+                return
+            }
+        }
 
         val freq = when {
             binding.buttonWeekly.isChecked -> LoanPaymentRegularity.WEEKLY
@@ -573,151 +636,20 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 getString(R.string.year) -> cPeriodYear
                 else -> cPeriodMonth
             }
-        if (oldName == binding.editNewName.text.toString()) {
-            if (oldSP?.amount != amountDouble) {
-                ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(oldName, "amount", amountDouble)
-                somethingChanged = true
-            }
-            if (oldSP?.period != chosenPeriod) {
-                ScheduledPaymentViewModel.updateScheduledPaymentStringField(oldName, "period", chosenPeriod)
-                somethingChanged = true
-            }
-            if (oldSP?.nextdate.toString() != binding.editNewNextDate.text.toString()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentStringField(oldName, "nextdate", binding.editNewNextDate.text.toString())
-                somethingChanged = true
-            }
-            if (oldSP?.category?.let { CategoryViewModel.getCategory(it)?.categoryName } != binding.editNewCategory.selectedItem.toString()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName,
-                    "category",
-                    CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
-                    binding.editNewSubcategory.selectedItem.toString()))
-                somethingChanged = true
-            }
-            if (oldSP?.category?.let { CategoryViewModel.getCategory(it)?.subcategoryName } != binding.editNewSubcategory.selectedItem.toString()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName,
-                    "category",
-                CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
-                    binding.editNewSubcategory.selectedItem.toString()))
-                somethingChanged = true
-            }
-            if (oldSP?.paidby?.let { SpenderViewModel.getSpenderName(it) } != binding.editNewPaidBy.selectedItem.toString()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName,
-                    "paidby", SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()))
-                somethingChanged = true
-            }
-            if (oldSP?.boughtfor?.let { SpenderViewModel.getSpenderName(it) } != binding.editNewBoughtFor.toString()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName,
-                    "boughtfor", SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()))
-                somethingChanged = true
-            }
-            if (oldSP?.regularity != binding.editNewRegularity.text.toString().toInt()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName, "regularity", binding.editNewRegularity.text.toString().toInt())
-                somethingChanged = true
-            }
-            if (oldSP?.split1 != binding.splitSlider.value.toInt()) {
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName, "split1", binding.splitSlider.value.toInt())
-                ScheduledPaymentViewModel.updateScheduledPaymentIntField(oldName, "split2", 100-binding.splitSlider.value.toInt())
-                somethingChanged = true
-            }
-            if (oldSP?.activeLoan != binding.loanSwitch.isChecked) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentStringField(oldName, "activeLoan",
-                        if (binding.loanSwitch.isChecked) cTRUE else cFALSE)
-                somethingChanged = true
-            }
-            if (binding.loanSwitch.isChecked) {
-                if (oldSP?.loanFirstPaymentDate.toString() != binding.loanStartDate.text.toString()) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentStringField(
-                        oldName,
-                        "loanFirstPaymentDate",
-                        binding.loanStartDate.text.toString()
-                    )
-                    somethingChanged = true
-                }
-                amountDouble = lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()
-                if (oldSP?.loanAmount != amountDouble) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
-                        oldName,
-                        "loanAmount",
-                        amountDouble
-                    )
-                    somethingChanged = true
-                }
-                amountDouble = lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()
-                if (oldSP?.loanAmortization != amountDouble) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
-                        oldName,
-                        "loanAmortization",
-                        amountDouble
-                    )
-                    somethingChanged = true
-                }
-                amountDouble = lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()
-                if (oldSP?.loanInterestRate != amountDouble) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
-                        oldName,
-                        "loanInterestRate",
-                        amountDouble
-                    )
-                    somethingChanged = true
-                }
-                amountDouble = lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()
-                if (oldSP?.actualPayment != amountDouble) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentDoubleField(
-                        oldName,
-                        "actualPayment",
-                        amountDouble
-                    )
-                    somethingChanged = true
-                }
-                if (oldSP?.loanPaymentRegularity != freq) {
-                    ScheduledPaymentViewModel.updateScheduledPaymentStringField(
-                        oldName, "loanPaymentRegularity",
-                        freq.name
-                    )
-                    somethingChanged = true
-                }
-            }
-            if (somethingChanged) {
-                ScheduledPaymentViewModel.updateScheduledPayment(
-                    oldName,
-                    lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
-                    chosenPeriod,
-                    MyDate(binding.editNewNextDate.text.toString()),
-                    binding.editNewRegularity.text.toString().toInt(),
-                    CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
-                    binding.editNewSubcategory.selectedItem.toString()),
-                    SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
-                    SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()),
-                    binding.splitSlider.value.toInt(),
-                    binding.loanSwitch.isChecked,
-                    if (binding.loanSwitch.isChecked) MyDate(binding.loanStartDate.text.toString()) else MyDate(),
-                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.loanAmount.text.toString()).toDouble()) else 0.0,
-                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
-                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
-                    if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
-                    freq
-                )
-                if (listener != null)
-                    listener?.onNewDataSaved()
-                dismiss()
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
-            }
-        } else if (oldName == "") { // ie this is an add
-            if (ScheduledPaymentViewModel.nameExists(binding.editNewName.text.toString().trim())) {
-                showErrorMessage(parentFragmentManager,
-                    getString(R.string.this_name_is_already_in_use))
-                focusAndOpenSoftKeyboard(requireContext(), binding.editNewName)
-                return
-            }
-            val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
-                amountDouble,
-                chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
-                MyDate(binding.editNewNextDate.text.toString()),
-                MyDate(),
-                CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
-                binding.editNewSubcategory.selectedItem.toString()),
-                SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
-                SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()),
+        if (oldKey != "") {
+            val oldLastDate: MyDate = oldSP?.lastDate!!
+            val tSP = ScheduledPayment(
+                binding.newVendor.text.toString().trim(),
+                binding.newNote.text.toString().trim(),
+                lNumberFormat.parse(binding.newAmount.text.toString()).toDouble(),
+                chosenPeriod,
+                binding.newRegularity.text.toString().toInt(),
+                binding.newNextDate.text.toString(),
+                oldLastDate,
+                CategoryViewModel.getID(binding.newCategory.selectedItem.toString(),
+                    binding.newSubcategory.selectedItem.toString()),
+                SpenderViewModel.getSpenderIndex(binding.newPaidBy.selectedItem.toString()),
+                SpenderViewModel.getSpenderIndex(binding.newBoughtFor.selectedItem.toString()),
                 binding.splitSlider.value.toInt(),
                 binding.loanSwitch.isChecked,
                 if (binding.loanSwitch.isChecked) MyDate(binding.loanStartDate.text.toString()) else MyDate(),
@@ -725,24 +657,25 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
-                freq
-                )
-            ScheduledPaymentViewModel.addScheduledPayment(sp)
-            if (listener != null) {
-                listener?.onNewDataSaved()
-            }
-            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                freq,
+                binding.newExpirationDate.text.toString(),
+                oldKey
+            )
+            ScheduledPaymentViewModel.updateScheduledPayment(tSP)
             dismiss()
-        } else if (oldName != binding.editNewName.text.toString()) {
-            val sp = ScheduledPayment(binding.editNewName.text.toString().trim(),
-                lNumberFormat.parse(binding.editNewAmount.text.toString()).toDouble(),
-                chosenPeriod, binding.editNewRegularity.text.toString().toInt(),
-                MyDate(binding.editNewNextDate.text.toString()),
+            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        } else { // ie this is an add
+            val sp = ScheduledPayment(
+                binding.newVendor.text.toString().trim(),
+                binding.newNote.text.toString().trim(),
+                amountDouble,
+                chosenPeriod, binding.newRegularity.text.toString().toInt(),
+                binding.newNextDate.text.toString(),
                 MyDate(),
-                CategoryViewModel.getID(binding.editNewCategory.selectedItem.toString(),
-                binding.editNewSubcategory.selectedItem.toString()),
-                SpenderViewModel.getSpenderIndex(binding.editNewPaidBy.selectedItem.toString()),
-                SpenderViewModel.getSpenderIndex(binding.editNewBoughtFor.selectedItem.toString()),
+                CategoryViewModel.getID(binding.newCategory.selectedItem.toString(),
+                binding.newSubcategory.selectedItem.toString()),
+                SpenderViewModel.getSpenderIndex(binding.newPaidBy.selectedItem.toString()),
+                SpenderViewModel.getSpenderIndex(binding.newBoughtFor.selectedItem.toString()),
                 binding.splitSlider.value.toInt(),
                 binding.loanSwitch.isChecked,
                 if (binding.loanSwitch.isChecked) MyDate(binding.loanStartDate.text.toString()) else MyDate(),
@@ -750,21 +683,13 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.amortizationPeriod.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.interestRate.text.toString()).toDouble()) else 0.0,
                 if (binding.loanSwitch.isChecked) (lNumberFormat.parse(binding.actualLoanPaymentAmount.text.toString()).toDouble()) else 0.0,
-                freq
+                freq,
+                binding.newExpirationDate.text.toString()
                 )
             ScheduledPaymentViewModel.addScheduledPayment(sp)
-            ScheduledPaymentViewModel.deleteScheduledPaymentFromFirebase(oldName)
-            if (listener != null) {
-                listener?.onNewDataSaved()
-            }
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         }
-        ScheduledPaymentViewModel.generateScheduledPayments(activity as MainActivity)
-    }
-
-    fun setDialogFragmentListener(listener: ScheduledPaymentEditDialogFragmentListener) {
-        this.listener = listener
     }
 
     override fun onDestroyView() {

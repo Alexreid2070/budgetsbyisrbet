@@ -130,6 +130,7 @@ class RetirementDetailsFragment : Fragment() {
                 getString(R.string.show_property_details) -> RetirementDetailsViews.PROPERTY
                 else -> RetirementDetailsViews.ALL
             }
+            binding.currentViewTitle.text = String.format(getString(R.string.bracketed), radioButton.text.toString())
             if (DefaultsViewModel.getDefaultViewInRetirementDetails() != whichView)
                 DefaultsViewModel.updateDefaultInt(cDEFAULT_VIEW_IN_RETIREMENT_DETAILS, whichView.ordinal)
             createTableHeader(whichView)

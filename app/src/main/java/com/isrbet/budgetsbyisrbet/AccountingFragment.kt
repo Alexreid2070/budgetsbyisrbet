@@ -45,14 +45,14 @@ class AccountingFragment : Fragment() {
         binding.accountingSummary.setOnClickListener {
             val action =
                 AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
-            action.accountingFlag = getString(R.string.accounting)
+            action.filterMode = cACCOUNTING_FILTER
             findNavController().navigate(action)
             MyApplication.displayToast(getString(R.string.these_are_the_transactions))
         }
         binding.summarySection.setOnClickListener {
             val action =
                 AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
-            action.accountingFlag = getString(R.string.accounting)
+            action.filterMode = cACCOUNTING_FILTER
             findNavController().navigate(action)
             MyApplication.displayToast(getString(R.string.these_are_the_transactions))
         }

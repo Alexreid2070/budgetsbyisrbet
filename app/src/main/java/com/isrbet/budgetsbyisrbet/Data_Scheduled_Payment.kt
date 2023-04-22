@@ -2,7 +2,8 @@
 
 package com.isrbet.budgetsbyisrbet
 
-import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -12,11 +13,12 @@ import java.util.ArrayList
 import kotlin.math.round
 
 data class ScheduledPayment(
-    var name: String = "",
+    var vendor: String = "",
+    var note: String = "",
     var amount: Double = 0.0,
     var period: String = "",
     var regularity: Int = 1,
-    var nextdate: MyDate = MyDate(),
+    var nextdate: String = "",
     var lastDate: MyDate = MyDate(2000,1,1),
     var category: Int = 0,
     var paidby: Int = -1,
@@ -28,13 +30,17 @@ data class ScheduledPayment(
     var loanAmortization: Double = 0.0,
     var loanInterestRate: Double = 0.0,
     var actualPayment: Double = 0.0,
-    var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
+    var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY,
+    var expirationDate: String = "",
+    var mykey: String = ""
     ) {
     fun setValue(key: String, value: String) {
         when (key) {
-            "name" -> name = value.trim()
+            "key" -> mykey = value.trim()
+            "vendor" -> vendor = value.trim()
+            "note" -> note = value.trim()
             "amount" -> amount = value.toDouble()
-            "nextdate" -> nextdate = MyDate(value.trim())
+            "nextdate" -> nextdate = value.trim()
             "lastDate" -> lastDate = MyDate(value.trim())
             "period" -> period = value.trim()
             "regularity" -> regularity = value.toInt()
@@ -58,6 +64,7 @@ data class ScheduledPayment(
                         LoanPaymentRegularity.BIWEEKLY
                     }
                 }
+            "expirationDate" -> expirationDate = value.trim()
         }
     }
     fun getSplit2(): Int {
@@ -79,12 +86,49 @@ data class ScheduledPayment(
 
             }
         }
-    return 0
+        return 0
+    }
+    fun isExpired() : Boolean {
+        return (expirationDate != "" &&
+                    (expirationDate < gCurrentDate.toString() ||
+                     nextdate == "" ||
+                     expirationDate < nextdate))
+    }
+
+    fun hasPaymentOnThisDate(iDate: String) : Boolean {
+        if (lastDate.toString() == iDate)
+            return true
+        else if ((expirationDate != "" && expirationDate < iDate) ||
+            nextdate == "")
+            return false
+        else if (nextdate == iDate)
+            return true
+        var tDate = MyDate(nextdate)
+        while (tDate.toString() <= iDate) {
+            when (period) {
+                cPeriodWeek -> {
+                    tDate.increment(cPeriodWeek, regularity)
+                }
+                cPeriodMonth -> {
+                    tDate.increment(cPeriodMonth, regularity)
+                }
+                cPeriodQuarter -> {
+                    tDate.increment(cPeriodMonth, regularity * 3)
+                }
+                cPeriodYear -> {
+                    tDate.increment(cPeriodYear, regularity)
+                }
+            }
+            if (tDate.toString() == iDate)
+                return true
+        }
+        return false
     }
 }
 
 data class ScheduledPaymentOut(
-    var name: String = "",
+    var vendor: String = "",
+    var note: String = "",
     var amount: Int = 0,
     var period: String = "",
     var regularity: Int = 1,
@@ -100,27 +144,37 @@ data class ScheduledPaymentOut(
     var loanAmortization: Int = 0,
     var loanInterestRate: Int = 0,
     var actualPayment: Int = 0,
-    var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY
+    var loanPaymentRegularity: LoanPaymentRegularity = LoanPaymentRegularity.BIWEEKLY,
+    var expirationDate: String = ""
 ) {
     constructor(sp: ScheduledPayment) : this(
-        sp.name, round(sp.amount*100).toInt(), sp.period, sp.regularity,
-        sp.nextdate.toString(), sp.lastDate.toString(), sp.category, sp.paidby, sp.boughtfor, sp.split1,
+        sp.vendor, sp.note, round(sp.amount*100).toInt(), sp.period, sp.regularity,
+        sp.nextdate, sp.lastDate.toString(), sp.category, sp.paidby, sp.boughtfor, sp.split1,
         sp.activeLoan, sp.loanFirstPaymentDate.toString(), round(sp.loanAmount*100).toInt(),
         round(sp.loanAmortization*100).toInt(),round(sp.loanInterestRate*100).toInt(),
         round(sp.actualPayment*100).toInt(),
-        sp.loanPaymentRegularity)
+        sp.loanPaymentRegularity, sp.expirationDate)
 }
 
 class ScheduledPaymentViewModel : ViewModel() {
     private var scheduledPaymentListener: ValueEventListener? = null
     private val scheduledPayments: MutableList<ScheduledPayment> = ArrayList()
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
+    val scheduledPaymentsLiveData = MutableLiveData<MutableList<ScheduledPayment>>()
+//    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: ScheduledPaymentViewModel // used to track static single instance of self
+
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<ScheduledPayment>>) {
+            singleInstance.scheduledPaymentsLiveData.observe(iFragment, iObserver)
+        }
+
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun getCount(): Int {
@@ -130,13 +184,8 @@ class ScheduledPaymentViewModel : ViewModel() {
                 0
         }
 
-        fun nameExists(iName: String): Boolean {
-            val sp = singleInstance.scheduledPayments.find { it.name == iName }
-            return (sp != null)
-        }
-
-        fun getScheduledPayment(iName: String): ScheduledPayment? {
-            return singleInstance.scheduledPayments.find { it.name == iName }
+        fun getScheduledPayment(iKey: String): ScheduledPayment? {
+            return singleInstance.scheduledPayments.find { it.mykey == iKey }
         }
         fun scheduledPaymentExistsUsingCategory(iCategoryID: Int): Int {
             var ctr = 0
@@ -154,13 +203,9 @@ class ScheduledPaymentViewModel : ViewModel() {
             }
         } */
 
-        private fun getScheduledPayments(): MutableList<ScheduledPayment> {
-            return singleInstance.scheduledPayments
-        }
         fun getCopyOfScheduledPayments(): MutableList<ScheduledPayment> {
             val copy = mutableListOf<ScheduledPayment>()
-            copy.addAll(getScheduledPayments())
-            singleInstance.scheduledPayments.sortWith(compareBy { it.nextdate.toString() })
+            copy.addAll(singleInstance.scheduledPayments)
             return copy
         }
 
@@ -168,71 +213,30 @@ class ScheduledPaymentViewModel : ViewModel() {
             val myList = mutableListOf<String>()
             singleInstance.scheduledPayments.forEach {
                 if (it.activeLoan) {
-                    myList.add(it.name)
+                    myList.add(it.mykey)
                 }
             }
             return myList
         }
-        fun deleteScheduledPaymentFromFirebase(iTransactionID: String) {
-            // this block below ensures that the viewAll view is updated immediately
-            val sp: ScheduledPayment? = singleInstance.scheduledPayments.find { it.name == iTransactionID }
-            val ind = singleInstance.scheduledPayments.indexOf(sp)
-            singleInstance.scheduledPayments.removeAt(ind)
+        fun deleteScheduledPayment(iKey: String) {
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iTransactionID).removeValue()
+                .child(iKey).removeValue()
         }
 
         fun addScheduledPayment(iScheduledPayment: ScheduledPayment) {
-            // I need to add the new SP to the internal list so that the Adapter can be updated immediately, rather than waiting for the firebase sync.
-            // also, if I don't add locally right away, the app crashes because of a sync issue
-            singleInstance.scheduledPayments.add(iScheduledPayment)
-            singleInstance.scheduledPayments.sortWith(compareBy { it.name })
             val spOut = ScheduledPaymentOut(iScheduledPayment)
+            val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/RecurringTransactions")
+                    .push().key.toString()
             MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iScheduledPayment.name).setValue(spOut)
+                .child(key).setValue(spOut)
         }
-        fun updateScheduledPayment(iName: String, iAmount: Double, iPeriod: String, iNextDate: MyDate, iRegularity: Int,
-                                       iCategoryID: Int, iPaidBy: Int, iBoughtFor: Int,
-                                        iSplit1: Int, iActiveLoan: Boolean, iLoanStartDate: MyDate,
-                                        iLoanAmount: Double, iLoanAmortization: Double, iLoanInterestRate: Double,
-                                        iActualPayment: Double,
-                                        iLoanPaymentRegularity: LoanPaymentRegularity) {
-            val mySP = singleInstance.scheduledPayments.find{ it.name == iName }
+        fun updateScheduledPayment(iScheduledPayment: ScheduledPayment) {
+            val mySP = singleInstance.scheduledPayments.find{ it.mykey == iScheduledPayment.mykey }
             if (mySP != null) {
-                mySP.amount = iAmount
-                mySP.period = iPeriod
-                mySP.regularity = iRegularity
-                mySP.nextdate = MyDate(iNextDate)
-                mySP.category = iCategoryID
-                mySP.paidby = iPaidBy
-                mySP.boughtfor = iBoughtFor
-                mySP.split1 = iSplit1
-                mySP.activeLoan = iActiveLoan
-                mySP.loanFirstPaymentDate = MyDate(iLoanStartDate)
-                mySP.loanAmount = iLoanAmount
-                mySP.loanAmortization = iLoanAmortization
-                mySP.loanInterestRate = iLoanInterestRate
-                mySP.actualPayment = iActualPayment
-                mySP.loanPaymentRegularity = iLoanPaymentRegularity
+                val spOut = ScheduledPaymentOut(iScheduledPayment)
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
+                    .child(mySP.mykey).setValue(spOut)
             }
-        }
-        fun updateScheduledPaymentStringField(iName: String, iField: String, iValue: String) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iName)
-                .child(iField)
-                .setValue(iValue)
-        }
-        fun updateScheduledPaymentIntField(iName: String, iField: String, iValue: Int) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iName)
-                .child(iField)
-                .setValue(iValue)
-        }
-        fun updateScheduledPaymentDoubleField(iName: String, iField: String, iValue: Double) {
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                .child(iName)
-                .child(iField)
-                .setValue(round(iValue * 100).toInt())
         }
         fun refresh() {
             singleInstance.loadScheduledPayments()
@@ -246,58 +250,61 @@ class ScheduledPaymentViewModel : ViewModel() {
             singleInstance.scheduledPayments.clear()
             singleInstance.loaded = false
         }
-        fun generateScheduledPayments(mainActivity: MainActivity) {
+        fun generateScheduledPayments() {
             // now that recurring transaction settings are loaded, we need to review them to determine if any Transactions are needed
             singleInstance.scheduledPayments.forEach {
-                while (it.nextdate <= gCurrentDate) {
-                    val newNextDate = MyDate(it.nextdate)
-                    it.lastDate = MyDate(it.nextdate)
-                    // Reset nextDate
-                    when (it.period) {
-                        cPeriodWeek -> {
-                            newNextDate.increment(cPeriodWeek, it.regularity)
+                if (!it.isExpired()) {
+                    while (it.nextdate <= gCurrentDate.toString() &&
+                        (it.expirationDate == "" || it.nextdate <= it.expirationDate)) {
+                        val newNextDate = MyDate(it.nextdate)
+                        it.lastDate = MyDate(it.nextdate)
+                        // Reset nextDate
+                        when (it.period) {
+                            cPeriodWeek -> {
+                                newNextDate.increment(cPeriodWeek, it.regularity)
+                            }
+                            cPeriodMonth -> {
+                                newNextDate.increment(cPeriodMonth, it.regularity)
+                            }
+                            cPeriodQuarter -> {
+                                newNextDate.increment(cPeriodMonth, it.regularity*3)
+                            }
+                            cPeriodYear -> {
+                                newNextDate.increment(cPeriodYear, it.regularity)
+                            }
                         }
-                        cPeriodMonth -> {
-                            newNextDate.increment(cPeriodMonth, it.regularity)
+                        if (it.expirationDate != "" && newNextDate.toString() > it.expirationDate) {
+                            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/RecurringTransactions")
+                                .child(it.mykey).child("nextdate").setValue("")
+                        } else {
+                            MyApplication.database.getReference("Users/" + MyApplication.userUID + "/RecurringTransactions")
+                                .child(it.mykey).child("nextdate").setValue(newNextDate.toString())
                         }
-                        cPeriodQuarter -> {
-                            newNextDate.increment(cPeriodMonth, it.regularity*3)
-                        }
-                        cPeriodYear -> {
-                            newNextDate.increment(cPeriodYear, it.regularity)
-                        }
+                        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
+                            .child(it.mykey).child("lastDate").setValue(it.lastDate.toString())
+                        // add transaction
+                        val nextDate = getNextBusinessDate(MyDate(it.nextdate))
+                        val nextDayIsBusinessDay = MyDate(it.nextdate) == nextDate
+                        it.nextdate = newNextDate.toString()
+                        Timber.tag("Alex").d("Adding transaction amount is ${it.amount}")
+                        TransactionViewModel.addTransactionDatabase(TransactionOut(nextDate.toString(),
+                            round(it.amount*100).toInt(),
+                            it.category, it.vendor, it.note, it.paidby, it.boughtfor,
+                            it.split1, cTRANSACTION_TYPE_SCHEDULED, it.mykey))
+                        val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(
+                            gCurrentDate) else 0
+                        var tempString =  MyApplication.getString(R.string.scheduled_payment_was_added_for) + " ${it.vendor}"
+                        if (it.note != "")
+                            tempString += " (${it.note})"
+                        tempString += " ${gDecWithCurrency(it.amount)} " +
+                                CategoryViewModel.getFullCategoryName(it.category)
+                        if (nextDayIsBusinessDay)
+                            tempString += " " + MyApplication.getString(R.string.on_next_business_day)
+                        tempString += " $nextDate"
+                        if (outstandingLoanAmount > 0) tempString += " (outstanding loan amount ${
+                            gDecWithCurrency(outstandingLoanAmount)})."
+                        MyApplication.displayToast(tempString)
                     }
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                        .child(it.name).child("nextdate").setValue(newNextDate.toString())
-                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/RecurringTransactions")
-                        .child(it.name).child("lastDate").setValue(it.lastDate.toString())
-                    // add transaction
-                    val nextDate = getNextBusinessDate(it.nextdate)
-                    val nextDayIsBusinessDay = it.nextdate == nextDate
-                    it.nextdate = MyDate(newNextDate)
-                    Timber.tag("Alex").d("Adding transaction amount is ${it.amount}")
-                    TransactionViewModel.addTransactionDatabase(TransactionOut(nextDate.toString(),
-                        round(it.amount*100).toInt(),
-                        it.category, it.name, "", it.paidby, it.boughtfor,
-                        it.split1, cTRANSACTION_TYPE_SCHEDULED))
-                    val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(
-                        gCurrentDate) else 0
-                    if (nextDayIsBusinessDay)
-                        Toast.makeText(mainActivity, MyApplication.getString(R.string.scheduled_payment_was_added_for) +
-                            " ${it.name} ${gDecWithCurrency(it.amount)} " +
-                                CategoryViewModel.getFullCategoryName(it.category) +
-                                " $nextDate" +
-                            if (outstandingLoanAmount > 0) " (outstanding loan amount ${
-                                gDecWithCurrency(outstandingLoanAmount)})." else "",
-                            Toast.LENGTH_LONG).show()
-                    else
-                        Toast.makeText(mainActivity, MyApplication.getString(R.string.scheduled_payment_was_added_for) +
-                            " ${it.name} ${gDecWithCurrency(it.amount)} " +
-                                CategoryViewModel.getFullCategoryName(it.category) + " " +
-                            MyApplication.getString(R.string.on_next_business_day) + nextDate +
-                            if (outstandingLoanAmount > 0) " (outstanding loan amount ${
-                                gDecWithCurrency(outstandingLoanAmount)})." else "",
-                            Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -308,42 +315,43 @@ class ScheduledPaymentViewModel : ViewModel() {
             val tDate = MyDate(gCurrentDate)
             tDate.increment(cPeriodDay, iDays)
             var tReply = ""
-            var firstOne = true
+            val todayString = String.format("%s %d",
+                gShortMonthName(gCurrentDate.getMonth()),
+                gCurrentDate.getDay())
 
+            var tLoanText = ""
             singleInstance.scheduledPayments.forEach { sp ->
+                val tempString = if (sp.note == "") sp.vendor
+                else String.format("${sp.vendor} (${sp.note})")
+                tLoanText = if (sp.activeLoan)
+                    "\n  (Loan balance will be \$${sp.getOutstandingLoanAmount(tDate)} after payment)."
+                else
+                    ""
                 if (sp.lastDate.toString() == today ||
-                        sp.nextdate.toString() == today) {
-                    if (firstOne) {
-                        tReply = String.format(MyApplication.getString(R.string.today_is),
-                            gShortMonthName(gCurrentDate.getMonth()),
-                            gCurrentDate.getDay())
-                        firstOne = false
-                    }
+                        sp.nextdate == today) {
                     tReply = if (tReply == "") {
-                        "\$${gDecM(sp.amount)} for ${sp.name} due today."
+                        "--\$${gDecM(sp.amount)} for $tempString due today, $todayString.$tLoanText"
                     } else {
-                        "\$${gDecM(sp.amount)} for ${sp.name} due today.\n$tReply"
+                        "--\$${gDecM(sp.amount)} for $tempString due today, $todayString.$tLoanText\n$tReply"
                     }
-                } else if (sp.nextdate.toString() <= tDate.toString()) {
-                    if (firstOne) {
-                        tReply = String.format(MyApplication.getString(R.string.today_is),
-                            gShortMonthName(gCurrentDate.getMonth()),
-                            gCurrentDate.getDay())
-                        firstOne = false
-                    }
+                } else if (sp.nextdate != "" && sp.nextdate <= tDate.toString()) {
                     val myNextDate = MyDate(sp.nextdate)
                     tReply = if (tReply == "") {
-                        "\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}"
+                        "--\$${gDecM(sp.amount)} for $tempString due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}.$tLoanText"
                     } else
-                        "$tReply\n\$${gDecM(sp.amount)} for ${sp.name} due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}"
-                    tReply = if (sp.activeLoan) {
-                        "$tReply\n  (loan balance will be \$${sp.getOutstandingLoanAmount(tDate)} after payment)."
-                    } else {
-                        "$tReply."
-                    }
+                        "$tReply\n--\$${gDecM(sp.amount)} for $tempString due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}.$tLoanText"
                 }
             }
+
             return tReply
+        }
+        fun getScheduledPaymentsOnDate(iDate: String) : MutableList<ScheduledPayment> {
+            val tList: MutableList<ScheduledPayment> = arrayListOf()
+            singleInstance.scheduledPayments.forEach {
+                if (it.hasPaymentOnThisDate(iDate))
+                    tList.add(it)
+            }
+            return tList
         }
     }
 
@@ -361,14 +369,14 @@ class ScheduledPaymentViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
+/*    fun setCallback(iCallback: DataUpdatedCallback?) {
         dataUpdatedCallback = iCallback
     }
 
     fun clearCallback() {
         dataUpdatedCallback = null
     }
-
+*/
     fun loadScheduledPayments() {
         // Do an asynchronous operation to fetch scheduled payments pka recurring transactions
         scheduledPaymentListener = object : ValueEventListener {
@@ -376,7 +384,7 @@ class ScheduledPaymentViewModel : ViewModel() {
                 scheduledPayments.clear()
                 for (element in dataSnapshot.children.toMutableList()) {
                     val tScheduledPayment = ScheduledPayment()
-                    tScheduledPayment.setValue("name", element.key.toString())
+                    tScheduledPayment.setValue("key", element.key.toString())
                     for (child in element.children) {
                         when (child.key.toString()) {
                             "amount" -> {
@@ -409,11 +417,16 @@ class ScheduledPaymentViewModel : ViewModel() {
                             }
                         }
                     }
-                    scheduledPayments.add(tScheduledPayment)
+                    if (tScheduledPayment.vendor == "")
+                        tScheduledPayment.vendor = tScheduledPayment.mykey
+                    if (tScheduledPayment.mykey != "lastDate")
+                        scheduledPayments.add(tScheduledPayment)
                 }
                 sortYourself()
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
+//                dataUpdatedCallback?.onDataUpdate()
+                singleInstance.scheduledPaymentsLiveData.value = singleInstance.scheduledPayments
+                generateScheduledPayments()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -427,6 +440,6 @@ class ScheduledPaymentViewModel : ViewModel() {
     }
 
     fun sortYourself() {
-        scheduledPayments.sortBy { it.nextdate.toString() }
+        scheduledPayments.sortWith(compareBy({ it.isExpired() }, { it.nextdate }, { it.vendor }))
     }
 }

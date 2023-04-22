@@ -42,7 +42,10 @@ class HintViewModel : ViewModel() {
         } */
 
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun refresh() {

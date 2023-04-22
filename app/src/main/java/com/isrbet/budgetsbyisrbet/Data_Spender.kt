@@ -23,7 +23,10 @@ class SpenderViewModel : ViewModel() {
     companion object {
         lateinit var singleInstance: SpenderViewModel // used to track static single instance of self
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
 /*        fun showMe() {

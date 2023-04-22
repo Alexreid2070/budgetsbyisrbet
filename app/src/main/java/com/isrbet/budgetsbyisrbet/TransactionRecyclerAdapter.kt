@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -36,7 +37,9 @@ class TransactionRecyclerAdapter(
     private var paidbyFilter = -1
     private var boughtforFilter = -1
     private var typeFilter = ""
-    private var accountingFilter = false
+    private var rtKeyFilter = ""
+    private var dateRangeFilter = Pair("", "")
+    private var filterMode = ""
     private var currentSortOrder = iSortOrder
 
     init {
@@ -46,11 +49,19 @@ class TransactionRecyclerAdapter(
         paidbyFilter = filters.prevPaidbyFilter
         boughtforFilter = filters.prevBoughtForFilter
         typeFilter = filters.prevTypeFilter
+        rtKeyFilter = filters.prevRTKeyFilter
+        dateRangeFilter = filters.dateRangeFilter
         filterTheList(MyApplication.transactionSearchText)
         currentTotal = getTotal()
         sortBy(iSortOrder)
     }
 
+    private fun inAccountingMode(): Boolean {
+        return filterMode == cACCOUNTING_FILTER
+    }
+    private fun inScheduledPaymentMode(): Boolean {
+        return filterMode == cSCHEDULED_PAYMENT_FILTER
+    }
     fun reset(iList: MutableList<Transaction>) {
         list = iList
         filterTheList("")
@@ -111,7 +122,9 @@ class TransactionRecyclerAdapter(
         if (iConstraint.isEmpty() && categoryIDFilter == 0 &&
             categoryFilter == "" && subcategoryFilter == "" &&
             discretionaryFilter == "" && paidbyFilter == -1 &&
-            boughtforFilter == -1 && typeFilter == "" && !accountingFilter
+            boughtforFilter == -1 && typeFilter == "" &&
+            dateRangeFilter.first == "" &&
+            !inAccountingMode() && !inScheduledPaymentMode()
         ) {
             filteredList = list
         } else {
@@ -136,13 +149,17 @@ class TransactionRecyclerAdapter(
                         (boughtforFilter == -1 || row.boughtfor == boughtforFilter) &&
                         (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter ==
                                 MyApplication.getString(R.string.expense))) &&
-                        (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator)
+                        (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator) &&
+                        (dateRangeFilter.first == "" ||
+                                (dateRangeFilter.first <= row.date.toString() && dateRangeFilter.second >= row.date.toString()))
                     ) {
-                        if (accountingFilter) {
+                        if (inAccountingMode()) {
                             if (row.paidby == row.boughtfor && row.paidby != 2)
                                 false
                             else !(row.paidby == 2 && row.boughtfor == 2 &&
-                                    row.bfname1split == (SpenderViewModel.getSpenderSplit(0)*100).toInt())
+                                    row.bfname1split == (SpenderViewModel.getSpenderSplit(0) * 100).toInt())
+                        } else if (inScheduledPaymentMode()) {
+                             row.rtkey == rtKeyFilter
                         } else
                             true
                     } else
@@ -279,7 +296,11 @@ class TransactionRecyclerAdapter(
                 holder.vtfdate.isVisible = true
                 holder.vtfdate.paint.isUnderlineText = true
                 holder.vtfdate.setTypeface(null, Typeface.BOLD)
-            } else holder.vtfdate.isVisible = groupList[position] == 0
+            } else {
+                holder.vtfdate.isVisible = groupList[position] == 0
+                holder.vtfdate.paint.isUnderlineText = false
+                holder.vtfdate.setTypeface(null, Typeface.NORMAL)
+            }
         }
         val percentage1 = data.amount * data.bfname1split / 100
         val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
@@ -298,22 +319,23 @@ class TransactionRecyclerAdapter(
         if (SpenderViewModel.singleUser()) {
             holder.vtfwho.visibility = View.GONE
         }
-        if (accountingFilter || !DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
+        if (inAccountingMode() || !DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
             holder.vtfcategory.visibility = View.GONE
         }
-        if (!accountingFilter && !DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
+        if (!inAccountingMode() && !DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
             holder.vtfpercentage1.visibility = View.GONE
             holder.vtfpercentage2.visibility = View.GONE
         }
-        if (!accountingFilter && !DefaultsViewModel.getDefaultShowTypeInViewAll())
+        if ((!inAccountingMode() && !DefaultsViewModel.getDefaultShowTypeInViewAll()) ||
+            inScheduledPaymentMode())
             holder.vtftype.visibility = View.GONE
-        if (!accountingFilter && !DefaultsViewModel.getDefaultShowWhoInViewAll())
+        if (!inAccountingMode() && !DefaultsViewModel.getDefaultShowWhoInViewAll())
             holder.vtfwho.visibility = View.GONE
-        if (accountingFilter || !DefaultsViewModel.getDefaultShowNoteInViewAll())
+        if (inAccountingMode() || !DefaultsViewModel.getDefaultShowNoteInViewAll())
             holder.vtfnote.visibility = View.GONE
-        if (accountingFilter || !DefaultsViewModel.getDefaultShowDiscInViewAll())
+        if (inAccountingMode() || !DefaultsViewModel.getDefaultShowDiscInViewAll())
             holder.vtfdisc.visibility = View.GONE
-        if (!accountingFilter && !DefaultsViewModel.getDefaultShowRunningTotalInViewAll())
+        if (!inAccountingMode() && !DefaultsViewModel.getDefaultShowRunningTotalInViewAll())
             holder.vtfrunningtotal.visibility = View.GONE
     }
 
@@ -344,8 +366,12 @@ class TransactionRecyclerAdapter(
         typeFilter = iFilter
     }
 
-    fun setAccountingFilter(iFilter: Boolean) {
-        accountingFilter = iFilter
+    fun setDateRangeFilter(iFilter: Pair<String, String>) {
+        dateRangeFilter = iFilter
+    }
+
+    fun setFilter(iFilter: String) {
+        filterMode = iFilter
     }
 
     private fun setGroupList() {
@@ -389,9 +415,9 @@ class TransactionRecyclerAdapter(
                     tgroupList.add(c, j)
                 } else {
                     j = 0
-                    if (filteredList[i].date.getYear() != filteredList[i - 1].date.getYear())
+                    if (filteredList[i].date.getYear() != filteredList[i - 1].date.getYear()) {
                         tgroupList.add(c, -100) // -100 symbolizes change in year
-                    else if (filteredList[i].date.getMonth() != filteredList[i - 1].date.getMonth()) {
+                    } else if (filteredList[i].date.getMonth() != filteredList[i - 1].date.getMonth()) {
                         tgroupList.add(c, -10) // -10 symbolizes change in month
                     } else
                         tgroupList.add(c, j)
@@ -431,7 +457,7 @@ class TransactionRecyclerAdapter(
                 j++
             } else if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
                 currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
-                if (filteredList[i].note == filteredList[i - 1].note) {
+                if (filteredList[i].note.lowercase() == filteredList[i - 1].note.lowercase()) {
                     tgroupList.add(c, j)
                 } else {
                     j = 0

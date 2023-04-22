@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardTabsBinding
+import timber.log.Timber
 
 class DashboardTabsFragment : Fragment() {
     private var _binding: FragmentDashboardTabsBinding? = null
@@ -36,7 +38,7 @@ class DashboardTabsFragment : Fragment() {
             val tab = binding.tabLayout.getTabAt(i)
             tab?.customView = createCustomTabView(tab?.text.toString(), 15, android.R.color.black)
             if (tab != null)
-                if (i == 0)
+                if (i == DefaultsViewModel.getDefaultLastDashboardTab())
                     setTabActive(tab)
                 else
                     setTabInactive(tab)
@@ -71,6 +73,11 @@ class DashboardTabsFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setTabLayout()
+    }
+
     private fun createCustomTabView(tabText: String, tabSizeSp: Int, textColor: Int): View? {
         val tabCustomView: View = layoutInflater.inflate(R.layout.tab_customview, null)
         val tabTextView = tabCustomView.findViewById<TextView>(R.id.tabTV)
@@ -92,5 +99,22 @@ class DashboardTabsFragment : Fragment() {
         tabTextView.textSize = 15F
         tabTextView.setTextColor(ContextCompat.getColor(tabCustomView.context, R.color.darker_gray))
         tabTextView.setTypeface(null, Typeface.NORMAL)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        setTabLayout()
+    }
+    private fun setTabLayout() {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.tabLayout.visibility = View.GONE
+            binding.viewPager.setPadding(0, 0, 0, 0)
+            (activity as MainActivity).setBottomNavBarVisibility(false)
+            MyApplication.displayToast(getString(R.string.you_have_entered_full_screen_mode))
+        } else {
+            binding.tabLayout.visibility = View.VISIBLE
+            binding.viewPager.setPadding(0, 70, 0, 70)
+            (activity as MainActivity).setBottomNavBarVisibility(true)
+        }
     }
 }

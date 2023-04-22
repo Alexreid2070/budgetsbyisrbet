@@ -7,13 +7,39 @@
     android:layout_height="match_parent"
     tools:context=".ScheduledPaymentFragment">
 
+    <TableLayout
+        android:id="@+id/table_calendar_rows"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        app:layout_constraintBottom_toTopOf="@id/expand_button_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:stretchColumns="*" />
+    <LinearLayout
+        android:id="@+id/expand_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/scheduled_payment_list_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/table_calendar_rows">
+
+        <ImageView
+            android:id="@+id/expand_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/click_to_expand"
+            android:gravity="center"
+            android:src="@drawable/ic_baseline_expand_less_24" />
+    </LinearLayout>
     <ListView
         android:id="@+id/scheduled_payment_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/expand_button_layout"
         android:fadeScrollbars="false"/>
 
     <TextView

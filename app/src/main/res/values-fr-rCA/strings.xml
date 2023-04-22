@@ -559,9 +559,24 @@
     <string name="avg_per_month">Avg per Month</string>
     <string name="actuals">Actuals</string>
     <string name="payment_of_occurs_every">%1$s payment of %2$s occurs every %3$s %4$s</string>
+    <string name="payment_has_expired">%1$s payment of %2$s has expired</string>
+    <string name="details_were">Was for %1$s, %2$s, %3$s</string>
     <string name="bracketed">(%1$s)</string>
     <string name="bracketed2">(%1$s %2$s)</string>
     <string name="coloned">%1$s:%2$s</string>
     <string name="n_arrow_n"><![CDATA[%1$s->%2$s]]></string>
     <string name="today_is">Today is %1$s %2$s.\n</string>
+    <string name="two_items">%1$s %2$s</string>
+    <string name="back_to_full_view">Back to full view</string>
+    <string name="you_have_entered_full_screen_mode">You have entered full screen mode.  To exit, turn your device back to portrait.</string>
+    <string name="expiration_date">Final Payment Date</string>
+    <string name="cannot_be_set_if_expired">Next Date field must be blank since this is an expired schedule.</string>
+    <string name="expired">%1$s (Expired)</string>
+    <string name="there_are_recurring_transactions">There are %1$s transactions generated from this schedule.</string>
+    <string name="these_are_the_scheduled_transactions">These are the transactions generated from the %1$s schedule.</string>
+    <string name="last_payment_date">Last Payment Date</string>
+    <string name="accounting_filter_is_on">Accounting filter is on</string>
+    <string name="scheduled_payment_filter_is_on">Scheduled payment filter for %1$s</string>
+    <string name="filtered_by">"Filtered by: "</string>
+    <string name="select_date_range">Select date range</string>
 </resources>

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -33,6 +34,10 @@ class DashboardFragment : Fragment() {
     private var currentBudgetMonth: MyDate = MyDate(0,1, 1)
     private var collapsedCategories: MutableList<String> = ArrayList()
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        setTitle()
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -100,26 +105,26 @@ class DashboardFragment : Fragment() {
         binding.buttonViewMonth.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodMonth)
             currentBudgetMonth = MyDate(currentBudgetMonth.getYear(), gCurrentDate.getMonth(), 1)
-            setActionBarTitle()
+            setTitle()
             startLoadData(currentBudgetMonth)
         }
         binding.buttonViewYtd.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodYTD)
             currentBudgetMonth = MyDate(gCurrentDate.getYear(), gCurrentDate.getMonth(), 1)
-            setActionBarTitle()
+            setTitle()
             startLoadData(currentBudgetMonth)
         }
         binding.buttonViewYear.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodYear)
             currentBudgetMonth.representsYear = true
-            setActionBarTitle()
+            setTitle()
             startLoadData(currentBudgetMonth)
         }
         binding.buttonViewAllTime.setOnClickListener {
             DefaultsViewModel.updateDefaultString(cDEFAULT_VIEW_PERIOD_DASHBOARD, cPeriodAllTime)
             currentBudgetMonth = MyDate(gCurrentDate)
             currentBudgetMonth.setDay(1)
-            setActionBarTitle()
+            setTitle()
             startLoadData(currentBudgetMonth)
         }
         binding.buttonSettings.setOnClickListener {
@@ -160,18 +165,18 @@ class DashboardFragment : Fragment() {
             when (optionId) {
                 R.id.discRadioButton -> {
                     DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeDiscretionary)
-                    setActionBarTitle()
+                    setTitle()
                     startLoadData(currentBudgetMonth)
                     // do something when radio button 1 is selected
                 }
                 R.id.nonDiscRadioButton -> {
                     DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_DISC_DASHBOARD, cDiscTypeNondiscretionary)
-                    setActionBarTitle()
+                    setTitle()
                     startLoadData(currentBudgetMonth)
                 }
                 R.id.allDiscRadioButton -> {
                     DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_DISC_DASHBOARD, "")
-                    setActionBarTitle()
+                    setTitle()
                     startLoadData(currentBudgetMonth)
                 }
             }
@@ -180,18 +185,18 @@ class DashboardFragment : Fragment() {
             when (optionId) {
                 R.id.name1RadioButton -> {
                     DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_DASHBOARD, "0")
-                    setActionBarTitle()
+                    setTitle()
                     startLoadData(currentBudgetMonth)
                     // do something when radio button 1 is selected
                 }
                 R.id.name2RadioButton -> {
                     DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_DASHBOARD, "1")
-                    setActionBarTitle()
+                    setTitle()
                     startLoadData(currentBudgetMonth)
                 }
                 R.id.whoAllRadioButton -> {
                     DefaultsViewModel.updateDefaultString(cDEFAULT_FILTER_WHO_DASHBOARD, "")
-                    setActionBarTitle()
+                    setTitle()
                     startLoadData(currentBudgetMonth)
                 }
             }
@@ -220,7 +225,7 @@ class DashboardFragment : Fragment() {
                 moveBackward()
             }
         })
-        setActionBarTitle()
+        setTitle()
         HintViewModel.showHint(parentFragmentManager, cHINT_DASHBOARD)
     }
 
@@ -287,12 +292,16 @@ class DashboardFragment : Fragment() {
         val run = Runnable {
             val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as TableRow
             val tableDashboardRow = binding.tableDashboardRows.getChildAt(0) as TableRow
-            for (ind in 0 until tableHeaderRow.childCount) {
+            tableHeaderRow.getChildAt(1).layoutParams = TableRow.LayoutParams(
+                tableDashboardRow.getChildAt(1).measuredWidth,
+                tableHeaderRow.getChildAt(1).measuredHeight)
+/*            for (ind in 0 until 3) {
+                Timber.tag("Alex").d("$ind ${tableHeaderRow.getChildAt(ind).measuredWidth} ${tableDashboardRow.getChildAt(ind).measuredWidth}")
                 tableHeaderRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
                     tableDashboardRow.getChildAt(ind).measuredWidth,
                     tableHeaderRow.getChildAt(ind).measuredHeight
                 )
-            }
+            } */
         }
         binding.tableDashboardRows.post(run)
     }
@@ -357,13 +366,15 @@ class DashboardFragment : Fragment() {
         val tv3 = TextView(requireContext())
         if (iRowType == cHEADER) {
             tv3.layoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                TableRow.LayoutParams.WRAP_CONTENT
+                0,
+                TableRow.LayoutParams.WRAP_CONTENT,
+                1F
             )
         } else {
             tv3.layoutParams = TableRow.LayoutParams(
+                0,
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT
+                1F
             )
         }
         tv3.gravity = Gravity.END
@@ -381,13 +392,15 @@ class DashboardFragment : Fragment() {
         val tv4 = TextView(requireContext())
         if (iRowType == cHEADER) {
             tv4.layoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                TableRow.LayoutParams.WRAP_CONTENT
+                0,
+                TableRow.LayoutParams.WRAP_CONTENT,
+                1F
             )
         } else {
             tv4.layoutParams = TableRow.LayoutParams(
+                0,
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT
+                1F
             )
         }
         tv4.gravity = Gravity.END
@@ -405,17 +418,19 @@ class DashboardFragment : Fragment() {
         val tv5 = TextView(requireContext())
         if (iRowType == cHEADER) {
             tv5.layoutParams = TableRow.LayoutParams(
-                TableRow.LayoutParams.MATCH_PARENT,
-                TableRow.LayoutParams.WRAP_CONTENT
+                0,
+                TableRow.LayoutParams.WRAP_CONTENT,
+                1F
             )
         } else {
             tv5.layoutParams = TableRow.LayoutParams(
+                0,
                 TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT
+                1F
             )
         }
         tv5.gravity = Gravity.END
-        tv5.setPadding(5, 15, 0, 15)
+        tv5.setPadding(5, 15, 40, 15)
         if (iRowType == cHEADER) {
             tv5.text = underlined(getString(R.string.delta))
             tv5.tooltipText = getString(R.string.toolTipDelta)
@@ -576,7 +591,8 @@ class DashboardFragment : Fragment() {
                 val catID = it.tag.toString()
                 // go to Budget
                 val action =
-                    DashboardTabsFragmentDirections.actionDashboardTabsFragmentToBudgetViewAllFragment()
+                    DashboardTabsFragmentDirections.actionDashboardTabsFragmentToSettingsTabsFragment()
+                action.targetTab = 2
                 action.categoryID = catID
                 view?.findNavController()?.navigate(action)
             }
@@ -689,7 +705,15 @@ class DashboardFragment : Fragment() {
         layout.visibility = View.GONE
     }
 
-    private fun setActionBarTitle() {
+    private fun setTitle() {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.dashboardTitleLayout.visibility = View.GONE
+            binding.navButtonLinearLayout.visibility = View.GONE
+            return
+        } else {
+            binding.dashboardTitleLayout.visibility = View.VISIBLE
+            binding.navButtonLinearLayout.visibility = View.VISIBLE
+        }
         var title =
             when (DefaultsViewModel.getDefaultViewPeriodDashboard()) {
                 cPeriodAllTime -> getString(R.string.all_time)
@@ -740,7 +764,7 @@ class DashboardFragment : Fragment() {
                 currentBudgetMonth.increment(cPeriodYear, -1)
             else
                 currentBudgetMonth.increment(cPeriodMonth, iNumOfMonths * -1)
-            setActionBarTitle()
+            setTitle()
             startLoadData(currentBudgetMonth)
         }
     }
@@ -752,7 +776,7 @@ class DashboardFragment : Fragment() {
                 currentBudgetMonth.increment(cPeriodYear, 1)
             else
                 currentBudgetMonth.increment(cPeriodMonth, iNumOfMonths * 1)
-            setActionBarTitle()
+            setTitle()
             startLoadData(currentBudgetMonth)
         }
     }

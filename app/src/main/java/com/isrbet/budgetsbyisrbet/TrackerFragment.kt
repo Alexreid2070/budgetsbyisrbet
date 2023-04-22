@@ -9,9 +9,11 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.view.*
 import android.widget.RadioButton
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.github.mikephil.charting.animation.Easing
@@ -32,10 +34,10 @@ import com.isrbet.budgetsbyisrbet.databinding.FragmentTrackerBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import java.text.DecimalFormat
-import java.util.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.DecimalFormat
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class TrackerFragment : Fragment(), CoroutineScope {
@@ -52,10 +54,22 @@ class TrackerFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            if (binding.barChart.visibility == View.GONE && // it's a pie chart
+                currentCategory != "") { // ie it's a pie chart AND user has drilled down
+                currentCategory = ""
+                loadPieChart(currentCategory)
+            } else
+                findNavController().popBackStack()
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         // Inflate the layout for this fragment
         _binding = FragmentTrackerBinding.inflate(inflater, container, false)
         return binding.root
@@ -71,6 +85,19 @@ class TrackerFragment : Fragment(), CoroutineScope {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (parentFragment is HomeFragment) { // ie on home page
+            // remove top padding
+            binding.constraintLayout.setPadding(
+                binding.constraintLayout.paddingLeft,
+                0,
+                binding.constraintLayout.paddingRight,
+                binding.constraintLayout.paddingBottom
+            )
+            binding.buttonLayout.visibility = View.GONE
+        }
+        if (!TransactionViewModel.isLoaded())
+            return
         initCurrentBudgetMonth()
         if (currentBudgetMonth.representsYear) {
             currentBudgetMonth = MyDate(
@@ -113,19 +140,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
         binding.name2RadioButton.text = SpenderViewModel.getSpenderName(1)
 
         if (parentFragment is HomeFragment) { // ie on home page
-            // remove top padding
-            binding.constraintLayout.setPadding(
-                binding.constraintLayout.paddingLeft,
-                0,
-                binding.constraintLayout.paddingRight,
-                binding.constraintLayout.paddingBottom
-            )
-/*            launch {
-                if (TransactionViewModel.getCount() > 0 && CategoryViewModel.getCount() > 0) {
-                    Timber.tag("PERF").d("Loading bar chart 1a")
-                    loadBarChart()
-                }
-            } */
             binding.buttonLayout.visibility = View.GONE
         } else { // ie on Tracker page
             binding.buttonLayout.visibility = View.VISIBLE
@@ -218,6 +232,7 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 } else {
                     hidePieChart()
                     launch {
+                        Timber.tag("Alex").d("calling 1 loadBarChart")
                         loadBarChart()
                     }
                 }
@@ -245,7 +260,9 @@ class TrackerFragment : Fragment(), CoroutineScope {
         }
     }
     private fun startLoadData() {
+        Timber.tag("Alex").d("startLoadData")
         if (binding.barChart.visibility == View.VISIBLE) {
+            Timber.tag("Alex").d("calling 2 loadBarChart")
             loadBarChart()
         } else
             loadPieChart(currentCategory)
@@ -301,10 +318,10 @@ class TrackerFragment : Fragment(), CoroutineScope {
         if (iSpecificCategory != "") {
             binding.chartSubTitle.visibility = View.VISIBLE
             if (binding.chartSubTitle.text == "")
-                binding.chartSubTitle.text = String.format(getString(R.string.bracketed), iSpecificCategory)
+                binding.chartSubTitle.text = iSpecificCategory
             else
-                binding.chartSubTitle.text = String.format(getString(R.string.bracketed2),
-                    binding.chartSubTitle.text, iSpecificCategory)
+                binding.chartSubTitle.text = String.format(getString(R.string.two_items),
+                    iSpecificCategory, binding.chartSubTitle.text)
         }
     }
 
@@ -352,7 +369,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             override fun onValueSelected(e: Entry?, h: Highlight?) {
                 if (parentFragment is HomeFragment) {
-                    findNavController().popBackStack()
                     view?.findNavController()?.navigate(R.id.TrackerTabsFragment)
                     return
                 }
@@ -360,7 +376,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
                     0F -> {
                         // Budget this month
                         val action =
-                            TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
+                            TrackerTabsFragmentDirections.actionTrackerTabsFragmentToSettingsTabsFragment()
+                        action.targetTab = 2
                         action.year = currentBudgetMonth.getYear().toString()
                         if (!currentBudgetMonth.representsYear)
                             action.month = currentBudgetMonth.getMonth().toString()
@@ -369,7 +386,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
                     1F -> {
                         // Budget to date
                         val action =
-                            TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
+                            TrackerTabsFragmentDirections.actionTrackerTabsFragmentToSettingsTabsFragment()
+                        action.targetTab = 2
                         action.year = currentBudgetMonth.getYear().toString()
                         if (!currentBudgetMonth.representsYear)
                             action.month = currentBudgetMonth.getMonth().toString()
@@ -411,7 +429,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
 
             override fun onChartSingleTapped(me: MotionEvent?) {
                 if (parentFragment is HomeFragment) {
-                    findNavController().popBackStack()
                     view?.findNavController()?.navigate(R.id.TrackerTabsFragment)
                 }
             }
@@ -640,10 +657,9 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 getString(R.string.non_discretionary)
         }
         if (DefaultsViewModel.getDefaultFilterWhoTracker() != 2) {
-            currentFilterIndicator = currentFilterIndicator +
-                (if (currentFilterIndicator == "") "" else " ") +
+            currentFilterIndicator = currentFilterIndicator + " " +
                 SpenderViewModel.getSpenderName(DefaultsViewModel.getDefaultFilterWhoTracker())
-    }
+        }
         if (currentFilterIndicator == "") {
             binding.chartSubTitle.visibility = View.GONE
             binding.chartSubTitle.text = ""
@@ -830,7 +846,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
                     } else { // ie clicking into subcategory
                         val catID = catName?.let { CategoryViewModel.getID(currentCategory, it) }
                         val action =
-                            TrackerFragmentDirections.actionTrackerFragmentToBudgetViewAllFragment()
+                            TrackerTabsFragmentDirections.actionTrackerTabsFragmentToSettingsTabsFragment()
+                        action.targetTab = 2
                         action.categoryID = catID.toString()
                         findNavController().navigate(action)
                     }

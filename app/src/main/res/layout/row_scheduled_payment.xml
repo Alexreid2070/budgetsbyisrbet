@@ -28,7 +28,15 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/row_name"
+            android:id="@+id/row_key"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/row_vendor"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/row_note"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"/>
         <TextView

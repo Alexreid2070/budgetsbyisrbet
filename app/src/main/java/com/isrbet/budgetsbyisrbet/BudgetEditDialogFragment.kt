@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
+import timber.log.Timber
 import java.util.*
 
 class BudgetEditDialogFragment : DialogFragment() {
@@ -191,6 +192,29 @@ class BudgetEditDialogFragment : DialogFragment() {
                 lcal.getMonth()-1,
                 lcal.getDay()
             ).show()
+        }
+        binding.periodSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (binding.periodSpinner.selectedItem.toString()) {
+                    getString(R.string.month) -> {
+                        val startOfPeriod = MyDate(binding.startDate.text.toString())
+                        if (startOfPeriod.getDay() != 1) {
+                            val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
+                            binding.startDate.setText(lDate.toString())
+                        }
+                    }
+                    getString(R.string.year) -> {
+                        val startOfPeriod = MyDate(binding.startDate.text.toString())
+                        if (startOfPeriod.getDay() != 1 || startOfPeriod.getMonth() != 1) {
+                            val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
+                            binding.startDate.setText(lDate.toString())
+                        }
+                    }
+                }
+            }
         }
 
         val amtDouble: Double

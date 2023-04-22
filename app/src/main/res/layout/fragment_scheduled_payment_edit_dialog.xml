@@ -23,6 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:paddingBottom="5dp"
                 android:text="@string/add_payment_schedule"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -43,7 +44,7 @@
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/viewHeader"
+                    android:id="@+id/spHeader"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -72,27 +73,46 @@
                     android:textSize="16sp"
                     android:textStyle="bold"/>
             </LinearLayout>
-
             <LinearLayout
-                android:id="@+id/dialog_linear_layout2"
+                android:id="@+id/link_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 app:layout_constraintTop_toBottomOf="@+id/dialog_linear_layout1">
+
+                <TextView
+                    android:id="@+id/link_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:drawablePadding="4dp"
+                    app:drawableEndCompat="@drawable/ic_baseline_link_24"
+                    app:drawableTint="@color/clickableBlue"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/vendor_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:gravity="start"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/link_layout">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_gravity="center"
-                    android:text="@string/name"
+                    android:text="@string/vendor_name"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
-                    android:tooltipText="Label/name of this scheduled payment (e.g. use the vendor name that you pay...)"/>
+                    android:tooltipText="Who is the vendor, i.e. who will you pay?"/>
 
                 <TextView
-                    android:id="@+id/edit_old_name"
+                    android:id="@+id/old_vendor"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -100,15 +120,15 @@
                     android:textSize="14sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/nameLayout"
+                    android:id="@+id/vendorNameLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="@string/name"
+                    android:hint="@string/vendor_name"
                     android:minWidth="@dimen/custom_med_width"
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_new_name"
+                        android:id="@+id/new_vendor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -121,13 +141,61 @@
                         android:longClickable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+            <LinearLayout
+                android:id="@+id/note_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                app:layout_constraintTop_toBottomOf="@+id/vendor_layout">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:text="@string/note"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
+                    android:tooltipText="Provide any desired note about this scheduled payment."/>
+
+                <TextView
+                    android:id="@+id/old_note"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/noteLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/note"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/new_note"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:clickable="true"
+                        android:cursorVisible="true"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:gravity="start"
+                        android:inputType="text"
+                        android:longClickable="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/dialog_linear_layout3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                app:layout_constraintTop_toBottomOf="@+id/dialog_linear_layout2">
+                app:layout_constraintTop_toBottomOf="@+id/note_linear_layout">
 
                 <TextView
                     android:layout_width="0dp"
@@ -147,7 +215,7 @@
                         android:layout_gravity="center"
                         android:textStyle="bold"/>
                     <TextView
-                        android:id="@+id/edit_old_amount"
+                        android:id="@+id/old_amount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -163,7 +231,7 @@
                         app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edit_new_amount"
+                            android:id="@+id/new_amount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
@@ -178,11 +246,38 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/dialog_linear_layout4"
+                android:id="@+id/last_payment_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
                 app:layout_constraintTop_toBottomOf="@id/dialog_linear_layout3">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:text="@string/last_payment_date"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
+                    android:tooltipText="Date of the last scheduled payment."/>
+
+                <TextView
+                    android:id="@+id/old_last_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/dialog_linear_layout4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                app:layout_constraintTop_toBottomOf="@id/last_payment_layout">
 
                 <TextView
                     android:layout_width="0dp"
@@ -196,7 +291,7 @@
                     android:tooltipText="Date of the next scheduled payment."/>
 
                 <TextView
-                    android:id="@+id/edit_old_next_date"
+                    android:id="@+id/old_next_date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -211,14 +306,10 @@
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_new_next_date"
+                        android:id="@+id/new_next_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"
                         android:gravity="start"
                         android:inputType="date"
                         android:longClickable="false" />
@@ -226,11 +317,55 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/expiration_date_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                app:layout_constraintTop_toBottomOf="@id/dialog_linear_layout3">
+
+                <TextView
+                    android:id="@+id/expiration_date_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:text="@string/expiration_date"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
+                    android:tooltipText="Date that this scheduled payment ends."/>
+
+                <TextView
+                    android:id="@+id/old_expiration_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="14sp"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/expirationDateLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/expiration_date"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/new_expiration_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="date"
+                        android:longClickable="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/dialog_linear_layout5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                app:layout_constraintTop_toBottomOf="@+id/dialog_linear_layout4">
+                app:layout_constraintTop_toBottomOf="@+id/expiration_date_linear_layout">
 
                 <TextView
                     android:layout_width="0dp"
@@ -244,7 +379,7 @@
                     android:tooltipText="Indicates if payment is every period (1), every second period (2), etc."/>
 
                 <TextView
-                    android:id="@+id/edit_old_regularity"
+                    android:id="@+id/old_regularity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -260,7 +395,7 @@
                     app:endIconMode="clear_text">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_new_regularity"
+                        android:id="@+id/new_regularity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -291,7 +426,7 @@
                     android:textColor="?attr/textOnBackground" />
 
                 <TextView
-                    android:id="@+id/edit_old_period"
+                    android:id="@+id/old_period"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -307,7 +442,7 @@
                     android:orientation="horizontal">
 
                     <Spinner
-                        android:id="@+id/edit_new_period_spinner"
+                        android:id="@+id/new_period_spinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -346,7 +481,7 @@
                     android:tooltipText="@string/toolTipCategorySubCategory"/>
 
                 <TextView
-                    android:id="@+id/edit_old_category"
+                    android:id="@+id/old_category"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -362,7 +497,7 @@
                     android:orientation="horizontal">
 
                     <Spinner
-                        android:id="@+id/edit_new_category"
+                        android:id="@+id/new_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -401,7 +536,7 @@
                     android:tooltipText="@string/toolTipCategorySubCategory" />
 
                 <TextView
-                    android:id="@+id/edit_old_subcategory"
+                    android:id="@+id/old_subcategory"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -417,7 +552,7 @@
                     android:orientation="horizontal">
 
                     <Spinner
-                        android:id="@+id/edit_new_subcategory"
+                        android:id="@+id/new_subcategory"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -457,7 +592,7 @@
                     android:tooltipText="@string/toolTipPaidBy"/>
 
                 <TextView
-                    android:id="@+id/edit_old_paid_by"
+                    android:id="@+id/old_paid_by"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -473,7 +608,7 @@
                     android:orientation="horizontal">
 
                     <Spinner
-                        android:id="@+id/edit_new_paid_by"
+                        android:id="@+id/new_paid_by"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -520,7 +655,7 @@
                     android:tooltipText="@string/toolTipBoughtFor"/>
 
                 <TextView
-                    android:id="@+id/edit_old_bought_for"
+                    android:id="@+id/old_bought_for"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -536,7 +671,7 @@
                     android:orientation="horizontal">
 
                     <Spinner
-                        android:id="@+id/edit_new_bought_for"
+                        android:id="@+id/new_bought_for"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"

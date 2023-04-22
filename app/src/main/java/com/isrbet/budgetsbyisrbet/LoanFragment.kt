@@ -88,6 +88,7 @@ class LoanFragment : Fragment() {
                             LoanPaymentRegularity.BIWEEKLY -> binding.buttonBiweekly.isChecked = true
                             LoanPaymentRegularity.MONTHLY -> binding.buttonMonthly.isChecked = true
                         }
+                        onCalculateButtonClicked()
                     }
                 }
             }

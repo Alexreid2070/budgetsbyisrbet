@@ -252,7 +252,10 @@ class DefaultsViewModel : ViewModel() {
         }
 
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun updateDefaultString(whichOne: String, iValue: String) {

@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_ScheduledPaymentFragment_to_LoanFragment"
             app:destination="@id/LoanFragment" />
+        <action
+            android:id="@+id/action_ScheduledPaymentFragment_to_TransactionViewAllFragment"
+            app:destination="@id/TransactionViewAllFragment" />
     </fragment>
     <fragment
         android:id="@+id/SettingsFragment"
@@ -38,11 +41,15 @@
         android:label="View Transactions"
         tools:layout="@layout/fragment_transaction_view_all" >
         <argument
-            android:name="accountingFlag"
+            android:name="filterMode"
             app:argType="string"
             android:defaultValue='' />
         <argument
             android:name="categoryID"
+            app:argType="string"
+            android:defaultValue='' />
+        <argument
+            android:name="rtKey"
             app:argType="string"
             android:defaultValue='' />
         <action
@@ -60,6 +67,9 @@
         <action
             android:id="@+id/action_homeFragment_to_TransactionViewAllFragment"
             app:destination="@id/TransactionViewAllFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_SettingsTabsFragment"
+            app:destination="@id/SettingsTabsFragment"/>
     </fragment>
     <fragment
         android:id="@+id/DashboardFragment"
@@ -87,6 +97,22 @@
         <action
             android:id="@+id/action_SettingsTabFragment_to_LoanFragment"
             app:destination="@id/LoanFragment" />
+        <argument
+            android:name="targetTab"
+            app:argType="integer"
+            android:defaultValue='0' />
+        <argument
+            android:name="categoryID"
+            app:argType="string"
+            android:defaultValue='' />
+        <argument
+            android:name="year"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="month"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
     <fragment
         android:id="@+id/AdminFragment"
@@ -231,8 +257,8 @@
         android:label="fragment_dashboard_tabs"
         tools:layout="@layout/fragment_dashboard_tabs">
         <action
-            android:id="@+id/action_DashboardTabsFragment_to_BudgetViewAllFragment"
-            app:destination="@id/BudgetViewAllFragment" />
+            android:id="@+id/action_DashboardTabsFragment_to_SettingsTabsFragment"
+            app:destination="@id/SettingsTabsFragment" />
     </fragment>
     <fragment
         android:id="@+id/YearOverYearFragment"
@@ -243,5 +269,9 @@
         android:id="@+id/TrackerTabsFragment"
         android:name="com.isrbet.budgetsbyisrbet.TrackerTabsFragment"
         android:label="TrackerTabsFragment"
-        tools:layout="@layout/fragment_tracker_tabs" />
+        tools:layout="@layout/fragment_tracker_tabs">
+        <action
+            android:id="@+id/action_TrackerTabsFragment_to_SettingsTabsFragment"
+            app:destination="@id/SettingsTabsFragment" />
+    </fragment>
 </navigation>

@@ -70,6 +70,8 @@ class AdminFragment : Fragment() {
     private fun doSomething() {
 //        BudgetViewModel.migrateBudgets()
         Timber.tag("Alex").d("doSomething")
-        TransactionViewModel.doSomething()
+//        TransactionViewModel.doSomething()
+
+        TransactionViewModel.doSomething2()
     }
 }

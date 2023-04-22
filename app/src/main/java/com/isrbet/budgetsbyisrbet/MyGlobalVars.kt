@@ -353,7 +353,9 @@ data class MyDate(var representsYear: Boolean = false) {
     fun getYYYYMM(): String {
         return "%04d-%02d".format(theDate.year, theDate.monthValue)
     }
-
+    fun getMMMDD(): String {
+        return "${gShortMonthName(theDate.monthValue)} %d".format(theDate.dayOfMonth)
+    }
     fun getFirstOfMonth() : MyDate {
         return MyDate(theDate.year, theDate.monthValue, 1)
     }
@@ -947,6 +949,9 @@ object LangUtils {
     }
 }
 
+interface DataUpdatedCallback  {
+    fun onDataUpdate()
+}
     val inspirationalQuotes = listOf(
     "Life is about making an impact, not making an income. -Kevin Kruse",
     "Whatever the mind of man can conceive and believe, it can achieve. -Napoleon Hill",

@@ -7,17 +7,28 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
 import it.sephiroth.android.library.numberpicker.doOnProgressChanged
+import timber.log.Timber
 
 class BudgetViewAllFragment : Fragment() {
     private var _binding: FragmentBudgetViewAllBinding? = null
     private val binding get() = _binding!!
     private val args: BudgetViewAllFragmentArgs by navArgs()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val budgetListObserver = Observer<MutableList<Budget>> { newValue ->
+            val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
+            Timber.tag("Alex").d("budget list has changed!!")
+            loadRows(currentCategory.id, 0, 0)
+        }
+        BudgetViewModel.observeList(this, budgetListObserver)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

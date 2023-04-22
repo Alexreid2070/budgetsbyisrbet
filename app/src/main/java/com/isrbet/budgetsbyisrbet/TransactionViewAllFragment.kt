@@ -2,14 +2,16 @@ package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.icu.text.SimpleDateFormat
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.view.*
 import android.widget.*
-import androidx.fragment.app.Fragment
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
@@ -17,10 +19,12 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
-import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
+import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.l4digital.fastscroll.FastScrollRecyclerView
 import timber.log.Timber
+import java.util.*
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -29,6 +33,8 @@ class PreviousFilters : ViewModel() {
     var prevPaidbyFilter = -1
     var prevBoughtForFilter = -1
     var prevTypeFilter = ""
+    var prevRTKeyFilter = ""
+    var dateRangeFilter: Pair<String, String> = Pair("", "")
 }
 
 enum class TransactionSortOrder {
@@ -51,17 +57,27 @@ enum class SortOrderDirection {
     DESCENDING
 }
 
+const val cACCOUNTING_FILTER = "Accounting"
+const val cSCHEDULED_PAYMENT_FILTER = "Scheduled Payment"
+
 class TransactionViewAllFragment : Fragment() {
     private var _binding: FragmentTransactionViewAllBinding? = null
     private val binding get() = _binding!!
     private val args: TransactionViewAllFragmentArgs by navArgs()
     private val filters: PreviousFilters by viewModels()
-    private var accountingMode = false
+    private var filterMode = ""
     private var currentSortOrder = TransactionSortOrder.DATE_ASCENDING
 
+    private fun inAccountingMode(): Boolean {
+        return filterMode == cACCOUNTING_FILTER
+    }
+    private fun inScheduledPaymentMode(): Boolean {
+        return filterMode == cSCHEDULED_PAYMENT_FILTER
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        accountingMode = args.accountingFlag == getString(R.string.accounting)
+        filterMode = args.filterMode
+        filters.prevRTKeyFilter = args.rtKey
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 transactionSearchText = ""
@@ -97,6 +113,8 @@ class TransactionViewAllFragment : Fragment() {
                     }
                 }
             recyclerView.layoutManager = linearLayoutManager
+            // fyi I have done a time check on how long it takes to copy the list.  It took 0ms to copy a list of 7000.
+            // so this is definitely not a perf issue
             val expList = TransactionViewModel.getCopyOfTransactions()
 //            expList.sortBy { it.date }
             if (expList.size == 0) {
@@ -142,6 +160,8 @@ class TransactionViewAllFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+        if (inScheduledPaymentMode())
+            currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
         setupRecycler()
         val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
 //            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
@@ -156,9 +176,11 @@ class TransactionViewAllFragment : Fragment() {
         binding.transactionAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransactionFragment)
         }
+        binding.selectDateRange.setOnClickListener {
+            selectDateRangeFilter()
+        }
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                Timber.tag("Alex").d("Got here")
                 return false
             }
 
@@ -167,7 +189,6 @@ class TransactionViewAllFragment : Fragment() {
                     recyclerView.adapter as TransactionRecyclerAdapter
                 ladapter.filter.filter(newText)
                 if (newText != "") {
-                    Timber.tag("Alex").d("binding.transactionSearch.setOnQueryTextListener totalLayout.visibility = View.Visible")
                     binding.totalLayout.visibility = View.VISIBLE
                     transactionSearchText = newText.toString()
                     binding.transactionSearch.visibility = View.VISIBLE
@@ -193,7 +214,6 @@ class TransactionViewAllFragment : Fragment() {
                     val selection = parent?.getItemAtPosition(position).toString()
                     addSubCategories(selection, filters.prevSubcategoryFilter)
                     val categoryFilter = if (selection == getString(R.string.all)) "" else selection
-                    Timber.tag("Alex").d("binding.categorySpinner.onItemSelectedListener totalLayout.visibility = View.Visible")
                     binding.totalLayout.visibility = View.VISIBLE
                     if (categoryFilter != filters.prevCategoryFilter) {
                         val ladapter: TransactionRecyclerAdapter =
@@ -203,6 +223,7 @@ class TransactionViewAllFragment : Fragment() {
                         ladapter.notifyDataSetChanged()
                         filters.prevCategoryFilter = categoryFilter
                         goToCorrectRow()
+                        setFilterTitle()
                     }
                 }
             }
@@ -224,7 +245,6 @@ class TransactionViewAllFragment : Fragment() {
                         ""
                     else
                         selection
-                    Timber.tag("Alex").d("binding.subcategorySpinner.onItemSelectedListener totalLayout.visibility = View.Visible")
                     binding.totalLayout.visibility = View.VISIBLE
                     if (subcategoryFilter != filters.prevSubcategoryFilter) {
                         val ladapter: TransactionRecyclerAdapter =
@@ -234,6 +254,7 @@ class TransactionViewAllFragment : Fragment() {
                         ladapter.notifyDataSetChanged()
                         filters.prevSubcategoryFilter = subcategoryFilter
                         goToCorrectRow()
+                        setFilterTitle()
                     }
                 }
             }
@@ -244,7 +265,6 @@ class TransactionViewAllFragment : Fragment() {
                 getString(R.string.non_disc) -> cDiscTypeNondiscretionary
                 else -> ""
             }
-            Timber.tag("Alex").d("binding.filterDiscRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
             binding.totalLayout.visibility = View.VISIBLE
             if (discretionaryFilter != filters.prevDiscretionaryFilter) {
                 val ladapter: TransactionRecyclerAdapter =
@@ -254,6 +274,7 @@ class TransactionViewAllFragment : Fragment() {
                 ladapter.notifyDataSetChanged()
                 filters.prevDiscretionaryFilter = discretionaryFilter
                 goToCorrectRow()
+                setFilterTitle()
             }
         }
         binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -262,7 +283,6 @@ class TransactionViewAllFragment : Fragment() {
                 -1
             else
                 SpenderViewModel.getSpenderIndex(radioButton.text.toString())
-            Timber.tag("Alex").d("binding.filterPaidByRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
             binding.totalLayout.visibility = View.VISIBLE
             if (paidbyFilter != filters.prevPaidbyFilter) {
                 val ladapter: TransactionRecyclerAdapter =
@@ -272,6 +292,7 @@ class TransactionViewAllFragment : Fragment() {
                 ladapter.notifyDataSetChanged()
                 filters.prevPaidbyFilter = paidbyFilter
                 goToCorrectRow()
+                setFilterTitle()
             }
         }
         binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -281,7 +302,6 @@ class TransactionViewAllFragment : Fragment() {
             else
                 SpenderViewModel.getSpenderIndex(radioButton.text.toString())
             if (boughtforFilter != filters.prevBoughtForFilter) {
-                Timber.tag("Alex").d("binding.filterBoughtForRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
                 binding.totalLayout.visibility = View.VISIBLE
                 val ladapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
@@ -290,6 +310,7 @@ class TransactionViewAllFragment : Fragment() {
                 ladapter.notifyDataSetChanged()
                 filters.prevBoughtForFilter = boughtforFilter
                 goToCorrectRow()
+                setFilterTitle()
             }
         }
         binding.filterTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -302,7 +323,6 @@ class TransactionViewAllFragment : Fragment() {
                 else -> ""
             }
             if (typeFilter != filters.prevTypeFilter) {
-                Timber.tag("Alex").d("binding.filterTypeRadioGroup.onItemSelectedListener totalLayout.visibility = View.Visible")
                 binding.totalLayout.visibility = View.VISIBLE
                 val ladapter: TransactionRecyclerAdapter =
                     recyclerView.adapter as TransactionRecyclerAdapter
@@ -311,6 +331,7 @@ class TransactionViewAllFragment : Fragment() {
                 ladapter.notifyDataSetChanged()
                 filters.prevTypeFilter = typeFilter
                 goToCorrectRow()
+                setFilterTitle()
             }
         }
         binding.buttonYearForward.setOnClickListener {
@@ -357,13 +378,13 @@ class TransactionViewAllFragment : Fragment() {
                     binding.expandedViewColumnLayout.visibility == View.GONE &&
                     binding.expandedFilterLayout.visibility == View.GONE) {
                 binding.expandedLabelLayout.visibility = View.VISIBLE
-                binding.expandedViewColumnLayout.visibility = View.VISIBLE
+                binding.expandedFilterLayout.visibility = View.VISIBLE
                 val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
-                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor))
-                binding.expandedViewColumnLabel.setBackgroundResource(R.drawable.rounded_top_corners)
+                binding.expandedFilterLayout.setBackgroundColor(Color.parseColor(hexColor))
+                binding.expandedFilterLayout.setBackgroundResource(R.drawable.rounded_top_corners)
                 val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
-                binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor2))
-                binding.expandedFilterLayout.visibility = View.GONE
+                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor2))
+                binding.expandedViewColumnLayout.visibility = View.GONE
                 binding.navButtonLinearLayout.visibility = View.GONE
             } else {
                 binding.expandedLabelLayout.visibility = View.GONE
@@ -477,19 +498,28 @@ class TransactionViewAllFragment : Fragment() {
             binding.paidbyLinearLayout.visibility = View.GONE
             binding.boughtforLinearLayout.visibility = View.GONE
         }
-        if (accountingMode) {
+        if (inAccountingMode()) {
             setViewsToAccounting()
-            setFiltersToAccounting()
+            runFilters()
             binding.percentage1Heading.text = SpenderViewModel.getSpenderName(0)
             binding.percentage2Heading.text = SpenderViewModel.getSpenderName(1)
-            binding.runningTotalHeading.tooltipText = String.format(getString(R.string.the_amount_that_x_owes_y),SpenderViewModel.getSpenderName(0),
-                    SpenderViewModel.getSpenderName(1))
-            if (SpenderViewModel.getSpenderName(0).substring(0,1) == SpenderViewModel.getSpenderName(1).substring(0,1))
+            binding.runningTotalHeading.tooltipText = String.format(
+                getString(R.string.the_amount_that_x_owes_y), SpenderViewModel.getSpenderName(0),
+                SpenderViewModel.getSpenderName(1)
+            )
+            if (SpenderViewModel.getSpenderName(0)
+                    .substring(0, 1) == SpenderViewModel.getSpenderName(1).substring(0, 1)
+            )
                 binding.runningTotalHeading.text = "1->2"
             else
-                binding.runningTotalHeading.text = String.format(getString(R.string.n_arrow_n),
-                    SpenderViewModel.getSpenderName(0).substring(0,1),
-                    SpenderViewModel.getSpenderName(1).substring(0,1))
+                binding.runningTotalHeading.text = String.format(
+                    getString(R.string.n_arrow_n),
+                    SpenderViewModel.getSpenderName(0).substring(0, 1),
+                    SpenderViewModel.getSpenderName(1).substring(0, 1)
+                )
+        } else if (inScheduledPaymentMode()) {
+            setViewsToScheduledPayments()
+            runFilters()
         } else {
             setViewsToDefault()
             if (args.categoryID != "")
@@ -568,19 +598,10 @@ class TransactionViewAllFragment : Fragment() {
             updateView()
         }
         binding.resetFilterButton.setOnClickListener {
-            resetFilters()
-            accountingMode = false
-            binding.expandedViewColumnLayout.visibility = View.GONE
-            binding.transactionSearch.visibility = View.GONE
-            binding.navButtonLinearLayout.visibility = View.VISIBLE
-            binding.expandedFilterLayout.visibility = View.GONE
-            binding.expandedLabelLayout.visibility = View.GONE
-            binding.totalLayout.visibility = View.GONE
-            adapter.setAccountingFilter(accountingMode)
-            adapter.filterTheList(transactionSearchText)
-            adapter.notifyDataSetChanged()
-            setViewsToDefault()
-            goToCorrectRow()
+            reset()
+        }
+        binding.filterOffButton.setOnClickListener {
+            reset()
         }
 
         binding.dateHeading.setOnClickListener {
@@ -722,8 +743,70 @@ class TransactionViewAllFragment : Fragment() {
         set.clear(R.id.transaction_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
         HintViewModel.showHint(parentFragmentManager, cHINT_TRANSACTION_VIEW_ALL)
+        setFilterTitle()
     }
 
+    private fun reset() {
+        resetFilters()
+        filterMode = ""
+        binding.expandedViewColumnLayout.visibility = View.GONE
+        binding.transactionSearch.visibility = View.GONE
+        binding.navButtonLinearLayout.visibility = View.VISIBLE
+        binding.expandedFilterLayout.visibility = View.GONE
+        binding.expandedLabelLayout.visibility = View.GONE
+        binding.totalLayout.visibility = View.GONE
+        binding.filterLayout.visibility = View.GONE
+
+        val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
+        val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
+        adapter.setFilter(filterMode)
+        adapter.filterTheList(transactionSearchText)
+        adapter.notifyDataSetChanged()
+        setViewsToDefault()
+        goToCorrectRow()
+    }
+    private fun setFilterTitle() {
+        binding.filterText.text = ""
+        if (inAccountingMode()) {
+            binding.filterLayout.visibility = View.VISIBLE
+            binding.filterText.text = getString(R.string.accounting_filter_is_on)
+        } else if (inScheduledPaymentMode()) {
+            binding.filterLayout.visibility = View.VISIBLE
+            binding.filterText.text = String.format(getString(R.string.scheduled_payment_filter_is_on), filters.prevRTKeyFilter)
+        } else {
+            var tempString = ""
+            if (filters.prevCategoryFilter != "") {
+                tempString += " ${filters.prevCategoryFilter}"
+            }
+            if (filters.prevSubcategoryFilter != "") {
+                tempString += " ${filters.prevSubcategoryFilter}"
+            }
+            if (filters.prevDiscretionaryFilter != "") {
+                tempString += " ${filters.prevDiscretionaryFilter}"
+            }
+            if (filters.prevPaidbyFilter != -1) {
+                tempString += " ${SpenderViewModel.getSpenderName(filters.prevPaidbyFilter)}"
+            }
+            if (filters.prevBoughtForFilter != -1) {
+                tempString += " ${SpenderViewModel.getSpenderName(filters.prevBoughtForFilter)}"
+            }
+            if (filters.prevTypeFilter != "") {
+                tempString += " ${filters.prevTypeFilter}"
+            }
+            if (filters.dateRangeFilter.first != "") {
+                tempString += " ${filters.dateRangeFilter.first}:${filters.dateRangeFilter.second}"
+            }
+
+            if (tempString == "") {
+                binding.filterLayout.visibility = View.GONE
+                binding.filterText.text = ""
+            } else {
+                tempString = "${getString(R.string.filtered_by)} $tempString"
+                binding.filterLayout.visibility = View.VISIBLE
+                binding.filterText.text = tempString
+            }
+        }
+    }
     private fun showExpandedViewColumnArea() {
         binding.expandedViewColumnLayout.visibility = View.VISIBLE
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
@@ -815,10 +898,10 @@ class TransactionViewAllFragment : Fragment() {
         }
     }
     @SuppressLint("NotifyDataSetChanged")
-    private fun setFiltersToAccounting() {
+    private fun runFilters() {
         resetFilters()
         val adapter: TransactionRecyclerAdapter = binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
-        adapter.setAccountingFilter(accountingMode)
+        adapter.setFilter(filterMode)
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
         goToCorrectRow()
@@ -857,6 +940,31 @@ class TransactionViewAllFragment : Fragment() {
         updateView()
     }
 
+    private fun setViewsToScheduledPayments() {
+        binding.showIndividualAmountsColumns.isChecked = false
+        binding.percentage1Heading.visibility = View.GONE
+        binding.percentage2Heading.visibility = View.GONE
+
+        binding.showRunningTotalColumn.isChecked = false
+        binding.runningTotalHeading.visibility = View.GONE
+
+        binding.showWhoColumn.isChecked = true
+        binding.whoHeading.visibility = View.VISIBLE
+
+        binding.showCategoryColumns.isChecked = true
+        binding.categoryHeading.visibility = View.VISIBLE
+
+        binding.showNoteColumn.isChecked = true
+        binding.noteHeading.visibility = View.VISIBLE
+
+        binding.showDiscColumn.isChecked = false
+        binding.discHeading.visibility = View.GONE
+
+        binding.showTypeColumn.isChecked = false
+        binding.typeHeading.visibility = View.GONE
+        updateView()
+    }
+
     private fun resetFilters() {
         val adapter: TransactionRecyclerAdapter =
             binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
@@ -873,6 +981,8 @@ class TransactionViewAllFragment : Fragment() {
         adapter.setBoughtForFilter(-1)
         binding.allTypeRadioButton.isChecked = true
         adapter.setTypeFilter("")
+        adapter.setDateRangeFilter(Pair("",""))
+        setFilterTitle()
     }
 
     private fun closeSearch() {
@@ -980,5 +1090,32 @@ class TransactionViewAllFragment : Fragment() {
         hideKeyboard(requireContext(), requireView())
         _binding = null
     }
+    private fun selectDateRangeFilter() {
+        val datePicker =
+            MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText("Select dates")
+                .build()
+        datePicker.show(parentFragmentManager, "Alex")
+        datePicker.addOnPositiveButtonClickListener {
+            val dateformatYYYYMMDD = SimpleDateFormat("yyyy-MM-dd")
+            dateformatYYYYMMDD.timeZone = TimeZone.getTimeZone("UTC")
+            var startDate: StringBuilder? = StringBuilder(dateformatYYYYMMDD.format(it.first))
+            var endDate: StringBuilder? = StringBuilder(dateformatYYYYMMDD.format(it.second))
+            filters.dateRangeFilter = Pair(startDate.toString(), endDate.toString())
 
+            binding.totalLayout.visibility = View.VISIBLE
+            val ladapter: TransactionRecyclerAdapter =
+                binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
+            ladapter.setDateRangeFilter(filters.dateRangeFilter)
+            ladapter.filterTheList(transactionSearchText)
+            ladapter.notifyDataSetChanged()
+            goToCorrectRow()
+            setFilterTitle()
+
+            binding.expandedLabelLayout.visibility = View.GONE
+            binding.expandedViewColumnLayout.visibility = View.GONE
+            binding.expandedFilterLayout.visibility = View.GONE
+            binding.navButtonLinearLayout.visibility = View.VISIBLE
+        }
+    }
 }

@@ -6,6 +6,7 @@ import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationViewAllBinding
 
 enum class TranslationSortOrder(val code: Int) {
@@ -30,6 +31,16 @@ class TranslationViewAllFragment : Fragment() {
         _binding = FragmentTranslationViewAllBinding.inflate(inflater, container, false)
         inflater.inflate(R.layout.fragment_translation_view_all, container, false)
         return binding.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val translationObserver = Observer<MutableList<Translation>> {
+            val myAdapter = TranslationAdapter(requireContext(), TranslationViewModel.getTranslations(), currentSortOrder)
+            binding.translationListView.adapter = myAdapter
+            myAdapter.notifyDataSetChanged()
+        }
+        TranslationViewModel.observeList(this, translationObserver)
     }
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {

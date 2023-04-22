@@ -2,6 +2,7 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -56,7 +57,10 @@ class CategoryViewModel : ViewModel() {
         } */
 
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun getCount() : Int {
@@ -238,12 +242,15 @@ class CategoryViewModel : ViewModel() {
             }
             return list
         }
-        fun getSubcategoriesForSpinner(iCategory: String) : MutableList<String> {
+        fun getSubcategoriesForSpinner(iCategory: String, iSubCategory: String = "") : MutableList<String> {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
-                if ((it.categoryName == iCategory && it.inUse) &&
-                        it.iAmAllowedToSeeThisCategory())
-                    list.add(it.subcategoryName)
+                if (it.categoryName == iCategory && it.iAmAllowedToSeeThisCategory()) {
+                    if (it.inUse ||
+                    (!it.inUse && it.subcategoryName == iSubCategory)) {
+                        list.add(it.subcategoryName)
+                    }
+                }
             }
             return list
         }

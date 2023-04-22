@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Bundle
 import android.view.Menu
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
 import androidx.navigation.findNavController
@@ -16,6 +17,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
 import timber.log.Timber
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var notificationManager: NotificationManager
 //    lateinit var notificationChannel: NotificationChannel
     lateinit var builder: Notification.Builder
+    var bottomPadding = 0
 //    private val channelId = "i.apps.notifications"
   //  private val description = "Test notification"
 
@@ -43,19 +46,24 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setOnItemSelectedListener {
             // don't redraw page if we're already there
             if (navHostFragment.childFragmentManager.backStackEntryCount > 0 &&
-                it.itemId == navController.currentDestination?.id)
+                it.itemId == navController.currentDestination?.id) {
+                Timber.tag("Alex").d("NOT DOING IT")
                 return@setOnItemSelectedListener true
+            }
 
             MyApplication.transactionSearchText = ""
             MyApplication.transactionFirstInList = cLAST_ROW
             gHomePageExpansionAreaExpanded = false
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
-                navHostFragment.childFragmentManager.popBackStack()
+                Timber.tag("Alex").d("Pop!")
+                navController.popBackStack()
+//                navHostFragment.childFragmentManager.popBackStack()
             }
             binding.bottomNavigationView.menu.findItem(R.id.homeFragment).isChecked = true
             when(it.itemId){
                 R.id.homeFragment -> { // no navigation needed since we've popped our way back...
-                    binding.bottomNavigationView.menu.findItem(it.itemId).isChecked = true
+//                    binding.bottomNavigationView.menu.findItem(it.itemId).isChecked = true
+                    navController.navigate(R.id.homeFragment)
                 }
                 R.id.TransactionViewAllFragment-> {
                     navController.navigate(R.id.TransactionViewAllFragment)
@@ -91,8 +99,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun multipleUserMode(iFlag: Boolean) {
-        val navigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
-        val navMenu: Menu = navigationView.menu
+//        val navigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
+        val navMenu: Menu = binding.bottomNavigationView.menu
         navMenu.forEach {
             if (it.title == getString(R.string.accounting)) {
                 it.isVisible = iFlag
@@ -110,15 +118,27 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        Timber.tag("Alex").d("Resuming Main Activity")
         gCurrentDate = MyDate()
         gHomePageExpansionAreaExpanded = false
     }
 
     override fun onDestroy() {
-        Timber.tag("Alex").d("main activity onDestroy")
         super.onDestroy()
         MyApplication.releaseResources()
         gHomePageExpansionAreaExpanded = false
     }
+
+    fun setBottomNavBarVisibility(iVisible: Boolean) {
+        if (iVisible) {
+            binding.bottomNavigationView.visibility = View.VISIBLE
+            if (bottomPadding != 0)
+                binding.frameLayout.setPadding(0, 0, 0, bottomPadding)
+        } else {
+            if (bottomPadding == 0)
+                bottomPadding = binding.frameLayout.paddingBottom
+            binding.bottomNavigationView.visibility = View.GONE
+            binding.frameLayout.setPadding(0, 0, 0, 0)
+        }
+    }
+
 }

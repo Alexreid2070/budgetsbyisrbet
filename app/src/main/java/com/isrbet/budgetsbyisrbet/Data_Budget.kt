@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.icu.text.NumberFormat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -123,14 +124,21 @@ data class Budget(var categoryID: Int) {
 class BudgetViewModel : ViewModel() {
     private var budgetListener: ValueEventListener? = null
     private val budgets: MutableList<Budget> = ArrayList()
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
+    val budgetsLiveData = MutableLiveData<MutableList<Budget>>()
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: BudgetViewModel // used to track static single instance of self
 
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Budget>>) {
+            singleInstance.budgetsLiveData.observe(iFragment, iObserver)
+        }
+
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun getCount(): Int {
@@ -150,11 +158,11 @@ class BudgetViewModel : ViewModel() {
         }
 
 /*        fun showMe() {
-            Log.d("Alex", "SHOW ME budgets " + singleInstance.budgets.size.toString())
+            Timber.tag("Alex").d("SHOW ME budgets %s", singleInstance.budgets.size.toString())
             singleInstance.budgets.forEach {
-                Log.d("Alex", "SM Budget category is '" + CategoryViewModel.getFullCategoryName(it.categoryID) + "'")
+                Timber.tag("Alex").d("%s'", "SM Budget category is '" + CategoryViewModel.getFullCategoryName(it.categoryID))
                 for (child in it.budgetPeriodList) {
-                    Log.d("Alex", "  date " + child.startDate + " period " + child.period + " reg " + child.regularity + " who " + child.who + " amount " + child.amount)
+                    Timber.tag("Alex").d("%s%s", "  date " + child.startDate + " period " + child.period + " reg " + child.regularity + " who " + child.who + " amount ", child.amount)
                 }
             }
         } */
@@ -673,11 +681,11 @@ class BudgetViewModel : ViewModel() {
             if (iAmount == "") {
                 return MyApplication.getString(R.string.value_cannot_be_blank)
             }
-            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
-            val amountDouble = lNumberFormat.parse(iAmount).toDouble()
-            if (amountDouble == 0.0) {
-                return MyApplication.getString(R.string.value_cannot_be_zero)
-            }
+//            val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+//            val amountDouble = lNumberFormat.parse(iAmount).toDouble()
+//            if (amountDouble == 0.0) {
+  //              return MyApplication.getString(R.string.value_cannot_be_zero)
+    //        }
             val regularityInt: Int
             try {
                 regularityInt = Integer.parseInt(iRegularity)
@@ -759,7 +767,6 @@ class BudgetViewModel : ViewModel() {
                     .removeEventListener(singleInstance.budgetListener!!)
                 singleInstance.budgetListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
             singleInstance.budgets.clear()
             singleInstance.loaded = false
         }
@@ -795,14 +802,6 @@ class BudgetViewModel : ViewModel() {
                 .removeEventListener(budgetListener!!)
             budgetListener = null
         }
-    }
-
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-    }
-
-    fun clearCallback() {
-        dataUpdatedCallback = null
     }
 
     fun loadBudgets() {
@@ -861,7 +860,6 @@ class BudgetViewModel : ViewModel() {
                 }
                 loaded = true
 //                showMe()
-                dataUpdatedCallback?.onDataUpdate()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -929,7 +927,7 @@ class BudgetViewModel : ViewModel() {
                 }
                 loaded = true
 //                showMe()
-                dataUpdatedCallback?.onDataUpdate()
+                singleInstance.budgetsLiveData.value = singleInstance.budgets
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -941,8 +939,4 @@ class BudgetViewModel : ViewModel() {
             budgetListener as ValueEventListener
         )
     }
-}
-
-interface DataUpdatedCallback  {
-    fun onDataUpdate()
 }

@@ -2,6 +2,8 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -21,12 +23,19 @@ data class TranslationOut(var before: String, var after: String, var category: I
 class TranslationViewModel : ViewModel() {
     private var transListener: ValueEventListener? = null
     private val translations: MutableList<Translation> = ArrayList()
+    val translationsLiveData = MutableLiveData<MutableList<Translation>>()
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: TranslationViewModel // used to track static single instance of self
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Translation>>) {
+            singleInstance.translationsLiveData.observe(iFragment, iObserver)
+        }
         fun isLoaded():Boolean {
-            return singleInstance.loaded
+            return if (this::singleInstance.isInitialized) {
+                singleInstance.loaded
+            } else
+                false
         }
 
         fun getTranslations():MutableList<Translation> {
@@ -143,6 +152,7 @@ class TranslationViewModel : ViewModel() {
                     translations.add(Translation(before, after, category, mKey))
                 }
                 singleInstance.loaded = true
+                singleInstance.translationsLiveData.value = singleInstance.translations
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

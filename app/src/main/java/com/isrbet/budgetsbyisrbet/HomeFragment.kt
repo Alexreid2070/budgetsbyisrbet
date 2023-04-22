@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -61,25 +62,12 @@ class HomeFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        categoryModel.clearCallback() // calling this causes the object to exist by this point.  For some reason it is not there otherwise
-        spenderModel.clearCallback() // ditto, see above
-        userModel.clearCallback() // ditto, see above
-        transactionModel.clearCallback()
-        budgetModel.clearCallback()
-        scheduledPaymentModel.clearCallback()
-        retirementUserModel.clearCallback()
-        defaultsModel.clearCallback()
-        translationModel.clearCallback()
-        hintModel.clearCallback()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        userModel.clearCallback()
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
 
@@ -152,7 +140,11 @@ class HomeFragment : Fragment(), CoroutineScope {
         auth = Firebase.auth
 
         binding.scheduledPaymentField.setOnClickListener {
-            findNavController().navigate(R.id.ScheduledPaymentFragment)
+            val action =
+                HomeFragmentDirections.actionHomeFragmentToSettingsTabsFragment()
+            action.targetTab = 3
+            findNavController().navigate(action)
+//            findNavController().navigate(R.id.ScheduledPaymentFragment)
         }
         binding.transactionAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransactionFragment)
@@ -176,12 +168,14 @@ class HomeFragment : Fragment(), CoroutineScope {
         binding.adminButton.setOnClickListener {
             findNavController().navigate(R.id.AdminFragment)
         }
+
         return binding.root
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.scrollView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 if (p1 != null) {
@@ -216,14 +210,6 @@ class HomeFragment : Fragment(), CoroutineScope {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
-            setScheduledPaymentText()
-
-            if (DefaultsViewModel.getDefaultQuote()) {
-                if (MyApplication.userEmail != MyApplication.currentUserEmail)
-                    binding.quoteField.text = String.format(getString(R.string.currently_impersonating), MyApplication.currentUserEmail)
-                else
-                    binding.quoteField.text = getQuote()
-            }
         }
 //        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
         MyApplication.userGivenName = account?.givenName.toString()
@@ -275,7 +261,13 @@ class HomeFragment : Fragment(), CoroutineScope {
     private fun setupDataCallbacks() {
         DefaultsViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
-                if (DefaultsViewModel.getDefaultQuote()) {
+                if (MyApplication.userEmail != MyApplication.currentUserEmail) {
+                    binding.quoteField.visibility = View.VISIBLE
+                    binding.quoteField.text = String.format(
+                        getString(R.string.currently_impersonating),
+                        MyApplication.currentUserEmail
+                    )
+                } else if (DefaultsViewModel.getDefaultQuote()) {
                     binding.quoteField.visibility = View.VISIBLE
                     binding.quoteField.text = getQuote()
                 }
@@ -287,6 +279,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                 alignPageWithDataState("CategoryViewModel")
             }
         })
+
         SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
@@ -303,18 +296,27 @@ class HomeFragment : Fragment(), CoroutineScope {
                 alignPageWithDataState("TransactionViewModel")
             }
         })
-        BudgetViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        val budListObserver = Observer<MutableList<Budget>> {
+            alignPageWithDataState("BudgetViewModel")
+        }
+        BudgetViewModel.observeList(this, budListObserver)
+/*        BudgetViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("BudgetViewModel")
             }
-        })
-        ScheduledPaymentViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        }) */
+        val spListObserver = Observer<MutableList<ScheduledPayment>> {
+            (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
+            alignPageWithDataState("SpenderViewModel")
+            setScheduledPaymentText()
+        }
+        ScheduledPaymentViewModel.observeList(this, spListObserver)
+/*        ScheduledPaymentViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 setScheduledPaymentText()
                 alignPageWithDataState("ScheduledPaymentViewModel")
-                ScheduledPaymentViewModel.generateScheduledPayments(activity as MainActivity)
             }
-        })
+        }) */
         RetirementViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("RetirementViewModel")
@@ -401,8 +403,8 @@ class HomeFragment : Fragment(), CoroutineScope {
             binding.signInButton.visibility = View.GONE
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
-            setScheduledPaymentText()
-            if (DefaultsViewModel.getDefaultQuote()) {
+//            setScheduledPaymentText()
+            if (DefaultsViewModel.isLoaded() && DefaultsViewModel.getDefaultQuote()) {
                 binding.quoteField.text = getQuote()
                 if (account.uid == "null")
                     binding.quoteField.text = getString(R.string.something_went_wrong)
@@ -429,13 +431,14 @@ class HomeFragment : Fragment(), CoroutineScope {
                         .child("0")
                         .child("JoinUser")
                 dbRef.addListenerForSingleValueEvent(joinListener)
+            } else {
+                setScheduledPaymentText()
             }
         }
         alignPageWithDataState("end of OVC")
     }
 
     private fun loadEverything() {
-        setupDataCallbacks()
         hintModel.loadHints()
         defaultsModel.loadDefaults()
         categoryModel.loadCategories()
@@ -446,6 +449,7 @@ class HomeFragment : Fragment(), CoroutineScope {
         retirementUserModel.loadRetirementUsers()
         transactionModel.loadTransactions()
         translationModel.loadTranslations()
+        setupDataCallbacks()
         MyApplication.haveLoadedDataForThisUser = true
         MyApplication.database.getReference("Users/" + MyApplication.userUID)
             .child("Info")
@@ -461,17 +465,19 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun alignPageWithDataState(iTag: String)  {
-        Timber.tag("Alex").d("alignpage: $iTag")
+//        Timber.tag("Alex").d("alignpage: $iTag userUID ${MyApplication.userUID}")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
         }
 
-        if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() && SpenderViewModel.isLoaded()
+        if (MyApplication.userUID != "" && CategoryViewModel.isLoaded() &&
+            SpenderViewModel.isLoaded()
             && ScheduledPaymentViewModel.isLoaded()
             && TransactionViewModel.isLoaded()
             && BudgetViewModel.isLoaded() &&
-            DefaultsViewModel.isLoaded() && HintViewModel.isLoaded() &&
+            DefaultsViewModel.isLoaded() &&
+            HintViewModel.isLoaded() &&
             RetirementViewModel.isLoaded()
         ) {
             if (thisIsANewUser()) {
@@ -500,8 +506,8 @@ class HomeFragment : Fragment(), CoroutineScope {
                 CategoryViewModel.singleInstance.clearCallback()
                 SpenderViewModel.singleInstance.clearCallback()
                 TransactionViewModel.singleInstance.clearCallback()
-                BudgetViewModel.singleInstance.clearCallback()
-                ScheduledPaymentViewModel.singleInstance.clearCallback()
+//                BudgetViewModel.singleInstance.clearCallback()
+  //              ScheduledPaymentViewModel.singleInstance.clearCallback()
                 RetirementViewModel.singleInstance.clearCallback()
                 TranslationViewModel.singleInstance.clearCallback()
                 DefaultsViewModel.singleInstance.clearCallback()
@@ -553,6 +559,7 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun signout() {
+        Timber.tag("Alex").d("Signout")
         BudgetViewModel.clear()
         CategoryViewModel.clear()
         DefaultsViewModel.clear()
@@ -598,8 +605,8 @@ class HomeFragment : Fragment(), CoroutineScope {
         CategoryViewModel.singleInstance.clearCallback()
         SpenderViewModel.singleInstance.clearCallback()
         TransactionViewModel.singleInstance.clearCallback()
-        BudgetViewModel.singleInstance.clearCallback()
-        ScheduledPaymentViewModel.singleInstance.clearCallback()
+//        BudgetViewModel.singleInstance.clearCallback()
+  //      ScheduledPaymentViewModel.singleInstance.clearCallback()
         RetirementViewModel.singleInstance.clearCallback()
         TranslationViewModel.singleInstance.clearCallback()
         DefaultsViewModel.singleInstance.clearCallback()

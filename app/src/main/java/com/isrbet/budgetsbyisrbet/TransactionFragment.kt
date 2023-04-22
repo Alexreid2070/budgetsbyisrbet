@@ -262,7 +262,7 @@ class TransactionFragment : Fragment() {
             binding.where.isEnabled = false
             binding.note.isEnabled = false
             binding.scheduledPaymentLabel.isEnabled = false
-            binding.transactionTypeLayout.isEnabled = false
+            binding.transactionType.isEnabled = false
             binding.inputSubcategorySpinner.isEnabled = false
             for (i in 0 until binding.categoryRadioGroup.childCount) {
                 (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
@@ -399,7 +399,7 @@ class TransactionFragment : Fragment() {
         val currentSubCategory = binding.inputSubcategorySpinner.selectedItem.toString()
         addSubCategories(currentCategory, currentSubCategory)
         if (MyApplication.adminMode) {
-            binding.transactionTypeLayout.isEnabled = true
+            binding.transactionType.isEnabled = true
         }
     }
 
@@ -458,7 +458,8 @@ class TransactionFragment : Fragment() {
                 binding.transactionIdLayout.visibility = View.VISIBLE
                 binding.transactionId.visibility = View.VISIBLE
                 binding.categoryId.visibility = View.VISIBLE
-                binding.transactionTypeLayout.visibility = View.VISIBLE
+                binding.transactionType.visibility = View.VISIBLE
+                binding.rtKey.visibility = View.VISIBLE
             }
 
             for (i in 0 until binding.categoryRadioGroup.childCount) {
@@ -485,8 +486,9 @@ class TransactionFragment : Fragment() {
             binding.where.setText(thisTransaction.note)
             binding.note.setText(thisTransaction.note2)
             binding.scheduledPaymentLabel.visibility = View.VISIBLE
-            binding.transactionTypeLayout.visibility = View.VISIBLE
-            binding.transactionType.setText(thisTransaction.type)
+            binding.transactionType.visibility = View.VISIBLE
+            binding.transactionType.text = thisTransaction.type
+            binding.rtKey.text = thisTransaction.rtkey
             if (thisTransaction.type == getString(R.string.scheduled)) {
                 binding.scheduledPaymentLabel.text = getString(R.string.this_expense_was_automatically_generated)
                 binding.scheduledPaymentLabel.visibility = View.VISIBLE
@@ -553,7 +555,8 @@ class TransactionFragment : Fragment() {
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
         val subCategorySpinner =
             requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
-        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
+            CategoryViewModel.getSubcategoriesForSpinner(iCategory, iSubCategory))
         subCategorySpinner.adapter = arrayAdapter
         subCategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
         arrayAdapter.notifyDataSetChanged()
@@ -700,7 +703,9 @@ class TransactionFragment : Fragment() {
                 binding.note.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
-                binding.slider.value.toInt()
+                binding.slider.value.toInt(),
+                cTRANSACTION_TYPE_EXPENSE,
+                ""
             )
             binding.transactionAmount.setText("")
             binding.transactionAmount.requestFocus()
@@ -738,7 +743,8 @@ class TransactionFragment : Fragment() {
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 binding.slider.value.toInt(),
-                binding.transactionType.text.toString()
+                binding.transactionType.text.toString(),
+                binding.rtKey.text.toString()
             )
 
            TransactionViewModel.updateTransactionDatabase(editingKey, transactionOut)

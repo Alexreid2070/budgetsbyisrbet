@@ -38,6 +38,35 @@
             android:contentDescription="@string/search"
             android:src="@drawable/ic_baseline_search_24"/>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/filter_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/menuColor"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/page_title_layout">
+
+        <TextView
+            android:id="@+id/filter_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textSize="@dimen/pageHeadingFontSize"/>
+        <ImageView
+            android:id="@+id/filterOffButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="10dp"
+            android:contentDescription="@string/search"
+            android:src="@drawable/ic_baseline_filter_list_off_24"/>
+    </LinearLayout>
     <androidx.appcompat.widget.SearchView
         android:id="@+id/transaction_search"
         android:layout_width="match_parent"
@@ -46,7 +75,7 @@
         android:textCursorDrawable="@null"
         android:theme="@style/WhiteCursorSearchView"
         app:iconifiedByDefault="false"
-        app:layout_constraintTop_toBottomOf="@id/page_title_layout"
+        app:layout_constraintTop_toBottomOf="@id/filter_layout"
         app:queryBackground="@null" />
     <LinearLayout
         android:id="@+id/column_heading_layout"
@@ -384,18 +413,8 @@
         android:orientation="horizontal"
         android:visibility="gone"
         android:paddingTop="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/expanded_view_column_layout"
+        app:layout_constraintBottom_toTopOf="@+id/expanded_filter_layout"
         app:layout_constraintTop_toBottomOf="@+id/nav_button_linear_layout">
-        <TextView
-            android:id="@+id/expanded_view_column_label"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:background="@drawable/rounded_top_corners"
-            android:text="@string/show_hide_columns"/>
-
         <TextView
             android:id="@+id/expanded_filter_label"
             android:layout_width="0dp"
@@ -405,110 +424,15 @@
             android:textSize="16sp"
             android:background="?attr/menuColor"
             android:text="@string/filters"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/expanded_view_column_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/menuColor"
-        android:orientation="vertical"
-        android:paddingStart="10dp"
-        android:paddingEnd="5dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/expanded_filter_layout"
-        app:layout_constraintTop_toBottomOf="@+id/expanded_label_layout">
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_individual_amounts_columns"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/expanded_view_column_label"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="false"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:text="@string/show_split_amount_columns"
-            android:textSize="15sp"
+            android:layout_weight="1"
             android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_category_columns"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="true"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:text="@string/show_category_column"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_who_column"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="true"
-            android:text="@string/show_who_column"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"
-            android:textOff="@string/off"
-            android:textOn="@string/on"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_note_column"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="true"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:text="@string/show_where_column"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_disc_column"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="true"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:text="@string/show_discretionary_indicator_column"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_type_column"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="true"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:text="@string/show_type_column"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"/>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/show_running_total_column"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:checked="false"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:text="@string/show_running_total_column"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnMenuColor"/>
+            android:textSize="16sp"
+            android:background="@drawable/rounded_top_corners"
+            android:text="@string/show_hide_columns"/>
     </LinearLayout>
 
     <LinearLayout
@@ -520,8 +444,8 @@
         android:paddingStart="10dp"
         android:paddingEnd="5dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/expanded_view_column_layout">
+        app:layout_constraintBottom_toTopOf="@id/expanded_view_column_layout"
+        app:layout_constraintTop_toBottomOf="@+id/expanded_label_layout">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -804,16 +728,136 @@
             </HorizontalScrollView>
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/resetFilterButton"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectDateRange"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="@string/select_date_range"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/resetFilterButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="@string/reset_all_filters"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/expanded_view_column_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/menuColor"
+        android:orientation="vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/expanded_filter_layout">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_individual_amounts_columns"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:minWidth="50dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:text="@string/reset_all_filters"/>
+            android:layout_gravity="start"
+            android:checked="false"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_split_amount_columns"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_category_columns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_category_column"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_who_column"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:text="@string/show_who_column"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"
+            android:textOff="@string/off"
+            android:textOn="@string/on"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_note_column"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_where_column"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_disc_column"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_discretionary_indicator_column"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_type_column"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_type_column"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_running_total_column"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="false"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_running_total_column"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

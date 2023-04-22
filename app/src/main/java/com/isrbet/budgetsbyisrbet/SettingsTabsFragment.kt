@@ -8,14 +8,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSettingsTabsBinding
-import timber.log.Timber
 
 class SettingsTabsFragment : Fragment() {
     private var _binding: FragmentSettingsTabsBinding? = null
     private val binding get() = _binding!!
+    private val args: SettingsTabsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,7 +29,9 @@ class SettingsTabsFragment : Fragment() {
         adapter.addFragment(CategoryFragment(), "Categories")
         val budFra = BudgetViewAllFragment().apply {
             arguments = Bundle().apply {
-                putString("categoryID", "")
+                putString("categoryID", args.categoryID)
+                putString("year", args.year)
+                putString("month", args.month)
             }
         }
         adapter.addFragment(budFra, "Budgets")
@@ -37,7 +40,7 @@ class SettingsTabsFragment : Fragment() {
         f1.arguments = this.arguments
 
         binding.viewPager.adapter = adapter
-        binding.viewPager.currentItem = 0
+        binding.viewPager.currentItem = args.targetTab
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = adapter.getTabTitle(position)
         }.attach()
@@ -46,7 +49,7 @@ class SettingsTabsFragment : Fragment() {
             val tab = binding.tabLayout.getTabAt(i)
             tab?.customView = createCustomTabView(tab?.text.toString(), 15, android.R.color.black)
             if (tab != null)
-                if (i == 0)
+                if (i == args.targetTab)
                     setTabActive(tab)
                 else
                     setTabInactive(tab)
@@ -55,7 +58,6 @@ class SettingsTabsFragment : Fragment() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null) {
-                    Timber.tag("Alex").d("Chose ${tab.text}")
                     setTabActive(tab)
                 }
             }
@@ -87,7 +89,7 @@ class SettingsTabsFragment : Fragment() {
     private fun setTabActive(tab: TabLayout.Tab) {
         val tabCustomView = tab.customView
         val tabTextView = tabCustomView!!.findViewById<TextView>(R.id.tabTV)
-        tabTextView.textSize = 17F
+//        tabTextView.textSize = 17F
         tabTextView.setTextColor(ContextCompat.getColor(tabCustomView.context, R.color.black))
         tabTextView.setTypeface(null, Typeface.BOLD)
     }

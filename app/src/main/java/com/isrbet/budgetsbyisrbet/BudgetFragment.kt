@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
+import timber.log.Timber
 import java.util.*
 
 class BudgetFragment : Fragment() {
@@ -112,10 +113,14 @@ class BudgetFragment : Fragment() {
 
                             val dateSetListener =
                                 DatePickerDialog.OnDateSetListener { _, _, _, _ ->
+                                    val startOfPeriod = MyDate(binding.startDate.text.toString())
+                                    val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
                                     binding.startDate.setText(lDate.toString())
                                 }
 
                             binding.startDate.setOnClickListener {
+                                val startOfPeriod = MyDate(binding.startDate.text.toString())
+                                val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
                                 DatePickerDialog(
                                     requireContext(), dateSetListener,
                                     lDate.getYear(), lDate.getMonth()-1, lDate.getDay()
@@ -131,10 +136,14 @@ class BudgetFragment : Fragment() {
 
                             val dateSetListener =
                                 DatePickerDialog.OnDateSetListener { _, _, _, _ ->
+                                    val startOfPeriod = MyDate(binding.startDate.text.toString())
+                                    val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
                                     binding.startDate.setText(lDate.toString())
                                 }
 
                             binding.startDate.setOnClickListener {
+                                val startOfPeriod = MyDate(binding.startDate.text.toString())
+                                val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
                                 DatePickerDialog(
                                     requireContext(), dateSetListener,
                                     lDate.getYear(), lDate.getMonth()-1, lDate.getDay()
