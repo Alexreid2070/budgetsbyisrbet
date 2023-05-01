@@ -23,29 +23,30 @@ class RetirementPensionDialogFragment : DialogFragment() {
     private var listener: RetirementPensionDialogFragmentListener? = null
     private var _binding: FragmentRetirementPensionDialogBinding? = null
     private val binding get() = _binding!!
+    private var myScenario: RetirementData? = null
 
     companion object {
         private const val KEY_USER_ID = "1"
         private const val KEY_PENSION_NAME = ""
-        private const val KEY_DEFAULT_MODE_ID = "3"
+        private const val KEY_SCENARIO_TYPE = "3"
         private var userID: Int = 0
         private var pensionName: String = ""
-        private var inDefaultMode: Boolean = false
+        private var scenarioType: RetirementScenarioType = RetirementScenarioType.SCENARIO
         fun newInstance(
             userIDIn: Int,
             pensionNameIn: String,
-            defaultModeIn: Boolean
+            scenarioTypeIn: RetirementScenarioType
         ): RetirementPensionDialogFragment {
             val args = Bundle()
 
             args.putString(KEY_USER_ID, userIDIn.toString())
             args.putString(KEY_PENSION_NAME, pensionNameIn)
-            args.putString(KEY_DEFAULT_MODE_ID, defaultModeIn.toString())
+            args.putInt(KEY_SCENARIO_TYPE, scenarioTypeIn.code)
             val fragment = RetirementPensionDialogFragment()
             fragment.arguments = args
             userID = userIDIn
             pensionName = pensionNameIn
-            inDefaultMode = defaultModeIn
+            scenarioType = scenarioTypeIn
             return fragment
         }
     }
@@ -55,6 +56,11 @@ class RetirementPensionDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        myScenario = if (scenarioType == RetirementScenarioType.SCENARIO)
+            gRetirementWorking
+        else
+            gRetirementDefaults
+
         _binding = FragmentRetirementPensionDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -66,7 +72,7 @@ class RetirementPensionDialogFragment : DialogFragment() {
         setupClickListeners()
         if (pensionName == "")
             binding.deleteButton.visibility = View.GONE
-        val pension = RetirementViewModel.getWorkingPension(pensionName)
+        val pension = myScenario?.getPension(pensionName)
         if (pension != null) {
             binding.title.text = String.format("${PensionType.getText(pension.pensionType)}: ${pension.name}")
             setupPensionTypeSpinner(PensionType.getText(pension.pensionType))
@@ -191,7 +197,7 @@ class RetirementPensionDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.pensionName)
                 return@setOnClickListener
             }
-            if (pensionName == "" && RetirementViewModel.getWorkingPension(binding.pensionName.text.toString()) != null) {
+            if (pensionName == "" && myScenario?.getPension(binding.pensionName.text.toString()) != null) {
                 binding.pensionName.error = getString(R.string.name_already_exists)
                 focusAndOpenSoftKeyboard(requireContext(), binding.pensionName)
                 return@setOnClickListener
@@ -227,9 +233,10 @@ class RetirementPensionDialogFragment : DialogFragment() {
                     return@setOnClickListener
                 }
             }
+            val newID = myScenario?.getPensionListCount() ?: 0
             val pension = when (pensionType) {
                 PensionType.BASIC -> Pension(
-                    RetirementViewModel.getWorkingPensionListCount(),
+                    newID,
                     binding.pensionName.text.toString(),
                     binding.pensionValue.text.toString().toInt(),
                     pensionType,
@@ -238,7 +245,7 @@ class RetirementPensionDialogFragment : DialogFragment() {
                     binding.pensionStartDate.text.toString(),
                 0)
                 PensionType.OTPP -> Pension(
-                    RetirementViewModel.getWorkingPensionListCount(),
+                    newID,
                     binding.pensionName.text.toString(),
                     0,
                     pensionType,
@@ -250,7 +257,7 @@ class RetirementPensionDialogFragment : DialogFragment() {
                     binding.workStartDate.text.toString(),
                     binding.pensionStartDelay.text.toString().toInt())
                 PensionType.PSPP -> Pension(
-                    RetirementViewModel.getWorkingPensionListCount(),
+                    newID,
                     binding.pensionName.text.toString(),
                     0,
                     pensionType,
@@ -263,9 +270,9 @@ class RetirementPensionDialogFragment : DialogFragment() {
                 0)
                 }
                 if (pensionName == "") { // adding new
-                    RetirementViewModel.addPensionToWorkingList(pension)
+                    myScenario?.addPension(pension)
                 } else { // editing existing
-                    RetirementViewModel.updatePensionInWorkingList(pensionName, pension)
+                    myScenario?.updatePension(pensionName, pension)
                 }
                 if (listener != null)
                     listener?.onNewDataSaved()
@@ -273,7 +280,7 @@ class RetirementPensionDialogFragment : DialogFragment() {
             }
         binding.deleteButton.setOnClickListener {
             fun yesClicked() {
-                RetirementViewModel.deletePensionFromWorkingList(pensionName)
+                myScenario?.deletePension(pensionName)
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }

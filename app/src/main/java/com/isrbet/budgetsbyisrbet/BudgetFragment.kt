@@ -98,10 +98,10 @@ class BudgetFragment : Fragment() {
         binding.periodSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.periodSpinner.setPopupBackgroundResource(R.drawable.spinner)
 
-        binding.budgetAddButtonSave.setOnClickListener {
+        binding.buttonSave.setOnClickListener {
             onSaveButtonClicked()
         }
-        binding.budgetAddButtonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             findNavController().popBackStack()
         }
 
@@ -210,7 +210,9 @@ class BudgetFragment : Fragment() {
 
     private fun onSaveButtonClicked () {
         val lNumberFormat: NumberFormat = NumberFormat.getInstance()
-        val amountDouble = lNumberFormat.parse(binding.budgetAddAmount.text.toString()).toDouble()
+        val amountDouble = if (binding.budgetAddAmount.text.toString() == "") 0.0
+        else lNumberFormat.parse(binding.budgetAddAmount.text.toString()).toDouble()
+
         val selectedId = binding.budgetAddWhoRadioGroup.checkedRadioButtonId
         val whoId = if (SpenderViewModel.singleUser())
             0

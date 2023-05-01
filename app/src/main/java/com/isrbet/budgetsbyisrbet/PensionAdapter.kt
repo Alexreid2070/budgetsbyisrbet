@@ -7,16 +7,17 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class PensionAdapter (context: Context): BaseAdapter() {
-
+class PensionAdapter (context: Context, iRetirementType: RetirementScenarioType): BaseAdapter() {
     private var myData: MutableList<Pension> = arrayListOf()
+    private val myScenario = if (iRetirementType == RetirementScenarioType.SCENARIO)
+        gRetirementWorking
+    else
+        gRetirementDefaults
     init {
         myData.clear()
-        for (i in 0 until RetirementViewModel.getWorkingPensionListCount()) {
-            val p = RetirementViewModel.getWorkingPension(i)
-            if (p != null)
-                myData.add(p)
-//            RetirementViewModel.getWorkingPension(i).let { myData.add(it) }
+        for (i in 0 until myScenario?.getPensionListCount()!!) {
+            val p = myScenario.getPension(i)
+            myData.add(p)
         }
     }
 

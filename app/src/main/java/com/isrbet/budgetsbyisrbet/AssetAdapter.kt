@@ -8,15 +8,16 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import timber.log.Timber
 
 class AssetAdapter (context: Context,
                     private val defaultInvestmentGrowthRate: Double,
                     private val defaultPropertyGrowthRate: Double,
+                    iRetirementType: RetirementScenarioType,
                     private val moveUp: (Asset) -> Unit = {},
                     private val moveDown: (Asset) -> Unit = {} ): BaseAdapter() {
     private val myContext = context
     private var myData: MutableList<Asset> = arrayListOf()
+    private var myScenarioType = iRetirementType
     init {
         refreshData()
     }
@@ -25,12 +26,15 @@ class AssetAdapter (context: Context,
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     fun refreshData() {
+        val myScenario = if (myScenarioType == RetirementScenarioType.SCENARIO)
+            gRetirementWorking
+        else
+            gRetirementDefaults
         myData.clear()
-        if (gRetirementScenario != null) {
-            for (i in 0 until gRetirementScenario!!.assets.count())
-                gRetirementScenario!!.assets[i].let { myData.add(it) }
-        } else {
-            Timber.tag("Alex").d("Why is asset list null")
+        if (myScenario != null) {
+            for (i in 0 until myScenario.assets.size) {
+                myScenario.assets[i].let { myData.add(it) }
+            }
         }
     }
     override fun getCount(): Int {

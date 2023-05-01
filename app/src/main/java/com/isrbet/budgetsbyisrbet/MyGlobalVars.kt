@@ -119,9 +119,15 @@ const val cPREV_YEAR = 1
 const val cNEXT_MONTH = 2
 const val cPREV_MONTH = 3
 
+enum class RetirementScenarioType(val code: Int) {
+    SCENARIO(0),
+    DEFAULTS(1)
+}
+
 val gDecimalSeparator = DecimalFormatSymbols.getInstance().decimalSeparator
 var gHomePageExpansionAreaExpanded = false
-var gRetirementScenario:RetirementData? = null
+var gRetirementWorking:RetirementData? = null
+var gRetirementDefaults:RetirementData? = null
 var gRetirementDetailsList: MutableList<RetirementCalculationRow> = arrayListOf()
 var gCurrentDate: MyDate = MyDate() // ie current date
 var gActualRow: YOYTableRow? = null // these 4 are hacks to support the YOYDialog

@@ -108,16 +108,19 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.stateSwitch.isChecked = true
 
             binding.oldCategoryLayout.visibility = View.GONE
-            binding.categoryDialogButtonDelete.visibility = View.GONE
             binding.newNameHeader.text = getString(R.string.add_category)
-            binding.categoryDialogButtonSave.text = getString(R.string.save)
-            binding.categoryDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
+            binding.buttonDelete.visibility = View.GONE
+            binding.buttonDeleteView.visibility = View.GONE
+            binding.buttonSave.visibility = View.VISIBLE
+            binding.buttonEdit.visibility = View.GONE
             currentMode = cMODE_ADD
             if (SpenderViewModel.twoDistinctUsers())
                 binding.privacySwitch.visibility = View.VISIBLE
             else
                 binding.privacySwitch.visibility = View.GONE
-        } else { // ie this is an edit
+        } else { // ie this is a view
+            binding.buttonEdit.visibility = View.VISIBLE
+            binding.buttonSave.visibility = View.GONE
             setupCategorySpinner(oldCat?.categoryName ?: getString(R.string.lcfirst))
             binding.privacySwitch.isChecked = oldCat?.private != 2
             binding.stateSwitch.isChecked = oldCat?.inUse == true
@@ -210,65 +213,66 @@ class CategoryEditDialogFragment : DialogFragment() {
     }
 
     private fun setupClickListeners() {
-        binding.categoryDialogButtonSave.setOnClickListener {
-            if (currentMode == cMODE_VIEW) { // change to edit
-                binding.categoryDialogButtonSave.text = getString(R.string.save)
-                binding.categoryDialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
-                binding.categoryDialogOldHeaderLinearLayout.visibility = View.VISIBLE
-                binding.categoryDialogNewHeaderLinearLayout.visibility = View.VISIBLE
-                binding.categoryDialogLinearLayout2.visibility = View.VISIBLE
-                binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
-                binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
-                binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
-                if (SpenderViewModel.twoDistinctUsers())
-                    binding.privacySwitch.visibility = View.VISIBLE
-                else
-                    binding.privacySwitch.visibility = View.GONE
-                binding.stateSwitch.visibility = View.VISIBLE
-                binding.categoryDialogButtonDelete.visibility = View.GONE
+        binding.buttonEdit.setOnClickListener {
+            binding.buttonEdit.visibility = View.GONE
+            binding.buttonSave.visibility = View.VISIBLE
+            binding.categoryDialogOldHeaderLinearLayout.visibility = View.VISIBLE
+            binding.categoryDialogNewHeaderLinearLayout.visibility = View.VISIBLE
+            binding.categoryDialogLinearLayout2.visibility = View.VISIBLE
+            binding.categoryDialogLinearLayout3.visibility = View.VISIBLE
+            binding.categoryDialogLinearLayout4.visibility = View.VISIBLE
+            binding.categoryDialogLinearLayout5.visibility = View.VISIBLE
+            if (SpenderViewModel.twoDistinctUsers())
+                binding.privacySwitch.visibility = View.VISIBLE
+            else
+                binding.privacySwitch.visibility = View.GONE
+            binding.stateSwitch.visibility = View.VISIBLE
+            binding.buttonDelete.visibility = View.GONE
+            binding.buttonDeleteView.visibility = View.GONE
 
-                currentMode = cMODE_EDIT
-            } else { // already in Edit mode, so Save...
-                val oldCat = CategoryViewModel.getCategory(oldCategoryID)
-                if (binding.editCategoryNewName.text.toString().contains("-")) {
-                    binding.editCategoryNewName.error = getString(R.string.field_has_invalid_character)
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
-                    return@setOnClickListener
-                }
-                if (!textIsSafeForKey(binding.editCategoryNewName.text.toString())) {
-                    binding.editCategoryNewName.error = getString(R.string.field_has_invalid_character)
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
-                    return@setOnClickListener
-                }
-                if (!textIsSafeForKey(binding.editSubcategoryNewName.text.toString())) {
-                    binding.editSubcategoryNewName.error = getString(R.string.field_has_invalid_character)
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
-                    return@setOnClickListener
-                }
+            currentMode = cMODE_EDIT
+        }
+        binding.buttonSave.setOnClickListener {
+            val oldCat = CategoryViewModel.getCategory(oldCategoryID)
+            if (binding.editCategoryNewName.text.toString().contains("-")) {
+                binding.editCategoryNewName.error = getString(R.string.field_has_invalid_character)
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                return@setOnClickListener
+            }
+            if (!textIsSafeForKey(binding.editCategoryNewName.text.toString())) {
+                binding.editCategoryNewName.error = getString(R.string.field_has_invalid_character)
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                return@setOnClickListener
+            }
+            if (!textIsSafeForKey(binding.editSubcategoryNewName.text.toString())) {
+                binding.editSubcategoryNewName.error = getString(R.string.field_has_invalid_character)
+                focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
+                return@setOnClickListener
+            }
+            if (binding.editCategoryNewNameSpinner.selectedItem.toString() ==
+                getString(R.string.add_new_category_name) &&
+                binding.editCategoryNewName.text.toString() == ""
+            ) {
+                binding.editCategoryNewName.error = getString(R.string.enter_new_category_name)
+                focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
+                return@setOnClickListener
+            }
+            if (binding.editSubcategoryNewName.text.toString() == "") {
+                binding.editSubcategoryNewName.error = getString(R.string.enter_new_subcategory_name)
+                focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
+                return@setOnClickListener
+            }
+            val chosenCategory =
                 if (binding.editCategoryNewNameSpinner.selectedItem.toString() ==
-                    getString(R.string.add_new_category_name) &&
-                    binding.editCategoryNewName.text.toString() == ""
-                ) {
-                    binding.editCategoryNewName.error = getString(R.string.enter_new_category_name)
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
-                    return@setOnClickListener
-                }
-                if (binding.editSubcategoryNewName.text.toString() == "") {
-                    binding.editSubcategoryNewName.error = getString(R.string.enter_new_subcategory_name)
-                    focusAndOpenSoftKeyboard(requireContext(), binding.editSubcategoryNewName)
-                    return@setOnClickListener
-                }
-                val chosenCategory =
-                    if (binding.editCategoryNewNameSpinner.selectedItem.toString() ==
-                        getString(R.string.add_new_category_name))
-                        binding.editCategoryNewName.text.toString().trim()
-                    else
-                        binding.editCategoryNewNameSpinner.selectedItem.toString()
-                val dtSpinner: Spinner = binding.editCategoryNewDisctypeSpinner
-                val chosenDiscType = if (dtSpinner.selectedItem.toString() == getString(R.string.discretionary))
-                        cDiscTypeDiscretionary
-                    else
-                        cDiscTypeNondiscretionary
+                    getString(R.string.add_new_category_name))
+                    binding.editCategoryNewName.text.toString().trim()
+                else
+                    binding.editCategoryNewNameSpinner.selectedItem.toString()
+            val dtSpinner: Spinner = binding.editCategoryNewDisctypeSpinner
+            val chosenDiscType = if (dtSpinner.selectedItem.toString() == getString(R.string.discretionary))
+                cDiscTypeDiscretionary
+            else
+                cDiscTypeNondiscretionary
 
             if (oldCategoryID == 0) { // ie this is an add
                 if (CategoryViewModel.getID(
@@ -299,43 +303,42 @@ class CategoryEditDialogFragment : DialogFragment() {
                     findNavController().navigate(action)
                 }
             } else if (oldCat?.categoryName == chosenCategory &&
-                    oldCat.subcategoryName == binding.editSubcategoryNewName.text.toString() &&
-                    (oldCat.discType != chosenDiscType ||
+                oldCat.subcategoryName == binding.editSubcategoryNewName.text.toString() &&
+                (oldCat.discType != chosenDiscType ||
                         (oldCat.private != 2) != binding.privacySwitch.isChecked) ||
-                        oldCat?.inUse != binding.stateSwitch.isChecked
-                ) {
-                    // disc type or privacy changed so update it/them
-                    CategoryViewModel.updateCategory(
-                        binding.categoryId.text.toString().toInt(),
-                        oldCat?.categoryName.toString(),
-                        oldCat?.subcategoryName.toString(),
-                        chosenDiscType,
-                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
-                        binding.stateSwitch.isChecked
-                    )
-                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
-                    dismiss()
-                } else if (oldCat.categoryName != chosenCategory ||
-                    oldCat.subcategoryName != binding.editSubcategoryNewName.text.toString()
-                ) {
-                    CategoryViewModel.updateCategory(
-                        binding.categoryId.text.toString().toInt(),
-                        chosenCategory,
-                        binding.editSubcategoryNewName.text.toString().trim(),
-                        chosenDiscType,
-                        if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
-                        binding.stateSwitch.isChecked
-                    )
-                    setupCategorySpinner(chosenCategory)
-                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
-                    dismiss()
-                } else {
-                    Toast.makeText(activity, getString(R.string.no_changes_made), Toast.LENGTH_SHORT).show()
-                    dismiss()
-                }
+                oldCat?.inUse != binding.stateSwitch.isChecked
+            ) {
+                // disc type or privacy changed so update it/them
+                CategoryViewModel.updateCategory(
+                    binding.categoryId.text.toString().toInt(),
+                    oldCat?.categoryName.toString(),
+                    oldCat?.subcategoryName.toString(),
+                    chosenDiscType,
+                    if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
+                    binding.stateSwitch.isChecked
+                )
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                dismiss()
+            } else if (oldCat.categoryName != chosenCategory ||
+                oldCat.subcategoryName != binding.editSubcategoryNewName.text.toString()
+            ) {
+                CategoryViewModel.updateCategory(
+                    binding.categoryId.text.toString().toInt(),
+                    chosenCategory,
+                    binding.editSubcategoryNewName.text.toString().trim(),
+                    chosenDiscType,
+                    if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
+                    binding.stateSwitch.isChecked
+                )
+                setupCategorySpinner(chosenCategory)
+                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                dismiss()
+            } else {
+                Toast.makeText(activity, getString(R.string.no_changes_made), Toast.LENGTH_SHORT).show()
+                dismiss()
             }
         }
-        binding.categoryDialogButtonDelete.setOnClickListener {
+        binding.buttonDelete.setOnClickListener {
             if (spCtr > 0) {
                 tellUserCantDelete(getString(R.string.scheduled_payments))
                 return@setOnClickListener
@@ -372,7 +375,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 .show()
         }
 
-        binding.categoryDialogButtonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
         binding.messageBudget.setOnClickListener {

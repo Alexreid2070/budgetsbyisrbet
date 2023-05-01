@@ -160,10 +160,10 @@ class TransactionFragment : Fragment() {
         binding.buttonDelete.setOnClickListener {
             deleteTransaction(args.transactionID)
         }
-        binding.buttonSaveTransaction.setOnClickListener {
+        binding.buttonSave.setOnClickListener {
             onSaveTransactionButtonClicked()
         }
-        binding.buttonCancelTransaction.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
 //            activity?.onBackPressed()
         }
@@ -253,8 +253,8 @@ class TransactionFragment : Fragment() {
         } else {
             binding.slider.isEnabled = false
             binding.buttonViewLinearLayout.visibility = View.VISIBLE
-            binding.buttonCancelTransaction.visibility = View.GONE
-            binding.buttonSaveTransaction.visibility = View.GONE
+            binding.buttonCancel.visibility = View.GONE
+            binding.buttonSave.visibility = View.GONE
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
             binding.transactionDate.isEnabled = false
             binding.transactionAmount.isEnabled = false
@@ -366,8 +366,8 @@ class TransactionFragment : Fragment() {
 //        binding.slider.isEnabled = true
         binding.buttonViewLinearLayout.visibility = View.GONE
         binding.pageTitle.text = getString(R.string.edit_transaction)
-        binding.buttonCancelTransaction.visibility = View.VISIBLE
-        binding.buttonSaveTransaction.visibility = View.VISIBLE
+        binding.buttonCancel.visibility = View.VISIBLE
+        binding.buttonSave.visibility = View.VISIBLE
         binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
         binding.expansionLayout.visibility = View.GONE
         binding.transactionDate.isEnabled = true

@@ -20,11 +20,6 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentScheduledPaymentEditDialogBinding
 
 class ScheduledPaymentEditDialogFragment : DialogFragment() {
-/*    interface ScheduledPaymentEditDialogFragmentListener {
-
-        fun onNewDataSaved()
-    } */
-//    private var listener: ScheduledPaymentEditDialogFragmentListener? = null
     private var initialLoad = true
     private var currentMode = cMODE_VIEW
 
@@ -102,10 +97,11 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             boughtForSpinner.setSelection(boughtForArrayAdapter.getPosition(SpenderViewModel.getDefaultSpenderName()))
         } else {
             val numberOfGenerated = TransactionViewModel.getRTCount(oldSP?.mykey.toString())
-            binding.linkMessage.setText(String.format(getString(R.string.there_are_recurring_transactions),
-                numberOfGenerated))
+            binding.linkMessage.text = String.format(getString(R.string.there_are_recurring_transactions),
+                numberOfGenerated)
             if (numberOfGenerated > 0) {
-                binding.dialogButtonDelete.visibility = View.GONE
+                binding.buttonDelete.visibility = View.GONE
+                binding.buttonDeleteView.visibility = View.GONE
             }
             binding.linkMessage.setOnClickListener {
                 val action =
@@ -217,9 +213,14 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             binding.currentValueHeader.visibility = View.GONE
             binding.oldPaidBy.visibility = View.GONE
             binding.oldBoughtFor.visibility = View.GONE
-            binding.dialogButtonDelete.visibility = View.GONE
+            binding.buttonDelete.visibility = View.GONE
+            binding.buttonDeleteView.visibility = View.GONE
+            binding.buttonEdit.visibility = View.GONE
+            binding.buttonSave.visibility = View.VISIBLE
             binding.loanStartDate.setText(gCurrentDate.toString())
         } else { // ie it's an edit
+            binding.buttonEdit.visibility = View.VISIBLE
+            binding.buttonSave.visibility = View.GONE
             binding.title.visibility = View.GONE
             if (oldSP?.activeLoan == true) {
                 binding.loanStartDate.setText(oldSP?.loanFirstPaymentDate.toString())
@@ -384,8 +385,8 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             setExpansionFields(View.GONE)
         }
         if (oldKey != "" && currentMode == cMODE_VIEW) {
-            binding.dialogButtonSave.text = getString(R.string.edit)
-            binding.dialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_edit_24), null, null)
+//            binding.buttonSave.text = getString(R.string.edit)
+  //          binding.buttonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_edit_24), null, null)
             if (oldSP?.isExpired() == true) {
                 binding.spHeader.text = String.format(getString(R.string.expired), oldSP?.vendor)
                 binding.spHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
@@ -488,7 +489,10 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
     }
 
     private fun setupClickListeners() {
-        binding.dialogButtonSave.setOnClickListener {
+        binding.buttonEdit.setOnClickListener {
+            onEditButtonClicked()
+        }
+        binding.buttonSave.setOnClickListener {
             onSaveButtonClicked()
         }
 
@@ -498,7 +502,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             else
                 binding.loanDetailsLayout.visibility = View.GONE
         }
-        binding.dialogButtonDelete.setOnClickListener {
+        binding.buttonDelete.setOnClickListener {
             fun yesClicked() {
                 ScheduledPaymentViewModel.deleteScheduledPayment(oldKey)
 /*                if (listener != null) {
@@ -520,11 +524,45 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 .show()
         }
 
-        binding.dialogButtonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
     }
 
+    private fun onEditButtonClicked() {
+        binding.spHeader.visibility = View.GONE
+        binding.linkLayout.visibility = View.GONE
+        binding.newVendor.visibility = View.VISIBLE
+        binding.newNote.visibility = View.VISIBLE
+        binding.currentValueHeader.visibility = View.VISIBLE
+        binding.headerPrefix.visibility = View.VISIBLE
+        binding.newValueHeader.visibility = View.VISIBLE
+        binding.amountLayout.visibility = View.VISIBLE
+        binding.dateLayout.visibility = View.VISIBLE
+        binding.expirationDateLayout.visibility = View.VISIBLE
+        binding.regularityLayout.visibility = View.VISIBLE
+        binding.periodSpinnerRelativeLayout.visibility = View.VISIBLE
+        binding.categorySpinnerRelativeLayout.visibility = View.VISIBLE
+        binding.subCategorySpinnerRelativeLayout.visibility = View.VISIBLE
+        binding.paidBySpinnerRelativeLayout.visibility = View.VISIBLE
+        binding.boughtForSpinnerRelativeLayout.visibility = View.VISIBLE
+        binding.splitSlider.visibility = View.VISIBLE
+        binding.splitSlider.isEnabled = true
+        binding.buttonSave.visibility = View.VISIBLE
+        binding.buttonEdit.visibility = View.GONE
+        binding.buttonDelete.visibility = View.GONE
+        binding.buttonDeleteView.visibility = View.GONE
+        binding.loanSwitch.isEnabled = true
+        binding.loanStartDate.isEnabled = true
+        binding.loanAmount.isEnabled = true
+        binding.amortizationPeriod.isEnabled = true
+        binding.interestRate.isEnabled = true
+        binding.actualLoanPaymentAmount.isEnabled = true
+        binding.buttonWeekly.isEnabled = true
+        binding.buttonBiweekly.isEnabled = true
+        binding.buttonMonthly.isEnabled = true
+        currentMode = cMODE_EDIT
+    }
     private fun onSaveButtonClicked() {
         val lNumberFormat: NumberFormat = NumberFormat.getInstance()
         if (binding.newVendor.text.toString() == "") {
@@ -566,62 +604,25 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             }
         }
         val rtSpinner:Spinner = binding.newPeriodSpinner
-//        var somethingChanged = false
         val amountDouble = lNumberFormat.parse(binding.newAmount.text.toString()).toDouble()
-
-        if (currentMode == cMODE_VIEW) { // change to "edit"
-            binding.spHeader.visibility = View.GONE
-            binding.linkLayout.visibility = View.GONE
-            binding.newVendor.visibility = View.VISIBLE
-            binding.newNote.visibility = View.VISIBLE
-            binding.currentValueHeader.visibility = View.VISIBLE
-            binding.headerPrefix.visibility = View.VISIBLE
-            binding.newValueHeader.visibility = View.VISIBLE
-            binding.amountLayout.visibility = View.VISIBLE
-            binding.dateLayout.visibility = View.VISIBLE
-            binding.expirationDateLayout.visibility = View.VISIBLE
-            binding.regularityLayout.visibility = View.VISIBLE
-            binding.periodSpinnerRelativeLayout.visibility = View.VISIBLE
-            binding.categorySpinnerRelativeLayout.visibility = View.VISIBLE
-            binding.subCategorySpinnerRelativeLayout.visibility = View.VISIBLE
-            binding.paidBySpinnerRelativeLayout.visibility = View.VISIBLE
-            binding.boughtForSpinnerRelativeLayout.visibility = View.VISIBLE
-            binding.splitSlider.visibility = View.VISIBLE
-            binding.splitSlider.isEnabled = true
-            binding.dialogButtonSave.text = getString(R.string.save)
-            binding.dialogButtonSave.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_save_24), null, null)
-            binding.dialogButtonDelete.visibility = View.GONE
-            binding.loanSwitch.isEnabled = true
-            binding.loanStartDate.isEnabled = true
-            binding.loanAmount.isEnabled = true
-            binding.amortizationPeriod.isEnabled = true
-            binding.interestRate.isEnabled = true
-            binding.actualLoanPaymentAmount.isEnabled = true
-            binding.buttonWeekly.isEnabled = true
-            binding.buttonBiweekly.isEnabled = true
-            binding.buttonMonthly.isEnabled = true
-            currentMode = cMODE_EDIT
+        if (binding.newNextDate.text.toString() == "" &&
+            binding.newExpirationDate.text.toString() == "") {
+            showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
+            focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
             return
-        }  else { // else, continue below already in edit, so save...
-            if (binding.newNextDate.text.toString() == "" &&
-                binding.newExpirationDate.text.toString() == "") {
-                showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
-                focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
-                return
-            }
-            if (binding.newNextDate.text.toString() != "" &&
-                binding.newExpirationDate.text.toString() != "" &&
-                binding.newExpirationDate.text.toString() < gCurrentDate.toString()) {
-                showErrorMessage(parentFragmentManager, getString(R.string.cannot_be_set_if_expired))
-                focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
-                return
-            }
-            if (binding.newNextDate.text.toString() == "" &&
-                binding.newExpirationDate.text.toString() > gCurrentDate.toString()) {
-                showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
-                focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
-                return
-            }
+        }
+        if (binding.newNextDate.text.toString() != "" &&
+            binding.newExpirationDate.text.toString() != "" &&
+            binding.newExpirationDate.text.toString() < gCurrentDate.toString()) {
+            showErrorMessage(parentFragmentManager, getString(R.string.cannot_be_set_if_expired))
+            focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
+            return
+        }
+        if (binding.newNextDate.text.toString() == "" &&
+            binding.newExpirationDate.text.toString() > gCurrentDate.toString()) {
+            showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
+            focusAndOpenSoftKeyboard(requireContext(), binding.newNextDate)
+            return
         }
 
         val freq = when {

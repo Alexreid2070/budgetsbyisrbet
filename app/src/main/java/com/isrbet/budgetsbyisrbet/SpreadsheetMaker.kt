@@ -186,40 +186,40 @@ private class GridDataMaker {
         gridData.startColumn = startColumn
 
         val headingRowDataMaker = ScenarioHeadingRowDataMaker()
-        if (gRetirementScenario != null) {
+        if (gRetirementWorking != null) {
             listRowData.add(headingRowDataMaker.create("Scenario Name",
-                gRetirementScenario!!.name))
+                gRetirementWorking!!.name))
             listRowData.add(headingRowDataMaker.create("User Name",
-                SpenderViewModel.getSpenderName(gRetirementScenario!!.userID)))
+                SpenderViewModel.getSpenderName(gRetirementWorking!!.userID)))
             listRowData.add(headingRowDataMaker.create("Birth Date",
-                gRetirementScenario!!.birthDate))
+                gRetirementWorking!!.birthDate))
             listRowData.add(headingRowDataMaker.create("Inflation Rate",
-                (gRetirementScenario!!.inflationRate/100.0).toString()))
+                (gRetirementWorking!!.inflationRate/100.0).toString()))
             listRowData.add(headingRowDataMaker.create("Investment Growth",
-                (gRetirementScenario!!.investmentGrowthRate/100.0).toString()))
+                (gRetirementWorking!!.investmentGrowthRate/100.0).toString()))
             listRowData.add(headingRowDataMaker.create("Property Growth",
-                (gRetirementScenario!!.propertyGrowthRate/100.0).toString()))
+                (gRetirementWorking!!.propertyGrowthRate/100.0).toString()))
             listRowData.add(headingRowDataMaker.create("Target Monthly Income",
-                gRetirementScenario!!.targetMonthlyIncome.toString()))
+                gRetirementWorking!!.targetMonthlyIncome.toString()))
             listRowData.add(headingRowDataMaker.create("Plan to Age",
-                gRetirementScenario!!.planToAge.toString()))
+                gRetirementWorking!!.planToAge.toString()))
             listRowData.add(headingRowDataMaker.create("Salary Amount",
-                gRetirementScenario!!.salary.annualValueAfterTax.toString()))
+                gRetirementWorking!!.salary.annualValueAfterTax.toString()))
             listRowData.add(headingRowDataMaker.create("Salary Growth",
-                (gRetirementScenario!!.salary.estimatedGrowthPct/100.0).toString()))
+                (gRetirementWorking!!.salary.estimatedGrowthPct/100.0).toString()))
             listRowData.add(headingRowDataMaker.create("Retirement Date",
-                gRetirementScenario!!.retirementDate))
-            val cppAmount = when (gRetirementScenario!!.cppAge) {
-                60 -> gRetirementScenario!!.cpp.annualValueAt60
-                65 -> gRetirementScenario!!.cpp.annualValueAt65
-                70 -> gRetirementScenario!!.cpp.annualValueAt70
+                gRetirementWorking!!.retirementDate))
+            val cppAmount = when (gRetirementWorking!!.cppAge) {
+                60 -> gRetirementWorking!!.cpp.annualValueAt60
+                65 -> gRetirementWorking!!.cpp.annualValueAt65
+                70 -> gRetirementWorking!!.cpp.annualValueAt70
                 else -> {0}
             }
             listRowData.add(headingRowDataMaker.create("CPP Amount",cppAmount.toString()))
             listRowData.add(headingRowDataMaker.create("CPP Start Age",
-                gRetirementScenario!!.cppAge.toString()))
+                gRetirementWorking!!.cppAge.toString()))
             listRowData.add(headingRowDataMaker.create("OAS Amount",
-                gRetirementScenario!!.oas.currentAnnualValue.toString()))
+                gRetirementWorking!!.oas.currentAnnualValue.toString()))
             listRowData.add(headingRowDataMaker.create("", "")) // row 15
         }
         val columnHeadingRowDataMaker = if (iDetails.isNotEmpty()) // row 16
@@ -256,12 +256,12 @@ private class RowDataMaker {
         var birthMonth = 0
         var cppYear = 0
         var oasYear = 0
-        if (gRetirementScenario != null) {
-            retirementYear = gRetirementScenario?.retirementDate?.substring(0, 4)?.toInt()!!
-            retirementMonth = gRetirementScenario?.retirementDate?.substring(5,7)?.toInt()!!
-            birthYear = gRetirementScenario?.birthDate?.substring(0, 4)?.toInt()!!
-            birthMonth = gRetirementScenario?.birthDate?.substring(5,7)?.toInt()!!
-            cppYear = gRetirementScenario?.cppAge!! + birthYear
+        if (gRetirementWorking != null) {
+            retirementYear = gRetirementWorking?.retirementDate?.substring(0, 4)?.toInt()!!
+            retirementMonth = gRetirementWorking?.retirementDate?.substring(5,7)?.toInt()!!
+            birthYear = gRetirementWorking?.birthDate?.substring(0, 4)?.toInt()!!
+            birthMonth = gRetirementWorking?.birthDate?.substring(5,7)?.toInt()!!
+            cppYear = gRetirementWorking?.cppAge!! + birthYear
             oasYear = birthYear + 67
         }
 
@@ -273,7 +273,7 @@ private class RowDataMaker {
         // column A Year
         listCellData.add(cellDataMaker.create(iRow.year.toString(), ""))
         // column B Target Monthly Income
-//        if (gRetirementScenario!!.targetMonthlyIncome == 0) { // default scenario using calculated budget
+//        if (gRetirementWorking!!.targetMonthlyIncome == 0) { // default scenario using calculated budget
             listCellData.add(cellDataMaker.create("=${iRow.getTotalTargetIncome()}", ""))
 /*        } else { // using target income override  519 500 7773
             if (iRow.year == iFirstYear)
@@ -316,7 +316,7 @@ private class RowDataMaker {
             listCellData.add(cellDataMaker.create(0, ""))
         } else if (iRow.year == cppYear) {
             listCellData.add(cellDataMaker.create("=round(B" + cRow_CPP_AMOUNT +
-                "*" + (12-birthMonth+1) + "/12)", "starts at age " + gRetirementScenario?.cppAge + ", adjusted for partial year"))
+                "*" + (12-birthMonth+1) + "/12)", "starts at age " + gRetirementWorking?.cppAge + ", adjusted for partial year"))
         } else {
             listCellData.add(cellDataMaker.create("=round(B" + cRow_CPP_AMOUNT +
                 "*pow((1+" + inflationRateAddress + ")," + iRow.year + "-" + cppYear + "))", "adjusted for inflation"))

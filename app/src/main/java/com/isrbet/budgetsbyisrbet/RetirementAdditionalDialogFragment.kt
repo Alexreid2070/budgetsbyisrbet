@@ -24,19 +24,25 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
     private var listener: RetirementAdditionalDialogFragmentListener? = null
     private var _binding: FragmentRetirementAdditionalDialogBinding? = null
     private val binding get() = _binding!!
+    private var myScenario: RetirementData? = null
 
     companion object {
         private const val KEY_ID = "1"
+        private const val KEY_SCENARIO_TYPE = "2"
         private var itemID: Int = -1
+        private var scenarioType: RetirementScenarioType = RetirementScenarioType.SCENARIO
         fun newInstance(
-            itemIDIn: Int
+            itemIDIn: Int,
+            scenarioTypeIn: RetirementScenarioType
         ): RetirementAdditionalDialogFragment {
             val args = Bundle()
 
             args.putString(KEY_ID, itemIDIn.toString())
+            args.putInt(KEY_SCENARIO_TYPE, scenarioTypeIn.code)
             val fragment = RetirementAdditionalDialogFragment()
             fragment.arguments = args
             itemID = itemIDIn
+            scenarioType = scenarioTypeIn
             return fragment
         }
     }
@@ -46,6 +52,11 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        myScenario = if (scenarioType == RetirementScenarioType.SCENARIO)
+            gRetirementWorking
+        else
+            gRetirementDefaults
+
         _binding = FragmentRetirementAdditionalDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -57,7 +68,7 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
         setupClickListeners()
         if (itemID == -1)
             binding.deleteButton.visibility = View.GONE
-        val item = RetirementViewModel.getWorkingAdditionalItem(itemID)
+        val item = myScenario?.getAdditionalItem(itemID)
         if (item != null) {
             if (item.type == AdditionalType.DEPOSIT) {
                 binding.depositButton.isChecked = true
@@ -110,8 +121,8 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
 
     private fun setupAssetNameSpinner(iSelection: String = "") {
         val assetNameList: MutableList<String> = ArrayList()
-        for (i in 0 until RetirementViewModel.getWorkingAssetListCount()) {
-            val asset = RetirementViewModel.getWorkingAsset(i)
+        for (i in 0 until myScenario?.getAssetListCount()!!) {
+            val asset = myScenario?.getAsset(i)
             if (asset != null)
                 assetNameList.add(asset.name)
         }
@@ -157,9 +168,9 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
             if (binding.expenseButton.isChecked)
                 additionalItem.type = AdditionalType.EXPENSE
             if (itemID == -1) { // adding new
-                RetirementViewModel.addAdditionalItemToWorkingList(additionalItem)
+                myScenario?.addAdditionalItem(additionalItem)
             } else { // editing existing
-                RetirementViewModel.updateAdditionalItemInWorkingList(itemID, additionalItem)
+                myScenario?.updateAdditionalItem(itemID, additionalItem)
             }
             if (listener != null)
                 listener?.onNewDataSaved()
@@ -167,7 +178,7 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
         }
         binding.deleteButton.setOnClickListener {
             fun yesClicked() {
-                RetirementViewModel.deleteAdditionalItemFromWorkingList(itemID)
+                myScenario?.deleteAdditionalItem(itemID)
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }

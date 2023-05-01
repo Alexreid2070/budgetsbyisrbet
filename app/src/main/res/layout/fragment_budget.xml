@@ -356,43 +356,49 @@
                 android:paddingTop="20dp"
                 android:paddingBottom="10dp">
 
-                <TextView
-                    android:id="@+id/budgetAdd_button_cancel"
+                <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/cancel"
-                    android:gravity="center"
-                    android:paddingLeft="4dp"
-                    android:paddingRight="4dp"
-                    android:text="@string/cancel"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="Cancel"
-                    app:drawableTopCompat="@drawable/ic_baseline_cancel_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    android:layout_weight="1" />
 
-                <TextView
-                    android:id="@+id/budgetAdd_button_save"
+                <ImageButton
+                    android:id="@+id/button_cancel"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:contentDescription="@string/cancel"
+                    android:tooltipText="@string/cancel"
+                    android:elevation="4dp"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:background="?attr/background"
+                    android:src="@drawable/ic_baseline_cancel_24"
+                    android:stateListAnimator="@animator/anim"/>
+
+                <View
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/button_save"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
                     android:layout_gravity="center"
-                    android:layout_weight="1"
+                    android:layout_margin="15dp"
                     android:contentDescription="@string/save"
-                    android:gravity="center"
-                    android:paddingLeft="4dp"
-                    android:paddingRight="4dp"
-                    android:text="@string/save"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:tooltipText="Save"
-                    app:drawableTopCompat="@drawable/ic_baseline_save_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    android:tooltipText="@string/save"
+                    android:elevation="4dp"
+                    android:padding="5dp"
+                    android:scaleType="fitXY"
+                    android:background="?attr/background"
+                    android:src="@drawable/ic_baseline_save_24"
+                    android:stateListAnimator="@animator/anim"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
         </RelativeLayout>

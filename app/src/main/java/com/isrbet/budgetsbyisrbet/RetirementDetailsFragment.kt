@@ -22,7 +22,6 @@ import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementDetailsBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 enum class RetirementDetailsViews(val code: Int) {
     ALL(0),
@@ -80,28 +79,28 @@ class RetirementDetailsFragment : Fragment() {
             fName += " Retirement Scenario Calculations"
             saveFile2(fName)
         }
-        if (RetirementViewModel.getWorkingAssetListCount(AssetType.SAVINGS) > 0)
+        if (gRetirementWorking?.getAssetListCount(AssetType.SAVINGS)!! > 0)
             binding.showSavingsDetailsButton.visibility = View.VISIBLE
         else
             binding.showSavingsDetailsButton.visibility = View.GONE
-        if (RetirementViewModel.getWorkingAssetListCount(AssetType.RRSP) > 0)
+        if (gRetirementWorking?.getAssetListCount(AssetType.RRSP)!! > 0)
             binding.showRrspDetailsButton.visibility = View.VISIBLE
         else
             binding.showRrspDetailsButton.visibility = View.GONE
-        if (RetirementViewModel.getWorkingAssetListCount(AssetType.TFSA) > 0)
+        if (gRetirementWorking?.getAssetListCount(AssetType.TFSA)!! > 0)
             binding.showTfsaDetailsButton.visibility = View.VISIBLE
         else
             binding.showTfsaDetailsButton.visibility = View.GONE
-        if (RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_LIF) +
-            RetirementViewModel.getWorkingAssetListCount(AssetType.LIRA_ANNUITY)> 0)
+        if (gRetirementWorking?.getAssetListCount(AssetType.LIRA_LIF)!! +
+            gRetirementWorking?.getAssetListCount(AssetType.LIRA_ANNUITY)!! > 0)
             binding.showLiraDetailsButton.visibility = View.VISIBLE
         else
             binding.showLiraDetailsButton.visibility = View.GONE
-        if (RetirementViewModel.getWorkingAssetListCount(AssetType.PROPERTY) > 0)
+        if (gRetirementWorking?.getAssetListCount(AssetType.PROPERTY)!! > 0)
             binding.showPropertyDetailsButton.visibility = View.VISIBLE
         else
             binding.showPropertyDetailsButton.visibility = View.GONE
-        if (RetirementViewModel.getWorkingPensionListCount() > 0)
+        if (gRetirementWorking?.getPensionListCount()!! > 0)
             binding.showPensionDetailsButton.visibility = View.VISIBLE
         else
             binding.showPensionDetailsButton.visibility = View.GONE
@@ -458,16 +457,6 @@ class RetirementDetailsFragment : Fragment() {
         }
     }
     private fun createSpreadsheet(service: Sheets, iFileName: String) {
-/*        var spreadsheet = Spreadsheet()
-            .setProperties(
-                SpreadsheetProperties()
-                    .setTitle(iFileName)
-           )
-
-        GlobalScope.launch {
-            spreadsheet = service.spreadsheets().create(spreadsheet).execute()
-            Log.d("Alex","ID: ${spreadsheet.spreadsheetId}")
-        } */
         val spreadsheetMaker = SpreadsheetMaker()
         val spreadsheet: Spreadsheet = spreadsheetMaker.create(iFileName,
             "Sheet1",

@@ -192,13 +192,13 @@
                     android:layout_gravity="center"
                     android:layout_margin="15dp"
                     android:contentDescription="@string/cancel"
+                    android:tooltipText="@string/cancel"
                     android:elevation="4dp"
                     android:padding="5dp"
                     android:scaleType="fitXY"
                     android:background="?attr/background"
                     android:src="@drawable/ic_baseline_cancel_24"
                     android:stateListAnimator="@animator/anim"
-                    android:tooltipText="Go back to calculations"
                     android:visibility="gone"/>
 
                 <ImageButton
@@ -223,6 +223,7 @@
                     android:layout_gravity="center"
                     android:layout_margin="15dp"
                     android:contentDescription="@string/see_details"
+                    android:tooltipText="@string/see_details"
                     android:elevation="4dp"
                     android:padding="5dp"
                     android:scaleType="fitXY"

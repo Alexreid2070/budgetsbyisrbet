@@ -37,19 +37,21 @@ class RetirementFragment : Fragment(), CoroutineScope {
     private var job: Job = Job()
     var loadRetirementInfoFromWorking = false
     var previousSpinnerSelection = -1
+
     var currentUserID = SpenderViewModel.myIndex()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.tag("Alex").d("Retirement onCreate")
         super.onCreate(savedInstanceState)
 
         val retObserver = Observer<MutableList<RetirementData>> {
-            Timber.tag("Alex").d("Retirement Observer triggered")
-            val userDefault = RetirementViewModel.getUserDefault(currentUserID)
-            loadScreen(userDefault)
+            if (binding.scenarioSpinner.selectedItemPosition < SpenderViewModel.getNumberOfUsers()) {
+                // ie we only want to reload if we just updated a default, not if we just saved a scenario
+                val userDefault = RetirementViewModel.getUserDefault(currentUserID)
+                loadScreen(userDefault)
+            }
         }
         RetirementViewModel.observeList(this, retObserver)
     }
@@ -57,7 +59,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Timber.tag("Alex").d("Retirement onCreateView")
         _binding = FragmentRetirementBinding.inflate(inflater, container, false)
 
         binding.rf.expandAllButton.setOnClickListener {
@@ -82,7 +83,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             onCPPOASExpandClicked()
         }
         binding.rf.assetsAddButton.setOnClickListener {
-            val cdf = RetirementAssetDialogFragment.newInstance(currentUserID, "", true)
+            val cdf = RetirementAssetDialogFragment.newInstance(currentUserID, "", RetirementScenarioType.SCENARIO)
             cdf.setRetirementAssetDialogFragmentListener(object: RetirementAssetDialogFragment.RetirementAssetDialogFragmentListener {
                 override fun onNewDataSaved() {
                     loadRetirementInfoFromWorking = true
@@ -91,6 +92,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         val myAdapter = AssetAdapter(requireContext(),
                             userDefault.investmentGrowthRate,
                             userDefault.propertyGrowthRate,
+                            RetirementScenarioType.SCENARIO,
                             { item ->
                                 moveAsset(item.distributionOrder, -1)
                             },
@@ -109,11 +111,11 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
 
         binding.rf.pensionsAddButton.setOnClickListener {
-            val cdf = RetirementPensionDialogFragment.newInstance(currentUserID, "", true)
+            val cdf = RetirementPensionDialogFragment.newInstance(currentUserID, "", RetirementScenarioType.SCENARIO)
             cdf.setRetirementPensionDialogFragmentListener(object: RetirementPensionDialogFragment.RetirementPensionDialogFragmentListener {
                 override fun onNewDataSaved() {
                     loadRetirementInfoFromWorking = true
-                    val myAdapter = PensionAdapter(requireContext())
+                    val myAdapter = PensionAdapter(requireContext(), RetirementScenarioType.SCENARIO)
                     binding.rf.pensionsListView.adapter = myAdapter
                     setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
                     binding.rf.pensionsExpandButton.text =
@@ -125,7 +127,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
 
         binding.rf.additionalAddButton.setOnClickListener {
-            val cdf = RetirementAdditionalDialogFragment.newInstance(-1)
+            val cdf = RetirementAdditionalDialogFragment.newInstance(-1, RetirementScenarioType.SCENARIO)
             cdf.setRetirementAdditionalDialogFragmentListener(object: RetirementAdditionalDialogFragment.RetirementAdditionalDialogFragmentListener {
                 override fun onNewDataSaved() {
                     loadRetirementInfoFromWorking = true
@@ -211,7 +213,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
         return binding.root
     }
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        Timber.tag("Alex").d("Retirement onViewCreated")
         super.onViewCreated(itemView, savedInstanceState)
         setupDefaults()
         binding.rf.assetsExpandButton.text = String.format(getString(R.string.assets), 0)
@@ -285,14 +286,12 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
 
     private fun updateAdditionalItemsAdapters() {
-        val expListView: ListView = requireActivity().findViewById(R.id.additional_expenditures_list_view)
-        val myExpAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE)
-        expListView.adapter = myExpAdapter
-        setListViewHeightBasedOnChildren(expListView)
-        val depListView: ListView = requireActivity().findViewById(R.id.additional_deposits_list_view)
-        val myDepAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.DEPOSIT)
-        depListView.adapter = myDepAdapter
-        setListViewHeightBasedOnChildren(depListView)
+        val myExpAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE, RetirementScenarioType.SCENARIO)
+        binding.rf.additionalExpendituresListView.adapter = myExpAdapter
+        setListViewHeightBasedOnChildren(binding.rf.additionalExpendituresListView)
+        val myDepAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.DEPOSIT, RetirementScenarioType.SCENARIO)
+        binding.rf.additionalDepositsListView.adapter = myDepAdapter
+        setListViewHeightBasedOnChildren(binding.rf.additionalDepositsListView)
         val totalItems = myExpAdapter.count + myDepAdapter.count
         binding.rf.additionalExpandButton.text =
             String.format(getString(R.string.additional_deposits_or_expenditures), totalItems)
@@ -415,9 +414,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
             setSummaryFields(View.VISIBLE)
 
             val adapter = RetirementResultsAdapter(requireContext(), myLastRow!!)
-            val listView: ListView = requireActivity().findViewById(R.id.results_list_view)
-            listView.adapter = adapter
-            setListViewHeightBasedOnChildren(listView)
+            binding.resultsListView.adapter = adapter
+            setListViewHeightBasedOnChildren(binding.resultsListView)
         }
     }
 
@@ -627,11 +625,12 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
 
         val rtData = createDataFromScreenValues()
-
+        gRetirementWorking = rtData
         RetirementViewModel.updateRetirementScenario(rtData, false)
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
-        if (binding.scenarioSpinner.selectedItem.toString() != rtData.name)
+        if (binding.scenarioSpinner.selectedItem.toString() != RetirementViewModel.addUserToScenarioName(rtData.name, rtData.userID)) {
             setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(rtData.name, rtData.userID))
+        }
         binding.scenarioNameEntireLayout.visibility = View.GONE
         binding.buttonCancel.visibility = View.GONE
         binding.buttonCalculate.visibility = View.VISIBLE
@@ -678,9 +677,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.rf.oasCurrentAnnualAmount.text.toString().toInt()
         )
 
-        rtData.setAssetsAndPensionsAndAdditionalItemsFromWorking()
+        rtData.setAssetsAndPensionsAndAdditionalItemsFromWorking(gRetirementWorking)
 
-        gRetirementScenario = rtData
+        gRetirementWorking = rtData
         return rtData
     }
 
@@ -724,9 +723,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 )
             }
         } else if (iRetirementData != null) {
-            val ageRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.cppStartAgeRadioGroup)
-            for (i in 0 until ageRadioGroup.childCount) {
-                val o = ageRadioGroup.getChildAt(i)
+            for (i in 0 until binding.rf.cppStartAgeRadioGroup.childCount) {
+                val o = binding.rf.cppStartAgeRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == iRetirementData.cppAge.toString()) {
                         o.isChecked = true
@@ -755,7 +753,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.rf.cpp65Amount.setText(iRetirementData.cpp.annualValueAt65.toString())
             binding.rf.cpp70Amount.setText(iRetirementData.cpp.annualValueAt70.toString())
             binding.rf.oasCurrentAnnualAmount.setText(iRetirementData.oas.currentAnnualValue.toString())
-            gRetirementScenario = iRetirementData.copy()
+            gRetirementWorking = iRetirementData.copy()
             setupAdapters(currentUserID,
                 binding.rf.investmentGrowthRate.text.toString().toDouble(),
                 binding.rf.propertyGrowthRate.text.toString().toDouble())
@@ -773,18 +771,14 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.rf.cpp65Amount.setText("")
             binding.rf.cpp70Amount.setText("")
             binding.rf.oasCurrentAnnualAmount.setText("")
-            val listView: ListView = requireActivity().findViewById(R.id.assets_list_view)
-            listView.adapter = null
-            setListViewHeightBasedOnChildren(listView)
-            val plistView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
-            plistView.adapter = null
-            setListViewHeightBasedOnChildren(plistView)
-            val dlistView: ListView = requireActivity().findViewById(R.id.additional_deposits_list_view)
-            dlistView.adapter = null
-            setListViewHeightBasedOnChildren(dlistView)
-            val elistView: ListView = requireActivity().findViewById(R.id.additional_expenditures_list_view)
-            elistView.adapter = null
-            setListViewHeightBasedOnChildren(elistView)
+            binding.rf.assetsListView.adapter = null
+            setListViewHeightBasedOnChildren(binding.rf.assetsListView)
+            binding.rf.pensionsListView.adapter = null
+            setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
+            binding.rf.additionalDepositsListView.adapter = null
+            setListViewHeightBasedOnChildren(binding.rf.additionalDepositsListView)
+            binding.rf.additionalExpendituresListView.adapter = null
+            setListViewHeightBasedOnChildren(binding.rf.additionalExpendituresListView)
         }
     }
     private fun setupAdapters(iUserID: Int, iInvestmentGrowthRate: Double,
@@ -792,6 +786,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         val adapter = AssetAdapter(requireContext(),
             iInvestmentGrowthRate,
             iPropertyGrowthRate,
+            RetirementScenarioType.SCENARIO,
             { item ->
                 moveAsset(item.distributionOrder, -1)
             },
@@ -801,16 +796,15 @@ class RetirementFragment : Fragment(), CoroutineScope {
         )
         binding.rf.assetsExpandButton.text =
             String.format(getString(R.string.assets), adapter.count)
-        val listView: ListView = requireActivity().findViewById(R.id.assets_list_view)
-        listView.adapter = adapter
-        setListViewHeightBasedOnChildren(listView)
-        listView.onItemClickListener =
+        binding.rf.assetsListView.adapter = adapter
+        setListViewHeightBasedOnChildren(binding.rf.assetsListView)
+        binding.rf.assetsListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val itemValue = listView.getItemAtPosition(position) as Asset
+                val itemValue = binding.rf.assetsListView.getItemAtPosition(position) as Asset
                 val cdf = RetirementAssetDialogFragment.newInstance(
                     iUserID,
                     itemValue.name,
-                    false
+                    RetirementScenarioType.SCENARIO
                 )
                 cdf.setRetirementAssetDialogFragmentListener(object :
                     RetirementAssetDialogFragment.RetirementAssetDialogFragmentListener {
@@ -819,12 +813,13 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         val myAdapter = AssetAdapter(requireContext(),
                             iInvestmentGrowthRate,
                             iPropertyGrowthRate,
+                            RetirementScenarioType.SCENARIO,
                             { item ->
                                 moveAsset(item.distributionOrder, -1) },
                             { item ->
                                 moveAsset(item.distributionOrder, 1) })
-                        listView.adapter = myAdapter
-                        setListViewHeightBasedOnChildren(listView)
+                        binding.rf.assetsListView.adapter = myAdapter
+                        setListViewHeightBasedOnChildren(binding.rf.assetsListView)
                         binding.rf.assetsExpandButton.text =
                             String.format(getString(R.string.assets), myAdapter.count)
                         myAdapter.notifyDataSetChanged()
@@ -834,28 +829,27 @@ class RetirementFragment : Fragment(), CoroutineScope {
             }
 
         binding.rf.pensionsExpandButton.text =
-            String.format(getString(R.string.pensions), RetirementViewModel.getWorkingPensionListCount())
-        val padapter = PensionAdapter(requireContext())
-        val plistView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
-        plistView.adapter = padapter
-        setListViewHeightBasedOnChildren(plistView)
-        plistView.onItemClickListener =
+            String.format(getString(R.string.pensions), gRetirementWorking?.getPensionListCount())
+        val padapter = PensionAdapter(requireContext(), RetirementScenarioType.SCENARIO)
+        binding.rf.pensionsListView.adapter = padapter
+        setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
+        binding.rf.pensionsListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val itemValue = plistView.getItemAtPosition(position) as Pension
+                val itemValue = binding.rf.pensionsListView.getItemAtPosition(position) as Pension
                 val cdf = RetirementPensionDialogFragment.newInstance(
                     iUserID,
                     itemValue.name,
-                    false
+                    RetirementScenarioType.SCENARIO
                 )
                 cdf.setRetirementPensionDialogFragmentListener(object :
                     RetirementPensionDialogFragment.RetirementPensionDialogFragmentListener {
                     override fun onNewDataSaved() {
                         loadRetirementInfoFromWorking = true
-                        val myAdapter = PensionAdapter(requireContext())
-                        plistView.adapter = myAdapter
-                        setListViewHeightBasedOnChildren(plistView)
+                        val myAdapter = PensionAdapter(requireContext(), RetirementScenarioType.SCENARIO)
+                        binding.rf.pensionsListView.adapter = myAdapter
+                        setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
                         binding.rf.pensionsExpandButton.text =
-                            String.format(getString(R.string.pensions), RetirementViewModel.getWorkingPensionListCount())
+                            String.format(getString(R.string.pensions), gRetirementWorking?.getPensionListCount())
                         myAdapter.notifyDataSetChanged()
                     }
                 })
@@ -863,51 +857,51 @@ class RetirementFragment : Fragment(), CoroutineScope {
             }
 
         binding.rf.additionalExpandButton.text =
-            String.format(getString(R.string.additional_deposits_or_expenditures), RetirementViewModel.getWorkingAdditionalListCount())
+            String.format(getString(R.string.additional_deposits_or_expenditures), gRetirementWorking?.getAdditionalListCount())
         binding.rf.additionalDepositsLabel.text =
             String.format(getString(R.string.additional_deposits),
-                RetirementViewModel.getWorkingAdditionalListCount(AdditionalType.DEPOSIT))
+                gRetirementWorking?.getAdditionalListCount(AdditionalType.DEPOSIT))
         binding.rf.additionalExpensesLabel.text =
             String.format(getString(R.string.additional_expenditures),
-                RetirementViewModel.getWorkingAdditionalListCount(AdditionalType.EXPENSE))
-        val expAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE)
-        val expListView: ListView = requireActivity().findViewById(R.id.additional_expenditures_list_view)
-        expListView.adapter = expAdapter
-        setListViewHeightBasedOnChildren(expListView)
-        val depAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.DEPOSIT)
-        val depListView: ListView = requireActivity().findViewById(R.id.additional_deposits_list_view)
-        depListView.adapter = depAdapter
-        setListViewHeightBasedOnChildren(depListView)
-        expListView.onItemClickListener =
+                gRetirementWorking?.getAdditionalListCount(AdditionalType.EXPENSE))
+        val expAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE, RetirementScenarioType.SCENARIO)
+        binding.rf.additionalExpendituresListView.adapter = expAdapter
+        setListViewHeightBasedOnChildren(binding.rf.additionalExpendituresListView)
+        val depAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.DEPOSIT, RetirementScenarioType.SCENARIO)
+        binding.rf.additionalDepositsListView.adapter = depAdapter
+        setListViewHeightBasedOnChildren(binding.rf.additionalDepositsListView)
+        binding.rf.additionalExpendituresListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val item: AdditionalItem = expListView.adapter.getItem(position) as AdditionalItem
+                val item: AdditionalItem = binding.rf.additionalExpendituresListView.adapter.getItem(position) as AdditionalItem
                 val cdf = RetirementAdditionalDialogFragment.newInstance(
-                    item.id
+                    item.id,
+                    RetirementScenarioType.SCENARIO
                 )
                 cdf.setRetirementAdditionalDialogFragmentListener(object :
                     RetirementAdditionalDialogFragment.RetirementAdditionalDialogFragmentListener {
                     override fun onNewDataSaved() {
                         loadRetirementInfoFromWorking = true
                         updateAdditionalItemsAdapters()
-                        if (RetirementViewModel.getWorkingAdditionalListCount() == 0) {
+                        if (gRetirementWorking?.getAdditionalListCount() == 0) {
                             onAdditionalItemsExpandClicked("Closed")
                         }
                     }
                 })
                 cdf.show(parentFragmentManager, getString(R.string.edit_expense))
             }
-        depListView.onItemClickListener =
+        binding.rf.additionalDepositsListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val item: AdditionalItem = depListView.adapter.getItem(position) as AdditionalItem
+                val item: AdditionalItem = binding.rf.additionalDepositsListView.adapter.getItem(position) as AdditionalItem
                 val cdf = RetirementAdditionalDialogFragment.newInstance(
-                    item.id
+                    item.id,
+                    RetirementScenarioType.SCENARIO
                 )
                 cdf.setRetirementAdditionalDialogFragmentListener(object :
                     RetirementAdditionalDialogFragment.RetirementAdditionalDialogFragmentListener {
                     override fun onNewDataSaved() {
                         loadRetirementInfoFromWorking = true
                         updateAdditionalItemsAdapters()
-                        if (RetirementViewModel.getWorkingAdditionalListCount() == 0) {
+                        if (gRetirementWorking?.getAdditionalListCount() == 0) {
                             onAdditionalItemsExpandClicked("Closed")
                         }
                     }
@@ -916,16 +910,16 @@ class RetirementFragment : Fragment(), CoroutineScope {
             }
     }
     private fun moveAsset(iDistributionOrder: Int, iDirection: Int) {
-        val listView: ListView = requireActivity().findViewById(R.id.assets_list_view)
-        val adapter = listView.adapter as AssetAdapter
+        Timber.tag("Alex").d("Moving asset $iDistributionOrder in direction $iDirection")
+        val adapter = binding.rf.assetsListView.adapter as AssetAdapter
 
-        RetirementViewModel.changeDefaultDistributionOrder(
+        gRetirementWorking?.changeDefaultDistributionOrder(
             iDistributionOrder,
             iDirection
         )
 
         adapter.refreshData()
-        setListViewHeightBasedOnChildren(listView)
+        setListViewHeightBasedOnChildren(binding.rf.assetsListView)
         adapter.notifyDataSetChanged()
         loadRetirementInfoFromWorking = true
     }
@@ -973,8 +967,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
     }
     private fun onAssetsExpandClicked(iForceOpenOrClosed: String = "") {
-        val plistView: ListView = requireActivity().findViewById(R.id.assets_list_view)
-        val assetCount = plistView.adapter?.count ?: 0
+        val assetCount = binding.rf.assetsListView.adapter?.count ?: 0
         if ((binding.rf.assetsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
             binding.rf.assetsLayout.visibility = View.GONE
@@ -987,8 +980,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
     }
     private fun onPensionsExpandClicked(iForceOpenOrClosed: String = "") {
-        val plistView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
-        val pensionCount = plistView.adapter?.count ?: 0
+        val pensionCount = binding.rf.pensionsListView.adapter?.count ?: 0
         if ((binding.rf.pensionsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
             binding.rf.pensionsLayout.visibility = View.GONE
@@ -1001,9 +993,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
         }
     }
     private fun onAdditionalItemsExpandClicked(iForceOpenOrClosed: String = "") {
-        val depListView: ListView = requireActivity().findViewById(R.id.additional_deposits_list_view)
-        val expListView: ListView = requireActivity().findViewById(R.id.additional_expenditures_list_view)
-        val totCount = (depListView.adapter?.count ?: 0) + (expListView.adapter?.count ?: 0)
+        val totCount = (binding.rf.additionalDepositsListView.adapter?.count ?: 0) +
+                (binding.rf.additionalExpendituresListView.adapter?.count ?: 0)
         if ((binding.rf.additionalDepositsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
             binding.rf.additionalDepositsLayout.visibility = View.GONE

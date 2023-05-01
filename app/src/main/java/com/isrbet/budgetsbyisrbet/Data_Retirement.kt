@@ -419,16 +419,14 @@ data class RetirementData(
 
     fun updateDistributionOrderAsRequired() {
         for (i in 0 until assets.size) {
-            if (assets[i].distributionOrder != i) {
-                assets[i].distributionOrder = i
-            }
+            assets[i].distributionOrder = i
         }
         assets.sortBy { it.distributionOrder }
     }
-    fun setAssetsAndPensionsAndAdditionalItemsFromWorking() {
-        if (gRetirementScenario != null) {
-            for (i in 0 until gRetirementScenario!!.assets.count()) {
-                val copiedAsset = gRetirementScenario!!.assets[i].copy()
+    fun setAssetsAndPensionsAndAdditionalItemsFromWorking(iScenario: RetirementData?) {
+        if (iScenario != null) {
+            for (i in 0 until iScenario.assets.count()) {
+                val copiedAsset = iScenario.assets[i].copy()
                 if (copiedAsset.assetType == AssetType.PROPERTY) {
                     if (copiedAsset.useDefaultGrowthPct)
                         copiedAsset.estimatedGrowthPct = propertyGrowthRate
@@ -441,15 +439,132 @@ data class RetirementData(
                 assets.add(copiedAsset)
             }
             updateDistributionOrderAsRequired()
-            for (i in 0 until gRetirementScenario!!.pensions.count()) {
-                gRetirementScenario!!.pensions[i].copy().let { pensions.add(it) }
+            for (i in 0 until iScenario.pensions.count()) {
+                iScenario.pensions[i].copy().let { pensions.add(it) }
             }
-            for (i in 0 until gRetirementScenario!!.additionalItems.count()) {
-                val temp = gRetirementScenario!!.additionalItems[i]
+            for (i in 0 until iScenario.additionalItems.count()) {
+                val temp = iScenario.additionalItems[i]
                 additionalItems.add(temp.copy())
             }
         }
     }
+
+    fun getAssetListCount(iAssetType: AssetType = AssetType.ALL) : Int {
+        return if (iAssetType == AssetType.ALL)
+            assets.size
+        else {
+            var cnt = 0
+            assets.forEach {
+                if (it.assetType == iAssetType)
+                    cnt += 1
+            }
+            cnt
+        }
+    }
+    fun getAsset(iAssetName: String) : Asset? {
+        return assets.find {it.name == iAssetName}
+    }
+    fun getAsset(iIndex: Int) : Asset {
+        return assets.get(iIndex)
+    }
+    fun deleteAsset(iAssetName: String) {
+        val asset = assets.find {it.name == iAssetName}
+        if (asset != null) {
+            assets.remove(asset)
+        }
+        updateDistributionOrderAsRequired()
+    }
+    fun addAsset(iAsset: Asset) {
+        assets.add(iAsset)
+        updateDistributionOrderAsRequired()
+    }
+    fun updateAsset(iOldAssetName: String, iAsset: Asset) {
+        val ind = assets.indexOfFirst { it.name == iOldAssetName }
+        if (ind == -1)
+            Timber.tag("Alex").d("WHY can't I find asset $iOldAssetName????")
+        else
+            assets[ind] = iAsset
+        updateDistributionOrderAsRequired()
+    }
+    fun changeDefaultDistributionOrder(iCurrentDistributionOrder: Int, iDirection: Int) {
+        if (iCurrentDistributionOrder == 0 && iDirection == -1) {
+            return
+        }
+        if (iCurrentDistributionOrder >= getAssetListCount() - 1 && iDirection == 1) {
+            return
+        }
+        val temp = assets[iCurrentDistributionOrder + iDirection]
+        assets[iCurrentDistributionOrder + iDirection] = assets[iCurrentDistributionOrder]
+        assets[iCurrentDistributionOrder] = temp
+        updateDistributionOrderAsRequired()
+    }
+    fun getPensionListCount() : Int {
+        return pensions.size
+    }
+    fun getPension(iPensionName: String) : Pension? {
+        return pensions.find {it.name == iPensionName}
+    }
+    fun getPension(iIndex: Int) : Pension {
+        return pensions[iIndex]
+    }
+    fun deletePension(iPensionName: String) {
+        val pension = pensions.find {it.name == iPensionName}
+        if (pension != null) {
+            pensions.remove(pension)
+        }
+    }
+    fun addPension(iPension: Pension) {
+        pensions.add(iPension)
+    }
+    fun updatePension(iOldPensionName: String, iPension: Pension) {
+        val ind =
+            pensions.indexOfFirst { it.name == iOldPensionName }
+        if (ind == -1)
+            Timber.tag("Alex").d("WHY can't I find pension $iOldPensionName????")
+        else
+            pensions[ind] = iPension
+    }
+    fun getAdditionalListCount(iType: AdditionalType? = null) : Int {
+        return if (iType == null)
+                additionalItems.size
+            else {
+                var count = 0
+                additionalItems.forEach {
+                    if (it.type == iType)
+                        count++
+                }
+                count
+            }
+    }
+    fun getAdditionalItem(iIndex: Int) : AdditionalItem? {
+        return if (iIndex >= 0 &&
+            iIndex < additionalItems.size)
+            additionalItems[iIndex]
+        else
+            null
+    }
+    fun deleteAdditionalItem(iIndex: Int) {
+        if (iIndex < additionalItems.size)
+            additionalItems.removeAt(iIndex)
+        var i = 0
+        additionalItems.forEach {
+            it.id = i
+            i += 1
+        }
+    }
+    fun addAdditionalItem(iItem: AdditionalItem) {
+        additionalItems.add(iItem)
+        var i = 0
+        additionalItems.forEach {
+            it.id = i
+            i += 1
+        }
+    }
+    fun updateAdditionalItem(iIndex: Int, iAdditionalItem: AdditionalItem) {
+        if (iIndex < additionalItems.size)
+            additionalItems[iIndex] = iAdditionalItem
+    }
+
     fun getAgeAtStartOfYear(iYear: Int) : Int {
         val birthYear = if (birthDate.substring(0,4).toIntOrNull() != null)
             birthDate.substring(0,4).toInt() else 0
@@ -1252,14 +1367,19 @@ class RetirementViewModel : ViewModel() {
     private var dataListener: ValueEventListener? = null
     private var loaded: Boolean = false
     private val userDefaults: MutableList<RetirementData> = ArrayList()
+    val defaultsLiveData = MutableLiveData<MutableList<RetirementData>>()
+
     private val scenarios: MutableList<RetirementData> = ArrayList()
-    val retirementsLiveData = MutableLiveData<MutableList<RetirementData>>()
 
     companion object {
         lateinit var singleInstance: RetirementViewModel // used to track static single instance of self
 
         fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<RetirementData>>) {
-            singleInstance.retirementsLiveData.observe(iFragment, iObserver)
+            singleInstance.defaultsLiveData.observe(iFragment, iObserver)
+        }
+
+        fun defaultsDoneLoading() {
+            singleInstance.defaultsLiveData.value = singleInstance.userDefaults
         }
 
         fun clearDefaults() {
@@ -1274,10 +1394,8 @@ class RetirementViewModel : ViewModel() {
             }
             singleInstance.userDefaults.clear()
             singleInstance.scenarios.clear()
-            gRetirementScenario = null
-//            singleInstance.workingAssetList.clear()
-  //          singleInstance.workingPensionList.clear()
-    //        singleInstance.workingAdditionalList.clear()
+            gRetirementWorking = null
+            gRetirementDefaults = null
             singleInstance.loaded = false
         }
 
@@ -1446,155 +1564,6 @@ class RetirementViewModel : ViewModel() {
             tList.add(calcRow)
             return tList
         }
-        private fun updateDistributionOrderAsRequired() {
-            if (gRetirementScenario != null) {
-                for (i in 0 until gRetirementScenario!!.assets.size) {
-                    gRetirementScenario!!.assets[i].distributionOrder = i
-                }
-                gRetirementScenario!!.assets.sortBy { it.distributionOrder }
-            }
-        }
-
-        fun getWorkingAssetListCount(iAssetType: AssetType = AssetType.ALL) : Int {
-            return if (gRetirementScenario == null) {
-                0
-            } else {
-                if (iAssetType == AssetType.ALL)
-                    gRetirementScenario!!.assets.size
-                else {
-                    var cnt = 0
-                    gRetirementScenario!!.assets.forEach {
-                        if (it.assetType == iAssetType)
-                            cnt += 1
-                    }
-                    cnt
-                }
-            }
-        }
-        fun getWorkingAsset(iAssetName: String) : Asset? {
-            return gRetirementScenario?.assets?.find {it.name == iAssetName}
-        }
-        fun getWorkingAsset(iIndex: Int) : Asset? {
-            return gRetirementScenario?.assets?.get(iIndex)
-        }
-        fun deleteAssetFromWorkingList(iAssetName: String) {
-            val asset = gRetirementScenario?.assets?.find {it.name == iAssetName}
-            if (asset != null) {
-                gRetirementScenario?.assets?.remove(asset)
-            }
-            updateDistributionOrderAsRequired()
-        }
-        fun addAssetToWorkingList(iAsset: Asset) {
-            gRetirementScenario?.assets?.add(iAsset)
-            updateDistributionOrderAsRequired()
-        }
-        fun updateAssetInWorkingList(iOldAssetName: String, iAsset: Asset) {
-            if (gRetirementScenario != null) {
-                val ind = gRetirementScenario!!.assets.indexOfFirst { it.name == iOldAssetName }
-                if (ind == -1)
-                    Timber.tag("Alex").d("WHY can't I find asset $iOldAssetName????")
-                else
-                    gRetirementScenario!!.assets[ind] = iAsset
-                updateDistributionOrderAsRequired()
-            }
-        }
-        fun changeDefaultDistributionOrder(iCurrentDistributionOrder: Int, iDirection: Int) {
-            if (iCurrentDistributionOrder == 0 && iDirection == -1) {
-                return
-            }
-            if (iCurrentDistributionOrder >= getWorkingAssetListCount() - 1 && iDirection == 1) {
-                return
-            }
-            if (gRetirementScenario != null) {
-                val temp = gRetirementScenario!!.assets[iCurrentDistributionOrder + iDirection]
-                gRetirementScenario!!.assets[iCurrentDistributionOrder + iDirection] =
-                    gRetirementScenario!!.assets[iCurrentDistributionOrder]
-                gRetirementScenario!!.assets[iCurrentDistributionOrder] = temp
-                updateDistributionOrderAsRequired()
-            }
-        }
-        fun getWorkingPensionListCount() : Int {
-            return if (gRetirementScenario == null)
-                0
-            else
-                gRetirementScenario!!.pensions.size
-        }
-        fun getWorkingPension(iPensionName: String) : Pension? {
-            return gRetirementScenario?.pensions?.find {it.name == iPensionName}
-        }
-        fun getWorkingPension(iIndex: Int) : Pension? {
-            return gRetirementScenario?.pensions?.get(iIndex)
-        }
-        fun deletePensionFromWorkingList(iPensionName: String) {
-            val pension = gRetirementScenario?.pensions?.find {it.name == iPensionName}
-            if (pension != null) {
-                gRetirementScenario!!.pensions.remove(pension)
-            }
-        }
-        fun addPensionToWorkingList(iPension: Pension) {
-            gRetirementScenario?.pensions?.add(iPension)
-        }
-        fun updatePensionInWorkingList(iOldPensionName: String, iPension: Pension) {
-            if (gRetirementScenario != null) {
-                val ind =
-                    gRetirementScenario!!.pensions.indexOfFirst { it.name == iOldPensionName }
-                if (ind == -1)
-                    Timber.tag("Alex").d("WHY can't I find pension $iOldPensionName????")
-                else
-                    gRetirementScenario!!.pensions[ind] = iPension
-            }
-        }
-        fun getWorkingAdditionalListCount(iType: AdditionalType? = null) : Int {
-            return if (gRetirementScenario == null) {
-                0
-            } else {
-                if (iType == null)
-                    gRetirementScenario!!.additionalItems.size
-                else {
-                    var count = 0
-                    gRetirementScenario!!.additionalItems.forEach {
-                        if (it.type == iType)
-                            count++
-                    }
-                    count
-                }
-            }
-        }
-        fun getWorkingAdditionalItem(iIndex: Int) : AdditionalItem? {
-            return if (iIndex >= 0 &&
-                gRetirementScenario != null &&
-                iIndex < gRetirementScenario!!.additionalItems.size)
-                gRetirementScenario!!.additionalItems[iIndex]
-            else
-                null
-        }
-        fun deleteAdditionalItemFromWorkingList(iIndex: Int) {
-            if (gRetirementScenario != null) {
-                if (iIndex < gRetirementScenario!!.additionalItems.size)
-                    gRetirementScenario!!.additionalItems.removeAt(iIndex)
-                var i = 0
-                gRetirementScenario!!.additionalItems.forEach {
-                    it.id = i
-                    i += 1
-                }
-            }
-        }
-        fun addAdditionalItemToWorkingList(iItem: AdditionalItem) {
-            if (gRetirementScenario != null) {
-                gRetirementScenario!!.additionalItems.add(iItem)
-                var i = 0
-                gRetirementScenario!!.additionalItems.forEach {
-                    it.id = i
-                    i += 1
-                }
-            }
-        }
-        fun updateAdditionalItemInWorkingList(iIndex: Int, iAdditionalItem: AdditionalItem) {
-            if (gRetirementScenario != null) {
-                if (iIndex < gRetirementScenario!!.additionalItems.size)
-                    gRetirementScenario!!.additionalItems[iIndex] = iAdditionalItem
-            }
-        }
     }
 
     init {
@@ -1621,7 +1590,6 @@ class RetirementViewModel : ViewModel() {
                     updateRetirementScenario(retData, true)
                 }
                 singleInstance.loaded = true
-                singleInstance.retirementsLiveData.value = singleInstance.scenarios
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

@@ -23,29 +23,30 @@ class RetirementAssetDialogFragment : DialogFragment() {
     private var listener: RetirementAssetDialogFragmentListener? = null
     private var _binding: FragmentRetirementAssetDialogBinding? = null
     private val binding get() = _binding!!
+    private var myScenario: RetirementData? = null
 
     companion object {
         private const val KEY_USER_ID = "1"
         private const val KEY_ASSET_NAME = "2"
-        private const val KEY_DEFAULT_MODE_ID = "3"
+        private const val KEY_SCENARIO_TYPE = "3"
         private var userID: Int = 0
         private var assetName: String = ""
-        private var inDefaultMode: Boolean = false
+        private var scenarioType: RetirementScenarioType = RetirementScenarioType.SCENARIO
         fun newInstance(
             userIDIn: Int,
             assetNameIn: String,
-            defaultModeIn: Boolean
+            scenarioTypeIn: RetirementScenarioType
         ): RetirementAssetDialogFragment {
             val args = Bundle()
 
             args.putString(KEY_USER_ID, userIDIn.toString())
             args.putString(KEY_ASSET_NAME, assetNameIn)
-            args.putString(KEY_DEFAULT_MODE_ID, defaultModeIn.toString())
+            args.putInt(KEY_SCENARIO_TYPE, scenarioTypeIn.code)
             val fragment = RetirementAssetDialogFragment()
             fragment.arguments = args
             userID = userIDIn
             assetName = assetNameIn
-            inDefaultMode = defaultModeIn
+            scenarioType = scenarioTypeIn
             return fragment
         }
     }
@@ -55,6 +56,11 @@ class RetirementAssetDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        myScenario = if (scenarioType == RetirementScenarioType.SCENARIO)
+            gRetirementWorking
+        else
+            gRetirementDefaults
+
         _binding = FragmentRetirementAssetDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -86,7 +92,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
             binding.deleteButton.visibility = View.GONE
         val userDefault = RetirementViewModel.getUserDefault(userID)
         if (userDefault != null) {
-            val asset = RetirementViewModel.getWorkingAsset(assetName)
+            val asset = myScenario?.getAsset(assetName)
             if (asset != null) {
                 binding.title.text = String.format("${AssetType.getText(asset.assetType)}: ${asset.name}")
                 setupAssetTypeSpinner(AssetType.getText(asset.assetType))
@@ -203,7 +209,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.minimizeRRSPTaxLayout.visibility = View.GONE
                     }
                     else -> {
-                        if (inDefaultMode)
+//                        if (scenarioType == RetirementScenarioType.DEFAULTS)
                             binding.switchWillSellToFinanceRetirement.visibility = View.VISIBLE
                         binding.minimizeRRSPTaxLayout.visibility = View.GONE
                     }
@@ -317,7 +323,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.assetName)
                 return@setOnClickListener
             }
-            if (assetName == "" && RetirementViewModel.getWorkingAsset(binding.assetName.text.toString()) != null) {
+            if (assetName == "" && myScenario?.getAsset(binding.assetName.text.toString()) != null) {
                 binding.assetName.error = getString(R.string.name_already_exists)
                 focusAndOpenSoftKeyboard(requireContext(), binding.assetName)
                 return@setOnClickListener
@@ -344,16 +350,18 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     return@setOnClickListener
                 }
                 if (binding.switchWillSellToFinanceRetirement.isChecked &&
-                        binding.increasedBudget.text.toString().toInt() <= 0) {
-                    binding.increasedBudget.error = getString(R.string.value_cannot_be_zero)
+                        binding.increasedBudget.text.toString() == "") {
+                    binding.increasedBudget.error = getString(R.string.value_cannot_be_blank)
                     focusAndOpenSoftKeyboard(requireContext(), binding.increasedBudget)
                     return@setOnClickListener
                 }
             }
-            val oldAsset = RetirementViewModel.getWorkingAsset(assetName)
-            val distributionOrder = oldAsset?.distributionOrder ?: RetirementViewModel.getWorkingAssetListCount()
+            val oldAsset = myScenario?.getAsset(assetName)
+
+            val distributionOrder = oldAsset?.distributionOrder ?: myScenario?.getAssetListCount()
 
             var asset: Asset? = null
+            val newID = myScenario?.getAssetListCount() ?: 0
             when (binding.assetTypeSpinner.selectedItem.toString()) {
                 AssetType.getText(AssetType.RRSP) -> {
                     val minRRSPVal = if (binding.minimizeRRSPNever.isChecked)
@@ -363,15 +371,15 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     else
                         MinimizeTaxEnum.ALWAYS_MINIMIZE
 
-                    asset = RRSP(
-                        RetirementViewModel.getWorkingAssetListCount(),
+                    asset =  RRSP(
+                        newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
                         12 - gCurrentDate.getMonth(),
-                        distributionOrder,
+                        distributionOrder ?: 0,
                         0,
                         minRRSPVal
                     )
@@ -384,21 +392,21 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     else
                         MinimizeTaxEnum.ALWAYS_MINIMIZE
                     asset = LIRALIF(
-                        RetirementViewModel.getWorkingAssetListCount(),
+                        newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
                         12 - gCurrentDate.getMonth(),
-                        distributionOrder,
+                        distributionOrder ?: 0,
                         0,
                         minTaxVal
                     )
                 }
                 AssetType.getText(AssetType.LIRA_ANNUITY) -> {
                     asset = LIRAANNUITY(
-                        RetirementViewModel.getWorkingAssetListCount(),
+                        newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.annuityStartDate.text.toString(),
@@ -407,12 +415,12 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         12 - gCurrentDate.getMonth(),
-                        distributionOrder
+                        distributionOrder ?: 0,
                     )
                 }
                 AssetType.getText(AssetType.TFSA) -> {
                     asset = TFSA(
-                        RetirementViewModel.getWorkingAssetListCount(),
+                        newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
@@ -420,12 +428,12 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
                         binding.switchWillSellToFinanceRetirement.isChecked,
                         12 - gCurrentDate.getMonth(),
-                        distributionOrder
+                        distributionOrder ?: 0,
                     )
                 }
                 AssetType.getText(AssetType.SAVINGS) -> {
                     asset = Savings(
-                        RetirementViewModel.getWorkingAssetListCount(),
+                        newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
@@ -433,20 +441,20 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
                         binding.switchWillSellToFinanceRetirement.isChecked,
                         12 - gCurrentDate.getMonth(),
-                        distributionOrder,
+                        distributionOrder ?: 0,
                         binding.switchTaxSheltered.isChecked
                     )
                 }
                 AssetType.getText(AssetType.PROPERTY) -> {
-                    asset = Property(
-                        RetirementViewModel.getWorkingAssetListCount(),
+                    asset =  Property(
+                        newID,
                         binding.assetName.text.toString(),
                         (binding.assetValue.text.toString().toInt() * binding.ownershipPercentage.text.toString().toDouble() / 100.0).toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         binding.switchWillSellToFinanceRetirement.isChecked,
                         0,
-                        distributionOrder,
+                        distributionOrder ?: 0,
                         if (binding.increasedBudget.text.toString() == "") 0 else binding.increasedBudget.text.toString().toInt(),
                         binding.switchUseDefaultGrowthAfterSale.isChecked,
                         binding.estimatedAnnualGrowthAfterSale.text.toString().toDouble(),
@@ -460,9 +468,9 @@ class RetirementAssetDialogFragment : DialogFragment() {
             }
             if (asset != null) {
                 if (assetName == "") { // adding new
-                    RetirementViewModel.addAssetToWorkingList(asset)
+                    myScenario?.addAsset(asset)
                 } else { // editing existing asset
-                    RetirementViewModel.updateAssetInWorkingList(assetName, asset)
+                    myScenario?.updateAsset(assetName, asset)
                 }
                 if (listener != null)
                     listener?.onNewDataSaved()
@@ -471,7 +479,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
         }
         binding.deleteButton.setOnClickListener {
             fun yesClicked() {
-                RetirementViewModel.deleteAssetFromWorkingList(assetName)
+                myScenario?.deleteAsset(assetName)
                 if (listener != null) {
                     listener?.onNewDataSaved()
                 }

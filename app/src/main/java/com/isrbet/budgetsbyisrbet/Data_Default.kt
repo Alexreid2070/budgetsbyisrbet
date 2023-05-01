@@ -677,6 +677,7 @@ class DefaultsViewModel : ViewModel() {
                 }
                 singleInstance.loaded = true
                 singleInstance.defaultsLiveData.value = singleInstance.loaded
+                RetirementViewModel.defaultsDoneLoading()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

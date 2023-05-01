@@ -7,9 +7,14 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class AdditionalItemsAdapter (context: Context, iItemTypes: AdditionalType): BaseAdapter() {
+class AdditionalItemsAdapter (context: Context, iItemTypes: AdditionalType,
+iRetirementType: RetirementScenarioType): BaseAdapter() {
     private val myType = iItemTypes
     private var myAdditionalItems: MutableList<AdditionalItem> = arrayListOf()
+    private val myScenario = if (iRetirementType == RetirementScenarioType.SCENARIO)
+        gRetirementWorking
+    else
+        gRetirementDefaults
     init {
         refreshData()
     }
@@ -19,8 +24,8 @@ class AdditionalItemsAdapter (context: Context, iItemTypes: AdditionalType): Bas
 
     private fun refreshData() {
         myAdditionalItems.clear()
-        for (i in 0 until RetirementViewModel.getWorkingAdditionalListCount()) {
-            val additionalItem = RetirementViewModel.getWorkingAdditionalItem(i)
+        for (i in 0 until myScenario?.getAdditionalListCount()!!) {
+            val additionalItem = myScenario.getAdditionalItem(i)
             if (additionalItem != null) {
                 if (additionalItem.type == myType)
                     myAdditionalItems.add(additionalItem.copy())
