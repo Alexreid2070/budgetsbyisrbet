@@ -12,7 +12,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.google.android.material.color.MaterialColors
 
-class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapter() {
+class CategoryAdapter (context: Context, data: MutableList<Category>,
+       private val listener: (Int) -> Unit = {}
+): BaseAdapter() {
     private var groupList: MutableList<Int> = mutableListOf()
     private var myData: MutableList<Category> = arrayListOf()
     private val myContext = context
@@ -119,6 +121,8 @@ class CategoryAdapter (context: Context, data: MutableList<Category>): BaseAdapt
         trParams.setMargins(15, 0, 10, 0)
         viewHolder.vhCategory.layoutParams = trParams
         viewHolder.vhDetail.layoutParams = trParams
+        viewHolder.vhCategory.setOnClickListener { listener(cData.id) }
+        viewHolder.vhSubcategory.setOnClickListener { listener(cData.id) }
 
         return myConvertView
     }

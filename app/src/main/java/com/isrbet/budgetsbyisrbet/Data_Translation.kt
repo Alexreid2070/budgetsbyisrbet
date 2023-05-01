@@ -119,9 +119,6 @@ class TranslationViewModel : ViewModel() {
         singleInstance = this
     }
 
-    fun clearCallback() {
-        loaded = false
-    }
     override fun onCleared() {
         super.onCleared()
         if (transListener != null) {

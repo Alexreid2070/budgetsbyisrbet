@@ -95,46 +95,13 @@
         android:paddingEnd="5dp">
 
         <TextView
-            android:id="@+id/budgetAddYear_label"
-            android:layout_width="wrap_content"
+            android:id="@+id/date_label"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/year"
+            android:gravity="center"
             android:textSize="16sp"
             android:textStyle="bold"/>
-
-        <it.sephiroth.android.library.numberpicker.NumberPicker
-            android:id="@+id/budgetAddYear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:picker_orientation="vertical"
-            app:picker_tracker="linear"
-            app:picker_stepSize="1"
-            app:picker_min="2018"
-            app:picker_max="2040"
-            style="@style/NumberPicker.Filled"
-            android:background="?attr/colorSecondaryVariant"/>
-
-        <TextView
-            android:id="@+id/budgetAddMonth_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/month"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
-
-        <it.sephiroth.android.library.numberpicker.NumberPicker
-            android:id="@+id/budgetAddMonth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:picker_orientation="vertical"
-            app:picker_tracker="linear"
-            app:picker_stepSize="1"
-            app:picker_min="1"
-            app:picker_max="12"
-            style="@style/NumberPicker.Filled"
-            android:background="?attr/colorSecondaryVariant"/>
 
     </LinearLayout>
     <Space
@@ -246,26 +213,66 @@
         app:layout_constraintTop_toBottomOf="@+id/budget_list_view"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/button_backward"
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/button_year_backward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingStart="30dp"
-            android:paddingEnd="40dp"
             android:layout_gravity="center"
-            app:drawableStartCompat="@drawable/ic_baseline_keyboard_arrow_left_24"/>
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_double_arrow_left_24"/>
 
-        <TextView
-            android:id="@+id/button_forward"
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1.5" />
+
+        <ImageView
+            android:id="@+id/button_month_backward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="50dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="30dp"
             android:layout_gravity="center"
-            app:drawableStartCompat="@drawable/ic_baseline_keyboard_arrow_right_24"/>
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_arrow_left_24"/>
 
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2" />
+
+        <ImageView
+            android:id="@+id/button_month_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_arrow_right_24"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/button_year_forward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/navigate"
+            android:src="@drawable/ic_baseline_keyboard_double_arrow_right_24"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight=".5" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -273,7 +280,7 @@
             android:textColor="?attr/colorPrimary"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:text="@string/view_by"/>
+            android:text="@string/view_colon"/>
         <HorizontalScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

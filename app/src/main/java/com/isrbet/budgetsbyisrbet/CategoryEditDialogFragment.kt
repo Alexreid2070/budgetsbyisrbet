@@ -16,14 +16,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
+import timber.log.Timber
 import java.util.ArrayList
 
 class CategoryEditDialogFragment : DialogFragment() {
-    interface CategoryEditDialogFragmentListener {
-        fun onNewDataSaved()
-    }
-
-    private var listener: CategoryEditDialogFragmentListener? = null
     private var _binding: FragmentCategoryEditDialogBinding? = null
     private val binding get() = _binding!!
     private var budgetCtr = 0
@@ -35,14 +31,13 @@ class CategoryEditDialogFragment : DialogFragment() {
         private const val KEY_CATEGORY_ID = "1"
         private var oldCategoryID: Int = 0
         fun newInstance(
-            categoryID: String
+            categoryID: Int
         ): CategoryEditDialogFragment {
             val args = Bundle()
-
-            args.putString(KEY_CATEGORY_ID, categoryID)
+            args.putString(KEY_CATEGORY_ID, categoryID.toString())
             val fragment = CategoryEditDialogFragment()
             fragment.arguments = args
-            oldCategoryID = categoryID.toInt()
+            oldCategoryID = categoryID
             return fragment
         }
     }
@@ -293,9 +288,6 @@ class CategoryEditDialogFragment : DialogFragment() {
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
                     binding.stateSwitch.isChecked
                 )
-                if (listener != null) {
-                    listener?.onNewDataSaved()
-                }
                 setupCategorySpinner(chosenCategory)
                 MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 dismiss()
@@ -303,6 +295,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                     val action =
                         SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()
                     action.categoryID = cat.id.toString()
+                    Timber.tag("Alex").d("Calling budget fragment with id ${action.categoryID}")
                     findNavController().navigate(action)
                 }
             } else if (oldCat?.categoryName == chosenCategory &&
@@ -320,8 +313,6 @@ class CategoryEditDialogFragment : DialogFragment() {
                         if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
                         binding.stateSwitch.isChecked
                     )
-                    if (listener != null)
-                        listener?.onNewDataSaved()
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                     dismiss()
                 } else if (oldCat.categoryName != chosenCategory ||
@@ -335,8 +326,6 @@ class CategoryEditDialogFragment : DialogFragment() {
                         if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
                         binding.stateSwitch.isChecked
                     )
-                    if (listener != null)
-                        listener?.onNewDataSaved()
                     setupCategorySpinner(chosenCategory)
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                     dismiss()
@@ -364,9 +353,6 @@ class CategoryEditDialogFragment : DialogFragment() {
                 CategoryViewModel.deleteCategoryAndSubcategory(
                     binding.categoryId.text.toString().toInt()
                 )
-                if (listener != null) {
-                    listener?.onNewDataSaved()
-                }
                 MyApplication.playSound(context, R.raw.short_springy_gun)
                 dismiss()
             }
@@ -417,10 +403,6 @@ class CategoryEditDialogFragment : DialogFragment() {
             .setMessage(String.format(getString(R.string.cannot_be_deleted_as_it_is_used_in), "${binding.oldCategoryName.text}-${binding.oldSubcategoryName.text} ", iWhere))
             .setNegativeButton(android.R.string.cancel) { _, _ -> noClicked() }
             .show()
-    }
-
-    fun setCategoryEditDialogFragmentListener(listener: CategoryEditDialogFragmentListener) {
-        this.listener = listener
     }
 
     override fun onDestroyView() {

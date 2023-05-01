@@ -236,6 +236,9 @@
         <action
             android:id="@+id/action_RetirementFragment_to_RetirementDetailsFragment"
             app:destination="@id/RetirementDetailsFragment" />
+        <action
+            android:id="@+id/action_RetirementFragment_to_RetirementDefaultsFragment"
+            app:destination="@id/RetirementDefaultsFragment" />
     </fragment>
     <fragment
         android:id="@+id/RetirementDetailsFragment"
@@ -273,5 +276,15 @@
         <action
             android:id="@+id/action_TrackerTabsFragment_to_SettingsTabsFragment"
             app:destination="@id/SettingsTabsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/RetirementDefaultsFragment"
+        android:name="com.isrbet.budgetsbyisrbet.RetirementDefaultsFragment"
+        android:label="RetirementDefaultsFragment"
+        tools:layout="@layout/fragment_retirement_defaults">
+        <argument
+            android:name="userID"
+            app:argType="integer"
+            android:defaultValue='0'/>
     </fragment>
 </navigation>

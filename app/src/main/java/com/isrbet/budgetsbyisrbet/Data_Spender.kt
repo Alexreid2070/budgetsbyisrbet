@@ -2,6 +2,8 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -15,13 +17,16 @@ data class Spender(var name: String, var email: String, var split: Int, var isAc
 class SpenderViewModel : ViewModel() {
     private var spenderListener: ValueEventListener? = null
     private val spenders: MutableList<Spender> = ArrayList()
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
+    val spendersLiveData = MutableLiveData<MutableList<Spender>>()
     private var loaded:Boolean = false
 
     // The primary user is always at index 0, and the secondary is always at index 1
 
     companion object {
         lateinit var singleInstance: SpenderViewModel // used to track static single instance of self
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Spender>>) {
+            singleInstance.spendersLiveData.observe(iFragment, iObserver)
+        }
         fun isLoaded():Boolean {
             return if (this::singleInstance.isInitialized) {
                 singleInstance.loaded
@@ -199,14 +204,6 @@ class SpenderViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-    }
-
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
-
     fun loadSpenders() {
         // Do an asynchronous operation to fetch spenders
         spenderListener = object : ValueEventListener {
@@ -236,7 +233,7 @@ class SpenderViewModel : ViewModel() {
                 else
                     MyApplication.userIndex = 1
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
+                singleInstance.spendersLiveData.value = singleInstance.spenders
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

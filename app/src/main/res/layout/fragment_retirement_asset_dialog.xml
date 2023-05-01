@@ -461,6 +461,37 @@
                 android:textStyle="bold" />
 
             <LinearLayout
+                android:id="@+id/increased_budget_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:text="@string/increased_budget"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/increased_budget"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/minimizeRRSPTaxLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

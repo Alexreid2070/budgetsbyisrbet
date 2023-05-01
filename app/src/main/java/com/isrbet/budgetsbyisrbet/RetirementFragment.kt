@@ -9,8 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementBinding
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.models.Shape
 import nl.dionsegijn.konfetti.models.Size
+import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
 class RetirementFragment : Fragment(), CoroutineScope {
@@ -34,56 +35,58 @@ class RetirementFragment : Fragment(), CoroutineScope {
     private var myEndingNetWorth = 0
     private var myLastRow: RetirementCalculationRow? = null
     private var job: Job = Job()
-    private var inDefaultMode = false // is set to true if user is editing defaults
     var loadRetirementInfoFromWorking = false
     var previousSpinnerSelection = -1
+    var currentUserID = SpenderViewModel.myIndex()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Timber.tag("Alex").d("Retirement onCreate")
         super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            if (inDefaultMode)
-                setupDefaultMode(false)
-            else
-                findNavController().popBackStack()
+
+        val retObserver = Observer<MutableList<RetirementData>> {
+            Timber.tag("Alex").d("Retirement Observer triggered")
+            val userDefault = RetirementViewModel.getUserDefault(currentUserID)
+            loadScreen(userDefault)
         }
+        RetirementViewModel.observeList(this, retObserver)
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
+        Timber.tag("Alex").d("Retirement onCreateView")
         _binding = FragmentRetirementBinding.inflate(inflater, container, false)
 
-        binding.expandAllButton.setOnClickListener {
+        binding.rf.expandAllButton.setOnClickListener {
             onAllClicked()
         }
-        binding.basicsExpandButton.setOnClickListener {
+        binding.rf.basicsExpandButton.setOnClickListener {
             onBasicsExpandClicked()
         }
-        binding.salaryExpandButton.setOnClickListener {
+        binding.rf.salaryExpandButton.setOnClickListener {
             onSalaryExpandClicked()
         }
-        binding.assetsExpandButton.setOnClickListener {
+        binding.rf.assetsExpandButton.setOnClickListener {
             onAssetsExpandClicked()
         }
-        binding.pensionsExpandButton.setOnClickListener {
+        binding.rf.pensionsExpandButton.setOnClickListener {
             onPensionsExpandClicked()
         }
-        binding.additionalExpandButton.setOnClickListener {
+        binding.rf.additionalExpandButton.setOnClickListener {
             onAdditionalItemsExpandClicked()
         }
-        binding.cppOasExpandButton.setOnClickListener {
+        binding.rf.cppOasExpandButton.setOnClickListener {
             onCPPOASExpandClicked()
         }
-        binding.assetsAddButton.setOnClickListener {
-            val cdf = RetirementAssetDialogFragment.newInstance(binding.userID.text.toString().toInt(), "", true)
+        binding.rf.assetsAddButton.setOnClickListener {
+            val cdf = RetirementAssetDialogFragment.newInstance(currentUserID, "", true)
             cdf.setRetirementAssetDialogFragmentListener(object: RetirementAssetDialogFragment.RetirementAssetDialogFragmentListener {
                 override fun onNewDataSaved() {
                     loadRetirementInfoFromWorking = true
-                    val userDefault = RetirementViewModel.getUserDefault(binding.userID.text.toString().toInt())
+                    val userDefault = RetirementViewModel.getUserDefault(currentUserID)
                     if (userDefault != null) {
                         val myAdapter = AssetAdapter(requireContext(),
                             userDefault.investmentGrowthRate,
@@ -94,9 +97,9 @@ class RetirementFragment : Fragment(), CoroutineScope {
                             { item ->
                                 moveAsset(item.distributionOrder, 1)
                             })
-                        binding.assetsListView.adapter = myAdapter
-                        setListViewHeightBasedOnChildren(binding.assetsListView)
-                        binding.assetsExpandButton.text =
+                        binding.rf.assetsListView.adapter = myAdapter
+                        setListViewHeightBasedOnChildren(binding.rf.assetsListView)
+                        binding.rf.assetsExpandButton.text =
                             String.format(getString(R.string.assets), myAdapter.count)
                         myAdapter.notifyDataSetChanged()
                     }
@@ -105,15 +108,15 @@ class RetirementFragment : Fragment(), CoroutineScope {
             cdf.show(parentFragmentManager, getString(R.string.add_asset))
         }
 
-        binding.pensionsAddButton.setOnClickListener {
-            val cdf = RetirementPensionDialogFragment.newInstance(binding.userID.text.toString().toInt(), "", true)
+        binding.rf.pensionsAddButton.setOnClickListener {
+            val cdf = RetirementPensionDialogFragment.newInstance(currentUserID, "", true)
             cdf.setRetirementPensionDialogFragmentListener(object: RetirementPensionDialogFragment.RetirementPensionDialogFragmentListener {
                 override fun onNewDataSaved() {
                     loadRetirementInfoFromWorking = true
                     val myAdapter = PensionAdapter(requireContext())
-                    binding.pensionsListView.adapter = myAdapter
-                    setListViewHeightBasedOnChildren(binding.pensionsListView)
-                    binding.pensionsExpandButton.text =
+                    binding.rf.pensionsListView.adapter = myAdapter
+                    setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
+                    binding.rf.pensionsExpandButton.text =
                         String.format(getString(R.string.pensions), myAdapter.count)
                     myAdapter.notifyDataSetChanged()
                 }
@@ -121,7 +124,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             cdf.show(parentFragmentManager, getString(R.string.add_pension))
         }
 
-        binding.additionalAddButton.setOnClickListener {
+        binding.rf.additionalAddButton.setOnClickListener {
             val cdf = RetirementAdditionalDialogFragment.newInstance(-1)
             cdf.setRetirementAdditionalDialogFragmentListener(object: RetirementAdditionalDialogFragment.RetirementAdditionalDialogFragmentListener {
                 override fun onNewDataSaved() {
@@ -147,18 +150,19 @@ class RetirementFragment : Fragment(), CoroutineScope {
                     setSummaryFields(View.GONE)
                     if (position < SpenderViewModel.getNumberOfUsers()) {
                         val userDefault = RetirementViewModel.getUserDefault(position) // ?: return
-                        binding.userID.text = position.toString()
+                        currentUserID = position
+                        Timber.tag("Alex").d("Just set A binding.userid to $currentUserID in scenarioOnItemSelected")
                         loadScreen(userDefault)
-                        if (!inDefaultMode)
-                            binding.buttonUpdateDefaults.visibility = View.GONE
                         binding.buttonDeleteScenario.visibility = View.GONE
                     } else {
                         val scenario = RetirementViewModel.getScenario(position - SpenderViewModel.getNumberOfUsers())
-                        binding.userID.text = scenario.userID.toString()
+                        currentUserID = scenario.userID
+                        Timber.tag("Alex").d("Just set B binding.userid to $currentUserID in scenarioOnItemSelected")
                         loadScreen(scenario)
                         binding.buttonDeleteScenario.visibility = View.VISIBLE
                     }
                 } else { // returned to the screen from See Details
+                    Timber.tag("Alex").d("Did I just return?  Loading screen")
                     loadScreen(null, true)
                 }
             }
@@ -170,8 +174,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 binding.scenarioNameEntireLayout.visibility = View.GONE
                 binding.buttonCalculate.visibility = View.VISIBLE
                 binding.buttonCancel.visibility = View.GONE
-            } else // we're in default edit mode
-                setupDefaultMode(false)
+            }
         }
 
         binding.buttonCalculate.setOnClickListener {
@@ -183,12 +186,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         binding.scenarioSaveButton.setOnClickListener {
             hideKeyboard(requireContext(), requireView())
             collapseAll()
-            onSaveButtonClicked(inDefaultMode)
-        }
-        binding.buttonUpdateDefaults.setOnClickListener {
-            hideKeyboard(requireContext(), requireView())
-            collapseAll()
-            onSaveButtonClicked(inDefaultMode)
+            onSaveButtonClicked()
         }
         binding.buttonDeleteScenario.setOnClickListener {
             hideKeyboard(requireContext(), requireView())
@@ -201,40 +199,42 @@ class RetirementFragment : Fragment(), CoroutineScope {
             onSeeDetailsButtonClicked()
         }
         binding.retirementDefaultsButton.setOnClickListener {
-            setupDefaultMode(true)
-            setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(getString(R.string.defaultt),
-                binding.userID.text.toString().toInt()))
+            val action =
+                RetirementFragmentDirections.actionRetirementFragmentToRetirementDefaultsFragment()
+            action.userID = currentUserID
+            Timber.tag("Alex").d("UserID is $currentUserID")
+            findNavController().navigate(action)
         }
-        binding.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_down_24
+        binding.rf.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_down_24
 
         inflater.inflate(R.layout.fragment_retirement, container, false)
         return binding.root
     }
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
+        Timber.tag("Alex").d("Retirement onViewCreated")
         super.onViewCreated(itemView, savedInstanceState)
-        setupDefaultMode(false)
-        binding.assetsExpandButton.text = String.format(getString(R.string.assets), 0)
-        binding.pensionsExpandButton.text = String.format(getString(R.string.pensions), 0)
-        binding.additionalExpandButton.text = String.format(getString(R.string.additional_deposits_or_expenditures), 0)
+        setupDefaults()
+        binding.rf.assetsExpandButton.text = String.format(getString(R.string.assets), 0)
+        binding.rf.pensionsExpandButton.text = String.format(getString(R.string.pensions), 0)
+        binding.rf.additionalExpandButton.text = String.format(getString(R.string.additional_deposits_or_expenditures), 0)
 
-        binding.currencySymbol1.text = String.format("${getLocalCurrencySymbol()} ")
-        binding.currencySymbol2.text = String.format("${getLocalCurrencySymbol()} ")
-        binding.currencySymbol3.text = String.format("${getLocalCurrencySymbol()} ")
-        binding.currencySymbol4.text = String.format("${getLocalCurrencySymbol()} ")
+        binding.rf.currencySymbol2.text = String.format("${getLocalCurrencySymbol()} ")
+        binding.rf.currencySymbol3.text = String.format("${getLocalCurrencySymbol()} ")
+        binding.rf.currencySymbol4.text = String.format("${getLocalCurrencySymbol()} ")
         gRetirementDetailsList = arrayListOf()
 //        gRetirementScenario = null
         if (myEarliestRetirementYear == 0) {
             setSummaryFields(View.GONE)
         }
-        binding.birthDate.setText(gCurrentDate.toString())
+        binding.rf.birthDate.setText(gCurrentDate.toString())
         val birthDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                binding.birthDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
+                binding.rf.birthDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
-        binding.birthDate.setOnClickListener {
+        binding.rf.birthDate.setOnClickListener {
             var lcal = MyDate()
-            if (binding.birthDate.text.toString() != "") {
-                lcal = MyDate(binding.birthDate.text.toString())
+            if (binding.rf.birthDate.text.toString() != "") {
+                lcal = MyDate(binding.rf.birthDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), birthDateSetListener,
@@ -243,15 +243,15 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 lcal.getDay()
             ).show()
         }
-        binding.retirementDate.setText(gCurrentDate.toString())
+        binding.rf.retirementDate.setText(gCurrentDate.toString())
         val retDateSetListener = // this is fired when user clicks OK
             DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                binding.retirementDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
+                binding.rf.retirementDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
             }
-        binding.retirementDate.setOnClickListener {
+        binding.rf.retirementDate.setOnClickListener {
             var lcal = MyDate()
-            if (binding.retirementDate.text.toString() != "") {
-                lcal = MyDate(binding.retirementDate.text.toString())
+            if (binding.rf.retirementDate.text.toString() != "") {
+                lcal = MyDate(binding.rf.retirementDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), retDateSetListener,
@@ -260,10 +260,16 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 lcal.getDay()
             ).show()
         }
-        binding.userID.text = SpenderViewModel.myIndex().toString()
-//        setupScenarioSpinner(binding.scenarioNameInput.text.toString())
+        binding.rf.switchUseBudget.setOnClickListener {
+            if (binding.rf.switchUseBudget.isChecked) {
+                binding.rf.targetMonthlyIncome.visibility = View.GONE
+                binding.rf.targetMonthlyIncome.setText("")
+            } else {
+                binding.rf.targetMonthlyIncome.visibility = View.VISIBLE
+            }
+        }
         setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(getString(R.string.defaultt),
-            binding.userID.text.toString().toInt()))
+            currentUserID))
         binding.lifetimeTaxes.text = gDecWithCurrency(myLifetimeTaxes)
         binding.lifetimeSurplus.text = gDecWithCurrency(myLifetimeSurplus)
         binding.endingNetWorth.text = gDecWithCurrency(myEndingNetWorth)
@@ -288,11 +294,11 @@ class RetirementFragment : Fragment(), CoroutineScope {
         depListView.adapter = myDepAdapter
         setListViewHeightBasedOnChildren(depListView)
         val totalItems = myExpAdapter.count + myDepAdapter.count
-        binding.additionalExpandButton.text =
+        binding.rf.additionalExpandButton.text =
             String.format(getString(R.string.additional_deposits_or_expenditures), totalItems)
-        binding.additionalDepositsLabel.text =
+        binding.rf.additionalDepositsLabel.text =
             String.format(getString(R.string.additional_deposits), myDepAdapter.count)
-        binding.additionalExpensesLabel.text =
+        binding.rf.additionalExpensesLabel.text =
             String.format(getString(R.string.additional_expenditures), myExpAdapter.count)
         myExpAdapter.notifyDataSetChanged()
         myDepAdapter.notifyDataSetChanged()
@@ -300,29 +306,36 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
 
     private fun setupScenarioSpinner(iSelection: String = "", iOnlyDefaults: Boolean = false) {
-        val listOfRetirementScenarios = RetirementViewModel.getListOfRetirementScenarios()
-        for (i in 0 until SpenderViewModel.getNumberOfUsers()) {
-            listOfRetirementScenarios.add(i,
-                String.format(getString(R.string.user_default),
+        var listOfRetirementScenarios: MutableList<String> = arrayListOf()
+        if (iOnlyDefaults) {
+            for (i in 0 until SpenderViewModel.getNumberOfUsers()) {
+                listOfRetirementScenarios.add(i,
+                    String.format(getString(R.string.user_default),
                         SpenderViewModel.getSpenderName(i)))
+            }
+        } else {
+            listOfRetirementScenarios = RetirementViewModel.getListOfRetirementScenarios()
+            for (i in 0 until SpenderViewModel.getNumberOfUsers()) {
+                listOfRetirementScenarios.add(i,
+                    String.format(getString(R.string.user_default),
+                        SpenderViewModel.getSpenderName(i)))
+            }
         }
 
-        if (!iOnlyDefaults) {
-            if (listOfRetirementScenarios.size > 0) {
-                binding.scenarioSpinnerLabel.visibility = View.VISIBLE
-                binding.scenarioSpinnerRelativeLayout.visibility = View.VISIBLE
-                val scenarioSpinner = binding.scenarioSpinner
-                val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listOfRetirementScenarios)
-                scenarioSpinner.adapter = arrayAdapter
-                if (iSelection != "") {
-                    scenarioSpinner.setSelection(arrayAdapter.getPosition(iSelection))
-                }
-                arrayAdapter.notifyDataSetChanged()
-            } else {
-                binding.scenarioSpinnerLabel.visibility = View.GONE
-                binding.scenarioSpinnerRelativeLayout.visibility = View.GONE
-                binding.buttonDeleteScenario.visibility = View.GONE
+        if (listOfRetirementScenarios.size > 0) {
+            binding.scenarioSpinnerLabel.visibility = View.VISIBLE
+            binding.scenarioSpinnerRelativeLayout.visibility = View.VISIBLE
+            val scenarioSpinner = binding.scenarioSpinner
+            val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listOfRetirementScenarios)
+            scenarioSpinner.adapter = arrayAdapter
+            if (iSelection != "") {
+                scenarioSpinner.setSelection(arrayAdapter.getPosition(iSelection))
             }
+            arrayAdapter.notifyDataSetChanged()
+        } else {
+            binding.scenarioSpinnerLabel.visibility = View.GONE
+            binding.scenarioSpinnerRelativeLayout.visibility = View.GONE
+            binding.buttonDeleteScenario.visibility = View.GONE
         }
     }
 
@@ -366,7 +379,8 @@ class RetirementFragment : Fragment(), CoroutineScope {
             gotTheEarliestRetirementYear(result) // onResult is called on the main thread
         }
         launch {
-            val result =  getMaximumMonthlyIncome(rtData)
+            rtData.useBudgetAsTargetIncome = false
+            val result = getMaximumMonthlyIncome(rtData)
             gotTheMaximumMonthlyIncome(result) // onResult is called on the main thread
         }
     }
@@ -431,18 +445,18 @@ class RetirementFragment : Fragment(), CoroutineScope {
 
     private fun prepareCalculationResponse() {
         if (myMaximumMonthlyBudget != 0 && myEarliestRetirementYear != 0) {
-            val desiredBudget = if (binding.targetMonthlyIncome.text.toString() == "")
+            val desiredBudget = if (binding.rf.targetMonthlyIncome.text.toString() == "")
                 0
             else
-                binding.targetMonthlyIncome.text.toString().toInt()
-            val desiredRetirementYear = if (binding.retirementDate.text.toString() == "")
+                binding.rf.targetMonthlyIncome.text.toString().toInt()
+            val desiredRetirementYear = if (binding.rf.retirementDate.text.toString() == "")
                 0
             else
-                binding.retirementDate.text.toString().substring(0,4).toInt()
+                binding.rf.retirementDate.text.toString().substring(0,4).toInt()
 
             if (myMaximumMonthlyBudget >= desiredBudget && myEarliestRetirementYear <= desiredRetirementYear) {
                 myCalculationResponse = String.format(getString(R.string.excellent))
-                myCalculationResponse2 = String.format(getString(R.string.excellent2), gDecWithCurrency(myMaximumMonthlyBudget))
+                myCalculationResponse2 = String.format(getString(R.string.excellent2), gDecWithCurrency(myMaximumMonthlyBudget), gDecWithCurrency(myMaximumMonthlyBudget*12))
                 binding.calculationResponse.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.green))
                 binding.calculationResponse2.setTextColor(
@@ -504,174 +518,164 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
 
     private fun checkThatAllFieldsAreOK(): Boolean {
-        if (binding.birthDate.text.toString() == "") {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.birthDate.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.birthDate)
+        if (binding.rf.birthDate.text.toString() == "") {
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.birthDate.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.birthDate)
             return false
         }
-        if (binding.inflationRate.text.toString() == "") {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.inflationRate.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.inflationRate)
+        if (binding.rf.inflationRate.text.toString() == "") {
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.inflationRate.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.inflationRate)
             return false
         }
-        if (binding.investmentGrowthRate.text.toString() == "") {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.investmentGrowthRate.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.investmentGrowthRate)
+        if (binding.rf.investmentGrowthRate.text.toString() == "") {
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.investmentGrowthRate.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.investmentGrowthRate)
             return false
         }
-        if (binding.propertyGrowthRate.text.toString() == "") {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.propertyGrowthRate.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.propertyGrowthRate)
+        if (binding.rf.propertyGrowthRate.text.toString() == "") {
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.propertyGrowthRate.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.propertyGrowthRate)
             return false
         }
-        if (binding.targetMonthlyIncome.text.toString() == "") {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.targetMonthlyIncome.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.targetMonthlyIncome)
+        if (binding.rf.targetMonthlyIncome.text.toString() == "" &&
+                !binding.rf.switchUseBudget.isChecked) {
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.targetMonthlyIncome.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.targetMonthlyIncome)
             return false
         }
-        if (binding.planToAge.text.toString() == "") {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.planToAge.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.planToAge)
+        if (binding.rf.planToAge.text.toString() == "") {
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.planToAge.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.planToAge)
             return false
         }
-        if (binding.retirementDate.text.toString() == "") {
-            binding.salaryLayout.visibility = View.VISIBLE
-            binding.retirementDate.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.retirementDate)
+        if (binding.rf.retirementDate.text.toString() == "") {
+            binding.rf.salaryLayout.visibility = View.VISIBLE
+            binding.rf.retirementDate.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.retirementDate)
             return false
         }
-        if (binding.cpp60Amount.text.toString() == "") {
-            binding.cppOasLayout.visibility = View.VISIBLE
-            binding.cpp60Amount.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.cpp60Amount)
+        if (binding.rf.cpp60Amount.text.toString() == "") {
+            binding.rf.cppOasLayout.visibility = View.VISIBLE
+            binding.rf.cpp60Amount.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.cpp60Amount)
             return false
         }
-        if (binding.cpp65Amount.text.toString() == "") {
-            binding.cppOasLayout.visibility = View.VISIBLE
-            binding.cpp65Amount.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.cpp65Amount)
+        if (binding.rf.cpp65Amount.text.toString() == "") {
+            binding.rf.cppOasLayout.visibility = View.VISIBLE
+            binding.rf.cpp65Amount.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.cpp65Amount)
             return false
         }
-        if (binding.cpp70Amount.text.toString() == "") {
-            binding.cppOasLayout.visibility = View.VISIBLE
-            binding.cpp70Amount.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.cpp70Amount)
+        if (binding.rf.cpp70Amount.text.toString() == "") {
+            binding.rf.cppOasLayout.visibility = View.VISIBLE
+            binding.rf.cpp70Amount.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.cpp70Amount)
             return false
         }
-        if (binding.oasCurrentAnnualAmount.text.toString() == "") {
-            binding.cppOasLayout.visibility = View.VISIBLE
-            binding.oasCurrentAnnualAmount.error = getString(R.string.value_cannot_be_blank)
-            focusAndOpenSoftKeyboard(requireContext(), binding.oasCurrentAnnualAmount)
+        if (binding.rf.oasCurrentAnnualAmount.text.toString() == "") {
+            binding.rf.cppOasLayout.visibility = View.VISIBLE
+            binding.rf.oasCurrentAnnualAmount.error = getString(R.string.value_cannot_be_blank)
+            focusAndOpenSoftKeyboard(requireContext(), binding.rf.oasCurrentAnnualAmount)
             return false
         }
         return true
     }
-    private fun onSaveButtonClicked(inDefaultMode: Boolean) {
+    private fun onSaveButtonClicked() {
         setSummaryFields(View.GONE)
         if (!checkThatAllFieldsAreOK())
             return
-        if (!inDefaultMode) {
-            if (binding.scenarioNameEntireLayout.visibility == View.GONE ) {
-                binding.scenarioNameEntireLayout.visibility = View.VISIBLE
-                binding.buttonCancel.visibility = View.VISIBLE
+        if (binding.scenarioNameEntireLayout.visibility == View.GONE ) {
+            binding.scenarioNameEntireLayout.visibility = View.VISIBLE
+            binding.buttonCancel.visibility = View.VISIBLE
+            binding.buttonCalculate.visibility = View.GONE
+            if (binding.scenarioNameInput.text.toString() == getString(R.string.defaultt))
+                binding.scenarioNameInput.setText("")  // don't allow user to save a scenario named "Default"
+            focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
+            return
+        } else {
+            if (binding.scenarioNameInput.text.toString().trim() == "") {
+                binding.scenarioNameInput.error = getString(R.string.value_cannot_be_blank)
                 binding.buttonCalculate.visibility = View.GONE
-                if (binding.scenarioNameInput.text.toString() == getString(R.string.defaultt))
-                    binding.scenarioNameInput.setText("")  // don't allow user to save a scenario named "Default"
+//                binding.buttonUpdateScenario.visibility = View.GONE
+                binding.buttonCancel.visibility = View.VISIBLE
                 focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
                 return
-            } else {
-                if (binding.scenarioNameInput.text.toString().trim() == "") {
-                    binding.scenarioNameInput.error = getString(R.string.value_cannot_be_blank)
-                    binding.buttonCalculate.visibility = View.GONE
+            }
+            if (binding.scenarioNameInput.text.toString().trim() == getString(R.string.defaultt)) {
+                binding.scenarioNameInput.error = getString(R.string.invalid_name)
+                binding.buttonCalculate.visibility = View.GONE
 //                binding.buttonUpdateScenario.visibility = View.GONE
-                    binding.buttonCancel.visibility = View.VISIBLE
-                    focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
-                    return
-                }
-                if (binding.scenarioNameInput.text.toString().trim() == getString(R.string.defaultt)) {
-                    binding.scenarioNameInput.error = getString(R.string.invalid_name)
-                    binding.buttonCalculate.visibility = View.GONE
+                binding.buttonCancel.visibility = View.VISIBLE
+                focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
+                return
+            }
+            if (binding.scenarioNameInput.text.toString().indexOf("(") != -1) {
+                binding.scenarioNameInput.error = getString(R.string.invalid_name)
+                binding.buttonCalculate.visibility = View.GONE
 //                binding.buttonUpdateScenario.visibility = View.GONE
-                    binding.buttonCancel.visibility = View.VISIBLE
-                    focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
-                    return
-                }
-                if (binding.scenarioNameInput.text.toString().indexOf("(") != -1) {
-                    binding.scenarioNameInput.error = getString(R.string.invalid_name)
-                    binding.buttonCalculate.visibility = View.GONE
-//                binding.buttonUpdateScenario.visibility = View.GONE
-                    binding.buttonCancel.visibility = View.VISIBLE
-                    focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
-                    return
-                }
+                binding.buttonCancel.visibility = View.VISIBLE
+                focusAndOpenSoftKeyboard(requireContext(), binding.scenarioNameInput)
+                return
             }
         }
 
         val rtData = createDataFromScreenValues()
 
-        if (inDefaultMode)
-            RetirementViewModel.updateRetirementDefault(rtData, false)
-        else
-            RetirementViewModel.updateRetirementScenario(rtData, false)
+        RetirementViewModel.updateRetirementScenario(rtData, false)
         MyApplication.playSound(context, R.raw.impact_jaw_breaker)
-        if (inDefaultMode) {
-            MyApplication.displayToast(getString(R.string.default_updated))
-            setupDefaultMode(false)
-            setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(getString(R.string.defaultt), rtData.userID))
-        } else {
-            if (binding.scenarioSpinner.selectedItem.toString() != rtData.name)
-                setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(rtData.name, rtData.userID))
-            binding.scenarioNameEntireLayout.visibility = View.GONE
-            binding.buttonCancel.visibility = View.GONE
-            binding.buttonCalculate.visibility = View.VISIBLE
-            binding.scenarioNameInput.setText("")
-            MyApplication.displayToast(getString(R.string.scenario_updated))
-        }
+        if (binding.scenarioSpinner.selectedItem.toString() != rtData.name)
+            setupScenarioSpinner(RetirementViewModel.addUserToScenarioName(rtData.name, rtData.userID))
+        binding.scenarioNameEntireLayout.visibility = View.GONE
+        binding.buttonCancel.visibility = View.GONE
+        binding.buttonCalculate.visibility = View.VISIBLE
+        binding.scenarioNameInput.setText("")
+        MyApplication.displayToast(getString(R.string.scenario_updated))
         loadRetirementInfoFromWorking = false
     }
 
     private fun createDataFromScreenValues() : RetirementData {
-        val ageRadioGroup = binding.cppStartAgeRadioGroup
+        val ageRadioGroup = binding.rf.cppStartAgeRadioGroup
         val ageRadioGroupChecked = ageRadioGroup.checkedRadioButtonId
         val ageRadioButton = requireActivity().findViewById(ageRadioGroupChecked) as RadioButton
 
-        val scenarioName = if (inDefaultMode)
-            getString(R.string.defaultt)
-        else
-            binding.scenarioNameInput.text.toString()
+        val scenarioName = binding.scenarioNameInput.text.toString()
+        val targetIncome = if (binding.rf.switchUseBudget.isChecked) 0
+        else binding.rf.targetMonthlyIncome.text.toString().toInt()
         val rtData = RetirementData(
             scenarioName,
-            binding.userID.text.toString().toInt(),
-            binding.targetMonthlyIncome.text.toString().toInt(),
-            binding.retirementDate.text.toString(),
-            binding.planToAge.text.toString().toInt(),
+            currentUserID,
+            targetIncome,
+            binding.rf.switchUseBudget.isChecked,
+            binding.rf.retirementDate.text.toString(),
+            binding.rf.planToAge.text.toString().toInt(),
             ageRadioButton.text.toString().toInt(),
-            binding.inflationRate.text.toString().toDouble(),
-            binding.investmentGrowthRate.text.toString().toDouble(),
-            binding.propertyGrowthRate.text.toString().toDouble(),
-            binding.birthDate.text.toString()
+            binding.rf.inflationRate.text.toString().toDouble(),
+            binding.rf.investmentGrowthRate.text.toString().toDouble(),
+            binding.rf.propertyGrowthRate.text.toString().toDouble(),
+            binding.rf.birthDate.text.toString()
         )
-        if (binding.salaryAmount.text.toString().toIntOrNull() != null) {
+        if (binding.rf.salaryAmount.text.toString().toIntOrNull() != null) {
             rtData.salary = Salary(
                 0,
                 getString(R.string.salary),
-                binding.salaryAmount.text.toString().toInt(),
-                binding.salaryAnnualIncrease.text.toString().toDouble()
+                binding.rf.salaryAmount.text.toString().toInt(),
+                binding.rf.salaryAnnualIncrease.text.toString().toDouble()
             )
         }
         rtData.cpp = CPP(
-            binding.cpp60Amount.text.toString().toInt(),
-            binding.cpp65Amount.text.toString().toInt(),
-            binding.cpp70Amount.text.toString().toInt()
+            binding.rf.cpp60Amount.text.toString().toInt(),
+            binding.rf.cpp65Amount.text.toString().toInt(),
+            binding.rf.cpp70Amount.text.toString().toInt()
         )
         rtData.oas = OAS(
-            binding.oasCurrentAnnualAmount.text.toString().toInt()
+            binding.rf.oasCurrentAnnualAmount.text.toString().toInt()
         )
 
         rtData.setAssetsAndPensionsAndAdditionalItemsFromWorking()
@@ -686,35 +690,22 @@ class RetirementFragment : Fragment(), CoroutineScope {
         val action =
             RetirementFragmentDirections.actionRetirementFragmentToRetirementDetailsFragment()
         action.scenarioName = binding.scenarioNameInput.text.toString()
-        action.userID = binding.userID.text.toString().toInt()
+        action.userID = currentUserID
         findNavController().navigate(action)
     }
-    private fun setupDefaultMode(iMoveToDefaultMode: Boolean) {
-        inDefaultMode = iMoveToDefaultMode
-        if (iMoveToDefaultMode) {
-            binding.pageTitle.text = getString(R.string.retirement_defaults)
-            binding.retirementDefaultsButton.visibility = View.GONE
-            binding.scenarioSpinnerLabel.visibility = View.GONE
-//            binding.scenarioSpinnerRelativeLayout.visibility = View.GONE
-            binding.buttonCancel.visibility = View.VISIBLE
-            binding.buttonUpdateDefaults.visibility = View.VISIBLE
-            binding.buttonDeleteScenario.visibility = View.GONE
-            binding.buttonCalculate.visibility = View.GONE
-            binding.scenarioSaveButton.visibility = View.GONE
-        } else {
-            binding.pageTitle.text = getString(R.string.calculate_retirement)
-            binding.retirementDefaultsButton.visibility = View.VISIBLE
-            binding.buttonCalculate.visibility = View.VISIBLE
-            binding.buttonCancel.visibility = View.GONE
-            binding.buttonUpdateDefaults.visibility = View.GONE
-            binding.buttonDeleteScenario.visibility = View.GONE
-            binding.scenarioSaveButton.visibility = View.VISIBLE
-        }
-        binding.birthDate.isEnabled = iMoveToDefaultMode
-        binding.cpp60Amount.isEnabled = iMoveToDefaultMode
-        binding.cpp65Amount.isEnabled = iMoveToDefaultMode
-        binding.cpp70Amount.isEnabled = iMoveToDefaultMode
-        binding.oasCurrentAnnualAmount.isEnabled = iMoveToDefaultMode
+    private fun setupDefaults() {
+        binding.pageTitle.text = getString(R.string.calculate_retirement)
+        binding.rf.switchUseBudget.visibility = View.VISIBLE
+        binding.retirementDefaultsButton.visibility = View.VISIBLE
+        binding.buttonCalculate.visibility = View.VISIBLE
+        binding.buttonCancel.visibility = View.GONE
+        binding.buttonDeleteScenario.visibility = View.GONE
+        binding.scenarioSaveButton.visibility = View.VISIBLE
+        binding.rf.birthDate.isEnabled = false
+        binding.rf.cpp60Amount.isEnabled = false
+        binding.rf.cpp65Amount.isEnabled = false
+        binding.rf.cpp70Amount.isEnabled = false
+        binding.rf.oasCurrentAnnualAmount.isEnabled = false
         setSummaryFields(View.GONE)
         binding.scenarioNameInput.error = null
         binding.scenarioNameEntireLayout.visibility = View.GONE
@@ -723,13 +714,13 @@ class RetirementFragment : Fragment(), CoroutineScope {
 
     private fun loadScreen(iRetirementData: RetirementData?, iJustResetAdaptersFromWorking: Boolean = false) {
         if (iJustResetAdaptersFromWorking) {
-            val inv = binding.investmentGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
-            val prop = binding.propertyGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
+            val inv = binding.rf.investmentGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
+            val prop = binding.rf.propertyGrowthRate.text.toString().replace(',', '.').toDoubleOrNull()
             if (inv != null && prop != null) {
                 setupAdapters(
-                    binding.userID.text.toString().toInt(),
-                    binding.investmentGrowthRate.text.toString().toDouble(),
-                    binding.propertyGrowthRate.text.toString().toDouble()
+                    currentUserID,
+                    binding.rf.investmentGrowthRate.text.toString().toDouble(),
+                    binding.rf.propertyGrowthRate.text.toString().toDouble()
                 )
             }
         } else if (iRetirementData != null) {
@@ -742,47 +733,46 @@ class RetirementFragment : Fragment(), CoroutineScope {
                     }
                 }
             }
-            binding.userID.text = iRetirementData.userID.toString()
-            binding.retirementDate.setText(iRetirementData.retirementDate)
-            binding.targetMonthlyIncome.setText(gDec(iRetirementData.targetMonthlyIncome))
-            binding.planToAge.setText(iRetirementData.planToAge.toString())
-            binding.salaryAmount.setText(iRetirementData.salary.annualValueAfterTax.toString())
-            binding.salaryAnnualIncrease.setText(iRetirementData.salary.estimatedGrowthPct.toString())
-            binding.birthDate.setText(iRetirementData.birthDate)
-            binding.inflationRate.setText(iRetirementData.inflationRate.toString())
-            binding.investmentGrowthRate.setText(iRetirementData.investmentGrowthRate.toString())
-            binding.propertyGrowthRate.setText(iRetirementData.propertyGrowthRate.toString())
-            binding.cpp60Amount.setText(iRetirementData.cpp.annualValueAt60.toString())
-            binding.cpp65Amount.setText(iRetirementData.cpp.annualValueAt65.toString())
-            binding.cpp70Amount.setText(iRetirementData.cpp.annualValueAt70.toString())
-            binding.oasCurrentAnnualAmount.setText(iRetirementData.oas.currentAnnualValue.toString())
+            currentUserID = iRetirementData.userID
+            Timber.tag("Alex").d("Just set D binding.userid to $currentUserID in loadScreen")
+            binding.rf.retirementDate.setText(iRetirementData.retirementDate)
+            binding.rf.switchUseBudget.isChecked = iRetirementData.useBudgetAsTargetIncome
+            if (iRetirementData.useBudgetAsTargetIncome) {
+                binding.rf.targetMonthlyIncome.visibility = View.GONE
+                binding.rf.targetMonthlyIncome.setText("")
+            } else {
+                binding.rf.targetMonthlyIncome.visibility = View.VISIBLE
+                binding.rf.targetMonthlyIncome.setText(gDec(iRetirementData.targetMonthlyIncome))
+            }
+            binding.rf.planToAge.setText(iRetirementData.planToAge.toString())
+            binding.rf.salaryAmount.setText(iRetirementData.salary.annualValueAfterTax.toString())
+            binding.rf.salaryAnnualIncrease.setText(iRetirementData.salary.estimatedGrowthPct.toString())
+            binding.rf.birthDate.setText(iRetirementData.birthDate)
+            binding.rf.inflationRate.setText(iRetirementData.inflationRate.toString())
+            binding.rf.investmentGrowthRate.setText(iRetirementData.investmentGrowthRate.toString())
+            binding.rf.propertyGrowthRate.setText(iRetirementData.propertyGrowthRate.toString())
+            binding.rf.cpp60Amount.setText(iRetirementData.cpp.annualValueAt60.toString())
+            binding.rf.cpp65Amount.setText(iRetirementData.cpp.annualValueAt65.toString())
+            binding.rf.cpp70Amount.setText(iRetirementData.cpp.annualValueAt70.toString())
+            binding.rf.oasCurrentAnnualAmount.setText(iRetirementData.oas.currentAnnualValue.toString())
             gRetirementScenario = iRetirementData.copy()
-/*            if (!loadRetirementInfoFromWorking) {
-                RetirementViewModel.populateWorkingAssetList(iRetirementData.assets)
-            }
-            if (!loadRetirementInfoFromWorking) {
-                RetirementViewModel.populateWorkingPensionList(iRetirementData.pensions)
-            }
-            if (!loadRetirementInfoFromWorking) {
-                RetirementViewModel.populateWorkingAdditionalList(iRetirementData.additionalItems)
-            } */
-            setupAdapters(binding.userID.text.toString().toInt(),
-                binding.investmentGrowthRate.text.toString().toDouble(),
-                binding.propertyGrowthRate.text.toString().toDouble())
+            setupAdapters(currentUserID,
+                binding.rf.investmentGrowthRate.text.toString().toDouble(),
+                binding.rf.propertyGrowthRate.text.toString().toDouble())
         } else {
-            binding.retirementDate.setText("")
-            binding.targetMonthlyIncome.setText("")
-            binding.planToAge.setText("")
-            binding.salaryAmount.setText("")
-            binding.salaryAnnualIncrease.setText("")
-            binding.birthDate.setText("")
-            binding.inflationRate.setText("")
-            binding.investmentGrowthRate.setText("")
-            binding.propertyGrowthRate.setText("")
-            binding.cpp60Amount.setText("")
-            binding.cpp65Amount.setText("")
-            binding.cpp70Amount.setText("")
-            binding.oasCurrentAnnualAmount.setText("")
+            binding.rf.retirementDate.setText("")
+            binding.rf.targetMonthlyIncome.setText("")
+            binding.rf.planToAge.setText("")
+            binding.rf.salaryAmount.setText("")
+            binding.rf.salaryAnnualIncrease.setText("")
+            binding.rf.birthDate.setText("")
+            binding.rf.inflationRate.setText("")
+            binding.rf.investmentGrowthRate.setText("")
+            binding.rf.propertyGrowthRate.setText("")
+            binding.rf.cpp60Amount.setText("")
+            binding.rf.cpp65Amount.setText("")
+            binding.rf.cpp70Amount.setText("")
+            binding.rf.oasCurrentAnnualAmount.setText("")
             val listView: ListView = requireActivity().findViewById(R.id.assets_list_view)
             listView.adapter = null
             setListViewHeightBasedOnChildren(listView)
@@ -809,7 +799,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 moveAsset(item.distributionOrder, 1)
             }
         )
-        binding.assetsExpandButton.text =
+        binding.rf.assetsExpandButton.text =
             String.format(getString(R.string.assets), adapter.count)
         val listView: ListView = requireActivity().findViewById(R.id.assets_list_view)
         listView.adapter = adapter
@@ -820,7 +810,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 val cdf = RetirementAssetDialogFragment.newInstance(
                     iUserID,
                     itemValue.name,
-                    inDefaultMode
+                    false
                 )
                 cdf.setRetirementAssetDialogFragmentListener(object :
                     RetirementAssetDialogFragment.RetirementAssetDialogFragmentListener {
@@ -835,7 +825,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                                 moveAsset(item.distributionOrder, 1) })
                         listView.adapter = myAdapter
                         setListViewHeightBasedOnChildren(listView)
-                        binding.assetsExpandButton.text =
+                        binding.rf.assetsExpandButton.text =
                             String.format(getString(R.string.assets), myAdapter.count)
                         myAdapter.notifyDataSetChanged()
                     }
@@ -843,7 +833,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 cdf.show(parentFragmentManager, getString(R.string.edit_asset))
             }
 
-        binding.pensionsExpandButton.text =
+        binding.rf.pensionsExpandButton.text =
             String.format(getString(R.string.pensions), RetirementViewModel.getWorkingPensionListCount())
         val padapter = PensionAdapter(requireContext())
         val plistView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
@@ -855,7 +845,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 val cdf = RetirementPensionDialogFragment.newInstance(
                     iUserID,
                     itemValue.name,
-                    inDefaultMode
+                    false
                 )
                 cdf.setRetirementPensionDialogFragmentListener(object :
                     RetirementPensionDialogFragment.RetirementPensionDialogFragmentListener {
@@ -864,7 +854,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         val myAdapter = PensionAdapter(requireContext())
                         plistView.adapter = myAdapter
                         setListViewHeightBasedOnChildren(plistView)
-                        binding.pensionsExpandButton.text =
+                        binding.rf.pensionsExpandButton.text =
                             String.format(getString(R.string.pensions), RetirementViewModel.getWorkingPensionListCount())
                         myAdapter.notifyDataSetChanged()
                     }
@@ -872,12 +862,12 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 cdf.show(parentFragmentManager, getString(R.string.edit_pension))
             }
 
-        binding.additionalExpandButton.text =
+        binding.rf.additionalExpandButton.text =
             String.format(getString(R.string.additional_deposits_or_expenditures), RetirementViewModel.getWorkingAdditionalListCount())
-        binding.additionalDepositsLabel.text =
+        binding.rf.additionalDepositsLabel.text =
             String.format(getString(R.string.additional_deposits),
                 RetirementViewModel.getWorkingAdditionalListCount(AdditionalType.DEPOSIT))
-        binding.additionalExpensesLabel.text =
+        binding.rf.additionalExpensesLabel.text =
             String.format(getString(R.string.additional_expenditures),
                 RetirementViewModel.getWorkingAdditionalListCount(AdditionalType.EXPENSE))
         val expAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE)
@@ -959,54 +949,54 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
 
     private fun onBasicsExpandClicked(iForceOpenOrClosed: String = "") {
-        if ((binding.basicsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+        if ((binding.rf.basicsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
-            binding.basicsLayout.visibility = View.GONE
-            binding.basicsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.basicsLayout.visibility = View.GONE
+            binding.rf.basicsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
         } else {
-            binding.basicsLayout.visibility = View.VISIBLE
-            binding.basicsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.basicsLayout.visibility = View.VISIBLE
+            binding.rf.basicsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
     private fun onSalaryExpandClicked(iForceOpenOrClosed: String = "") {
-        if ((binding.salaryLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+        if ((binding.rf.salaryLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
-            binding.salaryLayout.visibility = View.GONE
-            binding.salaryExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.salaryLayout.visibility = View.GONE
+            binding.rf.salaryExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
         } else {
-            binding.salaryLayout.visibility = View.VISIBLE
-            binding.salaryExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.salaryLayout.visibility = View.VISIBLE
+            binding.rf.salaryExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
     private fun onAssetsExpandClicked(iForceOpenOrClosed: String = "") {
         val plistView: ListView = requireActivity().findViewById(R.id.assets_list_view)
         val assetCount = plistView.adapter?.count ?: 0
-        if ((binding.assetsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+        if ((binding.rf.assetsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
-            binding.assetsLayout.visibility = View.GONE
-            binding.assetsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.assetsLayout.visibility = View.GONE
+            binding.rf.assetsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
         } else if (assetCount > 0) {
-            binding.assetsLayout.visibility = View.VISIBLE
-            binding.assetsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.assetsLayout.visibility = View.VISIBLE
+            binding.rf.assetsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
     private fun onPensionsExpandClicked(iForceOpenOrClosed: String = "") {
         val plistView: ListView = requireActivity().findViewById(R.id.pensions_list_view)
         val pensionCount = plistView.adapter?.count ?: 0
-        if ((binding.pensionsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+        if ((binding.rf.pensionsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
-            binding.pensionsLayout.visibility = View.GONE
-            binding.pensionsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.pensionsLayout.visibility = View.GONE
+            binding.rf.pensionsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
         } else if (pensionCount > 0) {
-            binding.pensionsLayout.visibility = View.VISIBLE
-            binding.pensionsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.pensionsLayout.visibility = View.VISIBLE
+            binding.rf.pensionsExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
@@ -1014,42 +1004,42 @@ class RetirementFragment : Fragment(), CoroutineScope {
         val depListView: ListView = requireActivity().findViewById(R.id.additional_deposits_list_view)
         val expListView: ListView = requireActivity().findViewById(R.id.additional_expenditures_list_view)
         val totCount = (depListView.adapter?.count ?: 0) + (expListView.adapter?.count ?: 0)
-        if ((binding.additionalDepositsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+        if ((binding.rf.additionalDepositsLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
-            binding.additionalDepositsLayout.visibility = View.GONE
-            binding.additionalExpendituresLayout.visibility = View.GONE
-            binding.additionalExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.additionalDepositsLayout.visibility = View.GONE
+            binding.rf.additionalExpendituresLayout.visibility = View.GONE
+            binding.rf.additionalExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
         } else if (totCount > 0) {
-            binding.additionalDepositsLayout.visibility = View.VISIBLE
-            binding.additionalExpendituresLayout.visibility = View.VISIBLE
-            binding.additionalExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.additionalDepositsLayout.visibility = View.VISIBLE
+            binding.rf.additionalExpendituresLayout.visibility = View.VISIBLE
+            binding.rf.additionalExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
     private fun onCPPOASExpandClicked(iForceOpenOrClosed: String = "") {
-        if ((binding.cppOasLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
+        if ((binding.rf.cppOasLayout.visibility == View.VISIBLE && iForceOpenOrClosed != "Open") ||
             iForceOpenOrClosed == "Closed") {
-            binding.cppOasLayout.visibility = View.GONE
-            binding.cppOasExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.cppOasLayout.visibility = View.GONE
+            binding.rf.cppOasExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_more_24, 0)
         } else { // ie retract the section
-            binding.cppOasLayout.visibility = View.VISIBLE
-            binding.cppOasExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+            binding.rf.cppOasLayout.visibility = View.VISIBLE
+            binding.rf.cppOasExpandButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
                 R.drawable.ic_baseline_expand_less_24, 0)
         }
     }
 
     private fun onAllClicked() {
-        if (binding.expandAllButton.tag == R.drawable.ic_baseline_keyboard_double_arrow_down_24) {
+        if (binding.rf.expandAllButton.tag == R.drawable.ic_baseline_keyboard_double_arrow_down_24) {
             // need to expand all
-            binding.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_up_24
-            binding.expandAllButton.setImageDrawable(context?.let
+            binding.rf.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_up_24
+            binding.rf.expandAllButton.setImageDrawable(context?.let
             { ContextCompat.getDrawable(it,R.drawable.ic_baseline_keyboard_double_arrow_up_24) } )
             onExpandAllClicked()
         } else { // need to collapse all
-            binding.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_down_24
-            binding.expandAllButton.setImageDrawable(context?.let
+            binding.rf.expandAllButton.tag = R.drawable.ic_baseline_keyboard_double_arrow_down_24
+            binding.rf.expandAllButton.setImageDrawable(context?.let
             { ContextCompat.getDrawable(it,R.drawable.ic_baseline_keyboard_double_arrow_down_24) } )
             collapseAll()
         }

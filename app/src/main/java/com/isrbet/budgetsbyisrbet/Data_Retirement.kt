@@ -2,6 +2,8 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -65,6 +67,7 @@ data class RetirementData(
     var name: String,
     var userID: Int,
     var targetMonthlyIncome: Int,
+    var useBudgetAsTargetIncome: Boolean,
     var retirementDate: String,
     var planToAge: Int,
     var cppAge: Int,
@@ -82,7 +85,7 @@ data class RetirementData(
     companion object {
         fun create(iData: MutableList<DataSnapshot>) : RetirementData {
             val retData = RetirementData(
-                "", 0, 0,
+                "", 0, 0, false,
                 "", 0, 0, 0.0,
                 0.0, 0.0, ""
             )
@@ -106,6 +109,8 @@ data class RetirementData(
                         data.value.toString()
                     "targetMonthlyIncome" -> retData.targetMonthlyIncome =
                         data.value.toString().toInt()
+                    "useBudgetAsTargetIncome" -> retData.useBudgetAsTargetIncome =
+                        (data.value.toString() == cTRUE)
                     "cpp" -> {
                         var v60 = 0
                         var v65 = 0
@@ -200,6 +205,7 @@ data class RetirementData(
                             var useDefaultGrowthPctAsSavings = true
                             var estimatedGrowthPctAfterSale = 0.0
                             var willSellToFinanceRetirement = false
+                            var increasedBudget = 0
                             var taxSheltered = false
                             var minimizeTax = MinimizeTaxEnum.ALWAYS_MINIMIZE
                             var mortgageDetailsText = ""
@@ -240,6 +246,7 @@ data class RetirementData(
                                         det.value.toString().toDouble()
                                     "willSellToFinanceRetirement" -> willSellToFinanceRetirement =
                                         (det.value.toString() == "true")
+                                    "increasedBudget" -> increasedBudget = det.value.toString().toInt()
                                     "taxSheltered" -> taxSheltered =
                                         (det.value.toString() == "true")
                                     "minimizeTax" ->
@@ -341,6 +348,7 @@ data class RetirementData(
                                         willSellToFinanceRetirement,
                                         12 - gCurrentDate.getMonth(),
                                         distributionOrder,
+                                        increasedBudget,
                                         useDefaultGrowthPctAsSavings,
                                         estimatedGrowthPctAfterSale,
                                         mortgageDetailsText,
@@ -463,7 +471,7 @@ data class RetirementData(
     }
     fun copy() : RetirementData {
         val rd = RetirementData(
-            name, userID, targetMonthlyIncome, retirementDate, planToAge,
+            name, userID, targetMonthlyIncome, useBudgetAsTargetIncome, retirementDate, planToAge,
             cppAge, inflationRate, investmentGrowthRate, propertyGrowthRate, birthDate
         )
         rd.assets = assets.map {it.copy()}.toMutableList()
@@ -524,6 +532,9 @@ abstract class Asset(val id: Int, var assetType: AssetType, val name: String, pr
     }
     open fun getGrowthPct() : Double {
         return estimatedGrowthPct
+    }
+    open fun getIncreasedLivingExpense(iYear: Int, inflationRate: Double) : Int {
+        return 0
     }
     abstract fun copy() : Asset
     abstract fun getNextYear(iAmIRetired: Boolean) : Asset
@@ -856,6 +867,7 @@ class Property(
     willSellToFinanceRetirement: Boolean,
     monthsOfGrowthThisYear: Int,
     distributionOrder: Int,
+    var increasedBudget: Int,
     var useDefaultGrowthPctAsSavings: Boolean,
     var estimatedGrowthPctAsSavings: Double,
     var scheduledPaymentName: String,
@@ -880,6 +892,7 @@ class Property(
         val prop = Property(id, name, getValue(), useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder,
+            increasedBudget,
             useDefaultGrowthPctAsSavings, estimatedGrowthPctAsSavings,
             scheduledPaymentName, ownershipPct, soldInYear, primaryResidence)
         prop.additionalGrowthThisYear = additionalGrowthThisYear
@@ -895,6 +908,7 @@ class Property(
             willSellToFinanceRetirement,
             12,
             distributionOrder,
+            increasedBudget,
             useDefaultGrowthPctAsSavings,
             estimatedGrowthPctAsSavings,
             scheduledPaymentName,
@@ -939,6 +953,13 @@ class Property(
             !primaryResidence)
             (getValue() * .25).toInt()  // assumes 25% tax on capital gains
         else
+            0
+    }
+
+    override fun getIncreasedLivingExpense(iYear: Int, inflationRate: Double): Int {
+        return if (increasedBudget > 0 && soldInYear == (iYear - 1)) { // ie they only apply to the year after the sale
+            (increasedBudget * 12) * (1 + inflationRate/100.0).pow(iYear - gCurrentDate.getYear()).toInt()
+        } else
             0
     }
     private fun getOutstandingLoanAmount(iDate: MyDate): Int {
@@ -1229,13 +1250,17 @@ data class OAS(
 
 class RetirementViewModel : ViewModel() {
     private var dataListener: ValueEventListener? = null
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded: Boolean = false
     private val userDefaults: MutableList<RetirementData> = ArrayList()
     private val scenarios: MutableList<RetirementData> = ArrayList()
+    val retirementsLiveData = MutableLiveData<MutableList<RetirementData>>()
 
     companion object {
         lateinit var singleInstance: RetirementViewModel // used to track static single instance of self
+
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<RetirementData>>) {
+            singleInstance.retirementsLiveData.observe(iFragment, iObserver)
+        }
 
         fun clearDefaults() {
             singleInstance.userDefaults.clear()
@@ -1263,7 +1288,6 @@ class RetirementViewModel : ViewModel() {
             }
             singleInstance.userDefaults.add(iRetirementData)
             if (!iLocalOnly) {
-//                iRetirementData.pensions.clear()
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
                     .child(SpenderViewModel.myIndex().toString())
                     .child("Retirement")
@@ -1422,12 +1446,14 @@ class RetirementViewModel : ViewModel() {
             tList.add(calcRow)
             return tList
         }
-/*        fun populateWorkingAssetList(iList: MutableList<Asset>) {
-            singleInstance.workingAssetList.clear()
-            iList.forEach {
-                addAssetToWorkingList(it.copy())
+        private fun updateDistributionOrderAsRequired() {
+            if (gRetirementScenario != null) {
+                for (i in 0 until gRetirementScenario!!.assets.size) {
+                    gRetirementScenario!!.assets[i].distributionOrder = i
+                }
+                gRetirementScenario!!.assets.sortBy { it.distributionOrder }
             }
-        } */
+        }
 
         fun getWorkingAssetListCount(iAssetType: AssetType = AssetType.ALL) : Int {
             return if (gRetirementScenario == null) {
@@ -1472,14 +1498,6 @@ class RetirementViewModel : ViewModel() {
                 updateDistributionOrderAsRequired()
             }
         }
-        private fun updateDistributionOrderAsRequired() {
-            if (gRetirementScenario != null) {
-                for (i in 0 until gRetirementScenario!!.assets.size) {
-                    gRetirementScenario!!.assets[i].distributionOrder = i
-                }
-                gRetirementScenario!!.assets.sortBy { it.distributionOrder }
-            }
-        }
         fun changeDefaultDistributionOrder(iCurrentDistributionOrder: Int, iDirection: Int) {
             if (iCurrentDistributionOrder == 0 && iDirection == -1) {
                 return
@@ -1495,12 +1513,6 @@ class RetirementViewModel : ViewModel() {
                 updateDistributionOrderAsRequired()
             }
         }
-/*        fun populateWorkingPensionList(iList: MutableList<Pension>) {
-            singleInstance.workingPensionList.clear()
-            iList.forEach {
-                addPensionToWorkingList(it.copy())
-            }
-        } */
         fun getWorkingPensionListCount() : Int {
             return if (gRetirementScenario == null)
                 0
@@ -1532,12 +1544,6 @@ class RetirementViewModel : ViewModel() {
                     gRetirementScenario!!.pensions[ind] = iPension
             }
         }
-/*        fun populateWorkingAdditionalList(iList: MutableList<AdditionalItem>) {
-            singleInstance.workingAdditionalList.clear()
-            iList.forEach {
-                addAdditionalItemToWorkingList(it.copy())
-            }
-        } */
         fun getWorkingAdditionalListCount(iType: AdditionalType? = null) : Int {
             return if (gRetirementScenario == null) {
                 0
@@ -1605,12 +1611,6 @@ class RetirementViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-    }
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
     fun loadRetirementUsers() {
         singleInstance.dataListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -1621,7 +1621,7 @@ class RetirementViewModel : ViewModel() {
                     updateRetirementScenario(retData, true)
                 }
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
+                singleInstance.retirementsLiveData.value = singleInstance.scenarios
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -1654,7 +1654,8 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 investmentGrowthRate, propertyGrowthRate) {
         parentScenario = iRetirementScenario
         // this section is called for the very first row, so data needs to be loaded from scenario / current balances
-        targetAnnualIncome = iRetirementScenario.targetMonthlyIncome * 12
+        targetAnnualIncome = if (iRetirementScenario.useBudgetAsTargetIncome) BudgetViewModel.getTotalAnnualBudget(forYear, userID)
+            else iRetirementScenario.targetMonthlyIncome * 12
         cppIncome = iRetirementScenario.cpp.getCPPIncome(iRetirementScenario.cppAge,
             iRetirementScenario.birthDate, iRetirementScenario.inflationRate, year)
         oasIncome = iRetirementScenario.oas.getOASIncome(iRetirementScenario.birthDate,
@@ -1746,7 +1747,8 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                         it.willSellToFinanceRetirement,
                         12 - gCurrentDate.getMonth(),
                         it.distributionOrder,
-                        (it as Property).useDefaultGrowthPctAsSavings,
+                        (it as Property).increasedBudget,
+                        it.useDefaultGrowthPctAsSavings,
                         if (it.useDefaultGrowthPctAsSavings) investmentGrowthRate else it.estimatedGrowthPctAsSavings,
                         it.scheduledPaymentName,
                         it.ownershipPct,
@@ -1782,6 +1784,13 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         return parentScenario?.getAgeAtStartOfYear(iYear) ?: 0
     }
 
+    fun getIncreasedLivingExpense(iYear: Int, inflationRate: Double) : Int {
+        var tTotal = 0
+        assetIncomes.forEach {
+            tTotal += it.getIncreasedLivingExpense(iYear, inflationRate)
+        }
+        return  tTotal
+    }
     fun logRow() {
         val currentYear = gCurrentDate.getYear()
         val multiplier = (1 + inflationRate/100.0).pow(year - currentYear)
@@ -1835,7 +1844,16 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         iRetirementScenario.investmentGrowthRate, iRetirementScenario.propertyGrowthRate)
 
         nextRow.parentScenario = iRetirementScenario
-        nextRow.targetAnnualIncome = round(targetAnnualIncome * (1 + inflationRate/100.0)).toInt()
+
+        nextRow.targetAnnualIncome = if (iRetirementScenario.useBudgetAsTargetIncome) {
+            round(BudgetViewModel.getTotalAnnualBudget(year+1, userID) *
+                    (1 + inflationRate/100.0).pow((year+1) - gCurrentDate.getYear())).toInt()
+        }
+        else {
+            round(targetAnnualIncome * (1 + inflationRate/100.0)).toInt()
+        }
+        val increasedLivingExpense = getIncreasedLivingExpense(nextRow.year, iRetirementScenario.inflationRate)
+        nextRow.targetAnnualIncome += increasedLivingExpense
 
         nextRow.cppIncome = iRetirementScenario.cpp.getCPPIncome(iRetirementScenario.cppAge,
             iRetirementScenario.birthDate, iRetirementScenario.inflationRate, nextRow.year)

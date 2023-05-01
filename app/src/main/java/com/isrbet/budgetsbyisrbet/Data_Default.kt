@@ -2,6 +2,8 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -77,8 +79,8 @@ const val cDEFAULT_SP_LOOKAHEAD_VALUE = 3
 const val cDEFAULT_LAST_DASHBOARD_TAB_VALUE = 0
 
 class DefaultsViewModel : ViewModel() {
+    val defaultsLiveData = MutableLiveData<Boolean>()
     private var defaultsListener: ValueEventListener? = null
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
     var defaultCategory: Int = cDEFAULT_CATEGORY_VALUE
     var defaultSpender: Int = cDEFAULT_SPENDER_VALUE
@@ -118,35 +120,9 @@ class DefaultsViewModel : ViewModel() {
     companion object {
         lateinit var singleInstance: DefaultsViewModel // used to track static single instance of self
 
-/*        fun showMe() {
-            Log.d("Alex", "Default Category/Subcategory is " + CategoryViewModel.getFullCategoryName(singleInstance.defaultCategory))
-            Log.d("Alex", "Default Spender is " + singleInstance.defaultSpender)
-            Log.d("Alex", "Default ShowRed is " + singleInstance.defaultShowRed)
-            Log.d("Alex", "Default IntegrateWithTDSpend is " + singleInstance.defaultIntegrateWithTDSpend)
-            Log.d("Alex", "Default sound is " + singleInstance.defaultSound)
-            Log.d("Alex", "Default quote is " + singleInstance.defaultQuote)
-            Log.d("Alex", "Default showWho is " + singleInstance.defaultShowWhoInViewAll)
-            Log.d("Alex", "Default showNote is " + singleInstance.defaultShowNoteInViewAll)
-            Log.d("Alex", "Default showDisc is " + singleInstance.defaultShowDiscInViewAll)
-            Log.d("Alex", "Default showType is " + singleInstance.defaultShowTypeInViewAll)
-            Log.d("Alex", "Default showViewPeriodDashboard is " + singleInstance.defaultViewPeriodDashboard)
-            Log.d("Alex", "Default filterDiscDashboard is " + singleInstance.defaultFilterDiscDashboard)
-            Log.d("Alex", "Default filterWhoDashboard is " + singleInstance.defaultFilterWhoDashboard)
-            Log.d("Alex", "Default deltaDashboard is " + singleInstance.defaultDeltaDashboard)
-            Log.d("Alex", "Default roundDashboard is " + singleInstance.defaultRoundDashboard)
-            Log.d("Alex", "Default showDiscDashboard is " + singleInstance.defaultShowDiscDashboard)
-            Log.d("Alex", "Default budgetView is " + singleInstance.defaultBudgetView)
-            Log.d("Alex", "Default filterDiscTracker is " + singleInstance.defaultFilterDiscTracker)
-            Log.d("Alex", "Default filterWhoTracker is " + singleInstance.defaultFilterWhoTracker)
-            Log.d("Alex", "Default viewByTracker is " + singleInstance.defaultViewByTracker)
-            Log.d("Alex", "Default showTotalsTracker is " + singleInstance.defaultShowTotalsTracker)
-            Log.d("Alex", "Default showCurrencySymbol is " + singleInstance.defaultShowCurrencySymbol)
+        fun observeDefaults(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<Boolean>) {
+            singleInstance.defaultsLiveData.observe(iFragment, iObserver)
         }
-        fun showMeCategoryDetails() {
-            singleInstance.defaultCategoryDetails.forEach {
-                Log.d("Alex", "${it.name} ${it.color} ${it.priority}" )
-            }
-        } */
         fun getDefaultCategory(): Int {
             return singleInstance.defaultCategory
         }
@@ -445,13 +421,6 @@ class DefaultsViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-    }
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
-
     fun setLocalString(whichOne: String, iValue: String) {
         when (whichOne) {
             cDEFAULT_VIEW_PERIOD_DASHBOARD -> {
@@ -700,7 +669,6 @@ class DefaultsViewModel : ViewModel() {
                         }
                     } else if (defaultRow.key.toString() == "Retirement") {
                         for (retUser in defaultRow.children.toMutableList()) {
-//                            val userId = retUser.key.toString().toInt()
                             val retData = RetirementData.create(retUser.children.toMutableList())
                             RetirementViewModel.updateRetirementDefault(retData, true)
                         }
@@ -708,7 +676,7 @@ class DefaultsViewModel : ViewModel() {
                         setLocal(defaultRow.key.toString(), defaultRow.value.toString())
                 }
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
+                singleInstance.defaultsLiveData.value = singleInstance.loaded
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

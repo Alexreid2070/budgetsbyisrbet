@@ -3,7 +3,9 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -29,17 +31,16 @@ data class HintLastShown(val fragment: String, var id: Int, var date: MyDate)
 class HintViewModel : ViewModel() {
     private var hintListener: ValueEventListener? = null
     private val hints: MutableList<Hint> = ArrayList()
+    val hintsLiveData = MutableLiveData<MutableList<Hint>>()
     private val hintsLastShown: MutableList<HintLastShown> = ArrayList()
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: HintViewModel // used to track static single instance of self
-/*        fun showMe() {
-            singleInstance.hints.forEach {
-                Log.d("Alex", "SM Hint is " + it.fragment + " " + it.id + " " + it.text)
-            }
-        } */
+
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Hint>>) {
+            singleInstance.hintsLiveData.observe(iFragment, iObserver)
+        }
 
         fun isLoaded():Boolean {
             return if (this::singleInstance.isInitialized) {
@@ -142,14 +143,6 @@ class HintViewModel : ViewModel() {
         singleInstance = this
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-    }
-
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
-
     fun loadHints() {
         // Do an asynchronous operation to fetch hints
         hintListener = object : ValueEventListener {
@@ -163,7 +156,7 @@ class HintViewModel : ViewModel() {
                 }
                 sortYourself()
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
+                singleInstance.hintsLiveData.value = singleInstance.hints
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

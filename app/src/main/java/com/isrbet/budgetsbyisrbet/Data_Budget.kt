@@ -40,7 +40,7 @@ data class BudgetPeriod(var startDate: MyDate,
         }
     }
 
-    fun getBudgetAmount(iBudgetMonth: MyDate) : Double? {
+    fun getBudgetAmount(iBudgetMonth: MyDate, iPriorToDate: String = "2500-12-31") : Double? {
         val tStartDate = startDate.getYYYYMM()
         val tiBudgetMonth = iBudgetMonth.getYYYYMM()
 
@@ -70,13 +70,15 @@ data class BudgetPeriod(var startDate: MyDate,
             } else { // weekly budget, there could be multiple budget occurrences in the chosen month
                 val daysBetween = ChronoUnit.DAYS.between(startDate.theDate, iBudgetMonth.theDate)
                 val numOfPeriodsBetween = (daysBetween / (7.0*regularity)).toInt()
-                tDate.increment(period, numOfPeriodsBetween*regularity)  // this will get us very close to the desired date.
+                if (numOfPeriodsBetween > 0)
+                    tDate.increment(period, numOfPeriodsBetween*regularity)  // this will get us very close to the desired date.
                 //       I limit the use of "increment" because it's a performance hog.
                 while (tDate < iBudgetMonth) {
                     tDate.increment(period, regularity)
                 }
                 var tAmount = 0.0
-                while (tDate.getYear() == iBudgetMonth.getYear() && tDate.getMonth() == iBudgetMonth.getMonth()) {
+                while (tDate.getYear() == iBudgetMonth.getYear() && tDate.getMonth() == iBudgetMonth.getMonth() &&
+                        tDate.toString() < iPriorToDate) {
                     tAmount += amount
                     tDate.increment(period, regularity)
                 }
@@ -166,6 +168,14 @@ class BudgetViewModel : ViewModel() {
                 }
             }
         } */
+        fun getTotalAnnualBudget(iYear: Int, iWho: Int) : Int {
+            val catBudgets = getCategoryBudgets(DateRangeEnum.YEAR, MyDate(iYear), cDiscTypeAll, iWho, "", true)
+            var tempTotal = 0
+            for (budget in catBudgets) {
+                tempTotal += round(budget.value).toInt()
+            }
+            return tempTotal
+        }
 
         fun getCategoryBudgets(iPeriod: DateRangeEnum, iBudgetMonth: MyDate, iDiscType: String, iWho: Int,
         iSpecificCategory: String, iAllSubcategories: Boolean = false) : ArrayList<DataObject> {
@@ -394,12 +404,14 @@ class BudgetViewModel : ViewModel() {
                         it.startDate.getYYYYMM() <= iBudgetMonth.getYYYYMM()}
                 if (tList.isNotEmpty()) {
                     var foundRecurringBudget = false
+                    var prevExpiryDate = "2500-12-31"
                     for (i in tList.size - 1 downTo 0) {
                         if ((tList[i].occurence == 1 &&
                             ((tList[i].period != cPeriodYear && tList[i].startDate.getYear() == iBudgetMonth.getYear() && tList[i].startDate.getMonth() == iBudgetMonth.getMonth()) ||
                                 (tList[i].period == cPeriodYear && tList[i].startDate.getYear() == iBudgetMonth.getYear()))) ||
                             (tList[i].occurence == 0)) {
-                            val tAmount = tList[i].getBudgetAmount(iBudgetMonth)
+                            val tAmount = tList[i].getBudgetAmount(iBudgetMonth, prevExpiryDate)
+
                             if (tAmount != null &&
                                 ((!foundRecurringBudget && tList[i].occurence == 0) ||
                                         tList[i].occurence == 1)) {
@@ -415,6 +427,7 @@ class BudgetViewModel : ViewModel() {
                             if (tList[i].occurence == 0 &&
                                 tList[i].startDate < iBudgetMonth) // ie if it's a weekly budget, need to keep looking for possible monthly
                                 foundRecurringBudget = true
+                            prevExpiryDate = tList[i].startDate.toString()
                         }
                     }
                 }
@@ -564,7 +577,6 @@ class BudgetViewModel : ViewModel() {
                 .removeValue()
         } */
         fun deleteBudget(iCategoryID: Int, iKey: String) {
-        Timber.tag("Alex").d("deleting $iKey from $iCategoryID")
             val  budget = singleInstance.budgets.find { it.categoryID == iCategoryID }
             if (budget != null) {
                 val  pBudget = budget.budgetPeriodList.find { it.key == iKey }

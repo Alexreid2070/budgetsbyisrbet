@@ -133,6 +133,8 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.ownershipPercentage.setText(prop.ownershipPct.toString())
                         binding.mortgageDetails.setText(prop.scheduledPaymentName)
                         binding.switchPrimaryResidence.isChecked = prop.primaryResidence
+                        binding.switchWillSellToFinanceRetirement.isChecked = prop.willSellToFinanceRetirement
+                        binding.increasedBudget.setText(prop.increasedBudget.toString())
                     }
                     AssetType.RRSP -> {
                         val rrsp = asset as RRSP
@@ -296,6 +298,14 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 binding.estimatedAnnualGrowthAfterSale.setText("")
             }
         }
+        binding.switchWillSellToFinanceRetirement.setOnClickListener {
+            if (binding.switchWillSellToFinanceRetirement.isChecked) {
+                binding.increasedBudgetLayout.visibility = View.VISIBLE
+            } else {
+                binding.increasedBudget.setText("")
+                binding.increasedBudgetLayout.visibility = View.GONE
+            }
+        }
         binding.saveButton.setOnClickListener {
             if (!textIsSafeForKey(binding.assetName.text.toString())) {
                 binding.assetName.error = getString(R.string.field_has_invalid_character)
@@ -331,6 +341,12 @@ class RetirementAssetDialogFragment : DialogFragment() {
                 if (binding.ownershipPercentage.text.toString() == "") {
                     binding.ownershipPercentage.error = getString(R.string.value_cannot_be_blank)
                     focusAndOpenSoftKeyboard(requireContext(), binding.ownershipPercentage)
+                    return@setOnClickListener
+                }
+                if (binding.switchWillSellToFinanceRetirement.isChecked &&
+                        binding.increasedBudget.text.toString().toInt() <= 0) {
+                    binding.increasedBudget.error = getString(R.string.value_cannot_be_zero)
+                    focusAndOpenSoftKeyboard(requireContext(), binding.increasedBudget)
                     return@setOnClickListener
                 }
             }
@@ -431,6 +447,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         binding.switchWillSellToFinanceRetirement.isChecked,
                         0,
                         distributionOrder,
+                        if (binding.increasedBudget.text.toString() == "") 0 else binding.increasedBudget.text.toString().toInt(),
                         binding.switchUseDefaultGrowthAfterSale.isChecked,
                         binding.estimatedAnnualGrowthAfterSale.text.toString().toDouble(),
                         binding.mortgageDetails.text.toString(),

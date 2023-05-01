@@ -14,7 +14,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
-import timber.log.Timber
 import java.util.*
 
 class BudgetFragment : Fragment() {
@@ -99,61 +98,6 @@ class BudgetFragment : Fragment() {
         binding.periodSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.periodSpinner.setPopupBackgroundResource(R.drawable.spinner)
 
-        binding.periodSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                when (binding.periodSpinner.selectedItem.toString()) {
-                    getString(R.string.month) -> {
-                        val startOfPeriod = MyDate(binding.startDate.text.toString())
-                        if (startOfPeriod.getDay() != 1) {
-                            val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
-                            binding.startDate.setText(lDate.toString())
-
-                            val dateSetListener =
-                                DatePickerDialog.OnDateSetListener { _, _, _, _ ->
-                                    val startOfPeriod = MyDate(binding.startDate.text.toString())
-                                    val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
-                                    binding.startDate.setText(lDate.toString())
-                                }
-
-                            binding.startDate.setOnClickListener {
-                                val startOfPeriod = MyDate(binding.startDate.text.toString())
-                                val lDate = MyDate(startOfPeriod.getYear(), startOfPeriod.getMonth(), 1)
-                                DatePickerDialog(
-                                    requireContext(), dateSetListener,
-                                    lDate.getYear(), lDate.getMonth()-1, lDate.getDay()
-                                ).show()
-                            }
-                        }
-                    }
-                    getString(R.string.year) -> {
-                        val startOfPeriod = MyDate(binding.startDate.text.toString())
-                        if (startOfPeriod.getDay() != 1 || startOfPeriod.getMonth() != 1) {
-                            val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
-                            binding.startDate.setText(lDate.toString())
-
-                            val dateSetListener =
-                                DatePickerDialog.OnDateSetListener { _, _, _, _ ->
-                                    val startOfPeriod = MyDate(binding.startDate.text.toString())
-                                    val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
-                                    binding.startDate.setText(lDate.toString())
-                                }
-
-                            binding.startDate.setOnClickListener {
-                                val startOfPeriod = MyDate(binding.startDate.text.toString())
-                                val lDate = MyDate(startOfPeriod.getYear(), 1, 1)
-                                DatePickerDialog(
-                                    requireContext(), dateSetListener,
-                                    lDate.getYear(), lDate.getMonth()-1, lDate.getDay()
-                                ).show()
-                            }
-                        }
-                    }
-                }
-            }
-        }
         binding.budgetAddButtonSave.setOnClickListener {
             onSaveButtonClicked()
         }

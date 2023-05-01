@@ -522,8 +522,9 @@ class TransactionViewAllFragment : Fragment() {
             runFilters()
         } else {
             setViewsToDefault()
-            if (args.categoryID != "")
+            if (args.categoryID != "") {
                 setCategoryFilter(args.categoryID.toInt())
+            }
         }
         binding.showIndividualAmountsColumns.setOnCheckedChangeListener { _, _ ->
             if (binding.showIndividualAmountsColumns.isChecked) {
@@ -775,6 +776,7 @@ class TransactionViewAllFragment : Fragment() {
             binding.filterText.text = String.format(getString(R.string.scheduled_payment_filter_is_on), filters.prevRTKeyFilter)
         } else {
             var tempString = ""
+            Timber.tag("Alex").d("prevCategoryFilter is ${filters.prevCategoryFilter}")
             if (filters.prevCategoryFilter != "") {
                 tempString += " ${filters.prevCategoryFilter}"
             }
@@ -798,6 +800,7 @@ class TransactionViewAllFragment : Fragment() {
             }
 
             if (tempString == "") {
+                Timber.tag("Alex").d("tempstring is blank")
                 binding.filterLayout.visibility = View.GONE
                 binding.filterText.text = ""
             } else {
@@ -909,11 +912,13 @@ class TransactionViewAllFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun setCategoryFilter(iCategoryID: Int) {
+        filters.prevCategoryFilter = CategoryViewModel.getFullCategoryName(iCategoryID)
         val adapter: TransactionRecyclerAdapter = binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
         adapter.setCategoryIDFilter(iCategoryID)
         adapter.filterTheList(transactionSearchText)
         adapter.notifyDataSetChanged()
         goToCorrectRow()
+        setFilterTitle()
     }
     private fun setViewsToAccounting() {
         binding.showIndividualAmountsColumns.isChecked = true

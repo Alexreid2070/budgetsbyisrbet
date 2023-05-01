@@ -273,10 +273,14 @@ private class RowDataMaker {
         // column A Year
         listCellData.add(cellDataMaker.create(iRow.year.toString(), ""))
         // column B Target Monthly Income
-        if (iRow.year == iFirstYear)
-            listCellData.add(cellDataMaker.create("=B$cRow_TARGET_MONTHLY_INCOME*12", ""))
-        else
-            listCellData.add(cellDataMaker.create("=round(B$prevRowNum*(1+$inflationRateAddress))", ""))
+//        if (gRetirementScenario!!.targetMonthlyIncome == 0) { // default scenario using calculated budget
+            listCellData.add(cellDataMaker.create("=${iRow.getTotalTargetIncome()}", ""))
+/*        } else { // using target income override  519 500 7773
+            if (iRow.year == iFirstYear)
+                listCellData.add(cellDataMaker.create("=B$cRow_TARGET_MONTHLY_INCOME*12", ""))
+            else
+                listCellData.add(cellDataMaker.create("=round(B$prevRowNum*(1+$inflationRateAddress))", ""))
+        } */
         // column C Net Income
         listCellData.add(cellDataMaker.create("=F$currRowNum-G$currRowNum", ""))
         // column D Maximum Taxable Income

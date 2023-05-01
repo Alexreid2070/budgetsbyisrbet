@@ -2,6 +2,7 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -39,23 +40,30 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
         return (private == 2 ||
                 private == MyApplication.userIndex)
     }
+    fun out() : CategoryOut {
+        return CategoryOut(categoryName, subcategoryName, discType, private, inUse)
+    }
 }
+
+data class CategoryOut(var Category: String, var SubCategory: String,
+                        var Type: String, var Private: Int,
+                        var State: Boolean)
+
+
+data class CategoryDetail(var name: String, var color: Int, var priority: Int)
 
 class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
     private val categories: MutableList<Category> = ArrayList()
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
+    val categoriesLiveData = MutableLiveData<MutableList<Category>>()
     private var loaded:Boolean = false
 
     companion object {
         lateinit var singleInstance: CategoryViewModel // used to track static single instance of self
-/*        fun showMe() {
-            singleInstance.categories.forEach {
-                Log.d("Alex", "ShowMe Category is ${it.id} " + it.categoryName + " subcategory is " + it.subcategoryName + " disc type is " + it.discType +
-                " private is " + it.private + " inUse is " + it.inUse)
-            }
-        } */
 
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Category>>) {
+            singleInstance.categoriesLiveData.observe(iFragment, iObserver)
+        }
         fun isLoaded():Boolean {
             return if (this::singleInstance.isInitialized) {
                 singleInstance.loaded
@@ -129,66 +137,12 @@ class CategoryViewModel : ViewModel() {
             }
             return false
         }
-
-        fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
-                           iPrivate: Int, iInUse: Boolean, iLocalOnly: Boolean = false): Category {
-            var cat: Category? = singleInstance.categories.find { it.id == id }
-            if (cat == null) {
-                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse)
-                cat.id = getNextID()
-                singleInstance.categories.add(cat)
-                singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
-            } else {
-                cat.categoryName = iCategory
-                cat.subcategoryName = iSubcategory
-                cat.discType = iDisctype
-                cat.private = iPrivate
-                cat.inUse = iInUse
-            }
-            if (!iLocalOnly) {
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
-                    .child(cat.id.toString())
-                    .child("Category")
-                    .setValue(iCategory)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
-                    .child(cat.id.toString())
-                    .child("SubCategory")
-                    .setValue(iSubcategory)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
-                    .child(cat.id.toString())
-                    .child("Type")
-                    .setValue(iDisctype)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
-                    .child(cat.id.toString())
-                    .child("Private")
-                    .setValue(iPrivate)
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
-                    .child(cat.id.toString())
-                    .child("State")
-                    .setValue(iInUse)
-            }
-            return cat
-        }
         fun getFullCategoryName(id: Int): String {
             return if (id == cTRANSFER_CODE)
                 MyApplication.getString(R.string.transfer)
             else {
                 val cat: Category? = singleInstance.categories.find { it.id == id }
                 cat?.fullCategoryName() ?: ""
-            }
-        }
-        fun deleteCategoryAndSubcategory(id: Int) {
-            val cat: Category? = singleInstance.categories.find { it.id == id }
-            if (cat != null) {
-                val ind = singleInstance.categories.indexOf(cat)
-                singleInstance.categories.removeAt(ind)
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Category")
-                    .child(id.toString()).removeValue()
-                val anyMoreCats: Category? = singleInstance.categories.find { it.categoryName == cat.categoryName }
-                if (anyMoreCats == null) {
-                    Timber.tag("Alex").d("Just deleted the last category so clean up CategoryDetails too")
-                    DefaultsViewModel.deleteCategoryDetail(cat.categoryName)
-                }
             }
         }
 
@@ -238,7 +192,7 @@ class CategoryViewModel : ViewModel() {
             origList.forEach {
 //            singleInstance.categories.forEach {
 //                if (it.discType != cDiscTypeOff)
-                    list.add(it.fullCategoryName())
+                list.add(it.fullCategoryName())
             }
             return list
         }
@@ -246,13 +200,51 @@ class CategoryViewModel : ViewModel() {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.categoryName == iCategory && it.iAmAllowedToSeeThisCategory()) {
-                    if (it.inUse ||
-                    (!it.inUse && it.subcategoryName == iSubCategory)) {
+                    if (it.inUse || it.subcategoryName == iSubCategory) {
                         list.add(it.subcategoryName)
                     }
                 }
             }
             return list
+        }
+
+        fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
+                           iPrivate: Int, iInUse: Boolean, iLocalOnly: Boolean = false): Category {
+            var cat: Category? = singleInstance.categories.find { it.id == id }
+            if (cat == null) {
+                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse)
+                cat.id = getNextID()
+                if (iLocalOnly) {
+                    singleInstance.categories.add(cat)
+                    singleInstance.categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
+                }
+            } else {
+                cat.categoryName = iCategory
+                cat.subcategoryName = iSubcategory
+                cat.discType = iDisctype
+                cat.private = iPrivate
+                cat.inUse = iInUse
+            }
+            if (!iLocalOnly) {
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
+                    .child(cat.id.toString())
+                    .setValue(cat.out())
+            }
+            return cat
+        }
+        fun deleteCategoryAndSubcategory(id: Int) {
+            val cat: Category? = singleInstance.categories.find { it.id == id }
+            if (cat != null) {
+//                val ind = singleInstance.categories.indexOf(cat)
+//                singleInstance.categories.removeAt(ind)
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Category")
+                    .child(id.toString()).removeValue()
+                val anyMoreCats: Category? = singleInstance.categories.find { it.categoryName == cat.categoryName }
+                if (anyMoreCats == null) {
+                    Timber.tag("Alex").d("Just deleted the last category so clean up CategoryDetails too")
+                    DefaultsViewModel.deleteCategoryDetail(cat.categoryName)
+                }
+            }
         }
 
         fun refresh() {
@@ -264,7 +256,6 @@ class CategoryViewModel : ViewModel() {
                     .removeEventListener(singleInstance.catListener!!)
                 singleInstance.catListener = null
             }
-//            singleInstance.dataUpdatedCallback = null
             singleInstance.categories.clear()
             singleInstance.loaded = false
         }
@@ -282,15 +273,6 @@ class CategoryViewModel : ViewModel() {
         }
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-//        dataUpdatedCallback?.onDataUpdate()
-    }
-
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
-
     fun loadCategories() {
         // Do an asynchronous operation to fetch categories and subcategories
         catListener = object : ValueEventListener {
@@ -306,12 +288,12 @@ class CategoryViewModel : ViewModel() {
                         var private = 2
                         var inUse = ""
                         for (child in it.children) {
-                            when (child.key.toString()) {
-                                "Category" -> category = child.value.toString().trim()
-                                "SubCategory" -> subcategory = child.value.toString().trim()
-                                "Type" -> disctype = child.value.toString().trim()
-                                "State" -> inUse = child.value.toString().lowercase().trim()
-                                "Private" -> private = child.value.toString().toInt()
+                            when (child.key.toString().lowercase()) {
+                                "category" -> category = child.value.toString().trim()
+                                "subcategory" -> subcategory = child.value.toString().trim()
+                                "type" -> disctype = child.value.toString().trim()
+                                "state" -> inUse = child.value.toString().lowercase().trim()
+                                "private" -> private = child.value.toString().toInt()
                             }
                         }
                         categories.add(Category(categoryID, category, subcategory, disctype, private, inUse != cFALSE))
@@ -324,8 +306,8 @@ class CategoryViewModel : ViewModel() {
                         .setValue(MyApplication.userEmail)
                 }
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
                 categories.sortWith(compareBy({ it.categoryName }, { it.subcategoryName }))
+                singleInstance.categoriesLiveData.value = singleInstance.categories
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -338,5 +320,3 @@ class CategoryViewModel : ViewModel() {
         )
     }
 }
-
-data class CategoryDetail(var name: String, var color: Int, var priority: Int)

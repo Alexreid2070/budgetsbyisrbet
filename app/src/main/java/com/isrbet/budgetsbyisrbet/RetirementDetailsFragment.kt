@@ -22,6 +22,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.isrbet.budgetsbyisrbet.databinding.FragmentRetirementDetailsBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 enum class RetirementDetailsViews(val code: Int) {
     ALL(0),
@@ -362,8 +363,9 @@ class RetirementDetailsFragment : Fragment() {
 
             addHeaderCell(tr, gRetirementDetailsList[i].year.toString())
             val targetAnnualIncome = gRetirementDetailsList[i].getTotalTargetIncome()
-            if (iWhichView == RetirementDetailsViews.ALL)
+            if (iWhichView == RetirementDetailsViews.ALL) {
                 addHeaderCell(tr, targetAnnualIncome.toString())
+            }
             if (iWhichView == RetirementDetailsViews.ALL ||
                 iWhichView == RetirementDetailsViews.TAX ||
                 iWhichView == RetirementDetailsViews.SUMMARY) {

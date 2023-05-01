@@ -61,11 +61,11 @@ class RetirementAdditionalDialogFragment : DialogFragment() {
         if (item != null) {
             if (item.type == AdditionalType.DEPOSIT) {
                 binding.depositButton.isChecked = true
-                binding.title.text = getString(R.string.edit_deposit)
+                binding.title.text = getString(R.string.additional_deposit)
 
             } else {
                 binding.expenseButton.isChecked = true
-                binding.title.text = getString(R.string.edit_expense)
+                binding.title.text = getString(R.string.additional_expense)
             }
             binding.name.setText(item.name)
             binding.year.setText(item.year.toString())

@@ -259,7 +259,21 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun setupDataCallbacks() {
-        DefaultsViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        val defaultObserver = Observer<Boolean> {
+            if (MyApplication.userEmail != MyApplication.currentUserEmail) {
+                binding.quoteField.visibility = View.VISIBLE
+                binding.quoteField.text = String.format(
+                    getString(R.string.currently_impersonating),
+                    MyApplication.currentUserEmail
+                )
+            } else if (DefaultsViewModel.getDefaultQuote()) {
+                binding.quoteField.visibility = View.VISIBLE
+                binding.quoteField.text = getQuote()
+            }
+            alignPageWithDataState("DefaultViewModel")
+        }
+        DefaultsViewModel.observeDefaults(this, defaultObserver)
+/*        DefaultsViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 if (MyApplication.userEmail != MyApplication.currentUserEmail) {
                     binding.quoteField.visibility = View.VISIBLE
@@ -273,29 +287,46 @@ class HomeFragment : Fragment(), CoroutineScope {
                 }
                 alignPageWithDataState("DefaultViewModel")
             }
-        })
-        CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        })*/
+        val catListObserver = Observer<MutableList<Category>> {
+            alignPageWithDataState("CategoryViewModel")
+        }
+        CategoryViewModel.observeList(this, catListObserver)
+/*        CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("CategoryViewModel")
             }
-        })
+        }) */
 
-        SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        val spenderListObserver = Observer<MutableList<Spender>> {
+            (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
+            alignPageWithDataState("SpenderViewModel")
+        }
+        SpenderViewModel.observeList(this, spenderListObserver)
+/*        SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
                 alignPageWithDataState("SpenderViewModel")
             }
-        })
-        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        }) */
+        val hintListObserver = Observer<MutableList<Hint>> {
+            alignPageWithDataState("HintViewModel")
+        }
+        HintViewModel.observeList(this, hintListObserver)
+/*        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("HintViewModel")
             }
-        })
-        TransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        }) */
+        val transactionListObserver = Observer<MutableList<Transaction>> {
+            alignPageWithDataState("TransactionViewModel")
+        }
+        TransactionViewModel.observeList(this, transactionListObserver)
+/*        TransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("TransactionViewModel")
             }
-        })
+        }) */
         val budListObserver = Observer<MutableList<Budget>> {
             alignPageWithDataState("BudgetViewModel")
         }
@@ -317,11 +348,15 @@ class HomeFragment : Fragment(), CoroutineScope {
                 alignPageWithDataState("ScheduledPaymentViewModel")
             }
         }) */
-        RetirementViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
+        val retListObserver = Observer<MutableList<RetirementData>> {
+            alignPageWithDataState("RetirementViewModel")
+        }
+        RetirementViewModel.observeList(this, retListObserver)
+/*        RetirementViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
             override fun onDataUpdate() {
                 alignPageWithDataState("RetirementViewModel")
             }
-        })
+        }) */
     }
 
     private fun onExpandClicked() {
@@ -501,16 +536,16 @@ class HomeFragment : Fragment(), CoroutineScope {
                 launch {
                     trackerFragment.loadBarChart()
                 }
-                DefaultsViewModel.confirmCategoryDetailsListIsComplete()
+//                DefaultsViewModel.confirmCategoryDetailsListIsComplete()
                 HintViewModel.showHint(parentFragmentManager, cHINT_HOME)
-                CategoryViewModel.singleInstance.clearCallback()
-                SpenderViewModel.singleInstance.clearCallback()
-                TransactionViewModel.singleInstance.clearCallback()
+//                CategoryViewModel.singleInstance.clearCallback()
+//                SpenderViewModel.singleInstance.clearCallback()
+//                TransactionViewModel.singleInstance.clearCallback()
 //                BudgetViewModel.singleInstance.clearCallback()
   //              ScheduledPaymentViewModel.singleInstance.clearCallback()
-                RetirementViewModel.singleInstance.clearCallback()
-                TranslationViewModel.singleInstance.clearCallback()
-                DefaultsViewModel.singleInstance.clearCallback()
+//                RetirementViewModel.singleInstance.clearCallback()
+//                TranslationViewModel.singleInstance.clearCallback()
+//                DefaultsViewModel.singleInstance.clearCallback()
             }
         } else {
             (activity as MainActivity).setLoggedOutMode(true)
@@ -602,14 +637,14 @@ class HomeFragment : Fragment(), CoroutineScope {
 
     override fun onDestroy() {
         super.onDestroy()
-        CategoryViewModel.singleInstance.clearCallback()
-        SpenderViewModel.singleInstance.clearCallback()
-        TransactionViewModel.singleInstance.clearCallback()
+//        CategoryViewModel.singleInstance.clearCallback()
+//        SpenderViewModel.singleInstance.clearCallback()
+//        TransactionViewModel.singleInstance.clearCallback()
 //        BudgetViewModel.singleInstance.clearCallback()
   //      ScheduledPaymentViewModel.singleInstance.clearCallback()
-        RetirementViewModel.singleInstance.clearCallback()
-        TranslationViewModel.singleInstance.clearCallback()
-        DefaultsViewModel.singleInstance.clearCallback()
+//        RetirementViewModel.singleInstance.clearCallback()
+//        TranslationViewModel.singleInstance.clearCallback()
+//        DefaultsViewModel.singleInstance.clearCallback()
         _binding = null
     }
 }

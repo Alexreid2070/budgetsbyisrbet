@@ -19,6 +19,7 @@
         <item name="colorOnSecondary">@color/lighter_gray</item>
         <item name="android:editTextBackground">@color/sedona</item>
         <item name="colorOnSurface">@color/sedona</item>
+        <item name="buttonBackgroundColor">?attr/colorSecondary</item>
 
         <item name="pageHeadingFontColor">@color/sedona</item>
         <item name="pageHeadingBackgroundColor">@color/pastel_orange</item>

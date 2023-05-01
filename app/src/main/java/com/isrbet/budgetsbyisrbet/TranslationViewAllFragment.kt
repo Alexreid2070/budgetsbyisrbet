@@ -54,13 +54,13 @@ class TranslationViewAllFragment : Fragment() {
                     itemValue.after,
                     itemValue.category,
                     itemValue.key) // what do I pass here? zzz
-                cdf.setTranslationEditDialogFragmentListener(object: TranslationEditDialogFragment.TranslationEditDialogFragmentListener {
+/*                cdf.setTranslationEditDialogFragmentListener(object: TranslationEditDialogFragment.TranslationEditDialogFragmentListener {
                     override fun onNewDataSaved() {
                         val myAdapter = TranslationAdapter(requireContext(), TranslationViewModel.getTranslations(), currentSortOrder)
                         binding.translationListView.adapter = myAdapter
                         myAdapter.notifyDataSetChanged()
                     }
-                })
+                }) */
                 cdf.show(parentFragmentManager, getString(R.string.edit_translation))
             }
 

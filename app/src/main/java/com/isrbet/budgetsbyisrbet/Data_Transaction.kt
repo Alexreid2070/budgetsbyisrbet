@@ -2,6 +2,7 @@
 
 package com.isrbet.budgetsbyisrbet
 
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.ChildEventListener
@@ -175,16 +176,15 @@ class TransactionViewModel : ViewModel() {
     private var childListener: ChildEventListener? = null
     private val transactions: MutableList<Transaction> = mutableListOf()
     val transactionsLiveData = MutableLiveData<MutableList<Transaction>>()
-    private var dataUpdatedCallback: DataUpdatedCallback? = null
     private var loaded:Boolean = false
     val actualsSummary: MutableList<ActualRow> = mutableListOf()
 
     companion object {
         lateinit var singleInstance: TransactionViewModel // used to track static single instance of self
 
-/*        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Transaction>>) {
+        fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Transaction>>) {
             singleInstance.transactionsLiveData.observe(iFragment, iObserver)
-        } */
+        }
         fun doSomething() {
             singleInstance.transactions.forEach {
                 val transactionOut = TransactionOut(it.date.toString(),
@@ -567,7 +567,7 @@ class TransactionViewModel : ViewModel() {
                 val ind = singleInstance.transactions.indexOf(trans)
                 if (ind != -1) {
                     singleInstance.transactions.removeAt(ind)
-                    singleInstance.transactionsLiveData.value = singleInstance.transactions
+//                    singleInstance.transactionsLiveData.value = singleInstance.transactions
                 }
             }
         }
@@ -593,8 +593,8 @@ class TransactionViewModel : ViewModel() {
                 transaction.rtkey = iTransaction.rtkey
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
-            if (iNotifyLive)
-                singleInstance.transactionsLiveData.value = singleInstance.transactions
+//            if (iNotifyLive)
+  //              singleInstance.transactionsLiveData.value = singleInstance.transactions
         }
 
         fun updateTransactionDatabase(iKey: String, iTransactionOut: TransactionOut) {
@@ -624,7 +624,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.rtkey = iTransactionOut.rtkey
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
-            singleInstance.transactionsLiveData.value = singleInstance.transactions
+//            singleInstance.transactionsLiveData.value = singleInstance.transactions
         }
         fun addTransfer(iTransfer: TransferOut, iLocalOnly: Boolean = false) {
             if (iLocalOnly) {
@@ -727,16 +727,7 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
         }
     }
 
-    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-//        dataUpdatedCallback?.onDataUpdate()
-    }
-
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
-
-/*    fun loadTransactionsbkp() {
+/*    fun loadTransactions() {
         // Do an asynchronous operation to fetch transactions
         val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/Transactions")
@@ -765,8 +756,8 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
                 }
                 val start3 = System.currentTimeMillis()
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
                 transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
+                singleInstance.transactionsLiveData.value = singleInstance.transactions
                 val end = System.currentTimeMillis()
                 Timber.tag("Alex").d("loadTransactions time is ${end - start} ms, ${end - start2}, ${end - start3}")
             }
@@ -792,15 +783,15 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
                     }
                 }
                 singleInstance.loaded = true
-                dataUpdatedCallback?.onDataUpdate()
                 transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
+                singleInstance.transactionsLiveData.value = singleInstance.transactions
                 val end = System.currentTimeMillis()
                 Timber.tag("Alex").d("it took ${end - start} ms to load ${singleInstance.transactions.size} transactions")
 
-                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
+/*                MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
                     .removeEventListener(singleInstance.firstLoadListener!!)
                 singleInstance.firstLoadListener = null
-                loadTransactionsOngoing()
+                loadTransactionsOngoing() */
                 createActualsTable()
             }
 
@@ -813,14 +804,16 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
     fun loadTransactionsOngoing() {
         val childEventListener = object : ChildEventListener {
             override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
+                Timber.tag("Alex").d("Transaction:onChildAdded")
                 // this function is called on startup, and when a transaction is added
                 val transactionOut = dataSnapshot.getValue<TransactionOut>()
                 if (transactionOut != null) {
-                        val myTr = Transaction(transactionOut, dataSnapshot.key!!)
-                        addTransactionLocal(myTr)
+                    val myTr = Transaction(transactionOut, dataSnapshot.key!!)
+                    addTransactionLocal(myTr)
                 } else {
                     Timber.tag("Alex").d( "onChildAdded couldn't convert ${dataSnapshot.key.toString()}")
                 }
+                singleInstance.transactionsLiveData.value = singleInstance.transactions
             }
 
             override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
@@ -829,10 +822,12 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
                     val myTr = Transaction(transactionOut, dataSnapshot.key!!)
                     updateTransactionLocal(myTr)
                 }
+                singleInstance.transactionsLiveData.value = singleInstance.transactions
             }
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
                 deleteTransactionLocal(dataSnapshot.key!!)
+                singleInstance.transactionsLiveData.value = singleInstance.transactions
             }
 
             override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {

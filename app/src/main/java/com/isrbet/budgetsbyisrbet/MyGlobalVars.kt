@@ -344,6 +344,9 @@ data class MyDate(var representsYear: Boolean = false) {
     fun getMonth(): Int {
         return theDate.monthValue
     }
+    fun getMonthName(): String {
+        return gMonthName(getMonth())
+    }
     fun getDay(): Int {
         return theDate.dayOfMonth
     }
@@ -355,6 +358,9 @@ data class MyDate(var representsYear: Boolean = false) {
     }
     fun getMMMDD(): String {
         return "${gShortMonthName(theDate.monthValue)} %d".format(theDate.dayOfMonth)
+    }
+    fun getMMMYYYY(): String {
+        return "${getMonthName()} ${getYear()}"
     }
     fun getFirstOfMonth() : MyDate {
         return MyDate(theDate.year, theDate.monthValue, 1)

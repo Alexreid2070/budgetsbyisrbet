@@ -240,6 +240,7 @@ class ScheduledPaymentFragment : Fragment() {
         tr.layoutParams = TableLayout.LayoutParams(
             TableLayout.LayoutParams.MATCH_PARENT,
             TableLayout.LayoutParams.WRAP_CONTENT)
+        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
         for (d in 0 until 7) {
             val tv = getNewTextView(iWantTop, iWantBottom)
             tr.addView(tv)

@@ -72,6 +72,6 @@ class AdminFragment : Fragment() {
         Timber.tag("Alex").d("doSomething")
 //        TransactionViewModel.doSomething()
 
-        TransactionViewModel.doSomething2()
+//        TransactionViewModel.doSomething()
     }
 }

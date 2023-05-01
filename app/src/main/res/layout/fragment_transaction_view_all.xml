@@ -300,30 +300,6 @@
         android:background="?attr/colorPrimary"
         app:layout_constraintBottom_toTopOf="@id/nav_button_linear_layout"/>
     <LinearLayout
-        android:id="@+id/fab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/expanded_label_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" >
-
-        <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
-            android:id="@+id/transaction_add_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:contentDescription="@string/app_name"
-            android:paddingBottom="10dp"
-            android:src="@drawable/ic_fas_plus"
-            android:tooltipText="Add Expense"/>
-        <TextView
-            android:id="@+id/space"
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/nav_button_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -404,6 +380,30 @@
             android:paddingEnd="10dp"
             android:contentDescription="@string/settings"
             android:src="@drawable/ic_baseline_settings_24_orange"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/expanded_label_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" >
+
+        <com.isrbet.budgetsbyisrbet.MovableFloatingActionButton
+            android:id="@+id/transaction_add_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:contentDescription="@string/app_name"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_fas_plus"
+            android:tooltipText="Add Expense"/>
+        <TextView
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
     </LinearLayout>
 
     <LinearLayout

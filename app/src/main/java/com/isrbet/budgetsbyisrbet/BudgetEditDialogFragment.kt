@@ -15,15 +15,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
-import timber.log.Timber
 import java.util.*
 
 class BudgetEditDialogFragment : DialogFragment() {
-    interface BudgetEditDialogFragmentListener {
-
-        fun onNewDataSaved()
-    }
-    private var listener: BudgetEditDialogFragmentListener? = null
+//    interface BudgetEditDialogFragmentListener {
+//
+  //      fun onNewDataSaved()
+    //}
+    //private var listener: BudgetEditDialogFragmentListener? = null
 
     private var _binding: FragmentBudgetEditDialogBinding? = null
     private val binding get() = _binding!!
@@ -309,8 +308,8 @@ class BudgetEditDialogFragment : DialogFragment() {
                         binding.regularity.text.toString().toInt(),
                         newOccurenceID
                     )
-                    if (listener != null)
-                        listener?.onNewDataSaved()
+//                    if (listener != null)
+  //                      listener?.onNewDataSaved()
                     dismiss()
                     MyApplication.playSound(context, R.raw.impact_jaw_breaker)
                 } else {
@@ -410,8 +409,8 @@ class BudgetEditDialogFragment : DialogFragment() {
                         binding.budgetDialogCategoryID.text.toString().toInt(),
                         oldKey
                     )
-                    if (listener != null)
-                        listener?.onNewDataSaved()
+//                    if (listener != null)
+  //                      listener?.onNewDataSaved()
                     Toast.makeText(activity, getString(R.string.budget_deleted), Toast.LENGTH_SHORT).show()
                     dismiss()
                     MyApplication.playSound(context, R.raw.short_springy_gun)
@@ -435,9 +434,9 @@ class BudgetEditDialogFragment : DialogFragment() {
         }
     }
 
-    fun setDialogFragmentListener(listener: BudgetEditDialogFragmentListener) {
-        this.listener = listener
-    }
+//    fun setDialogFragmentListener(listener: BudgetEditDialogFragmentListener) {
+  //      this.listener = listener
+    //}
 
     override fun onDestroyView() {
         super.onDestroyView()

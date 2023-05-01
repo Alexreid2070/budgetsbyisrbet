@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
             // don't redraw page if we're already there
             if (navHostFragment.childFragmentManager.backStackEntryCount > 0 &&
                 it.itemId == navController.currentDestination?.id) {
-                Timber.tag("Alex").d("NOT DOING IT")
                 return@setOnItemSelectedListener true
             }
 
@@ -55,7 +54,6 @@ class MainActivity : AppCompatActivity() {
             MyApplication.transactionFirstInList = cLAST_ROW
             gHomePageExpansionAreaExpanded = false
             repeat(navHostFragment.childFragmentManager.backStackEntryCount) {
-                Timber.tag("Alex").d("Pop!")
                 navController.popBackStack()
 //                navHostFragment.childFragmentManager.popBackStack()
             }

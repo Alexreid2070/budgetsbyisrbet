@@ -12,10 +12,10 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationEditDialogBinding
 
 class TranslationEditDialogFragment : DialogFragment() {
-    interface TranslationEditDialogFragmentListener {
-        fun onNewDataSaved()
-    }
-    private var listener: TranslationEditDialogFragmentListener? = null
+//    interface TranslationEditDialogFragmentListener {
+  //      fun onNewDataSaved()
+    //}
+    //private var listener: TranslationEditDialogFragmentListener? = null
     private var _binding: FragmentTranslationEditDialogBinding? = null
     private val binding get() = _binding!!
 
@@ -82,8 +82,8 @@ class TranslationEditDialogFragment : DialogFragment() {
                 binding.beforeField.text.toString(),
                 binding.afterField.text.toString(),
                 myTranslation.category)
-            if (listener != null)
-                listener?.onNewDataSaved()
+//            if (listener != null)
+  //              listener?.onNewDataSaved()
             MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             dismiss()
         }
@@ -91,9 +91,9 @@ class TranslationEditDialogFragment : DialogFragment() {
         binding.buttonDelete.setOnClickListener {
             fun yesClicked() {
                 TranslationViewModel.deleteTranslation(myTranslation.key)
-                if (listener != null) {
-                    listener?.onNewDataSaved()
-                }
+    //            if (listener != null) {
+      //              listener?.onNewDataSaved()
+        //        }
                 MyApplication.playSound(context, R.raw.short_springy_gun)
                 dismiss()
             }
@@ -113,9 +113,9 @@ class TranslationEditDialogFragment : DialogFragment() {
         }
     }
 
-    fun setTranslationEditDialogFragmentListener(listener: TranslationEditDialogFragmentListener) {
-        this.listener = listener
-    }
+//    fun setTranslationEditDialogFragmentListener(listener: TranslationEditDialogFragmentListener) {
+  //      this.listener = listener
+    //}
 
     override fun onDestroyView() {
         super.onDestroyView()

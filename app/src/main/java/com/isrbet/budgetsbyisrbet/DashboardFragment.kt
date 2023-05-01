@@ -712,7 +712,7 @@ class DashboardFragment : Fragment() {
             return
         } else {
             binding.dashboardTitleLayout.visibility = View.VISIBLE
-            binding.navButtonLinearLayout.visibility = View.VISIBLE
+//            binding.navButtonLinearLayout.visibility = View.VISIBLE
         }
         var title =
             when (DefaultsViewModel.getDefaultViewPeriodDashboard()) {

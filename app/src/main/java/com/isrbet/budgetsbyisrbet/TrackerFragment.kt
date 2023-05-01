@@ -232,7 +232,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
                 } else {
                     hidePieChart()
                     launch {
-                        Timber.tag("Alex").d("calling 1 loadBarChart")
                         loadBarChart()
                     }
                 }
@@ -262,7 +261,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
     private fun startLoadData() {
         Timber.tag("Alex").d("startLoadData")
         if (binding.barChart.visibility == View.VISIBLE) {
-            Timber.tag("Alex").d("calling 2 loadBarChart")
             loadBarChart()
         } else
             loadPieChart(currentCategory)

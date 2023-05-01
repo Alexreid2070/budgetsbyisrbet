@@ -3,7 +3,7 @@
     <style name="Theme.BudgetsByISRBET" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/pastel_orange</item>
-        <item name="colorSecondary">@color/sedona</item>
+        <item name="colorSecondary">@color/orange_salmon</item>
         <item name="colorPrimaryVariant">@color/orange_salmon</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
@@ -19,8 +19,9 @@
         <item name="colorSecondaryVariant">@color/orange_salmon</item>
         <item name="android:editTextBackground">@color/pastel_orange</item>
         <item name="colorOnSurface">@color/sedona</item>
+        <item name="buttonBackgroundColor">@color/black</item>
 
-        <item name="pageHeadingFontColor">@color/pastel_orange</item>
-        <item name="pageHeadingBackgroundColor">@color/sedona</item>
+        <item name="pageHeadingFontColor">@color/black</item>
+        <item name="pageHeadingBackgroundColor">@color/orange_salmon</item>
     </style>
 </resources>

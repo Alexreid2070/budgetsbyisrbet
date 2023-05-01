@@ -2,16 +2,25 @@ package com.isrbet.budgetsbyisrbet
 
 import android.os.Bundle
 import android.view.*
-import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryBinding
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter
+import timber.log.Timber
 
 class CategoryFragment : Fragment() {
     private var _binding: FragmentCategoryBinding? = null
     private val binding get() = _binding!!
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val categoryListObserver = Observer<MutableList<Category>> {
+            Timber.tag("Alex").d("observer fired for categories")
+            refreshAdapter()
+        }
+        CategoryViewModel.observeList(this, categoryListObserver)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -22,29 +31,18 @@ class CategoryFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
-        val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
-
+    private fun refreshAdapter() : CategoryAdapter{
+        val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true)) { catID ->
+            val cdf = CategoryEditDialogFragment.newInstance(catID)
+            cdf.show(parentFragmentManager, getString(R.string.edit_category))
+        }
         binding.categoryListView.adapter = adapter
-/*        if (SpenderViewModel.twoDistinctUsers())
-            binding.privacyHeading.visibility = View.VISIBLE
-        else
-            binding.privacyHeading.visibility = View.GONE
-*/
+        adapter.notifyDataSetChanged()
+        return adapter
+    }
 
-        binding.categoryListView.onItemClickListener =
-            AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
-                val itemValue = binding.categoryListView.getItemAtPosition(position) as Category
-                val cdf = CategoryEditDialogFragment.newInstance(itemValue.id.toString())
-                cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
-                    override fun onNewDataSaved() {
-                        val myAdapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
-                        binding.categoryListView.adapter = myAdapter
-                        myAdapter.notifyDataSetChanged()
-                    }
-                })
-                cdf.show(parentFragmentManager, getString(R.string.edit_category))
-            }
+    override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
+        refreshAdapter()
         binding.categoryFab.setMenuListener(object : SimpleMenuListenerAdapter() {
             override fun onMenuItemSelected(menuItem: MenuItem?): Boolean {
                 return when (menuItem?.itemId) {
@@ -60,22 +58,11 @@ class CategoryFragment : Fragment() {
                 }
             }
         })
-/*        if (SpenderViewModel.twoDistinctUsers())
-            binding.privacyHeading.visibility = View.VISIBLE
-        else
-            binding.privacyHeading.visibility = View.GONE */
         HintViewModel.showHint(parentFragmentManager, cHINT_CATEGORY)
     }
 
     private fun addCategory() {
-        val cdf = CategoryEditDialogFragment.newInstance("0")
-        cdf.setCategoryEditDialogFragmentListener(object: CategoryEditDialogFragment.CategoryEditDialogFragmentListener {
-            override fun onNewDataSaved() {
-                val adapter = CategoryAdapter(requireContext(), CategoryViewModel.getCategories(true))
-                binding.categoryListView.adapter = adapter
-                adapter.notifyDataSetChanged()
-            }
-        })
+        val cdf = CategoryEditDialogFragment.newInstance(0)
         cdf.show(parentFragmentManager, getString(R.string.add_category))
     }
 
