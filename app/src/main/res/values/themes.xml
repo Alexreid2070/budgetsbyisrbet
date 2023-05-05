@@ -23,7 +23,7 @@
 
         <item name="pageHeadingFontColor">@color/sedona</item>
         <item name="pageHeadingBackgroundColor">@color/pastel_orange</item>
-
+        <item name="budgetLineGraphColor">@color/green</item>
     </style>
 
     <style name="Theme.BudgetsByISRBET.NoActionBar">

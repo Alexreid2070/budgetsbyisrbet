@@ -517,7 +517,7 @@ class YearOverYearFragment : Fragment() {
                     val action =
                         DashboardTabsFragmentDirections.actionDashboardTabsFragmentToSettingsTabsFragment()
                     action.targetTab = 2
-                    action.categoryID = myParent.categoryID.toString()
+                    action.categoryID = myParent.categoryID
                     view?.findNavController()?.navigate(action)
                 }
             } else if (iRowType == cDETAIL && (iYoyType == YoyView.ACTUALS || iYoyType == YoyView.AVERAGE)) {

@@ -230,8 +230,8 @@ class TransactionFragment : Fragment() {
                 binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
             }
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-            binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
-            binding.inputSubcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
+            binding.subcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+            binding.subcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
             if (SpenderViewModel.multipleUsers()) {
                 val selectedId = binding.boughtForRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -263,7 +263,7 @@ class TransactionFragment : Fragment() {
             binding.note.isEnabled = false
             binding.scheduledPaymentLabel.isEnabled = false
             binding.transactionType.isEnabled = false
-            binding.inputSubcategorySpinner.isEnabled = false
+            binding.subcategorySpinner.isEnabled = false
             for (i in 0 until binding.categoryRadioGroup.childCount) {
                 (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
@@ -281,7 +281,7 @@ class TransactionFragment : Fragment() {
             binding.where.setBackgroundColor(Color.parseColor(hexColor))
             binding.note.setBackgroundColor(Color.parseColor(hexColor))
             binding.categoryRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
-            binding.inputSubcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+            binding.subcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.paidByRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.boughtForRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.slider.setBackgroundColor(Color.parseColor(hexColor))
@@ -376,7 +376,7 @@ class TransactionFragment : Fragment() {
 //        binding.transactionAmount.keyListener = DigitsKeyListener.getInstance("0123456789$decimalSeparator")
         binding.where.isEnabled = true
         binding.note.isEnabled = true
-        binding.inputSubcategorySpinner.isEnabled = true
+        binding.subcategorySpinner.isEnabled = true
         for (i in 0 until binding.categoryRadioGroup.childCount) {
             val button = binding.categoryRadioGroup.getChildAt(i) as RadioButton
             button.isEnabled = true
@@ -396,7 +396,7 @@ class TransactionFragment : Fragment() {
             binding.slider.isEnabled = true
         }
 
-        val currentSubCategory = binding.inputSubcategorySpinner.selectedItem.toString()
+        val currentSubCategory = binding.subcategorySpinner.selectedItem.toString()
         addSubCategories(currentCategory, currentSubCategory)
         if (MyApplication.adminMode) {
             binding.transactionType.isEnabled = true
@@ -478,8 +478,8 @@ class TransactionFragment : Fragment() {
                 subCategoryList
             )
 
-            binding.inputSubcategorySpinner.adapter = arrayAdapter
-            binding.inputSubcategorySpinner.setSelection(arrayAdapter.getPosition(
+            binding.subcategorySpinner.adapter = arrayAdapter
+            binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(
                 CategoryViewModel.getCategory(thisTransaction.category)?.subcategoryName))
 
             binding.transactionDate.setText(thisTransaction.date.toString())
@@ -553,12 +553,10 @@ class TransactionFragment : Fragment() {
     }
 
     private fun addSubCategories(iCategory: String, iSubCategory: String) {
-        val subCategorySpinner =
-            requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
             CategoryViewModel.getSubcategoriesForSpinner(iCategory, iSubCategory))
-        subCategorySpinner.adapter = arrayAdapter
-        subCategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
+        binding.subcategorySpinner.adapter = arrayAdapter
+        binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(iSubCategory))
         arrayAdapter.notifyDataSetChanged()
     }
 
@@ -593,8 +591,7 @@ class TransactionFragment : Fragment() {
             val categoryGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
             val radioButtonID = categoryGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
-            val subcategorySpinner = requireActivity().findViewById(R.id.inputSubcategorySpinner) as Spinner
-            val currentCatID = CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString())
+            val currentCatID = CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString())
             if (translation.category != 0 && currentCatID != translation.category) {
                 for (i in 0 until categoryGroup.childCount) {
                     val o = categoryGroup.getChildAt(i)
@@ -606,27 +603,10 @@ class TransactionFragment : Fragment() {
                 val category = CategoryViewModel.getCategory(translation.category)
                 if (category != null)
                     addSubCategories(category.categoryName, category.subcategoryName)
-/*                val subCategorySpinner =
-                    requireActivity().findViewById<Spinner>(R.id.inputSubcategorySpinner)
-                val subCategoryList: MutableList<String> = ArrayList()
-                subCategoryList.add(CategoryViewModel.getCategory(translation.category)?.subcategoryName.toString())
-                val arrayAdapter = ArrayAdapter(
-                    requireContext(),
-                    android.R.layout.simple_spinner_dropdown_item,
-                    subCategoryList
-                )
-                subCategorySpinner.adapter = arrayAdapter
-                subCategorySpinner.setSelection(arrayAdapter.getPosition(
-                    CategoryViewModel.getCategory(translation.category)?.subcategoryName)) */
                 Toast.makeText(activity, getString(R.string.category_has_been_updated), Toast.LENGTH_LONG).show()
             }
         }
-//        if (CustomNotificationListenerService.getExpenseNotificationCount() == 0) {
             binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
-//        } else {
-//            // there are more notifications, but we don't want the user to click the button again until the current data is saved
-//            binding.buttonLoadTransactionFromTdmyspend.isEnabled = false
-//        }
     }
 
     private fun onSaveTransactionButtonClicked () {
@@ -655,8 +635,6 @@ class TransactionFragment : Fragment() {
         val radioButtonID = radioGroup.checkedRadioButtonId
         val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
 
-        val subcategorySpinner = requireActivity().findViewById(R.id.inputSubcategorySpinner) as Spinner
-
         val radioGroupPaidBy = requireActivity().findViewById(R.id.paidByRadioGroup) as RadioGroup
         val radioButtonPaidByChecked = radioGroupPaidBy.checkedRadioButtonId
         val radioButtonPaidBy = requireActivity().findViewById(radioButtonPaidByChecked) as RadioButton
@@ -665,7 +643,7 @@ class TransactionFragment : Fragment() {
         val radioButtonBoughtForChecked = radioGroupBoughtFor.checkedRadioButtonId
         val radioButtonBoughtFor = requireActivity().findViewById(radioButtonBoughtForChecked) as RadioButton
 
-        val chosenCatID = CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString())
+        val chosenCatID = CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString())
         val chosenCat = CategoryViewModel.getCategory(chosenCatID)
         val paidByID = SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString())
         val boughtForID = SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString())
@@ -698,7 +676,7 @@ class TransactionFragment : Fragment() {
             val transactionOut = TransactionOut(
                 binding.transactionDate.text.toString(),
                 round(amountD * 100).toInt(),
-                CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString()),
+                CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString()),
                 binding.where.text.toString().trim(),
                 binding.note.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
@@ -737,7 +715,7 @@ class TransactionFragment : Fragment() {
             val transactionOut = TransactionOut(
                 binding.transactionDate.text.toString(),
                 round(amountD * 100).toInt(),
-                CategoryViewModel.getID(radioButton.text.toString(), subcategorySpinner.selectedItem.toString()),
+                CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString()),
                 binding.where.text.toString().trim(),
                 binding.note.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),

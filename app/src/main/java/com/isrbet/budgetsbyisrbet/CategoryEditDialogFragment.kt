@@ -298,7 +298,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 if (binding.switchEnterBudget.isChecked) {
                     val action =
                         SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()
-                    action.categoryID = cat.id.toString()
+                    action.categoryID = cat.id
                     Timber.tag("Alex").d("Calling budget fragment with id ${action.categoryID}")
                     findNavController().navigate(action)
                 }
@@ -380,14 +380,14 @@ class CategoryEditDialogFragment : DialogFragment() {
         }
         binding.messageBudget.setOnClickListener {
             val action = SettingsTabsFragmentDirections.actionSettingsTabsFragmentToBudgetViewAllFragment()
-            action.categoryID = oldCategoryID.toString()
+            action.categoryID = oldCategoryID
             dismiss()
             findNavController().navigate(action)
         }
         binding.messageTransaction.setOnClickListener {
             val action =
                 SettingsTabsFragmentDirections.actionSettingsTabFragmentToTransactionViewAllFragment()
-            action.categoryID = oldCategoryID.toString()
+            action.categoryID = oldCategoryID
             dismiss()
             findNavController().navigate(action)
         }

@@ -179,6 +179,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/subcategory"
+                    android:paddingEnd="5dp"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:tooltipText="@string/toolTipSubCategory" />
@@ -187,17 +188,14 @@
                     android:id="@+id/inputSpinnerRelativeLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
                     android:background="@drawable/spinner_background"
                     android:orientation="horizontal">
 
                     <Spinner
-                        android:id="@+id/inputSubcategorySpinner"
+                        android:id="@+id/subcategorySpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_marginStart="5dp"
                         android:background="@android:color/transparent"
                         android:gravity="end"
                         android:spinnerMode="dropdown" />

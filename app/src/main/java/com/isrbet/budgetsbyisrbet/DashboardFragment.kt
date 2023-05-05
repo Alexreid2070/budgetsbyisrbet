@@ -290,18 +290,11 @@ class DashboardFragment : Fragment() {
         grandActualTotal += lastCategoryActualTotal
         createViewRow(cGRANDTOTAL, i, 0, getString(R.string.grand_total), "", "", grandBudgetTotal, grandActualTotal)
         val run = Runnable {
-            val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as TableRow
-            val tableDashboardRow = binding.tableDashboardRows.getChildAt(0) as TableRow
+            val tableHeaderRow = binding.tableHeaderRow.getChildAt(0) as DashboardTableRow
+            val tableDashboardRow = binding.tableDashboardRows.getChildAt(0) as DashboardTableRow
             tableHeaderRow.getChildAt(1).layoutParams = TableRow.LayoutParams(
                 tableDashboardRow.getChildAt(1).measuredWidth,
                 tableHeaderRow.getChildAt(1).measuredHeight)
-/*            for (ind in 0 until 3) {
-                Timber.tag("Alex").d("$ind ${tableHeaderRow.getChildAt(ind).measuredWidth} ${tableDashboardRow.getChildAt(ind).measuredWidth}")
-                tableHeaderRow.getChildAt(ind).layoutParams = TableRow.LayoutParams(
-                    tableDashboardRow.getChildAt(ind).measuredWidth,
-                    tableHeaderRow.getChildAt(ind).measuredHeight
-                )
-            } */
         }
         binding.tableDashboardRows.post(run)
     }
@@ -341,7 +334,7 @@ class DashboardFragment : Fragment() {
                 tv1.text = String.format("${tv1.text.substring(0,15)}...")
             }
         }
-        tv1.tag = getString(R.string.expanded)
+//        tv1.tag = getString(R.string.expanded)
         val tv2 = TextView(requireContext())
         tv2.layoutParams = TableRow.LayoutParams(
             TableRow.LayoutParams.WRAP_CONTENT,
@@ -387,7 +380,7 @@ class DashboardFragment : Fragment() {
                     DefaultsViewModel.getDefaultRoundDashboard()
                 )
         }
-        tv3.tag = iCategoryID
+//        tv3.tag = iCategoryID
 
         val tv4 = TextView(requireContext())
         if (iRowType == cHEADER) {
@@ -413,7 +406,7 @@ class DashboardFragment : Fragment() {
                 DefaultsViewModel.getDefaultRoundDashboard()
             )
         }
-        tv4.tag = iCategoryID
+//        tv4.tag = iCategoryID
 
         val tv5 = TextView(requireContext())
         if (iRowType == cHEADER) {
@@ -454,9 +447,9 @@ class DashboardFragment : Fragment() {
                 }
         }
         // add table row
-        val tr = TableRow(requireContext())
+        val tr = DashboardTableRow(requireContext(), iRowType, true, iCategoryID, iCategory)
         tr.id = iRowNo + 1
-        tr.tag = iRowType
+//        tr.tag = iRowType
         val trParams = TableLayout.LayoutParams(
             TableLayout.LayoutParams.MATCH_PARENT,
             TableLayout.LayoutParams.WRAP_CONTENT
@@ -576,7 +569,8 @@ class DashboardFragment : Fragment() {
         tr.addView(tv4)
         tr.addView(tv5)
         if (isInvisible(iCategory)) {
-            tv1.tag = getString(R.string.collapsed)
+            tr.isExpanded = false
+//            tv1.tag = getString(R.string.collapsed)
             if (iRowType == cDETAIL) {
                 tr.visibility = View.GONE
             }  else if (iRowType == cSUBTOTAL) {
@@ -587,19 +581,31 @@ class DashboardFragment : Fragment() {
             tr.visibility = View.VISIBLE
 
         if (iRowType != cHEADER && iRowType != cSUBTOTAL && iRowType != cGRANDTOTAL) {
+            tv1.setOnClickListener {
+                // go to Tracker Line Graph
+                val myParent = (it as TextView).parent as DashboardTableRow
+                val action =
+                    DashboardTabsFragmentDirections.actionDashboardTabsFragmentToTrackerTabsFragment()
+                Timber.tag("Alex").d("Sending ${myParent.categoryID} to TrackerTAbs")
+                action.categoryID = myParent.categoryID
+                action.targetTab = 2
+                view?.findNavController()?.navigate(action)
+            }
             tv4.setOnClickListener {
-                val catID = it.tag.toString()
+//                val catID = it.tag.toString()
                 // go to Budget
+                val myParent = (it as TextView).parent as DashboardTableRow
                 val action =
                     DashboardTabsFragmentDirections.actionDashboardTabsFragmentToSettingsTabsFragment()
                 action.targetTab = 2
-                action.categoryID = catID
+                action.categoryID = myParent.categoryID
                 view?.findNavController()?.navigate(action)
             }
 
             tv3.setOnClickListener {
-                val catID = it.tag.toString().toInt()
-                val cat = CategoryViewModel.getCategory(catID)
+//                val catID = it.tag.toString().toInt()
+                val myParent = (it as TextView).parent as DashboardTableRow
+                val cat = CategoryViewModel.getCategory(myParent.categoryID)
                 // go to ViewAll with the SubCategory as the search term
                 MyApplication.transactionSearchText = cat?.categoryName + " " + cat?.subcategoryName
                 if (DefaultsViewModel.getDefaultViewPeriodDashboard() == cPeriodMonth ||
@@ -613,18 +619,21 @@ class DashboardFragment : Fragment() {
             }
         } else if (iRowType == cSUBTOTAL) {
             tr.setOnClickListener {
-                val tableRow = it as TableRow
+                val tableRow = it as DashboardTableRow
                 val ttv1 = tableRow.getChildAt(1) as TextView
                 var tmpCat = ttv1.text.toString().replace(getString(R.string.total),"")
                 tmpCat = tmpCat.replace("...","")
                 tmpCat = tmpCat.trim()
-                if (ttv1.tag.toString() == getString(R.string.collapsed) ) {
-                    ttv1.tag = getString(R.string.expanded)
+                if (!tr.isExpanded) {
+//                if (ttv1.tag.toString() == getString(R.string.collapsed) ) {
+//                    ttv1.tag = getString(R.string.expanded)
+                    tr.isExpanded = true
                     ttv1.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.ic_baseline_expand_less_24, 0, 0, 0)
                     refreshRows(tmpCat, View.VISIBLE)
                 } else {
-                    ttv1.tag = getString(R.string.collapsed)
+//                    ttv1.tag = getString(R.string.collapsed)
+                    tr.isExpanded = false
                     ttv1.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.ic_baseline_expand_more_24, 0, 0, 0)
                     refreshRows(tmpCat, View.GONE)
@@ -660,29 +669,29 @@ class DashboardFragment : Fragment() {
         var firstDetailLine: Int
         var lastDetailLine = 0
         mTableLayout = binding.tableDashboardRows
-        var tableRow: TableRow?
+        var tableRow: DashboardTableRow?
         do {
             lastDetailLine += 1
-            tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
+            tableRow = mTableLayout!!.getChildAt(lastDetailLine) as DashboardTableRow
             val catTV = tableRow.getChildAt(0) as TextView
             val cat = catTV.text.toString()
-        } while (tableRow != null && !(tableRow.tag == cSUBTOTAL && cat == iCategory))
+        } while (tableRow != null && !(tableRow.rowType == cSUBTOTAL && cat == iCategory))
         if (tableRow == null) // no detail rows found
             return
         // found sub-total row, now work backwards
         lastDetailLine -= 1
-        tableRow = mTableLayout!!.getChildAt(lastDetailLine) as TableRow
-        if (tableRow.tag != cDETAIL)  // ie no details for this category
+        tableRow = mTableLayout!!.getChildAt(lastDetailLine) as DashboardTableRow
+        if (tableRow.rowType != cDETAIL)  // ie no details for this category
             return
         firstDetailLine = lastDetailLine
         do {
             firstDetailLine -= 1
-            tableRow = mTableLayout!!.getChildAt(firstDetailLine) as TableRow
-        } while (tableRow != null && tableRow.tag == cDETAIL)
+            tableRow = mTableLayout!!.getChildAt(firstDetailLine) as DashboardTableRow
+        } while (tableRow != null && tableRow.rowType == cDETAIL)
         firstDetailLine += 1
         // now check if section should be expanded or collapsed
         for (i in firstDetailLine..lastDetailLine) {
-            tableRow = mTableLayout!!.getChildAt(i) as TableRow
+            tableRow = mTableLayout!!.getChildAt(i) as DashboardTableRow
             tableRow.visibility = iVisibility
         }
         if (iVisibility == View.VISIBLE)
@@ -902,4 +911,11 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
         mGestureDetector = GestureDetector(context, YScrollDetector())
         setFadingEdgeLength(0)
     }
+}
+
+class DashboardTableRow(iContext: Context,
+                        var rowType: Int,
+                        var isExpanded: Boolean,
+                        var categoryID: Int,
+                        var categoryName: String): TableRow(iContext) {
 }

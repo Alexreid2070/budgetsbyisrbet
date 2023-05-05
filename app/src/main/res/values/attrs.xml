@@ -7,4 +7,5 @@
     <attr name="pageHeadingFontColor" format="color"/>
     <attr name="pageHeadingBackgroundColor" format="color"/>
     <attr name="buttonBackgroundColor" format="color"/>
+    <attr name="budgetLineGraphColor" format="color"/>
 </resources>

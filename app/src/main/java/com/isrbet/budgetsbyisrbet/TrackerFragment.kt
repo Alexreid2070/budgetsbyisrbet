@@ -13,7 +13,6 @@ import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.github.mikephil.charting.animation.Easing
@@ -291,6 +290,10 @@ class TrackerFragment : Fragment(), CoroutineScope {
             hideBarChart()
             binding.chartSummaryText.visibility = View.VISIBLE
             binding.chartSummaryText.text = getString(R.string.no_tracker_data)
+            binding.chartSummaryText.setOnClickListener {
+                view?.findNavController()?.navigate(R.id.TrackerTabsFragment)
+            }
+
         }
     }
 
@@ -376,9 +379,9 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         val action =
                             TrackerTabsFragmentDirections.actionTrackerTabsFragmentToSettingsTabsFragment()
                         action.targetTab = 2
-                        action.year = currentBudgetMonth.getYear().toString()
+                        action.year = currentBudgetMonth.getYear()
                         if (!currentBudgetMonth.representsYear)
-                            action.month = currentBudgetMonth.getMonth().toString()
+                            action.month = currentBudgetMonth.getMonth()
                         findNavController().navigate(action)
                     }
                     1F -> {
@@ -386,11 +389,11 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         val action =
                             TrackerTabsFragmentDirections.actionTrackerTabsFragmentToSettingsTabsFragment()
                         action.targetTab = 2
-                        action.year = currentBudgetMonth.getYear().toString()
+                        action.year = currentBudgetMonth.getYear()
                         if (!currentBudgetMonth.representsYear)
-                            action.month = currentBudgetMonth.getMonth().toString()
+                            action.month = currentBudgetMonth.getMonth()
                         else {
-                            action.month = (gCurrentDate.getMonth()).toString()
+                            action.month = (gCurrentDate.getMonth())
                         }
                         findNavController().navigate(action)
                     }
@@ -679,7 +682,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
         }
 
         val catActuals = TransactionViewModel.getCategoryActuals(currentBudgetMonth, viewPeriod, discFilter, whoFilter)
-        Timber.tag("Alex").d("cat totals size ${catActuals.size}")
         val pieEntries: ArrayList<PieEntry> = ArrayList()
 
         //initializing colors for the entries
@@ -842,11 +844,11 @@ class TrackerFragment : Fragment(), CoroutineScope {
                         currentCategory = catName.toString()
                         loadPieChart(currentCategory)
                     } else { // ie clicking into subcategory
-                        val catID = catName?.let { CategoryViewModel.getID(currentCategory, it) }
                         val action =
                             TrackerTabsFragmentDirections.actionTrackerTabsFragmentToSettingsTabsFragment()
                         action.targetTab = 2
-                        action.categoryID = catID.toString()
+                        action.categoryID =
+                            catName?.let { CategoryViewModel.getID(currentCategory, it) } ?: 0
                         findNavController().navigate(action)
                     }
                 }

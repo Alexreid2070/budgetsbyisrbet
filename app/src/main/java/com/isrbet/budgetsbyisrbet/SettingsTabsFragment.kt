@@ -29,9 +29,9 @@ class SettingsTabsFragment : Fragment() {
         adapter.addFragment(CategoryFragment(), "Categories")
         val budFra = BudgetViewAllFragment().apply {
             arguments = Bundle().apply {
-                putString("categoryID", args.categoryID)
-                putString("year", args.year)
-                putString("month", args.month)
+                putInt("categoryID", args.categoryID)
+                putInt("year", args.year)
+                putInt("month", args.month)
             }
         }
         adapter.addFragment(budFra, "Budgets")

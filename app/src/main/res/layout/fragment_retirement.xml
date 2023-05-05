@@ -285,7 +285,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/ending_net_worth"
+                    android:text="@string/net_worth"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 

@@ -49,7 +49,7 @@ class BudgetViewAllFragment : Fragment() {
 
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        if (args.categoryID == "") {
+        if (args.categoryID == 0) {
             when (DefaultsViewModel.getDefaultBudgetView()) {
                 cBudgetDateView -> binding.buttonViewByDate.isChecked = true
                 cBudgetCategoryView -> binding.buttonViewByCategory.isChecked = true
@@ -108,7 +108,7 @@ class BudgetViewAllFragment : Fragment() {
             val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
             val action =
                 SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()
-            action.categoryID = currentCategory.id.toString()
+            action.categoryID = currentCategory.id
             findNavController().navigate(action)
         }
         updateFabVisibility()
@@ -163,10 +163,10 @@ class BudgetViewAllFragment : Fragment() {
         binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.budgetCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
 
-        if (args.categoryID != "") {
+        if (args.categoryID != 0) {
             categorySpinner.setSelection(
                 arrayAdapter.getPosition(
-                    CategoryViewModel.getCategory(args.categoryID.toInt())?.fullCategoryName()
+                    CategoryViewModel.getCategory(args.categoryID)?.fullCategoryName()
                 )
             )
         }
@@ -176,10 +176,10 @@ class BudgetViewAllFragment : Fragment() {
         binding.budgetCategorySpinnerLayout.visibility = View.GONE
         binding.categoryTypeLayout.visibility = View.GONE
         binding.yearLayout.visibility = View.VISIBLE
-        if (args.year == "") {
+        if (args.year == 0) {
             binding.dateLabel.text = currentMonth.getMMMYYYY()
         } else {
-            val tDate = MyDate(args.year.toInt(), args.month.toInt(), 1)
+            val tDate = MyDate(args.year, args.month, 1)
             binding.dateLabel.text = tDate.getMMMYYYY()
         }
         binding.rowBudgetIsSingleHeading.visibility = View.GONE

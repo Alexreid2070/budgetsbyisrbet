@@ -216,6 +216,23 @@ class BudgetViewModel : ViewModel() {
             return  tList
         }
 
+        fun getCategoryBudgetsForEveryMonth(iCategoryID: Int, iWho: Int) : ArrayList<Double> {
+            val tList: ArrayList<Double> = arrayListOf()
+            var year = TransactionViewModel.getEarliestYear()
+            for (month in TransactionViewModel.getEarliestMonth() until 13) {
+                tList.add(getCalculatedBudgetAmount(MyDate(year, month, 1), iCategoryID, iWho))
+            }
+            for (tYear in TransactionViewModel.getEarliestYear() + 1 until gCurrentDate.getYear()) {
+                for (month in 1 until 13) {
+                    tList.add(getCalculatedBudgetAmount(MyDate(tYear, month, 1), iCategoryID, iWho))
+                }
+            }
+            year = gCurrentDate.getYear()
+            for (month in 1 until gCurrentDate.getMonth() + 1) {
+                tList.add(getCalculatedBudgetAmount(MyDate(year, month, 1), iCategoryID, iWho))
+            }
+            return tList
+        }
         fun getCalculatedBudgetAmount(iPeriod: DateRangeEnum, iBudgetMonth: MyDate, iCategoryID: Int, iWhoToLookup: Int): Double {
             var tBudgetAmount = 0.0
             if (iPeriod == DateRangeEnum.ALLTIME) {

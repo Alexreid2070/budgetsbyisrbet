@@ -8,9 +8,9 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
@@ -23,8 +23,8 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.l4digital.fastscroll.FastScrollRecyclerView
-import timber.log.Timber
 import java.util.*
+
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -179,22 +179,16 @@ class TransactionViewAllFragment : Fragment() {
         binding.selectDateRange.setOnClickListener {
             selectDateRangeFilter()
         }
+
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
+            override fun onQueryTextSubmit(newText: String?): Boolean {
+                submitSearch(newText)
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val ladapter: TransactionRecyclerAdapter =
-                    recyclerView.adapter as TransactionRecyclerAdapter
-                ladapter.filter.filter(newText)
-                if (newText != "") {
-                    binding.totalLayout.visibility = View.VISIBLE
-                    transactionSearchText = newText.toString()
-                    binding.transactionSearch.visibility = View.VISIBLE
-                }
-                transactionSearchText = newText.toString()
-                return true
+                submitSearch(newText)
+                return false
             }
         })
 
@@ -522,8 +516,8 @@ class TransactionViewAllFragment : Fragment() {
             runFilters()
         } else {
             setViewsToDefault()
-            if (args.categoryID != "") {
-                setCategoryFilter(args.categoryID.toInt())
+            if (args.categoryID != 0) {
+                setCategoryFilter(args.categoryID)
             }
         }
         binding.showIndividualAmountsColumns.setOnCheckedChangeListener { _, _ ->
@@ -747,6 +741,17 @@ class TransactionViewAllFragment : Fragment() {
         setFilterTitle()
     }
 
+    private fun submitSearch(newText: String?) {
+        val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
+        val ladapter: TransactionRecyclerAdapter =
+            recyclerView.adapter as TransactionRecyclerAdapter
+        ladapter.filter.filter(newText)
+        if (newText != "") {
+            binding.totalLayout.visibility = View.VISIBLE
+            binding.transactionSearch.visibility = View.VISIBLE
+        }
+        transactionSearchText = newText.toString()
+    }
     private fun reset() {
         resetFilters()
         filterMode = ""
@@ -776,7 +781,6 @@ class TransactionViewAllFragment : Fragment() {
             binding.filterText.text = String.format(getString(R.string.scheduled_payment_filter_is_on), filters.prevRTKeyFilter)
         } else {
             var tempString = ""
-            Timber.tag("Alex").d("prevCategoryFilter is ${filters.prevCategoryFilter}")
             if (filters.prevCategoryFilter != "") {
                 tempString += " ${filters.prevCategoryFilter}"
             }
@@ -800,7 +804,6 @@ class TransactionViewAllFragment : Fragment() {
             }
 
             if (tempString == "") {
-                Timber.tag("Alex").d("tempstring is blank")
                 binding.filterLayout.visibility = View.GONE
                 binding.filterText.text = ""
             } else {
@@ -1104,8 +1107,8 @@ class TransactionViewAllFragment : Fragment() {
         datePicker.addOnPositiveButtonClickListener {
             val dateformatYYYYMMDD = SimpleDateFormat("yyyy-MM-dd")
             dateformatYYYYMMDD.timeZone = TimeZone.getTimeZone("UTC")
-            var startDate: StringBuilder? = StringBuilder(dateformatYYYYMMDD.format(it.first))
-            var endDate: StringBuilder? = StringBuilder(dateformatYYYYMMDD.format(it.second))
+            val startDate: StringBuilder = StringBuilder(dateformatYYYYMMDD.format(it.first))
+            val endDate: StringBuilder = StringBuilder(dateformatYYYYMMDD.format(it.second))
             filters.dateRangeFilter = Pair(startDate.toString(), endDate.toString())
 
             binding.totalLayout.visibility = View.VISIBLE

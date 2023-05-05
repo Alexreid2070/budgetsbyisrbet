@@ -362,6 +362,9 @@ data class MyDate(var representsYear: Boolean = false) {
     fun getYYYYMM(): String {
         return "%04d-%02d".format(theDate.year, theDate.monthValue)
     }
+    fun getMMMYY(): String {
+        return "${getMonthName().substring(0,3)} ${getYear()}"
+    }
     fun getMMMDD(): String {
         return "${gShortMonthName(theDate.monthValue)} %d".format(theDate.dayOfMonth)
     }

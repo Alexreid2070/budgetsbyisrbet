@@ -71,9 +71,9 @@ class TranslationAdapter (context: Context, data: MutableList<Translation>,
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                filterTheList(charSearch)
+
                 val filterResults = FilterResults()
-                filterResults.values = filteredList
+                filterResults.values = filterTheList(charSearch)
                 return filterResults
             }
 
@@ -84,11 +84,11 @@ class TranslationAdapter (context: Context, data: MutableList<Translation>,
             }
         }
     }
-    fun filterTheList(iConstraint: String) {
+    fun filterTheList(iConstraint: String) : MutableList<Translation>{
+        var resultList: MutableList<Translation> = mutableListOf()
         if (iConstraint.isEmpty()) {
-            filteredList = myData
+            resultList = myData
         } else {
-            val resultList: MutableList<Translation> = mutableListOf()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
             for (row in myData) {
                 var found = true
@@ -99,7 +99,7 @@ class TranslationAdapter (context: Context, data: MutableList<Translation>,
                     resultList.add(row)
                 }
             }
-            filteredList = resultList
         }
+        return resultList
     }
 }

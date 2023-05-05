@@ -14,7 +14,6 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -51,7 +50,8 @@ class TransactionRecyclerAdapter(
         typeFilter = filters.prevTypeFilter
         rtKeyFilter = filters.prevRTKeyFilter
         dateRangeFilter = filters.dateRangeFilter
-        filterTheList(MyApplication.transactionSearchText)
+        filteredList = filterTheList(MyApplication.transactionSearchText)
+        setGroupList()
         currentTotal = getTotal()
         sortBy(iSortOrder)
     }
@@ -64,7 +64,7 @@ class TransactionRecyclerAdapter(
     }
     fun reset(iList: MutableList<Transaction>) {
         list = iList
-        filterTheList("")
+        filteredList = iList
     }
     fun sortBy(iSortOrder: TransactionSortOrder) {
         currentSortOrder = iSortOrder
@@ -93,16 +93,22 @@ class TransactionRecyclerAdapter(
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                filterTheList(charSearch)
                 val filterResults = FilterResults()
-                filterResults.values = filteredList
+                filterResults.values = filterTheList(charSearch)
                 currentTotal = getTotal()
                 return filterResults
             }
 
             @SuppressLint("NotifyDataSetChanged")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredList = results?.values as MutableList<Transaction>
+                if (results == null) {
+                    filteredList = list
+                } else if (results.values == null) {
+                    filteredList = arrayListOf()
+                } else {
+                    filteredList = results.values as MutableList<Transaction>
+                }
+                setGroupList()
                 notifyDataSetChanged()
             }
         }
@@ -118,7 +124,8 @@ class TransactionRecyclerAdapter(
     }
 
     // this version is used by search
-    fun filterTheList(iConstraint: String) {
+    fun filterTheList(iConstraint: String) : MutableList<Transaction> {
+        var resultList: MutableList<Transaction> = mutableListOf()
         if (iConstraint.isEmpty() && categoryIDFilter == 0 &&
             categoryFilter == "" && subcategoryFilter == "" &&
             discretionaryFilter == "" && paidbyFilter == -1 &&
@@ -126,9 +133,8 @@ class TransactionRecyclerAdapter(
             dateRangeFilter.first == "" &&
             !inAccountingMode() && !inScheduledPaymentMode()
         ) {
-            filteredList = list
+            resultList = list
         } else {
-            val resultList: MutableList<Transaction> = mutableListOf()
             val splitSearchTerms: List<String> = iConstraint.split(" ")
             var subcatDiscIndicator = ""
             for (row in list) {
@@ -169,10 +175,9 @@ class TransactionRecyclerAdapter(
                     resultList.add(row)
                 }
             }
-            filteredList = resultList
         }
-        setGroupList()
         currentTotal = getTotal()
+        return resultList
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -375,7 +380,6 @@ class TransactionRecyclerAdapter(
     }
 
     private fun setGroupList() {
-
         val tgroupList: MutableList<Int> = mutableListOf()
         tgroupList.clear()
         val trunningTotalList: MutableList<Double> = mutableListOf()

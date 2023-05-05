@@ -234,7 +234,7 @@ class TransactionViewModel : ViewModel() {
                     .setValue("NorthbridgeCondo")
             }
             tList = singleInstance.transactions.filter { (it.rtkey == "") && it.type == "Recurring"}
-            var myData: MutableList<String> = arrayListOf()
+            val myData: MutableList<String> = arrayListOf()
             tList.forEach{
                 if (!myData.contains(it.note))
                     myData.add(it.note)
@@ -243,7 +243,7 @@ class TransactionViewModel : ViewModel() {
         }
         fun doSomething3() {
             val tList = singleInstance.transactions.filter { (it.rtkey == "") && it.type == "Recurring"}
-            var myData: MutableList<String> = arrayListOf()
+            val myData: MutableList<String> = arrayListOf()
             tList.forEach{
                 if (!myData.contains(it.note))
                     myData.add(it.note)
@@ -316,6 +316,58 @@ class TransactionViewModel : ViewModel() {
             return (tmpTotal * 100.0).roundToInt() / 100.0
         }
 
+        fun getDateRange() : ArrayList<MyDate> {
+            val tList: ArrayList<MyDate> = arrayListOf()
+            var year = getEarliestYear()
+            for (month in getEarliestMonth() until 13) {
+                tList.add(MyDate(year, month, 1))
+            }
+            for (tYear in getEarliestYear() + 1 until gCurrentDate.getYear()) {
+                for (month in 1 until 13) {
+                    tList.add(MyDate(tYear, month, 1))
+                }
+            }
+            year = gCurrentDate.getYear()
+            for (month in 1 until gCurrentDate.getMonth() + 1) {
+                tList.add(MyDate(year, month, 1))
+            }
+            return tList
+        }
+        fun getCategoryActualsForEveryMonth(iCategoryID: Int, iWho: Int) : ArrayList<Double> {
+            val startYear = getEarliestYear()
+            val endYear = gCurrentDate.getYear()
+            val tList: ArrayList<Double> = arrayListOf()
+
+            for (year in startYear until endYear +1) {
+                val actualRow0 = if (iWho == 0 || iWho == 2) singleInstance.actualsSummary.find {
+                    it.categoryID == iCategoryID &&
+                            it.year == year &&
+                            it.who == 0
+                }
+                else null
+                val actualRow1 = if (iWho == 1 || iWho == 2) singleInstance.actualsSummary.find {
+                    it.categoryID == iCategoryID &&
+                            it.year == year &&
+                            it.who == 1
+                }
+                else null
+                val firstMonth = if (year == startYear) getEarliestMonth() - 1 else 0
+                val lastMonth = if (year == endYear) gCurrentDate.getMonth()
+                else 12
+
+                for (m in firstMonth until lastMonth) {
+                    var tempTotal = 0.0
+                    if (actualRow0 != null) {
+                        tempTotal += actualRow0.amounts[m]
+                    }
+                    if (actualRow1 != null) {
+                        tempTotal += actualRow1.amounts[m]
+                    }
+                    tList.add(tempTotal)
+                }
+            }
+            return tList
+        }
         fun getCategoryActuals(iMonth: MyDate, iPeriod: DateRangeEnum,
                                iDiscFlag: String, iWhoFlag: Int) : ArrayList<DataObject> {
             val tList: ArrayList<DataObject> = ArrayList()
@@ -678,18 +730,29 @@ class TransactionViewModel : ViewModel() {
                 gCurrentDate.getMonth()
             } else singleInstance.transactions[0].date.getMonth()
         }
+        fun getEarliestDate() : MyDate {
+            // since we know that this table is sorted on date, we simply return the first date
+            return if (singleInstance.transactions.size == 0) {
+                gCurrentDate
+            } else singleInstance.transactions[0].date
+        }
         fun getLatestYear() : Int {
             // since we know that this table is sorted on date, we simply return the last date
             return if (singleInstance.transactions.size == 0) {
                 gCurrentDate.getYear()
             } else singleInstance.transactions[singleInstance.transactions.size-1].date.getYear()
         }
-/*        fun getLatestMonth() : Int {
+        private fun getLatestMonth() : Int {
             // since we know that this table is sorted on date, we simply return the last date
             return if (singleInstance.transactions.size == 0) {
                 gCurrentDate.getMonth()
             } else singleInstance.transactions[singleInstance.transactions.size-1].date.getMonth()
-        } */
+        }
+        fun getLatestDate() : MyDate {
+            return if (singleInstance.transactions.size == 0) {
+                gCurrentDate
+            } else singleInstance.transactions[singleInstance.transactions.size-1].date
+        }
 private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAdjustment: Double) {
             val actualRow = singleInstance.actualsSummary.find {
                 it.categoryID == iCategoryID &&

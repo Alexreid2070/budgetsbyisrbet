@@ -138,7 +138,7 @@ class BudgetFragment : Fragment() {
         var somethingChecked = false
         for (i in 0 until binding.budgetAddCategoryRadioGroup.childCount) {
             val o = binding.budgetAddCategoryRadioGroup.getChildAt(i)
-            if (o is RadioButton && o.text == CategoryViewModel.getCategory(args.categoryID.toInt())?.categoryName) {
+            if (o is RadioButton && o.text == CategoryViewModel.getCategory(args.categoryID)?.categoryName) {
                 o.isChecked = true
                 somethingChecked = true
                 addSubCategories(o.text.toString())
@@ -157,8 +157,8 @@ class BudgetFragment : Fragment() {
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getSubcategoriesForSpinner(iCategory))
         binding.budgetAddSubCategorySpinner.adapter = arrayAdapter
         arrayAdapter.notifyDataSetChanged()
-        if (args.categoryID != "")
-            binding.budgetAddSubCategorySpinner.setSelection(arrayAdapter.getPosition(CategoryViewModel.getCategory(args.categoryID.toInt())?.subcategoryName))
+        if (args.categoryID != 0)
+            binding.budgetAddSubCategorySpinner.setSelection(arrayAdapter.getPosition(CategoryViewModel.getCategory(args.categoryID)?.subcategoryName))
     }
 
     private fun loadSpenderRadioButtons() {

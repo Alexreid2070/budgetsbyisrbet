@@ -196,11 +196,21 @@ class CategoryViewModel : ViewModel() {
             }
             return list
         }
-        fun getSubcategoriesForSpinner(iCategory: String, iSubCategory: String = "") : MutableList<String> {
+        fun getCategoriesForSpinner() : MutableList<String> {
+            val list : MutableList<String> = ArrayList()
+            singleInstance.categories.forEach {
+                if (it.iAmAllowedToSeeThisCategory() && !list.contains(it.categoryName)) {
+                    list.add(it.categoryName)
+                }
+            }
+            return list
+        }
+        fun getSubcategoriesForSpinner(iCategory: String, iSubCategory: String = "", iIncludeNotInUse: Boolean = false) : MutableList<String> {
             val list : MutableList<String> = ArrayList()
             singleInstance.categories.forEach {
                 if (it.categoryName == iCategory && it.iAmAllowedToSeeThisCategory()) {
-                    if (it.inUse || it.subcategoryName == iSubCategory) {
+                    if ((it.inUse || iIncludeNotInUse)
+                        || it.subcategoryName == iSubCategory) {
                         list.add(it.subcategoryName)
                     }
                 }
@@ -245,6 +255,30 @@ class CategoryViewModel : ViewModel() {
                     DefaultsViewModel.deleteCategoryDetail(cat.categoryName)
                 }
             }
+        }
+
+        fun getNextCategory(iCurrentID: Int, iDirection: Int) : Category? {
+            if (singleInstance.categories.size == 0)
+                return null
+            else if (singleInstance.categories.size == 1)
+                return singleInstance.categories[0]
+
+            for (i in 0 until singleInstance.categories.size) {
+                if (singleInstance.categories[i].id == iCurrentID) {
+                    return if (iDirection == 1) {
+                        if (i == singleInstance.categories.size -1)
+                            singleInstance.categories[0]
+                        else
+                            singleInstance.categories[i+1]
+                    } else {
+                        if (i == 0)
+                            singleInstance.categories[singleInstance.categories.size-1]
+                        else
+                            singleInstance.categories[i-1]
+                    }
+                }
+            }
+            return null
         }
 
         fun refresh() {
