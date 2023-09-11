@@ -2,6 +2,7 @@ package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.graphics.Color
 import android.icu.text.NumberFormat
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
 
 class TransferFragment : Fragment() {
@@ -137,48 +139,16 @@ class TransferFragment : Fragment() {
                 (binding.toRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
             viewTransfer(args.transactionID)
-            binding.transferDate.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.light_gray
-                )
-            )
-            binding.transferAmount.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.light_gray
-                )
-            )
-            binding.transferNote.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.light_gray
-                )
-            )
-            binding.fromRadioGroup.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.light_gray
-                )
-            )
-            binding.toRadioGroup.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.light_gray
-                )
-            )
-            binding.entireInputAmountArea.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.white
-                )
-            )
-            binding.splitText.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray))
+            val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
+            binding.transferDate.setBackgroundColor(Color.parseColor(hexColor))
+            binding.transferAmount.setBackgroundColor(Color.parseColor(hexColor))
+            binding.transferNote.setBackgroundColor(Color.parseColor(hexColor))
+            binding.fromRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+            binding.toRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+            binding.splitText.setBackgroundColor(Color.parseColor(hexColor))
         }
         binding.transferAmount.requestFocus()
 
-//        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-//        binding.splitText.setBackgroundColor(Color.parseColor(hexColor))
         binding.toRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             val radioButton = requireActivity().findViewById(checkedId) as RadioButton
             when {

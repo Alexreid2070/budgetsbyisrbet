@@ -35,10 +35,6 @@ class CustomNotificationListenerService : NotificationListenerService() {
         }
 
         fun getTransactionFromNotificationAndDeleteIt() : TransactionDataFromTD? {
-            val tCategory: String
-            var tAmount: Double
-            val tNote: String
-
             if (cFAKING_TD)
                 return TransactionDataFromTD(123.45, "mty Valumart # 145", "Groceries")
 
@@ -48,52 +44,11 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notification = sbn.notification
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
-                        Timber.tag("Alex").d("notification text: $notificationText")
-                        val timeNow = LocalTime.now()
-                        val key = "%04d-%02d-%02d-%02d-%02d-%02d".format(gCurrentDate.getYear(),
-                                gCurrentDate.getMonth(),
-                                gCurrentDate.getDay(),
-                                timeNow.hour,
-                                timeNow.minute,
-                                timeNow.second)
-
-                        try {
-                            val dollarSign = notificationText.indexOf("$")
-                            val space = notificationText.indexOf(" ", dollarSign)
-                            val textAmount = notificationText.substring(dollarSign+1, space).trim()
-
-//                            textAmount = textAmount.replace(",","")
-//                            tAmount = gNumberFormat.parse(textAmount).toDouble()
-                            tAmount = textAmount.toDoubleOrNull()!!
-//                            tAmount = getDoubleValue(textAmount)
-                            val credited = notificationText.indexOf("credited")
-                            if (credited != -1) {
-                                Timber.tag("Alex").d("it's a credit!")
-                                tAmount *= -1
-                            }
-                            val space2 = notificationText.indexOf(" ", space + 1)
-                            val lbracket: Int
-                            if (space2 >= 0) {
-                                lbracket = notificationText.indexOf("[", space2)
-                                tNote = notificationText.substring(space2, lbracket).trim()
-                            } else {
-                                lbracket = notificationText.indexOf("[", space)
-                                tNote = "unknown"
-                            }
-                            val rbracket = notificationText.indexOf("]", lbracket + 1)
-                            tCategory = notificationText.substring(lbracket+1, rbracket).trim()
-                            singleInstance.cancelNotification(sbn.key)
-                            return TransactionDataFromTD(tAmount, tNote, tCategory)
-                        }
-                        catch (exception: Exception) {
-                            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TDMySpend_Failure")
-                                .child(key).setValue(notificationText)
-                            return null
-                        }
+                        return decipherTDMySpendNotification(notificationText)
                     }
                 }
             }
-            return TransactionDataFromTD(0.0, "", "")
+            return null
         }
 
 /*        fun releaseResources() {
@@ -141,4 +96,76 @@ class CustomNotificationListenerService : NotificationListenerService() {
             Timber.tag("Alex").d("No active Notn found")
         }
    } */
+}
+
+fun decipherTDMySpendNotification (notificationText: String) : TransactionDataFromTD? {
+    var tCategory = ""
+    var tAmount = 0.0
+    var tNote = ""
+
+    val timeNow = LocalTime.now()
+    val key = "%04d-%02d-%02d-%02d-%02d-%02d".format(gCurrentDate.getYear(),
+        gCurrentDate.getMonth(),
+        gCurrentDate.getDay(),
+        timeNow.hour,
+        timeNow.minute,
+        timeNow.second)
+
+    try {
+        var credit = false
+        var startAt = 0
+        val inFrench = notificationText.indexOf(" $ ") != -1
+
+        if (notificationText.substring(0,10) == "Credit of ") {
+            credit = true
+            startAt = 10
+        } else if (notificationText.substring(0,10) == "Crédit de ") {
+            credit = true
+            startAt = 10
+        }
+        if (!inFrench)
+            startAt += 1
+
+        var endOfNumber : Int
+        var textAmount : String
+
+        if (inFrench) {
+            endOfNumber = notificationText.indexOf("$", startAt)
+            textAmount = notificationText.substring(startAt, endOfNumber).trim()
+            textAmount = textAmount.replace(" ", "")
+            textAmount = textAmount.replace(",", ".")
+        } else { // English
+            endOfNumber = notificationText.indexOf(" ", startAt)
+            textAmount = notificationText.substring(startAt, endOfNumber).trim()
+            textAmount = textAmount.replace(",", "")
+        }
+        tAmount = textAmount.toDoubleOrNull()!!
+
+        if (credit)
+            tAmount *= -1
+
+        val space2 = notificationText.indexOf(" ", endOfNumber + 1)
+        var lbracket: Int
+        if (space2 >= 0)
+        {
+            lbracket = notificationText.indexOf("[", space2)
+            if (lbracket == -1)
+                lbracket = notificationText.length
+            tNote = notificationText.substring(space2, lbracket).trim()
+        } else
+        {
+            lbracket = notificationText.indexOf("[", endOfNumber)
+            tNote = "unknown"
+        }
+
+        val rbracket = notificationText.indexOf("]", lbracket + 1)
+        if (lbracket != -1 && rbracket != -1)
+            tCategory = notificationText.substring(lbracket + 1, rbracket).trim()
+    }
+    catch (exception: Exception) {
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/TDMySpend_Failure")
+            .child(key).setValue(notificationText)
+        return null
+    }
+    return TransactionDataFromTD(tAmount, tNote, tCategory)
 }

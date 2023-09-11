@@ -271,7 +271,7 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cJOINT_NAME][cJOINT_NAME+1] != 0.0 && !jointIsAsExpected) {
             buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                getString(R.string.joint) + " (" + SpenderViewModel.getSpenderName(1) + ")",
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
                 totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1), cellIndex)
             cellIndex += 2
             subtotal += totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)
@@ -327,7 +327,7 @@ class AccountingFragment : Fragment() {
         }
         if (totals[cJOINT_NAME][cJOINT_NAME] != 0.0 && !jointIsAsExpected) {
             buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                getString(R.string.joint) + " ("+SpenderViewModel.getSpenderName(0)+")",
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0), cellIndex)
             cellIndex += 2
             subtotal2 += totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)
@@ -387,7 +387,9 @@ class AccountingFragment : Fragment() {
         paramsA.rowSpec = GridLayout.spec(iCellIndex / 2, GridLayout.CENTER)
         paramsA.columnSpec = GridLayout.spec(iCellIndex % 2 + 1, GridLayout.RIGHT)
         val titleText = TextView(context)
+        titleText.textSize = 12f
         val amountText = TextView(context)
+        amountText.textSize = 13f
         when (iTransfer) {
             cTRANSACTION_TYPE_TRANSFER -> titleText.text = String.format(getString(R.string.transferred_to), iName1, iName2)
             getString(R.string.sub_total) -> {

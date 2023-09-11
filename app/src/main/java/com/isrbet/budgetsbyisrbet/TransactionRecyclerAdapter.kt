@@ -50,9 +50,7 @@ class TransactionRecyclerAdapter(
         typeFilter = filters.prevTypeFilter
         rtKeyFilter = filters.prevRTKeyFilter
         dateRangeFilter = filters.dateRangeFilter
-        filteredList = filterTheList(MyApplication.transactionSearchText)
-        setGroupList()
-        currentTotal = getTotal()
+        filterTheList(MyApplication.transactionSearchText, false)
         sortBy(iSortOrder)
     }
 
@@ -88,27 +86,26 @@ class TransactionRecyclerAdapter(
     override fun getItemCount(): Int {
         return filteredList.size
     }
-
+// the below is called by Search
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
                 val filterResults = FilterResults()
-                filterResults.values = filterTheList(charSearch)
-                currentTotal = getTotal()
+                filterTheList(charSearch)
+                filterResults.values = filterResults
                 return filterResults
             }
 
             @SuppressLint("NotifyDataSetChanged")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                if (results == null) {
+/*                if (results == null) {
                     filteredList = list
                 } else if (results.values == null) {
                     filteredList = arrayListOf()
                 } else {
-                    filteredList = results.values as MutableList<Transaction>
-                }
-                setGroupList()
+//                    filteredList = results.values as MutableList<Transaction>
+                } */
                 notifyDataSetChanged()
             }
         }
@@ -117,14 +114,13 @@ class TransactionRecyclerAdapter(
     fun getTotal(): Double {
         var tTotal = 0.0
         filteredList.forEach {
-            if (it.type != cTRANSACTION_TYPE_TRANSFER)
+            if (it.type != cTRANSACTION_TYPE_TRANSFER || typeFilter == MyApplication.getString(R.string.transfer))
                 tTotal += it.amount
         }
         return tTotal
     }
 
-    // this version is used by search
-    fun filterTheList(iConstraint: String) : MutableList<Transaction> {
+    fun filterTheList(iConstraint: String, iSetGroupList: Boolean = true) {
         var resultList: MutableList<Transaction> = mutableListOf()
         if (iConstraint.isEmpty() && categoryIDFilter == 0 &&
             categoryFilter == "" && subcategoryFilter == "" &&
@@ -176,8 +172,11 @@ class TransactionRecyclerAdapter(
                 }
             }
         }
+        filteredList = resultList
+        if (iSetGroupList) { // on init we don't need to do this, since the sortby will be called immediately after and it will do it
+            setGroupList()
+        }
         currentTotal = getTotal()
-        return resultList
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -403,9 +402,8 @@ class TransactionRecyclerAdapter(
                         else // must be Joint
                         -> filteredList[i].amount * SpenderViewModel.getSpenderSplit(0)
                     }
-                trunningTotalList.add(previousRunningTotal + name1PortionOfExpense - name1PortionOfFundsUsed)
                 previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed)
-//                previousRunningTotal = round(previousRunningTotal * 100) / 100
+                trunningTotalList.add(previousRunningTotal)
             } else {
                 trunningTotalList.add(previousRunningTotal)
             }

@@ -375,6 +375,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
+                        binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
@@ -395,6 +396,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
+                        binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
@@ -408,6 +410,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     asset = LIRAANNUITY(
                         newID,
                         binding.assetName.text.toString(),
+                        binding.assetValue.text.toString().toInt(),
                         binding.assetValue.text.toString().toInt(),
                         binding.annuityStartDate.text.toString(),
                         gCurrentDate.getYear(),
@@ -423,6 +426,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                         newID,
                         binding.assetName.text.toString(),
                         binding.assetValue.text.toString().toInt(),
+                        binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
                         if (binding.annualContribution.text.toString() == "") 0 else binding.annualContribution.text.toString().toInt(),
@@ -435,6 +439,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     asset = Savings(
                         newID,
                         binding.assetName.text.toString(),
+                        binding.assetValue.text.toString().toInt(),
                         binding.assetValue.text.toString().toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),
@@ -449,6 +454,7 @@ class RetirementAssetDialogFragment : DialogFragment() {
                     asset =  Property(
                         newID,
                         binding.assetName.text.toString(),
+                        (binding.assetValue.text.toString().toInt() * binding.ownershipPercentage.text.toString().toDouble() / 100.0).toInt(),
                         (binding.assetValue.text.toString().toInt() * binding.ownershipPercentage.text.toString().toDouble() / 100.0).toInt(),
                         binding.switchUseDefaultGrowth.isChecked,
                         binding.estimatedAnnualGrowth.text.toString().toDouble(),

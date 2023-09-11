@@ -185,70 +185,17 @@ class TransactionViewModel : ViewModel() {
         fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Transaction>>) {
             singleInstance.transactionsLiveData.observe(iFragment, iObserver)
         }
-        fun doSomething() {
-            singleInstance.transactions.forEach {
-                val transactionOut = TransactionOut(it.date.toString(),
-                    round(it.amount*100).toInt(),
-                    it.category,
-                    it.note,
-                    it.note2,
-                    it.paidby,
-                    it.boughtfor,
-                    it.bfname1split,
-                    it.type,
-                    it.rtkey)
-                val key = MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                    .push().key.toString()
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                    .child(key)
-                    .setValue(transactionOut)
-            }
-        }
         fun doSomething2() {
-            var tList = singleInstance.transactions.filter { it.rtkey == "" && it.note == "Mom's Hyundai" && it.type == "Recurring"}
+            if (MyApplication.currentUserEmail != "rheannonreid93@gmail.com")
+                return
+            var tList = singleInstance.transactions.filter { it.category == 1021 }
             tList.forEach {
+                Timber.tag("Alex").d("Updating transaction")
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
                     .child(it.mykey)
                     .child("rtkey")
-                    .setValue("Mom's Hyundai")
+                    .setValue("Netflix")
             }
-            tList = singleInstance.transactions.filter { it.rtkey == "" && it.note == "PC Mobile Alex" && it.type == "Recurring"}
-            tList.forEach {
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                    .child(it.mykey)
-                    .child("rtkey")
-                    .setValue("PC Mobile Alex")
-            }
-            tList = singleInstance.transactions.filter { it.rtkey == "" && it.note == "PC Mobile Brent" && it.type == "Recurring"}
-            tList.forEach {
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                    .child(it.mykey)
-                    .child("rtkey")
-                    .setValue("PC Mobile Brent")
-            }
-            tList = singleInstance.transactions.filter { it.rtkey == "" && it.category == 1003 && it.note == "Northbridge" && it.type == "Recurring"}
-            tList.forEach {
-                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
-                    .child(it.mykey)
-                    .child("rtkey")
-                    .setValue("NorthbridgeCondo")
-            }
-            tList = singleInstance.transactions.filter { (it.rtkey == "") && it.type == "Recurring"}
-            val myData: MutableList<String> = arrayListOf()
-            tList.forEach{
-                if (!myData.contains(it.note))
-                    myData.add(it.note)
-            }
-            Timber.tag("Alex").d("Remaining to do: $myData")
-        }
-        fun doSomething3() {
-            val tList = singleInstance.transactions.filter { (it.rtkey == "") && it.type == "Recurring"}
-            val myData: MutableList<String> = arrayListOf()
-            tList.forEach{
-                if (!myData.contains(it.note))
-                    myData.add(it.note)
-            }
-            Timber.tag("Alex").d("Remaining to do: $myData")
         }
         fun isLoaded():Boolean {
             return if (this::singleInstance.isInitialized) {

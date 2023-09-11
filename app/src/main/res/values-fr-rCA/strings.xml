@@ -118,9 +118,9 @@
     <string name="calculations">Calculs</string>
     <string name="details">Détails</string>
     <string name="for_string">Pour</string>
-    <string name="expenses_paid_by">Dépenses payés par</string>
+    <string name="expenses_paid_by">Payé par</string>
     <string name="joint">Joint</string>
-    <string name="transfers_from">Transferts de</string>
+    <string name="transfers_from">Transféré de</string>
     <string name="colour_or_sort">Colorier ou trier</string>
     <string name="load_users">Charger les utilisateurs</string>
     <string name="do_something">Faire quelque chose</string>
@@ -250,10 +250,10 @@
     <string name="JTdash">Jt-%1$s</string>
     <string name="sub_total">Sous-total</string>
     <string name="nobody_owes_anybody">Personne ne doit personne!</string>
-    <string name="transferred_to">%1$s a transféré à %2$s:  </string>
+    <string name="transferred_to">"%1$s a transféré à %2$s: "</string>
     <string name="total">Total</string>
-    <string name="total_funds_used_for">Total des fonds de %1$s utilisés pour %2$s:  </string>
-    <string name="paid_for">%1$s a payé pour %2$s:  </string>
+    <string name="total_funds_used_for">"Total des fonds de %1$s utilisés pour %2$s: "</string>
+    <string name="paid_for">"%1$s a payé pour %2$s: "</string>
     <string name="recurring">Récurrent</string>
     <string name="once">Une fois</string>
     <string name="user_authorization_failed">L\'autorisation de l\'utilisateur a échoué</string>
@@ -365,7 +365,7 @@
     <string name="you_are_over_your_x_budget_this_period">Vous avez dépassé votre budget %1$s pour cette période.</string>
     <string name="keeping_x_expenses_below">Si vous maintenez %1$s dépenses en dessous de %2$s par jour, vous resterez dans les limites de votre budget %3$s ce mois-ci.</string>
     <string name="allocation_x_of_budget_and_actual">Allocation (%1$s) du budget et du réel</string>
-    <string name="s_portion">Joint (la part de %1$s)</string>
+    <string name="s_portion">Joint-%1$s</string>
     <string name="data">Donnés</string>
     <string name="toolTipBudgetDate">Il s\'agit du mois auquel le montant du budget s\'applique.</string>
     <string name="toolTipBudgetAmount">Montant budgétaire.</string>
@@ -495,7 +495,7 @@
     <string name="investmentGrowthRate">Taux de croissance des investissements</string>
     <string name="propertyGrowthRate">Taux de croissance de l\'immobilier</string>
     <string name="pension_start_delay">Délai de début de pension (années)</string>
-    <string name="ending_balances">Soldes de clôture</string>
+    <string name="balances">Soldes</string>
     <string name="never">Jamais</string>
     <string name="always">Toujours</string>
     <string name="if_possible">Si possible</string>
@@ -539,7 +539,7 @@
     <string name="show_hide_columns">" Afficher/Masquer les colonnes"</string>
     <string name="filters">" Filtres"</string>
     <string name="pound">#</string>
-    <string name="sp_lookahead">Anticipation des paiements programmés (jours)</string>
+    <string name="sp_lookahead">Anticipation des paiements (jours)</string>
     <string name="days">jours</string>
     <string name="show_red_at">Afficher rouge (%1$s %%)</string>
     <string name="creating_file">Création du fichier (qui se trouvera à la racine de vos documents Google Drive).</string>
@@ -577,8 +577,15 @@
     <string name="filtered_by">"Filtré par: "</string>
     <string name="select_date_range">Sél. la plage de dates</string>
     <string name="use_calculated_budget">Utiliser le revenu cible calculé</string>
-    <string name="increased_budget">Augmentation du budget mensuel</string>
+    <string name="increased_budget">Aug. du budget mensuel si vendu</string>
     <string name="view_colon">Voir:</string>
     <string name="additional_deposit">Dépôt supplémentaire</string>
     <string name="additional_expense">Dépense supplémentaire</string>
+    <string name="signin_fragment_label">S\'Identifier</string>
+    <string name="download_progress">Téléchargement</string>
+    <string name="onbudget">On Budget!</string>
+    <string name="restart">REDÉMARRAGE</string>
+    <string name="download_complete">Téléchargement complet. Cliquez sur REDÉMARRER pour terminer la mise à niveau.</string>
+    <string name="start">Début</string>
+    <string name="end">Fin</string>
 </resources>

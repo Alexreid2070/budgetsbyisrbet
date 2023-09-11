@@ -3,8 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/SignInFragment">
 
+    <fragment
+        android:id="@+id/SignInFragment"
+        android:name="com.isrbet.budgetsbyisrbet.SignInFragment"
+        android:label="@string/signin_fragment_label"
+        tools:layout="@layout/fragment_sign_in">
+    </fragment>
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.isrbet.budgetsbyisrbet.HomeFragment"

@@ -46,10 +46,7 @@ import java.time.format.TextStyle
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashSet
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.round
+import kotlin.math.*
 
 const val cMODE_VIEW = 0
 const val cMODE_EDIT = 1
@@ -257,6 +254,10 @@ class MyApplication : Application() {
             haveLoadedDataForThisUser = false
             transactionSearchText = ""
 //            CustomNotificationListenerService.releaseResources()
+        }
+
+        fun amCurrentlyImpersonating() : Boolean {
+            return (userEmail != currentUserEmail)
         }
     }
 
@@ -825,6 +826,12 @@ fun getSplitText (iSplit1: Int, iAmount: String): String {
             gDec(amount2),
             SpenderViewModel.getSpenderName(1))
     }
+}
+
+fun getMyVersion() : Int {
+    var appVersion = (BuildConfig.VERSION_NAME.toDouble() * 1000.0).roundToInt()
+    appVersion += BuildConfig.VERSION_CODE
+    return appVersion
 }
 
 object LangUtils {

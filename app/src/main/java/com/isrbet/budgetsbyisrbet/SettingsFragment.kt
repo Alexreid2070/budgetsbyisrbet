@@ -153,12 +153,12 @@ class SettingsFragment : Fragment() {
         if (binding.switchSecondUserActive.isChecked) {
             binding.secondUserLayout.visibility = View.VISIBLE
             binding.splitSliderLayout.visibility = View.VISIBLE
-            binding.splitLayout.visibility = View.VISIBLE
+            binding.splitText.visibility = View.VISIBLE
             binding.spenderLayout.visibility = View.VISIBLE
         } else {
             binding.secondUserLayout.visibility = View.GONE
             binding.splitSliderLayout.visibility = View.GONE
-            binding.splitLayout.visibility = View.GONE
+            binding.splitText.visibility = View.GONE
             binding.spenderLayout.visibility = View.GONE
         }
 
@@ -261,7 +261,7 @@ class SettingsFragment : Fragment() {
                 binding.authorizationKeyLayout.visibility = View.VISIBLE
                 binding.secondUserLayout.visibility = View.VISIBLE
                 binding.splitSliderLayout.visibility = View.VISIBLE
-                binding.splitLayout.visibility = View.VISIBLE
+                binding.splitText.visibility = View.VISIBLE
                 binding.spenderLayout.visibility = View.VISIBLE
                 binding.splitSlider.value = 50.0F
                 binding.switchJoinOtherUserLayout.visibility = View.GONE
@@ -271,7 +271,7 @@ class SettingsFragment : Fragment() {
                 binding.secondUserLayout.visibility = View.GONE
                 binding.shareUIDLayout.visibility = View.GONE
                 binding.splitSliderLayout.visibility = View.GONE
-                binding.splitLayout.visibility = View.GONE
+                binding.splitText.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
 //                binding.switchJoinOtherUserLayout.visibility = View.VISIBLE
 /*                if (!binding.switchJoinOtherUser.isChecked) {
@@ -293,7 +293,7 @@ class SettingsFragment : Fragment() {
                 binding.firstNameLayout.visibility = View.GONE
                 binding.secondUserLayout.visibility = View.GONE
                 binding.splitSliderLayout.visibility = View.GONE
-                binding.splitLayout.visibility = View.GONE
+                binding.splitText.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
                 binding.switchSecondUserActive.visibility = View.GONE
                 binding.shareUIDLayout.visibility = View.GONE
@@ -317,7 +317,7 @@ class SettingsFragment : Fragment() {
                 binding.firstNameLayout.visibility = View.VISIBLE
                 binding.secondUserLayout.visibility = View.GONE
                 binding.splitSliderLayout.visibility = View.GONE
-                binding.splitLayout.visibility = View.GONE
+                binding.splitText.visibility = View.GONE
                 binding.spenderLayout.visibility = View.GONE
                 binding.switchSecondUserActive.visibility = View.VISIBLE
 //                binding.shareUIDLayout.visibility = View.VISIBLE
@@ -653,7 +653,7 @@ class SettingsFragment : Fragment() {
             binding.switchDisconnect.isChecked = false // prepare for next time
             binding.secondUserLayout.visibility = View.GONE
             binding.splitSliderLayout.visibility = View.GONE
-            binding.splitLayout.visibility = View.GONE
+            binding.splitText.visibility = View.GONE
             binding.spenderLayout.visibility = View.GONE
             binding.switchSecondUserActive.visibility = View.GONE
             binding.shareUIDLayout.visibility = View.GONE

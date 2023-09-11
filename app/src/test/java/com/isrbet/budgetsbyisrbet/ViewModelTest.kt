@@ -7,13 +7,13 @@ class ViewModelTest {
     @Test
     fun budgetAmountTest() {
         val spenderModel = SpenderViewModel()
-        spenderModel.clearCallback()
+//        spenderModel.clearCallback()
         val catModel = CategoryViewModel()
-        catModel.clearCallback()
+//        catModel.clearCallback()
         val budgetModel = BudgetViewModel()
-        budgetModel.clearCallback()
+//        budgetModel.clearCallback()
         val expModel = TransactionViewModel()
-        expModel.clearCallback()
+//        expModel.clearCallback()
 
         SpenderViewModel.addLocalSpender(Spender("User1", "alexreid2070@gmail.com", 50, 1))
         SpenderViewModel.addLocalSpender(Spender("User2", "alexreid2071@gmail.com", 50, 0))

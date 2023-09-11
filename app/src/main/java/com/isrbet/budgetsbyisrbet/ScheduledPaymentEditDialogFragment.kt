@@ -602,6 +602,11 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 focusAndOpenSoftKeyboard(requireContext(), binding.interestRate)
                 return
             }
+            if (binding.actualLoanPaymentAmount.text.toString() == "") {
+                binding.actualLoanPaymentAmount.error = getString(R.string.value_cannot_be_blank)
+                focusAndOpenSoftKeyboard(requireContext(), binding.actualLoanPaymentAmount)
+                return
+            }
         }
         val rtSpinner:Spinner = binding.newPeriodSpinner
         val amountDouble = lNumberFormat.parse(binding.newAmount.text.toString()).toDouble()

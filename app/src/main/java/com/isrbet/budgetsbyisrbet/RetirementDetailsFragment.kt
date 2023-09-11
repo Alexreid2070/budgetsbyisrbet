@@ -452,7 +452,7 @@ class RetirementDetailsFragment : Fragment() {
             }
             if (iWhichView == RetirementDetailsViews.ALL ||
                 iWhichView == RetirementDetailsViews.SUMMARY)
-                addHeaderCell(tr, gRetirementDetailsList[i].getNetWorth().toString())
+                addHeaderCell(tr, gRetirementDetailsList[i].getEndingNetWorth().toString())
             binding.retirementTableRows.addView(tr)
         }
     }

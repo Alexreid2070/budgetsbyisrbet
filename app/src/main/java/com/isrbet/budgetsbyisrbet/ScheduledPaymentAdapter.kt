@@ -8,6 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import timber.log.Timber
+import timber.log.Timber.tag
 
 class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPayment>): BaseAdapter() {
     private var myData: MutableList<ScheduledPayment> = arrayListOf()
@@ -51,11 +52,9 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
     }
 
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val viewHolder: RTViewHolder
         val rtData = getItem(pos) as ScheduledPayment
-
         val myConvertView: View = convertView ?: inflater.inflate(R.layout.row_scheduled_payment, parent, false)
-        viewHolder = RTViewHolder(myConvertView)
+        val viewHolder = RTViewHolder(myConvertView)
 
         viewHolder.vhKey.text = rtData.mykey
         viewHolder.vhVendor.text = rtData.vendor
@@ -94,6 +93,7 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
                 if (rtData.boughtfor == 2) String.format("${rtData.split1}:${rtData.getSplit2()}")
                 else ""
             )
+            Timber.tag("Alex").d("turning '${viewHolder.vhDescription.text}' red")
             viewHolder.vhDescription.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDescription2.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         } else {
@@ -117,6 +117,9 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
                 if (rtData.boughtfor == 2) String.format("${rtData.split1}:${rtData.getSplit2()}")
                 else ""
             )
+            Timber.tag("Alex").d("turning '${viewHolder.vhDescription.text}' green")
+            viewHolder.vhDescription.setTextColor(ContextCompat.getColor(myContext, R.color.black))
+            viewHolder.vhDescription2.setTextColor(ContextCompat.getColor(myContext, R.color.black))
         }
         return myConvertView
     }

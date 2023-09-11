@@ -56,8 +56,7 @@
                     android:gravity="start"
                     android:text="@string/date"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textOnBackground" />
+                    android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dateLayout"
@@ -97,8 +96,7 @@
                     android:gravity="start"
                     android:text="@string/amount"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textOnBackground" />
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:id="@+id/entire_input_amount_area"
@@ -146,8 +144,7 @@
                     android:layout_gravity="center"
                     android:text="@string/from"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textOnBackground" />
+                    android:textStyle="bold"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -178,8 +175,7 @@
                     android:layout_gravity="center"
                     android:text="@string/to"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textOnBackground" />
+                    android:textStyle="bold" />
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -217,7 +213,6 @@
                         android:text="@string/split"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/textOnBackground"
                         android:tooltipText="@string/toolTipSplit"/>
 
                     <com.google.android.material.slider.Slider
@@ -257,8 +252,7 @@
                     android:paddingTop="10dp"
                     android:text="@string/note"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textOnBackground" />
+                    android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/noteLayout"

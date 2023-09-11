@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import timber.log.Timber
 import java.util.ArrayList
 
 data class Spender(var name: String, var email: String, var split: Int, var isActive: Int) {
@@ -34,11 +35,11 @@ class SpenderViewModel : ViewModel() {
                 false
         }
 
-/*        fun showMe() {
+        fun showMe() {
             singleInstance.spenders.forEach {
-                Log.d("Alex", "SM Spender is ${it.name} ${it.split} ${it.email} ${it.isActive}")
+                Timber.tag("Alex").d("SM Spender is ${it.name} ${it.split} ${it.email} ${it.isActive}")
             }
-        } */
+        }
         fun getSpender(index:Int): Spender? {
             return if (index  < singleInstance.spenders.size) {
                 Spender(singleInstance.spenders[index])
@@ -173,6 +174,7 @@ class SpenderViewModel : ViewModel() {
             singleInstance.loadSpenders()
         }
         fun clear() {
+            Timber.tag("Alex").d("Clearing Spender")
             if (singleInstance.spenderListener != null) {
                 MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Spender")
                     .removeEventListener(singleInstance.spenderListener!!)
@@ -197,6 +199,7 @@ class SpenderViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
+        Timber.tag("Alex").d("onCleared Spender")
         if (spenderListener != null) {
             MyApplication.databaseref.child("Users/" + MyApplication.userUID + "/Spender")
                 .removeEventListener(spenderListener!!)
@@ -234,6 +237,8 @@ class SpenderViewModel : ViewModel() {
                     MyApplication.userIndex = 1
                 singleInstance.loaded = true
                 singleInstance.spendersLiveData.value = singleInstance.spenders
+                Timber.tag("Alex").d("Spender names have been updated")
+                SpenderViewModel.showMe()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

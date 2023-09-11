@@ -84,9 +84,9 @@
         app:layout_constraintTop_toBottomOf="@+id/transaction_search">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight=".8"
             android:padding="5dp"
             android:orientation="vertical">
             <androidx.appcompat.widget.AppCompatTextView
@@ -99,40 +99,55 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:tooltipText="@string/toolTipAmount"
-                android:maxLines="1"
-                app:drawableRightCompat="@drawable/ic_baseline_expand_more_24"/>
+                android:maxLines="1"/>
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/amountHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:gravity="end"
+                android:layout_gravity="bottom"
+                android:gravity="start"
                 android:text="@string/amt"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:tooltipText="@string/toolTipAmount"
                 android:maxLines="1"/>
         </LinearLayout>
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/percentage1Heading"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:text="@string/amt1"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:tooltipText="@string/toolTipAmt1"
-            android:maxLines="1"/>
+            android:layout_weight=".8"
+            android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/sortIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:gravity="start"
+                android:text=""
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                app:drawableRightCompat="@drawable/ic_baseline_expand_more_24"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/percentage1Heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:gravity="start"
+                android:text="@string/amt1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:tooltipText="@string/toolTipAmt1"
+                android:maxLines="1"/>
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/percentage2Heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:gravity="end"
+            android:layout_weight=".8"
+            android:gravity="start"
             android:text="@string/amt2"
             android:textSize="16sp"
             android:textStyle="bold"

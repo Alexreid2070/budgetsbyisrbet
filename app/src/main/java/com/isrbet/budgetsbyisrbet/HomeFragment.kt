@@ -1,13 +1,9 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
@@ -17,16 +13,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.SignInButton
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
-import com.google.api.services.sheets.v4.SheetsScopes
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -44,18 +30,6 @@ import kotlin.coroutines.CoroutineContext
 class HomeFragment : Fragment(), CoroutineScope {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var mGoogleSignInClient: GoogleSignInClient
-    private lateinit var auth: FirebaseAuth
-    private val defaultsModel: DefaultsViewModel by viewModels()
-    private val transactionModel: TransactionViewModel by viewModels()
-    private val categoryModel: CategoryViewModel by viewModels()
-    private val spenderModel: SpenderViewModel by viewModels()
-    private val budgetModel: BudgetViewModel by viewModels()
-    private val scheduledPaymentModel: ScheduledPaymentViewModel by viewModels()
-    private val retirementUserModel: RetirementViewModel by viewModels()
-    private val userModel: AppUserViewModel by viewModels()
-    private val hintModel: HintViewModel by viewModels()
-    private val translationModel: TranslationViewModel by viewModels()
     private var gestureDetector: GestureDetectorCompat? = null
     private var job: Job = Job()
 
@@ -67,7 +41,8 @@ class HomeFragment : Fragment(), CoroutineScope {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        userModel.clearCallback()
+
+        Timber.tag("Alex").d("IN HOME onCreateView")
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
 
@@ -100,44 +75,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                 return true
             }
         })
-
-        val mainActivityResultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data = result.data
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                    try {
-                        // Google Sign In was successful, authenticate with Firebase
-                        val account = task.getResult(ApiException::class.java)!!
-                        Timber.tag("Alex").d("firebaseAuthWithGoogle:%s", account.id)
-                        MyApplication.userGivenName = account.givenName.toString()
-                        MyApplication.userFamilyName = account.familyName.toString()
-                        MyApplication.userAccount = account.account
-                        firebaseAuthWithGoogle(account.idToken!!)
-                    } catch (e: ApiException) {
-                         // Google Sign In failed, update UI appropriately
-                        Timber.tag("Alex").d("Google sign in failed %s", e.toString())
-                    }
-                } else
-                    Timber.tag("Alex").d(
-                        "in registerforactivityresult, result was not OK %s", result.resultCode
-                    )
-            }
-
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestScopes(Scope(SheetsScopes.SPREADSHEETS))
-            .requestEmail()
-            .build()
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
-        binding.signInButton.setOnClickListener {
-            onSignIn(mainActivityResultLauncher)
-        }
-        auth = Firebase.auth
 
         binding.scheduledPaymentField.setOnClickListener {
             val action =
@@ -190,43 +127,12 @@ class HomeFragment : Fragment(), CoroutineScope {
                 return false
             }
         })
-//        setupDataCallbacks()
 
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
-        if (account?.email == null) {
-            // user is logged out
-            (activity as MainActivity).setLoggedOutMode(true)
-            binding.expandButton.isEnabled = false
-            binding.signInButton.visibility = View.VISIBLE
-            binding.quoteField.text = ""
-            binding.transactionAddFab.visibility = View.GONE
-            binding.expandButton.visibility = View.GONE
-            binding.homeScreenMessage.visibility = View.VISIBLE
-            binding.homeScreenMessage.text = getString(R.string.you_must_sign_in)
-            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
-        } else {
-            binding.signInButton.visibility = View.GONE
-            binding.homeScreenMessage.text = ""
-            binding.homeScreenMessage.visibility = View.GONE
-        }
-//        Log.d("Alex", "account.email is " + account?.email + " and name is " + account?.givenName + " and uid " + MyApplication.userUID)
-        MyApplication.userGivenName = account?.givenName.toString()
-        MyApplication.userFamilyName = account?.familyName.toString()
-        MyApplication.userAccount = account?.account
-        if (account != null) {
-            MyApplication.userPhotoURL = account.photoUrl.toString()
-            Glide.with(requireContext()).load(MyApplication.userPhotoURL)
-                .thumbnail(0.5f)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.imgProfilePic)
-        }
-        setAdminMode(account?.email == "alexreid2070@gmail.com")
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = auth.currentUser
-        signIn(currentUser)
+        Glide.with(requireContext()).load(MyApplication.userPhotoURL)
+            .thumbnail(0.5f)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(binding.imgProfilePic)
+
         binding.imgProfilePic.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.are_you_sure))
@@ -246,6 +152,13 @@ class HomeFragment : Fragment(), CoroutineScope {
         set.clone(constraintLayout)
         set.clear(R.id.budget_add_fab, ConstraintSet.TOP)
         set.applyTo(constraintLayout)
+
+        if (MyApplication.adminMode)
+            binding.adminButton.visibility = View.VISIBLE
+        else
+            binding.adminButton.visibility = View.GONE
+
+        startLoad()
     }
 
     private fun setScheduledPaymentText() {
@@ -260,7 +173,7 @@ class HomeFragment : Fragment(), CoroutineScope {
 
     private fun setupDataCallbacks() {
         val defaultObserver = Observer<Boolean> {
-            if (MyApplication.userEmail != MyApplication.currentUserEmail) {
+            if (MyApplication.amCurrentlyImpersonating()) {
                 binding.quoteField.visibility = View.VISIBLE
                 binding.quoteField.text = String.format(
                     getString(R.string.currently_impersonating),
@@ -273,90 +186,37 @@ class HomeFragment : Fragment(), CoroutineScope {
             alignPageWithDataState("DefaultViewModel")
         }
         DefaultsViewModel.observeDefaults(this, defaultObserver)
-/*        DefaultsViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                if (MyApplication.userEmail != MyApplication.currentUserEmail) {
-                    binding.quoteField.visibility = View.VISIBLE
-                    binding.quoteField.text = String.format(
-                        getString(R.string.currently_impersonating),
-                        MyApplication.currentUserEmail
-                    )
-                } else if (DefaultsViewModel.getDefaultQuote()) {
-                    binding.quoteField.visibility = View.VISIBLE
-                    binding.quoteField.text = getQuote()
-                }
-                alignPageWithDataState("DefaultViewModel")
-            }
-        })*/
         val catListObserver = Observer<MutableList<Category>> {
             alignPageWithDataState("CategoryViewModel")
         }
         CategoryViewModel.observeList(this, catListObserver)
-/*        CategoryViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignPageWithDataState("CategoryViewModel")
-            }
-        }) */
-
         val spenderListObserver = Observer<MutableList<Spender>> {
             (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
             alignPageWithDataState("SpenderViewModel")
         }
         SpenderViewModel.observeList(this, spenderListObserver)
-/*        SpenderViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
-                alignPageWithDataState("SpenderViewModel")
-            }
-        }) */
         val hintListObserver = Observer<MutableList<Hint>> {
             alignPageWithDataState("HintViewModel")
         }
         HintViewModel.observeList(this, hintListObserver)
-/*        HintViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignPageWithDataState("HintViewModel")
-            }
-        }) */
         val transactionListObserver = Observer<MutableList<Transaction>> {
             alignPageWithDataState("TransactionViewModel")
         }
         TransactionViewModel.observeList(this, transactionListObserver)
-/*        TransactionViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignPageWithDataState("TransactionViewModel")
-            }
-        }) */
         val budListObserver = Observer<MutableList<Budget>> {
             alignPageWithDataState("BudgetViewModel")
         }
         BudgetViewModel.observeList(this, budListObserver)
-/*        BudgetViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignPageWithDataState("BudgetViewModel")
-            }
-        }) */
         val spListObserver = Observer<MutableList<ScheduledPayment>> {
             (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
             alignPageWithDataState("SpenderViewModel")
             setScheduledPaymentText()
         }
         ScheduledPaymentViewModel.observeList(this, spListObserver)
-/*        ScheduledPaymentViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                setScheduledPaymentText()
-                alignPageWithDataState("ScheduledPaymentViewModel")
-            }
-        }) */
         val retListObserver = Observer<MutableList<RetirementData>> {
             alignPageWithDataState("RetirementViewModel")
         }
         RetirementViewModel.observeList(this, retListObserver)
-/*        RetirementViewModel.singleInstance.setCallback(object : DataUpdatedCallback {
-            override fun onDataUpdate() {
-                alignPageWithDataState("RetirementViewModel")
-            }
-        }) */
     }
 
     private fun onExpandClicked() {
@@ -380,127 +240,49 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun getQuote(): String {
-        return if (MyApplication.userEmail != MyApplication.currentUserEmail)
+        return if (MyApplication.amCurrentlyImpersonating())
             "Currently impersonating " + MyApplication.currentUserEmail
         else
             MyApplication.getQuote()
     }
 
-    private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
-        val signInIntent: Intent = mGoogleSignInClient.signInIntent
-        mainActivityResultLauncher.launch(signInIntent)
-    }
-
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    val user = auth.currentUser
-                    // this code is only hit when a user signs in successfully.
-                    signIn(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Timber.tag("Alex").d("signInWithCredential:failure + task.exception")
-                    signIn(null)
-                }
-            }
-    }
-
-    private fun signIn(account: FirebaseUser?) {
-        MyApplication.userEmail = account?.email.toString()
-        if (account != null) {
-            if (MyApplication.userUID == "") {  // ie don't want to override this if Admin is impersonating another user...
-                MyApplication.userUID = account.uid
-                MyApplication.originalUserUID = account.uid
-//                Log.d("Alex", "Just set userUID to " + account.uid)
-            }
-            if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
-                MyApplication.currentUserEmail = account.email ?: ""
-            MyApplication.userPhotoURL = account.photoUrl.toString()
-            Glide.with(requireContext()).load(MyApplication.userPhotoURL)
-                .thumbnail(0.5f)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.imgProfilePic)
+    private fun startLoad() {
+        Timber.tag("Alex").d("startLoad")
+        if (DefaultsViewModel.isLoaded() && DefaultsViewModel.getDefaultQuote()) {
+            binding.quoteField.text = getQuote()
         }
-        if (account == null) {
-            binding.transactionAddFab.visibility = View.GONE
-            binding.expandButton.visibility = View.GONE
-            binding.signInButton.visibility = View.VISIBLE
-            binding.signInButton.setSize(SignInButton.SIZE_WIDE)
-            binding.homeScreenMessage.visibility = View.VISIBLE
-            binding.homeScreenMessage.text = getString(R.string.you_must_sign_in)
-        } else {
-            binding.transactionAddFab.visibility = View.VISIBLE
-            binding.expandButton.visibility = View.VISIBLE
-            binding.signInButton.visibility = View.GONE
-            binding.homeScreenMessage.text = ""
-            binding.homeScreenMessage.visibility = View.GONE
-//            setScheduledPaymentText()
-            if (DefaultsViewModel.isLoaded() && DefaultsViewModel.getDefaultQuote()) {
-                binding.quoteField.text = getQuote()
-                if (account.uid == "null")
-                    binding.quoteField.text = getString(R.string.something_went_wrong)
-            }
-            if (account.email == "alexreid2070@gmail.com")
-                setAdminMode(true)
-            if (!MyApplication.haveLoadedDataForThisUser) {
-                // check if I should load my own UID, or if I'm a JoinUser
-                val joinListener = object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        if (dataSnapshot.value != null) {  // found the JoinUser node
-                            MyApplication.userUID = dataSnapshot.value.toString()
-                        }
-                        loadEverything()
-                  }
-
-                    override fun onCancelled(dataSnapshot: DatabaseError) {
-                        MyApplication.displayToast(getString(R.string.user_authorization_failed) + " 112.")
+        if (!MyApplication.haveLoadedDataForThisUser) {
+            // check if I should load my own UID, or if I'm a JoinUser
+            val joinListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.value != null) {  // found the JoinUser node
+                        MyApplication.userUID = dataSnapshot.value.toString()
                     }
+                    (activity as MainActivity).loadEverything()
+                    setupDataCallbacks()
+              }
+
+                override fun onCancelled(dataSnapshot: DatabaseError) {
+                    MyApplication.displayToast(getString(R.string.user_authorization_failed) + " 112.")
                 }
-                val dbRef =
-                    MyApplication.databaseref.child("Users/" + MyApplication.userUID)
-                        .child("Info")
-                        .child("0")
-                        .child("JoinUser")
-                dbRef.addListenerForSingleValueEvent(joinListener)
-            } else {
-                setScheduledPaymentText()
             }
+            val dbRef =
+                MyApplication.databaseref.child("Users/" + MyApplication.userUID)
+                    .child("Info")
+                    .child("0")
+                    .child("JoinUser")
+            dbRef.addListenerForSingleValueEvent(joinListener)
+        } else {
+            setScheduledPaymentText()
         }
         alignPageWithDataState("end of OVC")
     }
 
-    private fun loadEverything() {
-        hintModel.loadHints()
-        defaultsModel.loadDefaults()
-        categoryModel.loadCategories()
-        spenderModel.loadSpenders()
-        budgetModel.loadBudgetNews()
-//        budgetModel.loadBudgets()
-        scheduledPaymentModel.loadScheduledPayments()
-        retirementUserModel.loadRetirementUsers()
-        transactionModel.loadTransactions()
-        translationModel.loadTranslations()
-        setupDataCallbacks()
-        MyApplication.haveLoadedDataForThisUser = true
-        MyApplication.database.getReference("Users/" + MyApplication.userUID)
-            .child("Info")
-            .child(SpenderViewModel.myIndex().toString())
-            .child("LastSignIn")
-            .child("date")
-            .setValue(gCurrentDate.toString())
-        MyApplication.database.getReference("Users/" + MyApplication.userUID)
-            .child("Info")
-            .child(SpenderViewModel.myIndex().toString())
-            .child("LastSignIn")
-            .child("time").setValue(gCurrentDate.toString())
-    }
-
     private fun alignPageWithDataState(iTag: String)  {
-//        Timber.tag("Alex").d("alignpage: $iTag userUID ${MyApplication.userUID}")
+        Timber.tag("Alex").d("alignpage: $iTag userUID ${MyApplication.userUID} ${CategoryViewModel.isLoaded()} ${SpenderViewModel.isLoaded()} " +
+                "${ScheduledPaymentViewModel.isLoaded()} ${TransactionViewModel.isLoaded()} " +
+                "${BudgetViewModel.isLoaded()} ${DefaultsViewModel.isLoaded()} " +
+                "${HintViewModel.isLoaded()} ${RetirementViewModel.isLoaded()}")
         if (MyApplication.userUID != "") {
             binding.homeScreenMessage.text = ""
             binding.homeScreenMessage.visibility = View.GONE
@@ -523,11 +305,6 @@ class HomeFragment : Fragment(), CoroutineScope {
             } else {
                 (activity as MainActivity).setLoggedOutMode(false)
                 binding.expandButton.isEnabled = true
-//                setScheduledPaymentText()
-//                if (DefaultsViewModel.getDefaultQuote()) {
-//                    binding.quoteField.visibility = View.VISIBLE
-//                    binding.quoteField.text = getQuote()
-//                }
                 binding.homeScreenMessage.text = ""
                 binding.homeScreenMessage.visibility = View.GONE
                 val trackerFragment: TrackerFragment =
@@ -536,16 +313,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                 launch {
                     trackerFragment.loadBarChart()
                 }
-//                DefaultsViewModel.confirmCategoryDetailsListIsComplete()
                 HintViewModel.showHint(parentFragmentManager, cHINT_HOME)
-//                CategoryViewModel.singleInstance.clearCallback()
-//                SpenderViewModel.singleInstance.clearCallback()
-//                TransactionViewModel.singleInstance.clearCallback()
-//                BudgetViewModel.singleInstance.clearCallback()
-  //              ScheduledPaymentViewModel.singleInstance.clearCallback()
-//                RetirementViewModel.singleInstance.clearCallback()
-//                TranslationViewModel.singleInstance.clearCallback()
-//                DefaultsViewModel.singleInstance.clearCallback()
             }
         } else {
             (activity as MainActivity).setLoggedOutMode(true)
@@ -605,46 +373,20 @@ class HomeFragment : Fragment(), CoroutineScope {
         SpenderViewModel.clear()
         HintViewModel.clear()
         Firebase.auth.signOut()
-        mGoogleSignInClient.signOut()
+        (activity as MainActivity).mGoogleSignInClient.signOut()
         MyApplication.userUID = ""
         MyApplication.currentUserEmail = ""
         MyApplication.userFamilyName = ""
         MyApplication.userPhotoURL = ""
         MyApplication.adminMode = false
         (activity as MainActivity).setLoggedOutMode(true)
-        binding.expandButton.isEnabled = false
-        binding.transactionAddFab.visibility = View.GONE
-        binding.expandButton.visibility = View.GONE
-        binding.signInButton.visibility = View.VISIBLE
-        binding.signInButton.setSize(SignInButton.SIZE_WIDE)
-        binding.quoteField.text = ""
-        binding.scheduledPaymentField.visibility = View.GONE
-        val trackerFragment: TrackerFragment =
-            childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
-        trackerFragment.hideBarChart()
         MyApplication.haveLoadedDataForThisUser = false
-        onExpandClicked()
-        binding.adminButton.visibility = View.GONE
-    }
-
-    private fun setAdminMode(inAdminMode: Boolean) {
-        if (inAdminMode)
-            binding.adminButton.visibility = View.VISIBLE
-        else
-            binding.adminButton.visibility = View.GONE
-        MyApplication.adminMode = inAdminMode
+        findNavController().navigate(R.id.SignInFragment)
     }
 
     override fun onDestroy() {
+        Timber.tag("Alex").d("onDestroy homeFragment")
         super.onDestroy()
-//        CategoryViewModel.singleInstance.clearCallback()
-//        SpenderViewModel.singleInstance.clearCallback()
-//        TransactionViewModel.singleInstance.clearCallback()
-//        BudgetViewModel.singleInstance.clearCallback()
-  //      ScheduledPaymentViewModel.singleInstance.clearCallback()
-//        RetirementViewModel.singleInstance.clearCallback()
-//        TranslationViewModel.singleInstance.clearCallback()
-//        DefaultsViewModel.singleInstance.clearCallback()
         _binding = null
     }
 }

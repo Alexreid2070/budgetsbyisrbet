@@ -30,15 +30,15 @@ class ExampleInstrumentedTest {
 
     fun budgetAmountTest() {
         val spenderModel = SpenderViewModel()
-        spenderModel.clearCallback()
+//        spenderModel.clearCallback()
         val catModel = CategoryViewModel()
-        catModel.clearCallback()
+//        catModel.clearCallback()
         val budgetModel = BudgetViewModel()
-        budgetModel.clearCallback()
+//        budgetModel.clearCallback()
         val expModel = TransactionViewModel()
-        expModel.clearCallback()
+//        expModel.clearCallback()
         val defModel = DefaultsViewModel()
-        defModel.clearCallback()
+//        defModel.clearCallback()
         SpenderViewModel.addLocalSpender(Spender("Alex", "alexreid2070@gmail.com", 50, 1))
         SpenderViewModel.addLocalSpender(Spender("Brent", "alexreid2071@gmail.com", 50, 1))
         SpenderViewModel.addLocalSpender(Spender("Joint", "", 100, 1))
@@ -71,69 +71,69 @@ class ExampleInstrumentedTest {
         TransactionViewModel.addTransactionLocal(Transaction(MyDate("2022-05-15"), 100.0, -99, "transfer", "", 1, 2, cTRANSACTION_TYPE_EXPENSE, 0, "TransferI"), false)
         TransactionViewModel.addTransactionLocal(Transaction(MyDate("2022-05-15"), 100.0, -99, "transfer", "", 2, 1, cTRANSACTION_TYPE_EXPENSE, 100, "TransferJ"), false)
 
-        var ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 0, true)
+        var ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 0)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,1,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,1,1), 0)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,1,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,1,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,1,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,1,1), 2)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 2)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 0, false)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 0)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 2, false)
+        ac = TransactionViewModel.getActualsForPeriod(1004, MyDate(2022,1,1), MyDate(2022,2,1), 2)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 0)
         Assert.assertEquals(2.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 1)
         Assert.assertEquals(1.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 2)
         Assert.assertEquals(3.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2, 1), MyDate(2022,2,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2, 1), MyDate(2022,2,1), 0)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2, 1), MyDate(2022,2,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2, 1), MyDate(2022,2,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2, 1), MyDate(2022,2,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2, 1), MyDate(2022,2,1), 2)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,3, 1), MyDate(2022,3,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,3, 1), MyDate(2022,3,1), 0)
         Assert.assertEquals(7.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,3,1), MyDate(2022,3,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,3,1), MyDate(2022,3,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,3,1), MyDate(2022,3,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,3,1), MyDate(2022,3,1), 2)
         Assert.assertEquals(7.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,4,1), MyDate(2022,4,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,4,1), MyDate(2022,4,1), 0)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,4,1), MyDate(2022,4,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,4,1), MyDate(2022,4,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,4,1), MyDate(2022,4,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,4,1), MyDate(2022,4,1), 2)
         Assert.assertEquals(4.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2,1), MyDate(2022,3,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2,1), MyDate(2022,3,1), 0)
         Assert.assertEquals(11.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2,1), MyDate(2022,3,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,2,1), MyDate(2022,3,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2019,2,1), MyDate(3333,3,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2019,2,1), MyDate(3333,3,1), 0)
         Assert.assertEquals(17.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2019,2,1), MyDate(3333,3,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2019,2,1), MyDate(3333,3,1), 1)
         Assert.assertEquals(1.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2019,2,1), MyDate(3333,3,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2019,2,1), MyDate(3333,3,1), 2)
         Assert.assertEquals(18.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,1,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,1,1), 0)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,2,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,2,1), 0)
         Assert.assertEquals(50.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,3,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,3,1), 0)
         Assert.assertEquals(70.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,1,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,1,1), 1)
         Assert.assertEquals(0.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,2,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,2,1), 1)
         Assert.assertEquals(50.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,3,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,3,1), 1)
         Assert.assertEquals(130.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,3,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1003, MyDate(2022,1,1), MyDate(2022,3,1), 2)
         Assert.assertEquals(200.0, ac, 0.0)
 
         var bm = BudgetViewModel.getOriginalBudgetAmount(1005, MyDate("2020-01-01"), 0)
@@ -145,7 +145,7 @@ class ExampleInstrumentedTest {
         Assert.assertEquals(10.0, bm.amount, 0.0)
         Assert.assertEquals(1, bm.startDate.getMonth())
         Assert.assertEquals(1, bm.applicableDate.getMonth())
-        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1005, MyDate(2022,1,1), MyDate(2022,1,1), 0)
         Assert.assertEquals(2.0, ac, 0.0)
         bmr = BudgetViewModel.getCalculatedBudgetAmount(MyDate(2022,1,1), 1005, 0)
         Assert.assertEquals(10.0, bmr, 0.0)
@@ -205,7 +205,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        var totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        var totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeDiscretionary, 0)
         Assert.assertEquals(2.0, totAc, 0.0)
         Assert.assertEquals(7.0, totalBudget, 0.0)
@@ -215,7 +215,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeDiscretionary, 1)
         Assert.assertEquals(1.0, totAc, 0.0)
         Assert.assertEquals(1.0, totalBudget, 0.0)
@@ -225,7 +225,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeDiscretionary, 2)
         Assert.assertEquals(3.0, totAc, 0.0)
         Assert.assertEquals(8.0, totalBudget, 0.0)
@@ -235,7 +235,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeNondiscretionary, 0)
         Assert.assertEquals(0.0, totAc, 0.0)
         Assert.assertEquals(50.0, totalBudget, 0.0)
@@ -245,7 +245,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeNondiscretionary, 1)
         Assert.assertEquals(0.0, totAc, 0.0)
         Assert.assertEquals(50.0, totalBudget, 0.0)
@@ -255,7 +255,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeNondiscretionary, 2)
         Assert.assertEquals(0.0, totAc, 0.0)
         Assert.assertEquals(100.0, totalBudget, 0.0)
@@ -265,7 +265,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeAll, 0)
         Assert.assertEquals(2.0, totAc, 0.0)
         Assert.assertEquals(57.0, totalBudget, 0.0)
@@ -275,7 +275,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeAll, 1)
         Assert.assertEquals(1.0, totAc, 0.0)
         Assert.assertEquals(51.0, totalBudget, 0.0)
@@ -285,7 +285,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeAll, 2)
         Assert.assertEquals(3.0, totAc, 0.0)
         Assert.assertEquals(108.0, totalBudget, 0.0)
@@ -295,7 +295,7 @@ class ExampleInstrumentedTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-02-01", "2022-02-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-02-01"), MyDate("2022-02-31"),
             cDiscTypeDiscretionary, 0)
         Assert.assertEquals(8.0, totAc, 0.0)
         Assert.assertEquals(9.0, totalBudget, 0.0)
@@ -352,11 +352,11 @@ class ExampleInstrumentedTest {
         BudgetViewModel.updateBudget("F", 1006, MyDate("2022-01-01"),2, 100.0, cPeriodMonth, 1, cBUDGET_RECURRING, true)
         TransactionViewModel.addTransactionLocal(Transaction(MyDate("2022-01-15"), 5.0, 1006, "test", "", 0, 0, cTRANSACTION_TYPE_EXPENSE, 100, "AA"), false)
         TransactionViewModel.addTransactionLocal(Transaction(MyDate("2022-01-15"), 6.0, 1006, "test", "", 1, 1, cTRANSACTION_TYPE_EXPENSE, 0, "AB"), false)
-        ac = TransactionViewModel.getActualsForPeriod(1006, MyDate(2022,1,1), MyDate(2022,1,1), 0, true)
+        ac = TransactionViewModel.getActualsForPeriod(1006, MyDate(2022,1,1), MyDate(2022,1,1), 0)
         Assert.assertEquals(5.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1006, MyDate(2022,1,1), MyDate(2022,1,1), 1, true)
+        ac = TransactionViewModel.getActualsForPeriod(1006, MyDate(2022,1,1), MyDate(2022,1,1), 1)
         Assert.assertEquals(6.0, ac, 0.0)
-        ac = TransactionViewModel.getActualsForPeriod(1006, MyDate(2022,1,1), MyDate(2022,1,1), 2, true)
+        ac = TransactionViewModel.getActualsForPeriod(1006, MyDate(2022,1,1), MyDate(2022,1,1), 2)
         Assert.assertEquals(11.0, ac, 0.0)
         bmr = BudgetViewModel.getCalculatedBudgetAmount(MyDate("2022-01-01"), 1006, 0)
         Assert.assertEquals(5.0, bmr, 0.0)

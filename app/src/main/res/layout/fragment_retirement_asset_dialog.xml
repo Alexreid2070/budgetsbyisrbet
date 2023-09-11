@@ -472,6 +472,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:text="@string/increased_budget"
+                    android:tooltipText="The monthly amount that your budget will increase if you sell this asset."
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"/>

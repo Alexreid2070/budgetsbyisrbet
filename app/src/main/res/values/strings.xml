@@ -117,9 +117,9 @@
     <string name="calculations">Calculations</string>
     <string name="details">Details</string>
     <string name="for_string">For</string>
-    <string name="expenses_paid_by">Expenses paid by</string>
+    <string name="expenses_paid_by">Paid By</string>
     <string name="joint">Joint</string>
-    <string name="transfers_from">Transfers from</string>
+    <string name="transfers_from">Transferred from</string>
     <string name="colour_or_sort">Colour or sort</string>
     <string name="load_users">Load Users</string>
     <string name="do_something">Do something</string>
@@ -249,10 +249,10 @@
     <string name="JTdash">Jt-%1$s</string>
     <string name="sub_total">Sub-total</string>
     <string name="nobody_owes_anybody">Nobody owes anybody!</string>
-    <string name="transferred_to">%1$s transferred to %2$s:  </string>
+    <string name="transferred_to">"%1$s transferred to %2$s: "</string>
     <string name="total">Total</string>
-    <string name="total_funds_used_for">Total %1$s\'s funds used for %2$s:  </string>
-    <string name="paid_for">%1$s paid for %2$s:  </string>
+    <string name="total_funds_used_for">"Total %1$s\'s funds used for %2$s: "</string>
+    <string name="paid_for">"%1$s paid for %2$s: "</string>
     <string name="recurring">Recurring</string>
     <string name="once">Once</string>
     <string name="user_authorization_failed">User authorization failed</string>
@@ -364,7 +364,7 @@
     <string name="you_are_over_your_x_budget_this_period">You are over your %1$s budget this period.</string>
     <string name="keeping_x_expenses_below">Keeping %1$s expenses below %2$s per day will keep you within your %3$s budget this month.</string>
     <string name="allocation_x_of_budget_and_actual">Allocation (%1$s) of Budget and Actual</string>
-    <string name="s_portion">Joint (%1$s\'s portion)</string>
+    <string name="s_portion">Joint-%1$s</string>
     <string name="data">Data</string>
     <string name="toolTipBudgetDate">This is the month that the budget amount applies to.</string>
     <string name="toolTipBudgetAmount">Budget amount.</string>
@@ -494,7 +494,7 @@
     <string name="investmentGrowthRate">Investment growth rate</string>
     <string name="propertyGrowthRate">Property growth rate</string>
     <string name="pension_start_delay">Pension start delay (yrs)</string>
-    <string name="ending_balances">Ending balances</string>
+    <string name="balances">Balances</string>
     <string name="never">Never</string>
     <string name="always">Always</string>
     <string name="if_possible">If possible</string>
@@ -538,7 +538,7 @@
     <string name="show_hide_columns">" Show/Hide Columns"</string>
     <string name="filters">" Filters"</string>
     <string name="pound">#</string>
-    <string name="sp_lookahead">Scheduled Payment Lookahead (%1$s days)</string>
+    <string name="sp_lookahead">Schedule Lookahead (%1$s days)</string>
     <string name="days">days</string>
     <string name="show_red_at">Show Red (%1$s %%)</string>
     <string name="creating_file">Creating file (which will be found at your Google Drive documents root).</string>
@@ -570,14 +570,21 @@
     <string name="expired">%1$s (Expired)</string>
     <string name="there_are_recurring_transactions">There are %1$s transactions generated from this schedule.</string>
     <string name="these_are_the_scheduled_transactions">These are the transactions generated from the %1$s schedule.</string>
-    <string name="last_payment_date">Last Payment Date</string>
+    <string name="last_payment_date">Previous Payment Date</string>
     <string name="accounting_filter_is_on">Accounting filter is on</string>
     <string name="scheduled_payment_filter_is_on">Scheduled payment filter for %1$s</string>
     <string name="filtered_by">"Filtered by: "</string>
     <string name="select_date_range">Select date range</string>
     <string name="use_calculated_budget">Use budget as target income</string>
-    <string name="increased_budget">Increased monthly budget</string>
+    <string name="increased_budget">Monthly budget increase if sold</string>
     <string name="view_colon">View:</string>
     <string name="additional_deposit">Additional Deposit</string>
     <string name="additional_expense">Additional Expense</string>
+    <string name="signin_fragment_label">Sign In</string>
+    <string name="download_progress">Downloading</string>
+    <string name="onbudget">On Budget!</string>
+    <string name="restart">RESTART</string>
+    <string name="download_complete">Download complete.  Click RESTART to complete upgrade.</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
 </resources>

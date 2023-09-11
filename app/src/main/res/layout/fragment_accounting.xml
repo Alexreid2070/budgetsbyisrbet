@@ -13,7 +13,8 @@
         android:orientation="horizontal"
         android:background="?attr/pageHeadingBackgroundColor"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/scroll_view">
 
         <TextView
             android:layout_width="match_parent"
@@ -29,10 +30,11 @@
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:fadeScrollbars="false"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/page_title_layout">
+        app:layout_constraintTop_toBottomOf="@id/page_title_layout"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -71,8 +73,8 @@
                 android:id="@+id/calculations_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
                 android:orientation="vertical"
+                android:paddingBottom="10dp"
                 app:layout_constraintTop_toBottomOf="@+id/summary_section">
 
                 <TextView
@@ -82,7 +84,6 @@
                     android:text="@string/calculations"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:paddingTop="20dp"
                     android:textColor="?attr/colorPrimary"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -104,7 +105,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@+id/calculations_section">
+                app:layout_constraintTop_toBottomOf="@+id/calculations_section"
+                android:paddingBottom="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -113,7 +115,6 @@
                     android:text="@string/details"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:paddingTop="20dp"
                     android:textColor="?attr/colorPrimary"/>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -126,7 +127,7 @@
                         android:gravity="center"
                         android:rotation="270"
                         android:text="@string/for_string"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"/>
 
                     <LinearLayout
@@ -145,7 +146,7 @@
                                 android:layout_weight="1"
                                 android:gravity="center"
                                 android:text="@string/expenses_paid_by"
-                                android:textSize="16sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"/>
                         </LinearLayout>
 
@@ -160,7 +161,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -168,7 +169,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -176,7 +177,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -185,7 +186,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -201,24 +202,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_ff"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_fs"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_fj"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -233,24 +238,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_sf"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_ss"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_sj"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -265,24 +274,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_jff"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_jfs"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_jfj"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -297,24 +310,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_jsf"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_jss"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_jsj"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -330,7 +347,7 @@
                         android:gravity="center"
                         android:rotation="270"
                         android:text="@string/to"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"/>
 
                     <LinearLayout
@@ -349,7 +366,7 @@
                                 android:layout_weight="1"
                                 android:gravity="center"
                                 android:text="@string/transfers_from"
-                                android:textSize="16sp"
+                                android:textSize="14sp"
                                 android:textStyle="bold"/>
                         </LinearLayout>
 
@@ -364,7 +381,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -372,7 +389,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -380,7 +397,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -389,7 +406,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -405,24 +422,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_t_ff"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1" />
 
                             <TextView
                                 android:id="@+id/accounting_t_sf"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_t_jf"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -437,24 +458,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_t_fs"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_t_ss"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1" />
 
                             <TextView
                                 android:id="@+id/accounting_t_js"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -470,24 +495,28 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_t_fj1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_t_sj1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_t_jj1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1" />
                         </LinearLayout>
 
@@ -503,24 +532,28 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
+                                android:textSize="13sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/accounting_t_fj2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_t_sj2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1"/>
 
                             <TextView
                                 android:id="@+id/accounting_t_jj2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textSize="12sp"
                                 android:layout_weight="1" />
                         </LinearLayout>
                     </LinearLayout>

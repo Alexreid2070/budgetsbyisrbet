@@ -20,6 +20,7 @@ import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.*
 
+private const val cMAX_YOY_LABEL_LENGTH = 30
 private const val cDETAIL = 0
 private const val cHEADER = 1
 private const val cSUBTOTAL = 2
@@ -446,8 +447,8 @@ class YearOverYearFragment : Fragment() {
                 }
                 else -> tv2.text = iCategory
             }
-            if (tv2.text.length > 15) {
-                tv2.text = String.format("${tv2.text.substring(0,15)}...")
+            if (tv2.text.length > cMAX_YOY_LABEL_LENGTH) {
+                tv2.text = String.format("${tv2.text.substring(0, cMAX_YOY_LABEL_LENGTH)}...")
             }
         }
 

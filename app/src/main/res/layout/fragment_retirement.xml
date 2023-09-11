@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentBottom="false"
-        android:fadeScrollbars="false"
+        android:fadeScrollbars="true"
         android:padding="5dp"
         app:layout_constraintTop_toBottomOf="@id/page_title_layout"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -66,7 +66,8 @@
                 android:id="@+id/scenario_spinner_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="20dp">
+                android:paddingTop="5dp"
+                android:paddingBottom="10dp">
 
                 <ImageButton
                     android:id="@+id/scenarioSaveButton"
@@ -233,20 +234,20 @@
                     android:visibility="gone" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/calculation_response"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <LinearLayout
                 android:id="@+id/calculation_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/calculation_response"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:paddingBottom="5dp"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/calculation_response2"
@@ -258,20 +259,42 @@
                     android:paddingBottom="10dp"
                     android:textSize="16sp" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/ending_balances"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
+                    android:paddingStart="0dp"
+                    android:paddingEnd="5dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:text="@string/balances"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/start"
+                        android:gravity="end"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/end"
+                        android:gravity="end"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
                 <ListView
                     android:id="@+id/results_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:divider="@null"
-                    android:fadeScrollbars="false"
-                    tools:ignore="NestedScrolling" />
+                    android:fadeScrollbars="true"
+                    tools:ignore="NestedScrolling"/>
             </LinearLayout>
 
             <LinearLayout
@@ -282,21 +305,30 @@
                 android:paddingEnd="5dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="3"
                     android:text="@string/net_worth"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/ending_net_worth"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/starting_net_worth"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:layout_weight="1"
                     android:gravity="end"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/ending_net_worth"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -305,7 +337,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="0dp"
-                android:paddingTop="5dp"
                 android:paddingEnd="5dp">
 
                 <TextView
@@ -313,7 +344,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/lifetime_taxes"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -323,7 +354,7 @@
                     android:layout_gravity="end"
                     android:layout_weight="1"
                     android:gravity="end"
-                    android:textSize="16sp" />
+                    android:textSize="15sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -338,7 +369,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/lifetime_surplus"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -348,7 +379,7 @@
                     android:layout_gravity="end"
                     android:layout_weight="1"
                     android:gravity="end"
-                    android:textSize="16sp" />
+                    android:textSize="15sp" />
             </LinearLayout>
 
         </LinearLayout>

@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
+import timber.log.Timber
 
 class BudgetViewAllFragment : Fragment() {
     private var _binding: FragmentBudgetViewAllBinding? = null
@@ -105,6 +106,11 @@ class BudgetViewAllFragment : Fragment() {
         }
 
         binding.budgetAddFab.setOnClickListener {
+            if (binding.budgetCategorySpinner.selectedItem == null) {
+                val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, CategoryViewModel.getCombinedCategoriesForSpinner())
+                binding.budgetCategorySpinner.adapter = arrayAdapter
+                arrayAdapter.notifyDataSetChanged()
+            }
             val currentCategory = Category(0, binding.budgetCategorySpinner.selectedItem.toString())
             val action =
                 SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()

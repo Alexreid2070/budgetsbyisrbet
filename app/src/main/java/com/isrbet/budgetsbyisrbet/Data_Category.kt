@@ -11,6 +11,8 @@ import com.google.firebase.database.ValueEventListener
 import timber.log.Timber
 import java.util.ArrayList
 
+var maxCategoryID = 1000
+
 data class Category(var id: Int, var categoryName: String, var subcategoryName: String,
                     var discType: String = "", var private: Int = 2,
                     var inUse: Boolean = true) {
@@ -122,12 +124,12 @@ class CategoryViewModel : ViewModel() {
         }
 
         private fun getNextID(): Int {
-            var maxID = 1000
             singleInstance.categories.forEach {
-                if (it.id > maxID)
-                    maxID = it.id
+                if (it.id > maxCategoryID)
+                    maxCategoryID = it.id
             }
-            return (maxID+1)
+            maxCategoryID += 1
+            return (maxCategoryID)
         }
 
         fun isThereAtLeastOneCategoryThatIAmNotAllowedToSee(): Boolean {

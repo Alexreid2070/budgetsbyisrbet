@@ -321,25 +321,27 @@ class ScheduledPaymentViewModel : ViewModel() {
 
             var tLoanText = ""
             singleInstance.scheduledPayments.forEach { sp ->
-                val tempString = if (sp.note == "") sp.vendor
-                else String.format("${sp.vendor} (${sp.note})")
-                tLoanText = if (sp.activeLoan)
-                    "\n  (Loan balance will be \$${sp.getOutstandingLoanAmount(tDate)} after payment)."
-                else
-                    ""
-                if (sp.lastDate.toString() == today ||
-                        sp.nextdate == today) {
-                    tReply = if (tReply == "") {
-                        "--\$${gDecM(sp.amount)} for $tempString due today, $todayString.$tLoanText"
-                    } else {
-                        "--\$${gDecM(sp.amount)} for $tempString due today, $todayString.$tLoanText\n$tReply"
+                if (!sp.isExpired()) {
+                    val tempString = if (sp.note == "") sp.vendor
+                    else String.format("${sp.vendor} (${sp.note})")
+                    tLoanText = if (sp.activeLoan)
+                        "\n  (Loan balance will be \$${sp.getOutstandingLoanAmount(tDate)} after payment)."
+                    else
+                        ""
+                    if (sp.lastDate.toString() == today ||
+                            sp.nextdate == today) {
+                        tReply = if (tReply == "") {
+                            "--\$${gDecM(sp.amount)} for $tempString due today, $todayString.$tLoanText"
+                        } else {
+                            "--\$${gDecM(sp.amount)} for $tempString due today, $todayString.$tLoanText\n$tReply"
+                        }
+                    } else if (sp.nextdate != "" && sp.nextdate <= tDate.toString()) {
+                        val myNextDate = MyDate(sp.nextdate)
+                        tReply = if (tReply == "") {
+                            "--\$${gDecM(sp.amount)} for $tempString due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}.$tLoanText"
+                        } else
+                            "$tReply\n--\$${gDecM(sp.amount)} for $tempString due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}.$tLoanText"
                     }
-                } else if (sp.nextdate != "" && sp.nextdate <= tDate.toString()) {
-                    val myNextDate = MyDate(sp.nextdate)
-                    tReply = if (tReply == "") {
-                        "--\$${gDecM(sp.amount)} for $tempString due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}.$tLoanText"
-                    } else
-                        "$tReply\n--\$${gDecM(sp.amount)} for $tempString due ${gShortMonthName(myNextDate.getMonth())} ${myNextDate.getDay()}.$tLoanText"
                 }
             }
 
@@ -368,15 +370,6 @@ class ScheduledPaymentViewModel : ViewModel() {
             scheduledPaymentListener = null
         }
     }
-
-/*    fun setCallback(iCallback: DataUpdatedCallback?) {
-        dataUpdatedCallback = iCallback
-    }
-
-    fun clearCallback() {
-        dataUpdatedCallback = null
-    }
-*/
     fun loadScheduledPayments() {
         // Do an asynchronous operation to fetch scheduled payments pka recurring transactions
         scheduledPaymentListener = object : ValueEventListener {
@@ -426,7 +419,9 @@ class ScheduledPaymentViewModel : ViewModel() {
                 singleInstance.loaded = true
 //                dataUpdatedCallback?.onDataUpdate()
                 singleInstance.scheduledPaymentsLiveData.value = singleInstance.scheduledPayments
-                generateScheduledPayments()
+                if (!MyApplication.amCurrentlyImpersonating()) {
+                    generateScheduledPayments()
+                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

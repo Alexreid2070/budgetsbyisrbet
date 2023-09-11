@@ -21,6 +21,7 @@ import java.math.RoundingMode
 import java.util.*
 import kotlin.math.abs
 
+private const val cMAX_DASHBOARD_LABEL_LENGTH = 32
 
 private const val cDETAIL = 0
 private const val cHEADER = 1
@@ -327,11 +328,13 @@ class DashboardFragment : Fragment() {
                 cSUBTOTAL -> {
                     tv1.text = String.format("$iCategory ${getString(R.string.total)}")
                     tv1.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.ic_baseline_expand_less_24, 0, 0, 0);                }
+                        R.drawable.ic_baseline_expand_less_24, 0, 0, 0);
+                    Timber.tag("Alex").d("padding is ${tv1.compoundDrawablePadding}")
+                }
                 else -> tv1.text = iCategory
             }
-            if (tv1.text.length > 15) {
-                tv1.text = String.format("${tv1.text.substring(0,15)}...")
+            if (tv1.text.length > cMAX_DASHBOARD_LABEL_LENGTH) {
+                tv1.text = String.format("${tv1.text.substring(0, cMAX_DASHBOARD_LABEL_LENGTH)}...")
             }
         }
 //        tv1.tag = getString(R.string.expanded)
@@ -505,11 +508,11 @@ class DashboardFragment : Fragment() {
         }
         else if (iRowType == cSUBTOTAL) {
             tv1.setTypeface(null, Typeface.BOLD)
-            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
-            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // 14F is default
-            tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
-            tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
-            tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
+            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
+            tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
+            tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
+            tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15F) // 14F is default
             tv5.setTextColor(getBudgetColour(requireContext(), iActualAmount, iBudgetAmount, true))
 
             val cat = DefaultsViewModel.getCategoryDetail(iCategory)
@@ -540,8 +543,8 @@ class DashboardFragment : Fragment() {
         }
         else if (iRowType == cGRANDTOTAL) {
             tv1.setTypeface(null, Typeface.BOLD)
-            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F) // 14F is default
-            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18F) // 14F is default
+            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
+            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv4.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default
             tv5.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // 14F is default

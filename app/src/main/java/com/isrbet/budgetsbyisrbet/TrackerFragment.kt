@@ -476,6 +476,8 @@ class TrackerFragment : Fragment(), CoroutineScope {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
+        Timber.tag("Alex").d("total budget is $totalBudget")
+        hackBudgetTotal = totalBudget
 
         var totalBudgetToDate = 0.0
         var daysInMonth = 1

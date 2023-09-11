@@ -274,6 +274,7 @@ data class RetirementData(
                                         assetID,
                                         name,
                                         value,
+                                        value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
@@ -288,6 +289,7 @@ data class RetirementData(
                                         assetID,
                                         name,
                                         value,
+                                        value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
@@ -300,6 +302,7 @@ data class RetirementData(
                                     newAsset = LIRALIF(
                                         assetID,
                                         name,
+                                        value,
                                         value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
@@ -315,6 +318,7 @@ data class RetirementData(
                                         assetID,
                                         name,
                                         value,
+                                        value,
                                         pensionStartDate,
                                         gCurrentDate.getYear(),
                                         annualAmount,
@@ -329,6 +333,7 @@ data class RetirementData(
                                         assetID,
                                         name,
                                         value,
+                                        value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
                                         annualContribution,
@@ -342,6 +347,7 @@ data class RetirementData(
                                     newAsset = Property(
                                         assetID,
                                         name,
+                                        value,
                                         value,
                                         useDefaultGrowthPct,
                                         estimatedGrowthPct,
@@ -606,7 +612,8 @@ class AdditionalItem(var id: Int, var type: AdditionalType, var name: String, va
     }
 }
 
-abstract class Asset(val id: Int, var assetType: AssetType, val name: String, private var value: Int,
+abstract class Asset(val id: Int, var assetType: AssetType, val name: String,
+                     val originalStartingValue: Int, private var value: Int,
                      var useDefaultGrowthPct: Boolean,
                      var estimatedGrowthPct: Double, var annualContribution: Int,
                      var willSellToFinanceRetirement: Boolean,
@@ -628,6 +635,9 @@ abstract class Asset(val id: Int, var assetType: AssetType, val name: String, pr
     }
     open fun getEndingBalance() : Int {
         return  value - withdrawalAmount + growthThisYear + additionalGrowthThisYear
+    }
+    fun getOriginalStartingBalance() : Int {
+        return originalStartingValue
     }
     open fun computeGrowth() {
         growthThisYear = if (value != 0 && withdrawalAmount < value)
@@ -667,6 +677,7 @@ abstract class Asset(val id: Int, var assetType: AssetType, val name: String, pr
 open class RRSP (
     id: Int,
     name: String,
+    originalStartingValue: Int,
     value: Int,
     useDefaultGrowthPct: Boolean,
     estimatedGrowthPct: Double,
@@ -675,7 +686,7 @@ open class RRSP (
     distributionOrder: Int,
     private var ageAtStartOfYear: Int,
     var minimizeTax: MinimizeTaxEnum) :
-        Asset(id, AssetType.RRSP, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        Asset(id, AssetType.RRSP, name, originalStartingValue, value, useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, true, monthsOfGrowthThisYear,
             distributionOrder) {
     init {
@@ -684,7 +695,8 @@ open class RRSP (
     }
 
     override fun copy(): Asset {
-        val rrsp = RRSP(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
+        val rrsp = RRSP(id, name, originalStartingValue, getValue(),
+            useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
             monthsOfGrowthThisYear, distributionOrder, ageAtStartOfYear, minimizeTax)
         rrsp.additionalGrowthThisYear = additionalGrowthThisYear
         return rrsp
@@ -693,6 +705,7 @@ open class RRSP (
         return RRSP(
             id,
             name,
+            originalStartingValue,
             getEndingBalance(),
             useDefaultGrowthPct,
             estimatedGrowthPct,
@@ -749,6 +762,7 @@ open class RRSP (
 class LIRALIF (
     id: Int,
     name: String,
+    originalStartingValue: Int,
     value: Int,
     useDefaultGrowthPct: Boolean,
     estimatedGrowthPct: Double,
@@ -757,7 +771,7 @@ class LIRALIF (
     distributionOrder: Int,
     private var ageAtStartOfYear: Int,
     minimizeTax: MinimizeTaxEnum) :
-    RRSP(id, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+    RRSP(id, name, originalStartingValue, value, useDefaultGrowthPct, estimatedGrowthPct,
         annualContribution, monthsOfGrowthThisYear, distributionOrder,
         ageAtStartOfYear, minimizeTax) {
     init {
@@ -767,7 +781,8 @@ class LIRALIF (
     }
 
     override fun copy(): Asset {
-        val liraLif = LIRALIF(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
+        val liraLif = LIRALIF(id, name, originalStartingValue, getValue(),
+            useDefaultGrowthPct, estimatedGrowthPct, annualContribution,
             monthsOfGrowthThisYear, distributionOrder, ageAtStartOfYear, minimizeTax)
         liraLif.additionalGrowthThisYear = additionalGrowthThisYear
         return liraLif
@@ -776,6 +791,7 @@ class LIRALIF (
         return LIRALIF(
             id,
             name,
+            originalStartingValue,
             getEndingBalance(),
             useDefaultGrowthPct,
             estimatedGrowthPct,
@@ -798,6 +814,7 @@ class LIRALIF (
 class LIRAANNUITY (
     id: Int,
     name: String,
+    originalStartingValue: Int,
     value: Int,
     var pensionStartDate: String,
     var currentYear: Int,
@@ -806,7 +823,8 @@ class LIRAANNUITY (
     estimatedGrowthPct: Double,
     monthsOfGrowthThisYear: Int,
     distributionOrder: Int) :
-    Asset(id, AssetType.LIRA_ANNUITY, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+    Asset(id, AssetType.LIRA_ANNUITY, name, originalStartingValue, value,
+        useDefaultGrowthPct, estimatedGrowthPct,
         0, true, monthsOfGrowthThisYear, distributionOrder) {
     init {
         withdrawalAmount = if (pensionStartDate.substring(0,4).toInt() == 0)
@@ -823,7 +841,7 @@ class LIRAANNUITY (
 
     override fun copy(): Asset {
         return LIRAANNUITY(
-            id, name, getValue(), pensionStartDate, currentYear,
+            id, name, originalStartingValue, getValue(), pensionStartDate, currentYear,
             annualAmount, useDefaultGrowthPct, estimatedGrowthPct,
             monthsOfGrowthThisYear, distributionOrder
         )
@@ -836,6 +854,7 @@ class LIRAANNUITY (
         return LIRAANNUITY(
             id,
             name,
+            originalStartingValue,
             getEndingBalance(),
             pensionStartDate,
             currentYear+1,
@@ -868,6 +887,7 @@ class LIRAANNUITY (
 class TFSA(
     id: Int,
     name: String,
+    originalStartingValue: Int,
     value: Int,
     useDefaultGrowthPct: Boolean,
     estimatedGrowthPct: Double,
@@ -875,7 +895,8 @@ class TFSA(
     willSellToFinanceRetirement: Boolean,
     monthsOfGrowthThisYear: Int,
     distributionOrder: Int) :
-        Asset(id, AssetType.TFSA, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        Asset(id, AssetType.TFSA, name, originalStartingValue, value,
+            useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, willSellToFinanceRetirement, monthsOfGrowthThisYear,
             distributionOrder) {
 
@@ -891,7 +912,8 @@ class TFSA(
     }
 
     override fun copy(): Asset {
-        val tfsa = TFSA(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct,
+        val tfsa = TFSA(id, name, originalStartingValue, getValue(),
+            useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, willSellToFinanceRetirement, monthsOfGrowthThisYear,
             distributionOrder)
         tfsa.additionalGrowthThisYear = additionalGrowthThisYear
@@ -901,6 +923,7 @@ class TFSA(
         return TFSA(
             id,
             name,
+            originalStartingValue,
             getEndingBalance(),
             useDefaultGrowthPct,
             estimatedGrowthPct,
@@ -915,6 +938,7 @@ class TFSA(
 class Savings(
     id: Int,
     name: String,
+    originalStartingValue: Int,
     value: Int,
     useDefaultGrowthPct: Boolean,
     estimatedGrowthPct: Double,
@@ -923,7 +947,8 @@ class Savings(
     monthsOfGrowthThisYear: Int,
     distributionOrder: Int,
     var taxSheltered: Boolean) :
-        Asset(id, AssetType.SAVINGS, name, value, useDefaultGrowthPct, estimatedGrowthPct,
+        Asset(id, AssetType.SAVINGS, name, originalStartingValue, value,
+            useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, willSellToFinanceRetirement, monthsOfGrowthThisYear,
             distributionOrder) {
 
@@ -940,7 +965,8 @@ class Savings(
     }
 
     override fun copy(): Asset {
-        val savings = Savings(id, name, getValue(), useDefaultGrowthPct, estimatedGrowthPct,
+        val savings = Savings(id, name, originalStartingValue, getValue(),
+            useDefaultGrowthPct, estimatedGrowthPct,
             annualContribution, willSellToFinanceRetirement, monthsOfGrowthThisYear,
             distributionOrder, taxSheltered)
         savings.additionalGrowthThisYear = additionalGrowthThisYear
@@ -950,6 +976,7 @@ class Savings(
         return Savings(
             id,
             name,
+            originalStartingValue,
             getEndingBalance(),
             useDefaultGrowthPct,
             estimatedGrowthPct,
@@ -976,6 +1003,7 @@ class Savings(
 class Property(
     id: Int,
     name: String,
+    originalStartingValue: Int,
     value: Int,
     useDefaultGrowthPct: Boolean,
     private var estimatedGrowthPctAsProperty: Double,
@@ -989,7 +1017,7 @@ class Property(
     var ownershipPct: Double,
     var soldInYear: Int,
     var primaryResidence: Boolean) :
-        Asset(id, AssetType.PROPERTY, name, value, useDefaultGrowthPct,
+        Asset(id, AssetType.PROPERTY, name, originalStartingValue, value, useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, 0, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder) {
     init {
@@ -1004,7 +1032,7 @@ class Property(
             0
     }
     override fun copy(): Asset {
-        val prop = Property(id, name, getValue(), useDefaultGrowthPct,
+        val prop = Property(id, name, originalStartingValue, getValue(), useDefaultGrowthPct,
             estimatedGrowthPctAsProperty, willSellToFinanceRetirement,
             monthsOfGrowthThisYear, distributionOrder,
             increasedBudget,
@@ -1017,6 +1045,7 @@ class Property(
         return Property(
             id,
             name,
+            originalStartingValue,
             getEndingBalance(),
             useDefaultGrowthPct,
             estimatedGrowthPctAsProperty,
@@ -1640,6 +1669,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 AssetType.RRSP -> {
                     val rrsp = RRSP(it.id,
                         it.name,
+                        it.originalStartingValue,
                         it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
@@ -1654,6 +1684,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 AssetType.TFSA -> {
                     val tfsa = TFSA(it.id,
                         it.name,
+                        it.originalStartingValue,
                         it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
@@ -1667,6 +1698,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 AssetType.LIRA_LIF -> {
                     val lira = LIRALIF(it.id,
                         it.name,
+                        it.originalStartingValue,
                         it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
@@ -1681,6 +1713,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 AssetType.LIRA_ANNUITY -> {
                     val lira = LIRAANNUITY(it.id,
                         it.name,
+                        it.originalStartingValue,
                         it.getValue(),
                         (it as LIRAANNUITY).pensionStartDate,
                         it.currentYear,
@@ -1695,6 +1728,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 AssetType.SAVINGS -> {
                     val sav = Savings(it.id,
                         it.name,
+                        it.originalStartingValue,
                         it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) investmentGrowthRate else it.estimatedGrowthPct,
@@ -1709,6 +1743,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
                 AssetType.PROPERTY -> {
                     val prop = Property(it.id,
                         it.name,
+                        it.originalStartingValue,
                         it.getValue(),
                         it.useDefaultGrowthPct,
                         if (it.useDefaultGrowthPct) propertyGrowthRate else it.estimatedGrowthPct,
@@ -1782,7 +1817,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
             assetIncomes[1].getEndingBalance()+assetIncomes[2].getEndingBalance(),
             assetIncomes[3].withdrawalAmount,
             assetIncomes[3].getEndingBalance(),
-            getNetWorth())
+            getEndingNetWorth())
 //        Log.d("Alex", "$userID $year tgInc ${gDec(targetAnnualIncome)} cpp ${gDec(cppIncome)} oas ${gDec(oasIncome)} sal $salaryIncomes pen $pensionIncomes")
 //        assetIncomes.forEach {
 //            Log.d("Alex", "${it.name} value ${gDec(it.value)} gpct ${gDec(it.estimatedGrowthPct)} growth ${gDec(it.growthThisYear)} withdrawal ${gDec(it.withdrawalAmount)} end ${gDec(it.getEndingBalance())}")
@@ -1845,7 +1880,15 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         return nextRow
     }
 
-    fun getNetWorth(iType: AssetType = AssetType.ALL) : Int {
+    fun getStartingNetWorth(iType: AssetType = AssetType.ALL) : Int {
+        var tmp = 0
+        assetIncomes.forEach {
+            if (iType == AssetType.ALL || it.assetType == iType)
+                tmp += it.getOriginalStartingBalance()
+        }
+        return tmp
+    }
+    fun getEndingNetWorth(iType: AssetType = AssetType.ALL) : Int {
         var tmp = 0
         assetIncomes.forEach {
             if (iType == AssetType.ALL || it.assetType == iType)

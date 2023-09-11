@@ -280,7 +280,7 @@
             <View
                 android:id="@+id/line1"
                 android:layout_width="match_parent"
-                android:layout_height="3dp"
+                android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
                 android:paddingBottom="10dp" />
 
@@ -346,30 +346,15 @@
                     android:valueTo="100.0" />
             </LinearLayout>
 
-            <HorizontalScrollView
+            <TextView
+                android:id="@+id/split_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fadeScrollbars="false"
-                android:scrollbarThumbHorizontal="?attr/colorSecondary">
-
-                <LinearLayout
-                    android:id="@+id/split_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp">
-
-                    <TextView
-                        android:id="@+id/split_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:textSize="16sp" />
-                </LinearLayout>
-            </HorizontalScrollView>
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:textSize="14sp" />
 
             <LinearLayout
                 android:id="@+id/settings_category_spinner_layout"

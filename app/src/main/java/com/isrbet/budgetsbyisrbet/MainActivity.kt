@@ -6,14 +6,20 @@ import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.SignInButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
 import timber.log.Timber
 
@@ -21,13 +27,25 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-
+    lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var notificationManager: NotificationManager
 //    lateinit var notificationChannel: NotificationChannel
     lateinit var builder: Notification.Builder
     var bottomPadding = 0
 //    private val channelId = "i.apps.notifications"
   //  private val description = "Test notification"
+
+    private val defaultsModel: DefaultsViewModel by viewModels()
+    private val transactionModel: TransactionViewModel by viewModels()
+    private val categoryModel: CategoryViewModel by viewModels()
+    private val spenderModel: SpenderViewModel by viewModels()
+    private val budgetModel: BudgetViewModel by viewModels()
+    private val scheduledPaymentModel: ScheduledPaymentViewModel by viewModels()
+    private val retirementUserModel: RetirementViewModel by viewModels()
+    private val userModel: AppUserViewModel by viewModels()
+    private val hintModel: HintViewModel by viewModels()
+    private val translationModel: TranslationViewModel by viewModels()
+
 
     // MainActivity's onStart is called only once at app start-up
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,6 +114,13 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
+    fun setGoogleSignInClient(iClient: GoogleSignInClient) {
+        mGoogleSignInClient = iClient
+    }
+    fun getGoogleSignInClient() : GoogleSignInClient {
+        return mGoogleSignInClient
+    }
+
     fun multipleUserMode(iFlag: Boolean) {
 //        val navigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
         val navMenu: Menu = binding.bottomNavigationView.menu
@@ -139,4 +164,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun loadEverything() {
+        hintModel.loadHints()
+        defaultsModel.loadDefaults()
+        categoryModel.loadCategories()
+        spenderModel.loadSpenders()
+        budgetModel.loadBudgetNews()
+//        budgetModel.loadBudgets()
+        scheduledPaymentModel.loadScheduledPayments()
+        retirementUserModel.loadRetirementUsers()
+        transactionModel.loadTransactions()
+        translationModel.loadTranslations()
+//        setupDataCallbacks()
+        MyApplication.haveLoadedDataForThisUser = true
+        MyApplication.database.getReference("Users/" + MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("LastSignIn")
+            .child("date")
+            .setValue(gCurrentDate.toString())
+        MyApplication.database.getReference("Users/" + MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("LastSignIn")
+            .child("time").setValue(gCurrentDate.toString())
+        MyApplication.database.getReference("Users/" + MyApplication.userUID)
+            .child("Info")
+            .child(SpenderViewModel.myIndex().toString())
+            .child("Version").setValue(getMyVersion())
+    }
 }

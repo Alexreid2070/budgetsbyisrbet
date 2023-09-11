@@ -12,15 +12,15 @@ class GetBudgetAmountTest {
     @Test
     fun budgetAmountTest() {
         val spenderModel = SpenderViewModel()
-        spenderModel.clearCallback()
+//        spenderModel.clearCallback()
         val catModel = CategoryViewModel()
-        catModel.clearCallback()
+//        catModel.clearCallback()
         val budgetModel = BudgetViewModel()
-        budgetModel.clearCallback()
+//        budgetModel.clearCallback()
         val expModel = TransactionViewModel()
-        expModel.clearCallback()
+//        expModel.clearCallback()
         val defModel = DefaultsViewModel()
-        defModel.clearCallback()
+//        defModel.clearCallback()
         SpenderViewModel.addLocalSpender(Spender("Alex", "alexreid2070@gmail.com", 50, 1))
         SpenderViewModel.addLocalSpender(Spender("Brent", "alexreid2071@gmail.com", 50, 1))
         SpenderViewModel.addLocalSpender(Spender("Joint", "", 100, 1))
@@ -183,7 +183,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        var totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        var totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeDiscretionary, 0)
         Assert.assertEquals(2.0, totAc, 0.0)
         Assert.assertEquals(15.0, totalBudget, 0.0)
@@ -193,7 +193,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeDiscretionary, 1)
         Assert.assertEquals(1.0, totAc, 0.0)
         Assert.assertEquals(1.0, totalBudget, 0.0)
@@ -203,7 +203,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeDiscretionary, 2)
         Assert.assertEquals(3.0, totAc, 0.0)
         Assert.assertEquals(16.0, totalBudget, 0.0)
@@ -213,7 +213,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeNondiscretionary, 0)
         Assert.assertEquals(0.0, totAc, 0.0)
         Assert.assertEquals(155.0, totalBudget, 0.0)
@@ -223,7 +223,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeNondiscretionary, 1)
         Assert.assertEquals(0.0, totAc, 0.0)
         Assert.assertEquals(155.0, totalBudget, 0.0)
@@ -233,7 +233,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeNondiscretionary, 2)
         Assert.assertEquals(0.0, totAc, 0.0)
         Assert.assertEquals(310.0, totalBudget, 0.0)
@@ -243,7 +243,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeAll, 0)
         Assert.assertEquals(2.0, totAc, 0.0)
         Assert.assertEquals(170.0, totalBudget, 0.0)
@@ -253,7 +253,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeAll, 1)
         Assert.assertEquals(1.0, totAc, 0.0)
         Assert.assertEquals(156.0, totalBudget, 0.0)
@@ -263,7 +263,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-01-01", "2022-01-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-01-01"), MyDate("2022-01-31"),
             cDiscTypeAll, 2)
         Assert.assertEquals(3.0, totAc, 0.0)
         Assert.assertEquals(326.0, totalBudget, 0.0)
@@ -273,7 +273,7 @@ class GetBudgetAmountTest {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        totAc = TransactionViewModel.getTotalActualsForRange("2022-02-01", "2022-02-31",
+        totAc = TransactionViewModel.getTotalActualsForRange(MyDate("2022-02-01"), MyDate("2022-02-31"),
             cDiscTypeDiscretionary, 0)
         Assert.assertEquals(8.0, totAc, 0.0)
         Assert.assertEquals(15.0, totalBudget, 0.0)

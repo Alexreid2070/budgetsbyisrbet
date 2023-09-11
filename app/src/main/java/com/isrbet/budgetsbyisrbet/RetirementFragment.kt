@@ -100,6 +100,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                                 moveAsset(item.distributionOrder, 1)
                             })
                         binding.rf.assetsListView.adapter = myAdapter
+                        Timber.tag("Alex").d("Calling setListViewHeight for assets 1")
                         setListViewHeightBasedOnChildren(binding.rf.assetsListView)
                         binding.rf.assetsExpandButton.text =
                             String.format(getString(R.string.assets), myAdapter.count)
@@ -117,6 +118,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                     loadRetirementInfoFromWorking = true
                     val myAdapter = PensionAdapter(requireContext(), RetirementScenarioType.SCENARIO)
                     binding.rf.pensionsListView.adapter = myAdapter
+                    Timber.tag("Alex").d("Calling setListViewHeight for pensions 2")
                     setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
                     binding.rf.pensionsExpandButton.text =
                         String.format(getString(R.string.pensions), myAdapter.count)
@@ -288,9 +290,11 @@ class RetirementFragment : Fragment(), CoroutineScope {
     private fun updateAdditionalItemsAdapters() {
         val myExpAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE, RetirementScenarioType.SCENARIO)
         binding.rf.additionalExpendituresListView.adapter = myExpAdapter
+        Timber.tag("Alex").d("Calling setListViewHeight for expenditurs 3")
         setListViewHeightBasedOnChildren(binding.rf.additionalExpendituresListView)
         val myDepAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.DEPOSIT, RetirementScenarioType.SCENARIO)
         binding.rf.additionalDepositsListView.adapter = myDepAdapter
+        Timber.tag("Alex").d("Calling setListViewHeight for deposits  4")
         setListViewHeightBasedOnChildren(binding.rf.additionalDepositsListView)
         val totalItems = myExpAdapter.count + myDepAdapter.count
         binding.rf.additionalExpandButton.text =
@@ -363,6 +367,11 @@ class RetirementFragment : Fragment(), CoroutineScope {
             return
 
         setSummaryFields(View.GONE)
+
+        binding.calculationResponse.setTextColor(
+            ContextCompat.getColor(requireContext(), R.color.orange_salmon))
+        binding.calculationResponse.text = getString(R.string.calculating)
+
         binding.scenarioNameInput.error = null
         binding.scenarioNameEntireLayout.visibility = View.GONE
 
@@ -372,7 +381,6 @@ class RetirementFragment : Fragment(), CoroutineScope {
             val result =  getCalculationRows(rtData, false)
             gotTheCalculationRows(result, rtData.inflationRate) // onResult is called on the main thread
         }
-
         launch {
             val result =  getEarliestRetirementYear(rtData)
             gotTheEarliestRetirementYear(result) // onResult is called on the main thread
@@ -407,14 +415,17 @@ class RetirementFragment : Fragment(), CoroutineScope {
     }
     private fun fillInSummaryFields() {
         if (myLastRow != null) {
-            myEndingNetWorth = myLastRow!!.getNetWorth(AssetType.ALL)
+            myEndingNetWorth = myLastRow!!.getEndingNetWorth(AssetType.ALL)
+            val myStartingNetWorth = myLastRow!!.getStartingNetWorth(AssetType.ALL)
             binding.lifetimeTaxes.text = gDecWithCurrency(myLifetimeTaxes)
             binding.lifetimeSurplus.text = gDecWithCurrency(myLifetimeSurplus)
+            binding.startingNetWorth.text = gDecWithCurrency(myStartingNetWorth)
             binding.endingNetWorth.text = gDecWithCurrency(myEndingNetWorth)
             setSummaryFields(View.VISIBLE)
 
             val adapter = RetirementResultsAdapter(requireContext(), myLastRow!!)
             binding.resultsListView.adapter = adapter
+            Timber.tag("Alex").d("Calling setListViewHeight for results 5")
             setListViewHeightBasedOnChildren(binding.resultsListView)
         }
     }
@@ -481,14 +492,14 @@ class RetirementFragment : Fragment(), CoroutineScope {
             }
             binding.calculationResponse.text = myCalculationResponse
             binding.calculationResponse2.text = myCalculationResponse2
-        } else {
+        } /* else {
             myCalculationResponse = String.format(getString(R.string.you_cannot))
             binding.calculationResponse.text = myCalculationResponse
             myCalculationResponse2 = ""
             binding.calculationResponse2.text = myCalculationResponse2
             binding.calculationResponse.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.red))
-        }
+        } */
     }
 
     private fun onDeleteButtonClicked() {
@@ -772,12 +783,16 @@ class RetirementFragment : Fragment(), CoroutineScope {
             binding.rf.cpp70Amount.setText("")
             binding.rf.oasCurrentAnnualAmount.setText("")
             binding.rf.assetsListView.adapter = null
+            Timber.tag("Alex").d("Calling setListViewHeight for assets 6")
             setListViewHeightBasedOnChildren(binding.rf.assetsListView)
             binding.rf.pensionsListView.adapter = null
+            Timber.tag("Alex").d("Calling setListViewHeight for pensions 7")
             setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
             binding.rf.additionalDepositsListView.adapter = null
+            Timber.tag("Alex").d("Calling setListViewHeight for deposits 8")
             setListViewHeightBasedOnChildren(binding.rf.additionalDepositsListView)
             binding.rf.additionalExpendituresListView.adapter = null
+            Timber.tag("Alex").d("Calling setListViewHeight for expenditurs 9")
             setListViewHeightBasedOnChildren(binding.rf.additionalExpendituresListView)
         }
     }
@@ -797,6 +812,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         binding.rf.assetsExpandButton.text =
             String.format(getString(R.string.assets), adapter.count)
         binding.rf.assetsListView.adapter = adapter
+        Timber.tag("Alex").d("Calling setListViewHeight for assets 10")
         setListViewHeightBasedOnChildren(binding.rf.assetsListView)
         binding.rf.assetsListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
@@ -819,6 +835,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                             { item ->
                                 moveAsset(item.distributionOrder, 1) })
                         binding.rf.assetsListView.adapter = myAdapter
+                        Timber.tag("Alex").d("Calling setListViewHeight for assets 11")
                         setListViewHeightBasedOnChildren(binding.rf.assetsListView)
                         binding.rf.assetsExpandButton.text =
                             String.format(getString(R.string.assets), myAdapter.count)
@@ -832,6 +849,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             String.format(getString(R.string.pensions), gRetirementWorking?.getPensionListCount())
         val padapter = PensionAdapter(requireContext(), RetirementScenarioType.SCENARIO)
         binding.rf.pensionsListView.adapter = padapter
+        Timber.tag("Alex").d("Calling setListViewHeight for pensions 12")
         setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
         binding.rf.pensionsListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
@@ -847,6 +865,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
                         loadRetirementInfoFromWorking = true
                         val myAdapter = PensionAdapter(requireContext(), RetirementScenarioType.SCENARIO)
                         binding.rf.pensionsListView.adapter = myAdapter
+                        Timber.tag("Alex").d("Calling setListViewHeight for pensions 13")
                         setListViewHeightBasedOnChildren(binding.rf.pensionsListView)
                         binding.rf.pensionsExpandButton.text =
                             String.format(getString(R.string.pensions), gRetirementWorking?.getPensionListCount())
@@ -866,9 +885,11 @@ class RetirementFragment : Fragment(), CoroutineScope {
                 gRetirementWorking?.getAdditionalListCount(AdditionalType.EXPENSE))
         val expAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.EXPENSE, RetirementScenarioType.SCENARIO)
         binding.rf.additionalExpendituresListView.adapter = expAdapter
+        Timber.tag("Alex").d("Calling setListViewHeight for expenditures 14")
         setListViewHeightBasedOnChildren(binding.rf.additionalExpendituresListView)
         val depAdapter = AdditionalItemsAdapter(requireContext(), AdditionalType.DEPOSIT, RetirementScenarioType.SCENARIO)
         binding.rf.additionalDepositsListView.adapter = depAdapter
+        Timber.tag("Alex").d("Calling setListViewHeight for deposits 15")
         setListViewHeightBasedOnChildren(binding.rf.additionalDepositsListView)
         binding.rf.additionalExpendituresListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> // value of item that is clicked
@@ -919,6 +940,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         )
 
         adapter.refreshData()
+        Timber.tag("Alex").d("Calling setListViewHeight for assets 16")
         setListViewHeightBasedOnChildren(binding.rf.assetsListView)
         adapter.notifyDataSetChanged()
         loadRetirementInfoFromWorking = true
@@ -934,6 +956,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
             val listItem = listAdapter.getView(i, null, listView)
             listItem.measure(0, 0)
             totalHeight += listItem.measuredHeight
+            Timber.tag("Alex").d("$i of $cnt Added ${listItem.measuredHeight} to totalHeight")
         }
         val params = listView.layoutParams
         params.height = (totalHeight

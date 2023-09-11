@@ -182,13 +182,14 @@ class TransactionViewAllFragment : Fragment() {
 
         binding.transactionSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(newText: String?): Boolean {
-                submitSearch(newText)
-                return false
+//                submitSearch(newText)
+                return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                submitSearch(newText)
-                return false
+                if (binding.transactionSearch.visibility == View.VISIBLE) // because this fun is triggered on start-up...
+                    submitSearch(newText)
+                return true
             }
         })
 
@@ -599,7 +600,7 @@ class TransactionViewAllFragment : Fragment() {
             reset()
         }
 
-        binding.dateHeading.setOnClickListener {
+        binding.sortIndicator.setOnClickListener {
             when (currentSortOrder) {
                 TransactionSortOrder.DATE_ASCENDING -> {
                     currentSortOrder = TransactionSortOrder.DATE_DESCENDING
@@ -756,7 +757,6 @@ class TransactionViewAllFragment : Fragment() {
         resetFilters()
         filterMode = ""
         binding.expandedViewColumnLayout.visibility = View.GONE
-        binding.transactionSearch.visibility = View.GONE
         binding.navButtonLinearLayout.visibility = View.VISIBLE
         binding.expandedFilterLayout.visibility = View.GONE
         binding.expandedLabelLayout.visibility = View.GONE
@@ -834,10 +834,10 @@ class TransactionViewAllFragment : Fragment() {
     private fun adjustColumnHeadings(iSortOrderDirection: SortOrderDirection) {
         when (iSortOrderDirection) {
             SortOrderDirection.ASCENDING -> {
-                binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null)
+                binding.sortIndicator.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_less_24), null)
             }
             SortOrderDirection.DESCENDING -> {
-                binding.dateHeading.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null)
+                binding.sortIndicator.setCompoundDrawablesWithIntrinsicBounds(null, null, ContextCompat.getDrawable(requireActivity(),R.drawable.ic_baseline_expand_more_24), null)
             }
         }
         binding.dateHeading.text = getString(R.string.date)
@@ -975,7 +975,7 @@ class TransactionViewAllFragment : Fragment() {
 
     private fun resetFilters() {
         val adapter: TransactionRecyclerAdapter =
-            binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
+        binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
         adapter.setCategoryIDFilter(0)
         binding.categorySpinner.setSelection(0)
         adapter.setCategoryFilter("")
@@ -990,6 +990,7 @@ class TransactionViewAllFragment : Fragment() {
         binding.allTypeRadioButton.isChecked = true
         adapter.setTypeFilter("")
         adapter.setDateRangeFilter(Pair("",""))
+        filters.dateRangeFilter = Pair("","")
         setFilterTitle()
     }
 
@@ -999,6 +1000,7 @@ class TransactionViewAllFragment : Fragment() {
                 binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
             binding.transactionSearch.visibility = View.GONE
             adapter.filter.filter("")
+            transactionSearchText = ""
             // clear filter
             val searchView = binding.transactionSearch
             searchView.setQuery("", false)

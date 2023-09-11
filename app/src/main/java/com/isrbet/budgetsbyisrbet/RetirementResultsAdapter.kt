@@ -33,7 +33,8 @@ class RetirementResultsAdapter (context: Context, data: RetirementCalculationRow
     // class for holding the cached view
     class ResultViewHolder(view: View) {
         var vhLabel: TextView = view.findViewById(R.id.row_label)
-        var vhAmount: TextView = view.findViewById(R.id.row_amount)
+        var vhStartAmount: TextView = view.findViewById(R.id.row_start_amount)
+        var vhEndAmount: TextView = view.findViewById(R.id.row_end_amount)
     }
 
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
@@ -49,7 +50,8 @@ class RetirementResultsAdapter (context: Context, data: RetirementCalculationRow
                 viewHolder.vhLabel.text = String.format(MyApplication.getString(R.string.sold_in),
                     AssetType.getText(asset.assetType), asset.name, asset.soldInYear)
         }
-        viewHolder.vhAmount.text = gDecWithCurrency(asset.getEndingBalance())
+        viewHolder.vhStartAmount.text = gDecWithCurrency(asset.getOriginalStartingBalance())
+        viewHolder.vhEndAmount.text = gDecWithCurrency(asset.getEndingBalance())
         return myConvertView
     }
 }
