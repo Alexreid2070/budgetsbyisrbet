@@ -8,7 +8,7 @@
         android:id="@+id/spDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="@dimen/label_font_size"
         android:textStyle="bold"
         android:paddingTop="5dp"
         android:paddingStart="5dp"
@@ -19,7 +19,8 @@
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
         android:paddingStart="5dp"
-        android:paddingEnd="5dp"/>
+        android:paddingEnd="5dp"
+        android:textSize="@dimen/normal_font_size"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -30,55 +31,67 @@
         <TextView
             android:id="@+id/row_key"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_vendor"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_note"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_amount"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
-        </TextView>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_regularity"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_period"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_next_date"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_category"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_subcategory"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_paidby"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_boughtfor"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_split1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
         <TextView
             android:id="@+id/row_split2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
     </LinearLayout>
 </LinearLayout>

@@ -5,7 +5,7 @@ import android.service.notification.StatusBarNotification
 import timber.log.Timber
 import java.time.LocalTime
 
-data class TransactionDataFromTD(var amount: Double, var where: String, var category: String)
+data class BankTransactionData(var amount: Double, var where: String, var category: String)
 
 @Suppress("HardCodedStringLiteral")
 class CustomNotificationListenerService : NotificationListenerService() {
@@ -24,7 +24,11 @@ class CustomNotificationListenerService : NotificationListenerService() {
             return if (activeNotificationCount > 0) {
                 for (count in 0 until activeNotificationCount) {
                     val sbn = singleInstance.activeNotifications[count]
-                    if (sbn.packageName == "com.td.myspend") {
+                    val notification = sbn.notification
+                    val notificationText = notification.extras.getCharSequence("android.text").toString()
+
+                    if (sbn.packageName == "com.td.myspend" ||
+                            sbn.packageName == "com.cibc.android.mobi") {
                         tCount++
                     }
                 }
@@ -34,17 +38,26 @@ class CustomNotificationListenerService : NotificationListenerService() {
             }
         }
 
-        fun getTransactionFromNotificationAndDeleteIt() : TransactionDataFromTD? {
+        fun getTransactionFromNotificationAndDeleteIt() : BankTransactionData? {
             if (cFAKING_TD)
-                return TransactionDataFromTD(123.45, "mty Valumart # 145", "Groceries")
+                return BankTransactionData(123.45, "mty Valumart # 145", "Groceries")
 
             for (count in 0 until singleInstance.activeNotifications.size) {
                 val sbn = singleInstance.activeNotifications[count]
-                if (sbn.packageName == "com.td.myspend") {
+                if (sbn.packageName == "com.td.myspend" ||
+                    sbn.packageName == "com.cibc.android.mobi") {
                     val notification = sbn.notification
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
-                        return decipherTDMySpendNotification(notificationText)
+                        val notif = if (sbn.packageName == "com.td.myspend")
+                            decipherTDMySpendNotification(notificationText)
+                        else if (sbn.packageName == "com.cibc.android.mobi")
+                            decipherCIBCNotification(notificationText)
+                        else
+                            null
+                        if (notif != null)
+                            singleInstance.cancelNotification(sbn.key)
+                        return notif
                     }
                 }
             }
@@ -98,7 +111,7 @@ class CustomNotificationListenerService : NotificationListenerService() {
    } */
 }
 
-fun decipherTDMySpendNotification (notificationText: String) : TransactionDataFromTD? {
+fun decipherTDMySpendNotification (notificationText: String) : BankTransactionData? {
     var tCategory = ""
     var tAmount = 0.0
     var tNote = ""
@@ -167,5 +180,40 @@ fun decipherTDMySpendNotification (notificationText: String) : TransactionDataFr
             .child(key).setValue(notificationText)
         return null
     }
-    return TransactionDataFromTD(tAmount, tNote, tCategory)
+    return BankTransactionData(tAmount, tNote, tCategory)
+}
+
+fun decipherCIBCNotification (notificationText: String) : BankTransactionData? {
+    var tCategory = "CIBC"
+    var tAmount = 0.0
+    var tNote = ""
+
+    val timeNow = LocalTime.now()
+    val key = "%04d-%02d-%02d-%02d-%02d-%02d".format(gCurrentDate.getYear(),
+        gCurrentDate.getMonth(),
+        gCurrentDate.getDay(),
+        timeNow.hour,
+        timeNow.minute,
+        timeNow.second)
+
+    try {
+        var startOfNote : Int
+        var currencySymbol : Int
+        var textAmount : String
+
+        startOfNote = notificationText.indexOf("\n", 0)
+        startOfNote += 2
+        currencySymbol = notificationText.indexOf("$", startOfNote)
+        tNote = notificationText.substring(startOfNote, currencySymbol)
+
+        textAmount = notificationText.substring(currencySymbol+1, notificationText.length).trim()
+        textAmount = textAmount.replace(",", "")
+        tAmount = textAmount.toDoubleOrNull()!!
+    }
+    catch (exception: Exception) {
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/CIBC_Failure")
+            .child(key).setValue(notificationText)
+        return null
+    }
+    return BankTransactionData(tAmount, tNote.trim(), tCategory)
 }

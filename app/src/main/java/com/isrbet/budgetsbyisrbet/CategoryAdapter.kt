@@ -46,6 +46,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>,
         var vhDiscType: TextView = view.findViewById(R.id.row_disctype)
         var vhState: TextView = view.findViewById(R.id.row_state)
         var vhPrivacy: ImageView = view.findViewById(R.id.row_private)
+        var vhDefault: ImageView = view.findViewById(R.id.row_default)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
 
@@ -81,6 +82,19 @@ class CategoryAdapter (context: Context, data: MutableList<Category>,
             viewHolder.vhPrivacy.visibility = if (cData.private != 2) View.VISIBLE else View.INVISIBLE
         } else
             viewHolder.vhPrivacy.visibility = View.INVISIBLE
+        when (cData.id) {
+            DefaultsViewModel.getDefaultCategory() -> {
+                viewHolder.vhDefault.setImageDrawable(myContext.let
+                { ContextCompat.getDrawable(it,R.drawable.ic_baseline_star_24) } )
+                viewHolder.vhDefault.visibility = View.VISIBLE
+            }
+            CategoryViewModel.getCategoryDefault(cData.categoryName) -> {
+                viewHolder.vhDefault.setImageDrawable(myContext.let
+                { ContextCompat.getDrawable(it,R.drawable.ic_baseline_star_border_24) } )
+                viewHolder.vhDefault.visibility = View.VISIBLE
+            }
+            else -> viewHolder.vhDefault.visibility = View.INVISIBLE
+        }
         if (cData.inUse) {
             val col = MaterialColors.getColor(
                 myContext,

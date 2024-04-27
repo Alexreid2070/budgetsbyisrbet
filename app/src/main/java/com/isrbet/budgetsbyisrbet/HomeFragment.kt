@@ -8,7 +8,6 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -42,7 +41,6 @@ class HomeFragment : Fragment(), CoroutineScope {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        Timber.tag("Alex").d("IN HOME onCreateView")
         // Inflate the layout for this fragment - DON'T seem to need this inflate.  In fact, if I call it, it'll call Main's onCreateView multiple times
 //        inflater.inflate(R.layout.fragment_home, container, false)
 
@@ -52,23 +50,25 @@ class HomeFragment : Fragment(), CoroutineScope {
         gestureDetector = GestureDetectorCompat(requireActivity(), object :
             GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
-                event1: MotionEvent,
+                event1: MotionEvent?,
                 event2: MotionEvent,
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
-                if (event2.y > event1.y) {
-                    // negative for up, positive for down
-                    if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
-                        if (binding.expansionAreaLayout.visibility == View.GONE)
-                            onExpandClicked()
-                        else // already expanded and user swiped down, so open Settings
-                            findNavController().navigate(R.id.SettingsTabsFragment)
-                    }
-                } else if (event2.y < event1.y) {
-                    if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
-                        if (binding.expansionAreaLayout.visibility == View.VISIBLE)
-                            onExpandClicked()
+                if (event1 != null) {
+                    if (event2.y > event1.y) {
+                        // negative for up, positive for down
+                        if (!binding.scrollView.canScrollVertically(-1)) { // ie can't scroll down anymore
+                            if (binding.expansionAreaLayout.visibility == View.GONE)
+                                onExpandClicked()
+                            else // already expanded and user swiped down, so open Settings
+                                findNavController().navigate(R.id.SettingsTabsFragment)
+                        }
+                    } else if (event2.y < event1.y) {
+                        if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
+                            if (binding.expansionAreaLayout.visibility == View.VISIBLE)
+                                onExpandClicked()
+                        }
                     }
                 }
 //                }
@@ -143,7 +143,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                 .show()
         }
         if (gHomePageExpansionAreaExpanded) {
-            Timber.tag("Alex").d("in Home Fragment, gHomePageExpansionAreaExpanded is true")
             expandTop()
         }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
@@ -247,7 +246,6 @@ class HomeFragment : Fragment(), CoroutineScope {
     }
 
     private fun startLoad() {
-        Timber.tag("Alex").d("startLoad")
         if (DefaultsViewModel.isLoaded() && DefaultsViewModel.getDefaultQuote()) {
             binding.quoteField.text = getQuote()
         }
@@ -324,36 +322,36 @@ class HomeFragment : Fragment(), CoroutineScope {
     @Suppress("HardCodedStringLiteral")
     private fun setupNewUser() {
         AppUserViewModel.addUserKey()
-        CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, true, false)
-        CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Housing", "Mortgage", cDiscTypeNondiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Housing", "Property Taxes", cDiscTypeNondiscretionary, 2, true,false)
-        CategoryViewModel.updateCategory(0, "Housing", "Rent", cDiscTypeNondiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Car Payment", cDiscTypeNondiscretionary,2, true, false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Insurance", cDiscTypeNondiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeDiscretionary,2, true,false)
-        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeDiscretionary,2, true,false)
-        DefaultsViewModel.setColour("Housing", -12400683, false)
-        DefaultsViewModel.setColour("Life", -1072612, false)
-        DefaultsViewModel.setColour("Transportation", -3751917, false)
-        DefaultsViewModel.setPriority("Housing", 0, false)
-        DefaultsViewModel.setPriority("Life", 1, false)
-        DefaultsViewModel.setPriority("Transportation", 2, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Hydro", cDiscTypeNondiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Insurance", cDiscTypeNondiscretionary,2, true, false, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Internet", cDiscTypeNondiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Maintenance", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Mortgage", cDiscTypeNondiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Property Taxes", cDiscTypeNondiscretionary, 2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Housing", "Rent", cDiscTypeNondiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Cellphone", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Charity & Gifts", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Clothing", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Entertainment", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Fitness", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Groceries", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Health & Dental", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Hobbies", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Home", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Personal Care", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Restaurants", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Life", "Travel", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Car Payment", cDiscTypeNondiscretionary,2, true, false, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Gas", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Insurance", cDiscTypeNondiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Maintenance", cDiscTypeDiscretionary,2, true,false, false)
+        CategoryViewModel.updateCategory(0, "Transportation", "Miscellaneous", cDiscTypeDiscretionary,2, true,false, false)
+        DefaultsViewModel.setCategoryColour("Housing", -12400683, false)
+        DefaultsViewModel.setCategoryColour("Life", -1072612, false)
+        DefaultsViewModel.setCategoryColour("Transportation", -3751917, false)
+        DefaultsViewModel.setCategoryPriority("Housing", 0, false)
+        DefaultsViewModel.setCategoryPriority("Life", 1, false)
+        DefaultsViewModel.setCategoryPriority("Transportation", 2, false)
         val cat = CategoryViewModel.getID("Life", "Groceries")
         DefaultsViewModel.updateDefaultString("Category", cat.toString())
         DefaultsViewModel.updateDefaultInt("Spender", 0)

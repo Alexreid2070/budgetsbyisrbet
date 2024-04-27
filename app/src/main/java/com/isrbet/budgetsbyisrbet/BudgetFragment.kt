@@ -252,7 +252,7 @@ class BudgetFragment : Fragment() {
         binding.budgetAddAmount.requestFocus()
         hideKeyboard(requireContext(), requireView())
         Toast.makeText(activity, getString(R.string.budget_item_added), Toast.LENGTH_SHORT).show()
-        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
         requireActivity().onBackPressedDispatcher.onBackPressed()
 //        activity?.onBackPressed()
     }

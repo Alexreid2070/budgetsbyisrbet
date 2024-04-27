@@ -38,7 +38,7 @@ class LoanFragment : Fragment() {
         binding.currencySymbol2.text = String.format("${getLocalCurrencySymbol()} ")
         if (args.loanID != "") {
             setupLoanSpinner(args.loanID)
-            val sp = ScheduledPaymentViewModel.getScheduledPayment(args.loanID)
+            val sp = ScheduledPaymentViewModel.getScheduledPaymentByKey(args.loanID)
             if (sp != null) {
                 loadRows(
                     sp.loanFirstPaymentDate,
@@ -76,7 +76,7 @@ class LoanFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selection = parent?.getItemAtPosition(position)
                 if (position > 0) {
-                    val sp = ScheduledPaymentViewModel.getScheduledPayment(selection as String)
+                    val sp = ScheduledPaymentViewModel.getScheduledPaymentByVendor(selection as String)
                     if (sp != null) {
                         binding.loanStartDate.setText(sp.loanFirstPaymentDate.toString())
                         binding.loanAmount.setText(gDec(sp.loanAmount))
@@ -127,7 +127,8 @@ class LoanFragment : Fragment() {
             val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listOfActiveLoans)
             loanSpinner.adapter = arrayAdapter
             if (iSelection != "") {
-                loanSpinner.setSelection(arrayAdapter.getPosition(iSelection))
+                val sp = ScheduledPaymentViewModel.getScheduledPaymentByKey(iSelection)
+                loanSpinner.setSelection(arrayAdapter.getPosition(sp?.vendor))
             }
             arrayAdapter.notifyDataSetChanged()
         } else {

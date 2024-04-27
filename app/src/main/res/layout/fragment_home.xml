@@ -145,7 +145,8 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textSize="@dimen/normal_font_size"/>
 
             <TextView
                 android:id="@+id/scheduled_payment_field"
@@ -154,7 +155,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/row_frame"
                 android:padding="20dp"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:visibility="gone" />
 
             <TextView
@@ -166,7 +167,7 @@
                 android:paddingStart="5dp"
                 android:paddingTop="20dp"
                 android:paddingEnd="5dp"
-                android:textSize="20sp" />
+                android:textSize="@dimen/page_header_font_size" />
 
             <FrameLayout
                 android:layout_width="match_parent"

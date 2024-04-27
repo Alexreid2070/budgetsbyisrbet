@@ -84,7 +84,7 @@ class TranslationEditDialogFragment : DialogFragment() {
                 myTranslation.category)
 //            if (listener != null)
   //              listener?.onNewDataSaved()
-            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             dismiss()
         }
 
@@ -94,7 +94,7 @@ class TranslationEditDialogFragment : DialogFragment() {
     //            if (listener != null) {
       //              listener?.onNewDataSaved()
         //        }
-                MyApplication.playSound(context, R.raw.short_springy_gun)
+                MyApplication.playSound(requireContext(), R.raw.short_springy_gun)
                 dismiss()
             }
             fun noClicked() {

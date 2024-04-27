@@ -784,7 +784,6 @@ class YearOverYearFragment : Fragment() {
         for (c in 0 until currentlyExcludedYears.size) {
             val tv = iRow.getChildAt(currentlyExcludedYears[c]+2) as TextView // adding 2 since the c is the tvamount col, and there are 2 preceding columns
             tv.setBackgroundColor(backgroundColor)
-            Timber.tag("Alex").d("Just set column ${currentlyExcludedYears[c]+2} to backgroundColor")
         }
     }
     private fun refreshRows(iCategory: String, iVisibility: Int) {
@@ -972,8 +971,8 @@ class YearOverYearRows {
     ): MutableList<YearOverYearData> {
         val firstYear = TransactionViewModel.getEarliestYear()
         val firstMonth = TransactionViewModel.getEarliestMonth()
-        val lastYear = gCurrentDate.getYear() + 1
-        val lastMonth = gCurrentDate.getMonth()
+        val lastYear = TransactionViewModel.getLatestYear() + 1
+        val lastMonth = TransactionViewModel.getLatestMonth()
         val data: MutableList<YearOverYearData> = mutableListOf()
         val categories = CategoryViewModel.getCategories(true)
         categories.forEach {

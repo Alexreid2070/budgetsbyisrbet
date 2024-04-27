@@ -30,7 +30,7 @@
                 android:paddingStart="5dp"
                 android:paddingTop="5dp"
                 android:paddingEnd="5dp"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold" />
 
             <TextView
@@ -39,7 +39,8 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:paddingBottom="5dp" />
+                android:paddingBottom="5dp"
+                android:textSize="@dimen/normal_font_size"/>
         </LinearLayout>
         <ImageView
             android:id="@+id/move_down"
@@ -60,41 +61,49 @@
         <TextView
             android:id="@+id/row_asset_type"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_label"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_amount"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_growth_rate"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_growth_rate_once_sold"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_annual_contribution"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_distribution_order"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_link_to_scheduled_payment"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"/>
     </LinearLayout>
 </LinearLayout>

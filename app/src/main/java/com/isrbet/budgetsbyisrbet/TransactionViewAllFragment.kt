@@ -20,10 +20,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.SheetsScopes
+import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.isrbet.budgetsbyisrbet.MyApplication.Companion.transactionSearchText
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.l4digital.fastscroll.FastScrollRecyclerView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
+import timber.log.Timber
 
 
 class PreviousFilters : ViewModel() {
@@ -58,6 +67,7 @@ enum class SortOrderDirection {
 }
 
 const val cACCOUNTING_FILTER = "Accounting"
+const val cINSURANCE_FILTER = "Insurance"
 const val cSCHEDULED_PAYMENT_FILTER = "Scheduled Payment"
 
 class TransactionViewAllFragment : Fragment() {
@@ -71,6 +81,9 @@ class TransactionViewAllFragment : Fragment() {
     private fun inAccountingMode(): Boolean {
         return filterMode == cACCOUNTING_FILTER
     }
+    private fun inInsuranceMode(): Boolean {
+        return filterMode == cINSURANCE_FILTER
+    }
     private fun inScheduledPaymentMode(): Boolean {
         return filterMode == cSCHEDULED_PAYMENT_FILTER
     }
@@ -81,26 +94,14 @@ class TransactionViewAllFragment : Fragment() {
         activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 transactionSearchText = ""
-                isEnabled =
-                    false  // without this line there will be a recursive call to OnBackPressed
-//                activity?.onBackPressed()
+                isEnabled = false  // without this line there will be a recursive call to OnBackPressed
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
         })
-//        val inflater = TransitionInflater.from(requireContext())
-//        enterTransition = inflater.inflateTransition(R.transition.slide_right)
-//        returnTransition = null
-//        exitTransition = inflater.inflateTransition(R.transition.slide_left)
-/*        val transactionListObserver = Observer<MutableList<Transaction>> { newValue ->
-            Log.d("Alex", "list has changed!!")
-            setupRecycler()
-        }
-        TransactionViewModel.observeList(this, transactionListObserver) */
     }
 
     private fun setupRecycler() {
         val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
-//            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         recyclerView.apply {
             // set a LinearLayoutManager to handle Android RecyclerView behavior
             val linearLayoutManager =
@@ -116,14 +117,12 @@ class TransactionViewAllFragment : Fragment() {
             // fyi I have done a time check on how long it takes to copy the list.  It took 0ms to copy a list of 7000.
             // so this is definitely not a perf issue
             val expList = TransactionViewModel.getCopyOfTransactions()
-//            expList.sortBy { it.date }
             if (expList.size == 0) {
                 binding.noInformationText.visibility = View.VISIBLE
                 binding.noInformationText.text = getString(R.string.you_have_not_yet_entered_any_transactions)
             } else {
                 binding.noInformationText.visibility = View.GONE
             }
-
 
             // this nifty line passes a lambda (simple function) to the adapter which is called each time the row is clicked.
             recyclerView.adapter =
@@ -160,11 +159,11 @@ class TransactionViewAllFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
+        Timber.tag("Alex").d("onViewCreated")
         if (inScheduledPaymentMode())
             currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
         setupRecycler()
         val recyclerView: FastScrollRecyclerView = binding.transactionViewAllRecyclerView
-//            requireActivity().findViewById(R.id.transaction_view_all_recycler_view)
         val adapter: TransactionRecyclerAdapter = recyclerView.adapter as TransactionRecyclerAdapter
         loadCategoryRadioButtons()
         if (SpenderViewModel.singleUser()) {
@@ -175,6 +174,9 @@ class TransactionViewAllFragment : Fragment() {
 
         binding.transactionAddFab.setOnClickListener {
             findNavController().navigate(R.id.TransactionFragment)
+        }
+        binding.exportButton.setOnClickListener {
+            saveFile2("Transactions")
         }
         binding.selectDateRange.setOnClickListener {
             selectDateRangeFilter()
@@ -512,6 +514,11 @@ class TransactionViewAllFragment : Fragment() {
                     SpenderViewModel.getSpenderName(0).substring(0, 1),
                     SpenderViewModel.getSpenderName(1).substring(0, 1)
                 )
+        } else if (inInsuranceMode()) {
+            setViewsToInsurance()
+            binding.percentage1Heading.text = "${SpenderViewModel.getSpenderName(0)}'s Ins."
+            binding.percentage2Heading.text = "${SpenderViewModel.getSpenderName(1)}'s Ins."
+            runFilters()
         } else if (inScheduledPaymentMode()) {
             setViewsToScheduledPayments()
             runFilters()
@@ -776,6 +783,9 @@ class TransactionViewAllFragment : Fragment() {
         if (inAccountingMode()) {
             binding.filterLayout.visibility = View.VISIBLE
             binding.filterText.text = getString(R.string.accounting_filter_is_on)
+        } else if (inInsuranceMode()) {
+            binding.filterLayout.visibility = View.VISIBLE
+            binding.filterText.text = getString(R.string.insurance_filter_is_on)
         } else if (inScheduledPaymentMode()) {
             binding.filterLayout.visibility = View.VISIBLE
             binding.filterText.text = String.format(getString(R.string.scheduled_payment_filter_is_on), filters.prevRTKeyFilter)
@@ -945,6 +955,27 @@ class TransactionViewAllFragment : Fragment() {
 
         binding.showTypeColumn.isChecked = true
         binding.typeHeading.visibility = View.VISIBLE
+        updateView()
+    }
+
+    private fun setViewsToInsurance() {
+        binding.showIndividualAmountsColumns.isChecked = true
+        binding.percentage1Heading.visibility = View.VISIBLE
+        binding.percentage2Heading.visibility = View.VISIBLE
+
+        binding.showWhoColumn.isChecked = true
+        binding.whoHeading.visibility = View.VISIBLE
+
+        binding.showTypeColumn.isChecked = false
+        binding.typeHeading.visibility = View.GONE
+        binding.showCategoryColumns.isChecked = false
+        binding.categoryHeading.visibility = View.GONE
+        binding.showNoteColumn.isChecked = false
+        binding.noteHeading.visibility = View.GONE
+        binding.showDiscColumn.isChecked = false
+        binding.discHeading.visibility = View.GONE
+        binding.showRunningTotalColumn.isChecked = false
+        binding.runningTotalHeading.visibility = View.GONE
         updateView()
     }
 
@@ -1128,4 +1159,30 @@ class TransactionViewAllFragment : Fragment() {
             binding.navButtonLinearLayout.visibility = View.VISIBLE
         }
     }
+
+    private fun saveFile2(iFileName: String) {
+        val scopes = listOf(SheetsScopes.SPREADSHEETS)
+        val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
+        credential.selectedAccount = MyApplication.userAccount
+
+        val jsonFactory = JacksonFactory.getDefaultInstance()
+        val httpTransport =  NetHttpTransport()
+        val service = Sheets.Builder(httpTransport, jsonFactory, credential)
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+        createSpreadsheet(service, iFileName)
+    }
+    private fun createSpreadsheet(service: Sheets, iFileName: String) {
+        val adapter: TransactionRecyclerAdapter = binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
+        val spreadsheetMaker = SpreadsheetMaker()
+        val spreadsheet: Spreadsheet = spreadsheetMaker.create(iFileName,
+            "Sheet1",
+            adapter.filteredList)
+        GlobalScope.launch {
+            service.spreadsheets().create(spreadsheet).execute()
+        }
+        MyApplication.displayToast(getString(R.string.creating_file))
+    }
+
 }
+

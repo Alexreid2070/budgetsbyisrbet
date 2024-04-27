@@ -110,6 +110,7 @@ const val cTRANSACTION_TYPE_EXPENSE = "Expense"
 const val cTRANSACTION_TYPE_CREDIT = "Credit"
 const val cTRANSACTION_TYPE_SCHEDULED = "Recurring" // uses Recurring for historical db reasons
 const val cTRANSACTION_TYPE_TRANSFER = "Transfer"
+const val cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT = "Insurance"
 
 const val cNEXT_YEAR = 0
 const val cPREV_YEAR = 1
@@ -238,7 +239,7 @@ class MyApplication : Application() {
             return quoteForThisSession
         }
 
-        fun playSound(context: Context?, iSound: Int ) {
+        fun playSound(context: Context, iSound: Int ) {
             if (!DefaultsViewModel.getDefaultSound())
                 return
 
@@ -506,8 +507,11 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
         override fun onDown(e: MotionEvent): Boolean {
             return true
         }
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             var result = false
+            if (e1 == null)
+                return result
             try {
                 val diffY = e2.y - e1.y
                 val diffX = e2.x - e1.x

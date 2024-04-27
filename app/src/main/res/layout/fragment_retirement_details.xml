@@ -25,7 +25,7 @@
             android:text="@string/retirement_details"
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
         <TextView
             android:id="@+id/currentViewTitle"
             android:layout_width="match_parent"
@@ -36,7 +36,7 @@
             android:text=""
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/normal_font_size"/>
     </LinearLayout>
     <ScrollView
         android:id="@+id/scroll_area"

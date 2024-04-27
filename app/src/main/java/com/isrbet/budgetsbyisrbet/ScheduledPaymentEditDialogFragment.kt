@@ -35,7 +35,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
             val fragment = ScheduledPaymentEditDialogFragment()
             fragment.arguments = args
             oldKey = key
-            oldSP = ScheduledPaymentViewModel.getScheduledPayment(oldKey)
+            oldSP = ScheduledPaymentViewModel.getScheduledPaymentByKey(oldKey)
             return fragment
         }
     }
@@ -508,7 +508,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
 /*                if (listener != null) {
                     listener?.onNewDataSaved()
                 } */
-                MyApplication.playSound(context, R.raw.short_springy_gun)
+                MyApplication.playSound(requireContext(), R.raw.short_springy_gun)
                 dismiss()
             }
             fun noClicked() {
@@ -567,6 +567,11 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
         val lNumberFormat: NumberFormat = NumberFormat.getInstance()
         if (binding.newVendor.text.toString() == "") {
             showErrorMessage(parentFragmentManager, getString(R.string.value_cannot_be_blank))
+            focusAndOpenSoftKeyboard(requireContext(), binding.newVendor)
+            return
+        }
+        if (ScheduledPaymentViewModel.scheduledPaymentExistsWithSameName(binding.newVendor.text.toString(), oldKey)) {
+            showErrorMessage(parentFragmentManager, getString(R.string.name_already_exists))
             focusAndOpenSoftKeyboard(requireContext(), binding.newVendor)
             return
         }
@@ -668,8 +673,8 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 oldKey
             )
             ScheduledPaymentViewModel.updateScheduledPayment(tSP)
+            MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             dismiss()
-            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
         } else { // ie this is an add
             val sp = ScheduledPayment(
                 binding.newVendor.text.toString().trim(),
@@ -693,7 +698,7 @@ class ScheduledPaymentEditDialogFragment : DialogFragment() {
                 binding.newExpirationDate.text.toString()
                 )
             ScheduledPaymentViewModel.addScheduledPayment(sp)
-            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             dismiss()
         }
     }

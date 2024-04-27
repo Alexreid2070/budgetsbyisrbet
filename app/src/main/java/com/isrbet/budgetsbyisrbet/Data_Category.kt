@@ -52,7 +52,7 @@ data class CategoryOut(var Category: String, var SubCategory: String,
                         var State: Boolean)
 
 
-data class CategoryDetail(var name: String, var color: Int, var priority: Int)
+data class CategoryDetail(var name: String, var color: Int, var priority: Int, var default: Int)
 
 class CategoryViewModel : ViewModel() {
     private var catListener: ValueEventListener? = null
@@ -71,6 +71,19 @@ class CategoryViewModel : ViewModel() {
                 singleInstance.loaded
             } else
                 false
+        }
+
+        fun getCategoryCount() : Int {
+            if (::singleInstance.isInitialized) {
+                val tList: ArrayList<String> = ArrayList()
+                singleInstance.categories.forEach {
+                    if (!tList.contains(it.categoryName))
+                        tList.add(it.categoryName)
+                }
+                Timber.tag("Alex").d("category count is ${tList.size}")
+                return tList.size
+            } else
+                return 0
         }
 
         fun getCount() : Int {
@@ -117,6 +130,10 @@ class CategoryViewModel : ViewModel() {
             val cat = singleInstance.categories.find { it.id == id }
             val cd = cat?.categoryName?.let { DefaultsViewModel.getCategoryDetail(it) }
             return cd?.color ?: 0
+        }
+        fun getCategoryDefault(iCategoryName: String) : Int {
+            val cd = DefaultsViewModel.getCategoryDetail(iCategoryName)
+            return cd.default
         }
         fun getDefaultCategory(): Category? {
             val id = DefaultsViewModel.getDefaultCategory()
@@ -221,7 +238,8 @@ class CategoryViewModel : ViewModel() {
         }
 
         fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
-                           iPrivate: Int, iInUse: Boolean, iLocalOnly: Boolean = false): Category {
+                           iPrivate: Int, iInUse: Boolean, iAppDefault: Boolean,
+                           iCatDefault: Boolean, iLocalOnly: Boolean = false): Category {
             var cat: Category? = singleInstance.categories.find { it.id == id }
             if (cat == null) {
                 cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse)
@@ -241,6 +259,18 @@ class CategoryViewModel : ViewModel() {
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
                     .child(cat.id.toString())
                     .setValue(cat.out())
+            }
+            if (iCatDefault || iAppDefault)
+                DefaultsViewModel.setCategoryDefault(iCategory, id, iLocalOnly)
+            if (iAppDefault) {
+                DefaultsViewModel.updateDefaultInt(cDEFAULT_CATEGORY_ID, id)
+                DefaultsViewModel.setCategoryDefault(iCategory, id, iLocalOnly)
+            }
+            if (!iCatDefault && !iAppDefault) {
+                if (getCategoryDefault(iCategory) == id)
+                    DefaultsViewModel.setCategoryDefault(iCategory, id, iLocalOnly)
+                if (DefaultsViewModel.getDefaultCategory() == id)
+                    DefaultsViewModel.updateDefaultInt(cDEFAULT_CATEGORY_ID, -1)
             }
             return cat
         }
@@ -332,7 +362,8 @@ class CategoryViewModel : ViewModel() {
                                 "private" -> private = child.value.toString().toInt()
                             }
                         }
-                        categories.add(Category(categoryID, category, subcategory, disctype, private, inUse != cFALSE))
+                        categories.add(Category(categoryID, category, subcategory, disctype,
+                            private, inUse != cFALSE))
                     }
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)

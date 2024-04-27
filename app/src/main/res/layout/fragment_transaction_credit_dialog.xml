@@ -12,7 +12,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:text="@string/add_expense_credit"
-        android:textSize="24sp"
+        android:textSize="@dimen/page_header_font_size"
         android:textStyle="bold"
         android:paddingTop="20dp"/>
     <LinearLayout
@@ -23,7 +23,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:text="@string/date"
             android:layout_weight="1"/>
@@ -46,7 +46,8 @@
                 android:focusableInTouchMode="false"
                 android:gravity="start"
                 android:inputType="date"
-                android:longClickable="false" />
+                android:longClickable="false"
+                android:textSize="@dimen/normal_font_size"/>
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
     <LinearLayout
@@ -58,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:text="@string/amount"
             android:layout_weight="1"/>
@@ -68,7 +69,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textSize="@dimen/normal_font_size"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="wrap_content"
@@ -84,7 +86,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:inputType="numberDecimal|numberSigned" />
+                android:inputType="numberDecimal|numberSigned"
+                android:textSize="@dimen/normal_font_size"/>
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
@@ -99,7 +102,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:text="@string/note"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipNote"/>
 
@@ -116,7 +119,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:inputType="textCapSentences" />
+                android:inputType="textCapSentences"
+                android:textSize="@dimen/normal_font_size"/>
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
     <LinearLayout
@@ -148,7 +152,7 @@
             android:paddingRight="4dp"
             android:text="@string/cancel"
             android:tooltipText="Cancel"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"
@@ -166,7 +170,7 @@
             android:paddingRight="4dp"
             android:text="@string/save"
             android:tooltipText="Save"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"

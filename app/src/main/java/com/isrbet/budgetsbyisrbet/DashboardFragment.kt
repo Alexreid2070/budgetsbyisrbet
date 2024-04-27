@@ -329,7 +329,6 @@ class DashboardFragment : Fragment() {
                     tv1.text = String.format("$iCategory ${getString(R.string.total)}")
                     tv1.setCompoundDrawablesWithIntrinsicBounds(
                         R.drawable.ic_baseline_expand_less_24, 0, 0, 0);
-                    Timber.tag("Alex").d("padding is ${tv1.compoundDrawablePadding}")
                 }
                 else -> tv1.text = iCategory
             }
@@ -589,7 +588,6 @@ class DashboardFragment : Fragment() {
                 val myParent = (it as TextView).parent as DashboardTableRow
                 val action =
                     DashboardTabsFragmentDirections.actionDashboardTabsFragmentToTrackerTabsFragment()
-                Timber.tag("Alex").d("Sending ${myParent.categoryID} to TrackerTAbs")
                 action.categoryID = myParent.categoryID
                 action.targetTab = 2
                 view?.findNavController()?.navigate(action)
@@ -893,7 +891,7 @@ class DashboardScrollView(context: Context?, attrs: AttributeSet?) :
 
     internal inner class YScrollDetector : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(
-            e1: MotionEvent,
+            e1: MotionEvent?,
             e2: MotionEvent,
             distanceX: Float,
             distanceY: Float

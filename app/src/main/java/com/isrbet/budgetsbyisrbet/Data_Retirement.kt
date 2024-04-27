@@ -492,6 +492,14 @@ data class RetirementData(
             assets[ind] = iAsset
         updateDistributionOrderAsRequired()
     }
+    fun getAssetTotal() : Double {
+        var tTotal = 0.0
+        for (asset in assets) {
+                tTotal += asset.getValue()
+                Timber.tag("Alex").d("Added ${asset.getValue()}")
+        }
+        return tTotal
+    }
     fun changeDefaultDistributionOrder(iCurrentDistributionOrder: Int, iDirection: Int) {
         if (iCurrentDistributionOrder == 0 && iDirection == -1) {
             return
@@ -1107,7 +1115,7 @@ class Property(
             0
     }
     private fun getOutstandingLoanAmount(iDate: MyDate): Int {
-        val sp = ScheduledPaymentViewModel.getScheduledPayment(scheduledPaymentName)
+        val sp = ScheduledPaymentViewModel.getScheduledPaymentByKey(scheduledPaymentName)
         return sp?.getOutstandingLoanAmount(iDate, ownershipPct) ?: 0
     }
 }

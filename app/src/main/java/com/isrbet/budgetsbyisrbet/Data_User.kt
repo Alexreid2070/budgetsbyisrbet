@@ -40,6 +40,35 @@ class AppUserViewModel : ViewModel() {
         fun clearCallback() {
             singleInstance.dataUpdatedCallback = null
         }
+        fun addUserKey() {
+            MyApplication.database.getReference("Userkeys")
+                .child(MyApplication.originalUserUID)
+                .child("Email").setValue(MyApplication.userEmail)
+        }
+        fun addPrimary(iEmail: String) {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Primary").setValue(iEmail)
+        }
+        fun addSecondary(iEmail: String) {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Secondary").setValue(iEmail)
+        }
+        fun removePrimary() {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Primary").removeValue()
+        }
+        fun removeSecondary() {
+            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
+                .child("Secondary").removeValue()
+        }
+        fun getPrimaryEmail(iUID: String) : String {
+            singleInstance.users.forEach {
+                if (it.uid == iUID)
+                    return it.email
+            }
+            return ""
+        }
+
         fun loadUsers() {
             // Do an asynchronous operation to fetch spenders
             singleInstance.userListener = object : ValueEventListener {
@@ -69,35 +98,6 @@ class AppUserViewModel : ViewModel() {
                 }
             }
             MyApplication.database.getReference("Userkeys").addValueEventListener(singleInstance.userListener)
-        }
-
-        fun addUserKey() {
-            MyApplication.database.getReference("Userkeys")
-                .child(MyApplication.originalUserUID)
-                .child("Email").setValue(MyApplication.userEmail)
-        }
-        fun addPrimary(iEmail: String) {
-            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
-                .child("Primary").setValue(iEmail)
-        }
-        fun addSecondary(iEmail: String) {
-            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
-                .child("Secondary").setValue(iEmail)
-        }
-        fun removePrimary() {
-            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
-                .child("Primary").removeValue()
-        }
-        fun removeSecondary() {
-            MyApplication.database.getReference("Userkeys/" + MyApplication.originalUserUID)
-                .child("Secondary").removeValue()
-        }
-        fun getPrimaryEmail(iUID: String) : String {
-            singleInstance.users.forEach {
-                if (it.uid == iUID)
-                    return it.email
-            }
-            return ""
         }
     }
 

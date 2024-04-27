@@ -56,6 +56,13 @@ class SpenderViewModel : ViewModel() {
             else
                 MyApplication.getString(R.string.unknown)
         }
+        fun getSpenderInitial(index:Int): String {
+            return if (index >= 0 && index  < singleInstance.spenders.size) {
+                val name = singleInstance.spenders[index].name
+                name.substring(0,1)
+            } else
+                ""
+        }
         fun getSpenderSplit(index: Int): Double {
             return if (index  < singleInstance.spenders.size && index >= 0)
                 singleInstance.spenders[index].split / 100.0
@@ -82,14 +89,18 @@ class SpenderViewModel : ViewModel() {
             val ind = DefaultsViewModel.getDefaultSpender()
             return getSpenderName(ind)
         }
-        fun updateSpenderSplits(iFirstSplit: Int) {
+        fun updateSpenderSplits(iFirstSplit: Int, iLocalOnly:Boolean = false) {
             singleInstance.spenders[0].split = iFirstSplit
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(
-                "0").child("split").setValue(iFirstSplit)
+            if (!iLocalOnly) {
+                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(
+                    "0").child("split").setValue(iFirstSplit)
+            }
             if (singleInstance.spenders.size > 1) {
                 singleInstance.spenders[1].split = 100 - iFirstSplit
-                MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(
-                    "1").child("split").setValue(100-iFirstSplit)
+                if (!iLocalOnly) {
+                    MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Spender").child(
+                        "1").child("split").setValue(100-iFirstSplit)
+                }
             }
         }
 
@@ -237,8 +248,6 @@ class SpenderViewModel : ViewModel() {
                     MyApplication.userIndex = 1
                 singleInstance.loaded = true
                 singleInstance.spendersLiveData.value = singleInstance.spenders
-                Timber.tag("Alex").d("Spender names have been updated")
-                SpenderViewModel.showMe()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

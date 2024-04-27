@@ -25,7 +25,7 @@
             android:text="@string/accounting_summary"
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
     </LinearLayout>
     <ScrollView
         android:id="@+id/scroll_view"
@@ -56,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:tooltipText="Click for list of transactions that contribute to this total."
                     android:drawablePadding="15dp"
@@ -67,6 +67,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:textSize="@dimen/normal_font_size"
                     android:gravity="center" />
             </LinearLayout>
             <LinearLayout
@@ -82,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/calculations"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/page_header_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/colorPrimary"/>
                 <HorizontalScrollView
@@ -113,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/details"
-                    android:textSize="18sp"
+                    android:textSize="@dimen/page_header_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/colorPrimary"/>
                 <LinearLayout
@@ -127,7 +128,7 @@
                         android:gravity="center"
                         android:rotation="270"
                         android:text="@string/for_string"
-                        android:textSize="13sp"
+                        android:textSize="@dimen/small_font_size"
                         android:textStyle="bold"/>
 
                     <LinearLayout
@@ -146,7 +147,7 @@
                                 android:layout_weight="1"
                                 android:gravity="center"
                                 android:text="@string/expenses_paid_by"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/normal_font_size"
                                 android:textStyle="bold"/>
                         </LinearLayout>
 
@@ -161,32 +162,40 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_header_first_header_name"
+                                android:id="@+id/details_header_name_F"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_header_second_header_name"
+                                android:id="@+id/details_header_name_S"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_header_joint_header_name"
+                                android:id="@+id/details_header_name_J1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/details_header_name_J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/joint"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -198,32 +207,38 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/accounting_first_row_name"
+                                android:id="@+id/details_row_name_F"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_ff"
+                                android:id="@+id/details_FF"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_fs"
+                                android:id="@+id/details_FS"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_fj"
+                                android:id="@+id/details_FJ1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/details_FJ2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -234,32 +249,38 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/accounting_second_row_name"
+                                android:id="@+id/details_row_name_S"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_sf"
+                                android:id="@+id/details_SF"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_ss"
+                                android:id="@+id/details_SS"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_sj"
+                                android:id="@+id/details_SJ1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/details_SJ2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -270,32 +291,38 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/accounting_jfrow_name"
+                                android:id="@+id/details_row_name_J1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_jff"
+                                android:id="@+id/details_J1F"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_jfs"
+                                android:id="@+id/details_J1S"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_jfj"
+                                android:id="@+id/details_J1J1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/details_J1J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
                         </LinearLayout>
 
@@ -306,32 +333,38 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/accounting_jsrow_name"
+                                android:id="@+id/details_row_name_J2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_jsf"
+                                android:id="@+id/details_J2F"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_jss"
+                                android:id="@+id/details_J2S"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_jsj"
+                                android:id="@+id/details_J2J1"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/details_J2J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -347,7 +380,7 @@
                         android:gravity="center"
                         android:rotation="270"
                         android:text="@string/to"
-                        android:textSize="13sp"
+                        android:textSize="@dimen/small_font_size"
                         android:textStyle="bold"/>
 
                     <LinearLayout
@@ -366,7 +399,7 @@
                                 android:layout_weight="1"
                                 android:gravity="center"
                                 android:text="@string/transfers_from"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/normal_font_size"
                                 android:textStyle="bold"/>
                         </LinearLayout>
 
@@ -381,142 +414,142 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_header_t_fheadername"
+                                android:id="@+id/transfer_header_name_F"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_header_t_sheadername"
+                                android:id="@+id/transfer_header_name_S"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_header_t_jheadername"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/joint"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/accounting_t_tof_row_name"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/accounting_t_ff"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:layout_weight="1" />
-
-                            <TextView
-                                android:id="@+id/accounting_t_sf"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:layout_weight="1"/>
-
-                            <TextView
-                                android:id="@+id/accounting_t_jf"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:layout_weight="1"/>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/accounting_t_tos_row_name"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/accounting_t_fs"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:layout_weight="1"/>
-
-                            <TextView
-                                android:id="@+id/accounting_t_ss"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:layout_weight="1" />
-
-                            <TextView
-                                android:id="@+id/accounting_t_js"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="12sp"
-                                android:layout_weight="1"/>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/accounting_t_toj1_row_name"
+                                android:id="@+id/transfer_header_nmae_J"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/transfer_row_name_F"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_t_fj1"
+                                android:id="@+id/transfer_FF"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/transfer_FS"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_t_sj1"
+                                android:id="@+id/transfer_FJ"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/transfer_row_name_S"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/transfer_SF"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_t_jj1"
+                                android:id="@+id/transfer_SS"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/transfer_SJ"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/transfer_row_name_J1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/joint"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/transfer_J1F"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/transfer_J1S"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/transfer_J1J"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1" />
                         </LinearLayout>
 
@@ -527,34 +560,295 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/accounting_t_toj2_row_name"
+                                android:id="@+id/transfer_row_name_J2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/joint"
-                                android:textSize="13sp"
+                                android:textSize="@dimen/small_font_size"
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/accounting_t_fj2"
+                                android:id="@+id/transfer_J2F"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_t_sj2"
+                                android:id="@+id/transfer_J2S"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1"/>
 
                             <TextView
-                                android:id="@+id/accounting_t_jj2"
+                                android:id="@+id/transfer_J2J"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textSize="12sp"
+                                android:textSize="@dimen/smallest_font_size"
                                 android:layout_weight="1" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/insured_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp">
+
+                    <TextView
+                        android:layout_width="40dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:rotation="270"
+                        android:text="@string/for_c"
+                        android:textSize="@dimen/small_font_size"
+                        android:textStyle="bold"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/insurance_summary"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="@string/insurance_reimbursements_to"
+                                android:textSize="@dimen/normal_font_size"
+                                android:textStyle="bold"
+                                android:tooltipText="Click for list of transactions that contribute to this total."
+                                app:drawableTint="@color/clickableBlue"
+                                app:drawableEndCompat="@drawable/ic_baseline_link_24"
+                                android:paddingEnd="20dp"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            tools:ignore="NestedWeights">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_headername_F"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_headername_S"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_headername_J1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/joint"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/insurance_headername_J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/joint"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/insurance_row_name_F"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_FF"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/insurance_FS"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/insurance_FJ1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/insurance_FJ2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/insurance_row_name_S"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_SF"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/insurance_SS"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/insurance_SJ1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1" />
+                            <TextView
+                                android:id="@+id/insurance_SJ2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/insurance_row_name_J1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/joint"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_J1F"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/insurance_J1S"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/insurance_J1J1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/insurance_J1J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/insurance_row_name_J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/joint"
+                                android:textSize="@dimen/small_font_size"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/insurance_J2F"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/insurance_J2S"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+
+                            <TextView
+                                android:id="@+id/insurance_J2J1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
+                            <TextView
+                                android:id="@+id/insurance_J2J2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/smallest_font_size"
+                                android:layout_weight="1"/>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>

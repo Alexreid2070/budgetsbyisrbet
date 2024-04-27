@@ -26,7 +26,7 @@
             android:text="@string/loan_calculation"
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/loan_spinner_layout"
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:text="@string/loan"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground"
             android:paddingStart="5dp"
@@ -98,6 +98,7 @@
                 android:layout_gravity="center"
                 android:paddingStart="10dp"
                 android:textStyle="bold"
+                android:textSize="@dimen/normal_font_size"
                 tools:ignore="RtlSymmetry" />
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountLayout"
@@ -117,7 +118,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:gravity="start"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    android:textSize="@dimen/normal_font_size"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/dateLayout"
@@ -139,7 +141,8 @@
                     android:focusableInTouchMode="false"
                     android:gravity="start"
                     android:inputType="date"
-                    android:longClickable="false" />
+                    android:longClickable="false"
+                    android:textSize="@dimen/normal_font_size"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
         <LinearLayout
@@ -163,7 +166,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:gravity="start"
-                    android:inputType="numberDecimal"/>
+                    android:inputType="numberDecimal"
+                    android:textSize="@dimen/normal_font_size"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/interest_rate_layout"
@@ -183,7 +187,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:gravity="start"
-                    android:inputType="numberDecimal"/>
+                    android:inputType="numberDecimal"
+                    android:textSize="@dimen/normal_font_size"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
         <LinearLayout
@@ -198,7 +203,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/payment_frequency"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="How often do you make loan payments?"/>
@@ -249,7 +254,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="end"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textSize="@dimen/normal_font_size"/>
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -265,7 +271,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:inputType="numberDecimal"/>
+                    android:inputType="numberDecimal"
+                    android:textSize="@dimen/normal_font_size"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </LinearLayout>
@@ -287,7 +294,7 @@
             android:paddingRight="4dp"
             android:text="@string/reset"
             android:tooltipText="@string/reset"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"
@@ -305,7 +312,7 @@
             android:paddingRight="4dp"
             android:text="@string/calculate"
             android:tooltipText="Calculate loan based on input parameters"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:layout_gravity="center"
             android:gravity="center"
             android:textStyle="bold"
@@ -325,7 +332,7 @@
             android:id="@+id/calculated_payment_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/page_header_font_size"
             android:textStyle="bold"
             android:text="@string/calculated_payment"
             android:paddingEnd="5dp"
@@ -335,7 +342,7 @@
         <TextView
             android:id="@+id/calculated_payment_amount"
             android:layout_width="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/page_header_font_size"
             android:textStyle="bold"
             android:layout_height="wrap_content"/>
     </LinearLayout>
@@ -360,7 +367,7 @@
             android:paddingEnd="5dp"
             android:text="@string/pmt_date"
             android:tooltipText="This is the date that the loan payment is made."
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -371,7 +378,7 @@
             android:gravity="end"
             android:text="@string/interest"
             android:tooltipText="Interest portion of this payment."
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -382,7 +389,7 @@
             android:gravity="end"
             android:text="@string/principal"
             android:tooltipText="Principal portion of this payment."
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -393,7 +400,7 @@
             android:gravity="end"
             android:text="@string/loan_bal"
             android:tooltipText="Remaining loan balance after this payment."
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"/>
     </LinearLayout>
 

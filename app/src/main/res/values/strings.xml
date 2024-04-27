@@ -66,6 +66,7 @@
     <string name="toolTipRunningTotal">A running total of the amount that primary user owes secondary user. (Negative means secondary owes primary.)</string>
     <string name="toolTipPrivacy">Is this category marked as private? (Private categories are not visible to other user.)</string>
     <string name="toolTipCatState">Indicates whether category is still used for new transactions.</string>
+    <string name="toolTipCatDefault">Indicates whether category is the overall app default, or the category default, or neither.</string>
     <string name="toolTipBudgetCategory">The category/sub-category to which this budget applies.</string>
     <string name="toolTipBudgetPeriod">Indicates if budget applies to a single month or entire year.</string>
     <string name="toolTipBudgetWho">The user to which this budget applies. (Used when users manage sometimes separate finances.)</string>
@@ -160,7 +161,7 @@
     <string name="edit_transaction">Edit transaction</string>
     <string name="go_to_next_transaction">Go to next transaction</string>
     <string name="go_to_previous_transaction">Go to previous transaction</string>
-    <string name="load_from_td_myspend">Load from TD MySpend</string>
+    <string name="load_from_bank_notification">Load from bank notification</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="discretionary_question">Discretionary?</string>
@@ -225,7 +226,7 @@
     <string name="default_user">Default User</string>
     <string name="default_split">Default Split</string>
     <string name="default_category_for_new_expenses">Default category for new expenses</string>
-    <string name="integration_with_td_myspend">Integration with TD MySpend?</string>
+    <string name="integration_with_bank_notifications">Integration with bank notifications?</string>
     <string name="manage_notification_translations">Manage notification translations</string>
     <string name="edit_translations">Edit Translations</string>
     <string name="sound">Sound</string>
@@ -333,6 +334,7 @@
     <string name="every">every</string>
     <string name="next_payment_due">Next payment due %1$s, %2$s, %3$s %4$s</string>
     <string name="forr">for</string>
+    <string name="for_c">for</string>
     <string name="the_text_contains_unsafe_characters">The text contains unsafe characters.  They must be removed.</string>
     <string name="value_cannot_be_blank">Value cannot be blank.</string>
     <string name="value_cannot_be_zero">Value cannot be zero.</string>
@@ -344,7 +346,7 @@
     <string name="transaction_deleted">Transaction deleted</string>
     <string name="this_expense_was_automatically_generated">This expense was automatically generated as a scheduled payment.</string>
     <string name="you_are_attempting_to_add_to_your_private_category">You are attempting to add to your private category, so transaction must be in your name.</string>
-    <string name="transaction_added">Transaction added.  Actuals for period for %1$s are %2$s, budget is %3$s.)</string>
+    <string name="transaction_added">After spending %1$s, your %2$s total is %3$s. Your budget is %4$s.</string>
     <string name="transaction_updated">Transaction updated</string>
     <string name="credit_expense">Credit Expense</string>
     <string name="share_this_authorization_key_with">Share this authorization key with %1$s:</string>
@@ -454,7 +456,7 @@
     <string name="age65">65</string>
     <string name="age70">70</string>
     <string name="employment">Employment</string>
-    <string name="listed_in_the_order_each_is_to_be_used_for_income">(listed in the order each is to be used for income)</string>
+    <string name="listed_in_the_order_each_is_to_be_used_for_income">(Total \$ %1$s listed in the order of withdrawal.)</string>
     <string name="asset">"Asset: "</string>
     <string name="asset_name">Asset name</string>
     <string name="value">Value</string>
@@ -587,4 +589,19 @@
     <string name="download_complete">Download complete.  Click RESTART to complete upgrade.</string>
     <string name="start">Start</string>
     <string name="end">End</string>
+    <string name="no">No</string>
+    <string name="covered_by_insurance">Covered by insurance?</string>
+    <string name="name_reimbursement">%1$s\'s reimbursement $"</string>
+    <string name="how_much_did_insurance_reimburse">How much did insurance reimburse?</string>
+    <string name="paid_to">Paid To:</string>
+    <string name="must_indicate_account">You must also indicate to who this amount was paid.</string>
+    <string name="insurance_reimbursements_to">Insurance reimbursements to</string>
+    <string name="these_are_the_transactions_that_are_insurable">These are the transactions marked Insurable.</string>
+    <string name="insurance_filter_is_on">Insurance filter is on</string>
+    <string name="x_reimbursed_for_y">%1$s reimbursed for %2$s"</string>
+    <string name="new_name">New name</string>
+    <string name="is_default_for_category">Default?</string>
+    <string name="indicates_if_subcategory_is_default_for_category">Indicates if this is the default subcategory for this category group.</string>
+    <string name="app">App</string>
+    <string name="export">Export</string>
 </resources>

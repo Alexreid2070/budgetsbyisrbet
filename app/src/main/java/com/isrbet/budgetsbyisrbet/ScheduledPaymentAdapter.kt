@@ -1,12 +1,15 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import timber.log.Timber
 import timber.log.Timber.tag
 
@@ -93,7 +96,6 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
                 if (rtData.boughtfor == 2) String.format("${rtData.split1}:${rtData.getSplit2()}")
                 else ""
             )
-            Timber.tag("Alex").d("turning '${viewHolder.vhDescription.text}' red")
             viewHolder.vhDescription.setTextColor(ContextCompat.getColor(myContext, R.color.red))
             viewHolder.vhDescription2.setTextColor(ContextCompat.getColor(myContext, R.color.red))
         } else {
@@ -117,9 +119,13 @@ class ScheduledPaymentAdapter (context: Context, data: MutableList<ScheduledPaym
                 if (rtData.boughtfor == 2) String.format("${rtData.split1}:${rtData.getSplit2()}")
                 else ""
             )
-            Timber.tag("Alex").d("turning '${viewHolder.vhDescription.text}' green")
-            viewHolder.vhDescription.setTextColor(ContextCompat.getColor(myContext, R.color.black))
-            viewHolder.vhDescription2.setTextColor(ContextCompat.getColor(myContext, R.color.black))
+            val col = MaterialColors.getColor(
+                myContext,
+                R.attr.textOnBackground,
+                Color.BLACK
+            )
+            viewHolder.vhDescription.setTextColor(col)
+            viewHolder.vhDescription2.setTextColor(col)
         }
         return myConvertView
     }

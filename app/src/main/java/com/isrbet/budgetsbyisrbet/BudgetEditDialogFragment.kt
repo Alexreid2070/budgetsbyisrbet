@@ -308,8 +308,8 @@ class BudgetEditDialogFragment : DialogFragment() {
                     binding.regularity.text.toString().toInt(),
                     newOccurenceID
                 )
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 dismiss()
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
             } else {
                 showErrorMessage(parentFragmentManager, errorMsg)
                 focusAndOpenSoftKeyboard(requireContext(), binding.budgetDialogNewAmount)
@@ -323,8 +323,8 @@ class BudgetEditDialogFragment : DialogFragment() {
                         oldKey
                     )
                     Toast.makeText(activity, getString(R.string.budget_deleted), Toast.LENGTH_SHORT).show()
+                    MyApplication.playSound(requireContext(), R.raw.short_springy_gun)
                     dismiss()
-                    MyApplication.playSound(context, R.raw.short_springy_gun)
                 }
                 fun noClicked() {
                 }

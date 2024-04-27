@@ -74,7 +74,7 @@ class CategoryDetailsFragment : Fragment() {
     }
 
     private fun resetColor(iCategory: String) {
-        DefaultsViewModel.setColour(iCategory, 0, false)
+        DefaultsViewModel.setCategoryColour(iCategory, 0, false)
         val lAdapter: CategoryDetailsAdapter =
             binding.recyclerView.adapter as CategoryDetailsAdapter
         lAdapter.refresh()
@@ -92,7 +92,7 @@ class CategoryDetailsFragment : Fragment() {
                     }
 
                     override fun onOk(dialog: AmbilWarnaDialog, color: Int) {
-                        DefaultsViewModel.setColour(iCategory, color, false)
+                        DefaultsViewModel.setCategoryColour(iCategory, color, false)
                         val lAdapter: CategoryDetailsAdapter =
                             binding.recyclerView.adapter as CategoryDetailsAdapter
                         lAdapter.refresh()

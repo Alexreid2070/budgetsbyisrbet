@@ -258,7 +258,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
         }
     }
     private fun startLoadData() {
-        Timber.tag("Alex").d("startLoadData")
         if (binding.barChart.visibility == View.VISIBLE) {
             loadBarChart()
         } else
@@ -476,7 +475,6 @@ class TrackerFragment : Fragment(), CoroutineScope {
         for (budget in catBudgets) {
             totalBudget += budget.value.toFloat()
         }
-        Timber.tag("Alex").d("total budget is $totalBudget")
         hackBudgetTotal = totalBudget
 
         var totalBudgetToDate = 0.0

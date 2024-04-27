@@ -184,7 +184,10 @@ class ScheduledPaymentViewModel : ViewModel() {
                 0
         }
 
-        fun getScheduledPayment(iKey: String): ScheduledPayment? {
+        fun getScheduledPaymentByVendor(iVendor: String): ScheduledPayment? {
+            return singleInstance.scheduledPayments.find { it.vendor == iVendor }
+        }
+        fun getScheduledPaymentByKey(iKey: String): ScheduledPayment? {
             return singleInstance.scheduledPayments.find { it.mykey == iKey }
         }
         fun scheduledPaymentExistsUsingCategory(iCategoryID: Int): Int {
@@ -195,6 +198,14 @@ class ScheduledPaymentViewModel : ViewModel() {
                 }
             }
             return ctr
+        }
+        fun scheduledPaymentExistsWithSameName(iProposedName: String, iKeyToIgnore: String): Boolean {
+            singleInstance.scheduledPayments.forEach {
+                if (it.vendor == iProposedName && it.mykey != iKeyToIgnore) {
+                    return true
+                }
+            }
+            return false
         }
   /*      fun showMe() {
             singleInstance.scheduledPayments.forEach {
@@ -213,7 +224,7 @@ class ScheduledPaymentViewModel : ViewModel() {
             val myList = mutableListOf<String>()
             singleInstance.scheduledPayments.forEach {
                 if (it.activeLoan) {
-                    myList.add(it.mykey)
+                    myList.add(it.vendor)
                 }
             }
             return myList
@@ -286,7 +297,6 @@ class ScheduledPaymentViewModel : ViewModel() {
                         val nextDate = getNextBusinessDate(MyDate(it.nextdate))
                         val nextDayIsBusinessDay = MyDate(it.nextdate) == nextDate
                         it.nextdate = newNextDate.toString()
-                        Timber.tag("Alex").d("Adding transaction amount is ${it.amount}")
                         TransactionViewModel.addTransactionDatabase(TransactionOut(nextDate.toString(),
                             round(it.amount*100).toInt(),
                             it.category, it.vendor, it.note, it.paidby, it.boughtfor,

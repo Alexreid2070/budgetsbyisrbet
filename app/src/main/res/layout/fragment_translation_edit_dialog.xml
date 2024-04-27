@@ -22,7 +22,7 @@
             android:layout_weight="1"
             android:gravity="start"
             android:text="@string/before"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground" />
         <TextView
@@ -30,7 +30,8 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/custom_max_width"/>
+            android:minWidth="@dimen/custom_max_width"
+            android:textSize="@dimen/normal_font_size"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/translation_after_layout"
@@ -47,7 +48,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:text="@string/after"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground" />
 
@@ -65,7 +66,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="start"
-                android:inputType="textCapSentences" />
+                android:inputType="textCapSentences"
+                android:textSize="@dimen/normal_font_size"/>
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
     <LinearLayout
@@ -84,7 +86,7 @@
             android:layout_weight="1"
             android:gravity="start"
             android:text="@string/category"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground" />
         <TextView
@@ -92,7 +94,8 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/custom_max_width"/>
+            android:minWidth="@dimen/custom_max_width"
+            android:textSize="@dimen/normal_font_size"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

@@ -51,11 +51,13 @@ class ScheduledPaymentFragment : Fragment() {
         gestureDetector = GestureDetectorCompat(requireActivity(), object:
             GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
-                event1: MotionEvent,
+                event1: MotionEvent?,
                 event2: MotionEvent,
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
+                if (event1 == null)
+                    return false
                 if (event2.y < event1.y) { // swiped up.  If at bottom already...
                     if (!binding.scheduledPaymentListView.canScrollVertically(1)) { // ie can't scroll up anymore
                         secondSwipeUp++

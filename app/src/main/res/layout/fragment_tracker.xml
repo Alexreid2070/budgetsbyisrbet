@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:textSize="16sp"
+        android:textSize="@dimen/label_font_size"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -26,7 +26,7 @@
         android:gravity="center"
         android:paddingBottom="10dp"
         android:textColor="?attr/colorPrimary"
-        android:textSize="14sp"
+        android:textSize="@dimen/normal_font_size"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/chartTitle" />
 
@@ -69,7 +69,7 @@
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:paddingBottom="5dp"
-        android:textSize="14sp"
+        android:textSize="@dimen/normal_font_size"
         app:layout_constraintBottom_toTopOf="@id/button_layout"
         app:layout_constraintTop_toBottomOf="@id/actualPieChart" />
 
@@ -158,7 +158,7 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:text="@string/view_by"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -219,7 +219,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/filter_by_type"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -269,7 +269,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/filter_by_who"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -323,7 +323,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/show_totals_as"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold" />
 
                 <RadioGroup

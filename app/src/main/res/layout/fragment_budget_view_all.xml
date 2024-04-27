@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:text="@string/category"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
@@ -69,9 +69,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingEnd="50dp"
             android:text="@string/type"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipDisc"/>
 
@@ -80,8 +80,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_gravity="center"
-            android:textSize="16sp"/>
+            android:layout_gravity="bottom|center"
+            android:textSize="@dimen/normal_font_size"
+            android:textColor="@color/dark_gray"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/year_layout"
@@ -100,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"/>
 
     </LinearLayout>
@@ -131,6 +132,7 @@
             android:paddingEnd="5dp"
             android:text="@string/date"
             android:tooltipText="@string/toolTipBudgetDate"
+            android:textSize="@dimen/normal_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -140,6 +142,7 @@
             android:layout_weight="1.1"
             android:text="@string/amt"
             android:tooltipText="@string/toolTipBudgetAmount"
+            android:textSize="@dimen/normal_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -149,6 +152,7 @@
             android:layout_weight=".5"
             android:text="@string/regularity_short"
             android:tooltipText="@string/regularity"
+            android:textSize="@dimen/normal_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -158,6 +162,7 @@
             android:layout_weight="1"
             android:text="@string/who"
             android:tooltipText="@string/toolTipBudgetWho"
+            android:textSize="@dimen/normal_font_size"
             android:textStyle="bold"/>
 
         <TextView
@@ -167,6 +172,7 @@
             android:layout_weight="1"
             android:text="@string/occurence_short"
             android:tooltipText="@string/toolTipBudgetOccurence"
+            android:textSize="@dimen/normal_font_size"
             android:textStyle="bold"/>
     </LinearLayout>
 
@@ -182,7 +188,7 @@
         android:id="@+id/noInformationText"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textSize="18sp"
+        android:textSize="@dimen/page_header_font_size"
         android:textStyle="bold"
         android:background="?attr/colorSecondary"
         android:padding="20dp"
@@ -280,7 +286,8 @@
             android:textColor="?attr/colorPrimary"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            android:text="@string/view_colon"/>
+            android:text="@string/view_colon"
+            android:textSize="@dimen/normal_font_size" />
         <HorizontalScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

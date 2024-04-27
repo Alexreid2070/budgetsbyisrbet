@@ -10,10 +10,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
+import timber.log.Timber
 
 const val cFIRST_NAME = 0
 const val cSECOND_NAME = 1
-const val cJOINT_NAME = 2
+const val cJOINT1_NAME = 2
+const val cJOINT2_NAME = 3
 
 class AccountingFragment : Fragment() {
     private var _binding: FragmentAccountingBinding? = null
@@ -56,6 +58,13 @@ class AccountingFragment : Fragment() {
             findNavController().navigate(action)
             MyApplication.displayToast(getString(R.string.these_are_the_transactions))
         }
+        binding.insuranceSummary.setOnClickListener {
+            val action =
+                AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
+            action.filterMode = cINSURANCE_FILTER
+            findNavController().navigate(action)
+            MyApplication.displayToast(getString(R.string.these_are_the_transactions_that_are_insurable))
+        }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
         val constraintLayout = binding.constraintLayout
@@ -66,313 +75,489 @@ class AccountingFragment : Fragment() {
     }
 
     private fun fillInContent() {
-        val totals = Array(3) {DoubleArray(4) {0.0} }
-        val transferTotals = Array(3) {DoubleArray(4) {0.0} }
+        val totals = Array(4) {DoubleArray(4) {0.0} }
+        val transferTotals = Array(4) {DoubleArray(4) {0.0} }
+        val insuranceTotals = Array(4) {DoubleArray(4) {0.0} }
         val firstName = SpenderViewModel.getSpender(0)?.name.toString()
         val secondName = SpenderViewModel.getSpender(1)?.name.toString()
-        binding.accountingHeaderFirstHeaderName.text = firstName
-        binding.accountingHeaderSecondHeaderName.text = secondName
-        binding.accountingHeaderTFheadername.text = firstName
-        binding.accountingHeaderTSheadername.text = secondName
-        binding.accountingFirstRowName.text = firstName
-        binding.accountingSecondRowName.text = secondName
-        binding.accountingTTofRowName.text = firstName
-        binding.accountingTTosRowName.text = secondName
-        binding.accountingJfrowName.text = String.format(getString(R.string.JTdash), firstName)
-        binding.accountingJsrowName.text = String.format(getString(R.string.JTdash), secondName)
-        binding.accountingTToj1RowName.text = String.format(getString(R.string.JTdash), firstName)
-        binding.accountingTToj2RowName.text = String.format(getString(R.string.JTdash), secondName)
+
+        binding.detailsHeaderNameF.text = firstName
+        binding.detailsHeaderNameS.text = secondName
+        binding.detailsHeaderNameJ1.text = String.format(getString(R.string.JTdash), firstName)
+        binding.detailsHeaderNameJ2.text = String.format(getString(R.string.JTdash), secondName)
+        binding.detailsRowNameF.text = firstName
+        binding.detailsRowNameS.text = secondName
+        binding.detailsRowNameJ1.text = String.format(getString(R.string.JTdash), firstName)
+        binding.detailsRowNameJ2.text = String.format(getString(R.string.JTdash), secondName)
+
+        binding.transferHeaderNameF.text = firstName
+        binding.transferHeaderNameS.text = secondName
+        binding.transferRowNameF.text = firstName
+        binding.transferRowNameS.text = secondName
+        binding.transferRowNameJ1.text = String.format(getString(R.string.JTdash), firstName)
+        binding.transferRowNameJ2.text = String.format(getString(R.string.JTdash), secondName)
+
+        binding.insuranceHeadernameF.text = firstName
+        binding.insuranceHeadernameS.text = secondName
+        binding.insuranceHeadernameJ1.text = String.format(getString(R.string.JTdash), firstName)
+        binding.insuranceHeadernameJ2.text = String.format(getString(R.string.JTdash), secondName)
+        binding.insuranceRowNameF.text = firstName
+        binding.insuranceRowNameS.text = secondName
+        binding.insuranceRowNameJ1.text = String.format(getString(R.string.JTdash), firstName)
+        binding.insuranceRowNameJ2.text = String.format(getString(R.string.JTdash), secondName)
 
         for (i in 0 until TransactionViewModel.getCount()) {
             val exp = TransactionViewModel.getTransaction(i)
             if (exp.type == cTRANSACTION_TYPE_TRANSFER) {
-                when (exp.paidby) {
-                    0 -> {
-                        when (exp.boughtfor) {
-                            0 -> transferTotals[cFIRST_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
-                            1 -> transferTotals[cFIRST_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
-                            2 -> {
-                                transferTotals[cFIRST_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
-                                transferTotals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
-                            }
-                        }
-                    }
-                    1 -> {
-                        when (exp.boughtfor) {
-                            0 -> transferTotals[cSECOND_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
-                            1 -> transferTotals[cSECOND_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
-                            2 -> {
-                                transferTotals[cSECOND_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
-                                transferTotals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
-                            }
-                        }
-                    }
+                when (exp.boughtfor) {
+                    0 -> transferTotals[cFIRST_NAME][exp.paidby] += exp.getAmountByUser(0, false)
+                    1 -> transferTotals[cSECOND_NAME][exp.paidby] += exp.getAmountByUser(1, false)
                     2 -> {
-                        when (exp.boughtfor) {
-                            0 -> transferTotals[cJOINT_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
-                            1 -> transferTotals[cJOINT_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
-                            2 -> {
-                                transferTotals[cJOINT_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
-                                transferTotals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
-                            }
-                        }
+                        transferTotals[cJOINT1_NAME][exp.paidby] += exp.getAmountByUser(0, false)
+                        transferTotals[cJOINT2_NAME][exp.paidby] += exp.getAmountByUser(1, false)
                     }
                 }
             } else {
-                when (exp.paidby) {
-                    0 -> {
-                        when (exp.boughtfor) {
-                            0 -> totals[cFIRST_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
-                            1 -> totals[cFIRST_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
-                            2 -> {
-                                totals[cFIRST_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
-                                totals[cFIRST_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
-                            }
+                when (exp.boughtfor) {
+                    0,1 -> {
+                        if (exp.paidby == 2) {
+                            totals[exp.boughtfor][exp.paidby] +=
+                                (exp.getAmountByUser(exp.boughtfor, false) * SpenderViewModel.getSpenderSplit(0))
+                            totals[exp.boughtfor][exp.paidby+1] +=
+                                (exp.getAmountByUser(exp.boughtfor, false) * SpenderViewModel.getSpenderSplit(1))
+                        } else {
+                            totals[exp.boughtfor][exp.paidby] += exp.getAmountByUser(exp.boughtfor, false)
                         }
                     }
-                    1 -> {
-                        when (exp.boughtfor) {
-                            0 -> totals[cSECOND_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
-                            1 -> totals[cSECOND_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
-                            2 -> {
-                                totals[cSECOND_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
-                                totals[cSECOND_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
-                            }
-                        }
-                    }
+//                    1 -> totals[cSECOND_NAME][exp.paidby] += exp.getAmountByUser(1, false)
                     2 -> {
-                        when (exp.boughtfor) {
-                            0 -> totals[cJOINT_NAME][cFIRST_NAME] += exp.getAmountByUser(0, false)
-                            1 -> totals[cJOINT_NAME][cSECOND_NAME] += exp.getAmountByUser(1, false)
-                            2 -> {
-                                totals[cJOINT_NAME][cJOINT_NAME] += exp.getAmountByUser(0, false)
-                                totals[cJOINT_NAME][cJOINT_NAME+1] += exp.getAmountByUser(1, false)
+                        if (exp.paidby == 2) {
+                            totals[cJOINT1_NAME][exp.paidby] += exp.getAmountByUser(0, false) * SpenderViewModel.getSpenderSplit(0)
+                            totals[cJOINT2_NAME][exp.paidby] += exp.getAmountByUser(1, false) * SpenderViewModel.getSpenderSplit(0)
+                            totals[cJOINT1_NAME][exp.paidby+1] += exp.getAmountByUser(0, false) * SpenderViewModel.getSpenderSplit(1)
+                            totals[cJOINT2_NAME][exp.paidby+1] += exp.getAmountByUser(1, false) * SpenderViewModel.getSpenderSplit(1)
+                        } else {
+                            totals[cJOINT1_NAME][exp.paidby] += exp.getAmountByUser(0, false)
+                            totals[cJOINT2_NAME][exp.paidby] += exp.getAmountByUser(1, false)
+                        }
+                    }
+                }
+
+                if (exp.insurable) {
+                    for (reimbursementAmountNumber in 0 until 2) {
+                        val rAmount = if (reimbursementAmountNumber == 0) exp.reimbursementAmount0 else exp.reimbursementAmount1
+                        val rPaidTo = if (reimbursementAmountNumber == 0) exp.paidTo0 else exp.paidTo1
+                        if (rAmount != 0.0) {
+                            when (rPaidTo) {
+                                0,1 -> {
+                                    when (exp.boughtfor) {
+                                        0 -> insuranceTotals[cFIRST_NAME][rPaidTo] += rAmount
+                                        1 -> insuranceTotals[cSECOND_NAME][rPaidTo] += rAmount
+                                        2 -> {
+                                            insuranceTotals[cJOINT1_NAME][cFIRST_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 0, false)
+                                            insuranceTotals[cJOINT2_NAME][cFIRST_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 1, false)
+                                        }
+                                    }
+                                }
+                                2 -> {
+                                    when (exp.boughtfor) {
+                                        0 -> {
+                                            insuranceTotals[cFIRST_NAME][cJOINT1_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 0, false)
+                                            insuranceTotals[cFIRST_NAME][cJOINT2_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 1, false)
+                                        }
+                                        1 -> {
+                                            insuranceTotals[cSECOND_NAME][cJOINT1_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 0, false)
+                                            insuranceTotals[cSECOND_NAME][cJOINT2_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 1, false)
+                                        }
+                                        2 -> {
+                                            insuranceTotals[cJOINT1_NAME][cJOINT1_NAME] += ((rAmount * exp.bfname1split/100.0) * SpenderViewModel.getSpenderSplit(0))
+                                            insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] += ((rAmount * (100-exp.bfname1split)/100.0)  * SpenderViewModel.getSpenderSplit(0))
+                                            insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] += ((rAmount * exp.bfname1split/100.0)  * SpenderViewModel.getSpenderSplit(1))
+                                            insuranceTotals[cJOINT2_NAME][cJOINT2_NAME] += ((rAmount * (100-exp.bfname1split)/100.0)  * SpenderViewModel.getSpenderSplit(1))
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        binding.accountingFf.text = gDecWithCurrency(totals[cFIRST_NAME][cFIRST_NAME])
-        binding.accountingFf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingSf.text = gDecWithCurrency(totals[cFIRST_NAME][cSECOND_NAME])
-        if (totals[cFIRST_NAME][cSECOND_NAME] == 0.0)
-            binding.accountingSf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJff.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT_NAME])
-        binding.accountingJff.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJsf.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT_NAME+1])
-        if (totals[cFIRST_NAME][cJOINT_NAME+1] == 0.0)
-            binding.accountingJsf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingFs.text = gDecWithCurrency(totals[cSECOND_NAME][cFIRST_NAME])
+        binding.detailsFF.text = gDecWithCurrency(totals[cFIRST_NAME][cFIRST_NAME])
+        binding.detailsFF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsSF.text = gDecWithCurrency(totals[cSECOND_NAME][cFIRST_NAME])
         if (totals[cSECOND_NAME][cFIRST_NAME] == 0.0)
-            binding.accountingFs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingSs.text = gDecWithCurrency(totals[cSECOND_NAME][cSECOND_NAME])
-        binding.accountingSs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJfs.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT_NAME])
-        if (totals[cSECOND_NAME][cJOINT_NAME] == 0.0)
-            binding.accountingJfs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJss.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT_NAME+1])
-        binding.accountingJss.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingFj.text = gDecWithCurrency(totals[cJOINT_NAME][cFIRST_NAME])
-        if (totals[cJOINT_NAME][cFIRST_NAME] == 0.0)
-            binding.accountingFj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingSj.text = gDecWithCurrency(totals[cJOINT_NAME][cSECOND_NAME])
-        if (totals[cJOINT_NAME][cSECOND_NAME] == 0.0)
-            binding.accountingSj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJfj.text = gDecWithCurrency(totals[cJOINT_NAME][cJOINT_NAME])
+            binding.detailsSF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ1F.text = gDecWithCurrency(totals[cJOINT1_NAME][cFIRST_NAME])
+        binding.detailsJ1F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ2F.text = gDecWithCurrency(totals[cJOINT2_NAME][cFIRST_NAME])
+        if (totals[cJOINT2_NAME][cFIRST_NAME] == 0.0)
+            binding.detailsJ2F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsFS.text = gDecWithCurrency(totals[cFIRST_NAME][cSECOND_NAME])
+        if (totals[cFIRST_NAME][cSECOND_NAME] == 0.0)
+            binding.detailsFS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsSS.text = gDecWithCurrency(totals[cSECOND_NAME][cSECOND_NAME])
+        binding.detailsSS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ1S.text = gDecWithCurrency(totals[cJOINT1_NAME][cSECOND_NAME])
+        if (totals[cJOINT1_NAME][cSECOND_NAME] == 0.0)
+            binding.detailsJ1S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ2S.text = gDecWithCurrency(totals[cJOINT2_NAME][cSECOND_NAME])
+        binding.detailsJ2S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsFJ1.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT1_NAME])
+        if (totals[cFIRST_NAME][cJOINT1_NAME] == 0.0)
+            binding.detailsFJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsSJ1.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT1_NAME])
+        if (totals[cSECOND_NAME][cJOINT1_NAME] == 0.0)
+            binding.detailsSJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ1J1.text = gDecWithCurrency(totals[cJOINT1_NAME][cJOINT1_NAME])
+        binding.detailsJ1J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ2J1.text = gDecWithCurrency(totals[cJOINT2_NAME][cJOINT1_NAME])
+        if (totals[cJOINT2_NAME][cJOINT1_NAME] == 0.0)
+            binding.detailsSJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsFJ2.text = gDecWithCurrency(totals[cFIRST_NAME][cJOINT2_NAME])
+        if (totals[cFIRST_NAME][cJOINT2_NAME] == 0.0)
+            binding.detailsSJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsSJ2.text = gDecWithCurrency(totals[cSECOND_NAME][cJOINT2_NAME])
+        binding.detailsSJ2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ1J2.text = gDecWithCurrency(totals[cJOINT1_NAME][cJOINT2_NAME])
+        if (totals[cJOINT1_NAME][cJOINT2_NAME] == 0.0)
+            binding.detailsSJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ2J2.text = gDecWithCurrency(totals[cJOINT2_NAME][cJOINT2_NAME])
+        binding.detailsJ2J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
 
-        val jointIsAsExpected = totals[cJOINT_NAME][cJOINT_NAME] == ((totals[cJOINT_NAME][cJOINT_NAME] +
-                totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(0))
-        if (totals[cJOINT_NAME][cJOINT_NAME] == 0.0 || jointIsAsExpected)
-            binding.accountingJfj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingJsj.text = gDecWithCurrency(totals[cJOINT_NAME][cJOINT_NAME+1])
-        if (totals[cJOINT_NAME][cJOINT_NAME+1] == 0.0 || jointIsAsExpected)
-            binding.accountingJsj.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        val jointIsAsExpected = (totals[cJOINT1_NAME][cJOINT1_NAME] + totals[cJOINT1_NAME][cJOINT2_NAME]) ==
+                ((totals[cJOINT1_NAME][cJOINT1_NAME] + totals[cJOINT1_NAME][cJOINT2_NAME] +
+                    totals[cJOINT2_NAME][cJOINT1_NAME] + totals[cJOINT2_NAME][cJOINT2_NAME]) * SpenderViewModel.getSpenderSplit(0))
+        if (totals[cJOINT1_NAME][cJOINT1_NAME] == 0.0 || jointIsAsExpected)
+            binding.detailsJ1J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        if (totals[cJOINT2_NAME][cJOINT2_NAME] == 0.0 || jointIsAsExpected)
+            binding.detailsJ2J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ2J1.text = gDecWithCurrency(totals[cJOINT2_NAME][cJOINT1_NAME])
+        if (totals[cJOINT2_NAME][cJOINT1_NAME] == 0.0 || jointIsAsExpected)
+            binding.detailsJ2J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.detailsJ1J2.text = gDecWithCurrency(totals[cJOINT1_NAME][cJOINT2_NAME])
+        if (totals[cJOINT1_NAME][cJOINT2_NAME] == 0.0 || jointIsAsExpected)
+            binding.detailsJ1J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
 
-        binding.accountingTFf.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cFIRST_NAME])
+        binding.transferFF.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cFIRST_NAME])
         if (transferTotals[cFIRST_NAME][cFIRST_NAME] == 0.0)
-            binding.accountingTFf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTFs.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cSECOND_NAME])
+            binding.transferFF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferFS.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cSECOND_NAME])
         if (transferTotals[cFIRST_NAME][cSECOND_NAME] == 0.0)
-            binding.accountingTFs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTFj1.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cJOINT_NAME])
-        if (transferTotals[cFIRST_NAME][cJOINT_NAME] == 0.0)
-            binding.accountingTFj1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTFj2.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cJOINT_NAME+1])
-        if (transferTotals[cFIRST_NAME][cJOINT_NAME+1] == 0.0)
-            binding.accountingTFj2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSf.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cFIRST_NAME])
+            binding.transferFS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferFJ.text = gDecWithCurrency(transferTotals[cFIRST_NAME][cJOINT1_NAME])
+        if (transferTotals[cFIRST_NAME][cJOINT1_NAME] == 0.0)
+            binding.transferFJ.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferSF.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cFIRST_NAME])
         if (transferTotals[cSECOND_NAME][cFIRST_NAME] == 0.0)
-            binding.accountingTSf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSs.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cSECOND_NAME])
+            binding.transferSF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferSS.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cSECOND_NAME])
         if (transferTotals[cSECOND_NAME][cSECOND_NAME] == 0.0)
-            binding.accountingTSs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSj1.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cJOINT_NAME])
-        if (transferTotals[cSECOND_NAME][cJOINT_NAME] == 0.0)
-            binding.accountingTSj1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTSj2.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cJOINT_NAME+1])
-        if (transferTotals[cSECOND_NAME][cJOINT_NAME+1] == 0.0)
-            binding.accountingTSj2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJf.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cFIRST_NAME])
-        if (transferTotals[cJOINT_NAME][cFIRST_NAME] == 0.0)
-            binding.accountingTJf.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJs.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cSECOND_NAME])
-        if (transferTotals[cJOINT_NAME][cSECOND_NAME] == 0.0)
-            binding.accountingTJs.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJj1.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cJOINT_NAME])
-        if (transferTotals[cJOINT_NAME][cJOINT_NAME] == 0.0)
-            binding.accountingTJj1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.accountingTJj2.text = gDecWithCurrency(transferTotals[cJOINT_NAME][cJOINT_NAME+1])
-        if (transferTotals[cJOINT_NAME][cJOINT_NAME+1] == 0.0)
-            binding.accountingTJj2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+            binding.transferSS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferSJ.text = gDecWithCurrency(transferTotals[cSECOND_NAME][cJOINT1_NAME])
+        if (transferTotals[cSECOND_NAME][cJOINT1_NAME] == 0.0)
+            binding.transferSJ.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferJ1F.text = gDecWithCurrency(transferTotals[cJOINT1_NAME][cFIRST_NAME])
+        if (transferTotals[cJOINT1_NAME][cFIRST_NAME] == 0.0)
+            binding.transferJ1F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferJ1S.text = gDecWithCurrency(transferTotals[cJOINT1_NAME][cSECOND_NAME])
+        if (transferTotals[cJOINT1_NAME][cSECOND_NAME] == 0.0)
+            binding.transferJ1S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferJ1J.text = gDecWithCurrency(transferTotals[cJOINT1_NAME][cJOINT1_NAME])
+        if (transferTotals[cJOINT1_NAME][cJOINT1_NAME] == 0.0)
+            binding.transferJ1J.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferJ2F.text = gDecWithCurrency(transferTotals[cJOINT2_NAME][cFIRST_NAME])
+        if (transferTotals[cJOINT2_NAME][cFIRST_NAME] == 0.0)
+            binding.transferJ2F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferJ2S.text = gDecWithCurrency(transferTotals[cJOINT2_NAME][cSECOND_NAME])
+        if (transferTotals[cJOINT2_NAME][cSECOND_NAME] == 0.0)
+            binding.transferJ2S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.transferJ2J.text = gDecWithCurrency(transferTotals[cJOINT2_NAME][cJOINT1_NAME])
+        if (transferTotals[cJOINT2_NAME][cJOINT1_NAME] == 0.0)
+            binding.transferJ2J.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+
+        binding.insuranceFF.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cFIRST_NAME])
+        binding.insuranceFF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceFS.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cSECOND_NAME])
+        if (insuranceTotals[cFIRST_NAME][cSECOND_NAME] == 0.0)
+            binding.insuranceFS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceFJ1.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cJOINT1_NAME])
+        binding.insuranceFJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceFJ2.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cJOINT2_NAME])
+        if (insuranceTotals[cFIRST_NAME][cJOINT2_NAME] == 0.0)
+            binding.insuranceFJ2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceSF.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cFIRST_NAME])
+        if (insuranceTotals[cSECOND_NAME][cFIRST_NAME] == 0.0)
+            binding.insuranceSF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceSS.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cSECOND_NAME])
+        binding.insuranceSS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceSJ1.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cJOINT1_NAME])
+        if (insuranceTotals[cSECOND_NAME][cJOINT1_NAME] == 0.0)
+            binding.insuranceSJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceSJ2.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cJOINT2_NAME])
+        binding.insuranceSJ2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ1F.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cFIRST_NAME])
+        binding.insuranceJ1F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ1S.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cSECOND_NAME])
+        if (insuranceTotals[cJOINT1_NAME][cSECOND_NAME] == 0.0)
+            binding.insuranceJ1S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ1J1.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cJOINT1_NAME])
+        if (insuranceTotals[cJOINT1_NAME][cJOINT1_NAME] == 0.0)
+            binding.insuranceJ1J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ1J2.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cJOINT2_NAME])
+        if (insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] == 0.0)
+            binding.insuranceJ1J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ2F.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cFIRST_NAME])
+        if (insuranceTotals[cJOINT2_NAME][cFIRST_NAME] == 0.0)
+            binding.insuranceJ2F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ2S.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cSECOND_NAME])
+        binding.insuranceJ2S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ2J1.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cJOINT1_NAME])
+        if (insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] == 0.0)
+            binding.insuranceJ2J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
+        binding.insuranceJ2J2.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cJOINT2_NAME])
+        if (insuranceTotals[cJOINT2_NAME][cJOINT2_NAME] == 0.0)
+            binding.insuranceJ2J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
 
         val oneOwesTwo = ((-totals[cFIRST_NAME][cSECOND_NAME])
+                - (totals[cJOINT1_NAME][cSECOND_NAME])
+                - (totals[cFIRST_NAME][cJOINT2_NAME])
+                - (totals[cJOINT1_NAME][cJOINT2_NAME])
                 + (totals[cSECOND_NAME][cFIRST_NAME])
-                - (totals[cFIRST_NAME][cJOINT_NAME+1])
-                + (totals[cSECOND_NAME][cJOINT_NAME])
-                + ((totals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0))
-                - ((totals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1))
-                + ((totals[cJOINT_NAME][cJOINT_NAME]) * SpenderViewModel.getSpenderSplit(0))
-                - ((totals[cJOINT_NAME][cJOINT_NAME+1]) * SpenderViewModel.getSpenderSplit(1))
+                + (totals[cSECOND_NAME][cJOINT1_NAME])
+                + (totals[cJOINT2_NAME][cFIRST_NAME])
+                + (totals[cJOINT2_NAME][cJOINT1_NAME])
+                //                + ((totals[cJOINT_NAME][cJOINT_NAME]) * SpenderViewModel.getSpenderSplit(1))
                 - (transferTotals[cFIRST_NAME][cSECOND_NAME])
                 + (transferTotals[cSECOND_NAME][cFIRST_NAME])
-                - (transferTotals[cFIRST_NAME][cJOINT_NAME+1])
-                + (transferTotals[cSECOND_NAME][cJOINT_NAME])
-                + ((transferTotals[cJOINT_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(0))
-                - ((transferTotals[cJOINT_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(1)))
+                - (transferTotals[cFIRST_NAME][cJOINT2_NAME])
+                + (transferTotals[cSECOND_NAME][cJOINT1_NAME])
+                + ((transferTotals[cJOINT1_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(1))
+                - ((transferTotals[cJOINT1_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(0))
+                + (insuranceTotals[cFIRST_NAME][cSECOND_NAME])
+                + (insuranceTotals[cFIRST_NAME][cJOINT2_NAME])
+                + (insuranceTotals[cJOINT1_NAME][cSECOND_NAME])
+                + (insuranceTotals[cJOINT1_NAME][cJOINT2_NAME])
+                - (insuranceTotals[cSECOND_NAME][cFIRST_NAME])
+                - (insuranceTotals[cSECOND_NAME][cJOINT1_NAME])
+                - (insuranceTotals[cJOINT2_NAME][cFIRST_NAME])
+                - (insuranceTotals[cJOINT2_NAME][cJOINT1_NAME]))
 
         val gridLayout = binding.gridLayout
         var cellIndex = 0
         gridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
         gridLayout.columnCount = 2
         gridLayout.rowCount = 14
-        var subtotal = 0.0
+        var subtotal1 = 0.0
 
-        if (totals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
+        if (totals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
             buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
                 SpenderViewModel.getSpenderName(1),
-                totals[cFIRST_NAME][cSECOND_NAME], cellIndex)
+                totals[cSECOND_NAME][cFIRST_NAME], cellIndex)
             cellIndex += 2
-            subtotal += totals[cFIRST_NAME][cSECOND_NAME]
+            subtotal1 += totals[cSECOND_NAME][cFIRST_NAME]
         }
-        if (totals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+        if (totals[cJOINT2_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(0),
                 String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                totals[cFIRST_NAME][cJOINT_NAME+1], cellIndex)
+                totals[cJOINT2_NAME][cFIRST_NAME], cellIndex)
             cellIndex += 2
-            subtotal += totals[cFIRST_NAME][cJOINT_NAME+1]
+            subtotal1 += totals[cJOINT2_NAME][cFIRST_NAME]
         }
-        if (totals[cJOINT_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+        if (totals[cSECOND_NAME][cJOINT1_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 SpenderViewModel.getSpenderName(1),
-                totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1), cellIndex)
+                totals[cSECOND_NAME][cJOINT1_NAME], cellIndex)
             cellIndex += 2
-            subtotal += totals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)
+            subtotal1 += totals[cSECOND_NAME][cJOINT1_NAME]
         }
-        if (totals[cJOINT_NAME][cJOINT_NAME+1] != 0.0 && !jointIsAsExpected) {
-            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+        if (totals[cJOINT2_NAME][cJOINT1_NAME] != 0.0 && !jointIsAsExpected) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1), cellIndex)
+                totals[cJOINT2_NAME][cJOINT1_NAME], cellIndex)
             cellIndex += 2
-            subtotal += totals[cJOINT_NAME][cJOINT_NAME+1] * SpenderViewModel.getSpenderSplit(1)
+            subtotal1 += totals[cJOINT2_NAME][cJOINT1_NAME]
         }
-        if (transferTotals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
+        if (transferTotals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(0),
                 SpenderViewModel.getSpenderName(1),
-                transferTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
+                transferTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
-            subtotal += transferTotals[cFIRST_NAME][cSECOND_NAME]
+            subtotal1 += transferTotals[cSECOND_NAME][cFIRST_NAME]
         }
-        if (transferTotals[cFIRST_NAME][cJOINT_NAME+1] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                transferTotals[cFIRST_NAME][cJOINT_NAME+1], cellIndex, cTRANSACTION_TYPE_TRANSFER)
-            cellIndex += 2
-            subtotal += transferTotals[cFIRST_NAME][cJOINT_NAME+1]
-        }
-        if (transferTotals[cJOINT_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+        if (transferTotals[cSECOND_NAME][cJOINT1_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
                 SpenderViewModel.getSpenderName(1),
-                transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1),
+                transferTotals[cSECOND_NAME][cJOINT1_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
+            cellIndex += 2
+            subtotal1 += transferTotals[cSECOND_NAME][cJOINT1_NAME]
+        }
+        if (transferTotals[cJOINT1_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(0),
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                transferTotals[cJOINT1_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0),
                 cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
-            subtotal += transferTotals[cJOINT_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)
+            subtotal1 += transferTotals[cJOINT1_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)
+        }
+        if (insuranceTotals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(1),
+                SpenderViewModel.getSpenderName(0),
+                insuranceTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal1 += insuranceTotals[cFIRST_NAME][cSECOND_NAME]
+        }
+        if (insuranceTotals[cFIRST_NAME][cJOINT2_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                SpenderViewModel.getSpenderName(0),
+                insuranceTotals[cFIRST_NAME][cJOINT2_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal1 += insuranceTotals[cFIRST_NAME][cJOINT2_NAME]
+        }
+        if (insuranceTotals[cJOINT1_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(1),
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                insuranceTotals[cJOINT1_NAME][cSECOND_NAME],
+                cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal1 += insuranceTotals[cJOINT1_NAME][cSECOND_NAME] // * SpenderViewModel.getSpenderSplit(1)
+        }
+        if (insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] != 0.0 && !jointIsAsExpected) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                insuranceTotals[cJOINT1_NAME][cJOINT2_NAME],
+                cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal1 += insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] // * SpenderViewModel.getSpenderSplit(1)
         }
         buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
             SpenderViewModel.getSpenderName(1),
-            subtotal, cellIndex, getString(R.string.sub_total))
+            subtotal1, cellIndex, getString(R.string.sub_total))
         cellIndex += 2
 
         var subtotal2 = 0.0
-        if (totals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+        if (totals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(1),
                 SpenderViewModel.getSpenderName(0),
-                totals[cSECOND_NAME][cFIRST_NAME], cellIndex)
+                totals[cFIRST_NAME][cSECOND_NAME], cellIndex)
             cellIndex += 2
-            subtotal2 += totals[cSECOND_NAME][cFIRST_NAME]
+            subtotal2 += totals[cFIRST_NAME][cSECOND_NAME]
         }
-        if (totals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+        if (totals[cJOINT1_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(1),
                 String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                totals[cSECOND_NAME][cJOINT_NAME], cellIndex)
+                totals[cJOINT1_NAME][cSECOND_NAME], cellIndex)
             cellIndex += 2
-            subtotal2 += totals[cSECOND_NAME][cJOINT_NAME]
+            subtotal2 += totals[cJOINT1_NAME][cSECOND_NAME]
         }
-        if (totals[cJOINT_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+        if (totals[cFIRST_NAME][cJOINT2_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
                 SpenderViewModel.getSpenderName(0),
-                totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0), cellIndex)
+                totals[cFIRST_NAME][cJOINT2_NAME], cellIndex)
             cellIndex += 2
-            subtotal2 += totals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)
+            subtotal2 += totals[cFIRST_NAME][cJOINT2_NAME]
         }
-        if (totals[cJOINT_NAME][cJOINT_NAME] != 0.0 && !jointIsAsExpected) {
-            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+        if (totals[cJOINT1_NAME][cJOINT2_NAME] != 0.0 && !jointIsAsExpected) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
                 String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0), cellIndex)
+                totals[cJOINT1_NAME][cJOINT2_NAME], cellIndex)
             cellIndex += 2
-            subtotal2 += totals[cJOINT_NAME][cJOINT_NAME] * SpenderViewModel.getSpenderSplit(0)
+            subtotal2 += totals[cJOINT1_NAME][cJOINT2_NAME]
         }
-        if (transferTotals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+        if (transferTotals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(1),
                 SpenderViewModel.getSpenderName(0),
-                transferTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
+                transferTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
-            subtotal2 += transferTotals[cSECOND_NAME][cFIRST_NAME]
+            subtotal2 += transferTotals[cFIRST_NAME][cSECOND_NAME]
         }
-        if (transferTotals[cSECOND_NAME][cJOINT_NAME] != 0.0) {
-            buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
+        if (transferTotals[cFIRST_NAME][cJOINT2_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                SpenderViewModel.getSpenderName(0),
+                transferTotals[cFIRST_NAME][cJOINT2_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
+            cellIndex += 2
+            subtotal2 += transferTotals[cFIRST_NAME][cJOINT2_NAME]
+        }
+        if (transferTotals[cJOINT1_NAME][cSECOND_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(1),
                 String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                transferTotals[cSECOND_NAME][cJOINT_NAME], cellIndex, cTRANSACTION_TYPE_TRANSFER)
-            cellIndex += 2
-            subtotal2 += transferTotals[cSECOND_NAME][cJOINT_NAME]
-        }
-        if (transferTotals[cJOINT_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout, String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                SpenderViewModel.getSpenderName(0),
-                transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0),
+                transferTotals[cJOINT1_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1),
                 cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
-            subtotal2 += transferTotals[cJOINT_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)
+            subtotal2 += transferTotals[cJOINT1_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)
+        }
+        if (insuranceTotals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(0),
+                SpenderViewModel.getSpenderName(1),
+                insuranceTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal2 += insuranceTotals[cSECOND_NAME][cFIRST_NAME]
+        }
+        if (insuranceTotals[cSECOND_NAME][cJOINT1_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                SpenderViewModel.getSpenderName(1),
+                insuranceTotals[cSECOND_NAME][cJOINT1_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal2 += insuranceTotals[cSECOND_NAME][cJOINT1_NAME]
+        }
+        if (insuranceTotals[cJOINT2_NAME][cFIRST_NAME] != 0.0) {
+            buildGrid(gridLayout,
+                SpenderViewModel.getSpenderName(0),
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                insuranceTotals[cJOINT2_NAME][cFIRST_NAME], cellIndex,
+                cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal2 += insuranceTotals[cJOINT2_NAME][cFIRST_NAME] //* SpenderViewModel.getSpenderSplit(0)
+        }
+        if (insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] != 0.0 && !jointIsAsExpected) {
+            buildGrid(gridLayout,
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
+                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
+                insuranceTotals[cJOINT2_NAME][cJOINT1_NAME], cellIndex,
+                cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
+            cellIndex += 2
+            subtotal2 += insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] //* SpenderViewModel.getSpenderSplit(0)
         }
         buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
             SpenderViewModel.getSpenderName(0),
             subtotal2, cellIndex, getString(R.string.sub_total))
         cellIndex += 2
 
+        Timber.tag("Alex").d("oneOwesTwo $oneOwesTwo subtotal1 $subtotal1 subtotal2 $subtotal2")
+
         when {
             oneOwesTwo == 0.0 -> binding.accountingSummary.text = getString(R.string.nobody_owes_anybody)
-            oneOwesTwo > 0 -> {
+            oneOwesTwo < 0 -> {
                 binding.accountingSummary.text = String.format(getString(R.string.owes), firstName,
-                    secondName, gDecWithCurrency(oneOwesTwo))
+                    secondName, gDecWithCurrency(oneOwesTwo*-1))
                 binding.accountingSummary2.text = String.format(getString(R.string.owes2),
-                    gDecWithCurrency(subtotal2), gDecWithCurrency(subtotal))
+                    gDecWithCurrency(subtotal2), gDecWithCurrency(subtotal1))
             }
             else -> {
                 binding.accountingSummary.text = String.format(getString(R.string.owes),
                     secondName, firstName,
-                    gDecWithCurrency(oneOwesTwo*-1))
+                    gDecWithCurrency(oneOwesTwo))
                 binding.accountingSummary2.text = String.format(getString(R.string.owes2),
-                    gDecWithCurrency(subtotal),
+                    gDecWithCurrency(subtotal1),
                     gDecWithCurrency(subtotal2))
             }
         }
@@ -392,6 +577,7 @@ class AccountingFragment : Fragment() {
         amountText.textSize = 13f
         when (iTransfer) {
             cTRANSACTION_TYPE_TRANSFER -> titleText.text = String.format(getString(R.string.transferred_to), iName1, iName2)
+            cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT -> titleText.text = String.format(getString(R.string.x_reimbursed_for_y), iName1, iName2)
             getString(R.string.sub_total) -> {
                 paramsT.topMargin = 10
                 paramsT.bottomMargin = 40

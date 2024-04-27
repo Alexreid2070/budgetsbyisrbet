@@ -133,7 +133,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/view"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnMenuColor"
                     android:paddingStart="5dp"
@@ -198,7 +198,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/filter_by_type"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnMenuColor"/>
                 <HorizontalScrollView
@@ -244,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/filter_by_who"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnMenuColor" />
                 <HorizontalScrollView
@@ -292,7 +292,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/show_delta_as"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnMenuColor" />
                 <HorizontalScrollView
@@ -329,7 +329,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/round_to_nearest_dollar"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnMenuColor"
                 android:textOn="@string/on"

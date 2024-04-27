@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="@dimen/page_header_font_size"
             android:layout_gravity="center" />
     </LinearLayout>
     <LinearLayout
@@ -40,7 +40,7 @@
             android:layout_weight="1"
             android:layout_gravity="center"
             android:text="@string/start_date"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground"/>
         <com.google.android.material.textfield.TextInputLayout
@@ -59,6 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
+                android:textSize="@dimen/label_font_size"
                 android:clickable="false"
                 android:cursorVisible="false"
                 android:focusable="false"
@@ -82,7 +83,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:text="@string/regularity"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground"
             android:tooltipText="Indicates if payment is every period (1), every second period (2), etc." />
@@ -100,6 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:textSize="@dimen/label_font_size"
                 android:clickable="true"
                 android:cursorVisible="true"
                 android:focusable="true"
@@ -123,14 +125,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/period"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnBackground"/>
         <TextView
             android:id="@+id/period_field"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:textSize="@dimen/normal_font_size" />
         <RelativeLayout
             android:id="@+id/periodSpinnerRelativeLayout"
             android:layout_width="0dp"
@@ -177,7 +180,7 @@
             android:textStyle="bold"
             android:text="@string/budget_for"
             android:layout_weight="1"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textColor="?attr/textOnBackground"/>
         <TextView
             android:id="@+id/who_field"
@@ -185,7 +188,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingStart="8dp"
-            android:paddingEnd="0dp"/>
+            android:paddingEnd="0dp"
+            android:textSize="@dimen/normal_font_size" />
         <HorizontalScrollView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -214,13 +218,14 @@
             android:text="@string/frequency"
             android:textStyle="bold"
             android:layout_weight="1"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textColor="?attr/textOnBackground"/>
         <TextView
             android:id="@+id/occurence_field"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:textSize="@dimen/normal_font_size"/>
         <RadioGroup
             android:id="@+id/budget_dialog_occurenceRadioGroup"
             android:layout_width="wrap_content"
@@ -245,7 +250,7 @@
             android:layout_gravity="center_vertical"
             android:text="@string/amount"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textColor="?attr/textOnBackground"/>
 
         <LinearLayout
@@ -257,11 +262,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textSize="@dimen/normal_font_size"/>
             <TextView
                 android:id="@+id/amount_field"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/normal_font_size"/>
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountLayout"
                 android:layout_width="wrap_content"
@@ -275,6 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:gravity="start"
+                    android:textSize="@dimen/label_font_size"
                     android:clickable="true"
                     android:cursorVisible="true"
                     android:focusable="true"

@@ -66,6 +66,7 @@
     <string name="toolTipRunningTotal">Un total cumulé du montant que l\'utilisateur principal doit à l\'utilisateur secondaire. (Négatif signifie que secondaire doit primaire.)</string>
     <string name="toolTipPrivacy">Cette catégorie est-elle marquée comme privée? (Les catégories privées ne sont pas visibles pour les autres utilisateurs.)</string>
     <string name="toolTipCatState">Indique si la catégorie est toujours utilisée pour les nouvelles transactions.</string>
+    <string name="toolTipCatDefault">Indicates whether category is the overall app default, or the category default, or neither.</string>
     <string name="toolTipBudgetCategory">La catégorie à laquelle ce budget s\'applique.</string>
     <string name="toolTipBudgetPeriod">Indique si le budget s\'applique à un seul mois ou à une année entière.</string>
     <string name="toolTipBudgetWho">L\'utilisateur auquel ce budget s\'applique. (Utilisé lorsque les utilisateurs gèrent des finances parfois séparées.)</string>
@@ -161,7 +162,7 @@
     <string name="edit_transaction">Modifier la transaction</string>
     <string name="go_to_next_transaction">Aller à la prochaine transaction</string>
     <string name="go_to_previous_transaction">Aller à la transaction précédente</string>
-    <string name="load_from_td_myspend">Charger à partir de TD MySpend</string>
+    <string name="load_from_bank_notification">Charger à partir de banque</string>
     <string name="previous">Précédent</string>
     <string name="next">Prochain</string>
     <string name="discretionary_question">Discrétionnaire?</string>
@@ -226,7 +227,7 @@
     <string name="default_user">Utilisateur par defaut</string>
     <string name="default_split">Fractionnement par défaut</string>
     <string name="default_category_for_new_expenses">Catégorie par défaut pour les nouvelles dépenses</string>
-    <string name="integration_with_td_myspend">Intégration avec TD MySpend?</string>
+    <string name="integration_with_bank_notifications">Intégration avec les notifications bancaires?</string>
     <string name="manage_notification_translations">Gérer les traductions des notifications</string>
     <string name="edit_translations">Modifier les traductions</string>
     <string name="sound">Du son</string>
@@ -334,6 +335,7 @@
     <string name="every">chaque</string>
     <string name="next_payment_due">Prochain paiement dû %1$s, %2$s, %3$s %4$s</string>
     <string name="forr">pour</string>
+    <string name="for_c">Pour</string>
     <string name="the_text_contains_unsafe_characters">Le texte contient des caractères dangereux. Ils doivent être supprimés.</string>
     <string name="value_cannot_be_blank">La valeur ne peut pas être vide.</string>
     <string name="value_cannot_be_zero">La valeur ne peut pas être zéro.</string>
@@ -345,7 +347,7 @@
     <string name="transaction_deleted">Transaction supprimée</string>
     <string name="this_expense_was_automatically_generated">Cette dépense a été générée automatiquement sous la forme d\'un paiement programmé.</string>
     <string name="you_are_attempting_to_add_to_your_private_category">Vous essayez d\'ajouter à votre catégorie privée, la transaction doit donc être à votre nom.</string>
-    <string name="transaction_added">Transaction added.  (Montant réel pour période pour %1$s est %2$s, budget est %3$s.)</string>
+    <string name="transaction_added">Montant réel pour %1$s est %2$s, budget est %3$s.</string>
     <string name="transaction_updated">Transaction actualisé</string>
     <string name="credit_expense">Créditer la dépense</string>
     <string name="share_this_authorization_key_with">Partagez cette clé d\'autorisation avec %1$s:</string>
@@ -455,7 +457,7 @@
     <string name="age65">65</string>
     <string name="age70">70</string>
     <string name="employment">Emploi</string>
-    <string name="listed_in_the_order_each_is_to_be_used_for_income">(listed in the order each is to be used for income)</string>
+    <string name="listed_in_the_order_each_is_to_be_used_for_income">(Total \$ %1$s listed in the order of withdrawal.)</string>
     <string name="asset">"Actif: "</string>
     <string name="asset_name">Nom d\'actif</string>
     <string name="value">Valeur</string>
@@ -588,4 +590,19 @@
     <string name="download_complete">Téléchargement complet. Cliquez sur REDÉMARRER pour terminer la mise à niveau.</string>
     <string name="start">Début</string>
     <string name="end">Fin</string>
+    <string name="no">Non</string>
+    <string name="covered_by_insurance">Couvert par assurance?</string>
+    <string name="name_reimbursement">Remboursement $ à %1$s</string>
+    <string name="how_much_did_insurance_reimburse">How much did insurance reimburse?</string>
+    <string name="paid_to">Paid To:</string>
+    <string name="must_indicate_account">Vous devez également indiquer à qui ce montant a été versé.</string>
+    <string name="insurance_reimbursements_to">Remboursements d\'assurance à</string>
+    <string name="these_are_the_transactions_that_are_insurable">These are the transactions marked Insurable.</string>
+    <string name="insurance_filter_is_on">Insurance filter is on</string>
+    <string name="x_reimbursed_for_y">%1$s remboursé pour %2$s"</string>
+    <string name="new_name">Nom nouveau</string>
+    <string name="is_default_for_category">Default?</string>
+    <string name="indicates_if_subcategory_is_default_for_category">Indicates if this is the default subcategory for this category group.</string>
+    <string name="app">App</string>
+    <string name="export">Export</string>
 </resources>

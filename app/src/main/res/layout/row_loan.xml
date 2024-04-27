@@ -13,7 +13,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="start"
-            android:layout_weight=".8"/>
+            android:layout_weight=".8"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_amount"
@@ -21,7 +22,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:visibility="gone"
-            android:layout_weight="0" />
+            android:layout_weight="0"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_interest_amount"
@@ -29,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="end"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_principal_amount"
@@ -37,7 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="end"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/row_principal_remaining_amount"
@@ -45,6 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="end"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textSize="@dimen/normal_font_size"/>
 
 </LinearLayout>

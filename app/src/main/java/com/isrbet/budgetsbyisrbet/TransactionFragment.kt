@@ -12,16 +12,19 @@ import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.*
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.snackbar.Snackbar
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionBinding
 import timber.log.Timber
 import java.util.*
 import kotlin.math.round
+
 
 enum class Mode {
     View,
@@ -74,15 +77,15 @@ class TransactionFragment : Fragment() {
             }
 
         binding.transactionDate.setOnClickListener {
-            var lcal = MyDate()
+            var lDate = MyDate()
             if (binding.transactionDate.text.toString() != "") {
-                lcal = MyDate(binding.transactionDate.text.toString())
+                lDate = MyDate(binding.transactionDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                lcal.getYear(),
-                lcal.getMonth()-1,
-                lcal.getDay()
+                lDate.getYear(),
+                lDate.getMonth()-1,
+                lDate.getDay()
             ).show()
         }
 
@@ -168,7 +171,7 @@ class TransactionFragment : Fragment() {
 //            activity?.onBackPressed()
         }
         if (DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
-            binding.buttonLoadTransactionFromTdmyspend.setOnClickListener {
+            binding.buttonLoadTransactionFromBankNotification.setOnClickListener {
                 onLoadTransactionButtonClicked()
             }
         }
@@ -177,6 +180,7 @@ class TransactionFragment : Fragment() {
         }
         loadCategoryRadioButtons()
         loadSpenderRadioButtons()
+        loadInsurableRadioButtons()
 
         binding.transactionAmount.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
@@ -195,7 +199,12 @@ class TransactionFragment : Fragment() {
         binding.categoryRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.categoryRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
-            addSubCategories(radioButton.text.toString(), "")
+            var subCategory = ""
+            val cd = CategoryViewModel.getCategoryDefault(radioButton.text.toString())
+            val subCat = CategoryViewModel.getCategory(cd)
+            if (subCat != null)
+                subCategory = subCat.subcategoryName
+            addSubCategories(radioButton.text.toString(), subCategory)
 //            val cat = DefaultsViewModel.getCategoryDetail(radioButton.text.toString())
 //            if (cat.color != 0) {
 //                colorCategoryArea(cat.color)
@@ -225,9 +234,9 @@ class TransactionFragment : Fragment() {
             binding.scheduledPaymentLabel.visibility = View.GONE
             if (CustomNotificationListenerService.getExpenseNotificationCount() > 0 &&
                 DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
-                binding.buttonLoadTransactionFromTdmyspend.visibility = View.VISIBLE
+                binding.buttonLoadTransactionFromBankNotification.visibility = View.VISIBLE
             } else {
-                binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
+                binding.buttonLoadTransactionFromBankNotification.visibility = View.GONE
             }
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
             binding.subcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
@@ -255,7 +264,7 @@ class TransactionFragment : Fragment() {
             binding.buttonViewLinearLayout.visibility = View.VISIBLE
             binding.buttonCancel.visibility = View.GONE
             binding.buttonSave.visibility = View.GONE
-            binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
+            binding.buttonLoadTransactionFromBankNotification.visibility = View.GONE
             binding.transactionDate.isEnabled = false
             binding.transactionAmount.isEnabled = false
 //            binding.transactionAmount.inputType = InputType.TYPE_CLASS_TEXT
@@ -274,7 +283,16 @@ class TransactionFragment : Fragment() {
                 (binding.boughtForRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
             binding.slider.isEnabled = false
+            binding.insurableSwitch.isEnabled = false
+            binding.reimbursementAmount0.isEnabled = false
+            binding.reimbursementAmount1.isEnabled = false
             viewTransaction(args.transactionID)
+            for (i in 0 until binding.paidTo0RadioGroup.childCount) {
+                (binding.paidTo0RadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+            }
+            for (i in 0 until binding.paidTo1RadioGroup.childCount) {
+                (binding.paidTo1RadioGroup.getChildAt(i) as RadioButton).isEnabled = false
+            }
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
             binding.transactionDate.setBackgroundColor(Color.parseColor(hexColor))
             binding.transactionAmount.setBackgroundColor(Color.parseColor(hexColor))
@@ -285,18 +303,24 @@ class TransactionFragment : Fragment() {
             binding.paidByRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.boughtForRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.slider.setBackgroundColor(Color.parseColor(hexColor))
+            binding.reimbursementAmount0.setBackgroundColor(Color.parseColor(hexColor))
+            binding.reimbursementAmount1.setBackgroundColor(Color.parseColor(hexColor))
+            binding.paidTo0RadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+            binding.paidTo1RadioGroup.setBackgroundColor(Color.parseColor(hexColor))
 //            binding.entireInputAmountArea.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
         }
 
         gestureDetector = GestureDetectorCompat(requireActivity(), object:
             GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
-                event1: MotionEvent,
+                event1: MotionEvent?,
                 event2: MotionEvent,
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
                 try {
+                    if (event1 == null)
+                        return false
                     if (event2.y > event1.y) {
                         // negative for up, positive for down
                         if (binding.inputBoughtForLabel.visibility == View.GONE) { // ie expand the section
@@ -343,8 +367,31 @@ class TransactionFragment : Fragment() {
             }
         })
 
+        binding.insurableSwitch.setOnCheckedChangeListener { _, _ ->
+            setupInsurableFields()
+        }
     }
 
+    private fun setupInsurableFields() {
+        if (binding.insurableSwitch.isChecked) {
+            if (SpenderViewModel.singleUser()) {
+                binding.reimbursedAmount0Layout.visibility = View.VISIBLE
+                binding.paidToLabel0.visibility = View.GONE
+                binding.paidTo0RadioGroup.visibility = View.GONE
+//                loadInsurableRadioButtons()
+                binding.reimbursementAmount0.hint = String.format(getString(R.string.name_reimbursement), SpenderViewModel.getSpenderName(0))
+            } else {
+                binding.reimbursedAmount0Layout.visibility = View.VISIBLE
+                binding.reimbursedAmount1Layout.visibility = View.VISIBLE
+//                loadInsurableRadioButtons()
+                binding.reimbursementAmount0.hint = String.format(getString(R.string.name_reimbursement), SpenderViewModel.getSpenderName(0))
+                binding.reimbursementAmount1.hint = String.format(getString(R.string.name_reimbursement), SpenderViewModel.getSpenderName(1))
+            }
+        } else {
+            binding.reimbursedAmount0Layout.visibility = View.GONE
+            binding.reimbursedAmount1Layout.visibility = View.GONE
+        }
+    }
     override fun onPause() {
         super.onPause()
         hideKeyboard(requireContext(), requireView())
@@ -368,7 +415,7 @@ class TransactionFragment : Fragment() {
         binding.pageTitle.text = getString(R.string.edit_transaction)
         binding.buttonCancel.visibility = View.VISIBLE
         binding.buttonSave.visibility = View.VISIBLE
-        binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
+        binding.buttonLoadTransactionFromBankNotification.visibility = View.GONE
         binding.expansionLayout.visibility = View.GONE
         binding.transactionDate.isEnabled = true
         binding.transactionAmount.isEnabled = true
@@ -395,6 +442,15 @@ class TransactionFragment : Fragment() {
                 transactionMode != Mode.View) {
             binding.slider.isEnabled = true
         }
+        binding.insurableSwitch.isEnabled = true
+        binding.reimbursementAmount0.isEnabled = true
+        binding.reimbursementAmount1.isEnabled = true
+        for (i in 0 until binding.paidTo0RadioGroup.childCount) {
+            (binding.paidTo0RadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+        }
+        for (i in 0 until binding.paidTo1RadioGroup.childCount) {
+            (binding.paidTo1RadioGroup.getChildAt(i) as RadioButton).isEnabled = true
+        }
 
         val currentSubCategory = binding.subcategorySpinner.selectedItem.toString()
         addSubCategories(currentCategory, currentSubCategory)
@@ -408,8 +464,8 @@ class TransactionFragment : Fragment() {
             TransactionViewModel.deleteTransactionDatabase(iTransactionID)
             TransactionViewModel.deleteTransactionLocal(iTransactionID)
             Toast.makeText(activity, getString(R.string.transaction_deleted), Toast.LENGTH_SHORT).show()
+            MyApplication.playSound(requireContext(), R.raw.short_springy_gun)
             requireActivity().onBackPressedDispatcher.onBackPressed()
-            MyApplication.playSound(context, R.raw.short_springy_gun)
         }
         fun noClicked() {
         }
@@ -454,6 +510,28 @@ class TransactionFragment : Fragment() {
             binding.transactionAmount.setText(gDecM(thisTransaction.amount))
             binding.transactionId.text = iTransactionID
             binding.categoryId.text = thisTransaction.category.toString()
+//            if (thisTransaction.insurable) {
+                binding.insurableSwitch.isChecked = thisTransaction.insurable
+                setupInsurableFields()
+                binding.reimbursementAmount0.setText(gDecM(thisTransaction.reimbursementAmount0))
+                binding.reimbursementAmount1.setText(gDecM(thisTransaction.reimbursementAmount1))
+                for (i in 0 until binding.paidTo0RadioGroup.childCount) {
+                    val o = binding.paidTo0RadioGroup.getChildAt(i)
+                    if (o is RadioButton) {
+                        Timber.tag("Alex").d("o1.text is ${o.text} and name is ${SpenderViewModel.getSpenderName(thisTransaction.paidTo0)}")
+                        Timber.tag("Alex").d("Equals? ${o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo0)}")
+                        o.isChecked = o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo0)
+                    }
+                }
+                for (i in 0 until binding.paidTo1RadioGroup.childCount) {
+                    val o = binding.paidTo1RadioGroup.getChildAt(i)
+                    if (o is RadioButton) {
+                        Timber.tag("Alex").d("o2.text is ${o.text} and name is ${SpenderViewModel.getSpenderName(thisTransaction.paidTo1)}")
+                        Timber.tag("Alex").d("Equals? ${o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo1)}")
+                        o.isChecked = o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo1)
+                    }
+                }
+//            }
             if (MyApplication.adminMode) {
                 binding.transactionIdLayout.visibility = View.VISIBLE
                 binding.transactionId.visibility = View.VISIBLE
@@ -504,9 +582,8 @@ class TransactionFragment : Fragment() {
                     }
                 }
             }
-            val bfRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.boughtForRadioGroup)
-            for (i in 0 until bfRadioGroup.childCount) {
-                val o = bfRadioGroup.getChildAt(i)
+            for (i in 0 until binding.boughtForRadioGroup.childCount) {
+                val o = binding.boughtForRadioGroup.getChildAt(i)
                 if (o is RadioButton) {
                     if (o.text == SpenderViewModel.getSpenderName(thisTransaction.boughtfor)) {
                         o.isChecked = true
@@ -564,7 +641,7 @@ class TransactionFragment : Fragment() {
         val notification = CustomNotificationListenerService.getTransactionFromNotificationAndDeleteIt()
         if (notification == null) {
             Toast.makeText(activity,
-                "Having issue with this TD notification.  Logged in DB.  Please inform Alex.  You'll have to handle this TD notification manually.",
+                "Having issue with this banking notification.  Logged in DB.  Please inform Alex.  You'll have to handle this banking notification manually.",
                 Toast.LENGTH_SHORT).show()
             return
         }
@@ -606,7 +683,7 @@ class TransactionFragment : Fragment() {
                 Toast.makeText(activity, getString(R.string.category_has_been_updated), Toast.LENGTH_LONG).show()
             }
         }
-            binding.buttonLoadTransactionFromTdmyspend.visibility = View.GONE
+            binding.buttonLoadTransactionFromBankNotification.visibility = View.GONE
     }
 
     private fun onSaveTransactionButtonClicked () {
@@ -631,19 +708,67 @@ class TransactionFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.where)
             return
         }
-        val radioGroup = requireActivity().findViewById(R.id.categoryRadioGroup) as RadioGroup
-        val radioButtonID = radioGroup.checkedRadioButtonId
-        val radioButton = requireActivity().findViewById(radioButtonID) as RadioButton
+        if (binding.insurableSwitch.isChecked) {
+            if (SpenderViewModel.singleUser()) {
+                val b = binding.paidTo0RadioGroup.getChildAt(0)
+                binding.paidTo0RadioGroup.check(b.id)
+            } else {
+                if (binding.reimbursementAmount0.text.toString() != "") {
+                    val tAmount = binding.reimbursementAmount0.text.toString().toDoubleOrNull()!!
+                    val checked = binding.paidTo0RadioGroup.checkedRadioButtonId
+                    if (checked == -1 && tAmount != 0.0) {
+                        binding.reimbursementAmount0.error =
+                            getString(R.string.must_indicate_account)
+                        focusAndOpenSoftKeyboard(requireContext(), binding.reimbursementAmount0)
+                        return
+                    }
+                }
+                if (binding.reimbursementAmount1.text.toString() != "") {
+                    val tAmount = binding.reimbursementAmount1.text.toString().toDoubleOrNull()!!
+                    val checked = binding.paidTo1RadioGroup.checkedRadioButtonId
+                    if (checked == -1 && tAmount != 0.0) {
+                        binding.reimbursementAmount1.error =
+                            getString(R.string.must_indicate_account)
+                        focusAndOpenSoftKeyboard(requireContext(), binding.reimbursementAmount1)
+                        return
+                    }
+                }
+            }
+        }
+        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
+        val amountD = lNumberFormat.parse(binding.transactionAmount.text.toString()).toDouble()
+        val amountR0 = if (binding.reimbursementAmount0.text.toString() == "") 0.0 else
+            lNumberFormat.parse(binding.reimbursementAmount0.text.toString()).toDouble()
+        val amountR1 = if (binding.reimbursementAmount1.text.toString() == "") 0.0 else
+            lNumberFormat.parse(binding.reimbursementAmount1.text.toString()).toDouble()
 
-        val radioGroupPaidBy = requireActivity().findViewById(R.id.paidByRadioGroup) as RadioGroup
-        val radioButtonPaidByChecked = radioGroupPaidBy.checkedRadioButtonId
+        val catRadioButtonID = binding.categoryRadioGroup.checkedRadioButtonId
+        val catRadioButton = requireActivity().findViewById(catRadioButtonID) as RadioButton
+        val radioButtonPaidByChecked = binding.paidByRadioGroup.checkedRadioButtonId
         val radioButtonPaidBy = requireActivity().findViewById(radioButtonPaidByChecked) as RadioButton
-
-        val radioGroupBoughtFor = requireActivity().findViewById(R.id.boughtForRadioGroup) as RadioGroup
-        val radioButtonBoughtForChecked = radioGroupBoughtFor.checkedRadioButtonId
+        val radioButtonBoughtForChecked = binding.boughtForRadioGroup.checkedRadioButtonId
         val radioButtonBoughtFor = requireActivity().findViewById(radioButtonBoughtForChecked) as RadioButton
+        val radioButtonPaidTo0Checked = binding.paidTo0RadioGroup.checkedRadioButtonId
+        val radioButtonPaidTo0 = if (radioButtonPaidTo0Checked == -1) -1 else {
+            val rb = requireActivity().findViewById(radioButtonPaidTo0Checked) as RadioButton
+            Timber.tag("Alex").d("0 rb.text is '${rb.text} and index is ${SpenderViewModel.getSpenderIndex(rb.text.toString())}")
+            if (amountR0 == 0.0)
+                -1
+            else
+                SpenderViewModel.getSpenderIndex(rb.text.toString())
+        }
+        val radioButtonPaidTo1Checked = binding.paidTo1RadioGroup.checkedRadioButtonId
+        val radioButtonPaidTo1 = if (radioButtonPaidTo1Checked == -1) -1 else {
+            val rb = requireActivity().findViewById(radioButtonPaidTo1Checked) as RadioButton
+            Timber.tag("Alex").d("1 rb.text is '${rb.text} and index is ${SpenderViewModel.getSpenderIndex(rb.text.toString())}")
+            if (amountR1 == 0.0)
+                -1
+            else
+                SpenderViewModel.getSpenderIndex(rb.text.toString())
+        }
 
-        val chosenCatID = CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString())
+
+        val chosenCatID = CategoryViewModel.getID(catRadioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString())
         val chosenCat = CategoryViewModel.getCategory(chosenCatID)
         val paidByID = SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString())
         val boughtForID = SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString())
@@ -655,9 +780,6 @@ class TransactionFragment : Fragment() {
             focusAndOpenSoftKeyboard(requireContext(), binding.transactionAmount)
             return
         }
-
-        val lNumberFormat: NumberFormat = NumberFormat.getInstance()
-        val amountD = lNumberFormat.parse(binding.transactionAmount.text.toString()).toDouble()
 
         if ((startingTransactionWhere != "" && startingTransactionWhere != binding.where.text.toString().trim()) ||
             (startingTransactionCategory != 0 && startingTransactionCategory != chosenCatID)) {
@@ -676,14 +798,19 @@ class TransactionFragment : Fragment() {
             val transactionOut = TransactionOut(
                 binding.transactionDate.text.toString(),
                 round(amountD * 100).toInt(),
-                CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString()),
+                CategoryViewModel.getID(catRadioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString()),
                 binding.where.text.toString().trim(),
                 binding.note.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 binding.slider.value.toInt(),
                 cTRANSACTION_TYPE_EXPENSE,
-                ""
+                "",
+                binding.insurableSwitch.isChecked,
+                if (binding.insurableSwitch.isChecked) round(amountR0 * 100).toInt() else 0,
+                if (binding.insurableSwitch.isChecked) radioButtonPaidTo0 else -1,
+                if (binding.insurableSwitch.isChecked) round(amountR1 * 100).toInt() else 0,
+                if (binding.insurableSwitch.isChecked) radioButtonPaidTo1 else -1
             )
             binding.transactionAmount.setText("")
             binding.transactionAmount.requestFocus()
@@ -703,26 +830,64 @@ class TransactionFragment : Fragment() {
                 chosenCatID,
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()))
 
-            Toast.makeText(activity, String.format(getString(R.string.transaction_added),
+/*            Toast.makeText(activity, String.format(getString(R.string.transaction_added),
                 radioButtonBoughtFor.text.toString(),
                 gDecWithCurrency(actuals),
-                gDecWithCurrency(budget)), Toast.LENGTH_LONG).show()
+                gDecWithCurrency(budget)), Toast.LENGTH_LONG).show()*/
+
+            val trView = binding.transactionView
+            val trDate = MyDate(binding.transactionDate.text.toString())
+
+            val amountString: String =
+                NumberFormat.getCurrencyInstance(Locale("en", "US")).format(amountD)
+
+            val snackbar = Snackbar.make(trView,
+                String.format(getString(R.string.transaction_added),
+                    NumberFormat.getCurrencyInstance(Locale("en", "US")).format(amountD),
+                    trDate.getMonthName(),
+                    NumberFormat.getCurrencyInstance(Locale("en", "US")).format(actuals),
+                    NumberFormat.getCurrencyInstance(Locale("en", "US")).format(budget)),
+                Snackbar.LENGTH_LONG).setDuration(7000)
+            snackbar.setAction("X") {
+                snackbar.dismiss()
+            }
+            snackbar.setActionTextColor(Color.RED)
+            val snackbarView = snackbar.view
+            val textView =
+                snackbarView.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+            val snackbarActionView =
+                snackbarView.findViewById(com.google.android.material.R.id.snackbar_action) as TextView
+            textView.setTextColor(Color.BLACK)
+            if (actuals > budget) {
+                snackbarView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
+                snackbarActionView.setTextColor(Color.BLACK)
+            } else {
+                snackbarView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
+                snackbarActionView.setTextColor(Color.RED)
+            }
+            textView.textSize = 16f
+            snackbar.show()
 
             if (CustomNotificationListenerService.getExpenseNotificationCount() != 0) {
-                binding.buttonLoadTransactionFromTdmyspend.isEnabled = true
+                binding.buttonLoadTransactionFromBankNotification.isEnabled = true
             }
         } else {
             val transactionOut = TransactionOut(
                 binding.transactionDate.text.toString(),
                 round(amountD * 100).toInt(),
-                CategoryViewModel.getID(radioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString()),
+                CategoryViewModel.getID(catRadioButton.text.toString(), binding.subcategorySpinner.selectedItem.toString()),
                 binding.where.text.toString().trim(),
                 binding.note.text.toString().trim(),
                 SpenderViewModel.getSpenderIndex(radioButtonPaidBy.text.toString()),
                 SpenderViewModel.getSpenderIndex(radioButtonBoughtFor.text.toString()),
                 binding.slider.value.toInt(),
                 binding.transactionType.text.toString(),
-                binding.rtKey.text.toString()
+                binding.rtKey.text.toString(),
+                binding.insurableSwitch.isChecked,
+                if (binding.insurableSwitch.isChecked) round(amountR0 * 100).toInt() else 0,
+                if (binding.insurableSwitch.isChecked) radioButtonPaidTo0 else -1,
+                if (binding.insurableSwitch.isChecked) round(amountR1 * 100).toInt() else 0,
+                if (binding.insurableSwitch.isChecked) radioButtonPaidTo1 else -1
             )
 
            TransactionViewModel.updateTransactionDatabase(editingKey, transactionOut)
@@ -730,8 +895,8 @@ class TransactionFragment : Fragment() {
             Toast.makeText(activity, getString(R.string.transaction_updated), Toast.LENGTH_SHORT).show()
         }
 //        activity?.onBackPressed()
+        MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
         requireActivity().onBackPressedDispatcher.onBackPressed()
-        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
     }
 
     private fun creditTransaction(iTransactionID: String) {
@@ -813,6 +978,48 @@ class TransactionFragment : Fragment() {
             boughtForRadioGroup.addView(newRadioButton)
             if (transactionMode == Mode.New && spender?.name == SpenderViewModel.getDefaultSpenderName()) {
                 boughtForRadioGroup.check(newRadioButton.id)
+            }
+        }
+    }
+
+    private fun loadInsurableRadioButtons() {
+        Timber.tag("Alex").d("in loadINsurableRadioButtons")
+        var ctr = 300
+        val paidTo0RG = requireActivity().findViewById<RadioGroup>(R.id.paidTo0RadioGroup)
+        paidTo0RG?.removeAllViews()
+
+        for (i in 0 until SpenderViewModel.getActiveCount()) {
+            if (i == 0 || i == 2) {
+                val spender = SpenderViewModel.getSpender(i)
+                val newRadioButton = RadioButton(requireContext())
+                newRadioButton.layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                newRadioButton.text = spender?.name
+                newRadioButton.id = ctr++
+                if (transactionMode == Mode.New && i == 0)
+                    newRadioButton.isChecked = true
+                paidTo0RG.addView(newRadioButton)
+            }
+        }
+        ctr = 400
+        val paidTo1RG = requireActivity().findViewById<RadioGroup>(R.id.paidTo1RadioGroup)
+        paidTo1RG?.removeAllViews()
+
+        for (i in 0 until SpenderViewModel.getActiveCount()) {
+            if (i == 1 || i == 2) {
+                val spender = SpenderViewModel.getSpender(i)
+                val newRadioButton = RadioButton(requireContext())
+                newRadioButton.layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                newRadioButton.text = spender?.name
+                newRadioButton.id = ctr++
+                if (transactionMode == Mode.New && i == 1)
+                    newRadioButton.isChecked = true
+                paidTo1RG.addView(newRadioButton)
             }
         }
     }

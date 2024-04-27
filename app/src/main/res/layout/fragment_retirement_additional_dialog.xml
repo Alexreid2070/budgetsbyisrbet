@@ -24,22 +24,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp">
+                android:background="?attr/pageHeadingBackgroundColor">
 
                 <TextView
                     android:id="@+id/title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:padding="12dp"
                     android:gravity="center"
                     android:text="@string/add_additional_deposit_or_expense"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:textSize="@dimen/page_header_font_size"
+                    android:textStyle="bold"
+                    android:textColor="?attr/pageHeadingFontColor"/>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
                 android:paddingBottom="10dp">
 
                 <TextView
@@ -47,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/type"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -95,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/name"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -111,7 +114,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textCapSentences" />
+                        android:inputType="textCapSentences"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -125,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/year"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -141,7 +145,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="number" />
+                        android:inputType="number"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -156,7 +161,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:text="@string/amount"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -172,7 +177,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="number" />
+                        android:inputType="number"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -188,7 +194,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/asset_name"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 
@@ -240,7 +246,7 @@
                     android:paddingRight="4dp"
                     android:text="@string/cancel"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:tooltipText="@string/cancel"
                     app:drawableTopCompat="@drawable/ic_baseline_cancel_24"
@@ -259,7 +265,7 @@
                     android:paddingRight="4dp"
                     android:text="@string/save"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:tooltipText="@string/save"
                     app:drawableTopCompat="@drawable/ic_baseline_save_24"
@@ -278,7 +284,7 @@
                     android:paddingRight="4dp"
                     android:text="@string/delete"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:tooltipText="@string/delete"
                     app:drawableTopCompat="@drawable/ic_baseline_delete_24"

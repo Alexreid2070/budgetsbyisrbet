@@ -25,18 +25,19 @@
             android:padding="12dp"
             android:text="@string/add_expense"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"
+            android:textSize="@dimen/page_header_font_size"
             android:textStyle="bold" />
     </LinearLayout>
 
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:fadeScrollbars="false"
         android:padding="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/page_title_layout">
+        app:layout_constraintTop_toBottomOf="@+id/page_title_layout"
+        app:layout_constraintBottom_toTopOf="@id/expansion_layout">
 
         <RelativeLayout
             android:id="@+id/relativeLayout"
@@ -54,7 +55,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/date"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
+                    android:textColor="?attr/textOnBackground"
                     android:textStyle="bold" />
 
                 <TextView
@@ -62,7 +64,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight=".8"
                     android:text="@string/amount"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
+                    android:textColor="?attr/textOnBackground"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -96,7 +99,8 @@
                         android:focusableInTouchMode="false"
                         android:gravity="start"
                         android:inputType="date"
-                        android:longClickable="false" />
+                        android:longClickable="false"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
@@ -111,7 +115,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:textSize="@dimen/normal_font_size"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/amountLayout"
@@ -129,7 +134,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
-                            android:inputType="numberDecimal|numberSigned" />
+                            android:inputType="numberDecimal|numberSigned"
+                            android:textSize="@dimen/normal_font_size"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -144,8 +150,9 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:text="@string/category"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
                 android:tooltipText="@string/toolTipCategory" />
 
             <HorizontalScrollView
@@ -180,8 +187,9 @@
                     android:layout_gravity="center"
                     android:text="@string/subcategory"
                     android:paddingEnd="5dp"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipSubCategory" />
 
                 <RelativeLayout
@@ -224,8 +232,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/vendor_name"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipWhere" />
 
                 <TextView
@@ -233,8 +242,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/note"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipNote" />
             </LinearLayout>
 
@@ -264,7 +274,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textCapSentences" />
+                        android:inputType="textCapSentences"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -285,7 +296,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textCapSentences" />
+                        android:inputType="textCapSentences"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -297,7 +309,7 @@
                 android:layout_below="@id/linearLayoutWhereNote"
                 android:layout_gravity="center"
                 android:gravity="end"
-                android:textSize="14sp"
+                android:textSize="@dimen/normal_font_size"
                 android:textStyle="italic"
                 android:visibility="gone" />
 
@@ -315,8 +327,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/paid_by"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipPaidBy" />
 
                 <HorizontalScrollView
@@ -361,8 +374,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/bought_for"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipBoughtFor" />
 
                 <HorizontalScrollView
@@ -396,8 +410,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="@string/split"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipSplit" />
 
                 <com.google.android.material.slider.Slider
@@ -415,13 +430,156 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/slider_layout"
                 android:layout_gravity="center"
-                android:gravity="center" />
+                android:gravity="center"
+                android:textSize="@dimen/normal_font_size"/>
+
+            <View
+                android:id="@+id/line1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:paddingBottom="10dp"
+                android:layout_below="@id/split_text" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/insurableSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_below="@id/line1"
+                android:textOff="@string/no"
+                android:textOn="@string/yes"
+                android:text="@string/covered_by_insurance"
+                android:textSize="@dimen/label_font_size"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnBackground"
+                android:tooltipText="Will you be making an insurance claim for this expense?"/>
+
+            <LinearLayout
+                android:id="@+id/reimbursed_amount0_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/insurableSwitch"
+                android:paddingBottom="10dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reimbursementAmount0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="numberDecimal|numberSigned"
+                        android:textSize="@dimen/normal_font_size"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/paidToLabel0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/paid_to"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="0dp"/>
+
+                <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
+                    <RadioGroup
+                        android:id="@+id/paidTo0RadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="1dp" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/reimbursed_amount1_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/reimbursed_amount0_layout"
+                android:visibility="gone"
+                android:paddingBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:minWidth="@dimen/custom_med_width"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reimbursementAmount1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:gravity="start"
+                        android:inputType="numberDecimal|numberSigned"
+                        android:textSize="@dimen/normal_font_size"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/paidToLabel1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/paid_to"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="0dp"/>
+
+                <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+
+                    <RadioGroup
+                        android:id="@+id/paidTo1RadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="1dp" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/line2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:paddingBottom="10dp"
+                android:layout_below="@id/reimbursed_amount1_layout" />
 
             <LinearLayout
                 android:id="@+id/scheduled_payment_label_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/split_text"
+                android:layout_below="@id/line2"
                 android:orientation="horizontal"
                 android:paddingTop="10dp">
 
@@ -432,67 +590,15 @@
                     android:layout_gravity="start"
                     android:layout_weight="1"
                     android:paddingTop="10dp"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/transaction_id_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/scheduled_payment_label_layout"
-                android:paddingBottom="10dp"
-                android:gravity="center"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/category_id"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <Space
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/transaction_id"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <Space
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/transaction_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-                <Space
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/rt_key"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/button_linear_layout_transaction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/transaction_id_layout"
+                android:layout_below="@+id/scheduled_payment_label_layout"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -550,13 +656,13 @@
                 </LinearLayout>
 
                 <ImageButton
-                    android:id="@+id/button_load_transaction_from_tdmyspend"
+                    android:id="@+id/button_load_transaction_from_bank_notification"
                     android:layout_width="@dimen/button_size"
                     android:layout_height="@dimen/button_size"
                     android:layout_gravity="center"
                     android:layout_margin="15dp"
-                    android:contentDescription="@string/load_from_td_myspend"
-                    android:tooltipText="@string/load_from_td_myspend"
+                    android:contentDescription="@string/load_from_bank_notification"
+                    android:tooltipText="@string/load_from_bank_notification"
                     android:elevation="4dp"
                     android:padding="5dp"
                     android:scaleType="fitXY"
@@ -636,6 +742,59 @@
                         android:layout_weight="1" />
                 </LinearLayout>
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/transaction_id_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/button_linear_layout_transaction"
+                android:paddingBottom="10dp"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/category_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/transaction_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/transaction_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/rt_key"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/label_font_size"
+                    android:visibility="gone" />
+            </LinearLayout>
+
         </RelativeLayout>
     </ScrollView>
 
@@ -645,40 +804,43 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingStart="5dp"
-        android:paddingTop="5dp"
         android:paddingEnd="5dp"
-        android:paddingBottom="5dp"
+        android:background="?attr/menuColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <ImageView
             android:id="@+id/button_prev_transaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="?attr/background"
-            android:contentDescription="@string/go_to_previous_transaction"
-            android:gravity="center"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:scaleType="center"
             android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+            android:contentDescription="@string/toolTipPrevious"
             android:tooltipText="@string/toolTipPrevious" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/button_next_transaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="?attr/background"
-            android:contentDescription="@string/go_to_next_transaction"
-            android:gravity="center"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:scaleType="center"
             android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+            android:contentDescription="@string/go_to_next_transaction"
             android:tooltipText="@string/toolTipNext" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 

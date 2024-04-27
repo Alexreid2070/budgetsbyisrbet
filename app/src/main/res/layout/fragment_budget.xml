@@ -10,19 +10,19 @@
         android:id="@+id/budget_header_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
+        android:background="?attr/pageHeadingBackgroundColor"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
             android:gravity="center"
+            android:padding="12dp"
             android:text="@string/add_budget"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textOnBackground"/>
+            android:textSize="@dimen/page_header_font_size"
+            android:textColor="?attr/pageHeadingFontColor"
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <ScrollView
@@ -38,8 +38,7 @@
             android:id="@+id/budgetAddRelativeLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:padding="10dp"
             tools:layout_editor_absoluteY="56dp">
 
             <TextView
@@ -49,7 +48,7 @@
                 android:layout_gravity="start"
                 android:layout_marginBottom="5dp"
                 android:text="@string/category"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="@string/toolTipBudgetCategory" />
@@ -83,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:text="@string/subcategory"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipBudgetCategory" />
@@ -141,6 +140,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
+                        android:textSize="@dimen/label_font_size"
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
@@ -164,6 +164,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
+                        android:textSize="@dimen/label_font_size"
                         android:clickable="true"
                         android:cursorVisible="true"
                         android:focusable="true"
@@ -188,7 +189,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/period"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"/>
 
@@ -242,7 +243,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/budget_for"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipBudgetWho" />
@@ -276,7 +277,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/occurs"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="@string/toolTipBudgetOccurence" />
@@ -306,7 +307,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/amount"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Budget amount for the indicated period." />
@@ -324,6 +325,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:textSize="@dimen/label_font_size"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -340,6 +342,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
+                            android:textSize="@dimen/label_font_size"
                             android:inputType="numberDecimal" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>

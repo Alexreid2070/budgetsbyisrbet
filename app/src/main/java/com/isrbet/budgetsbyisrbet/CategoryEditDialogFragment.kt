@@ -53,7 +53,6 @@ class CategoryEditDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupClickListeners()
 
         val hexColor = getColorInHex(
@@ -63,6 +62,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 Color.BLACK
             ), cOpacity
         )
+        binding.defaultCategoryRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
         if (SpenderViewModel.twoDistinctUsers())
             binding.privacyLayout.visibility = View.VISIBLE
         else
@@ -106,6 +106,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             setupCategorySpinner(getString(R.string.lcfirst))
             binding.privacySwitch.isChecked = false
             binding.stateSwitch.isChecked = true
+            binding.defaultNoButton.isChecked = false
 
             binding.oldCategoryLayout.visibility = View.GONE
             binding.newNameHeader.text = getString(R.string.add_category)
@@ -124,6 +125,15 @@ class CategoryEditDialogFragment : DialogFragment() {
             setupCategorySpinner(oldCat?.categoryName ?: getString(R.string.lcfirst))
             binding.privacySwitch.isChecked = oldCat?.private != 2
             binding.stateSwitch.isChecked = oldCat?.inUse == true
+            if (oldCat != null) {
+                val appDef = DefaultsViewModel.getDefaultCategory()
+                if (oldCat.id == appDef) {
+                    binding.defaultAppButton.isChecked = true
+                } else {
+                    val cd = DefaultsViewModel.getCategoryDetail(oldCat.categoryName)
+                    binding.defaultCategoryButton.isChecked = cd.default == oldCat.id
+                }
+            }
 
             binding.categoryId.text = oldCategoryID.toString()
             binding.oldCategoryName.text = oldCat?.categoryName
@@ -139,6 +149,21 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.oldState.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.red))
             }
+
+            if (oldCat != null) {
+                val appDef = DefaultsViewModel.getDefaultCategory()
+                binding.oldDefault.text =
+                    if (oldCat.id == appDef)
+                        getString(R.string.app)
+                    else {
+                        val cd = DefaultsViewModel.getCategoryDetail(oldCat.categoryName)
+                        if (cd.default == oldCat.id)
+                            getString(R.string.category)
+                        else
+                            getString(R.string.no)
+                    }
+            } else
+                binding.oldDefault.text = getString(R.string.no)
             binding.editSubcategoryNewName.setText(oldCat?.subcategoryName)
             if (oldCat?.discType == cDiscTypeDiscretionary)
                 dtSpinner.setSelection(arrayAdapter.getPosition(getString(R.string.discretionary)))
@@ -165,8 +190,6 @@ class CategoryEditDialogFragment : DialogFragment() {
             else
                 binding.messageScheduledPayment.text =
                     if (spCtr == 0) "" else "$spCtr " + getString(R.string.scheduled_payment_template_psp)
-            if (oldCategoryID != DefaultsViewModel.getDefaultCategory())
-                binding.messageDefaultCategory.visibility = View.GONE
             if (currentMode == cMODE_VIEW) {
                 binding.editCategoryOldNameHeader.text = CategoryViewModel.getFullCategoryName(binding.categoryId.text.toString().toInt())
                 binding.categoryDialogNewHeaderLinearLayout.visibility = View.GONE
@@ -176,6 +199,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout5.visibility = View.GONE
                 binding.privacySwitch.visibility = View.GONE
                 binding.stateSwitch.visibility = View.GONE
+                binding.defaultCategoryLayout.visibility = View.GONE
                 binding.categoryLayout.visibility = View.GONE
                 binding.subcategoryLayout.visibility = View.GONE
             }
@@ -227,6 +251,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             else
                 binding.privacySwitch.visibility = View.GONE
             binding.stateSwitch.visibility = View.VISIBLE
+            binding.defaultCategoryLayout.visibility = View.VISIBLE
             binding.buttonDelete.visibility = View.GONE
             binding.buttonDeleteView.visibility = View.GONE
 
@@ -234,6 +259,7 @@ class CategoryEditDialogFragment : DialogFragment() {
         }
         binding.buttonSave.setOnClickListener {
             val oldCat = CategoryViewModel.getCategory(oldCategoryID)
+
             if (binding.editCategoryNewName.text.toString().contains("-")) {
                 binding.editCategoryNewName.error = getString(R.string.field_has_invalid_character)
                 focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
@@ -274,6 +300,11 @@ class CategoryEditDialogFragment : DialogFragment() {
             else
                 cDiscTypeNondiscretionary
 
+            if (oldCat != null)
+                Timber.tag("Alex").d("$oldCategoryID ${DefaultsViewModel.getDefaultCategory()} ${oldCat.id} ${binding.defaultAppButton.isChecked} ${CategoryViewModel.getCategoryDefault(oldCat.categoryName)} ${oldCat.id} ${binding.defaultCategoryButton.isChecked}")
+            else
+                Timber.tag("Alex").d("oldCat is NULL!")
+
             if (oldCategoryID == 0) { // ie this is an add
                 if (CategoryViewModel.getID(
                         chosenCategory,
@@ -290,34 +321,45 @@ class CategoryEditDialogFragment : DialogFragment() {
                     binding.editSubcategoryNewName.text.toString().trim(),
                     chosenDiscType,
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
-                    binding.stateSwitch.isChecked
+                    binding.stateSwitch.isChecked,
+                    binding.defaultAppButton.isChecked,
+                    binding.defaultCategoryButton.isChecked
                 )
+                if (chosenCategory == binding.editCategoryNewName.text.toString().trim()) { // ie new category name
+                    DefaultsViewModel.setCategoryPriority(chosenCategory, CategoryViewModel.getCategoryCount() - 1, false)
+                }
                 setupCategorySpinner(chosenCategory)
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 dismiss()
                 if (binding.switchEnterBudget.isChecked) {
                     val action =
                         SettingsTabsFragmentDirections.actionSettingsTabFragmentToBudgetFragment()
                     action.categoryID = cat.id
-                    Timber.tag("Alex").d("Calling budget fragment with id ${action.categoryID}")
                     findNavController().navigate(action)
                 }
             } else if (oldCat?.categoryName == chosenCategory &&
                 oldCat.subcategoryName == binding.editSubcategoryNewName.text.toString() &&
                 (oldCat.discType != chosenDiscType ||
                         (oldCat.private != 2) != binding.privacySwitch.isChecked) ||
-                oldCat?.inUse != binding.stateSwitch.isChecked
+                oldCat?.inUse != binding.stateSwitch.isChecked ||
+                (DefaultsViewModel.getDefaultCategory() == oldCat.id && !binding.defaultAppButton.isChecked) ||
+                (CategoryViewModel.getCategoryDefault(oldCat.categoryName) == oldCat.id && !binding.defaultCategoryButton.isChecked) ||
+                (DefaultsViewModel.getDefaultCategory() != oldCat.id && binding.defaultAppButton.isChecked) ||
+                (CategoryViewModel.getCategoryDefault(oldCat.categoryName) != oldCat.id && binding.defaultCategoryButton.isChecked)
             ) {
-                // disc type or privacy changed so update it/them
+                Timber.tag("Alex").d("Something changed")
+                // something changed so update it/them
                 CategoryViewModel.updateCategory(
                     binding.categoryId.text.toString().toInt(),
                     oldCat?.categoryName.toString(),
                     oldCat?.subcategoryName.toString(),
                     chosenDiscType,
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
-                    binding.stateSwitch.isChecked
+                    binding.stateSwitch.isChecked,
+                    binding.defaultAppButton.isChecked,
+                    binding.defaultCategoryButton.isChecked
                 )
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 dismiss()
             } else if (oldCat.categoryName != chosenCategory ||
                 oldCat.subcategoryName != binding.editSubcategoryNewName.text.toString()
@@ -328,10 +370,12 @@ class CategoryEditDialogFragment : DialogFragment() {
                     binding.editSubcategoryNewName.text.toString().trim(),
                     chosenDiscType,
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
-                    binding.stateSwitch.isChecked
+                    binding.stateSwitch.isChecked,
+                    binding.defaultAppButton.isChecked,
+                    binding.defaultCategoryButton.isChecked
                 )
                 setupCategorySpinner(chosenCategory)
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 dismiss()
             } else {
                 Toast.makeText(activity, getString(R.string.no_changes_made), Toast.LENGTH_SHORT).show()
@@ -356,7 +400,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 CategoryViewModel.deleteCategoryAndSubcategory(
                     binding.categoryId.text.toString().toInt()
                 )
-                MyApplication.playSound(context, R.raw.short_springy_gun)
+                MyApplication.playSound(requireContext(), R.raw.short_springy_gun)
                 dismiss()
             }
 

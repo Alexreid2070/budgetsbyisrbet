@@ -1,6 +1,9 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.icu.text.NumberFormat
 import com.google.api.services.sheets.v4.model.*
+import java.util.*
+import kotlin.math.round
 
 const val cRow_SCENARIO_NAME = 1
 const val cRow_USER_NAME = 2
@@ -43,9 +46,24 @@ fun getCol(iColumnNumber: Int) : String
     }
 
 class SpreadsheetMaker {
+    @JvmName("create1")
     fun create(iSpreadsheetTitle: String,
-        iSheetOneTitle: String,
-        iDetails: List<RetirementCalculationRow>) : Spreadsheet {
+               iSheetOneTitle: String,
+               iDetails: List<RetirementCalculationRow>) : Spreadsheet {
+
+        val spreadsheet = Spreadsheet()
+        val detailsSheetMaker = DetailsSheetMaker()
+        val sheets = mutableListOf<Sheet>()
+        val spreadsheetProperties = SpreadsheetProperties()
+        spreadsheetProperties.title = iSpreadsheetTitle
+        spreadsheet.properties = spreadsheetProperties
+        sheets.add(detailsSheetMaker.create(iSheetOneTitle, iDetails))
+        spreadsheet.sheets = sheets
+        return spreadsheet
+    }
+    fun create(iSpreadsheetTitle: String,
+               iSheetOneTitle: String,
+               iDetails: MutableList<Transaction>) : Spreadsheet {
 
         val spreadsheet = Spreadsheet()
         val detailsSheetMaker = DetailsSheetMaker()
@@ -60,8 +78,24 @@ class SpreadsheetMaker {
 }
 
 private class DetailsSheetMaker {
+    @JvmName("create1")
     fun create(iTitle: String,
-        iDetails: List<RetirementCalculationRow>) : Sheet {
+               iDetails: List<RetirementCalculationRow>) : Sheet {
+
+        val sheet = Sheet()
+        val sheetProperty = SheetProperties()
+        sheetProperty.title = iTitle
+        sheet.properties = sheetProperty
+
+        val listGridData = mutableListOf<GridData>()
+        val listGridDataMaker = GridDataMaker()
+        val gridData = listGridDataMaker.create(iDetails, 0, 0)
+        listGridData.add(gridData)
+        sheet.data = listGridData
+        return sheet
+    }
+    fun create(iTitle: String,
+               iDetails: MutableList<Transaction>) : Sheet {
 
         val sheet = Sheet()
         val sheetProperty = SheetProperties()
@@ -91,7 +125,7 @@ private class ScenarioHeadingRowDataMaker {
     }
 }
 
-private class ColumnHeadingRowDataMaker(val iRow: RetirementCalculationRow?) {
+private class RetirementColumnHeadingRowDataMaker(val iRow: RetirementCalculationRow?) {
     fun create(): RowData {
         val rowData = RowData()
         val listCellData: MutableList<CellData> = mutableListOf()
@@ -174,10 +208,30 @@ private class ColumnHeadingRowDataMaker(val iRow: RetirementCalculationRow?) {
         return rowData
     }
 }
+private class TransactionColumnHeadingRowDataMaker {
+    fun create(): RowData {
+        val rowData = RowData()
+        val listCellData: MutableList<CellData> = mutableListOf()
+        val cellDataMaker = CellDataMaker()
+
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.date), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.amount), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.category), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.where), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.note), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.paid_by), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.bought_for), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.amt1), ""))
+        listCellData.add(cellDataMaker.create(MyApplication.getString(R.string.amt2), ""))
+        rowData.setValues(listCellData)
+        return rowData
+    }
+}
 private class GridDataMaker {
+    @JvmName("create1")
     fun create(iDetails: List<RetirementCalculationRow>,
-        startRow: Int,
-        startColumn: Int) : GridData {
+               startRow: Int,
+               startColumn: Int) : GridData {
 
         val gridData = GridData()
         val listRowData = mutableListOf<RowData>()
@@ -223,15 +277,36 @@ private class GridDataMaker {
             listRowData.add(headingRowDataMaker.create("", "")) // row 15
         }
         val columnHeadingRowDataMaker = if (iDetails.isNotEmpty()) // row 16
-            ColumnHeadingRowDataMaker(iDetails[0])
+            RetirementColumnHeadingRowDataMaker(iDetails[0])
         else
-            ColumnHeadingRowDataMaker(null)
+            RetirementColumnHeadingRowDataMaker(null)
         listRowData.add(columnHeadingRowDataMaker.create())
 
 
         val firstYear = if (iDetails.isNotEmpty()) iDetails[0].year else 0
         val dListRowData = mutableListOf<RowData>()
         iDetails.mapTo(dListRowData) { rowDataMaker.create(it, firstYear)}
+        dListRowData.forEach {
+            listRowData.add(it)
+        }
+        gridData.rowData = listRowData
+        return gridData
+    }
+    fun create(iDetails: MutableList<Transaction>,
+               startRow: Int,
+               startColumn: Int) : GridData {
+
+        val gridData = GridData()
+        val listRowData = mutableListOf<RowData>()
+        val rowDataMaker = RowDataMaker()
+        gridData.startRow = startRow
+        gridData.startColumn = startColumn
+
+        val columnHeadingRowDataMaker = TransactionColumnHeadingRowDataMaker()
+        listRowData.add(columnHeadingRowDataMaker.create())
+
+        val dListRowData = mutableListOf<RowData>()
+        iDetails.mapTo(dListRowData) { rowDataMaker.create(it)}
         dListRowData.forEach {
             listRowData.add(it)
         }
@@ -421,6 +496,24 @@ private class RowDataMaker {
         listCellData.add(cellDataMaker.create(netWorthFormula, ""))
         listCellData[4] = cellDataMaker.create(taxableIncomeFormula, "")
         listCellData[5] = cellDataMaker.create(grossIncomeFormula, "")
+
+        rowData.setValues(listCellData)
+        return rowData
+    }
+    fun create(iRow: Transaction) : RowData {
+        val rowData = RowData()
+        val listCellData : MutableList<CellData> = mutableListOf()
+        val cellDataMaker = CellDataMaker()
+
+        listCellData.add(cellDataMaker.create(iRow.date.toString(), ""))
+        listCellData.add(cellDataMaker.create(NumberFormat.getCurrencyInstance(Locale("en", "US")).format(iRow.amount), ""))
+        listCellData.add(cellDataMaker.create(CategoryViewModel.getFullCategoryName(iRow.category), ""))
+        listCellData.add(cellDataMaker.create(iRow.note, ""))
+        listCellData.add(cellDataMaker.create(iRow.note2, ""))
+        listCellData.add(cellDataMaker.create(SpenderViewModel.getSpenderName(iRow.paidby), ""))
+        listCellData.add(cellDataMaker.create(SpenderViewModel.getSpenderName(iRow.boughtfor), ""))
+        listCellData.add(cellDataMaker.create(NumberFormat.getCurrencyInstance(Locale("en", "US")).format(iRow.getAmountByUser(0) ).toString(), ""))
+        listCellData.add(cellDataMaker.create(NumberFormat.getCurrencyInstance(Locale("en", "US")).format(iRow.getAmountByUser(1) ).toString(), ""))
 
         rowData.setValues(listCellData)
         return rowData

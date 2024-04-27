@@ -25,7 +25,7 @@
             android:text="@string/add_transfer"
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
     </LinearLayout>
     <ScrollView
         android:layout_width="match_parent"
@@ -55,7 +55,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/date"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -77,7 +77,8 @@
                         android:focusableInTouchMode="false"
                         android:gravity="start"
                         android:inputType="date"
-                        android:longClickable="false" />
+                        android:longClickable="false"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -95,7 +96,7 @@
                     android:layout_weight="1"
                     android:gravity="start"
                     android:text="@string/amount"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold" />
 
                 <LinearLayout
@@ -109,7 +110,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textSize="@dimen/normal_font_size"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/amountLayout"
@@ -125,7 +127,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
                             android:gravity="start"
-                            android:inputType="numberDecimal" />
+                            android:inputType="numberDecimal"
+                            android:textSize="@dimen/normal_font_size"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
@@ -143,7 +146,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/from"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"/>
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -174,7 +177,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/to"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold" />
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -211,7 +214,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:text="@string/split"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/label_font_size"
                         android:textStyle="bold"
                         android:tooltipText="@string/toolTipSplit"/>
 
@@ -232,7 +235,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="@dimen/label_font_size"/>
                 </HorizontalScrollView>
             </LinearLayout>
 
@@ -251,7 +254,7 @@
                     android:layout_weight="1"
                     android:paddingTop="10dp"
                     android:text="@string/note"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -268,7 +271,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -288,7 +292,7 @@
                     android:id="@+id/category_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:visibility="gone" />
 
@@ -300,7 +304,7 @@
                     android:id="@+id/transaction_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:visibility="gone" />
             </LinearLayout>

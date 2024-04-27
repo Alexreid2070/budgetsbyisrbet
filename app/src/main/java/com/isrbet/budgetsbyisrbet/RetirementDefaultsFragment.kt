@@ -289,7 +289,7 @@ class RetirementDefaultsFragment : Fragment() {
         val rtData = createDataFromScreenValues()
 
         RetirementViewModel.updateRetirementDefault(rtData, false)
-        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
         MyApplication.displayToast(getString(R.string.default_updated))
     }
 

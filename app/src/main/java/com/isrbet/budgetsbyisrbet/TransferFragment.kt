@@ -221,8 +221,8 @@ class TransferFragment : Fragment() {
         fun yesClicked() {
             TransactionViewModel.deleteTransactionDatabase(iTransactionID)
             Toast.makeText(activity, getString(R.string.transfer_deleted), Toast.LENGTH_SHORT).show()
+            MyApplication.playSound(requireContext(), R.raw.short_springy_gun)
             activity?.onBackPressedDispatcher?.onBackPressed()
-            MyApplication.playSound(context, R.raw.short_springy_gun)
         }
         fun noClicked() {
         }
@@ -344,7 +344,7 @@ class TransferFragment : Fragment() {
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, getString(R.string.transfer_updated), Toast.LENGTH_SHORT).show()
         }
-        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
         activity?.onBackPressedDispatcher?.onBackPressed()
     }
 

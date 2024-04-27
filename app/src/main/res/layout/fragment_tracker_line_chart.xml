@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:textSize="16sp"
+        android:textSize="@dimen/label_font_size"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/categoryLayout"/>
 
@@ -88,7 +88,7 @@
         android:gravity="center"
         android:paddingBottom="10dp"
         android:textColor="?attr/colorPrimary"
-        android:textSize="14sp"
+        android:textSize="@dimen/normal_font_size"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/chartTitle" />
 
@@ -186,7 +186,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/filter_by_who"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground" />
 

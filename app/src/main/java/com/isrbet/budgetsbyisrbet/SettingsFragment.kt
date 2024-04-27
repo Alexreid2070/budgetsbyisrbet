@@ -167,12 +167,7 @@ class SettingsFragment : Fragment() {
             android.R.layout.simple_spinner_item,
             CategoryViewModel.getCategoryAndSubcategoryList()
         )
-        binding.settingsCategorySpinner.adapter = arrayAdapter
-        binding.settingsCategorySpinner.setSelection(arrayAdapter.getPosition(DefaultsViewModel.getDefaultFullCategoryName()))
         arrayAdapter.notifyDataSetChanged()
-        val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.settingsCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
-        binding.settingsCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.switchSound.isChecked = DefaultsViewModel.getDefaultSound()
         binding.switchQuote.isChecked = DefaultsViewModel.getDefaultQuote()
         binding.switchCurrency.isChecked = DefaultsViewModel.getDefaultShowCurrencySymbol()
@@ -182,14 +177,14 @@ class SettingsFragment : Fragment() {
         if (DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
             val isGranted = isNotificationServiceEnabled(requireContext())
             if (!isGranted) {
-                binding.switchIntegrateWithTD.isChecked = false
+                binding.switchIntegrateWithBankNotifications.isChecked = false
                 DefaultsViewModel.updateDefaultBoolean(cDEFAULT_INTEGRATEWITHTDSPEND, false)
             } else
-                binding.switchIntegrateWithTD.isChecked = true
+                binding.switchIntegrateWithBankNotifications.isChecked = true
         } else {
-            binding.switchIntegrateWithTD.isChecked = false
+            binding.switchIntegrateWithBankNotifications.isChecked = false
         }
-        if (binding.switchIntegrateWithTD.isChecked)
+        if (binding.switchIntegrateWithBankNotifications.isChecked)
             binding.manageTranslationsLayout.visibility = View.VISIBLE
         else
             binding.manageTranslationsLayout.visibility = View.GONE
@@ -206,11 +201,13 @@ class SettingsFragment : Fragment() {
         gestureDetector = GestureDetectorCompat(requireActivity(), object:
             GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
-                event1: MotionEvent,
+                event1: MotionEvent?,
                 event2: MotionEvent,
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
+                if (event1 == null)
+                    return false
                 if (event2.y < event1.y) { // swiped up.  If at bottom already, close Settings
                     if (!binding.scrollView.canScrollVertically(1)) { // ie can't scroll up anymore
                         secondSwipeUp++
@@ -297,8 +294,7 @@ class SettingsFragment : Fragment() {
                 binding.spenderLayout.visibility = View.GONE
                 binding.switchSecondUserActive.visibility = View.GONE
                 binding.shareUIDLayout.visibility = View.GONE
-                binding.settingsCategorySpinnerLayout.visibility = View.GONE
-                binding.switchIntegrateWithTD.visibility = View.GONE
+                binding.switchIntegrateWithBankNotifications.visibility = View.GONE
                 binding.manageTranslationsLayout.visibility = View.GONE
                 binding.switchSound.visibility = View.GONE
                 binding.switchQuote.visibility = View.GONE
@@ -322,9 +318,8 @@ class SettingsFragment : Fragment() {
                 binding.switchSecondUserActive.visibility = View.VISIBLE
 //                binding.shareUIDLayout.visibility = View.VISIBLE
                 binding.authorizationKey.text = MyApplication.userUID
-                binding.settingsCategorySpinnerLayout.visibility = View.VISIBLE
-                binding.switchIntegrateWithTD.visibility = View.VISIBLE
-                if (binding.switchIntegrateWithTD.isChecked) {
+                binding.switchIntegrateWithBankNotifications.visibility = View.VISIBLE
+                if (binding.switchIntegrateWithBankNotifications.isChecked) {
                     binding.manageTranslationsLayout.visibility = View.VISIBLE
                 } else {
                     binding.manageTranslationsLayout.visibility = View.GONE
@@ -407,39 +402,20 @@ class SettingsFragment : Fragment() {
             override fun afterTextChanged(arg0: Editable) {}
         })
 
-        binding.settingsCategorySpinner.onItemSelectedListener = object:
-            AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val chosenCategory = binding.settingsCategorySpinner.selectedItem.toString()
-                if (chosenCategory != DefaultsViewModel.getDefaultFullCategoryName()) {
-                    if (binding.settingsCategorySpinner.selectedItem != null) {
-                        val defaultCategory = Category(0, binding.settingsCategorySpinner.selectedItem.toString())
-                        if (defaultCategory.id != DefaultsViewModel.getDefaultCategory()) {
-                            DefaultsViewModel.updateDefaultInt(
-                                cDEFAULT_CATEGORY_ID,
-                                defaultCategory.id
-                            )
-                            MyApplication.playSound(context, R.raw.impact_jaw_breaker)
-                        }
-                    }
-                }
-            }
-        }
-
         binding.defaultSpenderRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.defaultSpenderRadioGroup.checkedRadioButtonId
             val radioButton = requireActivity().findViewById(selectedId) as RadioButton
             val newSpender = radioButton.text.toString()
             if (newSpender != SpenderViewModel.getDefaultSpenderName()) {
                 DefaultsViewModel.updateDefaultInt(cDEFAULT_SPENDER, SpenderViewModel.getSpenderIndex(newSpender))
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             }
         }
 
-            binding.splitSlider.addOnSliderTouchListener( object : Slider.OnSliderTouchListener {
+        binding.buttonEditSplit.setOnClickListener {
+            binding.splitSlider.isEnabled = true
+        }
+        binding.splitSlider.addOnSliderTouchListener( object : Slider.OnSliderTouchListener {
             @SuppressLint("RestrictedApi")
             override fun onStartTrackingTouch(slider: Slider) {
 //                Log.d("Alex", "Initial value is " + slider.value)
@@ -449,7 +425,7 @@ class SettingsFragment : Fragment() {
             override fun onStopTrackingTouch(slider: Slider) {
                 if (binding.splitSlider.value.toInt() != (SpenderViewModel.getSpenderSplit(0)*100).toInt()) {
                     SpenderViewModel.updateSpenderSplits(binding.splitSlider.value.toInt())
-                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                    MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 }
             }
         })
@@ -464,7 +440,7 @@ class SettingsFragment : Fragment() {
             override fun onStopTrackingTouch(slider: Slider) {
                 if (binding.redPercentageSlider.value.toInt() != DefaultsViewModel.getDefaultShowRed()) {
                     DefaultsViewModel.updateDefaultInt(cDEFAULT_SHOWRED, binding.redPercentageSlider.value.toInt())
-                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                    MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 }
             }
         })
@@ -478,12 +454,12 @@ class SettingsFragment : Fragment() {
             override fun onStopTrackingTouch(slider: Slider) {
                 if (binding.spLookaheadSlider.value.toInt() != DefaultsViewModel.getDefaultSPLookahead()) {
                     DefaultsViewModel.updateDefaultInt(cDEFAULT_SP_LOOKAHEAD, binding.spLookaheadSlider.value.toInt())
-                    MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                    MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 }
             }
         })
-        binding.switchIntegrateWithTD.setOnCheckedChangeListener { _, _ ->
-            if (binding.switchIntegrateWithTD.isChecked) {
+        binding.switchIntegrateWithBankNotifications.setOnCheckedChangeListener { _, _ ->
+            if (binding.switchIntegrateWithBankNotifications.isChecked) {
                 binding.manageTranslationsLayout.visibility = View.VISIBLE
                 // adding request for permission
                 if (isNotificationServiceEnabled(requireContext())) {
@@ -495,42 +471,42 @@ class SettingsFragment : Fragment() {
                     // The registered ActivityResultCallback gets the result of this request.
                     AlertDialog.Builder(requireContext())
                         .setTitle("Notification permission required")
-                        .setMessage("In order for this On Budget app to access TD MySpend notifications, you must grant permission" +
-                                " to do so in the following screen.  If you decide not to grant permission, this TD MySpend feature" +
-                                "will not work.\n\nTo grant permissions, in the following screen click on On Budget, and then " +
-                                "click Allow Notification Access.")
+                        .setMessage("In order for this On Budget app to access banking notifications, you must grant permission" +
+                                " to do so in the following screen.  If you decide not to grant permission, this feature" +
+                                "will not work.\n\nTo grant permissions, in the following screen click on On Budget, " +
+                                "click Allow Notification Access, and then hit <back> to return to the app.")
                         .setPositiveButton(android.R.string.ok) { _, _ ->
                             startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
                         }
                         .setNegativeButton(android.R.string.cancel) { _, _ ->
-                        binding.switchIntegrateWithTD.isChecked = false
+                        binding.switchIntegrateWithBankNotifications.isChecked = false
                         }
                         .show()
                 }
             } else {
                 binding.manageTranslationsLayout.visibility = View.GONE
             }
-            if (binding.switchIntegrateWithTD.isChecked != DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
-                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_INTEGRATEWITHTDSPEND, binding.switchIntegrateWithTD.isChecked)
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+            if (binding.switchIntegrateWithBankNotifications.isChecked != DefaultsViewModel.getDefaultIntegrateWithTDSpend()) {
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_INTEGRATEWITHTDSPEND, binding.switchIntegrateWithBankNotifications.isChecked)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             }
         }
         binding.switchSound.setOnCheckedChangeListener { _, _ ->
             if (binding.switchSound.isChecked != DefaultsViewModel.getDefaultSound()) {
                 DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SOUND, binding.switchSound.isChecked)
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             }
         }
         binding.switchQuote.setOnCheckedChangeListener { _, _ ->
             if (binding.switchQuote.isChecked != DefaultsViewModel.getDefaultQuote()) {
                 DefaultsViewModel.updateDefaultBoolean(cDEFAULT_QUOTE, binding.switchQuote.isChecked)
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             }
         }
         binding.switchCurrency.setOnCheckedChangeListener { _, _ ->
             if (binding.switchCurrency.isChecked != DefaultsViewModel.getDefaultShowCurrencySymbol()) {
                 DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_CURRENCY_SYMBOL, binding.switchCurrency.isChecked)
-                MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             }
         }
 
@@ -715,7 +691,7 @@ class SettingsFragment : Fragment() {
             activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
-        MyApplication.playSound(context, R.raw.impact_jaw_breaker)
+        MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
         Toast.makeText(activity, getString(R.string.changes_saved), Toast.LENGTH_SHORT).show()
 //        activity?.onBackPressed()
 //        (activity as MainActivity).singleUserMode(!binding.switchSecondUserActive.isChecked)

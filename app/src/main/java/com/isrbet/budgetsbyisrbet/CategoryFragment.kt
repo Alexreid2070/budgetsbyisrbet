@@ -16,7 +16,6 @@ class CategoryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val categoryListObserver = Observer<MutableList<Category>> {
-            Timber.tag("Alex").d("observer fired for categories")
             refreshAdapter()
         }
         CategoryViewModel.observeList(this, categoryListObserver)

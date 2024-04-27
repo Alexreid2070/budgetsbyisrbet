@@ -26,7 +26,7 @@
             android:text="@string/retirement_defaults"
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/who_layout"
@@ -44,7 +44,7 @@
             android:layout_gravity="center"
             android:text="@string/who"
             android:textColor="@color/orange_salmon"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"/>
 
         <HorizontalScrollView

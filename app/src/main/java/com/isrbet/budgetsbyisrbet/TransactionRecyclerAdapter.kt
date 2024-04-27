@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -57,6 +58,9 @@ class TransactionRecyclerAdapter(
     private fun inAccountingMode(): Boolean {
         return filterMode == cACCOUNTING_FILTER
     }
+    private fun inInsuranceMode(): Boolean {
+        return filterMode == cINSURANCE_FILTER
+    }
     private fun inScheduledPaymentMode(): Boolean {
         return filterMode == cSCHEDULED_PAYMENT_FILTER
     }
@@ -67,7 +71,7 @@ class TransactionRecyclerAdapter(
     fun sortBy(iSortOrder: TransactionSortOrder) {
         currentSortOrder = iSortOrder
         when (currentSortOrder) {
-            TransactionSortOrder.DATE_ASCENDING -> filteredList.sortBy { it.date.toString() }
+            TransactionSortOrder.DATE_ASCENDING -> filteredList.sortWith(compareBy({ it.date.toString() }, { it.mykey }))
             TransactionSortOrder.DATE_DESCENDING -> filteredList.sortByDescending { it.date.toString() }
             TransactionSortOrder.AMOUNT_ASCENDING -> filteredList.sortBy { it.amount }
             TransactionSortOrder.AMOUNT_DESCENDING -> filteredList.sortByDescending { it.amount }
@@ -127,7 +131,9 @@ class TransactionRecyclerAdapter(
             discretionaryFilter == "" && paidbyFilter == -1 &&
             boughtforFilter == -1 && typeFilter == "" &&
             dateRangeFilter.first == "" &&
-            !inAccountingMode() && !inScheduledPaymentMode()
+            !inAccountingMode() &&
+            !inInsuranceMode() &&
+            !inScheduledPaymentMode()
         ) {
             resultList = list
         } else {
@@ -156,10 +162,18 @@ class TransactionRecyclerAdapter(
                                 (dateRangeFilter.first <= row.date.toString() && dateRangeFilter.second >= row.date.toString()))
                     ) {
                         if (inAccountingMode()) {
-                            if (row.paidby == row.boughtfor && row.paidby != 2)
+                            if (!row.insurable && row.paidby == row.boughtfor && row.paidby != 2) {
                                 false
-                            else !(row.paidby == 2 && row.boughtfor == 2 &&
-                                    row.bfname1split == (SpenderViewModel.getSpenderSplit(0) * 100).toInt())
+                            } else if (row.insurable) {
+                                (row.paidTo0 != row.paidby && row.reimbursementAmount0 != 0.0) ||
+                                (row.paidTo1 != row.paidby && row.reimbursementAmount1 != 0.0) ||
+                                (row.paidby != row.boughtfor)
+                            } else  {
+                                !(row.paidby == 2 && row.boughtfor == 2 &&
+                                        row.bfname1split == (SpenderViewModel.getSpenderSplit(0) * 100).toInt())
+                            }
+                        } else if (inInsuranceMode()) {
+                            row.insurable
                         } else if (inScheduledPaymentMode()) {
                              row.rtkey == rtKeyFilter
                         } else
@@ -216,7 +230,7 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfnote.text = data.note
-            holder.vtftype.text = data.type
+            holder.vtftype.text = data.type.substring(0,3)
             holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
         if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
@@ -306,11 +320,20 @@ class TransactionRecyclerAdapter(
                 holder.vtfdate.setTypeface(null, Typeface.NORMAL)
             }
         }
-        val percentage1 = data.amount * data.bfname1split / 100
-        val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
-        holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
-        val percentage2 = data.amount - rounded.toDouble()
-        holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
+        if (inInsuranceMode()) {
+            var suf = if (data.paidTo0 == 2) " (J)"
+            else if (data.paidTo0 == 0) String.format(" (${SpenderViewModel.getSpenderInitial(0)})") else ""
+            holder.vtfpercentage1.text = String.format("${gDecWithCurrency(data.reimbursementAmount0)}$suf")
+            suf = if (data.paidTo1 == 2) " (J)"
+            else if (data.paidTo1 == 1) String.format(" (${SpenderViewModel.getSpenderInitial(1)})") else ""
+            holder.vtfpercentage2.text = String.format("${gDecWithCurrency(data.reimbursementAmount1)}$suf")
+        } else {
+            val percentage1 = data.amount * data.bfname1split / 100
+            val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
+            holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
+            val percentage2 = data.amount - rounded.toDouble()
+            holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
+        }
         if (position < runningTotalList.size)
             holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
         holder.vtfCategoryID.text = data.category.toString()
@@ -323,23 +346,31 @@ class TransactionRecyclerAdapter(
         if (SpenderViewModel.singleUser()) {
             holder.vtfwho.visibility = View.GONE
         }
-        if (inAccountingMode() || !DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
+        if (inAccountingMode() || inInsuranceMode() ||
+            !DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
             holder.vtfcategory.visibility = View.GONE
         }
-        if (!inAccountingMode() && !DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
+        if (!inAccountingMode() && !inInsuranceMode() &&
+            !DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
             holder.vtfpercentage1.visibility = View.GONE
             holder.vtfpercentage2.visibility = View.GONE
         }
-        if ((!inAccountingMode() && !DefaultsViewModel.getDefaultShowTypeInViewAll()) ||
+        if ((!inAccountingMode() &&
+            !DefaultsViewModel.getDefaultShowTypeInViewAll()) ||
+            inInsuranceMode() ||
             inScheduledPaymentMode())
             holder.vtftype.visibility = View.GONE
-        if (!inAccountingMode() && !DefaultsViewModel.getDefaultShowWhoInViewAll())
+        if (!inAccountingMode() && !inInsuranceMode() &&
+            !DefaultsViewModel.getDefaultShowWhoInViewAll())
             holder.vtfwho.visibility = View.GONE
-        if (inAccountingMode() || !DefaultsViewModel.getDefaultShowNoteInViewAll())
+        if (inAccountingMode() || inInsuranceMode() ||
+            !DefaultsViewModel.getDefaultShowNoteInViewAll())
             holder.vtfnote.visibility = View.GONE
-        if (inAccountingMode() || !DefaultsViewModel.getDefaultShowDiscInViewAll())
+        if (inAccountingMode() || inInsuranceMode() ||
+            !DefaultsViewModel.getDefaultShowDiscInViewAll())
             holder.vtfdisc.visibility = View.GONE
-        if (!inAccountingMode() && !DefaultsViewModel.getDefaultShowRunningTotalInViewAll())
+        if (!inAccountingMode() &&
+            !DefaultsViewModel.getDefaultShowRunningTotalInViewAll())
             holder.vtfrunningtotal.visibility = View.GONE
     }
 
@@ -399,12 +430,14 @@ class TransactionRecyclerAdapter(
                     when (filteredList[i].paidby) {
                         0 -> filteredList[i].amount
                         1 -> 0.0
+
                         else // must be Joint
                         -> filteredList[i].amount * SpenderViewModel.getSpenderSplit(0)
                     }
-                previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed)
+                previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed + filteredList[i].getAOwesBInsuranceAmount())
                 trunningTotalList.add(previousRunningTotal)
             } else {
+                previousRunningTotal += filteredList[i].getAOwesBInsuranceAmount()
                 trunningTotalList.add(previousRunningTotal)
             }
             if (tgroupList.size == 0) {

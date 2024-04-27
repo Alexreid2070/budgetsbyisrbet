@@ -43,7 +43,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textCapWords" />
+                        android:inputType="textCapWords"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -53,7 +54,8 @@
                     android:layout_gravity="center_vertical"
                     android:gravity="start"
                     android:paddingStart="5dp"
-                    android:paddingEnd="5dp" />
+                    android:paddingEnd="5dp"
+                    android:textSize="@dimen/normal_font_size"/>
             </LinearLayout>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -66,7 +68,7 @@
                 android:textOff="@string/off"
                 android:textOn="@string/on"
                 android:text="@string/authorize_second_user"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="Switch to on if you want to add a second user to share data." />
@@ -85,7 +87,7 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:text="@string/join_other_user"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Switch to on if you are joining another user, to share data."
@@ -110,7 +112,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textCapWords" />
+                        android:inputType="textCapWords"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -137,7 +140,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textCapWords" />
+                        android:inputType="textCapWords"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -156,7 +160,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:gravity="start"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textEmailAddress"
+                        android:textSize="@dimen/normal_font_size"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -176,7 +181,7 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:text="@string/share_this_authorization_key_with_second_user"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"/>
 
@@ -196,7 +201,7 @@
                         android:gravity="center"
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/label_font_size" />
 
                     <ImageButton
                         android:id="@+id/copyButton"
@@ -222,7 +227,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/disconnect_from_primary_user"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="Switch on if you no longer want to share data with the primary user.  Data stays with the primary user."
@@ -248,7 +253,7 @@
                     android:paddingRight="4dp"
                     android:text="@string/cancel"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:tooltipText="@string/cancel"
                     android:visibility="gone"
@@ -268,7 +273,7 @@
                     android:paddingRight="4dp"
                     android:text="@string/save"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:tooltipText="@string/save"
                     android:visibility="gone"
@@ -298,7 +303,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/default_user"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Default user when adding a new transaction.  Can be changed before saving." />
@@ -332,18 +337,35 @@
                     android:layout_gravity="center"
                     android:gravity="start"
                     android:text="@string/default_split"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Default amount split when adding a new transaction.  Can be changed before saving." />
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/split_slider"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:stepSize="1"
                     android:valueFrom="0.0"
                     android:valueTo="100.0" />
+                <ImageButton
+                    android:id="@+id/button_edit_split"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:scaleX=".8"
+                    android:scaleY=".8"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/background"
+                    android:contentDescription="@string/edit_translations"
+                    android:gravity="center"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:src="@drawable/ic_baseline_edit_24"
+                    android:tooltipText="Manage translations" />
             </LinearLayout>
 
             <TextView
@@ -354,58 +376,8 @@
                 android:gravity="center"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:id="@+id/settings_category_spinner_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
-
-                <TextView
-                    android:id="@+id/settingsCategoryLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="5dp"
-                    android:text="@string/default_category_for_new_expenses"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="?attr/textOnBackground"
-                    android:tooltipText="Default category when adding a new transaction.  Can be changed before saving." />
-
-                <RelativeLayout
-                    android:id="@+id/settingsCategorySpinnerRelativeLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:orientation="horizontal">
-
-                    <Spinner
-                        android:id="@+id/settingsCategorySpinner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginStart="5dp"
-                        android:background="@android:color/transparent"
-                        android:gravity="end"
-                        android:spinnerMode="dropdown" />
-
-                    <ImageView
-                        android:id="@+id/inputImageView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_gravity="center"
-                        android:contentDescription="@string/click_to_select"
-                        android:src="@drawable/ic_baseline_arrow_drop_down_24" />
-                </RelativeLayout>
-            </LinearLayout>
+                android:paddingBottom="10dp"
+                android:textSize="@dimen/normal_font_size" />
 
             <View
                 android:id="@+id/line2"
@@ -416,7 +388,7 @@
                 android:paddingBottom="10dp" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_integrate_with_TD"
+                android:id="@+id/switch_integrate_with_bank_notifications"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -424,11 +396,11 @@
                 android:textOn="@string/on"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:text="@string/integration_with_td_myspend"
-                android:textSize="16sp"
+                android:text="@string/integration_with_bank_notifications"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
-                android:tooltipText="Switch on if you use TD MySpend."/>
+                android:tooltipText="Switch on if you use TD MySpend or CIBC notifications."/>
 
             <LinearLayout
                 android:id="@+id/manage_translations_layout"
@@ -443,7 +415,7 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:text="@string/manage_notification_translations"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Click to edit vendor translations that you have done." />
@@ -452,6 +424,8 @@
                     android:id="@+id/button_edit_translations"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:scaleX=".8"
+                    android:scaleY=".8"
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:background="?attr/background"
@@ -481,7 +455,7 @@
                 android:textOff="@string/off"
                 android:textOn="@string/on"
                 android:text="@string/sound"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="Turn sound on/off." />
@@ -496,7 +470,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_quote_of_the_day"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="Turn home page quote-of-the-day on/off."/>
@@ -511,7 +485,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:text="@string/show_currency_symbol"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="Turn currency symbol on/off throughout (useful for saving screen space)."/>
@@ -537,7 +511,7 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:text="@string/show_red_at"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Expenses less than budget = green.   Over budget but less than 'Red %' = yellow.  Greater than 'Red %' = red." />
@@ -565,7 +539,7 @@
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
                     android:text="@string/sp_lookahead"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="# of days to lookahead when showing scheduled payments on home page." />
@@ -600,7 +574,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/default_language"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/label_font_size"
                     android:textStyle="bold"
                     android:textColor="?attr/textOnBackground"
                     android:tooltipText="Language of the application." />

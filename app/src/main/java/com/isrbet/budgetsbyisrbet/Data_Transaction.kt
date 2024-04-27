@@ -24,8 +24,13 @@ data class Transaction(
     var note2: String = "",
     var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var type: String = cTRANSACTION_TYPE_EXPENSE,
     var bfname1split: Int = 0,
+    var type: String = cTRANSACTION_TYPE_EXPENSE,
+    var insurable: Boolean = false,
+    var reimbursementAmount0: Double = 0.0,
+    var paidTo0: Int = -1,
+    var reimbursementAmount1: Double = 0.0,
+    var paidTo1: Int = -1,
     var rtkey: String = "",
     var mykey: String = ""
 ) {
@@ -37,8 +42,13 @@ data class Transaction(
         iTransactionOut.note2,
         iTransactionOut.paidby,
         iTransactionOut.boughtfor,
-        iTransactionOut.type,
         iTransactionOut.bfname1split,
+        iTransactionOut.type,
+        iTransactionOut.insurable,
+        iTransactionOut.reimbursementAmount0 / 100.0,
+        iTransactionOut.paidTo0,
+        iTransactionOut.reimbursementAmount1 / 100.0,
+        iTransactionOut.paidTo1,
         iTransactionOut.rtkey,
         iKey
     )
@@ -53,11 +63,16 @@ data class Transaction(
             "paidby" -> paidby = value.toInt()
             "boughtfor" -> boughtfor = value.toInt()
             "bfname1split" -> bfname1split = value.toInt()
+            "type" -> type = value.trim()
             "rtkey" -> rtkey = value.trim()
             "note" -> note = value.trim()
             "note2" -> note2 = value.trim()
-            "type" -> type = value.trim()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
+            "insurable" -> insurable = (value == "true")
+            "reimbursementAmount0" -> reimbursementAmount0 = value.toDouble()
+            "paidTo0" -> paidTo0 = value.toInt()
+            "reimbursementAmount1" -> reimbursementAmount1 = value.toDouble()
+            "paidTo1" -> paidTo1 = value.toInt()
             else -> {
                 if (key != "bfname2split") Timber.tag("Alex").d("Unknown field in Transactions $key $value $this")
             }
@@ -99,6 +114,104 @@ data class Transaction(
         }
         return 0.0
     }
+    fun getReimbursementAmountForUser(iAmount: Int, iWho: Int, iRound: Boolean = true): Double {
+        val origAmount = if (iAmount == 0) reimbursementAmount0
+        else reimbursementAmount1
+
+        return when (iWho) {
+            0 -> {
+                if (iRound) round(origAmount * SpenderViewModel.getSpenderSplit(0))
+                else origAmount * SpenderViewModel.getSpenderSplit(0)
+            }
+            1 -> {
+                if (iRound) round(origAmount * SpenderViewModel.getSpenderSplit(1))
+                else origAmount * SpenderViewModel.getSpenderSplit(1)
+            }
+            else -> origAmount
+        }
+    }
+    fun getAOwesBOriginalAmount(): Double {
+        var toReturn = 0.0
+        when (boughtfor) {
+            0 -> {
+                if (paidby == 2) {
+                    toReturn = (getAmountByUser(0, false) * SpenderViewModel.getSpenderSplit(1))
+                } else if (paidby == 1) {
+                    toReturn = getAmountByUser(0, false)
+                }
+            }
+            1 -> {
+                if (paidby == 2) {
+                    toReturn = (getAmountByUser(1, false) * SpenderViewModel.getSpenderSplit(0)) * -1
+                } else if (paidby == 0) {
+                    toReturn -= getAmountByUser(1, false)
+                }
+            }
+            2 -> {
+                if (paidby == 2) {
+                    toReturn = getAmountByUser(1, false) * SpenderViewModel.getSpenderSplit(0) * -1
+                    toReturn += getAmountByUser(0, false) * SpenderViewModel.getSpenderSplit(1)
+                } else if (paidby == 0) {
+                    toReturn = -getAmountByUser(1, false)
+                } else if (paidby == 1) {
+                    toReturn = getAmountByUser(0, false)
+                }
+            }
+        }
+        return round(toReturn * 100.0).toInt() / 100.0
+    }
+    fun getAOwesBInsuranceAmount(): Double {
+        var toReturn = 0.0
+        if (insurable) {
+            toReturn = if (reimbursementAmount0 != 0.0) {
+                val t = getReimbursementAmountForUser(0, 1, false)
+                when (paidTo0) {
+                    0 -> {
+                        when (boughtfor) {
+                            1 -> reimbursementAmount0
+                            2 -> getReimbursementAmountForUser(0, 1, false)
+                            else -> 0.0
+                        }
+                    }
+                    2 -> {
+                        (reimbursementAmount0 * (1.0 - (bfname1split/100.0))) -
+                                getReimbursementAmountForUser(0, 1, false)
+                    }
+
+/*                    2 -> when (boughtfor) {
+                        0 -> getReimbursementAmountForUser(0, 1, false) * -1
+                        1 -> getReimbursementAmountForUser(0, 0, false)
+                        else -> 97.0
+                    } */
+                    else -> 0.0
+                }
+            } else
+                0.0
+            toReturn -= if (reimbursementAmount1 != 0.0) {
+                when (paidTo1) {
+                    1 -> {
+                        when (boughtfor) {
+                            0 -> reimbursementAmount1
+                            2 -> getReimbursementAmountForUser(1, 0, false)
+                            else -> 0.0
+                        }
+                    }
+                    2 -> {
+                        (reimbursementAmount1 * (bfname1split/100.0)) -
+                                getReimbursementAmountForUser(1, 0, false)
+                    }
+/*                    2 -> when (boughtfor) {
+                        0 -> getReimbursementAmountForUser(1, 1, false)
+                        1 -> getReimbursementAmountForUser(1, 0, false) * -1
+                        else -> 101.0
+                    } */
+                    else -> 0.0
+                }
+            } else
+                0.0
+        }
+        return round(toReturn * 100.0).toInt() / 100.0
+    }
 }
 
 data class TransactionOut(
@@ -106,8 +219,13 @@ data class TransactionOut(
     var note: String = "", var note2: String = "", var paidby: Int = -1,
     var boughtfor: Int = -1,
     var bfname1split: Int = 0, var type: String = cTRANSACTION_TYPE_EXPENSE,
-    var rtkey: String = ""
-) {
+    var rtkey: String = "",
+    var insurable: Boolean = false,
+    var reimbursementAmount0: Int = 0,
+    var paidTo0: Int = -1,
+    var reimbursementAmount1: Int = 0,
+    var paidTo1: Int = -1
+    ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
 /*    fun setValue(key: String, value: String) {
@@ -181,6 +299,11 @@ class TransactionViewModel : ViewModel() {
 
     companion object {
         lateinit var singleInstance: TransactionViewModel // used to track static single instance of self
+
+        fun resetTransactionList() { // for debugging purposes
+            singleInstance.transactions.clear()
+            singleInstance.actualsSummary.clear()
+        }
 
         fun observeList(iFragment: Fragment, iObserver: androidx.lifecycle.Observer<MutableList<Transaction>>) {
             singleInstance.transactionsLiveData.observe(iFragment, iObserver)
@@ -410,7 +533,9 @@ class TransactionViewModel : ViewModel() {
             var tempTotal = 0.0
             val cat = CategoryViewModel.getCategory(iCategoryID)
             if (cat?.iAmAllowedToSeeThisCategory() == true) {
-                for (year in iStartPeriod.getYear() until iEndPeriod.getYear() + 1) {
+                val year1 = iStartPeriod.getYear()
+                val year2 = iEndPeriod.getYear() + 1
+                for (year in year1 until year2) {
                     for (userID in 0 until 2) {
                         if (iWho == userID || iWho == 2) {
                             val userActual = singleInstance.actualsSummary.find {
@@ -590,6 +715,11 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransaction.bfname1split
                 transaction.type = iTransaction.type
                 transaction.rtkey = iTransaction.rtkey
+                transaction.insurable = iTransaction.insurable
+                transaction.reimbursementAmount0 = iTransaction.reimbursementAmount0
+                transaction.paidTo0 = iTransaction.paidTo0
+                transaction.reimbursementAmount1 = iTransaction.reimbursementAmount1
+                transaction.paidTo1 = iTransaction.paidTo1
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
 //            if (iNotifyLive)
@@ -621,6 +751,11 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransactionOut.bfname1split
                 transaction.type = iTransactionOut.type
                 transaction.rtkey = iTransactionOut.rtkey
+                transaction.insurable = iTransactionOut.insurable
+                transaction.reimbursementAmount0 = iTransactionOut.reimbursementAmount0/100.0
+                transaction.paidTo0 = iTransactionOut.paidTo0
+                transaction.reimbursementAmount1 = iTransactionOut.reimbursementAmount1/100.0
+                transaction.paidTo1 = iTransactionOut.paidTo1
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
 //            singleInstance.transactionsLiveData.value = singleInstance.transactions
@@ -630,7 +765,8 @@ class TransactionViewModel : ViewModel() {
                 singleInstance.transactions.add(
                     Transaction(MyDate(iTransfer.date),
                         iTransfer.amount/100.0, cTRANSFER_CODE, "", "", iTransfer.paidby,
-                        iTransfer.boughtfor, iTransfer.type, iTransfer.bfname1split,
+                        iTransfer.boughtfor, iTransfer.bfname1split, iTransfer.type, false, 0.0,
+                        -1, 0.0, -1,
                         cTRANSACTION_TYPE_TRANSFER)
                 )
             } else {
@@ -689,7 +825,7 @@ class TransactionViewModel : ViewModel() {
                 gCurrentDate.getYear()
             } else singleInstance.transactions[singleInstance.transactions.size-1].date.getYear()
         }
-        private fun getLatestMonth() : Int {
+        fun getLatestMonth() : Int {
             // since we know that this table is sorted on date, we simply return the last date
             return if (singleInstance.transactions.size == 0) {
                 gCurrentDate.getMonth()
@@ -700,7 +836,7 @@ class TransactionViewModel : ViewModel() {
                 gCurrentDate
             } else singleInstance.transactions[singleInstance.transactions.size-1].date
         }
-private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAdjustment: Double) {
+        fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAdjustment: Double) {
             val actualRow = singleInstance.actualsSummary.find {
                 it.categoryID == iCategoryID &&
                 it.year == iDate.getYear() &&
@@ -716,6 +852,30 @@ private fun adjustActualsSummary(iDate: MyDate, iCategoryID: Int, iWho: Int, iAd
             } else {
                 actualRow.amounts[iDate.getMonth()-1] += iAdjustment
             }
+        }
+        fun getTotalAOwesBOriginalAmount() : Double {
+            var tmpTotal = 0.0
+            for (tr in singleInstance.transactions) {
+                tmpTotal += tr.getAOwesBOriginalAmount()
+            }
+            return tmpTotal
+        }
+        fun getTotalAOwesBInsuranceAmount() : Double {
+            var tmpTotal = 0.0
+
+            for (tr in singleInstance.transactions) {
+                tmpTotal += tr.getAOwesBInsuranceAmount()
+            }
+            return tmpTotal
+        }
+        fun getTotalAOwesB() : Double {
+            var tmpTotal = 0.0
+
+            for (tr in singleInstance.transactions) {
+                tmpTotal += tr.getAOwesBOriginalAmount()
+                tmpTotal += tr.getAOwesBInsuranceAmount()
+            }
+            return tmpTotal
         }
     }
 

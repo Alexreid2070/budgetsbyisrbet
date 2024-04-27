@@ -175,6 +175,7 @@ class MainActivity : AppCompatActivity() {
         retirementUserModel.loadRetirementUsers()
         transactionModel.loadTransactions()
         translationModel.loadTranslations()
+        userModel.clearCallback()
 //        setupDataCallbacks()
         MyApplication.haveLoadedDataForThisUser = true
         MyApplication.database.getReference("Users/" + MyApplication.userUID)

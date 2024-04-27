@@ -8,7 +8,8 @@
     <TextView
         android:id="@+id/vtf_date"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/normal_font_size">
     </TextView>
 
     <LinearLayout
@@ -30,8 +31,17 @@
             android:layout_weight=".8"
             android:textAlignment="textEnd"
             android:paddingStart="0dp"
-            android:paddingEnd="4dp">
+            android:paddingEnd="15dp"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
+
+        <TextView
+            android:id="@+id/vtf_who"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".8"
+            android:textAlignment="textStart"
+            android:textSize="@dimen/normal_font_size"/>
 
         <TextView
             android:id="@+id/vtf_percentage1"
@@ -40,7 +50,8 @@
             android:layout_weight=".8"
             android:textAlignment="textEnd"
             android:paddingLeft="4dp"
-            android:paddingRight="4dp">
+            android:paddingRight="4dp"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
 
         <TextView
@@ -50,7 +61,8 @@
             android:layout_weight=".8"
             android:textAlignment="textEnd"
             android:paddingLeft="4dp"
-            android:paddingRight="4dp">
+            android:paddingRight="4dp"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
 
         <TextView
@@ -67,15 +79,9 @@
             android:layout_weight="1.4"
             android:textAlignment="textStart"
             android:ellipsize="end"
-            android:singleLine="true">
+            android:singleLine="true"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
-
-        <TextView
-            android:id="@+id/vtf_who"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textAlignment="center"/>
 
         <TextView
             android:id="@+id/vtf_note"
@@ -84,7 +90,8 @@
             android:layout_weight="1"
             android:ellipsize="end"
             android:textAlignment="textStart"
-            android:singleLine="true">
+            android:singleLine="true"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
 
         <TextView
@@ -94,7 +101,8 @@
             android:layout_weight=".5"
             android:textAlignment="textEnd"
             android:paddingLeft="2dp"
-            android:paddingRight="2dp">
+            android:paddingRight="2dp"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
         <TextView
             android:id="@+id/vtf_type"
@@ -103,7 +111,8 @@
             android:layout_weight=".5"
             android:textAlignment="textEnd"
             android:paddingLeft="2dp"
-            android:paddingRight="2dp">
+            android:paddingRight="2dp"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
         <TextView
             android:id="@+id/vtf_running_total"
@@ -112,7 +121,8 @@
             android:layout_weight=".8"
             android:textAlignment="textEnd"
             android:paddingLeft="2dp"
-            android:paddingRight="2dp">
+            android:paddingRight="2dp"
+            android:textSize="@dimen/normal_font_size">
         </TextView>
 
     </LinearLayout>

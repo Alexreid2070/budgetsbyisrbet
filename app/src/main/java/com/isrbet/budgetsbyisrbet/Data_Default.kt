@@ -322,19 +322,22 @@ class DefaultsViewModel : ViewModel() {
             }
         }
         fun reorderCategory(fromPriority: Int, toPriority: Int) {
+            Timber.tag("Alex").d("Moving from $fromPriority to $toPriority")
             val minP = minOf(fromPriority, toPriority)
             val maxP = maxOf(fromPriority, toPriority)
+            Timber.tag("Alex").d("min is $minP and max is $maxP")
             singleInstance.defaultCategoryDetails.forEach {
+                Timber.tag("Alex").d("it.priority is ${it.priority} min is $minP and max is $maxP")
                 if (it.priority in minP..maxP) {
                     when {
                         it.priority == fromPriority -> {
-                            setPriority(it.name, toPriority, false)
+                            setCategoryPriority(it.name, toPriority, false)
                         }
                         fromPriority == maxP -> { // items move down
-                            setPriority(it.name, it.priority + 1, false)
+                            setCategoryPriority(it.name, it.priority + 1, false)
                         }
                         else -> {
-                            setPriority(it.name, it.priority - 1, false)
+                            setCategoryPriority(it.name, it.priority - 1, false)
                         }
                     }
                 }
@@ -351,13 +354,14 @@ class DefaultsViewModel : ViewModel() {
         }
         fun getCategoryDetail(iCatName: String): CategoryDetail {
             return singleInstance.defaultCategoryDetails.find { it.name == iCatName }
-                ?: CategoryDetail(iCatName, 0, 9999)
+                ?: CategoryDetail(iCatName, 0, 9999, 0)
         }
 
-        fun setColour(iCatName: String, iColour: Int, iUpdateLocalOnly: Boolean) {
+        fun setCategoryColour(iCatName: String, iColour: Int, iUpdateLocalOnly: Boolean) {
             val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
             if (cat == null) {
-                singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, iColour, giveMeNextAvailablePriority()))
+                singleInstance.defaultCategoryDetails.add(
+                    CategoryDetail(iCatName, iColour, giveMeNextAvailablePriority(), 0))
             } else {
                 cat.color = iColour
             }
@@ -370,10 +374,10 @@ class DefaultsViewModel : ViewModel() {
                     .setValue(iColour)
             }
         }
-        fun setPriority(iCatName: String, iPriority: Int, iUpdateLocalOnly: Boolean) {
+        fun setCategoryPriority(iCatName: String, iPriority: Int, iUpdateLocalOnly: Boolean) {
             val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
             if (cat == null) {
-                singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, 0, iPriority))
+                singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, 0, iPriority, 0))
             } else {
                 cat.priority = iPriority
             }
@@ -386,22 +390,20 @@ class DefaultsViewModel : ViewModel() {
                     .setValue(iPriority)
             }
         }
-        fun confirmCategoryDetailsListIsComplete() { // ie add any missing ones, should only happen at first transition to this new functionality
-            val catList = CategoryViewModel.getCategoryNames()
-            for (cat in catList) {
-                val cd: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == cat }
-                if (cd == null) {
-                    setPriority(cat,
-                        if (singleInstance.defaultCategoryDetails.size == 0) 99 else giveMeNextAvailablePriority(), // this will force a renumbering and load the priorities in the db
-                        false)
-                    setColour(cat, 0, false)
-                }
+        fun setCategoryDefault(iCatName: String, iDefault: Int, iUpdateLocalOnly: Boolean) {
+            val cat: CategoryDetail? = singleInstance.defaultCategoryDetails.find { it.name == iCatName }
+            if (cat == null) {
+                singleInstance.defaultCategoryDetails.add(CategoryDetail(iCatName, 0, 0, iDefault))
+            } else {
+                cat.default = iDefault
             }
-            singleInstance.defaultCategoryDetails.sortWith(compareBy { it.priority })
-            for (i in 0 until singleInstance.defaultCategoryDetails.size) {
-                if (singleInstance.defaultCategoryDetails[i].priority != i) {
-                    setPriority(singleInstance.defaultCategoryDetails[i].name, i, false)
-                }
+            if (!iUpdateLocalOnly) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .child(SpenderViewModel.myIndex().toString())
+                    .child("CategoryDetails")
+                    .child(iCatName)
+                    .child("default")
+                    .setValue(iDefault)
             }
         }
     }
@@ -662,8 +664,9 @@ class DefaultsViewModel : ViewModel() {
                             val catName = cat.key.toString()
                             for (def in cat.children.toMutableList()) {
                                 when (def.key.toString()) {
-                                    "colour" -> setColour(catName, def.value.toString().toInt(), true)
-                                    "priority" -> setPriority(catName, def.value.toString().toInt(), true)
+                                    "colour" -> setCategoryColour(catName, def.value.toString().toInt(), true)
+                                    "priority" -> setCategoryPriority(catName, def.value.toString().toInt(), true)
+                                    "default" -> setCategoryDefault(catName, def.value.toString().toInt(), true)
                                 }
                             }
                         }

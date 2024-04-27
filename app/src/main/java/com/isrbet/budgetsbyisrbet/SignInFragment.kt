@@ -56,7 +56,6 @@ class SignInFragment : Fragment() {
                     try {
                         // Google Sign In was successful, authenticate with Firebase
                         val account = task.getResult(ApiException::class.java)!!
-                        Timber.tag("Alex").d("firebaseAuthWithGoogle:%s", account.id)
                         MyApplication.userGivenName = account.givenName.toString()
                         MyApplication.userFamilyName = account.familyName.toString()
                         MyApplication.userAccount = account.account
@@ -175,7 +174,7 @@ class SignInFragment : Fragment() {
                     && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
                 ) {
                     binding.signInButton.visibility = View.GONE
-                    binding.upgradeLayout.visibility = View.VISIBLE
+                    binding.    upgradeLayout.visibility = View.VISIBLE
 
                     updateListener = InstallStateUpdatedListener { state ->
                         // (Optional) Provide a download progress bar.

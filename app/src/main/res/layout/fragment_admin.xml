@@ -50,12 +50,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/current_user"
+            android:textSize="@dimen/normal_font_size"
             android:paddingStart="5dp"
             android:paddingEnd="5dp" />
         <TextView
             android:id="@+id/admin_current_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/normal_font_size"
             android:text="@string/current_user"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

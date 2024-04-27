@@ -16,6 +16,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/exportButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:scaleType="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="0dp"
+            android:contentDescription="@string/export"
+            android:src="@drawable/ic_baseline_save_alt_24"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -26,7 +36,7 @@
             android:text="@string/view_all_transactions"
             android:textStyle="bold"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
         <ImageView
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
@@ -55,7 +65,7 @@
             android:gravity="center"
             android:layout_weight="1"
             android:textColor="?attr/pageHeadingFontColor"
-            android:textSize="@dimen/pageHeadingFontSize"/>
+            android:textSize="@dimen/page_header_font_size"/>
         <ImageView
             android:id="@+id/filterOffButton"
             android:layout_width="wrap_content"
@@ -87,7 +97,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".8"
-            android:padding="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="10dp"
             android:orientation="vertical">
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/dateHeading"
@@ -96,7 +107,7 @@
                 android:layout_gravity="top"
                 android:gravity="start"
                 android:text="@string/date"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:tooltipText="@string/toolTipAmount"
                 android:maxLines="1"/>
@@ -106,8 +117,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:gravity="start"
+                android:paddingStart="10dp"
+                android:paddingEnd="0dp"
                 android:text="@string/amt"
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:tooltipText="@string/toolTipAmount"
                 android:maxLines="1"/>
@@ -124,22 +137,36 @@
                 android:layout_gravity="top"
                 android:gravity="start"
                 android:text=""
-                android:textSize="16sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:maxLines="1"
                 app:drawableRightCompat="@drawable/ic_baseline_expand_more_24"/>
+
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/percentage1Heading"
+                android:id="@+id/whoHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:gravity="start"
-                android:text="@string/amt1"
-                android:textSize="16sp"
+                android:text="@string/who"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
-                android:tooltipText="@string/toolTipAmt1"
+                android:tooltipText="@string/toolTipWhoView"
                 android:maxLines="1"/>
         </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/percentage1Heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight=".8"
+            android:gravity="end"
+            android:text="@string/amt1"
+            android:textSize="@dimen/label_font_size"
+            android:textStyle="bold"
+            android:tooltipText="@string/toolTipAmt1"
+            android:maxLines="1"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/percentage2Heading"
@@ -147,9 +174,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight=".8"
-            android:gravity="start"
+            android:gravity="end"
             android:text="@string/amt2"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipAmt2"
             android:maxLines="1"/>
@@ -162,21 +189,9 @@
             android:layout_weight="1.4"
             android:gravity="start"
             android:text="@string/category"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipCategorySubCategory"
-            android:maxLines="1"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/whoHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:text="@string/who"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:tooltipText="@string/toolTipWhoView"
             android:maxLines="1"/>
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -187,7 +202,7 @@
             android:layout_weight="1"
             android:gravity="start"
             android:text="@string/where"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipWhere"
             android:maxLines="1"/>
@@ -202,7 +217,7 @@
             android:paddingLeft="2dp"
             android:paddingRight="2dp"
             android:text="@string/discretionary_short_question"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipDisc"
             android:maxLines="1"/>
@@ -215,7 +230,7 @@
             android:layout_weight=".5"
             android:gravity="end"
             android:text="@string/type_short"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipType"
             android:maxLines="1"/>
@@ -228,7 +243,7 @@
             android:layout_weight=".8"
             android:gravity="end"
             android:text="@string/owes"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:tooltipText="@string/toolTipRunningTotal"
             android:maxLines="1"/>
@@ -264,7 +279,7 @@
         android:background="?attr/colorSecondary"
         android:padding="20dp"
         android:paddingTop="30dp"
-        android:textSize="18sp"
+        android:textSize="@dimen/page_header_font_size"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/total_layout"
@@ -294,12 +309,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/total_for_this_selection_is"/>
+                android:text="@string/total_for_this_selection_is"
+                android:textSize="@dimen/normal_font_size"/>
 
             <TextView
                 android:id="@+id/total_amount"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/normal_font_size"/>
         </LinearLayout>
 
         <View
@@ -436,7 +453,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:background="?attr/menuColor"
             android:text="@string/filters"/>
         <TextView
@@ -445,7 +462,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="@dimen/label_font_size"
             android:background="@drawable/rounded_top_corners"
             android:text="@string/show_hide_columns"/>
     </LinearLayout>
@@ -474,7 +491,7 @@
                 android:layout_gravity="start"
                 android:layout_marginBottom="5dp"
                 android:text="@string/category"
-                android:textSize="15sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"/>
 
             <RelativeLayout
@@ -518,7 +535,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:text="@string/subcategory"
-                android:textSize="15sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"/>
 
             <RelativeLayout
@@ -561,7 +578,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/discretionary_question"
-                android:textSize="15sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"/>
             <HorizontalScrollView
                 android:layout_width="wrap_content"
@@ -604,7 +621,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/paid_by"
-                android:textSize="15sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"/>
             <HorizontalScrollView
                 android:layout_width="wrap_content"
@@ -650,7 +667,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/bought_for"
-                android:textSize="15sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"/>
 
             <HorizontalScrollView
@@ -697,7 +714,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/type"
-                android:textSize="15sp"
+                android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"/>
 
             <HorizontalScrollView
@@ -792,7 +809,7 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_split_amount_columns"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>
 
@@ -805,7 +822,7 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_category_column"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>
 
@@ -816,7 +833,7 @@
             android:layout_gravity="start"
             android:checked="true"
             android:text="@string/show_who_column"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"
             android:textOff="@string/off"
@@ -831,7 +848,7 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_where_column"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>
 
@@ -844,7 +861,7 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_discretionary_indicator_column"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>
 
@@ -857,7 +874,7 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_type_column"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>
 
@@ -870,7 +887,7 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_running_total_column"
-            android:textSize="15sp"
+            android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>
     </LinearLayout>

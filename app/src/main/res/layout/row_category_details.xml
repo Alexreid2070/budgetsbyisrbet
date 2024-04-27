@@ -13,7 +13,7 @@
         android:layout_gravity="start"
         android:gravity="start"
         android:padding="10dip"
-        android:textSize="14sp">
+        android:textSize="@dimen/normal_font_size">
     </TextView>
     <ImageView
         android:id="@+id/row_category_color_reset"
