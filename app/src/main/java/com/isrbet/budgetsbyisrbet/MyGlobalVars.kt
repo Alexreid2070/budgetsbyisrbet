@@ -32,6 +32,7 @@ import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.FirebaseApp
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
@@ -265,6 +266,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         mContext = this
+        FirebaseApp.initializeApp(this)
         Firebase.database.setPersistenceEnabled(true)
         database = FirebaseDatabase.getInstance()
         databaseref = database.reference

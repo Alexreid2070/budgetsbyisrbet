@@ -9,7 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
@@ -41,6 +43,8 @@ class TransactionRecyclerAdapter(
     private var dateRangeFilter = Pair("", "")
     private var filterMode = ""
     private var currentSortOrder = iSortOrder
+    private var showDetails = ""
+    private var backgroundColour = ""
 
     init {
         categoryFilter = filters.prevCategoryFilter
@@ -53,6 +57,7 @@ class TransactionRecyclerAdapter(
         dateRangeFilter = filters.dateRangeFilter
         filterTheList(MyApplication.transactionSearchText, false)
         sortBy(iSortOrder)
+        backgroundColour = getColorInHex(MaterialColors.getColor(context, R.attr.background, Color.BLACK), cOpacity)
     }
 
     private fun inAccountingMode(): Boolean {
@@ -71,7 +76,7 @@ class TransactionRecyclerAdapter(
     fun sortBy(iSortOrder: TransactionSortOrder) {
         currentSortOrder = iSortOrder
         when (currentSortOrder) {
-            TransactionSortOrder.DATE_ASCENDING -> filteredList.sortWith(compareBy({ it.date.toString() }, { it.mykey }))
+            TransactionSortOrder.DATE_ASCENDING -> filteredList.sortWith(compareBy({ it.date.toString() }, { it.creditkey }, { it.creditSortOrder }, { it.creditDate.toString() }))
             TransactionSortOrder.DATE_DESCENDING -> filteredList.sortByDescending { it.date.toString() }
             TransactionSortOrder.AMOUNT_ASCENDING -> filteredList.sortBy { it.amount }
             TransactionSortOrder.AMOUNT_DESCENDING -> filteredList.sortByDescending { it.amount }
@@ -115,11 +120,13 @@ class TransactionRecyclerAdapter(
         }
     }
 
-    fun getTotal(): Double {
+    private fun getTotal(): Double {
         var tTotal = 0.0
         filteredList.forEach {
-            if (it.type != cTRANSACTION_TYPE_TRANSFER || typeFilter == MyApplication.getString(R.string.transfer))
+            if ((it.type != cTRANSACTION_TYPE_TRANSFER || typeFilter == MyApplication.getString(R.string.transfer)) &&
+                    !it.isSummary()) { // ie don't count summary tasks
                 tTotal += it.amount
+            }
         }
         return tTotal
     }
@@ -141,9 +148,13 @@ class TransactionRecyclerAdapter(
             var subcatDiscIndicator = ""
             for (row in list) {
                 var found = true
-                for (r in splitSearchTerms) {
-                    found = found && row.contains(r)
-                }
+//                if (row.isSummary())
+//                    found = false
+//                else {
+                    for (r in splitSearchTerms) {
+                        found = found && row.contains(r)
+                    }
+//                }
                 if (found) { // ie no sense looking further if search term didn't match
                     if (discretionaryFilter != "") {
                         subcatDiscIndicator = CategoryViewModel.getCategory(row.category)?.discType.toString()
@@ -156,7 +167,8 @@ class TransactionRecyclerAdapter(
                         (paidbyFilter == -1 || row.paidby == paidbyFilter) &&
                         (boughtforFilter == -1 || row.boughtfor == boughtforFilter) &&
                         (typeFilter == "" || row.type == typeFilter || (row.type == "" && typeFilter ==
-                                MyApplication.getString(R.string.expense))) &&
+                                MyApplication.getString(R.string.expense)) ||
+                                (typeFilter == cTRANSACTION_TYPE_CREDIT && row.creditkey != "")) &&
                         (discretionaryFilter == "" || discretionaryFilter == subcatDiscIndicator) &&
                         (dateRangeFilter.first == "" ||
                                 (dateRangeFilter.first <= row.date.toString() && dateRangeFilter.second >= row.date.toString()))
@@ -176,8 +188,10 @@ class TransactionRecyclerAdapter(
                             row.insurable
                         } else if (inScheduledPaymentMode()) {
                              row.rtkey == rtKeyFilter
-                        } else
+                        } else {
+                            Timber.tag("Alex").d("typeFilter is $typeFilter row.type is ${row.type} row.creditkey is ${row.creditkey}")
                             true
+                        }
                     } else
                         false
                 }
@@ -205,6 +219,7 @@ class TransactionRecyclerAdapter(
         val vtfdisc: TextView = view.findViewById(R.id.vtf_disc)
         val vtftype: TextView = view.findViewById(R.id.vtf_type)
         val vtfrunningtotal: TextView = view.findViewById(R.id.vtf_running_total)
+        val vtfdetailsLayout: LinearLayout = view.findViewById(R.id.vtf_details_layout)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -229,9 +244,13 @@ class TransactionRecyclerAdapter(
                 holder.vtfwho.text = String.format(MyApplication.getString(R.string.coloned),
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
+//            holder.vtfnote.text = String.format("${data.creditSortOrder} ${data.note}")
             holder.vtfnote.text = data.note
             holder.vtftype.text = data.type.substring(0,3)
-            holder.vtfamount.text = gDecWithCurrency(data.amount)
+            if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
+                holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
+            else
+                holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
         if (currentSortOrder == TransactionSortOrder.CATEGORY_ASCENDING ||
             currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
@@ -244,8 +263,11 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfnote.text = data.note
-            holder.vtftype.text = data.type
-            holder.vtfamount.text = gDecWithCurrency(data.amount)
+            holder.vtftype.text = data.type.substring(0,3)
+            if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
+                holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
+            else
+                holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
         if (currentSortOrder == TransactionSortOrder.WHO_ASCENDING ||
             currentSortOrder == TransactionSortOrder.WHO_DESCENDING) {
@@ -258,8 +280,11 @@ class TransactionRecyclerAdapter(
             holder.vtfwho.text = data.date.toString()
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtfnote.text = data.note
-            holder.vtftype.text = data.type
-            holder.vtfamount.text = gDecWithCurrency(data.amount)
+            holder.vtftype.text = data.type.substring(0,3)
+            if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
+                holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
+            else
+                holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
         if (currentSortOrder == TransactionSortOrder.NOTE_ASCENDING ||
             currentSortOrder == TransactionSortOrder.NOTE_DESCENDING) {
@@ -272,8 +297,11 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
-            holder.vtftype.text = data.type
-            holder.vtfamount.text = gDecWithCurrency(data.amount)
+            holder.vtftype.text = data.type.substring(0,3)
+            if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
+                holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
+            else
+                holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
         if (currentSortOrder == TransactionSortOrder.TYPE_ASCENDING ||
             currentSortOrder == TransactionSortOrder.TYPE_DESCENDING) {
@@ -287,13 +315,19 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtfnote.text = data.note
-            holder.vtfamount.text = gDecWithCurrency(data.amount)
+            if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
+                holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
+            else
+                holder.vtfamount.text = gDecWithCurrency(data.amount)
         }
         if (currentSortOrder == TransactionSortOrder.AMOUNT_ASCENDING ||
             currentSortOrder == TransactionSortOrder.AMOUNT_DESCENDING) {
-            holder.vtfdate.text = gDecWithCurrency(data.amount)
+            if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
+                holder.vtfdate.text = gDecWithCurrency(data.sumAfterCredits)
+            else
+                holder.vtfdate.text = gDecWithCurrency(data.amount)
             holder.vtfamount.text = data.date.toString()
-            holder.vtftype.text = data.date.toString()
+            holder.vtftype.text = data.type.substring(0,3)
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
@@ -320,6 +354,61 @@ class TransactionRecyclerAdapter(
                 holder.vtfdate.setTypeface(null, Typeface.NORMAL)
             }
         }
+        if (data.isSummary())
+            holder.vtfrunningtotal.text = ""
+        else if (position < runningTotalList.size)
+            holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
+
+        holder.vtfdetailsLayout.setBackgroundColor(Color.parseColor(backgroundColour))
+        holder.vtfamount.setBackgroundColor(Color.parseColor(backgroundColour))
+        holder.vtfamount.setTypeface(null, Typeface.NORMAL)
+        holder.vtfwho.setTypeface(null, Typeface.NORMAL)
+        holder.vtfnote.setTypeface(null, Typeface.NORMAL)
+        holder.vtfcategory.setTypeface(null, Typeface.NORMAL)
+        holder.vtfamount.setTypeface(null, Typeface.NORMAL)
+        holder.vtfrunningtotal.setTypeface(null, Typeface.NORMAL)
+
+        if (data.isSummary()) {  // ie the summary
+            holder.vtfamount.setTypeface(null, Typeface.BOLD)
+            holder.vtfwho.setTypeface(null, Typeface.BOLD)
+            holder.vtfnote.setTypeface(null, Typeface.BOLD)
+            holder.vtfcategory.setTypeface(null, Typeface.BOLD)
+            holder.vtfamount.setTypeface(null, Typeface.BOLD)
+            holder.vtfrunningtotal.setTypeface(null, Typeface.BOLD)
+            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+            holder.vtfdetailsLayout.setBackgroundColor(Color.LTGRAY)
+/*            holder.itemView.setOnClickListener {
+                showDetails = if (data.creditkey == showDetails) "" else data.creditkey
+                Timber.tag("Alex").d("Clicked $position! and showDetails is ${showDetails}")
+                this.notifyDataSetChanged()
+            } */
+        } else if (data.isCredit() ){ // ie the credits
+            holder.vtfamount.setTextColor(ContextCompat.getColor(context, R.color.red))
+            holder.vtfamount.setTypeface(null, Typeface.NORMAL)
+            holder.itemView.setOnClickListener {
+                Timber.tag("Alex").d("ClickedA $position!")
+                listener(data) }
+//            holder.vtfdetailsLayout.isVisible = data.creditkey == showDetails
+            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+        } else  { // ie the original or just a normal credit-less transaction
+            holder.vtfamount.setTextColor(MaterialColors.getColor(context, R.attr.textOnBackground, Color.BLACK))
+            holder.vtfamount.setTypeface(null, Typeface.NORMAL)
+            holder.itemView.setOnClickListener {
+                Timber.tag("Alex").d("ClickedB $position!")
+                listener(data) }
+            if (data.isOriginalWithCredit())
+                holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+/*            holder.vtfdetailsLayout.isVisible = if (data.creditkey == "") true else data.creditkey == showDetails
+            if (data.creditkey == "") {
+                holder.vtfdetailsLayout.isVisible = true
+            } else  if (data.creditkey == showDetails){
+                holder.vtfdetailsLayout.isVisible = true
+                holder.vtfdetailsLayout.setBackgroundColor(Color.YELLOW)
+            } else {
+                holder.vtfdetailsLayout.isVisible = false
+            } */
+        }
+//        holder.vtfnote.text = String.format("${holder.vtfnote.text} ${data.creditSortOrder}")
         if (inInsuranceMode()) {
             var suf = if (data.paidTo0 == 2) " (J)"
             else if (data.paidTo0 == 0) String.format(" (${SpenderViewModel.getSpenderInitial(0)})") else ""
@@ -334,15 +423,12 @@ class TransactionRecyclerAdapter(
             val percentage2 = data.amount - rounded.toDouble()
             holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
         }
-        if (position < runningTotalList.size)
-            holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
         holder.vtfCategoryID.text = data.category.toString()
         if (CategoryViewModel.getCategory(data.category)?.discType == cDiscTypeDiscretionary)
             holder.vtfdisc.text = MyApplication.getString(R.string.disc_short)
         else
             holder.vtfdisc.text = MyApplication.getString(R.string.non_disc_short)
         if (holder.vtftype.text == "R") holder.vtftype.text = MyApplication.getString(R.string.scheduled_payment_short)  // now called Scheduled payment rather than Recurring transaction
-        holder.itemView.setOnClickListener { listener(data) }
         if (SpenderViewModel.singleUser()) {
             holder.vtfwho.visibility = View.GONE
         }
@@ -434,10 +520,13 @@ class TransactionRecyclerAdapter(
                         else // must be Joint
                         -> filteredList[i].amount * SpenderViewModel.getSpenderSplit(0)
                     }
-                previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed + filteredList[i].getAOwesBInsuranceAmount())
+
+                if (!filteredList[i].isSummary())  // ie not a summary task
+                    previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed + filteredList[i].getAOwesBInsuranceAmount())
                 trunningTotalList.add(previousRunningTotal)
             } else {
-                previousRunningTotal += filteredList[i].getAOwesBInsuranceAmount()
+                if (!filteredList[i].isSummary())  // ie not a summary task
+                    previousRunningTotal += filteredList[i].getAOwesBInsuranceAmount()
                 trunningTotalList.add(previousRunningTotal)
             }
             if (tgroupList.size == 0) {

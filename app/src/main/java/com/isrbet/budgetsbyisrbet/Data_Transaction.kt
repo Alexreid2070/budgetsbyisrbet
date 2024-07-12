@@ -26,14 +26,20 @@ data class Transaction(
     var boughtfor: Int = -1,
     var bfname1split: Int = 0,
     var type: String = cTRANSACTION_TYPE_EXPENSE,
+    var rtkey: String = "",
+    var creditkey: String = "",
+    var creditDate: MyDate,
+    var creditSortOrder: Int = 1,
     var insurable: Boolean = false,
     var reimbursementAmount0: Double = 0.0,
     var paidTo0: Int = -1,
     var reimbursementAmount1: Double = 0.0,
     var paidTo1: Int = -1,
-    var rtkey: String = "",
     var mykey: String = ""
 ) {
+    private val credits: MutableList<String> = mutableListOf()
+    var sumAfterCredits: Double = 0.0
+
     constructor(iTransactionOut: TransactionOut, iKey: String) : this(
         MyDate(iTransactionOut.date),
         iTransactionOut.amount / 100.0,
@@ -44,15 +50,29 @@ data class Transaction(
         iTransactionOut.boughtfor,
         iTransactionOut.bfname1split,
         iTransactionOut.type,
+        iTransactionOut.rtkey,
+        iTransactionOut.creditkey,
+        MyDate(),
+        1,
         iTransactionOut.insurable,
         iTransactionOut.reimbursementAmount0 / 100.0,
         iTransactionOut.paidTo0,
         iTransactionOut.reimbursementAmount1 / 100.0,
         iTransactionOut.paidTo1,
-        iTransactionOut.rtkey,
         iKey
     )
 
+    fun isSummary() : Boolean {
+        return creditSortOrder == 0 && creditkey != ""
+    }
+
+    fun isOriginalWithCredit() : Boolean {
+        return (creditSortOrder == 1 && creditkey != "")
+    }
+
+    fun isCredit() : Boolean {
+        return creditSortOrder == 2 && creditkey != ""
+    }
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     fun setValue(key: String, value: String) {
         when (key) {
@@ -65,6 +85,7 @@ data class Transaction(
             "bfname1split" -> bfname1split = value.toInt()
             "type" -> type = value.trim()
             "rtkey" -> rtkey = value.trim()
+            "creditkey" -> creditkey = value.trim()
             "note" -> note = value.trim()
             "note2" -> note2 = value.trim()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
@@ -90,6 +111,7 @@ data class Transaction(
                 date.toString().contains(lc) ||
                 type.lowercase().contains(lc) ||
                 rtkey.lowercase().contains(lc) ||
+                creditkey.lowercase().contains(lc) ||
                 (MyApplication.adminMode && mykey.lowercase().contains(lc))
     }
     fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
@@ -164,7 +186,6 @@ data class Transaction(
         var toReturn = 0.0
         if (insurable) {
             toReturn = if (reimbursementAmount0 != 0.0) {
-                val t = getReimbursementAmountForUser(0, 1, false)
                 when (paidTo0) {
                     0 -> {
                         when (boughtfor) {
@@ -212,14 +233,25 @@ data class Transaction(
         }
         return round(toReturn * 100.0).toInt() / 100.0
     }
+
+    fun addCreditRef(iRef: String, iAmount: Double) {
+        credits.add(iRef)
+        creditkey = mykey
+        sumAfterCredits += iAmount
+    }
+    fun getNumberOfCredits() : Int {
+        return credits.size
+    }
 }
 
 data class TransactionOut(
     var date: String = "", var amount: Int = 0, var category: Int = 0,
     var note: String = "", var note2: String = "", var paidby: Int = -1,
     var boughtfor: Int = -1,
-    var bfname1split: Int = 0, var type: String = cTRANSACTION_TYPE_EXPENSE,
+    var bfname1split: Int = 0,
+    var type: String = cTRANSACTION_TYPE_EXPENSE,
     var rtkey: String = "",
+    var creditkey: String = "",
     var insurable: Boolean = false,
     var reimbursementAmount0: Int = 0,
     var paidTo0: Int = -1,
@@ -311,7 +343,7 @@ class TransactionViewModel : ViewModel() {
         fun doSomething2() {
             if (MyApplication.currentUserEmail != "rheannonreid93@gmail.com")
                 return
-            var tList = singleInstance.transactions.filter { it.category == 1021 }
+            val tList = singleInstance.transactions.filter { it.category == 1021 }
             tList.forEach {
                 Timber.tag("Alex").d("Updating transaction")
                 MyApplication.database.getReference("Users/" + MyApplication.userUID + "/TransactionsNew")
@@ -354,9 +386,40 @@ class TransactionViewModel : ViewModel() {
             return singleInstance.transactions.filter { it.rtkey == iRTKey }.size
         }
 
-        fun getCopyOfTransactions(): MutableList<Transaction> {
+        fun getViewAllTransactions(): MutableList<Transaction> {
             val copy = mutableListOf<Transaction>()
             copy.addAll(singleInstance.transactions)
+
+            for (i in copy.size - 1 downTo 0) {
+                if (copy[i].getNumberOfCredits() > 0) {
+                    val dupTr = Transaction(
+                        copy[i].date,
+                        copy[i].amount + copy[i].sumAfterCredits,
+                        copy[i].category,
+                        "Summary",
+                        "Summary",
+//                        copy[i].note,
+  //                      copy[i].note2,
+                        copy[i].paidby,
+                        copy[i].boughtfor,
+                        copy[i].bfname1split,
+                        "Summary",
+                        copy[i].rtkey,
+                        copy[i].creditkey,
+                        copy[i].date,
+                        0,
+                        copy[i].insurable,
+                        copy[i].reimbursementAmount0,
+                        copy[i].paidTo0,
+                        copy[i].reimbursementAmount1,
+                        copy[i].paidTo1,
+                        "SUM"+copy[i].mykey)
+//                    copy[i].creditSortOrder = 1 // 1 = the original
+                    copy.add(i-1, dupTr)
+                    Timber.tag("Alex").d("Created summary creditkey is ${dupTr.creditkey}")
+                }
+            }
+
 
             if (CategoryViewModel.isThereAtLeastOneCategoryThatIAmNotAllowedToSee()) {
                 for (i in copy.indices.reversed()) {
@@ -715,6 +778,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransaction.bfname1split
                 transaction.type = iTransaction.type
                 transaction.rtkey = iTransaction.rtkey
+                transaction.creditkey = iTransaction.creditkey
                 transaction.insurable = iTransaction.insurable
                 transaction.reimbursementAmount0 = iTransaction.reimbursementAmount0
                 transaction.paidTo0 = iTransaction.paidTo0
@@ -751,6 +815,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.bfname1split = iTransactionOut.bfname1split
                 transaction.type = iTransactionOut.type
                 transaction.rtkey = iTransactionOut.rtkey
+                transaction.creditkey = iTransactionOut.creditkey
                 transaction.insurable = iTransactionOut.insurable
                 transaction.reimbursementAmount0 = iTransactionOut.reimbursementAmount0/100.0
                 transaction.paidTo0 = iTransactionOut.paidTo0
@@ -765,8 +830,9 @@ class TransactionViewModel : ViewModel() {
                 singleInstance.transactions.add(
                     Transaction(MyDate(iTransfer.date),
                         iTransfer.amount/100.0, cTRANSFER_CODE, "", "", iTransfer.paidby,
-                        iTransfer.boughtfor, iTransfer.bfname1split, iTransfer.type, false, 0.0,
-                        -1, 0.0, -1,
+                        iTransfer.boughtfor, iTransfer.bfname1split, iTransfer.type,
+                        "", "", MyDate(iTransfer.date), 0,
+                        false, 0.0, -1, 0.0, -1,
                         cTRANSACTION_TYPE_TRANSFER)
                 )
             } else {
@@ -939,17 +1005,44 @@ class TransactionViewModel : ViewModel() {
         expDBRef.addValueEventListener(firstLoadListener as ValueEventListener)
     } */
     fun loadTransactions() {
-        // Do an asynchronous operation to fetch transactions
+        var insCnt = 0
         val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
         firstLoadListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
+                insCnt = 0
                 transactions.clear()
+                val credits: MutableList<Transaction> = mutableListOf()
                 for (element in dataSnapshot.children.toMutableList()) {
                     val transactionOut = element.getValue<TransactionOut>()
                     if (transactionOut != null) {
                         val myTr = Transaction(transactionOut, element.key!!)
+                        if (transactionOut.type == cTRANSACTION_TYPE_CREDIT) {
+//                            myTr.creditSortOrder = 2
+                            credits.add(myTr)
+                        } //else
+//                            myTr.creditSortOrder = 1
                         transactions.add(myTr)
+                    }
+                    if (transactionOut != null) {
+                        if (transactionOut.insurable) {
+                            insCnt += 1
+                            Timber.tag("Alex").d("Found insurable transaction ${element.key} ${transactionOut.date} ${transactionOut.note2} ${transactionOut.amount}")
+                        }
+                    }
+                }
+                Timber.tag("Alex").d("Found $insCnt insurable transactions")
+                for (creditTR in credits) {
+                    val origT = getTransaction(creditTR.creditkey)
+                    if (origT == null) {
+                        Timber.tag("Alex").d("found credit transaction '${creditTR.mykey}' ${creditTR.date} ${creditTR.note2} ${creditTR.amount} but couldn't find original '${creditTR.creditkey}'")
+                        // I need to keep a list of credits, and then link them after all originals are loaded.  The recurring transactions come at the end, so the credits might be loaded first...
+                    } else {
+                        Timber.tag("Alex").d("mapped credit ${creditTR.mykey} ${creditTR.date} ${creditTR.note2} ${creditTR.amount}")
+                        creditTR.creditDate = creditTR.date
+                        creditTR.date = origT.date
+                        creditTR.creditSortOrder = 2 // 2 = the credits
+                        origT.addCreditRef(creditTR.mykey, creditTR.amount)
                     }
                 }
                 singleInstance.loaded = true

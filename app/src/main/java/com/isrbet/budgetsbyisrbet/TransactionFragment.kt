@@ -158,7 +158,7 @@ class TransactionFragment : Fragment() {
                 findNavController().navigate(action)
             }
             else
-                editTransaction()
+                editTransaction(binding.transactionType.text.toString())
         }
         binding.buttonDelete.setOnClickListener {
             deleteTransaction(args.transactionID)
@@ -407,12 +407,15 @@ class TransactionFragment : Fragment() {
         }
     }
 
-    private fun editTransaction() {
+    private fun editTransaction(iTransactionType: String) {
         transactionMode = Mode.Edit
         var currentCategory = ""
 //        binding.slider.isEnabled = true
         binding.buttonViewLinearLayout.visibility = View.GONE
-        binding.pageTitle.text = getString(R.string.edit_transaction)
+        if (iTransactionType == cTRANSACTION_TYPE_CREDIT)
+            binding.pageTitle.text = getString(R.string.edit_credit)
+        else
+            binding.pageTitle.text = getString(R.string.edit_transaction)
         binding.buttonCancel.visibility = View.VISIBLE
         binding.buttonSave.visibility = View.VISIBLE
         binding.buttonLoadTransactionFromBankNotification.visibility = View.GONE
@@ -518,16 +521,12 @@ class TransactionFragment : Fragment() {
                 for (i in 0 until binding.paidTo0RadioGroup.childCount) {
                     val o = binding.paidTo0RadioGroup.getChildAt(i)
                     if (o is RadioButton) {
-                        Timber.tag("Alex").d("o1.text is ${o.text} and name is ${SpenderViewModel.getSpenderName(thisTransaction.paidTo0)}")
-                        Timber.tag("Alex").d("Equals? ${o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo0)}")
                         o.isChecked = o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo0)
                     }
                 }
                 for (i in 0 until binding.paidTo1RadioGroup.childCount) {
                     val o = binding.paidTo1RadioGroup.getChildAt(i)
                     if (o is RadioButton) {
-                        Timber.tag("Alex").d("o2.text is ${o.text} and name is ${SpenderViewModel.getSpenderName(thisTransaction.paidTo1)}")
-                        Timber.tag("Alex").d("Equals? ${o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo1)}")
                         o.isChecked = o.text == SpenderViewModel.getSpenderName(thisTransaction.paidTo1)
                     }
                 }
@@ -538,6 +537,7 @@ class TransactionFragment : Fragment() {
                 binding.categoryId.visibility = View.VISIBLE
                 binding.transactionType.visibility = View.VISIBLE
                 binding.rtKey.visibility = View.VISIBLE
+                binding.creditKey.visibility = View.VISIBLE
             }
 
             for (i in 0 until binding.categoryRadioGroup.childCount) {
@@ -560,13 +560,17 @@ class TransactionFragment : Fragment() {
             binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(
                 CategoryViewModel.getCategory(thisTransaction.category)?.subcategoryName))
 
-            binding.transactionDate.setText(thisTransaction.date.toString())
+            if (thisTransaction.type == cTRANSACTION_TYPE_CREDIT)
+                binding.transactionDate.setText(thisTransaction.creditDate.toString())
+            else
+                binding.transactionDate.setText(thisTransaction.date.toString())
             binding.where.setText(thisTransaction.note)
             binding.note.setText(thisTransaction.note2)
             binding.scheduledPaymentLabel.visibility = View.VISIBLE
             binding.transactionType.visibility = View.VISIBLE
             binding.transactionType.text = thisTransaction.type
             binding.rtKey.text = thisTransaction.rtkey
+            binding.creditKey.text = thisTransaction.creditkey
             if (thisTransaction.type == getString(R.string.scheduled)) {
                 binding.scheduledPaymentLabel.text = getString(R.string.this_expense_was_automatically_generated)
                 binding.scheduledPaymentLabel.visibility = View.VISIBLE
@@ -806,6 +810,7 @@ class TransactionFragment : Fragment() {
                 binding.slider.value.toInt(),
                 cTRANSACTION_TYPE_EXPENSE,
                 "",
+                "",
                 binding.insurableSwitch.isChecked,
                 if (binding.insurableSwitch.isChecked) round(amountR0 * 100).toInt() else 0,
                 if (binding.insurableSwitch.isChecked) radioButtonPaidTo0 else -1,
@@ -883,6 +888,7 @@ class TransactionFragment : Fragment() {
                 binding.slider.value.toInt(),
                 binding.transactionType.text.toString(),
                 binding.rtKey.text.toString(),
+                binding.creditKey.text.toString(),
                 binding.insurableSwitch.isChecked,
                 if (binding.insurableSwitch.isChecked) round(amountR0 * 100).toInt() else 0,
                 if (binding.insurableSwitch.isChecked) radioButtonPaidTo0 else -1,
@@ -890,7 +896,7 @@ class TransactionFragment : Fragment() {
                 if (binding.insurableSwitch.isChecked) radioButtonPaidTo1 else -1
             )
 
-           TransactionViewModel.updateTransactionDatabase(editingKey, transactionOut)
+            TransactionViewModel.updateTransactionDatabase(editingKey, transactionOut)
             hideKeyboard(requireContext(), requireView())
             Toast.makeText(activity, getString(R.string.transaction_updated), Toast.LENGTH_SHORT).show()
         }

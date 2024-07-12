@@ -112,6 +112,7 @@ class HomeFragment : Fragment(), CoroutineScope {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Timber.tag("Alex").d("onViewCreated Home")
 
         binding.scrollView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {

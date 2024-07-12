@@ -140,6 +140,7 @@ class SignInFragment : Fragment() {
 
     private fun signIn(account: FirebaseUser?) {
         MyApplication.userEmail = account?.email.toString()
+        Timber.tag("Alex").d("signin $account")
         if (account == null) {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
@@ -156,7 +157,7 @@ class SignInFragment : Fragment() {
             if (account.email == "alexreid2070@gmail.com")
                 setAdminMode(true)
             checkForAppUpdate()
-//            findNavController().navigate(R.id.homeFragment)
+            findNavController().navigate(R.id.homeFragment)
         }
     }
 
@@ -173,6 +174,7 @@ class SignInFragment : Fragment() {
                     (appUpdateInfo.clientVersionStalenessDays() ?: -1) >= DAYS_FOR_FLEXIBLE_UPDATE
                     && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
                 ) {
+                    Timber.tag("Alex").d("update available")
                     binding.signInButton.visibility = View.GONE
                     binding.    upgradeLayout.visibility = View.VISIBLE
 

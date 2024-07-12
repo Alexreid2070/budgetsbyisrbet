@@ -563,7 +563,7 @@
     <string name="bracketed">(%1$s)</string>
     <string name="bracketed2">(%1$s %2$s)</string>
     <string name="coloned">%1$s:%2$s</string>
-    <string name="n_arrow_n"><![CDATA[%1$s->%2$s]]></string>
+    <string name="n_arrow_n">%1$s->%2$s</string>
     <string name="today_is">Today is %1$s %2$s.\n</string>
     <string name="two_items">%1$s %2$s</string>
     <string name="you_have_entered_full_screen_mode">You have entered full screen mode.  To exit, turn your device back to portrait.</string>
@@ -604,4 +604,6 @@
     <string name="indicates_if_subcategory_is_default_for_category">Indicates if this is the default subcategory for this category group.</string>
     <string name="app">App</string>
     <string name="export">Export</string>
+    <string name="edit_credit">Edit Credit</string>
+    <string name="transactionsWithCredits">Transactions with Credits</string>
 </resources>

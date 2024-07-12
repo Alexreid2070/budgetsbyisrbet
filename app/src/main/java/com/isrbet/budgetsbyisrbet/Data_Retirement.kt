@@ -496,7 +496,6 @@ data class RetirementData(
         var tTotal = 0.0
         for (asset in assets) {
                 tTotal += asset.getValue()
-                Timber.tag("Alex").d("Added ${asset.getValue()}")
         }
         return tTotal
     }

@@ -542,8 +542,6 @@ class AccountingFragment : Fragment() {
             subtotal2, cellIndex, getString(R.string.sub_total))
         cellIndex += 2
 
-        Timber.tag("Alex").d("oneOwesTwo $oneOwesTwo subtotal1 $subtotal1 subtotal2 $subtotal2")
-
         when {
             oneOwesTwo == 0.0 -> binding.accountingSummary.text = getString(R.string.nobody_owes_anybody)
             oneOwesTwo < 0 -> {

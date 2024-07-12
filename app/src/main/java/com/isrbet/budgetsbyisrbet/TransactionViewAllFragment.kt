@@ -116,7 +116,7 @@ class TransactionViewAllFragment : Fragment() {
             recyclerView.layoutManager = linearLayoutManager
             // fyi I have done a time check on how long it takes to copy the list.  It took 0ms to copy a list of 7000.
             // so this is definitely not a perf issue
-            val expList = TransactionViewModel.getCopyOfTransactions()
+            val expList = TransactionViewModel.getViewAllTransactions()
             if (expList.size == 0) {
                 binding.noInformationText.visibility = View.VISIBLE
                 binding.noInformationText.text = getString(R.string.you_have_not_yet_entered_any_transactions)
@@ -159,7 +159,6 @@ class TransactionViewAllFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged")
     override fun onViewCreated(itemView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(itemView, savedInstanceState)
-        Timber.tag("Alex").d("onViewCreated")
         if (inScheduledPaymentMode())
             currentSortOrder = TransactionSortOrder.NOTE_ASCENDING
         setupRecycler()
@@ -495,6 +494,16 @@ class TransactionViewAllFragment : Fragment() {
             binding.paidbyLinearLayout.visibility = View.GONE
             binding.boughtforLinearLayout.visibility = View.GONE
         }
+        if (SpenderViewModel.getSpenderName(0)
+                .substring(0, 1) == SpenderViewModel.getSpenderName(1).substring(0, 1)
+        )
+            binding.runningTotalHeading.text = "1->2"
+        else
+            binding.runningTotalHeading.text = String.format(
+                getString(R.string.n_arrow_n),
+                SpenderViewModel.getSpenderName(0).substring(0, 1),
+                SpenderViewModel.getSpenderName(1).substring(0, 1)
+            )
         if (inAccountingMode()) {
             setViewsToAccounting()
             runFilters()
@@ -504,16 +513,6 @@ class TransactionViewAllFragment : Fragment() {
                 getString(R.string.the_amount_that_x_owes_y), SpenderViewModel.getSpenderName(0),
                 SpenderViewModel.getSpenderName(1)
             )
-            if (SpenderViewModel.getSpenderName(0)
-                    .substring(0, 1) == SpenderViewModel.getSpenderName(1).substring(0, 1)
-            )
-                binding.runningTotalHeading.text = "1->2"
-            else
-                binding.runningTotalHeading.text = String.format(
-                    getString(R.string.n_arrow_n),
-                    SpenderViewModel.getSpenderName(0).substring(0, 1),
-                    SpenderViewModel.getSpenderName(1).substring(0, 1)
-                )
         } else if (inInsuranceMode()) {
             setViewsToInsurance()
             binding.percentage1Heading.text = "${SpenderViewModel.getSpenderName(0)}'s Ins."

@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import timber.log.Timber
 import java.util.ArrayList
 import kotlin.math.round
 
@@ -103,7 +102,7 @@ data class ScheduledPayment(
             return false
         else if (nextdate == iDate)
             return true
-        var tDate = MyDate(nextdate)
+        val tDate = MyDate(nextdate)
         while (tDate.toString() <= iDate) {
             when (period) {
                 cPeriodWeek -> {
@@ -300,7 +299,7 @@ class ScheduledPaymentViewModel : ViewModel() {
                         TransactionViewModel.addTransactionDatabase(TransactionOut(nextDate.toString(),
                             round(it.amount*100).toInt(),
                             it.category, it.vendor, it.note, it.paidby, it.boughtfor,
-                            it.split1, cTRANSACTION_TYPE_SCHEDULED, it.mykey))
+                            it.split1, cTRANSACTION_TYPE_SCHEDULED, it.mykey, ""))
                         val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(
                             gCurrentDate) else 0
                         var tempString =  MyApplication.getString(R.string.scheduled_payment_was_added_for) + " ${it.vendor}"
@@ -329,7 +328,7 @@ class ScheduledPaymentViewModel : ViewModel() {
                 gShortMonthName(gCurrentDate.getMonth()),
                 gCurrentDate.getDay())
 
-            var tLoanText = ""
+            var tLoanText: String
             singleInstance.scheduledPayments.forEach { sp ->
                 if (!sp.isExpired()) {
                     val tempString = if (sp.note == "") sp.vendor
