@@ -176,7 +176,7 @@ class SignInFragment : Fragment() {
                 ) {
                     Timber.tag("Alex").d("update available")
                     binding.signInButton.visibility = View.GONE
-                    binding.    upgradeLayout.visibility = View.VISIBLE
+                    binding.upgradeLayout.visibility = View.VISIBLE
 
                     updateListener = InstallStateUpdatedListener { state ->
                         // (Optional) Provide a download progress bar.

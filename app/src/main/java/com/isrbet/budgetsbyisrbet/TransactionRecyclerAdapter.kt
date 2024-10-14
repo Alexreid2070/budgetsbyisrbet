@@ -63,9 +63,6 @@ class TransactionRecyclerAdapter(
     private fun inAccountingMode(): Boolean {
         return filterMode == cACCOUNTING_FILTER
     }
-    private fun inInsuranceMode(): Boolean {
-        return filterMode == cINSURANCE_FILTER
-    }
     private fun inScheduledPaymentMode(): Boolean {
         return filterMode == cSCHEDULED_PAYMENT_FILTER
     }
@@ -101,6 +98,7 @@ class TransactionRecyclerAdapter(
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
                 val filterResults = FilterResults()
+                Timber.tag("Alex").d("Here")
                 filterTheList(charSearch)
                 filterResults.values = filterResults
                 return filterResults
@@ -139,7 +137,6 @@ class TransactionRecyclerAdapter(
             boughtforFilter == -1 && typeFilter == "" &&
             dateRangeFilter.first == "" &&
             !inAccountingMode() &&
-            !inInsuranceMode() &&
             !inScheduledPaymentMode()
         ) {
             resultList = list
@@ -174,22 +171,15 @@ class TransactionRecyclerAdapter(
                                 (dateRangeFilter.first <= row.date.toString() && dateRangeFilter.second >= row.date.toString()))
                     ) {
                         if (inAccountingMode()) {
-                            if (!row.insurable && row.paidby == row.boughtfor && row.paidby != 2) {
+                            if (row.paidby == row.boughtfor && row.paidby != 2) {
                                 false
-                            } else if (row.insurable) {
-                                (row.paidTo0 != row.paidby && row.reimbursementAmount0 != 0.0) ||
-                                (row.paidTo1 != row.paidby && row.reimbursementAmount1 != 0.0) ||
-                                (row.paidby != row.boughtfor)
                             } else  {
                                 !(row.paidby == 2 && row.boughtfor == 2 &&
                                         row.bfname1split == (SpenderViewModel.getSpenderSplit(0) * 100).toInt())
                             }
-                        } else if (inInsuranceMode()) {
-                            row.insurable
                         } else if (inScheduledPaymentMode()) {
                              row.rtkey == rtKeyFilter
                         } else {
-                            Timber.tag("Alex").d("typeFilter is $typeFilter row.type is ${row.type} row.creditkey is ${row.creditkey}")
                             true
                         }
                     } else
@@ -375,9 +365,12 @@ class TransactionRecyclerAdapter(
             holder.vtfcategory.setTypeface(null, Typeface.BOLD)
             holder.vtfamount.setTypeface(null, Typeface.BOLD)
             holder.vtfrunningtotal.setTypeface(null, Typeface.BOLD)
-            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
-            holder.vtfdetailsLayout.setBackgroundColor(Color.LTGRAY)
-/*            holder.itemView.setOnClickListener {
+//            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+//            holder.vtfdetailsLayout.setBackgroundColor(Color.LTGRAY)
+            holder.vtfdetailsLayout.setBackgroundResource(R.drawable.row_tva_frame)
+//            holder.vtfdetailsLayout.background.colorFilter =
+  //              BlendModeColorFilter(MaterialColors.getColor(context, R.attr.colorPrimary, Color.BLACK), BlendMode.SRC_ATOP)
+            /*            holder.itemView.setOnClickListener {
                 showDetails = if (data.creditkey == showDetails) "" else data.creditkey
                 Timber.tag("Alex").d("Clicked $position! and showDetails is ${showDetails}")
                 this.notifyDataSetChanged()
@@ -386,18 +379,18 @@ class TransactionRecyclerAdapter(
             holder.vtfamount.setTextColor(ContextCompat.getColor(context, R.color.red))
             holder.vtfamount.setTypeface(null, Typeface.NORMAL)
             holder.itemView.setOnClickListener {
-                Timber.tag("Alex").d("ClickedA $position!")
                 listener(data) }
 //            holder.vtfdetailsLayout.isVisible = data.creditkey == showDetails
-            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+//            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+            holder.vtfdetailsLayout.setBackgroundResource(R.drawable.row_tva_left_right)
         } else  { // ie the original or just a normal credit-less transaction
             holder.vtfamount.setTextColor(MaterialColors.getColor(context, R.attr.textOnBackground, Color.BLACK))
             holder.vtfamount.setTypeface(null, Typeface.NORMAL)
             holder.itemView.setOnClickListener {
-                Timber.tag("Alex").d("ClickedB $position!")
                 listener(data) }
             if (data.isOriginalWithCredit())
-                holder.vtfamount.setBackgroundColor(Color.LTGRAY)
+                holder.vtfdetailsLayout.setBackgroundResource(R.drawable.row_tva_left_right)
+//                holder.vtfamount.setBackgroundColor(Color.LTGRAY)
 /*            holder.vtfdetailsLayout.isVisible = if (data.creditkey == "") true else data.creditkey == showDetails
             if (data.creditkey == "") {
                 holder.vtfdetailsLayout.isVisible = true
@@ -409,20 +402,12 @@ class TransactionRecyclerAdapter(
             } */
         }
 //        holder.vtfnote.text = String.format("${holder.vtfnote.text} ${data.creditSortOrder}")
-        if (inInsuranceMode()) {
-            var suf = if (data.paidTo0 == 2) " (J)"
-            else if (data.paidTo0 == 0) String.format(" (${SpenderViewModel.getSpenderInitial(0)})") else ""
-            holder.vtfpercentage1.text = String.format("${gDecWithCurrency(data.reimbursementAmount0)}$suf")
-            suf = if (data.paidTo1 == 2) " (J)"
-            else if (data.paidTo1 == 1) String.format(" (${SpenderViewModel.getSpenderInitial(1)})") else ""
-            holder.vtfpercentage2.text = String.format("${gDecWithCurrency(data.reimbursementAmount1)}$suf")
-        } else {
-            val percentage1 = data.amount * data.bfname1split / 100
-            val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
-            holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
-            val percentage2 = data.amount - rounded.toDouble()
-            holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
-        }
+        val percentage1 = data.amount * data.bfname1split / 100
+        val rounded = BigDecimal(percentage1).setScale(2, RoundingMode.HALF_UP)
+        holder.vtfpercentage1.text = gDecWithCurrency(rounded.toDouble())
+        val percentage2 = data.amount - rounded.toDouble()
+        holder.vtfpercentage2.text = gDecWithCurrency(percentage2)
+
         holder.vtfCategoryID.text = data.category.toString()
         if (CategoryViewModel.getCategory(data.category)?.discType == cDiscTypeDiscretionary)
             holder.vtfdisc.text = MyApplication.getString(R.string.disc_short)
@@ -432,27 +417,26 @@ class TransactionRecyclerAdapter(
         if (SpenderViewModel.singleUser()) {
             holder.vtfwho.visibility = View.GONE
         }
-        if (inAccountingMode() || inInsuranceMode() ||
+        if (inAccountingMode() ||
             !DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
             holder.vtfcategory.visibility = View.GONE
         }
-        if (!inAccountingMode() && !inInsuranceMode() &&
+        if (!inAccountingMode()  &&
             !DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
             holder.vtfpercentage1.visibility = View.GONE
             holder.vtfpercentage2.visibility = View.GONE
         }
         if ((!inAccountingMode() &&
             !DefaultsViewModel.getDefaultShowTypeInViewAll()) ||
-            inInsuranceMode() ||
             inScheduledPaymentMode())
             holder.vtftype.visibility = View.GONE
-        if (!inAccountingMode() && !inInsuranceMode() &&
+        if (!inAccountingMode() &&
             !DefaultsViewModel.getDefaultShowWhoInViewAll())
             holder.vtfwho.visibility = View.GONE
-        if (inAccountingMode() || inInsuranceMode() ||
+        if (inAccountingMode() ||
             !DefaultsViewModel.getDefaultShowNoteInViewAll())
             holder.vtfnote.visibility = View.GONE
-        if (inAccountingMode() || inInsuranceMode() ||
+        if (inAccountingMode() ||
             !DefaultsViewModel.getDefaultShowDiscInViewAll())
             holder.vtfdisc.visibility = View.GONE
         if (!inAccountingMode() &&
@@ -522,11 +506,11 @@ class TransactionRecyclerAdapter(
                     }
 
                 if (!filteredList[i].isSummary())  // ie not a summary task
-                    previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed + filteredList[i].getAOwesBInsuranceAmount())
+                    previousRunningTotal += (name1PortionOfExpense - name1PortionOfFundsUsed)
                 trunningTotalList.add(previousRunningTotal)
             } else {
-                if (!filteredList[i].isSummary())  // ie not a summary task
-                    previousRunningTotal += filteredList[i].getAOwesBInsuranceAmount()
+//                if (!filteredList[i].isSummary())  // ie not a summary task
+  //                  previousRunningTotal += filteredList[i].getAOwesBInsuranceAmount()
                 trunningTotalList.add(previousRunningTotal)
             }
             if (tgroupList.size == 0) {

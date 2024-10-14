@@ -1980,36 +1980,36 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         val inflationMultiplier = (1 + inflationRate/100.0).pow(iYearsInTheFuture)
 
         var remainingIncome = iTaxableIncome
-        var threshold = round(221708 * inflationMultiplier).toInt()
+        var threshold = round(246752 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .33).toInt()
             remainingIncome = threshold
         }
-        threshold = round(155625 * inflationMultiplier).toInt()
+        threshold = round(173205 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .29).toInt()
             remainingIncome = threshold
         }
-        threshold = round(100392 * inflationMultiplier).toInt()
+        threshold = round(111733 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .26).toInt()
             remainingIncome = threshold
         }
-        threshold = round(50197 * inflationMultiplier).toInt()
+        threshold = round(55867 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .2005).toInt()
             remainingIncome = threshold
         }
-        threshold = round(14398 * inflationMultiplier).toInt()
+        threshold = round(15000 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .15).toInt()
         }
 
         // Federal senior age tax credit
         val age = gCurrentDate.getYear() - iBirthYear + iYearsInTheFuture
-        val minThreshold = 39826 * inflationMultiplier // as of 2022
-        val maxThreshold = 92479 * inflationMultiplier // as of 2022
-        val seniorAgeTaxCredit = 7898 * inflationMultiplier // as of 2022
+        val minThreshold = 42335 * inflationMultiplier // as of 2024
+        val maxThreshold = 102925 * inflationMultiplier // as of 2024
+        val seniorAgeTaxCredit = 8790 * inflationMultiplier // as of 2024
         if (age >= 65) {
             if (iTaxableIncome <= minThreshold) {
                 tTax -= (seniorAgeTaxCredit * .15).toInt()
@@ -2035,12 +2035,12 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
             tTax += round((remainingIncome - threshold) * .1216).toInt()
             remainingIncome = threshold
         }
-        threshold = round(92454 * inflationMultiplier).toInt()
+        threshold = round(102894 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .1116).toInt()
             remainingIncome = threshold
         }
-        threshold = round(46226 * inflationMultiplier).toInt()
+        threshold = round(51446 * inflationMultiplier).toInt()
         if (remainingIncome > threshold) {
             tTax += round((remainingIncome - threshold) * .0915).toInt()
             remainingIncome = threshold
@@ -2052,9 +2052,9 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
 
         // Ontario senior age tax credit
         val age = gCurrentDate.getYear() - iBirthYear + iYearsInTheFuture
-        val minThreshold = 40495 * inflationMultiplier // as of 2022
-        val maxThreshold = 76762 * inflationMultiplier // as of 2022
-        val seniorAgeTaxCredit = 5440 * inflationMultiplier // as of 2022
+        val minThreshold = 42335 * inflationMultiplier // as of 2024
+        val maxThreshold = 102925 * inflationMultiplier // as of 2024
+        val seniorAgeTaxCredit = 8790 * inflationMultiplier // as of 2024
         if (age >= 65) {
             if (iTaxableIncome <= minThreshold) {
                 tTax -= (seniorAgeTaxCredit * .0505).toInt()
@@ -2075,7 +2075,7 @@ data class RetirementCalculationRow(val userID: Int, val year: Int, val inflatio
         val incrementalTax = getFederalTax(iTryThisAmount+iCurrentTotalTaxableIncome, iYearsInTheFuture, birthYear) +
                 getOntarioTax(iTryThisAmount+iCurrentTotalTaxableIncome, iYearsInTheFuture, birthYear) -
                 iCurrentTotalTax
-        return if (abs(iTotalTaxableNetIncomeNeeded + iCurrentTotalTax + incrementalTax - iTryThisAmount) < 1.0) {
+        return if (abs(iTotalTaxableNetIncomeNeeded + iCurrentTotalTax + incrementalTax - iTryThisAmount) < 100.0) { // ie get within $100 for the year
             iTryThisAmount+1 // add a bit for rounding purposes
         } else {
             howMuchGrossDoINeed(iTotalTaxableNetIncomeNeeded, iCurrentTotalTaxableIncome, iCurrentTotalTax,

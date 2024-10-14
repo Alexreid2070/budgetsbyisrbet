@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentAccountingBinding
-import timber.log.Timber
 
 const val cFIRST_NAME = 0
 const val cSECOND_NAME = 1
@@ -58,13 +57,6 @@ class AccountingFragment : Fragment() {
             findNavController().navigate(action)
             MyApplication.displayToast(getString(R.string.these_are_the_transactions))
         }
-        binding.insuranceSummary.setOnClickListener {
-            val action =
-                AccountingFragmentDirections.actionAccountingFragmentToTransactionViewAllFragment()
-            action.filterMode = cINSURANCE_FILTER
-            findNavController().navigate(action)
-            MyApplication.displayToast(getString(R.string.these_are_the_transactions_that_are_insurable))
-        }
         // this next block allows the floating action button to move up and down (it starts constrained to bottom)
         val set = ConstraintSet()
         val constraintLayout = binding.constraintLayout
@@ -77,7 +69,6 @@ class AccountingFragment : Fragment() {
     private fun fillInContent() {
         val totals = Array(4) {DoubleArray(4) {0.0} }
         val transferTotals = Array(4) {DoubleArray(4) {0.0} }
-        val insuranceTotals = Array(4) {DoubleArray(4) {0.0} }
         val firstName = SpenderViewModel.getSpender(0)?.name.toString()
         val secondName = SpenderViewModel.getSpender(1)?.name.toString()
 
@@ -96,15 +87,6 @@ class AccountingFragment : Fragment() {
         binding.transferRowNameS.text = secondName
         binding.transferRowNameJ1.text = String.format(getString(R.string.JTdash), firstName)
         binding.transferRowNameJ2.text = String.format(getString(R.string.JTdash), secondName)
-
-        binding.insuranceHeadernameF.text = firstName
-        binding.insuranceHeadernameS.text = secondName
-        binding.insuranceHeadernameJ1.text = String.format(getString(R.string.JTdash), firstName)
-        binding.insuranceHeadernameJ2.text = String.format(getString(R.string.JTdash), secondName)
-        binding.insuranceRowNameF.text = firstName
-        binding.insuranceRowNameS.text = secondName
-        binding.insuranceRowNameJ1.text = String.format(getString(R.string.JTdash), firstName)
-        binding.insuranceRowNameJ2.text = String.format(getString(R.string.JTdash), secondName)
 
         for (i in 0 until TransactionViewModel.getCount()) {
             val exp = TransactionViewModel.getTransaction(i)
@@ -139,45 +121,6 @@ class AccountingFragment : Fragment() {
                         } else {
                             totals[cJOINT1_NAME][exp.paidby] += exp.getAmountByUser(0, false)
                             totals[cJOINT2_NAME][exp.paidby] += exp.getAmountByUser(1, false)
-                        }
-                    }
-                }
-
-                if (exp.insurable) {
-                    for (reimbursementAmountNumber in 0 until 2) {
-                        val rAmount = if (reimbursementAmountNumber == 0) exp.reimbursementAmount0 else exp.reimbursementAmount1
-                        val rPaidTo = if (reimbursementAmountNumber == 0) exp.paidTo0 else exp.paidTo1
-                        if (rAmount != 0.0) {
-                            when (rPaidTo) {
-                                0,1 -> {
-                                    when (exp.boughtfor) {
-                                        0 -> insuranceTotals[cFIRST_NAME][rPaidTo] += rAmount
-                                        1 -> insuranceTotals[cSECOND_NAME][rPaidTo] += rAmount
-                                        2 -> {
-                                            insuranceTotals[cJOINT1_NAME][cFIRST_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 0, false)
-                                            insuranceTotals[cJOINT2_NAME][cFIRST_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 1, false)
-                                        }
-                                    }
-                                }
-                                2 -> {
-                                    when (exp.boughtfor) {
-                                        0 -> {
-                                            insuranceTotals[cFIRST_NAME][cJOINT1_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 0, false)
-                                            insuranceTotals[cFIRST_NAME][cJOINT2_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 1, false)
-                                        }
-                                        1 -> {
-                                            insuranceTotals[cSECOND_NAME][cJOINT1_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 0, false)
-                                            insuranceTotals[cSECOND_NAME][cJOINT2_NAME] += exp.getReimbursementAmountForUser(reimbursementAmountNumber, 1, false)
-                                        }
-                                        2 -> {
-                                            insuranceTotals[cJOINT1_NAME][cJOINT1_NAME] += ((rAmount * exp.bfname1split/100.0) * SpenderViewModel.getSpenderSplit(0))
-                                            insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] += ((rAmount * (100-exp.bfname1split)/100.0)  * SpenderViewModel.getSpenderSplit(0))
-                                            insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] += ((rAmount * exp.bfname1split/100.0)  * SpenderViewModel.getSpenderSplit(1))
-                                            insuranceTotals[cJOINT2_NAME][cJOINT2_NAME] += ((rAmount * (100-exp.bfname1split)/100.0)  * SpenderViewModel.getSpenderSplit(1))
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -276,49 +219,6 @@ class AccountingFragment : Fragment() {
         if (transferTotals[cJOINT2_NAME][cJOINT1_NAME] == 0.0)
             binding.transferJ2J.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
 
-        binding.insuranceFF.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cFIRST_NAME])
-        binding.insuranceFF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceFS.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cSECOND_NAME])
-        if (insuranceTotals[cFIRST_NAME][cSECOND_NAME] == 0.0)
-            binding.insuranceFS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceFJ1.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cJOINT1_NAME])
-        binding.insuranceFJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceFJ2.text = gDecWithCurrency(insuranceTotals[cFIRST_NAME][cJOINT2_NAME])
-        if (insuranceTotals[cFIRST_NAME][cJOINT2_NAME] == 0.0)
-            binding.insuranceFJ2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceSF.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cFIRST_NAME])
-        if (insuranceTotals[cSECOND_NAME][cFIRST_NAME] == 0.0)
-            binding.insuranceSF.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceSS.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cSECOND_NAME])
-        binding.insuranceSS.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceSJ1.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cJOINT1_NAME])
-        if (insuranceTotals[cSECOND_NAME][cJOINT1_NAME] == 0.0)
-            binding.insuranceSJ1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceSJ2.text = gDecWithCurrency(insuranceTotals[cSECOND_NAME][cJOINT2_NAME])
-        binding.insuranceSJ2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ1F.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cFIRST_NAME])
-        binding.insuranceJ1F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ1S.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cSECOND_NAME])
-        if (insuranceTotals[cJOINT1_NAME][cSECOND_NAME] == 0.0)
-            binding.insuranceJ1S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ1J1.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cJOINT1_NAME])
-        if (insuranceTotals[cJOINT1_NAME][cJOINT1_NAME] == 0.0)
-            binding.insuranceJ1J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ1J2.text = gDecWithCurrency(insuranceTotals[cJOINT1_NAME][cJOINT2_NAME])
-        if (insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] == 0.0)
-            binding.insuranceJ1J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ2F.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cFIRST_NAME])
-        if (insuranceTotals[cJOINT2_NAME][cFIRST_NAME] == 0.0)
-            binding.insuranceJ2F.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ2S.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cSECOND_NAME])
-        binding.insuranceJ2S.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ2J1.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cJOINT1_NAME])
-        if (insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] == 0.0)
-            binding.insuranceJ2J1.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-        binding.insuranceJ2J2.text = gDecWithCurrency(insuranceTotals[cJOINT2_NAME][cJOINT2_NAME])
-        if (insuranceTotals[cJOINT2_NAME][cJOINT2_NAME] == 0.0)
-            binding.insuranceJ2J2.setTextColor(ContextCompat.getColor(requireContext(), R.color.medium_gray))
-
         val oneOwesTwo = ((-totals[cFIRST_NAME][cSECOND_NAME])
                 - (totals[cJOINT1_NAME][cSECOND_NAME])
                 - (totals[cFIRST_NAME][cJOINT2_NAME])
@@ -333,15 +233,7 @@ class AccountingFragment : Fragment() {
                 - (transferTotals[cFIRST_NAME][cJOINT2_NAME])
                 + (transferTotals[cSECOND_NAME][cJOINT1_NAME])
                 + ((transferTotals[cJOINT1_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(1))
-                - ((transferTotals[cJOINT1_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(0))
-                + (insuranceTotals[cFIRST_NAME][cSECOND_NAME])
-                + (insuranceTotals[cFIRST_NAME][cJOINT2_NAME])
-                + (insuranceTotals[cJOINT1_NAME][cSECOND_NAME])
-                + (insuranceTotals[cJOINT1_NAME][cJOINT2_NAME])
-                - (insuranceTotals[cSECOND_NAME][cFIRST_NAME])
-                - (insuranceTotals[cSECOND_NAME][cJOINT1_NAME])
-                - (insuranceTotals[cJOINT2_NAME][cFIRST_NAME])
-                - (insuranceTotals[cJOINT2_NAME][cJOINT1_NAME]))
+                - ((transferTotals[cJOINT1_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(0)))
 
         val gridLayout = binding.gridLayout
         var cellIndex = 0
@@ -406,40 +298,6 @@ class AccountingFragment : Fragment() {
             cellIndex += 2
             subtotal1 += transferTotals[cJOINT1_NAME][cFIRST_NAME] * SpenderViewModel.getSpenderSplit(0)
         }
-        if (insuranceTotals[cFIRST_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout,
-                SpenderViewModel.getSpenderName(1),
-                SpenderViewModel.getSpenderName(0),
-                insuranceTotals[cFIRST_NAME][cSECOND_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal1 += insuranceTotals[cFIRST_NAME][cSECOND_NAME]
-        }
-        if (insuranceTotals[cFIRST_NAME][cJOINT2_NAME] != 0.0) {
-            buildGrid(gridLayout,
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                SpenderViewModel.getSpenderName(0),
-                insuranceTotals[cFIRST_NAME][cJOINT2_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal1 += insuranceTotals[cFIRST_NAME][cJOINT2_NAME]
-        }
-        if (insuranceTotals[cJOINT1_NAME][cSECOND_NAME] != 0.0) {
-            buildGrid(gridLayout,
-                SpenderViewModel.getSpenderName(1),
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                insuranceTotals[cJOINT1_NAME][cSECOND_NAME],
-                cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal1 += insuranceTotals[cJOINT1_NAME][cSECOND_NAME] // * SpenderViewModel.getSpenderSplit(1)
-        }
-        if (insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] != 0.0 && !jointIsAsExpected) {
-            buildGrid(gridLayout,
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                insuranceTotals[cJOINT1_NAME][cJOINT2_NAME],
-                cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal1 += insuranceTotals[cJOINT1_NAME][cJOINT2_NAME] // * SpenderViewModel.getSpenderSplit(1)
-        }
         buildGrid(gridLayout, SpenderViewModel.getSpenderName(0),
             SpenderViewModel.getSpenderName(1),
             subtotal1, cellIndex, getString(R.string.sub_total))
@@ -502,40 +360,6 @@ class AccountingFragment : Fragment() {
                 cellIndex, cTRANSACTION_TYPE_TRANSFER)
             cellIndex += 2
             subtotal2 += transferTotals[cJOINT1_NAME][cSECOND_NAME] * SpenderViewModel.getSpenderSplit(1)
-        }
-        if (insuranceTotals[cSECOND_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout,
-                SpenderViewModel.getSpenderName(0),
-                SpenderViewModel.getSpenderName(1),
-                insuranceTotals[cSECOND_NAME][cFIRST_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal2 += insuranceTotals[cSECOND_NAME][cFIRST_NAME]
-        }
-        if (insuranceTotals[cSECOND_NAME][cJOINT1_NAME] != 0.0) {
-            buildGrid(gridLayout,
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                SpenderViewModel.getSpenderName(1),
-                insuranceTotals[cSECOND_NAME][cJOINT1_NAME], cellIndex, cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal2 += insuranceTotals[cSECOND_NAME][cJOINT1_NAME]
-        }
-        if (insuranceTotals[cJOINT2_NAME][cFIRST_NAME] != 0.0) {
-            buildGrid(gridLayout,
-                SpenderViewModel.getSpenderName(0),
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                insuranceTotals[cJOINT2_NAME][cFIRST_NAME], cellIndex,
-                cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal2 += insuranceTotals[cJOINT2_NAME][cFIRST_NAME] //* SpenderViewModel.getSpenderSplit(0)
-        }
-        if (insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] != 0.0 && !jointIsAsExpected) {
-            buildGrid(gridLayout,
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(0)),
-                String.format(getString(R.string.s_portion), SpenderViewModel.getSpenderName(1)),
-                insuranceTotals[cJOINT2_NAME][cJOINT1_NAME], cellIndex,
-                cTRANSACTION_TYPE_INSURANCE_REIMBURSEMENT)
-            cellIndex += 2
-            subtotal2 += insuranceTotals[cJOINT2_NAME][cJOINT1_NAME] //* SpenderViewModel.getSpenderSplit(0)
         }
         buildGrid(gridLayout, SpenderViewModel.getSpenderName(1),
             SpenderViewModel.getSpenderName(0),

@@ -152,13 +152,13 @@ class RetirementFragment : Fragment(), CoroutineScope {
                     loadRetirementInfoFromWorking = false
                     previousSpinnerSelection = position
                     setSummaryFields(View.GONE)
-                    if (position <= SpenderViewModel.getNumberOfUsers()) {
+                    if (position < SpenderViewModel.getNumberOfUsers()) {
                         val userDefault = RetirementViewModel.getUserDefault(position) // ?: return
                         currentUserID = position
                         loadScreen(userDefault)
                         binding.buttonDeleteScenario.visibility = View.GONE
                     } else {
-                        val scenario = RetirementViewModel.getScenario(position - SpenderViewModel.getNumberOfUsers()-1)
+                        val scenario = RetirementViewModel.getScenario(position - SpenderViewModel.getNumberOfUsers())
                         currentUserID = scenario.userID
                         loadScreen(scenario)
                         binding.buttonDeleteScenario.visibility = View.VISIBLE
@@ -306,7 +306,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         var listOfRetirementScenarios: MutableList<String> = arrayListOf()
         if (!iOnlyDefaults)
             listOfRetirementScenarios = RetirementViewModel.getListOfRetirementScenarios()
-        for (i in 0 until SpenderViewModel.getNumberOfUsers()+1) {
+        for (i in 0 until SpenderViewModel.getNumberOfUsers()) {
             listOfRetirementScenarios.add(i,
                 String.format(getString(R.string.user_default),
                     SpenderViewModel.getSpenderName(i)))
@@ -658,6 +658,7 @@ class RetirementFragment : Fragment(), CoroutineScope {
         val scenarioName = binding.scenarioNameInput.text.toString()
         val targetIncome = if (binding.rf.switchUseBudget.isChecked) 0
         else binding.rf.targetMonthlyIncome.text.toString().toInt()
+        Timber.tag("Alex").d("Target income is $targetIncome")
         val rtData = RetirementData(
             scenarioName,
             currentUserID,

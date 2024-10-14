@@ -607,4 +607,5 @@
     <string name="export">Export</string>
     <string name="edit_credit">Edit Credit</string>
     <string name="transactionsWithCredits">Transactions with Credits</string>
+    <string name="value_cannot_be_negative">Amount cannot be negative.  Credits must be created against an existing transaction by using the credit button.</string>
 </resources>

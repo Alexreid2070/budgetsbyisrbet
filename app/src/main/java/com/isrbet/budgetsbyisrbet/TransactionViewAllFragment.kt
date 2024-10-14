@@ -32,7 +32,6 @@ import com.l4digital.fastscroll.FastScrollRecyclerView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
-import timber.log.Timber
 
 
 class PreviousFilters : ViewModel() {
@@ -67,7 +66,6 @@ enum class SortOrderDirection {
 }
 
 const val cACCOUNTING_FILTER = "Accounting"
-const val cINSURANCE_FILTER = "Insurance"
 const val cSCHEDULED_PAYMENT_FILTER = "Scheduled Payment"
 
 class TransactionViewAllFragment : Fragment() {
@@ -80,9 +78,6 @@ class TransactionViewAllFragment : Fragment() {
 
     private fun inAccountingMode(): Boolean {
         return filterMode == cACCOUNTING_FILTER
-    }
-    private fun inInsuranceMode(): Boolean {
-        return filterMode == cINSURANCE_FILTER
     }
     private fun inScheduledPaymentMode(): Boolean {
         return filterMode == cSCHEDULED_PAYMENT_FILTER
@@ -513,11 +508,6 @@ class TransactionViewAllFragment : Fragment() {
                 getString(R.string.the_amount_that_x_owes_y), SpenderViewModel.getSpenderName(0),
                 SpenderViewModel.getSpenderName(1)
             )
-        } else if (inInsuranceMode()) {
-            setViewsToInsurance()
-            binding.percentage1Heading.text = "${SpenderViewModel.getSpenderName(0)}'s Ins."
-            binding.percentage2Heading.text = "${SpenderViewModel.getSpenderName(1)}'s Ins."
-            runFilters()
         } else if (inScheduledPaymentMode()) {
             setViewsToScheduledPayments()
             runFilters()
@@ -782,9 +772,6 @@ class TransactionViewAllFragment : Fragment() {
         if (inAccountingMode()) {
             binding.filterLayout.visibility = View.VISIBLE
             binding.filterText.text = getString(R.string.accounting_filter_is_on)
-        } else if (inInsuranceMode()) {
-            binding.filterLayout.visibility = View.VISIBLE
-            binding.filterText.text = getString(R.string.insurance_filter_is_on)
         } else if (inScheduledPaymentMode()) {
             binding.filterLayout.visibility = View.VISIBLE
             binding.filterText.text = String.format(getString(R.string.scheduled_payment_filter_is_on), filters.prevRTKeyFilter)
