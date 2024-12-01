@@ -328,7 +328,7 @@
     <string name="there_are_no_previous_hints_to_show">%1$s\n\n There are no previous hints to show.</string>
     <string name="there_are_no_more_hints_to_show">%1$s\n\nThere are no more hints to show.</string>
     <string name="you_must_sign_in">You must sign in using your Google account to proceed.  Click below to continue.</string>
-    <string name="are_you_sure_that_you_want_to_sign_out">%1$s %2$s, are you sure that you want to sign out?</string>
+    <string name="are_you_sure_that_you_want_to_sign_out">%1$s, are you sure that you want to sign out?</string>
     <string name="choose_existing_loan"><![CDATA[<Choose existing loan>]]></string>
     <string name="payment_of">payment of</string>
     <string name="every">every</string>

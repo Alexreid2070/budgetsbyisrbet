@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.accounts.Account
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.Typeface
@@ -470,7 +471,7 @@ class RetirementDetailsFragment : Fragment() {
     private fun saveFile2(iFileName: String) {
         val scopes = listOf(SheetsScopes.SPREADSHEETS)
         val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
-        credential.selectedAccount = MyApplication.userAccount
+        credential.selectedAccount = Account(MyApplication.userEmail, BuildConfig.APPLICATION_ID)
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         // GoogleNetHttpTransport.newTrustedTransport()

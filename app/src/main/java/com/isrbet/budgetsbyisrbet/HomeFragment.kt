@@ -7,6 +7,7 @@ import android.view.*
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -138,7 +139,7 @@ class HomeFragment : Fragment(), CoroutineScope {
             AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.are_you_sure))
                 .setMessage(String.format(getString(R.string.are_you_sure_that_you_want_to_sign_out),
-                    MyApplication.userGivenName, MyApplication.userFamilyName))
+                    MyApplication.userGivenName))
                 .setPositiveButton(getString(R.string.sign_out)) { _, _ -> signout() }
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }  // nothing should happen, other than dialog closes
                 .show()
@@ -175,7 +176,7 @@ class HomeFragment : Fragment(), CoroutineScope {
         val defaultObserver = Observer<Boolean> {
             if (MyApplication.amCurrentlyImpersonating()) {
                 binding.quoteField.visibility = View.VISIBLE
-                binding.quoteField.text = String.format(
+                binding.quoteField.text = String.format("%s %s",
                     getString(R.string.currently_impersonating),
                     MyApplication.currentUserEmail
                 )
@@ -296,6 +297,7 @@ class HomeFragment : Fragment(), CoroutineScope {
             HintViewModel.isLoaded() &&
             RetirementViewModel.isLoaded()
         ) {
+            Timber.tag("Alex").d("in big if")
             if (thisIsANewUser()) {
                 binding.quoteField.visibility = View.VISIBLE
                 binding.quoteField.text = getString(R.string.need_to_do_setup)
@@ -310,6 +312,7 @@ class HomeFragment : Fragment(), CoroutineScope {
                     childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
                 trackerFragment.initCurrentBudgetMonth()
                 launch {
+                    Timber.tag("Alex").d("calling trackerFragment loadBarChart")
                     trackerFragment.loadBarChart()
                 }
                 HintViewModel.showHint(parentFragmentManager, cHINT_HOME)
@@ -372,15 +375,18 @@ class HomeFragment : Fragment(), CoroutineScope {
         SpenderViewModel.clear()
         HintViewModel.clear()
         Firebase.auth.signOut()
-        (activity as MainActivity).mGoogleSignInClient.signOut()
+        CoroutineScope(Dispatchers.IO).launch {
+            (activity as MainActivity).credentialManager.clearCredentialState(
+                ClearCredentialStateRequest()
+            )
+        }
         MyApplication.userUID = ""
         MyApplication.currentUserEmail = ""
-        MyApplication.userFamilyName = ""
         MyApplication.userPhotoURL = ""
         MyApplication.adminMode = false
         (activity as MainActivity).setLoggedOutMode(true)
         MyApplication.haveLoadedDataForThisUser = false
-        findNavController().navigate(R.id.SignInFragment)
+        findNavController().navigate(R.id.SignInFragment2)
     }
 
     override fun onDestroy() {

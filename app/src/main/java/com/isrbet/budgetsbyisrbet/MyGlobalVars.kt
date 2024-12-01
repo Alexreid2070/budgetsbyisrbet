@@ -29,6 +29,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.ConfigurationCompat
+import androidx.credentials.CredentialManager
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -212,7 +213,6 @@ class MyApplication : Application() {
         var originalUserUID: String = ""
         var userEmail: String = ""
         var userGivenName: String = ""
-        var userFamilyName: String = ""
         var userPhotoURL: String = ""
         var userAccount: Account? = null
         private var quoteForThisSession: String = ""

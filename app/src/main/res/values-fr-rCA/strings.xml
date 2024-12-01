@@ -329,7 +329,7 @@
     <string name="there_are_no_previous_hints_to_show">%1$s\n\n Il n\'y a pas d\'indices précédents à afficher.</string>
     <string name="there_are_no_more_hints_to_show">%1$s\n\nIl n\'y a plus d\'indices à afficher.</string>
     <string name="you_must_sign_in">Vous devez vous connecter avec votre compte Google pour continuer. Cliquez ci-dessous pour continuer.</string>
-    <string name="are_you_sure_that_you_want_to_sign_out">%1$s %2$s, voulez-vous vraiment vous déconnecter?</string>
+    <string name="are_you_sure_that_you_want_to_sign_out">%1$s, voulez-vous vraiment vous déconnecter?</string>
     <string name="choose_existing_loan"><![CDATA[<Choisissez un prêt existant>]]></string>
     <string name="payment_of">paiement de</string>
     <string name="every">chaque</string>

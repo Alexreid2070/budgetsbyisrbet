@@ -892,6 +892,7 @@ class TransactionViewModel : ViewModel() {
         expDBRef.addValueEventListener(firstLoadListener as ValueEventListener)
     } */
     fun loadTransactions() {
+        Timber.tag("Alex").d("TransactionViewModel.loadTransactions")
         val start = System.currentTimeMillis()
         val expDBRef = MyApplication.databaseref.child("Users/"+MyApplication.userUID+"/TransactionsNew")
         firstLoadListener = object : ValueEventListener {

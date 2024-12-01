@@ -9,31 +9,22 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
-import androidx.fragment.app.viewModels
+import androidx.credentials.CredentialManager
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.common.SignInButton
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.isrbet.budgetsbyisrbet.MyApplication.Companion.mContext
 import com.isrbet.budgetsbyisrbet.databinding.ActivityMainBinding
-import timber.log.Timber
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var notificationManager: NotificationManager
-//    lateinit var notificationChannel: NotificationChannel
     lateinit var builder: Notification.Builder
-    var bottomPadding = 0
-//    private val channelId = "i.apps.notifications"
-  //  private val description = "Test notification"
+    private var bottomPadding = 0
 
     private val defaultsModel: DefaultsViewModel by viewModels()
     private val transactionModel: TransactionViewModel by viewModels()
@@ -45,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val userModel: AppUserViewModel by viewModels()
     private val hintModel: HintViewModel by viewModels()
     private val translationModel: TranslationViewModel by viewModels()
-
+    val credentialManager = CredentialManager.create(mContext)
 
     // MainActivity's onStart is called only once at app start-up
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,13 +103,6 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
-    }
-
-    fun setGoogleSignInClient(iClient: GoogleSignInClient) {
-        mGoogleSignInClient = iClient
-    }
-    fun getGoogleSignInClient() : GoogleSignInClient {
-        return mGoogleSignInClient
     }
 
     fun multipleUserMode(iFlag: Boolean) {

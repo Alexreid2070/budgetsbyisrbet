@@ -1,5 +1,6 @@
 package com.isrbet.budgetsbyisrbet
 
+import android.accounts.Account
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
@@ -31,8 +32,6 @@ import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.l4digital.fastscroll.FastScrollRecyclerView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.*
-
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -250,7 +249,7 @@ class TransactionViewAllFragment : Fragment() {
                 }
             }
         binding.filterDiscRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            val radioButton: RadioButton = requireActivity().findViewById(checkedId)
             val discretionaryFilter: String = when (radioButton.text.toString()) {
                 getString(R.string.disc) -> cDiscTypeDiscretionary
                 getString(R.string.non_disc) -> cDiscTypeNondiscretionary
@@ -269,7 +268,7 @@ class TransactionViewAllFragment : Fragment() {
             }
         }
         binding.filterPaidByRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            val radioButton: RadioButton = requireActivity().findViewById(checkedId)
             val paidbyFilter = if (radioButton.text.toString() == getString(R.string.all))
                 -1
             else
@@ -287,7 +286,7 @@ class TransactionViewAllFragment : Fragment() {
             }
         }
         binding.filterBoughtForRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            val radioButton: RadioButton = requireActivity().findViewById(checkedId)
             val boughtforFilter = if (radioButton.text.toString() == getString(R.string.all))
                 -1
             else
@@ -305,7 +304,7 @@ class TransactionViewAllFragment : Fragment() {
             }
         }
         binding.filterTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            val radioButton: RadioButton = requireActivity().findViewById(checkedId)
             val typeFilter = when (radioButton.text.toString()) {
                 getString(R.string.expense) -> cTRANSACTION_TYPE_EXPENSE
                 getString(R.string.credit) -> cTRANSACTION_TYPE_CREDIT
@@ -944,27 +943,6 @@ class TransactionViewAllFragment : Fragment() {
         updateView()
     }
 
-    private fun setViewsToInsurance() {
-        binding.showIndividualAmountsColumns.isChecked = true
-        binding.percentage1Heading.visibility = View.VISIBLE
-        binding.percentage2Heading.visibility = View.VISIBLE
-
-        binding.showWhoColumn.isChecked = true
-        binding.whoHeading.visibility = View.VISIBLE
-
-        binding.showTypeColumn.isChecked = false
-        binding.typeHeading.visibility = View.GONE
-        binding.showCategoryColumns.isChecked = false
-        binding.categoryHeading.visibility = View.GONE
-        binding.showNoteColumn.isChecked = false
-        binding.noteHeading.visibility = View.GONE
-        binding.showDiscColumn.isChecked = false
-        binding.discHeading.visibility = View.GONE
-        binding.showRunningTotalColumn.isChecked = false
-        binding.runningTotalHeading.visibility = View.GONE
-        updateView()
-    }
-
     private fun setViewsToScheduledPayments() {
         binding.showIndividualAmountsColumns.isChecked = false
         binding.percentage1Heading.visibility = View.GONE
@@ -1149,7 +1127,7 @@ class TransactionViewAllFragment : Fragment() {
     private fun saveFile2(iFileName: String) {
         val scopes = listOf(SheetsScopes.SPREADSHEETS)
         val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
-        credential.selectedAccount = MyApplication.userAccount
+        credential.selectedAccount = Account(MyApplication.userEmail, BuildConfig.APPLICATION_ID)
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         val httpTransport =  NetHttpTransport()

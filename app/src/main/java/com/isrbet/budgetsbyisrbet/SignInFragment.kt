@@ -1,18 +1,19 @@
 package com.isrbet.budgetsbyisrbet
 
-import android.app.Activity
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
 import android.view.*
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
@@ -20,19 +21,25 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.totalBytesToDownload
-import com.google.api.services.sheets.v4.SheetsScopes
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSignInBinding
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import java.security.MessageDigest
+import java.util.UUID
 
 const val DAYS_FOR_FLEXIBLE_UPDATE = 7
-const val cMyRequestCode = 9876
+const val cMyRequestCode = 293847
 
-class SignInFragment : Fragment() {
+class SignInFragment2 : Fragment() {
     private var _binding: FragmentSignInBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
@@ -41,6 +48,7 @@ class SignInFragment : Fragment() {
 
     private var bytesToDownload: Long = 0
     private var bytesDownloaded: Long = 0
+    private var viewModel: LoginViewModel = LoginViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,41 +56,10 @@ class SignInFragment : Fragment() {
     ): View {
         _binding = FragmentSignInBinding.inflate(inflater, container, false)
 
-        val mainActivityResultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data = result.data
-                    val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-                    try {
-                        // Google Sign In was successful, authenticate with Firebase
-                        val account = task.getResult(ApiException::class.java)!!
-                        MyApplication.userGivenName = account.givenName.toString()
-                        MyApplication.userFamilyName = account.familyName.toString()
-                        MyApplication.userAccount = account.account
-                        firebaseAuthWithGoogle(account.idToken!!)
-                    } catch (e: ApiException) {
-                        // Google Sign In failed, update UI appropriately
-                        Timber.tag("Alex").d("Google sign in failed %s", e.toString())
-                    }
-                } else
-                    Timber.tag("Alex").d(
-                        "in registerForActivityResult, result was not OK %s", result.resultCode
-                    )
-            }
-
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestScopes(Scope(SheetsScopes.SPREADSHEETS))
-            .requestEmail()
-            .build()
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        (activity as MainActivity).setGoogleSignInClient(GoogleSignIn.getClient(requireContext(), gso))
         binding.signInButton.setOnClickListener {
-            onSignIn(mainActivityResultLauncher)
+            viewModel.handleGoogleSignIn(requireContext())
         }
+        viewModel.setSuccessCallback { signIn() }
         auth = Firebase.auth
 
         inflater.inflate(R.layout.fragment_sign_in, container, false)
@@ -94,6 +71,7 @@ class SignInFragment : Fragment() {
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
+        /*
         val account = GoogleSignIn.getLastSignedInAccount(requireContext())
         if (account == null) {  // user is logged out
             (activity as MainActivity).setLoggedOutMode(true)
@@ -103,44 +81,20 @@ class SignInFragment : Fragment() {
             binding.signInButton.visibility = View.GONE
             MyApplication.userGivenName = account.givenName.toString()
             MyApplication.userFamilyName = account.familyName.toString()
-            MyApplication.userAccount = account.account
             MyApplication.userPhotoURL = account.photoUrl.toString()
         }
         setAdminMode(account?.email == "alexreid2070@gmail.com")
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = auth.currentUser
-        signIn(currentUser)
+        // Check if user is signed in (non-null) and update UI accordingly. */
+        signIn()
     }
 
     private fun setAdminMode(inAdminMode: Boolean) {
         MyApplication.adminMode = inAdminMode
     }
 
-    private fun onSignIn(mainActivityResultLauncher: ActivityResultLauncher<Intent>) {
-        val signInIntent: Intent = (activity as MainActivity).getGoogleSignInClient().signInIntent
-        mainActivityResultLauncher.launch(signInIntent)
-    }
-
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    val user = auth.currentUser
-                    // this code is only hit when a user signs in successfully.
-                    signIn(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Timber.tag("Alex").d("signInWithCredential:failure + task.exception")
-                    signIn(null)
-                }
-            }
-    }
-
-    private fun signIn(account: FirebaseUser?) {
+    private fun signIn() {
+        val account = auth.currentUser
         MyApplication.userEmail = account?.email.toString()
-        Timber.tag("Alex").d("signin $account")
         if (account == null) {
             binding.signInButton.visibility = View.VISIBLE
             binding.signInButton.setSize(SignInButton.SIZE_WIDE)
@@ -151,6 +105,8 @@ class SignInFragment : Fragment() {
             }
             if (MyApplication.currentUserEmail == "")  // ie don't want to override this if Admin is impersonating another user...
                 MyApplication.currentUserEmail = account.email ?: ""
+            if (MyApplication.userGivenName == "")  // ie don't want to override this if Admin is impersonating another user...
+                MyApplication.userGivenName = account.displayName ?: ""
             MyApplication.userPhotoURL = account.photoUrl.toString()
 
             binding.signInButton.visibility = View.GONE
@@ -260,5 +216,90 @@ class SignInFragment : Fragment() {
             appUpdateManager.unregisterListener(updateListener)
         }
         _binding = null
+    }
+}
+
+class LoginViewModel : ViewModel() {
+    private val serverClientId = "54206436786-6qt44ld0r605vlgkcsfu507hjusomcmf.apps.googleusercontent.com"
+    private lateinit var successCallback: () -> Unit
+
+    fun setSuccessCallback(iCallback: () -> Unit) {
+        successCallback = iCallback
+    }
+
+    fun handleGoogleSignIn(context: Context) {
+        viewModelScope.launch {
+            googleSignIn(context).collect { result ->
+                result.fold(
+                    onSuccess = {
+                        Timber.tag("Alex").d("Success in ViewModel")
+                        successCallback()
+                        // Handle success
+                    },
+                    onFailure = { e ->
+                        Timber.tag("Alex").d("Failure in ViewModel")
+                        // Handle error
+                    }
+                )
+            }
+        }
+    }
+
+    private fun googleSignIn(context: Context): Flow<Result<AuthResult>> {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        return callbackFlow {
+            try {
+                // Initialize Credential Manager
+                val credentialManager: CredentialManager = CredentialManager.create(context)
+
+                // Generate a nonce (a random number used once)
+                val ranNonce: String = UUID.randomUUID().toString()
+                val bytes: ByteArray = ranNonce.toByteArray()
+                val md: MessageDigest = MessageDigest.getInstance("SHA-256")
+                val digest: ByteArray = md.digest(bytes)
+                val hashedNonce: String = digest.fold("") { str, it -> str + "%02x".format(it) }
+
+                // Set up Google ID option
+                val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(true)
+                    .setAutoSelectEnabled(true)
+                    .setServerClientId(serverClientId)
+                    .setNonce(hashedNonce)
+                    .build()
+
+                // Request credentials
+                val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                // Get the credential result
+                val result = credentialManager.getCredential(context, request)
+                val credential = result.credential
+
+                Timber.tag("Alex").d("Got here 1")
+                // Check if the received credential is a valid Google ID Token
+                if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    Timber.tag("Alex").d("Got here 2")
+                    val googleIdTokenCredential =
+                        GoogleIdTokenCredential.createFrom(credential.data)
+                    MyApplication.userGivenName = googleIdTokenCredential.givenName.toString()
+                    Timber.tag("Alex").d("Set userGivenName to ${MyApplication.userGivenName} ")
+                    val authCredential =
+                        GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+                    val authResult = firebaseAuth.signInWithCredential(authCredential).await()
+
+                    Timber.tag("Alex").d("the great unknown")
+                    trySend(Result.success(authResult))
+                } else {
+                    throw RuntimeException("Received an invalid credential type")
+                }
+            } catch (e: GetCredentialCancellationException) {
+                trySend(Result.failure(Exception("Sign-in was canceled. Please try again.")))
+
+            } catch (e: Exception) {
+                trySend(Result.failure(e))
+            }
+            awaitClose { }
+        }
     }
 }

@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/SignInFragment">
+    app:startDestination="@id/SignInFragment2">
 
     <fragment
-        android:id="@+id/SignInFragment"
-        android:name="com.isrbet.budgetsbyisrbet.SignInFragment"
+        android:id="@+id/SignInFragment2"
+        android:name="com.isrbet.budgetsbyisrbet.SignInFragment2"
         android:label="@string/signin_fragment_label"
         tools:layout="@layout/fragment_sign_in">
     </fragment>

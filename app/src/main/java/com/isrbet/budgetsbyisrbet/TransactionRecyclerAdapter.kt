@@ -16,7 +16,6 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -98,7 +97,6 @@ class TransactionRecyclerAdapter(
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
                 val filterResults = FilterResults()
-                Timber.tag("Alex").d("Here")
                 filterTheList(charSearch)
                 filterResults.values = filterResults
                 return filterResults
