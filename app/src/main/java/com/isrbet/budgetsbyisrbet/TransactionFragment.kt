@@ -204,10 +204,35 @@ class TransactionFragment : Fragment() {
             if (subCat != null)
                 subCategory = subCat.subcategoryName
             addSubCategories(radioButton.text.toString(), subCategory)
+            addTravelCategories()
 //            val cat = DefaultsViewModel.getCategoryDetail(radioButton.text.toString())
 //            if (cat.color != 0) {
 //                colorCategoryArea(cat.color)
 //            }
+        }
+
+        binding.subcategorySpinner.onItemSelectedListener = object :
+            AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedId = binding.categoryRadioGroup.checkedRadioButtonId
+                val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+                val currentSubCategory = binding.subcategorySpinner.selectedItem.toString()
+                val catID = CategoryViewModel.getID(radioButton.text.toString(), currentSubCategory)
+                val cat = CategoryViewModel.getCategory(catID)
+                if (cat?.tripTracker == true) {
+                    binding.travelCategoryLayout.visibility = View.VISIBLE
+                } else
+                    binding.travelCategoryLayout.visibility = View.GONE
+            }
         }
 
         if (SpenderViewModel.singleUser()) {
@@ -240,6 +265,8 @@ class TransactionFragment : Fragment() {
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
             binding.subcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.subcategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
+            binding.travelCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+            binding.travelCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
             if (SpenderViewModel.multipleUsers()) {
                 val selectedId = binding.boughtForRadioGroup.checkedRadioButtonId
                 val radioButton = requireActivity().findViewById(selectedId) as RadioButton
@@ -272,6 +299,7 @@ class TransactionFragment : Fragment() {
             binding.scheduledPaymentLabel.isEnabled = false
             binding.transactionType.isEnabled = false
             binding.subcategorySpinner.isEnabled = false
+            binding.travelCategorySpinner.isEnabled = false
             for (i in 0 until binding.categoryRadioGroup.childCount) {
                 (binding.categoryRadioGroup.getChildAt(i) as RadioButton).isEnabled = false
             }
@@ -290,6 +318,7 @@ class TransactionFragment : Fragment() {
             binding.note.setBackgroundColor(Color.parseColor(hexColor))
             binding.categoryRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.subcategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+            binding.travelCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
             binding.paidByRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.boughtForRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
             binding.slider.setBackgroundColor(Color.parseColor(hexColor))
@@ -388,6 +417,7 @@ class TransactionFragment : Fragment() {
         binding.where.isEnabled = true
         binding.note.isEnabled = true
         binding.subcategorySpinner.isEnabled = true
+        binding.travelCategorySpinner.isEnabled = true
         for (i in 0 until binding.categoryRadioGroup.childCount) {
             val button = binding.categoryRadioGroup.getChildAt(i) as RadioButton
             button.isEnabled = true
@@ -409,6 +439,7 @@ class TransactionFragment : Fragment() {
 
         val currentSubCategory = binding.subcategorySpinner.selectedItem.toString()
         addSubCategories(currentCategory, currentSubCategory)
+//        addTravelCategories()
         if (MyApplication.adminMode) {
             binding.transactionType.isEnabled = true
         }
@@ -493,7 +524,14 @@ class TransactionFragment : Fragment() {
             binding.subcategorySpinner.adapter = arrayAdapter
             binding.subcategorySpinner.setSelection(arrayAdapter.getPosition(
                 CategoryViewModel.getCategory(thisTransaction.category)?.subcategoryName))
-
+            if (CategoryViewModel.getCategory(thisTransaction.category)?.tripTracker == true) {
+                Timber.tag("Alex").d("thisTransaction ${thisTransaction.mykey} tripTrackerCategory is ${thisTransaction.tripTrackerCategory}")
+                Timber.tag("Alex").d("ordinal is ${thisTransaction.tripTrackerCategory.ordinal}")
+                Timber.tag("Alex").d("getText is ${TripExpenseType.getText(thisTransaction.tripTrackerCategory)}")
+                val tripAdapter:ArrayAdapter<String> = binding.travelCategorySpinner.adapter as ArrayAdapter<String>
+                Timber.tag("Alex").d("position is ${tripAdapter.getPosition(TripExpenseType.getText(thisTransaction.tripTrackerCategory))}")
+                binding.travelCategorySpinner.setSelection(tripAdapter.getPosition(TripExpenseType.getText(thisTransaction.tripTrackerCategory)))
+            }
             if (thisTransaction.type == cTRANSACTION_TYPE_CREDIT)
                 binding.transactionDate.setText(thisTransaction.creditDate.toString())
             else
@@ -575,6 +613,13 @@ class TransactionFragment : Fragment() {
         arrayAdapter.notifyDataSetChanged()
     }
 
+    private fun addTravelCategories() {
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item,
+            TripExpenseType.getCategoriesForSpinner())
+        binding.travelCategorySpinner.adapter = arrayAdapter
+//        binding.travelCategorySpinner.setSelection(0)
+        arrayAdapter.notifyDataSetChanged()
+    }
     private fun onLoadTransactionButtonClicked() {
         val notification = CustomNotificationListenerService.getTransactionFromNotificationAndDeleteIt()
         if (notification == null) {
@@ -616,8 +661,10 @@ class TransactionFragment : Fragment() {
                     }
                 }
                 val category = CategoryViewModel.getCategory(translation.category)
-                if (category != null)
+                if (category != null) {
                     addSubCategories(category.categoryName, category.subcategoryName)
+                    addTravelCategories()
+                }
                 Toast.makeText(activity, getString(R.string.category_has_been_updated), Toast.LENGTH_LONG).show()
             }
         }
@@ -684,6 +731,14 @@ class TransactionFragment : Fragment() {
             return
         }
 
+        if (chosenCat?.tripTracker == true &&
+            (binding.travelCategorySpinner.selectedItem.toString() == cSelectString ||
+             binding.travelCategorySpinner.selectedItem.toString() == TripExpenseType.getText(TripExpenseType.UNKNOWN))) {
+            binding.where.error = getString(R.string.you_must_choose_trip_category)
+            focusAndOpenSoftKeyboard(requireContext(), binding.where)
+            return
+        }
+
         if ((startingTransactionWhere != "" && startingTransactionWhere != binding.where.text.toString().trim()) ||
             (startingTransactionCategory != 0 && startingTransactionCategory != chosenCatID)) {
             // ie the user loaded the transaction from a TD MySpend, and then edited the Where.  We
@@ -709,7 +764,8 @@ class TransactionFragment : Fragment() {
                 binding.slider.value.toInt(),
                 cTRANSACTION_TYPE_EXPENSE,
                 "",
-                ""
+                "",
+                TripExpenseType.getOrdinal(binding.travelCategorySpinner.selectedItem.toString())
             )
             binding.transactionAmount.setText("")
             binding.transactionAmount.requestFocus()
@@ -779,7 +835,8 @@ class TransactionFragment : Fragment() {
                 binding.slider.value.toInt(),
                 binding.transactionType.text.toString(),
                 binding.rtKey.text.toString(),
-                binding.creditKey.text.toString()
+                binding.creditKey.text.toString(),
+                TripExpenseType.getOrdinal(binding.travelCategorySpinner.selectedItem.toString())
             )
 
             TransactionViewModel.updateTransactionDatabase(editingKey, transactionOut)
@@ -824,6 +881,7 @@ class TransactionFragment : Fragment() {
         }
         addSubCategories(CategoryViewModel.getDefaultCategory()?.categoryName.toString(),
             CategoryViewModel.getDefaultCategory()?.subcategoryName.toString())
+        addTravelCategories()
     }
 
     override fun onDestroyView() {

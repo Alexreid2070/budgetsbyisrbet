@@ -108,7 +108,8 @@ class TransactionCreditDialogFragment : DialogFragment() {
                 thisTransaction.bfname1split,
                 cTRANSACTION_TYPE_CREDIT,
                 thisTransaction.rtkey,
-                thisTransaction.mykey
+                thisTransaction.mykey,
+                TripExpenseType.UNKNOWN.ordinal
             )
             TransactionViewModel.addTransactionDatabase(transactionOut)
             Toast.makeText(activity, getString(R.string.credit_created), Toast.LENGTH_SHORT).show()

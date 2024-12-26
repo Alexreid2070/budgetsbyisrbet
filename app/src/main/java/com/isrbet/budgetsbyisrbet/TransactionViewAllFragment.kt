@@ -538,6 +538,16 @@ class TransactionViewAllFragment : Fragment() {
             }
             updateView()
         }
+        binding.showTripCategoryColumns.setOnCheckedChangeListener { _, _ ->
+            if (binding.showTripCategoryColumns.isChecked) {
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL, true)
+                binding.tripCategoryHeading.visibility = View.VISIBLE
+            } else {
+                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL, false)
+                binding.tripCategoryHeading.visibility = View.GONE
+            }
+            updateView()
+        }
         binding.showWhoColumn.setOnCheckedChangeListener { _, _ ->
             if (binding.showWhoColumn.isChecked) {
                 DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_WHO_IN_VIEW_ALL, true)
@@ -872,6 +882,10 @@ class TransactionViewAllFragment : Fragment() {
         if (!DefaultsViewModel.getDefaultShowCategoryInViewAll()) {
             binding.categoryHeading.visibility = View.GONE
         }
+        binding.showTripCategoryColumns.isChecked = DefaultsViewModel.getDefaultShowTripCategoryInViewAll()
+        if (!DefaultsViewModel.getDefaultShowTripCategoryInViewAll()) {
+            binding.tripCategoryHeading.visibility = View.GONE
+        }
         binding.showIndividualAmountsColumns.isChecked = DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()
         if (!DefaultsViewModel.getDefaultShowIndividualAmountsInViewAll()) {
             binding.percentage1Heading.visibility = View.GONE
@@ -931,6 +945,9 @@ class TransactionViewAllFragment : Fragment() {
 
         binding.showCategoryColumns.isChecked = false
         binding.categoryHeading.visibility = View.GONE
+
+        binding.showTripCategoryColumns.isChecked = false
+        binding.tripCategoryHeading.visibility = View.GONE
 
         binding.showNoteColumn.isChecked = false
         binding.noteHeading.visibility = View.GONE

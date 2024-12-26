@@ -11,10 +11,66 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import timber.log.Timber
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
 import kotlin.math.roundToInt
+
+const val cSelectString = "<select>"
+
+enum class TripExpenseType(val code: Int) {
+    ALL(0),
+    ACCOMMODATION(1),
+    ENTERTAINMENT(2),
+    FOOD(3),
+    PACKAGE_TOUR(4),
+    TRANSPORTATION(5),
+    OTHER(6),
+    CASH (7),
+    UNKNOWN(8),
+    TOTAL(9);
+    companion object {
+        fun getText(iValue: TripExpenseType): String {
+            return when (iValue) {
+                TOTAL -> "Total"
+                ALL -> "All"
+                ACCOMMODATION -> "Accommodation"
+                ENTERTAINMENT -> "Entertainment"
+                FOOD -> "Food"
+                PACKAGE_TOUR -> "Package Tour"
+                TRANSPORTATION -> "Transportation"
+                OTHER -> "Other"
+                CASH -> "Cash"
+                else -> "Unknown"
+            }
+        }
+        fun getOrdinal(iValue: String): Int {
+            return when (iValue) {
+                "Accommodation" -> 1
+                "Entertainment" -> 2
+                "Food" -> 3
+                "Package Tour" -> 4
+                "Transportation" -> 5
+                "Other" -> 6
+                "Cash" -> 7
+                else -> 8
+            }
+        }
+        fun fromInt(value: Int) = TripExpenseType.values().first { it.ordinal == value }
+        fun getCategoriesForSpinner(): MutableList<String> {
+            val list : MutableList<String> = java.util.ArrayList()
+            list.add(cSelectString)
+            list.add(TripExpenseType.getText(ACCOMMODATION))
+            list.add(TripExpenseType.getText(ENTERTAINMENT))
+            list.add(TripExpenseType.getText(FOOD))
+            list.add(TripExpenseType.getText(PACKAGE_TOUR))
+            list.add(TripExpenseType.getText(TRANSPORTATION))
+            list.add(TripExpenseType.getText(OTHER))
+            list.add(TripExpenseType.getText(CASH))
+            list.add(TripExpenseType.getText(UNKNOWN))
+            return list
+        }
+    }
+}
 
 data class Transaction(
     var date: MyDate = MyDate(),
@@ -30,6 +86,7 @@ data class Transaction(
     var creditkey: String = "",
     var creditDate: MyDate,
     var creditSortOrder: Int = 1,
+    var tripTrackerCategory: TripExpenseType = TripExpenseType.UNKNOWN,
     var mykey: String = ""
 ) {
     private val credits: MutableList<String> = mutableListOf()
@@ -49,6 +106,7 @@ data class Transaction(
         iTransactionOut.creditkey,
         MyDate(),
         1,
+        TripExpenseType.fromInt(iTransactionOut.triptrackercategory),
         iKey
     )
 
@@ -79,6 +137,7 @@ data class Transaction(
             "note" -> note = value.trim()
             "note2" -> note2 = value.trim()
             "who" -> {if (paidby == -1) paidby = value.toInt(); if (boughtfor == -1) boughtfor = value.toInt() }
+            "triptrackercategory" -> tripTrackerCategory = TripExpenseType.fromInt(value.toInt())
             else -> {
                 if (key != "bfname2split") Timber.tag("Alex").d("Unknown field in Transactions $key $value $this")
             }
@@ -97,6 +156,7 @@ data class Transaction(
                 type.lowercase().contains(lc) ||
                 rtkey.lowercase().contains(lc) ||
                 creditkey.lowercase().contains(lc) ||
+                TripExpenseType.getText(tripTrackerCategory).lowercase().contains(lc) ||
                 (MyApplication.adminMode && mykey.lowercase().contains(lc))
     }
     fun getAmountByUser(iWho: Int, iRound: Boolean = true): Double {
@@ -168,7 +228,8 @@ data class TransactionOut(
     var bfname1split: Int = 0,
     var type: String = cTRANSACTION_TYPE_EXPENSE,
     var rtkey: String = "",
-    var creditkey: String = ""
+    var creditkey: String = "",
+    var triptrackercategory: Int = TripExpenseType.UNKNOWN.ordinal
     ) {
     // amount is stored as original amount * 100 due to floating point issues at Firebase
     // doesn't have a key, because we don't want to store the key at Firebase, it'll generate one for us.
@@ -320,6 +381,7 @@ class TransactionViewModel : ViewModel() {
                         copy[i].creditkey,
                         copy[i].date,
                         0,
+                        copy[i].tripTrackerCategory,
                         "SUM"+copy[i].mykey)
 //                    copy[i].creditSortOrder = 1 // 1 = the original
                     copy.add(i-1, dupTr)
@@ -495,6 +557,30 @@ class TransactionViewModel : ViewModel() {
                     }
                 }
             }
+            return tList
+        }
+
+        data class AnnualTripCategoryTotal(var catID: Int, var tripCategoryID: TripExpenseType, var value: Double)
+        fun getAnnualTripCategoryActuals(iWhoFlag: Int) : ArrayList<AnnualTripCategoryTotal> {
+            val tList: ArrayList<AnnualTripCategoryTotal> = ArrayList()
+
+            for (transaction in singleInstance.transactions) {
+                val isTripTracker = CategoryViewModel.getCategoryTripTracker(transaction.category)
+                if (isTripTracker) {
+                    val rowTotal = tList.find {
+                        it.catID == transaction.category &&
+                        it.tripCategoryID == transaction.tripTrackerCategory
+                    }
+                    if (rowTotal == null) {
+                        tList.add(AnnualTripCategoryTotal(transaction.category,
+                            transaction.tripTrackerCategory,
+                            transaction.getAmountByUser(iWhoFlag)))
+                    } else {
+                        rowTotal.value += transaction.getAmountByUser(iWhoFlag)
+                    }
+                }
+            }
+            Timber.tag("Alex").d("tList size is ${tList.size}")
             return tList
         }
 
@@ -685,6 +771,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.type = iTransaction.type
                 transaction.rtkey = iTransaction.rtkey
                 transaction.creditkey = iTransaction.creditkey
+                transaction.tripTrackerCategory = iTransaction.tripTrackerCategory
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
 //            if (iNotifyLive)
@@ -717,6 +804,7 @@ class TransactionViewModel : ViewModel() {
                 transaction.type = iTransactionOut.type
                 transaction.rtkey = iTransactionOut.rtkey
                 transaction.creditkey = iTransactionOut.creditkey
+                transaction.tripTrackerCategory = TripExpenseType.fromInt(iTransactionOut.triptrackercategory)
             }
             singleInstance.transactions.sortWith(compareBy({ it.date.toString() }, { it.note }, {it.type}))
 //            singleInstance.transactionsLiveData.value = singleInstance.transactions
@@ -727,7 +815,7 @@ class TransactionViewModel : ViewModel() {
                     Transaction(MyDate(iTransfer.date),
                         iTransfer.amount/100.0, cTRANSFER_CODE, "", "", iTransfer.paidby,
                         iTransfer.boughtfor, iTransfer.bfname1split, iTransfer.type,
-                        "", "", MyDate(iTransfer.date), 0,
+                        "", "", MyDate(iTransfer.date), 0, TripExpenseType.UNKNOWN,
                         cTRANSACTION_TYPE_TRANSFER)
                 )
 
@@ -908,7 +996,11 @@ class TransactionViewModel : ViewModel() {
                             credits.add(myTr)
                         } //else
 //                            myTr.creditSortOrder = 1
+                        if (myTr.bfname1split != 100)
+                            gDidSecondPersonEverExist = true
                         transactions.add(myTr)
+                        if (myTr.tripTrackerCategory != TripExpenseType.UNKNOWN)
+                            Timber.tag("Alex").d("Loaded transaction $myTr")
                     }
                 }
                 for (creditTR in credits) {

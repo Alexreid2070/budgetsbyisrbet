@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TripTrackerFragment">
+
+    <LinearLayout
+        android:id="@+id/title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/table_header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_layout">
+
+        <TableLayout
+            android:id="@+id/table_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:layout_below="@id/table_header_layout"
+        android:layout_above="@id/button_layout">
+
+        <ScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
+
+            <TableLayout
+                android:id="@+id/table_rows"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:padding="0dp"
+                android:stretchColumns="*" />
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@id/button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="?attr/menuColor"
+        android:gravity="center">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorPrimary"/>
+
+        <LinearLayout
+            android:id="@+id/settings_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/sortByText"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:scaleType="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:src="@drawable/baseline_sort_by_alpha_24"
+                android:contentDescription="@string/defaultt" />
+
+            <ImageView
+                android:id="@+id/sortByDate"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:contentDescription="@string/defaultt"
+                android:gravity="start"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:scaleType="center"
+                android:src="@drawable/baseline_calendar_month_24" />
+
+            <ImageView
+                android:id="@+id/expandAll"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:contentDescription="@string/defaultt"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:scaleType="center"
+                android:src="@drawable/baseline_density_small_24" />
+
+            <ImageView
+                android:id="@+id/collapseAll"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:contentDescription="@string/defaultt"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:scaleType="center"
+                android:src="@drawable/baseline_density_large_24" />
+
+            <ImageView
+                android:id="@+id/button_settings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/settings"
+                android:gravity="end"
+                android:layout_weight="1"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:scaleType="fitEnd"
+                android:src="@drawable/ic_baseline_settings_24_orange" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/options_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp">
+
+                <TextView
+                    android:id="@+id/tripCategoryLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginBottom="5dp"
+                    android:text="@string/tripCategory"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:background="@drawable/spinner_background"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/tripCategorySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginStart="5dp"
+                        android:background="@android:color/transparent"
+                        android:gravity="end"
+                        android:spinnerMode="dropdown" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24"/>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorPrimary"/>
+
+            <LinearLayout
+                android:id="@+id/filter_who_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/filter_by_who"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnMenuColor" />
+                <HorizontalScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="?attr/colorSecondary">
+                    <RadioGroup
+                        android:id="@+id/filterWhoRadioGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/whoAllRadioButton"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/whoAllRadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/all"/>
+                        <RadioButton
+                            android:id="@+id/name1RadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <RadioButton
+                            android:id="@+id/name2RadioButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </RadioGroup>
+                </HorizontalScrollView>
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/colorPrimary"/>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_round_to_nearest_dollar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="@string/round_to_nearest_dollar"
+                android:textSize="@dimen/label_font_size"
+                android:textStyle="bold"
+                android:textColor="?attr/textOnMenuColor"
+                android:textOn="@string/on"
+                android:textOff="@string/off"
+                android:checked="false"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

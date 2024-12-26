@@ -134,6 +134,7 @@ var gActualRow: YOYTableRow? = null // these 4 are hacks to support the YOYDialo
 var gBudgetRow: YOYTableRow? = null
 var gAverageRow: YOYTableRow? = null
 var gDeltaRow: YOYTableRow? = null
+var gDidSecondPersonEverExist:Boolean = false
 
 fun gMonthName(iMonth: Int) : String {
     val month = Month.of(iMonth)
@@ -288,26 +289,29 @@ data class MyDate(var representsYear: Boolean = false) {
         theDate = LocalDate.now()
     }
     constructor(iDate: String) : this (false) {
-        // might get "2022-02-23", or might get "2022-2-23" or might get "2022-01"
-        val year = iDate.substring(0,4).toInt()
-        var month = 1
-        var day = 1
-        val dash1 = iDate.indexOf("-")
-        val dash2 = iDate.indexOf("-", dash1+1)
-        if (dash1 != -1)
-        {
-            month = if (dash2 != -1)
-                iDate.substring(dash1 + 1, dash2).toInt()
-            else
-                iDate.substring(dash1 + 1, iDate.length).toInt()
-            day = if (dash2 != -1)
-                iDate.substring(dash2 + 1, iDate.length).toInt()
-            else
-                1
+        if (iDate == "") {
+            theDate = LocalDate.now()
+        } else {
+            // might get "2022-02-23", or might get "2022-2-23" or might get "2022-01"
+            val year = iDate.substring(0, 4).toInt()
+            var month = 1
+            var day = 1
+            val dash1 = iDate.indexOf("-")
+            val dash2 = iDate.indexOf("-", dash1 + 1)
+            if (dash1 != -1) {
+                month = if (dash2 != -1)
+                    iDate.substring(dash1 + 1, dash2).toInt()
+                else
+                    iDate.substring(dash1 + 1, iDate.length).toInt()
+                day = if (dash2 != -1)
+                    iDate.substring(dash2 + 1, iDate.length).toInt()
+                else
+                    1
+            }
+            if (month == 0)
+                month = 1
+            theDate = LocalDate.of(year, month, day)
         }
-        if (month == 0)
-            month = 1
-        theDate = LocalDate.of(year, month, day)
     }
     constructor(iMyDate: MyDate) : this (false) {
         theDate = LocalDate.of(iMyDate.theDate.year, iMyDate.theDate.month, iMyDate.theDate.dayOfMonth)

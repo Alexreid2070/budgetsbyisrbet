@@ -263,7 +263,7 @@ class RetirementDetailsFragment : Fragment() {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.RRSP)
                         addHeaderCell(tr, String.format(getString(R.string.s_growth),
-                            it.getGrowthPct(),
+                            it.getGrowthPct().toString(),
                             getString(R.string.rrsp) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -280,7 +280,7 @@ class RetirementDetailsFragment : Fragment() {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.LIRA)
                         addHeaderCell(tr, String.format(getString(R.string.s_growth),
-                            it.getGrowthPct(),
+                            it.getGrowthPct().toString(),
                             getString(R.string.lira) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -297,7 +297,7 @@ class RetirementDetailsFragment : Fragment() {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.TFSA)
                         addHeaderCell(tr, String.format(getString(R.string.s_growth),
-                            it.getGrowthPct(),
+                            it.getGrowthPct().toString(),
                             getString(R.string.tfsa) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -316,7 +316,7 @@ class RetirementDetailsFragment : Fragment() {
                         (iWhichView == RetirementDetailsViews.TAX &&
                                 it.growthIsTaxable()))
                         addHeaderCell(tr, String.format(getString(R.string.s_growth),
-                            it.getGrowthPct(),
+                            it.getGrowthPct().toString(),
                             getString(R.string.savings) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||
@@ -333,7 +333,7 @@ class RetirementDetailsFragment : Fragment() {
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.PROPERTY)
                         addHeaderCell(tr, String.format(getString(R.string.s_growth),
-                            it.getGrowthPct(),
+                            it.getGrowthPct().toString(),
                             getString(R.string.property) + ": " + it.name), true)
                     if (iWhichView == RetirementDetailsViews.ALL ||
                         iWhichView == RetirementDetailsViews.SUMMARY ||

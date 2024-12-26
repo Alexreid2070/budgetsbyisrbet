@@ -1,6 +1,7 @@
 package com.isrbet.budgetsbyisrbet
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -63,10 +64,56 @@ class CategoryEditDialogFragment : DialogFragment() {
             ), cOpacity
         )
         binding.defaultCategoryRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+
+        binding.tripStartDate.setText(gCurrentDate.toString())
+        val tripStartDateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                binding.tripStartDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
+            }
+
+        binding.tripStartDate.setOnClickListener {
+            var lDate = MyDate()
+            if (binding.tripStartDate.text.toString() != "") {
+                lDate = MyDate(binding.tripStartDate.text.toString())
+            }
+            DatePickerDialog(
+                requireContext(), tripStartDateSetListener,
+                lDate.getYear(),
+                lDate.getMonth()-1,
+                lDate.getDay()
+            ).show()
+        }
+
+        binding.tripFinishDate.setText(gCurrentDate.toString())
+        val tripFinishDateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                binding.tripFinishDate.setText(MyDate(year, monthOfYear+1, dayOfMonth).toString())
+            }
+
+        binding.tripFinishDate.setOnClickListener {
+            var lDate = MyDate()
+            if (binding.tripFinishDate.text.toString() != "") {
+                lDate = MyDate(binding.tripFinishDate.text.toString())
+            }
+            DatePickerDialog(
+                requireContext(), tripFinishDateSetListener,
+                lDate.getYear(),
+                lDate.getMonth()-1,
+                lDate.getDay()
+            ).show()
+        }
+
+        binding.tripTrackerSwitch.setOnClickListener {
+            if (binding.tripTrackerSwitch.isChecked)
+                binding.tripTrackerFieldsLayout.visibility = View.VISIBLE
+            else
+                binding.tripTrackerFieldsLayout.visibility = View.GONE
+        }
+
         if (SpenderViewModel.twoDistinctUsers())
-            binding.privacyLayout.visibility = View.VISIBLE
+            binding.oldPrivacyLayout.visibility = View.VISIBLE
         else
-            binding.privacyLayout.visibility = View.GONE
+            binding.oldPrivacyLayout.visibility = View.GONE
         binding.editCategoryNewNameSpinner.setBackgroundColor(Color.parseColor(hexColor))
         binding.editCategoryNewNameSpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.editSubcategoryNewName.requestFocus()
@@ -107,6 +154,8 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.privacySwitch.isChecked = false
             binding.stateSwitch.isChecked = true
             binding.defaultNoButton.isChecked = false
+            binding.tripTrackerSwitch.isChecked = false
+            binding.tripTrackerFieldsLayout.visibility = View.GONE
 
             binding.oldCategoryLayout.visibility = View.GONE
             binding.newNameHeader.text = getString(R.string.add_category)
@@ -125,6 +174,15 @@ class CategoryEditDialogFragment : DialogFragment() {
             setupCategorySpinner(oldCat?.categoryName ?: getString(R.string.lcfirst))
             binding.privacySwitch.isChecked = oldCat?.private != 2
             binding.stateSwitch.isChecked = oldCat?.inUse == true
+            binding.tripTrackerSwitch.isChecked = oldCat?.tripTracker == true
+            binding.tripStartDate.setText(oldCat?.tripStartDate.toString())
+            binding.tripFinishDate.setText(oldCat?.tripFinishDate.toString())
+            if (oldCat?.tripTracker == true) {
+                binding.tripTrackerFieldsLayout.visibility = View.VISIBLE
+                binding.oldTripDates.text = String.format("from %s to %s", oldCat.tripStartDate, oldCat.tripFinishDate)
+            } else
+                binding.tripTrackerFieldsLayout.visibility = View.GONE
+
             if (oldCat != null) {
                 val appDef = DefaultsViewModel.getDefaultCategory()
                 if (oldCat.id == appDef) {
@@ -145,6 +203,11 @@ class CategoryEditDialogFragment : DialogFragment() {
                     getString(R.string.non_discretionary)
             binding.oldPrivacy.text = if (oldCat?.private == 2) getString(R.string.not_private) else getString(R.string.ucprivate)
             binding.oldState.text = if (oldCat?.inUse == true) getString(R.string.yes) else getString(R.string.ucnot_in_use)
+            binding.oldTripTracker.text = if (oldCat?.tripTracker == true) getString(R.string.yes) else getString(R.string.no)
+            if (oldCat?.tripTracker == true)
+                binding.oldTripDates.visibility = View.VISIBLE
+            else
+                binding.oldTripDates.visibility = View.GONE
             if (oldCat?.inUse != true) {
                 binding.oldState.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.red))
@@ -170,6 +233,8 @@ class CategoryEditDialogFragment : DialogFragment() {
             else
                 dtSpinner.setSelection(arrayAdapter.getPosition(getString(R.string.non_discretionary)))
             binding.switchEnterBudget.visibility = View.GONE
+            binding.tripTrackerSwitch.visibility = View.GONE
+            binding.tripTrackerFieldsLayout.visibility = View.GONE
             budgetCtr = BudgetViewModel.budgetExistsUsingCategory(oldCategoryID)
             expenseCtr = TransactionViewModel.transactionExistsUsingCategory(oldCategoryID)
             spCtr = ScheduledPaymentViewModel.scheduledPaymentExistsUsingCategory(
@@ -199,6 +264,8 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.categoryDialogLinearLayout5.visibility = View.GONE
                 binding.privacySwitch.visibility = View.GONE
                 binding.stateSwitch.visibility = View.GONE
+                binding.tripTrackerSwitch.visibility = View.GONE
+                binding.tripTrackerFieldsLayout.visibility = View.GONE
                 binding.defaultCategoryLayout.visibility = View.GONE
                 binding.categoryLayout.visibility = View.GONE
                 binding.subcategoryLayout.visibility = View.GONE
@@ -239,6 +306,12 @@ class CategoryEditDialogFragment : DialogFragment() {
     private fun setupClickListeners() {
         binding.buttonEdit.setOnClickListener {
             binding.buttonEdit.visibility = View.GONE
+            binding.oldTypeLayout.visibility = View.GONE
+            binding.oldPrivacyLayout.visibility = View.GONE
+            binding.oldStateLayout.visibility = View.GONE
+            binding.oldDefaultLayout.visibility = View.GONE
+            binding.oldTripTrackerLayout.visibility = View.GONE
+            binding.oldTripDates.visibility = View.GONE
             binding.buttonSave.visibility = View.VISIBLE
             binding.categoryDialogOldHeaderLinearLayout.visibility = View.VISIBLE
             binding.categoryDialogNewHeaderLinearLayout.visibility = View.VISIBLE
@@ -251,6 +324,12 @@ class CategoryEditDialogFragment : DialogFragment() {
             else
                 binding.privacySwitch.visibility = View.GONE
             binding.stateSwitch.visibility = View.VISIBLE
+            binding.tripTrackerSwitch.visibility = View.VISIBLE
+            if (binding.tripTrackerSwitch.isChecked)
+                binding.tripTrackerFieldsLayout.visibility = View.VISIBLE
+            else
+                binding.tripTrackerFieldsLayout.visibility = View.GONE
+
             binding.defaultCategoryLayout.visibility = View.VISIBLE
             binding.buttonDelete.visibility = View.GONE
             binding.buttonDeleteView.visibility = View.GONE
@@ -276,9 +355,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
             if (binding.editCategoryNewNameSpinner.selectedItem.toString() ==
-                getString(R.string.add_new_category_name) &&
-                binding.editCategoryNewName.text.toString() == ""
-            ) {
+                getString(R.string.add_new_category_name) ) {
                 binding.editCategoryNewName.error = getString(R.string.enter_new_category_name)
                 focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
                 return@setOnClickListener
@@ -323,7 +400,10 @@ class CategoryEditDialogFragment : DialogFragment() {
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
                     binding.stateSwitch.isChecked,
                     binding.defaultAppButton.isChecked,
-                    binding.defaultCategoryButton.isChecked
+                    binding.defaultCategoryButton.isChecked,
+                    binding.tripTrackerSwitch.isChecked,
+                    MyDate(binding.tripStartDate.text.toString()),
+                    MyDate(binding.tripFinishDate.text.toString())
                 )
                 if (chosenCategory == binding.editCategoryNewName.text.toString().trim()) { // ie new category name
                     DefaultsViewModel.setCategoryPriority(chosenCategory, CategoryViewModel.getCategoryCount() - 1, false)
@@ -337,7 +417,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                     action.categoryID = cat.id
                     findNavController().navigate(action)
                 }
-            } else if (oldCat?.categoryName == chosenCategory &&
+            } else /*{ if (oldCat?.categoryName == chosenCategory &&
                 oldCat.subcategoryName == binding.editSubcategoryNewName.text.toString() &&
                 (oldCat.discType != chosenDiscType ||
                         (oldCat.private != 2) != binding.privacySwitch.isChecked) ||
@@ -345,23 +425,27 @@ class CategoryEditDialogFragment : DialogFragment() {
                 (DefaultsViewModel.getDefaultCategory() == oldCat.id && !binding.defaultAppButton.isChecked) ||
                 (CategoryViewModel.getCategoryDefault(oldCat.categoryName) == oldCat.id && !binding.defaultCategoryButton.isChecked) ||
                 (DefaultsViewModel.getDefaultCategory() != oldCat.id && binding.defaultAppButton.isChecked) ||
-                (CategoryViewModel.getCategoryDefault(oldCat.categoryName) != oldCat.id && binding.defaultCategoryButton.isChecked)
-            ) {
-                Timber.tag("Alex").d("Something changed")
-                // something changed so update it/them
+                (CategoryViewModel.getCategoryDefault(oldCat.categoryName) != oldCat.id && binding.defaultCategoryButton.isChecked) ||
+                oldCat.tripTracker != binding.tripTrackerSwitch.isChecked ||
+                oldCat.tripStartDate != MyDate(binding.tripStartDate.text.toString()) ||
+                oldCat.tripFinishDate != MyDate(binding.tripFinishDate.text.toString())
+            )*/ {
                 CategoryViewModel.updateCategory(
                     binding.categoryId.text.toString().toInt(),
-                    oldCat?.categoryName.toString(),
-                    oldCat?.subcategoryName.toString(),
+                    chosenCategory,
+                    binding.editSubcategoryNewName.text.toString().trim(),
                     chosenDiscType,
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
                     binding.stateSwitch.isChecked,
                     binding.defaultAppButton.isChecked,
-                    binding.defaultCategoryButton.isChecked
+                    binding.defaultCategoryButton.isChecked,
+                    binding.tripTrackerSwitch.isChecked,
+                    MyDate(binding.tripStartDate.text.toString()),
+                    MyDate(binding.tripFinishDate.text.toString())
                 )
                 MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 dismiss()
-            } else if (oldCat.categoryName != chosenCategory ||
+            } /*else if (oldCat.categoryName != chosenCategory ||
                 oldCat.subcategoryName != binding.editSubcategoryNewName.text.toString()
             ) {
                 CategoryViewModel.updateCategory(
@@ -372,15 +456,17 @@ class CategoryEditDialogFragment : DialogFragment() {
                     if (binding.privacySwitch.isChecked) MyApplication.userIndex else 2,
                     binding.stateSwitch.isChecked,
                     binding.defaultAppButton.isChecked,
-                    binding.defaultCategoryButton.isChecked
-                )
+                    binding.defaultCategoryButton.isChecked,
+                    binding.tripTrackerSwitch.isChecked,
+                    MyDate(binding.tripStartDate.text.toString()),
+                    MyDate(binding.tripFinishDate.text.toString())                )
                 setupCategorySpinner(chosenCategory)
                 MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
                 dismiss()
             } else {
                 Toast.makeText(activity, getString(R.string.no_changes_made), Toast.LENGTH_SHORT).show()
                 dismiss()
-            }
+            } */
         }
         binding.buttonDelete.setOnClickListener {
             if (spCtr > 0) {

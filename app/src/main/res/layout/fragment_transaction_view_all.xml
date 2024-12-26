@@ -195,6 +195,18 @@
             android:maxLines="1"/>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tripCategoryHeading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1.4"
+            android:gravity="start"
+            android:text="@string/tripCategory"
+            android:textSize="@dimen/label_font_size"
+            android:textStyle="bold"
+            android:maxLines="1"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/noteHeading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -822,6 +834,19 @@
             android:textOff="@string/off"
             android:textOn="@string/on"
             android:text="@string/show_category_column"
+            android:textSize="@dimen/label_font_size"
+            android:textStyle="bold"
+            android:textColor="?attr/textOnMenuColor"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/show_trip_category_columns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:checked="true"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
+            android:text="@string/show_trip_category_column"
             android:textSize="@dimen/label_font_size"
             android:textStyle="bold"
             android:textColor="?attr/textOnMenuColor"/>

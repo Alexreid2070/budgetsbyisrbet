@@ -46,6 +46,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>,
         var vhDiscType: TextView = view.findViewById(R.id.row_disctype)
         var vhState: TextView = view.findViewById(R.id.row_state)
         var vhPrivacy: ImageView = view.findViewById(R.id.row_private)
+        var vhTripTracker: ImageView = view.findViewById(R.id.row_travel)
         var vhDefault: ImageView = view.findViewById(R.id.row_default)
         var vhDetail: LinearLayout = view.findViewById(R.id.row_detail)
     }
@@ -69,6 +70,10 @@ class CategoryAdapter (context: Context, data: MutableList<Category>,
         else
             viewHolder.vhPrivacy.visibility = View.GONE
 
+        if (cData.tripTracker)
+            viewHolder.vhTripTracker.visibility = View.VISIBLE
+        else
+            viewHolder.vhTripTracker.visibility = View.GONE
         viewHolder.vhID.text = cData.id.toString()
         viewHolder.vhSubcategory.text = cData.subcategoryName
         viewHolder.vhDiscType.text =
@@ -137,6 +142,7 @@ class CategoryAdapter (context: Context, data: MutableList<Category>,
         viewHolder.vhDetail.layoutParams = trParams
         viewHolder.vhCategory.setOnClickListener { listener(cData.id) }
         viewHolder.vhSubcategory.setOnClickListener { listener(cData.id) }
+        viewHolder.vhDiscType.setOnClickListener { listener(cData.id) }
 
         return myConvertView
     }

@@ -27,6 +27,7 @@ class DashboardTabsFragment : Fragment() {
         val adapter = TabsAdapter(activity)
         adapter.addFragment(DashboardFragment(), "Dashboard")
         adapter.addFragment(YearOverYearFragment(), "Year Over Year")
+        adapter.addFragment(TripTrackerFragment(), "Trip Tracker")
 
         binding.viewPager.adapter = adapter
         binding.viewPager.currentItem = DefaultsViewModel.getDefaultLastDashboardTab()
@@ -49,8 +50,10 @@ class DashboardTabsFragment : Fragment() {
                 if (tab != null) {
                     if (tab.text.toString() == "Dashboard")
                         DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 0)
-                    else
+                    else if (tab.text.toString() == "Year Over Year")
                         DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 1)
+                    else
+                        DefaultsViewModel.updateDefaultInt(cDEFAULT_LAST_DASHBOARD_TAB, 2)
                     setTabActive(tab)
                 }
 //                tab?.customView = createCustomTabView(tab?.text.toString(), 15, android.R.color.black)

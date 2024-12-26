@@ -62,6 +62,16 @@
             android:contentDescription="@string/indicates_if_category_is_private_or_not"
             android:textSize="14sp"/>
         <ImageView
+            android:id="@+id/row_travel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:src="@drawable/baseline_airplanemode_active_24"
+            android:contentDescription="@string/indicates_if_category_is_trip_tracker"
+            android:textSize="14sp"/>
+        <ImageView
             android:id="@+id/row_default"
             android:layout_width="0dp"
             android:layout_height="match_parent"

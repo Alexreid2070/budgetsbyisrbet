@@ -202,6 +202,7 @@ class TransactionRecyclerAdapter(
         val vtfpercentage2: TextView = view.findViewById(R.id.vtf_percentage2)
         val vtfCategoryID: TextView = view.findViewById(R.id.vtf_category_id)
         val vtfcategory: TextView = view.findViewById(R.id.vtf_category)
+        val vtftripCategory: TextView = view.findViewById(R.id.vtf_trip_category)
         val vtfwho: TextView = view.findViewById(R.id.vtf_who)
         val vtfnote: TextView = view.findViewById(R.id.vtf_note)
         val vtfdisc: TextView = view.findViewById(R.id.vtf_disc)
@@ -226,6 +227,7 @@ class TransactionRecyclerAdapter(
             currentSortOrder == TransactionSortOrder.DATE_DESCENDING) {
             holder.vtfdate.text = data.date.toString()
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtftripCategory.text = TripExpenseType.getText(data.tripTrackerCategory)
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
@@ -244,6 +246,7 @@ class TransactionRecyclerAdapter(
             currentSortOrder == TransactionSortOrder.CATEGORY_DESCENDING) {
             holder.vtfdate.text = CategoryViewModel.getFullCategoryName(data.category)
             holder.vtfcategory.text = data.date.toString()
+            holder.vtftripCategory.text = TripExpenseType.getText(data.tripTrackerCategory)
             if (data.paidby == data.boughtfor)
                 holder.vtfwho.text = SpenderViewModel.getSpenderName(data.paidby)
             else
@@ -267,6 +270,7 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfwho.text = data.date.toString()
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtftripCategory.text = TripExpenseType.getText(data.tripTrackerCategory)
             holder.vtfnote.text = data.note
             holder.vtftype.text = data.type.substring(0,3)
             if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
@@ -285,6 +289,7 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtftripCategory.text = TripExpenseType.getText(data.tripTrackerCategory)
             holder.vtftype.text = data.type.substring(0,3)
             if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
                 holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
@@ -302,6 +307,7 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtftripCategory.text = TripExpenseType.getText(data.tripTrackerCategory)
             holder.vtfnote.text = data.note
             if (data.creditSortOrder == 0 && data.type == cTRANSACTION_TYPE_CREDIT)
                 holder.vtfamount.text = gDecWithCurrency(data.sumAfterCredits)
@@ -323,6 +329,7 @@ class TransactionRecyclerAdapter(
                     SpenderViewModel.getSpenderName(data.paidby).substring(0,2),
                     SpenderViewModel.getSpenderName(data.boughtfor).substring(0,2))
             holder.vtfcategory.text = CategoryViewModel.getFullCategoryName(data.category)
+            holder.vtftripCategory.text = TripExpenseType.getText(data.tripTrackerCategory)
             holder.vtfnote.text = data.note
         }
         if (position < groupList.size) {
@@ -351,6 +358,7 @@ class TransactionRecyclerAdapter(
         holder.vtfamount.setBackgroundColor(Color.parseColor(backgroundColour))
         holder.vtfamount.setTypeface(null, Typeface.NORMAL)
         holder.vtfwho.setTypeface(null, Typeface.NORMAL)
+        holder.vtftripCategory.setTypeface(null, Typeface.NORMAL)
         holder.vtfnote.setTypeface(null, Typeface.NORMAL)
         holder.vtfcategory.setTypeface(null, Typeface.NORMAL)
         holder.vtfamount.setTypeface(null, Typeface.NORMAL)
@@ -361,6 +369,7 @@ class TransactionRecyclerAdapter(
             holder.vtfwho.setTypeface(null, Typeface.BOLD)
             holder.vtfnote.setTypeface(null, Typeface.BOLD)
             holder.vtfcategory.setTypeface(null, Typeface.BOLD)
+            holder.vtftripCategory.setTypeface(null, Typeface.BOLD)
             holder.vtfamount.setTypeface(null, Typeface.BOLD)
             holder.vtfrunningtotal.setTypeface(null, Typeface.BOLD)
 //            holder.vtfamount.setBackgroundColor(Color.LTGRAY)
@@ -431,6 +440,9 @@ class TransactionRecyclerAdapter(
         if (!inAccountingMode() &&
             !DefaultsViewModel.getDefaultShowWhoInViewAll())
             holder.vtfwho.visibility = View.GONE
+        if (inAccountingMode() ||
+            !DefaultsViewModel.getDefaultShowTripCategoryInViewAll())
+            holder.vtftripCategory.visibility = View.GONE
         if (inAccountingMode() ||
             !DefaultsViewModel.getDefaultShowNoteInViewAll())
             holder.vtfnote.visibility = View.GONE

@@ -20,6 +20,7 @@ const val cDEFAULT_QUOTE = "Quote"
 const val cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL = "ShowIndividualAmountsinViewAll"
 const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL = "ShowWhoinViewAll"
 const val cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL = "ShowCategoryinViewAll"
+const val cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL = "ShowTripCategoryinViewAll"
 const val cDEFAULT_SHOW_NOTE_VIEW_ALL = "ShowNoteinViewAll"
 const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL = "ShowDiscinViewAll"
 const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL = "ShowTypeinViewAll"
@@ -33,6 +34,9 @@ const val cDEFAULT_DELTA_DASHBOARD = "DeltaDashboard"
 const val cDEFAULT_DELTA_YOY = "DeltaYOY"
 const val cDEFAULT_ROUND_DASHBOARD = "RoundDashboard"
 const val cDEFAULT_ROUND_YOY = "RoundYOY"
+const val cDEFAULT_FILTER_CATEGORY_TRIP = "FilterCategoryTrip"
+const val cDEFAULT_FILTER_WHO_TRIP = "FilterWhoTrip"
+const val cDEFAULT_ROUND_TRIP = "FoundTrip"
 const val cDEFAULT_SHOW_DISC_DASHBOARD = "ShowDiscDashboard"
 const val cDEFAULT_BUDGET_VIEW = "BudgetView"
 const val cDEFAULT_FILTER_DISC_TRACKER = "FilterDiscTracker"
@@ -54,6 +58,7 @@ const val cDEFAULT_QUOTE_VALUE = true
 const val cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE = false
 const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE = true
 const val cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE = true
+const val cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL_VALUE = false
 const val cDEFAULT_SHOW_NOTE_IN_VIEW_ALL_VALUE = true
 const val cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE = false
 const val cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE = false
@@ -68,6 +73,9 @@ const val cDEFAULT_DELTA_DASHBOARD_VALUE = "#"
 const val cDEFAULT_DELTA_YOY_VALUE = "#"
 const val cDEFAULT_ROUND_DASHBOARD_VALUE = false
 const val cDEFAULT_ROUND_YOY_VALUE = true
+val cDEFAULT_FILTER_CATEGORY_TRIP_VALUE = TripExpenseType.ALL
+const val cDEFAULT_FILTER_WHO_TRIP_VALUE = 2
+const val cDEFAULT_ROUND_TRIP_VALUE = true
 const val cDEFAULT_SHOW_DISC_DASHBOARD_VALUE = true
 const val cDEFAULT_BUDGET_VIEW_VALUE = cBudgetDateView
 const val cDEFAULT_FILTER_DISC_TRACKER_VALUE = cDiscTypeAll
@@ -91,6 +99,7 @@ class DefaultsViewModel : ViewModel() {
     var defaultShowIndividualAmountsInViewAll: Boolean = cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE
     var defaultShowWhoInViewAll: Boolean = cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE
     var defaultShowCategoryInViewAll: Boolean = cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE
+    var defaultShowTripCategoryInViewAll: Boolean = cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL_VALUE
     var defaultShowNoteInViewAll: Boolean = cDEFAULT_SHOW_NOTE_IN_VIEW_ALL_VALUE
     var defaultShowDiscInViewAll: Boolean = cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE
     var defaultShowTypeInViewAll: Boolean = cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE
@@ -105,6 +114,9 @@ class DefaultsViewModel : ViewModel() {
     var defaultDeltaYOY: String = cDEFAULT_DELTA_YOY_VALUE
     var defaultRoundDashboard: Boolean = cDEFAULT_ROUND_DASHBOARD_VALUE
     var defaultRoundYOY: Boolean = cDEFAULT_ROUND_YOY_VALUE
+    var defaultFilterCategoryTrip: TripExpenseType = cDEFAULT_FILTER_CATEGORY_TRIP_VALUE
+    var defaultFilterWhoTrip: Int = cDEFAULT_FILTER_WHO_TRIP_VALUE
+    var defaultRoundTrip: Boolean = cDEFAULT_ROUND_TRIP_VALUE
     var defaultShowDiscDashboard: Boolean = cDEFAULT_SHOW_DISC_DASHBOARD_VALUE
     var defaultBudgetView: String = cDEFAULT_BUDGET_VIEW_VALUE
     var defaultFilterDiscTracker = cDEFAULT_FILTER_DISC_TRACKER_VALUE
@@ -163,6 +175,9 @@ class DefaultsViewModel : ViewModel() {
         fun getDefaultShowCategoryInViewAll(): Boolean {
             return singleInstance.defaultShowCategoryInViewAll
         }
+        fun getDefaultShowTripCategoryInViewAll(): Boolean {
+            return singleInstance.defaultShowTripCategoryInViewAll
+        }
         fun getDefaultShowNoteInViewAll(): Boolean {
             return singleInstance.defaultShowNoteInViewAll
         }
@@ -189,6 +204,15 @@ class DefaultsViewModel : ViewModel() {
         }
         fun getDefaultFilterWhoYOY(): String {
             return singleInstance.defaultFilterWhoYOY
+        }
+        fun getDefaultFilterCategoryTrip(): TripExpenseType {
+            return singleInstance.defaultFilterCategoryTrip
+        }
+        fun getDefaultFilterWhoTrip(): Int {
+            return singleInstance.defaultFilterWhoTrip
+        }
+        fun getDefaultRoundTrip(): Boolean {
+            return singleInstance.defaultRoundTrip
         }
         fun getDefaultDeltaDashboard(): String {
             return singleInstance.defaultDeltaDashboard
@@ -275,6 +299,7 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultShowIndividualAmountsInViewAll = cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowWhoInViewAll = cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowCategoryInViewAll = cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE
+            singleInstance.defaultShowTripCategoryInViewAll = cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowNoteInViewAll = cDEFAULT_SHOW_NOTE_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowDiscInViewAll = cDEFAULT_SHOW_DISC_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowTypeInViewAll = cDEFAULT_SHOW_TYPE_IN_VIEW_ALL_VALUE
@@ -289,6 +314,9 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultDeltaYOY = cDEFAULT_DELTA_YOY_VALUE
             singleInstance.defaultRoundDashboard = cDEFAULT_ROUND_DASHBOARD_VALUE
             singleInstance.defaultRoundYOY = cDEFAULT_ROUND_YOY_VALUE
+            singleInstance.defaultFilterCategoryTrip = cDEFAULT_FILTER_CATEGORY_TRIP_VALUE
+            singleInstance.defaultFilterWhoTrip = cDEFAULT_FILTER_WHO_TRIP_VALUE
+            singleInstance.defaultRoundTrip = cDEFAULT_ROUND_TRIP_VALUE
             singleInstance.defaultShowDiscDashboard = cDEFAULT_SHOW_DISC_DASHBOARD_VALUE
             singleInstance.defaultBudgetView = cDEFAULT_BUDGET_VIEW_VALUE
             singleInstance.defaultFilterDiscTracker = cDEFAULT_FILTER_DISC_TRACKER_VALUE
@@ -483,6 +511,12 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_VIEW_ROWS_YOY -> {
                 singleInstance.defaultViewRowsYoy = YoyView.getByValue(iValue)!!
             }
+            cDEFAULT_FILTER_CATEGORY_TRIP -> {
+                singleInstance.defaultFilterCategoryTrip = TripExpenseType.fromInt(iValue)
+            }
+            cDEFAULT_FILTER_WHO_TRIP -> {
+                singleInstance.defaultFilterWhoTrip = iValue
+            }
             cDEFAULT_SP_LOOKAHEAD -> {
                 if (iValue.toString().toIntOrNull() != null)
                     singleInstance.defaultSPLookahead = iValue
@@ -512,6 +546,9 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL -> {
                 singleInstance.defaultShowCategoryInViewAll = iValue
             }
+            cDEFAULT_SHOW_TRIP_CATEGORY_IN_VIEW_ALL -> {
+                singleInstance.defaultShowTripCategoryInViewAll = iValue
+            }
             cDEFAULT_SHOW_WHO_IN_VIEW_ALL -> {
                 singleInstance.defaultShowWhoInViewAll = iValue
             }
@@ -532,6 +569,9 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_ROUND_YOY -> {
                 singleInstance.defaultRoundYOY = iValue
+            }
+            cDEFAULT_ROUND_TRIP -> {
+                singleInstance.defaultRoundTrip = iValue
             }
             cDEFAULT_SHOW_DISC_DASHBOARD -> {
                 singleInstance.defaultShowDiscDashboard = iValue
@@ -593,6 +633,12 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_VIEW_ROWS_YOY -> {
                 singleInstance.defaultViewRowsYoy = YoyView.getByValue(iValue.toInt())!!
             }
+            cDEFAULT_FILTER_CATEGORY_TRIP -> {
+                singleInstance.defaultFilterCategoryTrip = TripExpenseType.fromInt(iValue.toInt())
+            }
+            cDEFAULT_FILTER_WHO_TRIP -> {
+                singleInstance.defaultFilterWhoTrip = iValue.toInt()
+            }
             cDEFAULT_SP_LOOKAHEAD -> {
                 if (iValue.toIntOrNull() != null)
                     singleInstance.defaultSPLookahead = iValue.toInt()
@@ -632,6 +678,9 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_ROUND_YOY -> {
                 singleInstance.defaultRoundYOY = (iValue == cTRUE)
+            }
+            cDEFAULT_ROUND_TRIP -> {
+                singleInstance.defaultRoundTrip = (iValue == cTRUE)
             }
             cDEFAULT_SHOW_DISC_DASHBOARD -> {
                 singleInstance.defaultShowDiscDashboard = (iValue == cTRUE)

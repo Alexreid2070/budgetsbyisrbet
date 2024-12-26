@@ -85,6 +85,17 @@
         </TextView>
 
         <TextView
+            android:id="@+id/vtf_trip_category"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.4"
+            android:textAlignment="textStart"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="@dimen/normal_font_size">
+        </TextView>
+
+        <TextView
             android:id="@+id/vtf_note"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

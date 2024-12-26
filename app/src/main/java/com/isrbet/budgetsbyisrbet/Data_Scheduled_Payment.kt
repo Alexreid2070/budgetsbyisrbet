@@ -299,7 +299,9 @@ class ScheduledPaymentViewModel : ViewModel() {
                         TransactionViewModel.addTransactionDatabase(TransactionOut(nextDate.toString(),
                             round(it.amount*100).toInt(),
                             it.category, it.vendor, it.note, it.paidby, it.boughtfor,
-                            it.split1, cTRANSACTION_TYPE_SCHEDULED, it.mykey, ""))
+                            it.split1, cTRANSACTION_TYPE_SCHEDULED, it.mykey, "",
+                            TripExpenseType.UNKNOWN.ordinal)
+                        )
                         val outstandingLoanAmount = if (it.activeLoan) it.getOutstandingLoanAmount(
                             gCurrentDate) else 0
                         var tempString =  MyApplication.getString(R.string.scheduled_payment_was_added_for) + " ${it.vendor}"

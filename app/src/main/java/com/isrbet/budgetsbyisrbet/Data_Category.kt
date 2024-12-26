@@ -9,13 +9,15 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import timber.log.Timber
+import java.time.temporal.ChronoUnit
 import java.util.ArrayList
 
 var maxCategoryID = 1000
 
 data class Category(var id: Int, var categoryName: String, var subcategoryName: String,
                     var discType: String = "", var private: Int = 2,
-                    var inUse: Boolean = true) {
+                    var inUse: Boolean = true, var tripTracker: Boolean = false,
+                    var tripStartDate: MyDate = MyDate(), var tripFinishDate: MyDate = MyDate()) {
     var priority = 0
     constructor(id: Int, iFullCategoryName: String) : this(id, iFullCategoryName, iFullCategoryName) {
         val dash = iFullCategoryName.indexOf("-")
@@ -27,6 +29,9 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
             this.discType = cat?.discType.toString()
             this.private = cat?.private!!
             this.inUse = cat.inUse == true
+            this.tripTracker = cat.tripTracker == true
+            this.tripStartDate = cat.tripStartDate
+            this.tripFinishDate = cat.tripFinishDate
         }
         catch (exception: Exception) {
             Timber.tag("Alex").d("caught an exception in Category constructor (missing dash) $iFullCategoryName")
@@ -43,13 +48,18 @@ data class Category(var id: Int, var categoryName: String, var subcategoryName: 
                 private == MyApplication.userIndex)
     }
     fun out() : CategoryOut {
-        return CategoryOut(categoryName, subcategoryName, discType, private, inUse)
+        return CategoryOut(categoryName, subcategoryName, discType, private, inUse, tripTracker,
+            tripStartDate.toString(), tripFinishDate.toString())
+    }
+    fun getNumberOfTripDays(): Int {
+        return ChronoUnit.DAYS.between(tripStartDate.theDate, tripFinishDate.theDate).toInt()
     }
 }
 
-data class CategoryOut(var Category: String, var SubCategory: String,
-                        var Type: String, var Private: Int,
-                        var State: Boolean)
+data class CategoryOut(var category: String, var subCategory: String,
+                        var type: String, var private: Int,
+                        var state: Boolean, var tripTracker: Boolean,
+                        var tripStartDate: String, var tripFinishDate: String)
 
 
 data class CategoryDetail(var name: String, var color: Int, var priority: Int, var default: Int)
@@ -121,6 +131,10 @@ class CategoryViewModel : ViewModel() {
             return null
         }
 
+        fun getCategoryTripTracker(id: Int): Boolean {
+            val cat = singleInstance.categories.find { it.id == id }
+            return cat?.tripTracker ?: false
+        }
         fun getCategoryPriority(id: Int): Int {
             val cat = singleInstance.categories.find { it.id == id }
             val cd = cat?.categoryName?.let { DefaultsViewModel.getCategoryDetail(it) }
@@ -171,7 +185,8 @@ class CategoryViewModel : ViewModel() {
             singleInstance.categories.forEach {
                 if ((it.inUse || includingOff) &&
                     it.iAmAllowedToSeeThisCategory()) {
-                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType, it.private, it.inUse))
+                    tList.add(Category(it.id, it.categoryName, it.subcategoryName, it.discType, it.private, it.inUse,
+                        it.tripTracker, it.tripStartDate, it.tripFinishDate))
                     val cat = tList[tList.size - 1]
                     cat.priority = DefaultsViewModel.getCategoryDetail(cat.categoryName).priority
                 }
@@ -239,10 +254,12 @@ class CategoryViewModel : ViewModel() {
 
         fun updateCategory(id: Int, iCategory: String, iSubcategory: String, iDisctype: String,
                            iPrivate: Int, iInUse: Boolean, iAppDefault: Boolean,
-                           iCatDefault: Boolean, iLocalOnly: Boolean = false): Category {
+                           iCatDefault: Boolean, iTripTracker: Boolean,
+                           iTripStartDate: MyDate, iTripFinishDate: MyDate,
+                           iLocalOnly: Boolean = false): Category {
             var cat: Category? = singleInstance.categories.find { it.id == id }
             if (cat == null) {
-                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse)
+                cat = Category(id, iCategory, iSubcategory, iDisctype, iPrivate, iInUse, iTripTracker, iTripStartDate, iTripFinishDate)
                 cat.id = getNextID()
                 if (iLocalOnly) {
                     singleInstance.categories.add(cat)
@@ -254,6 +271,9 @@ class CategoryViewModel : ViewModel() {
                 cat.discType = iDisctype
                 cat.private = iPrivate
                 cat.inUse = iInUse
+                cat.tripTracker = iTripTracker
+                cat.tripStartDate = iTripStartDate
+                cat.tripFinishDate = iTripFinishDate
             }
             if (!iLocalOnly) {
                 MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Category")
@@ -353,6 +373,9 @@ class CategoryViewModel : ViewModel() {
                         var disctype = ""
                         var private = 2
                         var inUse = ""
+                        var tripTracker = ""
+                        var tripStartDate = ""
+                        var tripFinishDate = ""
                         for (child in it.children) {
                             when (child.key.toString().lowercase()) {
                                 "category" -> category = child.value.toString().trim()
@@ -360,10 +383,15 @@ class CategoryViewModel : ViewModel() {
                                 "type" -> disctype = child.value.toString().trim()
                                 "state" -> inUse = child.value.toString().lowercase().trim()
                                 "private" -> private = child.value.toString().toInt()
+                                "triptracker" -> tripTracker = child.value.toString().lowercase().trim()
+                                "tripstartdate" -> tripStartDate = child.value.toString().lowercase().trim()
+                                "tripfinishdate" -> tripFinishDate = child.value.toString().lowercase().trim()
                             }
                         }
+                        Timber.tag("Alex").d("created new category ID $categoryID $category $subcategory $tripTracker $tripStartDate $tripFinishDate")
                         categories.add(Category(categoryID, category, subcategory, disctype,
-                            private, inUse != cFALSE))
+                            private, inUse != cFALSE, tripTracker == cTRUE,
+                            MyDate(tripStartDate), MyDate(tripFinishDate)))
                     }
                 } else { // first time user
                     MyApplication.database.getReference("Users/"+MyApplication.userUID)

@@ -222,11 +222,56 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/travel_category_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/input_spinner_layout"
+                android:paddingTop="10dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/travelcategory"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="5dp"
+                    android:textSize="@dimen/label_font_size"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textOnBackground"/>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_background"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/travelCategorySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:background="@android:color/transparent"
+                        android:gravity="end"
+                        android:spinnerMode="dropdown" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/click_to_select"
+                        android:src="@drawable/ic_baseline_arrow_drop_down_24" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/where_note_heading_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
-                android:layout_below="@id/input_spinner_layout">
+                android:layout_below="@id/travel_category_layout">
 
                 <TextView
                     android:layout_width="0dp"
