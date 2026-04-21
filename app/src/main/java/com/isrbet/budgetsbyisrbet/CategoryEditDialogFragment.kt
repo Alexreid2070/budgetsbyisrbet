@@ -11,7 +11,6 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
@@ -19,6 +18,7 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryEditDialogBinding
 import timber.log.Timber
 import java.util.ArrayList
+import androidx.core.graphics.toColorInt
 
 class CategoryEditDialogFragment : DialogFragment() {
     private var _binding: FragmentCategoryEditDialogBinding? = null
@@ -63,7 +63,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 Color.BLACK
             ), cOpacity
         )
-        binding.defaultCategoryRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
+        binding.defaultCategoryRadioGroup.setBackgroundColor(hexColor.toColorInt())
 
         binding.tripStartDate.setText(gCurrentDate.toString())
         val tripStartDateSetListener =
@@ -114,7 +114,7 @@ class CategoryEditDialogFragment : DialogFragment() {
             binding.oldPrivacyLayout.visibility = View.VISIBLE
         else
             binding.oldPrivacyLayout.visibility = View.GONE
-        binding.editCategoryNewNameSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.editCategoryNewNameSpinner.setBackgroundColor(hexColor.toColorInt())
         binding.editCategoryNewNameSpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.editSubcategoryNewName.requestFocus()
         binding.editCategoryNewNameSpinner.onItemSelectedListener = object :
@@ -271,7 +271,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 binding.subcategoryLayout.visibility = View.GONE
             }
         }
-        dtSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        dtSpinner.setBackgroundColor(hexColor.toColorInt())
         dtSpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.categoryDialogOldHeaderLinearLayout.setBackgroundColor(DefaultsViewModel.getCategoryDetail(oldCat?.categoryName.toString()).color)
     }
@@ -355,7 +355,7 @@ class CategoryEditDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
             if (binding.editCategoryNewNameSpinner.selectedItem.toString() ==
-                getString(R.string.add_new_category_name) ) {
+                getString(R.string.add_new_category_name) && binding.editCategoryNewName.text.toString() == "") {
                 binding.editCategoryNewName.error = getString(R.string.enter_new_category_name)
                 focusAndOpenSoftKeyboard(requireContext(), binding.editCategoryNewName)
                 return@setOnClickListener

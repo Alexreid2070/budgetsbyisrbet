@@ -10,6 +10,7 @@ import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationEditDialogBinding
+import androidx.core.graphics.toColorInt
 
 class TranslationEditDialogFragment : DialogFragment() {
 //    interface TranslationEditDialogFragmentListener {
@@ -60,7 +61,7 @@ class TranslationEditDialogFragment : DialogFragment() {
         setupClickListeners()
 
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.afterField.setBackgroundColor(Color.parseColor(hexColor))
+        binding.afterField.setBackgroundColor(hexColor.toColorInt())
         binding.afterField.requestFocus()
 
         binding.beforeField.text = myTranslation.before

@@ -83,7 +83,6 @@
     <string name="loan_calc">Calc de prêt</string>
     <string name="click_to_expand">Cliquez pour agrandir</string>
     <string name="isrbet">ISRBET</string>
-    <string name="quote_of_the_day">Citation du jour:</string>
     <string name="next_payment_date">Prochaine date de paiement</string>
     <string name="next_date">Prochain date</string>
     <string name="regularity">Régularité</string>
@@ -232,7 +231,6 @@
     <string name="edit_translations">Modifier les traductions</string>
     <string name="sound">Du son</string>
     <string name="refresh">Rafraîchir</string>
-    <string name="show_quote_of_the_day">Afficher la citation du jour</string>
     <string name="show_currency_symbol">Afficher le symbole monétaire</string>
     <string name="show_totals_as">Afficher les totaux comme</string>
     <string name="show_split_amount_columns">Afficher les colonnes montant fractionné?</string>

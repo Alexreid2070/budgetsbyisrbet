@@ -12,13 +12,11 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
-import com.isrbet.budgetsbyisrbet.TransactionViewModel.Companion.AnnualTripCategoryTotal
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTripTrackerBinding
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.*
-import kotlin.random.Random
 
 private const val cHEADER = 0
 private const val cDETAIL = 1
@@ -92,8 +90,9 @@ class TripTrackerFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
+                    Timber.tag("Alex").d("Before setting default")
                     DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_CATEGORY_TRIP, position)
-                    Timber.tag("Alex").d("Setting spinner to " + TripExpenseType.getText(TripExpenseType.fromInt(position)))
+                    Timber.tag("Alex").d("%s%s", "Setting spinner to ", TripExpenseType.getText(TripExpenseType.fromInt(position)))
                     loadRows(false)
                     setTitle()
                 }
@@ -109,7 +108,7 @@ class TripTrackerFragment : Fragment() {
             loadRows(false)
         }
         binding.collapseAll.setOnClickListener {
-            DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_CATEGORY_TRIP, TripExpenseType.TOTAL.ordinal)
+            DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_CATEGORY_TRIP, TripExpenseType.TOTAL.ordinal, true)
             loadRows(false)
             setTitle()
         }
@@ -134,17 +133,20 @@ class TripTrackerFragment : Fragment() {
         binding.filterWhoRadioGroup.setOnCheckedChangeListener { _, optionId ->
             when (optionId) {
                 R.id.name1RadioButton -> {
+                    Timber.tag("Alex").d("Button 1")
                     DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_WHO_TRIP, 0)
                     setTitle()
                     loadRows(true)
                     // do something when radio button 1 is selected
                 }
                 R.id.name2RadioButton -> {
+                    Timber.tag("Alex").d("Button 2")
                     DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_WHO_TRIP, 1)
                     setTitle()
                     loadRows(true)
                 }
                 R.id.whoAllRadioButton -> {
+                    Timber.tag("Alex").d("Button 3")
                     DefaultsViewModel.updateDefaultInt(cDEFAULT_FILTER_WHO_TRIP, 2)
                     setTitle()
                     loadRows(true)
@@ -165,6 +167,7 @@ class TripTrackerFragment : Fragment() {
 
     private fun loadRows(iRefreshRows: Boolean = false) = runBlocking {
         launch {
+            Timber.tag("Alex").d("LoadRows")
             var grandTotal = 0.0
             var grandTotalNumOfDays = 0
             val viewRows = DefaultsViewModel.getDefaultFilterCategoryTrip()
@@ -189,7 +192,6 @@ class TripTrackerFragment : Fragment() {
             createViewRow(cHEADER, -1, TripExpenseType.ALL, 0, TripExpenseType.ALL, 0.0, 0, 0.0)
 
             var i = 0
-            Timber.tag("Alex").d("myRows has ${myRows.size} rows")
             for (row in myRows) {
                 val catID = CategoryViewModel.getID(row.category, row.subcategory)
 
@@ -477,9 +479,12 @@ class TripTrackerFragment : Fragment() {
 
     private fun addTripCategories() {
         val tripCategoryList: MutableList<String> = ArrayList()
-        for (i in 0 until TripExpenseType.UNKNOWN.ordinal+1) {
+        Timber.tag("Alex").d("Before for")
+        for (i in 0 until TripExpenseType.TOTAL.ordinal+1) {
+            Timber.tag("Alex").d("Adding '${TripExpenseType.getText(TripExpenseType.fromInt(i))}'")
             tripCategoryList.add(i, TripExpenseType.getText(TripExpenseType.fromInt(i)))
         }
+        Timber.tag("Alex").d("after for")
 
         val arrayAdapter = ArrayAdapter(
             requireContext(),
@@ -493,15 +498,22 @@ class TripTrackerFragment : Fragment() {
     private fun onExpandClicked(layout: LinearLayout) {
         if (layout.visibility == View.GONE) { // ie expand the section
             // first hide all other possible expansions
+            Timber.tag("Alex").d("one")
             resetLayout(binding.settingsLinearLayout)
+            Timber.tag("Alex").d("two")
             resetLayout(binding.optionsLinearLayout)
+            Timber.tag("Alex").d("three")
             layout.visibility = View.VISIBLE
+            Timber.tag("Alex").d("four")
         } else { // ie retract the section
+            Timber.tag("Alex").d("oneA")
             resetLayout(layout)
+            Timber.tag("Alex").d("twoA")
         }
     }
 
     private fun setTitle() {
+        Timber.tag("Alex").d("setTitle")
         var title = "Trip Tracker"
 
         var currentFilterIndicator = if (DefaultsViewModel.getDefaultFilterCategoryTrip() == TripExpenseType.ALL) {
@@ -582,10 +594,7 @@ class TripTrackerRows {
                 if (cat != null)
                     row.numberOfDays = cat.getNumberOfTripDays()
                 row.avgAmount = actualTotal.value / row.numberOfDays
-                Timber.tag("Alex").d("Added data to row $i ${cat?.subcategoryName} ${actualTotal.value}")
             }
-            else
-                Timber.tag("Alex").d("Did not add data to row $i ${actualTotal.catID} ${actualTotal.value}")
 
             val rowAll = data.find { it.categoryID == actualTotal.catID &&
                     it.tripCategory == TripExpenseType.ALL }

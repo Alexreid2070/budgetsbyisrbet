@@ -82,7 +82,6 @@
     <string name="loan_calc">Loan\nCalc.</string>
     <string name="click_to_expand">Click to expand</string>
     <string name="isrbet">ISRBET</string>
-    <string name="quote_of_the_day">Quote of the day:</string>
     <string name="next_payment_date">Next Payment Date</string>
     <string name="next_date">Next Date</string>
     <string name="regularity">Regularity</string>
@@ -231,7 +230,6 @@
     <string name="edit_translations">Edit Translations</string>
     <string name="sound">Sound</string>
     <string name="refresh">Refresh</string>
-    <string name="show_quote_of_the_day">Show Quote of the Day</string>
     <string name="show_currency_symbol">Show Currency Symbol</string>
     <string name="show_totals_as">Show totals as</string>
     <string name="show_split_amount_columns">Show Split Amount columns?</string>

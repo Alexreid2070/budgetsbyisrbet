@@ -32,6 +32,9 @@ import com.isrbet.budgetsbyisrbet.databinding.FragmentTransactionViewAllBinding
 import com.l4digital.fastscroll.FastScrollRecyclerView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import androidx.core.view.isVisible
+import androidx.core.view.isGone
+import androidx.core.graphics.toColorInt
 
 class PreviousFilters : ViewModel() {
     var prevCategoryFilter = ""
@@ -111,7 +114,7 @@ class TransactionViewAllFragment : Fragment() {
             // fyi I have done a time check on how long it takes to copy the list.  It took 0ms to copy a list of 7000.
             // so this is definitely not a perf issue
             val expList = TransactionViewModel.getViewAllTransactions()
-            if (expList.size == 0) {
+            if (expList.isEmpty()) {
                 binding.noInformationText.visibility = View.VISIBLE
                 binding.noInformationText.text = getString(R.string.you_have_not_yet_entered_any_transactions)
             } else {
@@ -182,7 +185,7 @@ class TransactionViewAllFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (binding.transactionSearch.visibility == View.VISIBLE) // because this fun is triggered on start-up...
+                if (binding.transactionSearch.isVisible) // because this fun is triggered on start-up...
                     submitSearch(newText)
                 return true
             }
@@ -364,16 +367,17 @@ class TransactionViewAllFragment : Fragment() {
         }
 
         binding.buttonSettings.setOnClickListener {
-            if (binding.expandedLabelLayout.visibility == View.GONE &&
-                    binding.expandedViewColumnLayout.visibility == View.GONE &&
-                    binding.expandedFilterLayout.visibility == View.GONE) {
+            if (binding.expandedLabelLayout.isGone &&
+                binding.expandedViewColumnLayout.isGone &&
+                    binding.expandedFilterLayout.isGone
+            ) {
                 binding.expandedLabelLayout.visibility = View.VISIBLE
                 binding.expandedFilterLayout.visibility = View.VISIBLE
                 val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
-                binding.expandedFilterLayout.setBackgroundColor(Color.parseColor(hexColor))
+                binding.expandedFilterLayout.setBackgroundColor(hexColor.toColorInt())
                 binding.expandedFilterLayout.setBackgroundResource(R.drawable.rounded_top_corners)
                 val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
-                binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor2))
+                binding.expandedViewColumnLabel.setBackgroundColor(hexColor2.toColorInt())
                 binding.expandedViewColumnLayout.visibility = View.GONE
                 binding.navButtonLinearLayout.visibility = View.GONE
             } else {
@@ -385,12 +389,12 @@ class TransactionViewAllFragment : Fragment() {
         }
 
         binding.expandedViewColumnLabel.setOnClickListener {
-            if (binding.expandedViewColumnLayout.visibility == View.GONE) {
+            if (binding.expandedViewColumnLayout.isGone) {
                 showExpandedViewColumnArea()
             }
         }
         binding.expandedFilterLabel.setOnClickListener {
-            if (binding.expandedFilterLayout.visibility == View.GONE) {
+            if (binding.expandedFilterLayout.isGone) {
                 showExpandedFilterArea()
             }
         }
@@ -467,7 +471,7 @@ class TransactionViewAllFragment : Fragment() {
             binding.whoHeading.visibility = View.GONE
         }
         binding.searchButton.setOnClickListener {
-            if (binding.transactionSearch.visibility == View.GONE) {
+            if (binding.transactionSearch.isGone) {
                 binding.expandedLabelLayout.visibility = View.GONE
                 binding.expandedViewColumnLayout.visibility = View.GONE
                 binding.expandedFilterLayout.visibility = View.GONE
@@ -821,19 +825,19 @@ class TransactionViewAllFragment : Fragment() {
     private fun showExpandedViewColumnArea() {
         binding.expandedViewColumnLayout.visibility = View.VISIBLE
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
-        binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor))
+        binding.expandedViewColumnLabel.setBackgroundColor(hexColor.toColorInt())
         binding.expandedViewColumnLabel.setBackgroundResource(R.drawable.rounded_top_corners)
         val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
-        binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor2))
+        binding.expandedFilterLabel.setBackgroundColor(hexColor2.toColorInt())
         binding.expandedFilterLayout.visibility = View.GONE
     }
     private fun showExpandedFilterArea() {
         binding.expandedFilterLayout.visibility = View.VISIBLE
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.menuColor, Color.BLACK), cOpacity)
-        binding.expandedFilterLabel.setBackgroundColor(Color.parseColor(hexColor))
+        binding.expandedFilterLabel.setBackgroundColor(hexColor.toColorInt())
         binding.expandedFilterLabel.setBackgroundResource(R.drawable.rounded_top_corners)
         val hexColor2 = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.background, Color.BLACK), cOpacity)
-        binding.expandedViewColumnLabel.setBackgroundColor(Color.parseColor(hexColor2))
+        binding.expandedViewColumnLabel.setBackgroundColor(hexColor2.toColorInt())
         binding.expandedViewColumnLayout.visibility = View.GONE
     }
     private fun adjustColumnHeadings(iSortOrderDirection: SortOrderDirection) {
@@ -1007,7 +1011,7 @@ class TransactionViewAllFragment : Fragment() {
     }
 
     private fun closeSearch() {
-        if (binding.transactionSearch.visibility == View.VISIBLE) {
+        if (binding.transactionSearch.isVisible) {
             val adapter: TransactionRecyclerAdapter =
                 binding.transactionViewAllRecyclerView.adapter as TransactionRecyclerAdapter
             binding.transactionSearch.visibility = View.GONE
@@ -1144,7 +1148,7 @@ class TransactionViewAllFragment : Fragment() {
     private fun saveFile2(iFileName: String) {
         val scopes = listOf(SheetsScopes.SPREADSHEETS)
         val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
-        credential.selectedAccount = Account(MyApplication.userEmail, BuildConfig.APPLICATION_ID)
+        credential.selectedAccount = Account(MyApplication.userEmail, "com.google") //BuildConfig.APPLICATION_ID)
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         val httpTransport =  NetHttpTransport()

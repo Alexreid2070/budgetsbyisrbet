@@ -14,7 +14,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetBinding
-import java.util.*
+import androidx.core.graphics.toColorInt
 
 class BudgetFragment : Fragment() {
     private var _binding: FragmentBudgetBinding? = null
@@ -46,15 +46,15 @@ class BudgetFragment : Fragment() {
             }
 
         binding.startDate.setOnClickListener {
-            var lcal = MyDate()
+            var currentDate = MyDate()
             if (binding.startDate.text.toString() != "") {
-                lcal = MyDate(binding.startDate.text.toString())
+                currentDate = MyDate(binding.startDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                lcal.getYear(),
-                lcal.getMonth()-1,
-                lcal.getDay()
+                currentDate.getYear(),
+                currentDate.getMonth()-1,
+                currentDate.getDay()
             ).show()
         }
 
@@ -71,7 +71,7 @@ class BudgetFragment : Fragment() {
         pSpinner.adapter = arrayAdapter
         pSpinner.setSelection(arrayAdapter.getPosition(getString(R.string.month)))
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.periodSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.periodSpinner.setBackgroundColor(hexColor.toColorInt())
 
         loadCategoryRadioButtons()
         loadSpenderRadioButtons()
@@ -81,7 +81,7 @@ class BudgetFragment : Fragment() {
 
         binding.budgetAddCategoryRadioGroup.setOnCheckedChangeListener { _, _ ->
             val selectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
-            val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+            val radioButton: RadioButton = requireActivity().findViewById(selectedId)
             addSubCategories(radioButton.text.toString())
         }
         if (SpenderViewModel.singleUser()) {
@@ -92,10 +92,10 @@ class BudgetFragment : Fragment() {
 
     private fun setupForEdit() {
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.budgetAddSubCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.budgetAddSubCategorySpinner.setBackgroundColor(hexColor.toColorInt())
         binding.budgetAddSubCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
 
-        binding.periodSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.periodSpinner.setBackgroundColor(hexColor.toColorInt())
         binding.periodSpinner.setPopupBackgroundResource(R.drawable.spinner)
 
         binding.buttonSave.setOnClickListener {
@@ -217,12 +217,12 @@ class BudgetFragment : Fragment() {
         val whoId = if (SpenderViewModel.singleUser())
             0
         else {
-            val whoRadioButton = requireActivity().findViewById(selectedId) as RadioButton
+            val whoRadioButton: RadioButton = requireActivity().findViewById(selectedId)
             SpenderViewModel.getSpenderIndex(whoRadioButton.text.toString())
         }
 
         val occSelectedId = binding.budgetAddOccurenceRadioGroup.checkedRadioButtonId
-        val occRadioButton = requireActivity().findViewById(occSelectedId) as RadioButton
+        val occRadioButton: RadioButton = requireActivity().findViewById(occSelectedId)
         val occurenceText = occRadioButton.text.toString()
         val newOccurenceID = if (occurenceText == getString(R.string.once))
             cBUDGET_JUST_THIS_MONTH
@@ -230,7 +230,7 @@ class BudgetFragment : Fragment() {
             cBUDGET_RECURRING
 
         val catSelectedId = binding.budgetAddCategoryRadioGroup.checkedRadioButtonId
-        val catRadioButton = requireActivity().findViewById(catSelectedId) as RadioButton
+        val catRadioButton: RadioButton = requireActivity().findViewById(catSelectedId)
         val categoryID = CategoryViewModel.getID(catRadioButton.text.toString(), binding.budgetAddSubCategorySpinner.selectedItem.toString())
 
         val errorMsg = BudgetViewModel.checkNewBudget("",

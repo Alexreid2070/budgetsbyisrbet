@@ -169,7 +169,6 @@ class SettingsFragment : Fragment() {
         )
         arrayAdapter.notifyDataSetChanged()
         binding.switchSound.isChecked = DefaultsViewModel.getDefaultSound()
-        binding.switchQuote.isChecked = DefaultsViewModel.getDefaultQuote()
         binding.switchCurrency.isChecked = DefaultsViewModel.getDefaultShowCurrencySymbol()
         binding.spLookaheadText.text =
             String.format(getString(R.string.sp_lookahead), DefaultsViewModel.getDefaultSPLookahead())
@@ -297,7 +296,6 @@ class SettingsFragment : Fragment() {
                 binding.switchIntegrateWithBankNotifications.visibility = View.GONE
                 binding.manageTranslationsLayout.visibility = View.GONE
                 binding.switchSound.visibility = View.GONE
-                binding.switchQuote.visibility = View.GONE
                 binding.settingsRedPercentageLayout.visibility = View.GONE
                 binding.switchCurrency.visibility = View.GONE
                 binding.settingsSpLookaheadLayout.visibility = View.GONE
@@ -325,7 +323,6 @@ class SettingsFragment : Fragment() {
                     binding.manageTranslationsLayout.visibility = View.GONE
                 }
                 binding.switchSound.visibility = View.VISIBLE
-                binding.switchQuote.visibility = View.VISIBLE
                 binding.settingsRedPercentageLayout.visibility = View.VISIBLE
                 binding.switchCurrency.visibility = View.VISIBLE
                 binding.settingsSpLookaheadLayout.visibility = View.VISIBLE
@@ -497,12 +494,6 @@ class SettingsFragment : Fragment() {
                 MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
             }
         }
-        binding.switchQuote.setOnCheckedChangeListener { _, _ ->
-            if (binding.switchQuote.isChecked != DefaultsViewModel.getDefaultQuote()) {
-                DefaultsViewModel.updateDefaultBoolean(cDEFAULT_QUOTE, binding.switchQuote.isChecked)
-                MyApplication.playSound(requireContext(), R.raw.impact_jaw_breaker)
-            }
-        }
         binding.switchCurrency.setOnCheckedChangeListener { _, _ ->
             if (binding.switchCurrency.isChecked != DefaultsViewModel.getDefaultShowCurrencySymbol()) {
                 DefaultsViewModel.updateDefaultBoolean(cDEFAULT_SHOW_CURRENCY_SYMBOL, binding.switchCurrency.isChecked)
@@ -646,11 +637,17 @@ class SettingsFragment : Fragment() {
             Toast.makeText(activity, getString(R.string.leaving_other_user), Toast.LENGTH_SHORT).show()
             activity?.onBackPressedDispatcher?.onBackPressed()
         } else if (!binding.switchSecondUserActive.isChecked && !binding.switchJoinOtherUser.isChecked) { // ie single mode
-            SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(), binding.firstUserEmail.text.toString(), 100, 1))
+            SpenderViewModel.updateSpender(0, Spender(binding.settingsFirstUserName.text.toString(),
+                binding.firstUserEmail.text.toString(),
+                (SpenderViewModel.getSpenderSplit(0) * 100).toInt(),
+                1)) // zzzz
             DefaultsViewModel.updateDefaultInt(cDEFAULT_SPENDER,0)
             if (SpenderViewModel.getTotalCount() >1) {
                 // single mode, so if previous other users were there, turn them off
-                SpenderViewModel.updateSpender(1, Spender(getString(R.string.other), "", 0, 0))
+                SpenderViewModel.updateSpender(1, Spender(getString(R.string.other),
+                    "",
+                    (SpenderViewModel.getSpenderSplit(1) * 100).toInt(),
+                    0)) // zzzz
                 SpenderViewModel.getSpender(2)?.isActive = 0
                 binding.settingsSecondUserName.setText("")
                 binding.secondUserEmail.setText("")

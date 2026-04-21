@@ -11,10 +11,10 @@ import android.text.method.DigitsKeyListener
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTransferBinding
+import androidx.core.graphics.toColorInt
 
 class TransferFragment : Fragment() {
     private var _binding: FragmentTransferBinding? = null
@@ -51,15 +51,15 @@ class TransferFragment : Fragment() {
             }
 
         binding.transferDate.setOnClickListener {
-            var lcal = MyDate()
+            var currentDate = MyDate()
             if (binding.transferDate.text.toString() != "") {
-                lcal = MyDate(binding.transferDate.text.toString())
+                currentDate = MyDate(binding.transferDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                lcal.getYear(),
-                lcal.getMonth()-1,
-                lcal.getDay()
+                currentDate.getYear(),
+                currentDate.getMonth()-1,
+                currentDate.getDay()
             ).show()
         }
 
@@ -105,7 +105,7 @@ class TransferFragment : Fragment() {
                 binding.splitLayout.visibility = View.GONE
 
                 val selectedId = binding.toRadioGroup.checkedRadioButtonId
-                val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+                val radioButton: RadioButton = requireActivity().findViewById(selectedId)
                 when {
                     radioButton.text.toString() == getString(R.string.joint) -> {
                         binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
@@ -140,17 +140,17 @@ class TransferFragment : Fragment() {
             }
             viewTransfer(args.transactionID)
             val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-            binding.transferDate.setBackgroundColor(Color.parseColor(hexColor))
-            binding.transferAmount.setBackgroundColor(Color.parseColor(hexColor))
-            binding.transferNote.setBackgroundColor(Color.parseColor(hexColor))
-            binding.fromRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
-            binding.toRadioGroup.setBackgroundColor(Color.parseColor(hexColor))
-            binding.splitText.setBackgroundColor(Color.parseColor(hexColor))
+            binding.transferDate.setBackgroundColor(hexColor.toColorInt())
+            binding.transferAmount.setBackgroundColor(hexColor.toColorInt())
+            binding.transferNote.setBackgroundColor(hexColor.toColorInt())
+            binding.fromRadioGroup.setBackgroundColor(hexColor.toColorInt())
+            binding.toRadioGroup.setBackgroundColor(hexColor.toColorInt())
+            binding.splitText.setBackgroundColor(hexColor.toColorInt())
         }
         binding.transferAmount.requestFocus()
 
         binding.toRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val radioButton = requireActivity().findViewById(checkedId) as RadioButton
+            val radioButton: RadioButton = requireActivity().findViewById(checkedId)
             when {
                 radioButton.text.toString() == getString(R.string.joint) -> {
                     binding.splitSlider.value = (SpenderViewModel.getSpenderSplit(0)*100).toFloat()
@@ -211,7 +211,7 @@ class TransferFragment : Fragment() {
             (binding.toRadioGroup.getChildAt(i) as RadioButton).isEnabled = true
         }
         val selectedId = binding.toRadioGroup.checkedRadioButtonId
-        val radioButton = requireActivity().findViewById(selectedId) as RadioButton
+        val radioButton: RadioButton = requireActivity().findViewById(selectedId)
         if (radioButton.text == getString(R.string.joint)) {
             binding.splitSlider.isEnabled = true
         }
@@ -299,10 +299,10 @@ class TransferFragment : Fragment() {
             return
         }
         val fromRadioButtonChecked = binding.fromRadioGroup.checkedRadioButtonId
-        val fromRadioButton = requireActivity().findViewById(fromRadioButtonChecked) as RadioButton
+        val fromRadioButton: RadioButton = requireActivity().findViewById(fromRadioButtonChecked)
 
         val toRadioGroupChecked = binding.toRadioGroup.checkedRadioButtonId
-        val toRadioButton = requireActivity().findViewById(toRadioGroupChecked) as RadioButton
+        val toRadioButton: RadioButton = requireActivity().findViewById(toRadioGroupChecked)
         if (fromRadioButton.text.toString() == toRadioButton.text.toString()) {
             binding.transferNote.error = getString(R.string.toFromCantBeSame)
             focusAndOpenSoftKeyboard(requireContext(), binding.transferNote)
@@ -352,7 +352,8 @@ class TransferFragment : Fragment() {
         var ctr = 200
         binding.fromRadioGroup.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getActiveCount()) {
+        val numOfSpenders = SpenderViewModel.getTotalCount()
+        for (i in 0 until numOfSpenders) {
             val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
@@ -371,7 +372,7 @@ class TransferFragment : Fragment() {
         ctr = 200
         binding.toRadioGroup.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getActiveCount()) {
+        for (i in 0 until numOfSpenders) {
             val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(

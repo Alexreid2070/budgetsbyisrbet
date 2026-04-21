@@ -400,7 +400,7 @@
                 android:textSize="@dimen/label_font_size"
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
-                android:tooltipText="Switch on if you use TD MySpend or CIBC notifications."/>
+                android:tooltipText="Switch on if you use TD MySpend, CIBC, or Alterna notifications."/>
 
             <LinearLayout
                 android:id="@+id/manage_translations_layout"
@@ -459,21 +459,6 @@
                 android:textStyle="bold"
                 android:textColor="?attr/textOnBackground"
                 android:tooltipText="Turn sound on/off." />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_quote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:textOff="@string/off"
-                android:textOn="@string/on"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp"
-                android:text="@string/show_quote_of_the_day"
-                android:textSize="@dimen/label_font_size"
-                android:textStyle="bold"
-                android:textColor="?attr/textOnBackground"
-                android:tooltipText="Turn home page quote-of-the-day on/off."/>
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_currency"

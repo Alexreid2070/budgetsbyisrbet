@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.isrbet.budgetsbyisrbet.databinding.FragmentCategoryBinding
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter
-import timber.log.Timber
 
 class CategoryFragment : Fragment() {
     private var _binding: FragmentCategoryBinding? = null

@@ -9,11 +9,12 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.getValue
 import timber.log.Timber
 import kotlin.collections.ArrayList
 import kotlin.math.round
 import kotlin.math.roundToInt
+import kotlin.math.truncate
 
 const val cSelectString = "<select>"
 
@@ -301,6 +302,8 @@ class TransactionViewModel : ViewModel() {
     val transactionsLiveData = MutableLiveData<MutableList<Transaction>>()
     private var loaded:Boolean = false
     val actualsSummary: MutableList<ActualRow> = mutableListOf()
+    val totals = Array(4) {DoubleArray(4) {0.0} }
+    val transferTotals = Array(4) {DoubleArray(4) {0.0} }
 
     companion object {
         lateinit var singleInstance: TransactionViewModel // used to track static single instance of self
@@ -918,6 +921,25 @@ class TransactionViewModel : ViewModel() {
             }
             return tmpTotal
         }
+        fun someoneOwesSomebody() : Boolean {
+            var oneOwesTwo = ((-singleInstance.totals[cFIRST_NAME][cSECOND_NAME])
+                    - (singleInstance.totals[cJOINT1_NAME][cSECOND_NAME])
+                    - (singleInstance.totals[cFIRST_NAME][cJOINT2_NAME])
+                    - (singleInstance.totals[cJOINT1_NAME][cJOINT2_NAME])
+                    + (singleInstance.totals[cSECOND_NAME][cFIRST_NAME])
+                    + (singleInstance.totals[cSECOND_NAME][cJOINT1_NAME])
+                    + (singleInstance.totals[cJOINT2_NAME][cFIRST_NAME])
+                    + (singleInstance.totals[cJOINT2_NAME][cJOINT1_NAME])
+                    - (singleInstance.transferTotals[cFIRST_NAME][cSECOND_NAME])
+                    + (singleInstance.transferTotals[cSECOND_NAME][cFIRST_NAME])
+                    - (singleInstance.transferTotals[cFIRST_NAME][cJOINT2_NAME])
+                    + (singleInstance.transferTotals[cSECOND_NAME][cJOINT1_NAME])
+                    + ((singleInstance.transferTotals[cJOINT1_NAME][cFIRST_NAME]) * SpenderViewModel.getSpenderSplit(1))
+                    - ((singleInstance.transferTotals[cJOINT1_NAME][cSECOND_NAME]) * SpenderViewModel.getSpenderSplit(0)))
+            oneOwesTwo = round(oneOwesTwo * 100.0)
+            Timber.tag("Alex").d("someoneowes ${oneOwesTwo.toInt() == 0} $oneOwesTwo")
+            return (oneOwesTwo.toInt() != 0)
+        }
     }
 
     init {
@@ -986,6 +1008,11 @@ class TransactionViewModel : ViewModel() {
         firstLoadListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 transactions.clear()
+                for (i in 0 until 4)
+                    for (j in 0 until 4) {
+                        totals[i][j] = 0.0
+                        transferTotals[i][j] = 0.0
+                    }
                 val credits: MutableList<Transaction> = mutableListOf()
                 for (element in dataSnapshot.children.toMutableList()) {
                     val transactionOut = element.getValue<TransactionOut>()
@@ -996,11 +1023,11 @@ class TransactionViewModel : ViewModel() {
                             credits.add(myTr)
                         } //else
 //                            myTr.creditSortOrder = 1
-                        if (myTr.bfname1split != 100)
+                        if (myTr.bfname1split != 100) {
                             gDidSecondPersonEverExist = true
+                        }
+                        addToTotalOwing(myTr)
                         transactions.add(myTr)
-                        if (myTr.tripTrackerCategory != TripExpenseType.UNKNOWN)
-                            Timber.tag("Alex").d("Loaded transaction $myTr")
                     }
                 }
                 for (creditTR in credits) {
@@ -1131,5 +1158,96 @@ class TransactionViewModel : ViewModel() {
                 }
             }
         }
+    }
+    var cnt = 0
+    fun addToTotalOwing(iTransaction: Transaction) {
+        cnt += 1
+        if (iTransaction.type == cTRANSACTION_TYPE_TRANSFER) {
+            when (iTransaction.boughtfor) {
+                0 -> transferTotals[cFIRST_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                    0,
+                    false
+                )
+                1 -> transferTotals[cSECOND_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                    1,
+                    false
+                )
+                2 -> {
+                    transferTotals[cJOINT1_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                        0,
+                        false
+                    )
+                    transferTotals[cJOINT2_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                        1,
+                        false
+                    )
+                }
+            }
+        } else {
+            when (iTransaction.boughtfor) {
+                0, 1 -> {
+                    if (iTransaction.paidby == 2) {
+                        totals[iTransaction.boughtfor][iTransaction.paidby] +=
+                            (iTransaction.getAmountByUser(
+                                iTransaction.boughtfor,
+                                false
+                            ) * SpenderViewModel.getSpenderSplit(0))
+                        totals[iTransaction.boughtfor][iTransaction.paidby + 1] +=
+                            (iTransaction.getAmountByUser(
+                                iTransaction.boughtfor,
+                                false
+                            ) * SpenderViewModel.getSpenderSplit(1))
+                    } else {
+                        totals[iTransaction.boughtfor][iTransaction.paidby] += iTransaction.getAmountByUser(
+                            iTransaction.boughtfor,
+                            false
+                        )
+                    }
+                }
+//                    1 -> totals[cSECOND_NAME][exp.paidby] += exp.getAmountByUser(1, false)
+                2 -> {
+                    if (iTransaction.paidby == 2) {
+                        totals[cJOINT1_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                            0,
+                            false
+                        ) * SpenderViewModel.getSpenderSplit(0)
+                        totals[cJOINT2_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                            1,
+                            false
+                        ) * SpenderViewModel.getSpenderSplit(0)
+                        totals[cJOINT1_NAME][iTransaction.paidby + 1] += iTransaction.getAmountByUser(
+                            0,
+                            false
+                        ) * SpenderViewModel.getSpenderSplit(1)
+                        totals[cJOINT2_NAME][iTransaction.paidby + 1] += iTransaction.getAmountByUser(
+                            1,
+                            false
+                        ) * SpenderViewModel.getSpenderSplit(1)
+                    } else {
+                        totals[cJOINT1_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                            0,
+                            false
+                        )
+                        totals[cJOINT2_NAME][iTransaction.paidby] += iTransaction.getAmountByUser(
+                            1,
+                            false
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun printTotals() {
+        for (i in 0 until 4)
+            for (j in 0 until 4)
+            {
+                Timber.tag("Alex").d("Totals[$i][$j] is ${totals[i][j]}")
+            }
+        for (i in 0 until 4)
+            for (j in 0 until 4)
+            {
+                Timber.tag("Alex").d("TransferTotals[$i][$j] is ${transferTotals[i][j]}")
+            }
     }
 }

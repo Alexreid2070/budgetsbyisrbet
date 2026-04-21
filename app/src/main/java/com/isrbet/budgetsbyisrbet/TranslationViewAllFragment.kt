@@ -8,6 +8,8 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.isrbet.budgetsbyisrbet.databinding.FragmentTranslationViewAllBinding
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 
 enum class TranslationSortOrder(val code: Int) {
     BEFORE_ASCENDING(1),
@@ -104,7 +106,7 @@ class TranslationViewAllFragment : Fragment() {
             (binding.translationListView.adapter as TranslationAdapter).notifyDataSetChanged()
         }
         binding.searchButton.setOnClickListener {
-            if (binding.translationSearch.visibility == View.GONE) {
+            if (binding.translationSearch.isGone) {
                 val searchView = binding.translationSearch
                 binding.translationSearch.visibility = View.VISIBLE
                 focusAndOpenSoftKeyboard(requireContext(), searchView)
@@ -129,7 +131,7 @@ class TranslationViewAllFragment : Fragment() {
         })
     }
     private fun closeSearch() {
-        if (binding.translationSearch.visibility == View.VISIBLE) {
+        if (binding.translationSearch.isVisible) {
             val adapter: TranslationAdapter =
                 binding.translationListView.adapter as TranslationAdapter
             binding.translationSearch.visibility = View.GONE

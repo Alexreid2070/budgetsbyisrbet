@@ -13,11 +13,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentHomeBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -174,16 +174,6 @@ class HomeFragment : Fragment(), CoroutineScope {
 
     private fun setupDataCallbacks() {
         val defaultObserver = Observer<Boolean> {
-            if (MyApplication.amCurrentlyImpersonating()) {
-                binding.quoteField.visibility = View.VISIBLE
-                binding.quoteField.text = String.format("%s %s",
-                    getString(R.string.currently_impersonating),
-                    MyApplication.currentUserEmail
-                )
-            } else if (DefaultsViewModel.getDefaultQuote()) {
-                binding.quoteField.visibility = View.VISIBLE
-                binding.quoteField.text = getQuote()
-            }
             alignPageWithDataState("DefaultViewModel")
         }
         DefaultsViewModel.observeDefaults(this, defaultObserver)
@@ -192,7 +182,6 @@ class HomeFragment : Fragment(), CoroutineScope {
         }
         CategoryViewModel.observeList(this, catListObserver)
         val spenderListObserver = Observer<MutableList<Spender>> {
-            (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
             alignPageWithDataState("SpenderViewModel")
         }
         SpenderViewModel.observeList(this, spenderListObserver)
@@ -201,6 +190,8 @@ class HomeFragment : Fragment(), CoroutineScope {
         }
         HintViewModel.observeList(this, hintListObserver)
         val transactionListObserver = Observer<MutableList<Transaction>> {
+            val showAccount = (TransactionViewModel.someoneOwesSomebody())
+            (activity as MainActivity).multipleUserMode(showAccount) //SpenderViewModel.multipleUsers())
             alignPageWithDataState("TransactionViewModel")
         }
         TransactionViewModel.observeList(this, transactionListObserver)
@@ -209,8 +200,8 @@ class HomeFragment : Fragment(), CoroutineScope {
         }
         BudgetViewModel.observeList(this, budListObserver)
         val spListObserver = Observer<MutableList<ScheduledPayment>> {
-            (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
-            alignPageWithDataState("SpenderViewModel")
+//            (activity as MainActivity).multipleUserMode(SpenderViewModel.multipleUsers())
+            alignPageWithDataState("SchedPaymentViewModel")
             setScheduledPaymentText()
         }
         ScheduledPaymentViewModel.observeList(this, spListObserver)
@@ -240,17 +231,7 @@ class HomeFragment : Fragment(), CoroutineScope {
         gHomePageExpansionAreaExpanded = false
     }
 
-    private fun getQuote(): String {
-        return if (MyApplication.amCurrentlyImpersonating())
-            "Currently impersonating " + MyApplication.currentUserEmail
-        else
-            MyApplication.getQuote()
-    }
-
     private fun startLoad() {
-        if (DefaultsViewModel.isLoaded() && DefaultsViewModel.getDefaultQuote()) {
-            binding.quoteField.text = getQuote()
-        }
         if (!MyApplication.haveLoadedDataForThisUser) {
             // check if I should load my own UID, or if I'm a JoinUser
             val joinListener = object : ValueEventListener {
@@ -297,11 +278,7 @@ class HomeFragment : Fragment(), CoroutineScope {
             HintViewModel.isLoaded() &&
             RetirementViewModel.isLoaded()
         ) {
-            Timber.tag("Alex").d("in big if")
             if (thisIsANewUser()) {
-                binding.quoteField.visibility = View.VISIBLE
-                binding.quoteField.text = getString(R.string.need_to_do_setup)
-//                binding.transactionAddFab.isEnabled = false
                 setupNewUser()
             } else {
                 (activity as MainActivity).setLoggedOutMode(false)
@@ -312,7 +289,6 @@ class HomeFragment : Fragment(), CoroutineScope {
                     childFragmentManager.findFragmentById(R.id.home_tracker_fragment) as TrackerFragment
                 trackerFragment.initCurrentBudgetMonth()
                 launch {
-                    Timber.tag("Alex").d("calling trackerFragment loadBarChart")
                     trackerFragment.loadBarChart()
                 }
                 HintViewModel.showHint(parentFragmentManager, cHINT_HOME)

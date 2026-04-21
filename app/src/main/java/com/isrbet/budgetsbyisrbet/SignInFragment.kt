@@ -24,8 +24,8 @@ import com.google.android.play.core.ktx.totalBytesToDownload
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 import com.isrbet.budgetsbyisrbet.databinding.FragmentSignInBinding
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -112,6 +112,8 @@ class SignInFragment2 : Fragment() {
             binding.signInButton.visibility = View.GONE
             if (account.email == "alexreid2070@gmail.com")
                 setAdminMode(true)
+            gVersionName = requireContext().packageManager.getPackageInfo(requireContext().packageName,0).versionName.toString()
+            gVersionCode = requireContext().packageManager.getPackageInfo(requireContext().packageName,0).longVersionCode.toString()
             checkForAppUpdate()
             findNavController().navigate(R.id.homeFragment)
         }
@@ -261,7 +263,7 @@ class LoginViewModel : ViewModel() {
 
                 // Set up Google ID option
                 val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(true)
+                    .setFilterByAuthorizedAccounts(false)
                     .setAutoSelectEnabled(true)
                     .setServerClientId(serverClientId)
                     .setNonce(hashedNonce)

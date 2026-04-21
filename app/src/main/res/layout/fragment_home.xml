@@ -158,17 +158,6 @@
                 android:textSize="@dimen/label_font_size"
                 android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/quote_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:fontFamily="cursive"
-                android:paddingStart="5dp"
-                android:paddingTop="20dp"
-                android:paddingEnd="5dp"
-                android:textSize="@dimen/page_header_font_size" />
-
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

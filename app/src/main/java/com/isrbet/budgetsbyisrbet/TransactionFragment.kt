@@ -179,7 +179,7 @@ class TransactionFragment : Fragment() {
             binding.splitText.text = getSplitText(binding.slider.value.toInt(), binding.transactionAmount.text.toString())
         }
         loadCategoryRadioButtons()
-        loadSpenderRadioButtons()
+        loadSpenderRadioButtons(true)
 
         binding.transactionAmount.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
@@ -549,6 +549,9 @@ class TransactionFragment : Fragment() {
             } else {
                 binding.scheduledPaymentLabel.visibility = View.INVISIBLE
             }
+//            if (thisTransaction.bfname1split != 100)
+            if (thisTransaction.paidby != 0 || thisTransaction.boughtfor != 0)
+                loadSpenderRadioButtons(false)
 
             for (i in 0 until binding.paidByRadioGroup.childCount) {
                 val o = binding.paidByRadioGroup.getChildAt(i)
@@ -566,6 +569,21 @@ class TransactionFragment : Fragment() {
                     }
                 }
             }
+
+            if (thisTransaction.bfname1split == 100 && SpenderViewModel.getActiveCount() == 1) {
+                binding.inputPaidByLabel.visibility = View.GONE
+                binding.paidByRadioGroup.visibility = View.GONE
+                binding.boughtForRadioGroup.visibility = View.GONE
+                binding.transactionExpandButton.visibility = View.GONE
+            } else {
+                if ((thisTransaction.boughtfor == 2 && binding.slider.value.toInt() !=
+                            (SpenderViewModel.getSpenderSplit(0)*100).toInt()) ||
+                    thisTransaction.paidby != thisTransaction.boughtfor) {
+                    setExpansionFields(View.VISIBLE)
+                } else
+                    setExpansionFields(View.GONE)
+            }
+
             binding.slider.value = thisTransaction.bfname1split.toFloat()
             binding.splitText.text = getSplitText(binding.slider.value.toInt(), binding.transactionAmount.text.toString())
 
@@ -595,6 +613,9 @@ class TransactionFragment : Fragment() {
             binding.inputPaidByLabel.text = getString(R.string.who)
             binding.inputPaidByLabel.tooltipText = getString(R.string.toolTipWhoInput)
         } else {
+            binding.transactionExpandButton.visibility = iView
+            binding.inputPaidByLabel.visibility = iView
+            binding.paidByRadioGroup.visibility = iView
             binding.transactionExpandButton.setImageResource(R.drawable.ic_baseline_expand_less_24)
             binding.inputPaidByLabel.text = getString(R.string.paid_by)
             binding.inputPaidByLabel.tooltipText = getString(R.string.toolTipPaidBy)
@@ -889,12 +910,13 @@ class TransactionFragment : Fragment() {
         _binding = null
     }
 
-    private fun loadSpenderRadioButtons() {
+    private fun loadSpenderRadioButtons(iOnlyActive: Boolean) {
         var ctr = 200
         val paidByRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.paidByRadioGroup)
         paidByRadioGroup?.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getActiveCount()) {
+        val numOfSpenders = if (iOnlyActive) SpenderViewModel.getActiveCount() else SpenderViewModel.getTotalCount()
+        for (i in 0 until numOfSpenders) {
             val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(
@@ -914,7 +936,7 @@ class TransactionFragment : Fragment() {
         val boughtForRadioGroup = requireActivity().findViewById<RadioGroup>(R.id.boughtForRadioGroup)
         boughtForRadioGroup?.removeAllViews()
 
-        for (i in 0 until SpenderViewModel.getActiveCount()) {
+        for (i in 0 until numOfSpenders) {
             val spender = SpenderViewModel.getSpender(i)
             val newRadioButton = RadioButton(requireContext())
             newRadioButton.layoutParams = LinearLayout.LayoutParams(

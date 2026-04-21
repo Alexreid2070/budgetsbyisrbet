@@ -12,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetViewAllBinding
-import timber.log.Timber
+import androidx.core.graphics.toColorInt
 
 class BudgetViewAllFragment : Fragment() {
     private var _binding: FragmentBudgetViewAllBinding? = null
@@ -166,7 +166,7 @@ class BudgetViewAllFragment : Fragment() {
         categorySpinner.adapter = arrayAdapter
         arrayAdapter.notifyDataSetChanged()
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.budgetCategorySpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.budgetCategorySpinner.setBackgroundColor(hexColor.toColorInt())
         binding.budgetCategorySpinner.setPopupBackgroundResource(R.drawable.spinner)
 
         if (args.categoryID != 0) {
@@ -273,7 +273,7 @@ class BudgetViewAllFragment : Fragment() {
                     ).show()
                 }
             }
-        if (rows.size == 0) {
+        if (rows.isEmpty()) {
             binding.noInformationText.visibility = View.VISIBLE
             binding.noInformationText.text = noDataText
 //            binding.budgetListView.visibility = View.GONE

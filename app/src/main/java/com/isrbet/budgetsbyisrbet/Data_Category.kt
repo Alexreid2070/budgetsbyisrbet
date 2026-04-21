@@ -388,7 +388,6 @@ class CategoryViewModel : ViewModel() {
                                 "tripfinishdate" -> tripFinishDate = child.value.toString().lowercase().trim()
                             }
                         }
-                        Timber.tag("Alex").d("created new category ID $categoryID $category $subcategory $tripTracker $tripStartDate $tripFinishDate")
                         categories.add(Category(categoryID, category, subcategory, disctype,
                             private, inUse != cFALSE, tripTracker == cTRUE,
                             MyDate(tripStartDate), MyDate(tripFinishDate)))

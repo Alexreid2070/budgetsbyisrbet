@@ -143,7 +143,7 @@ class BudgetAdapter (context: Context, data: MutableList<BudgetInputRow>): BaseA
         var j = 0 // number of transaction within specific date
 
         for (i in 0 until myData.size) {
-            if (tGroupList.size == 0) {
+            if (tGroupList.isEmpty()) {
                 tGroupList.add(c, j)
                 c++
                 j++

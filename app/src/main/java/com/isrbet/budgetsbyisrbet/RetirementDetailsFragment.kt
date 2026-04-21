@@ -471,7 +471,7 @@ class RetirementDetailsFragment : Fragment() {
     private fun saveFile2(iFileName: String) {
         val scopes = listOf(SheetsScopes.SPREADSHEETS)
         val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
-        credential.selectedAccount = Account(MyApplication.userEmail, BuildConfig.APPLICATION_ID)
+        credential.selectedAccount = Account(MyApplication.userEmail, "com.google") //BuildConfig.APPLICATION_ID)
 
         val jsonFactory = JacksonFactory.getDefaultInstance()
         // GoogleNetHttpTransport.newTrustedTransport()

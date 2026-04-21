@@ -56,7 +56,7 @@ class UserAdapter (context: Context, data: MutableList<AppUser>): BaseAdapter() 
                 viewHolder.vhPrimary.text = String.format(MyApplication.getString(R.string.coloned),
                     MyApplication.getString(R.string.secondary), "")
                 viewHolder.vhSecondary.text = rtData.secondary
-            } else {  // this user is the seconary
+            } else {  // this user is the secondary
                 viewHolder.vhPrimary.text = String.format(MyApplication.getString(R.string.coloned),
                     MyApplication.getString(R.string.primary), "")
                 viewHolder.vhSecondary.text = AppUserViewModel.getPrimaryEmail(rtData.primary)

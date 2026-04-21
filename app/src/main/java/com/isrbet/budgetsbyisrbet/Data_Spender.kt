@@ -82,9 +82,6 @@ class SpenderViewModel : ViewModel() {
                 else -> 2
             }
         }
-/*        fun getDefaultSpender(): Int {
-            return DefaultsViewModel.getDefaultSpender()
-        } */
         fun getDefaultSpenderName() : String {
             val ind = DefaultsViewModel.getDefaultSpender()
             return getSpenderName(ind)
@@ -130,7 +127,6 @@ class SpenderViewModel : ViewModel() {
             } else
                 0
         }
-
         fun multipleUsers(): Boolean {
             return (getActiveCount() > 1)
         }
@@ -241,6 +237,8 @@ class SpenderViewModel : ViewModel() {
                 }
                 if (getActiveCount() > 1)
                     spenders.add(Spender("Joint", "", 100, 1))
+                else if (spenders.count() > 1)
+                    spenders.add(Spender("Joint", "", 0, 0))
                 val spender0 = getSpender(0)
                 if (spender0 != null && spender0.email == MyApplication.userEmail)
                     MyApplication.userIndex = 0

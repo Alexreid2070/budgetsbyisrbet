@@ -15,11 +15,11 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentDashboardBinding
-import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 import kotlin.math.abs
+import androidx.core.view.isGone
 
 private const val cMAX_DASHBOARD_LABEL_LENGTH = 32
 
@@ -328,7 +328,7 @@ class DashboardFragment : Fragment() {
                 cSUBTOTAL -> {
                     tv1.text = String.format("$iCategory ${getString(R.string.total)}")
                     tv1.setCompoundDrawablesWithIntrinsicBounds(
-                        R.drawable.ic_baseline_expand_less_24, 0, 0, 0);
+                        R.drawable.ic_baseline_expand_less_24, 0, 0, 0)
                 }
                 else -> tv1.text = iCategory
             }
@@ -702,7 +702,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun onExpandClicked(layout: LinearLayout) {
-        if (layout.visibility == View.GONE) { // ie expand the section
+        if (layout.isGone) { // ie expand the section
             // first hide all other possible expansions
             resetLayout(binding.navButtonLinearLayout)
             resetLayout(binding.optionsLinearLayout)

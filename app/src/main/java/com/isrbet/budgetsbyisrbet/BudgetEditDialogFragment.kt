@@ -14,7 +14,7 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentBudgetEditDialogBinding
-import java.util.*
+import androidx.core.graphics.toColorInt
 
 class BudgetEditDialogFragment : DialogFragment() {
     private var _binding: FragmentBudgetEditDialogBinding? = null
@@ -126,7 +126,7 @@ class BudgetEditDialogFragment : DialogFragment() {
         pSpinner.adapter = arrayAdapter
         pSpinner.setSelection(arrayAdapter.getPosition(oldPeriod))
         val hexColor = getColorInHex(MaterialColors.getColor(requireContext(), R.attr.editTextBackground, Color.BLACK), cOpacity)
-        binding.periodSpinner.setBackgroundColor(Color.parseColor(hexColor))
+        binding.periodSpinner.setBackgroundColor(hexColor.toColorInt())
         binding.periodSpinner.setPopupBackgroundResource(R.drawable.spinner)
         binding.regularity.setText(oldRegularity.toString())
         if (currentMode == cMODE_VIEW) {
@@ -181,15 +181,15 @@ class BudgetEditDialogFragment : DialogFragment() {
             }
 
         binding.startDate.setOnClickListener {
-            var lcal = MyDate()
+            var currentDate = MyDate()
             if (binding.startDate.text.toString() != "") {
-                lcal = MyDate(binding.startDate.text.toString())
+                currentDate = MyDate(binding.startDate.text.toString())
             }
             DatePickerDialog(
                 requireContext(), dateSetListener,
-                lcal.getYear(),
-                lcal.getMonth()-1,
-                lcal.getDay()
+                currentDate.getYear(),
+                currentDate.getMonth()-1,
+                currentDate.getDay()
             ).show()
         }
         binding.periodSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {

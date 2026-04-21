@@ -17,7 +17,6 @@ import com.google.android.material.color.MaterialColors
 import com.isrbet.budgetsbyisrbet.databinding.FragmentYearOverYearBinding
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import timber.log.Timber
 import java.util.*
 
 private const val cMAX_YOY_LABEL_LENGTH = 30
@@ -33,7 +32,7 @@ enum class YoyView(val code: Int) {
     BUDGET(3),
     DELTA(4);
     companion object {
-        fun getByValue(value: Int) = values().firstOrNull { it.code == value }
+        fun getByValue(value: Int) = entries.firstOrNull { it.code == value }
     }
 }
 

@@ -67,8 +67,8 @@ class AccountingFragment : Fragment() {
     }
 
     private fun fillInContent() {
-        val totals = Array(4) {DoubleArray(4) {0.0} }
-        val transferTotals = Array(4) {DoubleArray(4) {0.0} }
+        val totals = Array(4) {DoubleArray(4) }
+        val transferTotals = Array(4) {DoubleArray(4) }
         val firstName = SpenderViewModel.getSpender(0)?.name.toString()
         val secondName = SpenderViewModel.getSpender(1)?.name.toString()
 

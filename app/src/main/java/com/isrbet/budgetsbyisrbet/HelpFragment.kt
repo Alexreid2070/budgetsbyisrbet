@@ -18,8 +18,8 @@ class HelpFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentHelpBinding.inflate(inflater, container, false)
-        binding.helpVersionName.text = BuildConfig.VERSION_NAME
-        binding.helpVersionCode.text = BuildConfig.VERSION_CODE.toString()
+        binding.helpVersionName.text = gVersionName // requireContext().packageManager.getPackageInfo(requireContext().packageName,0).versionName
+        binding.helpVersionCode.text = gVersionCode // requireContext().packageManager.getPackageInfo(requireContext().packageName,0).longVersionCode.toString()
         inflater.inflate(R.layout.fragment_help, container, false)
         return binding.root
     }

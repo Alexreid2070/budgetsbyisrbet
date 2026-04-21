@@ -28,7 +28,10 @@ class CustomNotificationListenerService : NotificationListenerService() {
                     val notificationText = notification.extras.getCharSequence("android.text").toString()
 
                     if (sbn.packageName == "com.td.myspend" ||
-                            sbn.packageName == "com.cibc.android.mobi") {
+                        sbn.packageName == "com.cibc.android.mobi" ||
+                        (sbn.packageName == "com.google.android.apps.messaging" &&
+                                notificationText.length > 7 &&
+                                notificationText.substring(0,7) == "Alterna")) {
                         tCount++
                     }
                 }
@@ -44,15 +47,20 @@ class CustomNotificationListenerService : NotificationListenerService() {
 
             for (count in 0 until singleInstance.activeNotifications.size) {
                 val sbn = singleInstance.activeNotifications[count]
+                val notification = sbn.notification
+                val notificationText = notification.extras.getCharSequence("android.text").toString()
                 if (sbn.packageName == "com.td.myspend" ||
-                    sbn.packageName == "com.cibc.android.mobi") {
-                    val notification = sbn.notification
-                    val notificationText = notification.extras.getCharSequence("android.text").toString()
+                    sbn.packageName == "com.cibc.android.mobi" ||
+                    (sbn.packageName == "com.google.android.apps.messaging" &&
+                            notificationText.length > 7 &&
+                            notificationText.substring(0,7) == "Alterna")) {
                     if (notificationText != "null" && notificationText != "") {  // this can happen when the TD notifications are grouped
                         val notif = if (sbn.packageName == "com.td.myspend")
                             decipherTDMySpendNotification(notificationText)
                         else if (sbn.packageName == "com.cibc.android.mobi")
                             decipherCIBCNotification(notificationText)
+                        else if (sbn.packageName == "com.google.android.apps.messaging")
+                            decipherAlternaNotification(notificationText)
                         else
                             null
                         if (notif != null)
@@ -216,4 +224,41 @@ fun decipherCIBCNotification (notificationText: String) : BankTransactionData? {
         return null
     }
     return BankTransactionData(tAmount, tNote.trim(), tCategory)
+}
+
+fun decipherAlternaNotification (notificationText: String) : BankTransactionData? {
+    var tCategory = "Alterna"
+    var tAmount = 0.0
+    var tNote = ""
+    var currencySymbol : Int
+    var onText : Int
+    var fromText : Int
+    var endOfFromText : Int
+    var textAmount : String
+    var noteText : String
+
+    val timeNow = LocalTime.now()
+    val key = "%04d-%02d-%02d-%02d-%02d-%02d".format(gCurrentDate.getYear(),
+        gCurrentDate.getMonth(),
+        gCurrentDate.getDay(),
+        timeNow.hour,
+        timeNow.minute,
+        timeNow.second)
+
+    try {
+        currencySymbol = notificationText.indexOf("$", 0)
+        onText = notificationText.indexOf(" on ", currencySymbol+1)
+        fromText = notificationText.indexOf(" at ", onText+1)
+        endOfFromText = notificationText.indexOf(",", fromText+1)
+        textAmount = notificationText.substring(currencySymbol+1, onText).trim()
+        textAmount = textAmount.replace(",", "")
+        tAmount = textAmount.toDoubleOrNull()!!
+        noteText = notificationText.substring(fromText+4, endOfFromText).trim()
+    }
+    catch (exception: Exception) {
+        MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Alterna_Failure")
+            .child(key).setValue(notificationText)
+        return null
+    }
+    return BankTransactionData(tAmount, noteText.trim(), tCategory)
 }

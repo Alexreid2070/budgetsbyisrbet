@@ -18,6 +18,7 @@ import com.google.android.material.color.MaterialColors
 import com.l4digital.fastscroll.FastScroller
 import java.math.BigDecimal
 import java.math.RoundingMode
+import androidx.core.graphics.toColorInt
 
 class TransactionRecyclerAdapter(
     private val context: Context, private var list: MutableList<Transaction>,
@@ -218,7 +219,7 @@ class TransactionRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (filteredList.size == 0 || groupList.size == 0)
+        if (filteredList.isEmpty() || groupList.isEmpty())
             return
 
         val data = filteredList[position]
@@ -338,7 +339,7 @@ class TransactionRecyclerAdapter(
                 holder.vtfdate.paint.isUnderlineText = true
                 holder.vtfdate.setTypeface(null, Typeface.BOLD)
                 val hexColor = getColorInHex(MaterialColors.getColor(context, R.attr.colorSecondary, Color.BLACK), cOpacity)
-                holder.vtfdate.setBackgroundColor(Color.parseColor(hexColor))
+                holder.vtfdate.setBackgroundColor(hexColor.toColorInt())
             } else if (groupList[position] == -10) { // ie first transaction for this month
                 holder.vtfdate.isVisible = true
                 holder.vtfdate.paint.isUnderlineText = true
@@ -354,8 +355,8 @@ class TransactionRecyclerAdapter(
         else if (position < runningTotalList.size)
             holder.vtfrunningtotal.text = gDecWithCurrency((runningTotalList[position] * 100).toInt() / 100.0)
 
-        holder.vtfdetailsLayout.setBackgroundColor(Color.parseColor(backgroundColour))
-        holder.vtfamount.setBackgroundColor(Color.parseColor(backgroundColour))
+        holder.vtfdetailsLayout.setBackgroundColor(backgroundColour.toColorInt())
+        holder.vtfamount.setBackgroundColor(backgroundColour.toColorInt())
         holder.vtfamount.setTypeface(null, Typeface.NORMAL)
         holder.vtfwho.setTypeface(null, Typeface.NORMAL)
         holder.vtftripCategory.setTypeface(null, Typeface.NORMAL)
@@ -523,7 +524,7 @@ class TransactionRecyclerAdapter(
   //                  previousRunningTotal += filteredList[i].getAOwesBInsuranceAmount()
                 trunningTotalList.add(previousRunningTotal)
             }
-            if (tgroupList.size == 0) {
+            if (tgroupList.isEmpty()) {
                 tgroupList.add(c, -100)
                 c++
                 j++

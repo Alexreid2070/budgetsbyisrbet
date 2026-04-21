@@ -16,7 +16,6 @@ const val cDEFAULT_SPENDER = "Spender"
 const val cDEFAULT_SHOWRED = "ShowRed"
 const val cDEFAULT_INTEGRATEWITHTDSPEND = "IntegrateWithTDSpend"
 const val cDEFAULT_SOUND = "Sound"
-const val cDEFAULT_QUOTE = "Quote"
 const val cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL = "ShowIndividualAmountsinViewAll"
 const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL = "ShowWhoinViewAll"
 const val cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL = "ShowCategoryinViewAll"
@@ -54,7 +53,6 @@ const val cDEFAULT_SPENDER_VALUE = -1
 const val cDEFAULT_SHOW_RED_VALUE = 5
 const val cDEFAULT_INTEGRATE_WITH_TDSPEND_VALUE = false
 const val cDEFAULT_SOUND_VALUE = true
-const val cDEFAULT_QUOTE_VALUE = true
 const val cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE = false
 const val cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE = true
 const val cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE = true
@@ -95,7 +93,6 @@ class DefaultsViewModel : ViewModel() {
     var defaultShowRed: Int = cDEFAULT_SHOW_RED_VALUE
     var defaultIntegrateWithTDSpend: Boolean = cDEFAULT_INTEGRATE_WITH_TDSPEND_VALUE
     var defaultSound: Boolean = cDEFAULT_SOUND_VALUE
-    var defaultQuote: Boolean = cDEFAULT_QUOTE_VALUE
     var defaultShowIndividualAmountsInViewAll: Boolean = cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE
     var defaultShowWhoInViewAll: Boolean = cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE
     var defaultShowCategoryInViewAll: Boolean = cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE
@@ -162,9 +159,6 @@ class DefaultsViewModel : ViewModel() {
         }
         fun getDefaultSound(): Boolean {
             return singleInstance.defaultSound
-        }
-        fun getDefaultQuote(): Boolean {
-            return singleInstance.defaultQuote
         }
         fun getDefaultShowIndividualAmountsInViewAll(): Boolean {
             return singleInstance.defaultShowIndividualAmountsInViewAll
@@ -264,11 +258,13 @@ class DefaultsViewModel : ViewModel() {
                 .child(SpenderViewModel.myIndex().toString())
                 .child(whichOne).setValue(iValue)
         }
-        fun updateDefaultInt(whichOne: String, iValue: Int) {
+        fun updateDefaultInt(whichOne: String, iValue: Int, iLocalOnly: Boolean = false) {
             singleInstance.setLocalInt(whichOne, iValue)
-            MyApplication.database.getReference("Users/"+MyApplication.userUID+"/Defaults")
-                .child(SpenderViewModel.myIndex().toString())
-                .child(whichOne).setValue(iValue)
+            if (!iLocalOnly) {
+                MyApplication.database.getReference("Users/" + MyApplication.userUID + "/Defaults")
+                    .child(SpenderViewModel.myIndex().toString())
+                    .child(whichOne).setValue(iValue)
+            }
         }
         fun updateDefaultBoolean(whichOne: String, iValue: Boolean) {
             singleInstance.setLocalBoolean(whichOne, iValue)
@@ -295,7 +291,6 @@ class DefaultsViewModel : ViewModel() {
             singleInstance.defaultShowRed = cDEFAULT_SHOW_RED_VALUE
             singleInstance.defaultIntegrateWithTDSpend = cDEFAULT_INTEGRATE_WITH_TDSPEND_VALUE
             singleInstance.defaultSound = cDEFAULT_SOUND_VALUE
-            singleInstance.defaultQuote = cDEFAULT_QUOTE_VALUE
             singleInstance.defaultShowIndividualAmountsInViewAll = cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowWhoInViewAll = cDEFAULT_SHOW_WHO_IN_VIEW_ALL_VALUE
             singleInstance.defaultShowCategoryInViewAll = cDEFAULT_SHOW_CATEGORY_IN_VIEW_ALL_VALUE
@@ -537,9 +532,6 @@ class DefaultsViewModel : ViewModel() {
             cDEFAULT_SOUND -> {
                 singleInstance.defaultSound = iValue
             }
-            cDEFAULT_QUOTE -> {
-                singleInstance.defaultQuote = iValue
-            }
             cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> {
                 singleInstance.defaultShowIndividualAmountsInViewAll = iValue
             }
@@ -648,9 +640,6 @@ class DefaultsViewModel : ViewModel() {
             }
             cDEFAULT_SOUND -> {
                 singleInstance.defaultSound = (iValue == cTRUE)
-            }
-            cDEFAULT_QUOTE -> {
-                singleInstance.defaultQuote = (iValue == cTRUE)
             }
             cDEFAULT_SHOW_INDIVIDUAL_AMOUNTS_IN_VIEW_ALL -> {
                 singleInstance.defaultShowIndividualAmountsInViewAll = (iValue == cTRUE)
